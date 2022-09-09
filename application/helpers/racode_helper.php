@@ -21,3 +21,13 @@ function is_login()
         return false;
     }
 }
+function is_gudang_sr()
+{
+    $ci = get_instance();
+    $level = $ci->session->userdata('level');
+    if ($level['id'] == 7) {
+        return true;
+    } else {
+        return false;
+    }
+}

@@ -90,58 +90,54 @@
     <nav class="sidenav shadow-right sidenav-light">
         <div class="sidenav-menu">
             <div class="nav accordion text-capitalize" id="accordionSidenav">
-                <!-- Ini adalah halaman menu -->
-                <ul>
-                    <li class="sidenav-menu-heading">Core</li>
-                    <li class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseMasters">
-                        <div class="nav-link-wrapper">
-                            <div class="nav-link-icon float-start"><i data-feather="activity"></i></div>
-                            <span class="nav-link-text">Masters</span>
-                            <div class="sidenav-collapse-arrow float-end me-3"><i class="fas fa-angle-down"></i></div>
-                        </div>
-                        <ul class="sidenav-menu-nested nav accordion">
-                            <a class="nav-link" href="http://localhost/hr-quiz/management/Master/navigationMenu">Navigation Menu</a>
-                            <a class="nav-link" href="http://localhost/hr-quiz/management/Master/employee">Menu</a>
-                            <a class="nav-link" href="#!">Default</a>
-                            <li class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseMasters">
-                                <div class="nav-link-wrapper">
-                                    <span class="nav-link-text">Masters 2</span>
-                                    <div class="sidenav-collapse-arrow float-end me-3"><i class="fas fa-angle-down"></i></div>
-                                </div>
-                                <ul class="sidenav-menu-nested nav accordion">
-                                    <a class="nav-link" href="http://localhost/hr-quiz/management/Master/scheduleTest">Jadwal Test</a>
-                                    <a class="nav-link" href="#!">Default</a>
-                                    <a class="nav-link" href="#!">Default</a>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="sidenav-menu-heading">Core</li>
-                    <li class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseMasters">
-                        <div class="nav-link-wrapper">
-                            <div class="nav-link-icon float-start"><i data-feather="activity"></i></div>
-                            <span class="nav-link-text">Masters</span>
-                            <div class="sidenav-collapse-arrow float-end me-3"><i class="fas fa-angle-down"></i></div>
-                        </div>
-                        <ul class="sidenav-menu-nested nav accordion">
-                            <a class="nav-link" href="#!">Navigation Menu</a>
-                            <a class="nav-link" href="http://localhost/hr-quiz/management/Master/employee">Menu</a>
-                            <a class="nav-link" href="#!">Default</a>
-                            <li class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseMasters">
-                                <div class="nav-link-wrapper">
-                                    <span class="nav-link-text">Masters 2</span>
-                                    <div class="sidenav-collapse-arrow float-end me-3"><i class="fas fa-angle-down"></i></div>
-                                </div>
-                                <ul class="sidenav-menu-nested nav accordion">
-                                    <a class="nav-link" href="http://localhost/hr-quiz/management/Master/scheduleTest">Jadwal Test</a>
-                                    <a class="nav-link" href="#!">Default</a>
-                                    <a class="nav-link" href="#!">Default</a>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                <div class="sidenav-menu-heading">Main Menu</div>
+                <a class="nav-link" href="<?= base_url(); ?>">
+                    <div class="nav-link-icon"><i class="fa fa-home"></i></div>
+                    Beranda
+                </a>
+                <!-- Sidenav Accordion Warehouse-->
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
+                    <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
+                    Warehouse
+                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                </a>
+                <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                        <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
+                        <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a>
+                        <a class="nav-link" href="<?= base_url(); ?>warehouse/history">History</a>
+                    </nav>
+                </div>
+                <!-- Sidenav Accordion Order-->
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards2" aria-expanded="true" aria-controls="collapseDashboards2">
+                    <div class="nav-link-icon"><i class="fa fa-truck"></i></div>
+                    Order
+                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                </a>
+                <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
+                        <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Purchase Order</a>
+                        <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
+                        <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
+                        <a class="nav-link" href="<?= base_url(); ?>order/history">History</a>
+                    </nav>
+                </div>
+                <!-- Sidenav Accordion Master-->
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards3" aria-expanded="true" aria-controls="collapseDashboards3">
+                    <div class="nav-link-icon"><i class="fa fa-file"></i></div>
+                    Master
+                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                </a>
+                <div class="collapse show" id="collapseDashboards3" data-bs-parent="#accordionSidenav3">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav3Pages">
+                        <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Items</a>
+                        <a class="nav-link" href="<?= base_url(); ?>order/transaction">Supplier</a>
+                    </nav>
+                </div>
+                <a class="nav-link" href="<?= base_url(); ?>report">
+                    <div class="nav-link-icon"><i class="fa fa-book"></i></div>
+                    Report
+                </a>
             </div>
         </div>
         <!-- Sidenav Footer-->
@@ -155,4 +151,122 @@
 </div>
 
 <script type="text/javascript">
+    // $(document).ready(loadMenu);
+
+    // function loadActiveMenu() {
+    //     var url = window.location.href;
+    //     $('.nav-link').find('a').each(function() {
+    //         var anchor = $(this).attr('href')
+    //         if (anchor == url) {
+    //             $(this).parents().children('li.nav-link div.nav-link-wrapper').addClass('active');
+    //             $(this).addClass('active');
+    //             $(this).parents().closest('li.nav-link').removeClass('collapsed');
+    //         }
+    //     });
+
+    //     setupBreadcrumb();
+    // }
+
+    // function clearSidenav() {
+    //     $('#accordionSidenav').html('');
+    // }
+
+    // function loadMenu() {
+    //     clearSidenav();
+
+    //     var restURL = api_assesment_url + "getMenu";
+
+    //     $.ajax({
+    //         type: "GET",
+    //         url: restURL,
+    //         headers: {
+    //             'Authorization': authKey
+    //         },
+    //         data: {
+    //             userId: 1,
+    //             isActive: [1]
+    //         },
+    //         error: function(xhr, status, error) {
+    //             var myErrText = error ? error : "Tidak Terhubung ke Server"
+    //             toast('error', 'Kode ' + xhr.status + ' - ' + myErrText);
+    //         },
+    //         success: function(data) {
+    //             data = JSON.parse(data['data']);
+    //             console.log(data);
+    //             menu(document.getElementById("accordionSidenav"), data);
+    //             feather.replace();
+    //         }
+    //     }).done(function() {
+    //         loadActiveMenu();
+    //     })
+
+    //     return false;
+    // }
+
+    // var html = '';
+
+    // function menu(container, menu) {
+    //     if (!menu || !menu.length) return;
+    //     const ul = document.createElement("ul");
+    //     for (const {
+    //             id,
+    //             parent_id,
+    //             icon,
+    //             url,
+    //             category,
+    //             title,
+    //             submenu
+    //         } of menu) {
+
+    //         const li = document.createElement("li");
+    //         if (submenu) {
+    //             if (category == "HEADER") {
+    //                 li.textContent = title;
+    //                 li.className = "sidenav-menu-heading";
+    //             } else {
+    //                 if (category == "DROPDOWN MENU" && parent_id == 0) {
+    //                     li.className = "nav-link collapsed";
+    //                     li.innerHTML = '<div class="nav-link-wrapper" onclick="toggleDropdown(this)"><div class="nav-link-icon float-start"><i data-feather="' + icon + '"></i></div><span class="nav-link-text">' + title + '</span><div class="sidenav-collapse-arrow float-end me-3"><i class="fas fa-angle-down"></i></div></div>';
+
+    //                     li.addEventListener("click", (e) => {
+    //                         if (e.target !== e.currentTarget) return;
+    //                         // e.target.classList.toggle("expanded");
+    //                         e.target.classList.toggle("collapsed");
+    //                     });
+    //                 } else if (category == "DROPDOWN MENU" && parent_id != 0) {
+    //                     ul.className = "sidenav-menu-nested nav accordion";
+    //                     li.className = "nav-link collapsed nav-sub";
+    //                     li.innerHTML = '<div class="nav-link-wrapper" onclick="toggleDropdown(this)"><span class="nav-link-text">' + title + '</span><div class="sidenav-collapse-arrow float-end me-3"><i class="fas fa-angle-down"></i></div></div>';
+
+    //                     li.addEventListener("click", (e) => {
+    //                         if (e.target !== e.currentTarget) return;
+    //                         // e.target.classList.toggle("expanded");
+    //                         e.target.classList.toggle("collapsed");
+    //                     });
+    //                 } else if (category == "SUB MENU") {
+    //                     ul.className = "sidenav-menu-nested nav accordion";
+    //                     // li.className = "nav-link";
+    //                     li.innerHTML = '<a class="nav-link nav-sub" href="' + url + '"><span class="nav-link-text">' + title + '</span></a>';
+    //                 } else if (category == "SINGLE MENU") {
+    //                     li.className = "nav-link";
+    //                     li.innerHTML = '<div class="nav-link-wrapper"><div class="nav-link-icon float-start"><i data-feather="' + icon + '"></i></div><span class="nav-link-text">' + title + '</span></div>';
+    //                 } else {
+    //                     // li.className = "nav-link";
+    //                     if (parent_id != 0) {
+    //                         li.innerHTML = '<a class="nav-link nav-sub" href="' + url + '"><span class="nav-link-text">' + title + '</span></a>';
+    //                     } else {
+    //                         li.innerHTML = '<a class="nav-link" href="' + url + '"><span class="nav-link-text">' + title + '</span></a>';
+    //                     }
+    //                 }
+    //             }
+    //             this.menu(li, submenu);
+    //         }
+    //         ul.appendChild(li);
+    //     }
+    //     container.appendChild(ul);
+    // }
+
+    // function toggleDropdown(state) {
+    //     $(state).closest('.nav-link').toggleClass('collapsed');
+    // }
 </script>

@@ -15,15 +15,17 @@
     }
 </style>
 <main>
+    <!-- Main page content-->
     <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
-                            <div class="page-header-icon"><i data-feather="users"></i></div>
-                            Participant
+                            <div class="page-header-icon"><i class="fa fa-cubes"></i></div>
+                            Cek Gudang
                         </h1>
+                        <!-- <div class="page-header-subtitle">Halaman ini berisi tentang kumpulan-kumpulan soal yang bersifat <span class="fw-bold">Sangat Rahasia</span>.</div> -->
                     </div>
                 </div>
             </div>
@@ -31,8 +33,60 @@
     </header>
     <!-- Main page content-->
     <div class="container-xl px-4 mt-n10">
+        <div class="row">
+            <div class="col-lg-6 col-xl-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-3">
+                                <div class="small">Quiz</div>
+                                <div class="text-lg fw-bold" id="jumlah_quiz"></div>
+                            </div>
+                            <i class="feather-xl" data-feather="clipboard"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between small">
+                        <a class=" stretched-link" href="<?= base_url() ?>Question/Quiz">Lihat Quiz</a>
+                        <div class=""><i class="fas fa-angle-right"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-3">
+                                <div class="small">Jumlah Soal</div>
+                                <div class="text-lg fw-bold" id="jumlah_soal">-</div>
+                            </div>
+                            <i class="feather-xl" data-feather="book"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between small">
+                        <a class=" stretched-link" href="<?= base_url() ?>Question/Soal">Lihat Semua Soal</a>
+                        <div class=""><i class="fas fa-angle-right"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-xl-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row h-100">
+                            <div class="col-6 text-center align-self-center">
+                                <div class="text-md fw-bold mb-3">Tambah Baru Soal dari Quiz</div>
+                                <button class="btn btn-outline-primary btn-sm" id="btnTambahBankSoal"><i data-feather="plus"></i>&nbsp;&nbsp;Soal Quiz Baru</button>
+                            </div>
+                            <div class="col-6 border-start text-center align-self-center">
+                                <div class="text-md fw-bold mb-3">Tambah Partisipan</div>
+                                <button class="btn btn-outline-primary btn-sm" id="btnPartisipant"><i data-feather="users"></i>&nbsp;&nbsp;Partisipant</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card card-header-actions">
-            <div class="card-header">Managemen Partisipan <button class="btn btn-primary btn-sm" id="btnTambahParticipant"><i data-feather="plus"></i>Tambah Partisipant</button></div>
+            <div class="card-header">Bank Soal</div>
             <div class="card-body" id="listQuiz">
 
 
@@ -57,19 +111,8 @@
     </div>
 </div>
 <?php $this->load->view('components/modal_static') ?>
-<script>
-    $(document).ready(function() {
-        if (sessionStorage.getItem('user_id') == undefined) {
-            // var url = '<?= base_url('auth') ?>'
-            // window.location.href = url
-        }
-    })
-</script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
-    var id_divisi = sessionStorage.getItem('division_id')
-    var id_user = sessionStorage.getItem('user_id')
-
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -97,8 +140,6 @@
             }
         });
     }
-
-
 
     function tampilQuizParticipant(data) {
         var html = ""

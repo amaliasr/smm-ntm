@@ -1,1 +1,1 @@
-<title>PT Berca Kawan Sejati</title>
+<title>PT Sinar Mahkota Mas</title>
