@@ -11,23 +11,13 @@ function api_url($param)
     $url = 'http://192.168.10.199/api/office/' . $param;
     return $url;
 }
-
-function api_fa($param)
+function is_login()
 {
-    $url = 'http://192.168.10.116/api.mk/' . $param;
-    // $url = 'http://localhost/api/mk/' . $param;
-    return $url;
-}
-
-function api_mk($param)
-{
-    // $url = 'http://192.168.10.116/api.fa/' . $param;
-    $url = 'http://192.168.10.116/api.mk/' . $param;
-    return $url;
-}
-function api_hrd($param)
-{
-    // $url = 'http://192.168.10.116/api.fa/' . $param;
-    $url = 'http://192.168.10.116/api.hrd/' . $param;
-    return $url;
+    $ci = get_instance();
+    $login = $ci->session->userdata('logged_in');
+    if ($login == 1) {
+        return true;
+    } else {
+        return false;
+    }
 }

@@ -58,7 +58,7 @@ $autoload['packages'] = array();
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('template', 'Curl');
+$autoload['libraries'] = array('template', 'Curl', 'session');
 
 /*
 | -------------------------------------------------------------------

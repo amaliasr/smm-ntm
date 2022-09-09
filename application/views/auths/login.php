@@ -5,7 +5,7 @@
                 <!-- Basic login form-->
                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                     <div class="card-header justify-content-center">
-                        <h3 class="fw-medium my-4 text-center">Manajemen HR Quiz</h3>
+                        <h3 class="fw-medium my-4 text-center">PT. SINAR MAHKOTA MAS</h3>
                     </div>
                     <div class="card-body">
                         <!-- Login form-->
@@ -39,52 +39,60 @@
     </div>
 </main>
 <script>
+    var email, password;
     $(document).on('click', '#btnLogin', function(e) {
-        var email = $('#inputEmailAddress').val()
-        var password = $('#inputPassword').val()
+        email = $('#inputEmailAddress').val()
+        password = $('#inputPassword').val()
+        auth(email, password);
+    })
+
+    const auth = (email, password) => {
+        var restURL = api_assesment_url + "Api_Employee/loginUser";
         $.ajax({
-            url: '<?php echo api_hrd('MasterHr/loginUser'); ?>',
-            type: 'POST',
+            url: restURL,
+            method: "POST",
             data: {
                 username: email,
-                password: password,
+                password: md5(password)
             },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
-                $('#btnLogin').prop("disabled", false);
-            },
+            dataType: 'JSON',
             beforeSend: function() {
-                $('#btnLogin').prop("disabled", true);
+                $('#btn-login').html('<i class="fas fa-spinner fa-spin"></i>').attr('disabled', true);
             },
             success: function(response) {
-                if (response.logged == true) {
-                    $('#btnLogin').prop("disabled", false);
-                    var data = response['data'][0]
-                    sessionStorage.setItem("full_name", data['full_name']);
-                    sessionStorage.setItem("division_id", data['division_id']);
-                    sessionStorage.setItem("division_name", data['division_name']);
-                    sessionStorage.setItem("user_id", data['user_id']);
-                    sessionStorage.setItem("username", data['username']);
-                    localStorage.removeItem("rule")
-                    localStorage.removeItem("data_modul")
-                    localStorage.removeItem("modul_id")
-                    localStorage.removeItem("modul_id_array")
-                    localStorage.removeItem("quiz_id")
-                    var url = '<?= base_url('Dashboard') ?>'
-                    window.location.href = url
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Login Gagal'
+                let data = response['data'];
+
+                if (response['success'] == true) {
+                    toast({
+                        icon: 'success',
+                        title: 'Login Berhasil',
+                        timer: 1500
+                    }).then(() => {
+                        var sessions = [];
+                        sessions = {
+                            token: data['token'],
+                            user: data['user']
+                        }
+                        $.ajax({
+                            type: "POST",
+                            data: sessions,
+                            url: base_url + "Auth/setSessions",
+                            dataType: 'JSON',
+                            error: function(e) {
+                                console.log(e)
+                            },
+                            success: function(response) {
+                                if (response['success'] == true) {
+                                    window.location = base_url + "Home";
+                                }
+                            }
+                        }).done(function() {
+                            $('#btn-login').html('Login').attr('disabled', false);
+                        });
                     });
-                    $('#btnLogin').prop("disabled", false);
                 }
             }
         });
-    })
+        return false;
+    }
 </script>
