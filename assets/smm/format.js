@@ -39,3 +39,9 @@ function currentDate() {
         (day < 10 ? '0' : '') + day
     return current_date;
 }
+function toTitleCase(str) {
+    var lcStr = str.toLowerCase();
+    return lcStr.replace(/(?:^|\s)\w/g, function(match) {
+        return match.toUpperCase();
+    });
+}

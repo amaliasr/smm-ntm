@@ -130,8 +130,8 @@
                 </a>
                 <div class="collapse show" id="collapseDashboards3" data-bs-parent="#accordionSidenav3">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav3Pages">
-                        <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Items</a>
-                        <a class="nav-link" href="<?= base_url(); ?>order/transaction">Supplier</a>
+                        <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
+                        <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
                     </nav>
                 </div>
                 <a class="nav-link" href="<?= base_url(); ?>report">

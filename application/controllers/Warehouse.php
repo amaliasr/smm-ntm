@@ -7,4 +7,12 @@ class Warehouse extends CI_Controller
     {
         $this->template->views('warehouse/index');
     }
+    public function materialRequest()
+    {
+        $this->template->views('warehouse/material_request');
+    }
+    public function history()
+    {
+        $this->template->views('warehouse/history');
+    }
 }
