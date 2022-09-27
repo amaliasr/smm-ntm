@@ -2,7 +2,7 @@
     .nav-link {
         display: block !important;
         line-height: normal;
-        margin: 0rem !important;
+        /* margin: 0rem !important;
         padding: 0rem !important;
 
         padding-top: 0.35rem !important;
@@ -12,7 +12,7 @@
         margin-bottom: 0.55rem !important;
 
         padding-left: 0.5rem !important;
-        margin-left: 0.5rem !important;
+        margin-left: 0.5rem !important; */
 
         -webkit-touch-callout: none;
         -webkit-user-select: none;

@@ -29,8 +29,10 @@
                     <div class="col-auto mt-4">
                         <div class="float-end">
                             <div class="row">
+
                                 <div class="col-auto">
-                                    <button type="button" class="btn btn-outline-light" onclick="formItemBaru()"><i class="fa fa-plus"></i> <span class="ms-2 d-none d-sm-block">Item Baru</span></button>
+                                    <button type="button" class="btn btn-outline-light" onclick="formGrouping()"><i class="fa fa-check-square-o"></i> <span class="ms-2 d-none d-sm-block">Item Grouping</span></button>
+                                    <button type="button" class="btn btn-light" onclick="formItemBaru()"><i class="fa fa-plus"></i> <span class="ms-2 d-none d-sm-block">Item Baru</span></button>
                                 </div>
                             </div>
 
@@ -87,6 +89,8 @@
                                                 <th>Nama</th>
                                                 <th>Satuan</th>
                                                 <th>Tipe</th>
+                                                <th>Unit</th>
+                                                <th>Price</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -182,6 +186,10 @@
     function removeLoadingTable() {
         $('.loadingTable').remove()
     }
+
+    function number_format(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
     var data_global
     var user_id = 999
 
@@ -208,8 +216,8 @@
             success: function(response) {
                 $('#textSetoranRange').html("")
                 data_global = response['data']
-                console.log(data_global)
                 var data = response['data']['item'];
+                // console.log(data)
                 var header = []
                 var body = []
                 if (data != null || data != undefined) {
@@ -229,6 +237,12 @@
                             'data': 'tipe'
                         },
                         {
+                            'data': 'unit'
+                        },
+                        {
+                            'data': 'price'
+                        },
+                        {
                             'data': 'action'
                         }
                     ]
@@ -237,13 +251,23 @@
                         if (values['type_name'] == null) {
                             values['type_name'] = ""
                         }
+                        var price = ""
+                        if (values['item_price'] != null) {
+                            $.each(JSON.parse(values['item_price']), function(keys2, values2) {
+                                if (values2['is_active'] = 1) {
+                                    price = number_format(values2['price'])
+                                }
+                            })
+                        }
                         array = {
                             'id': keys + 1,
                             'kode': values['code'],
                             'nama': values['name'],
                             'satuan': values['satuan_name'],
                             'tipe': values['type_name'],
-                            'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ')" style="cursor:pointer;"></i>'
+                            'unit': values['unit_name'],
+                            'price': price,
+                            'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ')" style="cursor:pointer;"></i>'
                         }
                         body.push(array)
                     })
@@ -266,7 +290,7 @@
         });
     }
 
-    function formItemBaru(id = null, code = "", name = "", satuan = null, type = null) {
+    function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null) {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-scrollable');
         var html_header = '';
@@ -315,6 +339,25 @@
         })
         html_body += '</select>'
         html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-4">Unit Mesin</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
+        html_body += '<select name="" id="unit_mesin" class="form-select form-select-sm" required="required">'
+        if (unit == null) {
+            html_body += '<option value="null" selected>Tanpa Unit Mesin</option>'
+        } else {
+            html_body += '<option value="null">Tanpa Unit Mesin</option>'
+        }
+        $.each(data_global['itemUnit'], function(keys, values) {
+            var select = ""
+            if (unit == values['unit_id']) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['unit_id'] + '" ' + select + '>' + values['unit_name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+
         if (id != null) {
             html_body += '<div class="col-12"><button type="button" class="btn btn-danger btn-sm w-100 mt-5" onclick="hapusData(' + id + ',' + "'" + name + "'" + ')">Hapus Data</button></div>'
         }
@@ -366,13 +409,16 @@
             }
         })
     }
+
     $(document).on('click', "#btnSimpan", function() {
         var type = 'POST'
+        var button = '#btnSimpan'
         var data = {
             code: $('#code').val(),
             name: $('#nama').val(),
             satuan: $('#satuan').val(),
             type: $('#tipe').val(),
+            unit: $('#unit_mesin').val(),
             active: 1,
             user: user_id,
         }
@@ -382,10 +428,10 @@
             data['id'] = $(this).data('id')
             var url = '<?php echo api_url('MasterNtm/updateItem'); ?>'
         }
-        kelolaData(data, type, url)
+        kelolaData(data, type, url, button)
     })
 
-    function kelolaData(data, type, url) {
+    function kelolaData(data, type, url, button) {
         $.ajax({
             url: url,
             type: type,
@@ -396,10 +442,10 @@
                     title: 'Oops...',
                     text: 'Error Data'
                 });
-                $('#btnSimpan').prop("disabled", false);
+                $(button).prop("disabled", false);
             },
             beforeSend: function() {
-                $('#btnSimpan').prop("disabled", true);
+                $(button).prop("disabled", true);
             },
             success: function(response) {
                 if (response.success == true) {
@@ -410,7 +456,7 @@
                     }).then((response) => {
                         $('#modal').modal('hide')
                         getData()
-                        $('#btnSimpan').prop("disabled", false);
+                        $(button).prop("disabled", false);
                     });
                 } else {
                     Swal.fire({
@@ -418,9 +464,130 @@
                         title: 'Oops...',
                         text: 'Gagal Tersimpan'
                     });
-                    $('#btnSimpan').prop("disabled", false);
+                    $(button).prop("disabled", false);
                 }
             }
         });
     }
+
+    function formGrouping() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Item Grouping</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12 col-md-6 mb-2">'
+        html_body += '<div class="input-group input-group-joined">'
+        html_body += '<input class="form-control pe-0" type="text" placeholder="Cari Item" aria-label="Search" id="search_item">'
+        html_body += '<span class="input-group-text">'
+        html_body += '<i class="fa fa-search"></i>'
+        html_body += '</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-6">'
+        html_body += '<select class="form-select d-none select_unit" aria-label=".form-select-sm example">'
+        html_body += '<option value="" selected disabled>Pilih Unit</option>'
+        $.each(data_global['itemUnit'], function(key, value) {
+            html_body += '<option value="' + value['unit_id'] + '">' + value['unit_name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-6 overflow-auto" style="height:' + $(window).height() / 2 + 'px;">'
+        $.each(data_global['item'], function(key, value) {
+            html_body += '<div class="card shadow-none data-user mb-1" data-id="' + value['id'] + '" id="card_user' + value['id'] + '">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row d-flex align-items-center">'
+            html_body += '<div class="col-1">'
+            html_body += '<input class="form-check-input checkbox-user" type="checkbox" value="' + value['id'] + '" id="checkUser' + value['id'] + '">'
+            html_body += '</div>'
+            html_body += '<div class="col-10"><span class="text_user" data-id="' + value['id'] + '">' + value['code'] + ' ' + value['name'] + '</span></div>'
+            if (value['item_unit_id'] != "" && value['item_unit_id'] != null && value['item_unit_id'] != 0) {
+                html_body += '<div class="col-1"><i class="fa fa-check text-success"></i></div>'
+            } else {
+                html_body += '<div class="col-1"><i class="fa fa-check text-light"></i></div>'
+            }
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-6">'
+        html_body += '<div id="showItemUnit" class="mt-2 d-none">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanGroup">Simpan</button>'
+        $('#modalFooter').html(html_footer);
+    }
+    $(document).on('click', '.data-user', function(e) {
+        $('.select_unit,#showItemUnit').addClass('d-none')
+        var id = $(this).data('id')
+        if ($('#checkUser' + id).is(':checked')) {
+            $('#checkUser' + id).removeAttr('checked', true)
+            $('#card_user' + id).removeClass('bg-primary text-white')
+        } else {
+            $('#checkUser' + id).attr('checked', true)
+            $('#card_user' + id).addClass('bg-primary text-white')
+        }
+        if ($('.checkbox-user:checked').length > 0) {
+            $('.select_unit, #showItemUnit').removeClass('d-none')
+        }
+    });
+    $(document).on('keyup', '#search_item', function(e) {
+        var value = $(this).val().toLowerCase();
+        var cards = $('.text_user').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_user').map(function() {
+            return $(this).data('id');
+        }).get();
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            if (element > -1) {
+                $('#card_user' + id_cards[i]).removeClass('d-none')
+            } else {
+                $('#card_user' + id_cards[i]).addClass('d-none')
+            }
+        }
+    })
+    $(document).on('change', '.select_unit', function(e) {
+        var html = "List Mesin :"
+        html += '<ol>'
+        $.each(data_global['itemUnit'], function(key, value) {
+            if (value['unit_id'] == $('.select_unit').val()) {
+                $.each(JSON.parse(value['unit_detail']), function(keys, values) {
+                    html += '<li>' + values['name'] + '</li>'
+                })
+            }
+        })
+        html += '<ol>'
+        $('#showItemUnit').html(html)
+    })
+    $(document).on('click', '#btnSimpanGroup', function(e) {
+        var item = $('.checkbox-user:checked').map(function() {
+            return $(this).val();
+        }).get();
+        var type = 'POST'
+        var button = '#btnSimpanGroup'
+        var data = {
+            id_item: item,
+            unit: $('.select_unit').val()
+        }
+        var url = '<?php echo api_url('Api_Warehouse/updateItemtoUnit'); ?>'
+        kelolaData(data, type, url, button)
+    })
 </script>
