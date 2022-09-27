@@ -334,7 +334,7 @@
 
     function numberinPR() {
         no_pr = "001/SMM-IT/PR/2022"
-        sharePR(1, '6281944946015')
+        sharePR(1, '6281944946015', 'http://127.0.0.1/smm-ntm/detailPR/1')
     }
 
     function detailPR(id) {
@@ -646,7 +646,8 @@
                     }).then((response) => {
                         // $('#modal').modal('hide')
                         getData()
-                        sharePR(response['id_pr'], '6281944946015')
+                        var link = '<?= base_url() ?>detailPR/' + id + ''
+                        sharePR(response['id_pr'], '6281944946015', link)
                         $(button).prop("disabled", false);
                     });
                 } else {
@@ -661,7 +662,7 @@
         });
     }
 
-    function sharePR(id, no_telp) {
+    function sharePR(id, no_telp, link) {
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-md modal-dialog-centered');
         var html_header = '';
@@ -672,9 +673,11 @@
         var html_body = '';
         html_body += '<div class="container small">'
         html_body += '<div class="row">'
+        html_body += '<small class="mb-1">Berbagi dengan Salin Link dibawah ini :</small>'
         html_body += '<div class="input-group mb-3">'
-        html_body += '<input type="text" class="form-control" value="<?= base_url() ?>detailPR/' + id + '" aria-describedby="button-addon2" onClick="this.select();">'
-        html_body += '<button class="btn btn-outline-primary" type="button" id="button-addon2"><i class="fa fa-copy"></i></button>'
+        html_body += '<input type="text" class="form-control" value="' + link + '" aria-describedby="button-addon2" onClick="this.select();" id="linkPRPO">'
+        html_body += '<button class="btn btn-outline-primary" type="button" id="button-addon2" onClick="copyToClipboard()"><i class="fa fa-copy"></i></button>'
+        html_body += '<small class="mt-3">Atau juga bisa dengan mudah langsung kirim ke Whatsapp User terkait dengan menekan tombol <span class="fw-bold">Kirim</span> dibawah ini</small>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
@@ -684,6 +687,14 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-primary btn-sm">Kirim</button>'
         $('#modalFooter2').html(html_footer);
+    }
+
+    function copyToClipboard() {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($('#linkPRPO').val()).select();
+        document.execCommand("copy");
+        $temp.remove();
     }
 
     function formPO() {
