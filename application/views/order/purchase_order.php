@@ -66,19 +66,43 @@
     <div class="container-xl px-4 mt-n10">
         <div class="row">
             <div class="col-12 mb-4">
-                <div class="card">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col">
+                                <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">PR</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">PO</button>
+                                    </li>
+                                    <li class="nav-item float-end" role="presentation">
+                                        <button class="nav-link" id="pills-retur-tab" data-bs-toggle="pill" data-bs-target="#pills-retur" type="button" role="tab" aria-controls="pills-retur" aria-selected="false">Retur</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col">
+                                <div class="row justify-content-end">
+                                    <div class="col-12 col-md-6 p-1">
+                                        <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example">
+                                            <option selected value="all">Semua Status</option>
+                                            <option value="1">Proses</option>
+                                            <option value="2">Selesai</option>
+                                            <option value="3">Batal</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 p-1 ">
+
+                                        <input type="date" name="" id="input" class="form-control form-control-sm w-100">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body">
-                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">PR</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">PO</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="pills-retur-tab" data-bs-toggle="pill" data-bs-target="#pills-retur" type="button" role="tab" aria-controls="pills-retur" aria-selected="false">Retur</button>
-                            </li>
-                        </ul>
+
                         <div class="tab-content" id="pills-tabContent">
                             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                             </div>
@@ -236,17 +260,34 @@
                 console.log(data_pr)
                 var html = ""
                 $.each(data_pr, function(keys, values) {
-                    html += '<div class="card w-100 shadow-none mb-2 p-0">'
+                    var acc_check
+                    var badge = ""
+                    var bg = ""
+                    var btnPO = ""
+                    var textPO = "text-light"
+                    if (values['state'] == 'DONE') {
+                        badge = '<span class="badge rounded-pill bg-success"><i class="fa fa-check"></i></span>'
+                        bg = 'bg-light'
+                        btnPO = 'onclick="formPO()"'
+                        textPO = ""
+                    } else if (values['state'] == 'REJECTED') {
+                        badge = '<span class="badge rounded-pill bg-danger"><i class="fa fa-times"></i></span>'
+                        bg = 'bg-light'
+                        textPO = 'text-light'
+                    }
+                    html += '<div class="card w-100 shadow-none mb-2 p-0 ' + bg + '">'
                     html += '<div class="card-body p-2">'
                     html += '<div class="row d-flex align-items-center">'
                     html += '<div class="col">'
                     html += '<small style="font-size: 11px;">' + values['date'] + '</small>'
-                    html += '<h6 class="m-0 p-0 fw-bold">' + values['no_pr'] + ' <span class="badge rounded-pill bg-success"><i class="fa fa-check"></i></span></h6>'
+
+                    html += '<h6 class="m-0 p-0 fw-bold">' + values['no_pr'] + ' ' + badge + '</h6>'
                     html += '<span class="fw-bold" style="font-size: 11px;">Status : <i class="text-warning">' + values['state'] + '</i></span>'
                     html += '</div>'
                     html += '<div class="col">'
                     html += '<div class="row">'
-                    var acc_check = (JSON.parse(values['data_approval']) != null) ? JSON.parse(values['data_approval'])[0]['is_accept'] : ""
+                    acc_check = (JSON.parse(values['data_approval']) != null) ? (JSON.parse(values['data_approval'])[0] != null) ? JSON.parse(values['data_approval'])[0]['is_accept'] : "" : ""
+
                     var success = "fa-check text-light"
                     if (acc_check == 'Accepted') {
                         success = 'fa-check text-success'
@@ -259,7 +300,8 @@
                     html += '</div>'
 
                     success = "fa-check text-light"
-                    acc_check = (JSON.parse(values['data_approval']) != null) ? JSON.parse(values['data_approval'])[1]['is_accept'] : ""
+                    acc_check = (JSON.parse(values['data_approval']) != null) ? (JSON.parse(values['data_approval'])[1] != null) ? JSON.parse(values['data_approval'])[1]['is_accept'] : "" : ""
+
                     if (acc_check == 'Accepted') {
                         success = 'fa-check text-success'
                     } else if (acc_check == 'Rejected') {
@@ -275,8 +317,9 @@
                     html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1"><i class="fa fa-print"></i></button><br>'
                     html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
                     html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-                    html += '<a class="dropdown-item" onclick="formPO()"> <i class="fa fa-plus me-2"></i> Buat PO</a>'
-                    html += '<a class="dropdown-item" onclick="detailPO(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
+                    html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
+                    html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
+                    html += '<a class="dropdown-item" onclick="kirimPengajuanPR(' + values['id'] + ')"><i class="fa fa-share-alt me-2"></i> Kirim Pengajuan</a>'
                     html += '</div>'
                     html += '</div>'
                     html += '</div>'
@@ -291,9 +334,10 @@
 
     function numberinPR() {
         no_pr = "001/SMM-IT/PR/2022"
+        sharePR(1, '6281944946015')
     }
 
-    function detailPO(id) {
+    function detailPR(id) {
         $.each(data_pr, function(keys, values) {
             if (id == values['id']) {
                 formPR(data_pr[keys])
@@ -373,7 +417,9 @@
         html_body += '<tbody id="bodyPR">'
         html_body += '</tbody>'
         html_body += '</table>'
-        html_body += '<button class="btn btn-sm btn-outline-primary float-end" style="font-size:11px" id="btnNewRowPR"><i class="fa fa-plus me-2"></i> New Row</button>'
+        if (data == undefined) {
+            html_body += '<button class="btn btn-sm btn-outline-primary float-end" style="font-size:11px" id="btnNewRowPR"><i class="fa fa-plus me-2"></i> New Row</button>'
+        }
         html_body += '</div>'
 
         html_body += '<div class="col-12 mt-1">'
@@ -490,7 +536,7 @@
     }
 
     $(document).on('click', '#btnNewRowPR', function(e) {
-        formRowPR(last_number)
+        formRowPR(last_number, "")
         last_number++
     })
     $(document).on('keyup', '.qty_pr,.unit_price_pr', function(e) {
@@ -598,8 +644,9 @@
                         text: 'Data Berhasil Disimpan',
                         icon: 'success',
                     }).then((response) => {
-                        $('#modal').modal('hide')
+                        // $('#modal').modal('hide')
                         getData()
+                        sharePR(response['id_pr'], '6281944946015')
                         $(button).prop("disabled", false);
                     });
                 } else {
@@ -612,6 +659,31 @@
                 }
             }
         });
+    }
+
+    function sharePR(id, no_telp) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-md modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Share to User</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader2').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        html_body += '<div class="input-group mb-3">'
+        html_body += '<input type="text" class="form-control" value="<?= base_url() ?>detailPR/' + id + '" aria-describedby="button-addon2" onClick="this.select();">'
+        html_body += '<button class="btn btn-outline-primary" type="button" id="button-addon2"><i class="fa fa-copy"></i></button>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-primary btn-sm">Kirim</button>'
+        $('#modalFooter2').html(html_footer);
     }
 
     function formPO() {

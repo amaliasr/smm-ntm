@@ -19,4 +19,14 @@ class Order extends CI_Controller
     {
         $this->template->views('order/history');
     }
+    public function detailPR($id)
+    {
+        $data['id'] = $id;
+        $this->template->views('order/detailPR', $data);
+    }
+    public function detailPO($id)
+    {
+        $data['id'] = $id;
+        $this->template->views('order/detailPO', $data);
+    }
 }
