@@ -154,39 +154,64 @@
             success: function(response) {
                 data_pr = response['data'][0]
                 // console.log(data_pr)
+                // var jumlah_ttd = 0
+                // if (data_pr['data_approval'] != null) {
+                //     $.each(JSON.parse(data_pr['data_approval']), function(keys, values) {
+                //         jumlah_ttd++
+                //     })
+                // }
+                var image = 'request'
+                if (data_pr['state'] == 'CHECKED') {
+                    image = 'approval'
+                } else if (data_pr['state'] == 'DONE') {
+                    image = 'done'
+                } else if (data_pr['state'] == 'REJECTED') {
+                    image = 'rejected'
+                }
+
                 var html = '';
                 html += '<div class="container-fluid small">'
                 html += '<div class="row">'
 
-                html += '<div class="col-12 col-md-5">'
-                html += '<div class="row">'
+                html += '<div class="col-12 col-md-4 mb-3">'
+                html += '<div class="text-center">'
+                html += '<img src="<?= base_url() ?>assets/image/logo/' + image + '.png" class="w-50" alt="Request">'
                 html += '</div>'
                 html += '</div>'
 
-                html += '<div class="col-12 col-md-7">'
+                html += '<div class="col-12 col-md-8">'
                 html += '<div class="row">'
-                html += '<div class="col-4 col-md-3">From</div>'
-                html += '<div class="col-8 col-md-9 fw-bold">' + data_pr['name'] + '</div>'
-                html += '<div class="col-4 col-md-3">To</div>'
-                html += '<div class="col-8 col-md-9 fw-bold">Purchasing</div>'
-                html += '<div class="col-4 col-md-3">No. PR</div>'
-                html += '<div class="col-8 col-md-9"><span class="fw-bold">00../SMM-../PR/../2022</span></div>'
-                html += '<div class="col-4 col-md-3">Tanggal</div>'
-                html += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_pr['date'] + '</span></div>'
-                html += '<div class="col-4 col-md-3">Cost Centre</div>'
-                html += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_pr['cost_center'] + '</span></div>'
-                html += '<div class="col-4 col-md-3">Notes</div>'
+                html += '<div class="col-5 col-md-3">From</div>'
+                html += '<div class="col-7 col-md-9 fw-bold">' + data_pr['name'] + '</div>'
+                html += '<div class="col-5 col-md-3">To</div>'
+                html += '<div class="col-7 col-md-9 fw-bold">Purchasing</div>'
+                html += '<div class="col-5 col-md-3">No. PR</div>'
+                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['no_pr'] + '</span></div>'
+                html += '<div class="col-5 col-md-3">Tanggal</div>'
+                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['date'] + '</span></div>'
+                html += '<div class="col-5 col-md-3">Cost Centre</div>'
+                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['cost_center'] + '</span></div>'
+                html += '<div class="col-5 col-md-3">Notes</div>'
                 if (data_pr['justification'] == "") {
                     data_pr['justification'] = "-"
                 }
-                html += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_pr['justification'] + '</span></div>'
+                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['justification'] + '</span></div>'
+
+                html += '<div class="col-5 col-md-3">Status</div>'
+                html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_pr['state'] + '</span></i></div>'
+
                 html += '</div>'
                 html += '</div>'
+
                 html += '<div class="col-12 mt-3 mb-2">'
                 html += '<b>List Item</b>'
                 html += '</div>'
 
                 html += '<div class="col-12" id="bodyPR">'
+                html += '</div>'
+
+                html += '<div class="col-12 mt-3">'
+                html += '<button class="btn btn-primary w-100">Approval</button>'
                 html += '</div>'
 
                 html += '</div>'
@@ -201,7 +226,6 @@
     }
 
     function formRowPR(i, data) {
-        console.log(data)
         var html = ""
         html += '<div class="card w-100 shadow-sm mb-2 p-0">'
         html += '<div class="card-body p-2">'
@@ -212,7 +236,7 @@
         if (data['note'] == "") {
             data['note'] = "-"
         }
-        html += '<span class="small">Note : <span class="text-warning">' + data['note'] + '</span></span>'
+        html += '<span class="small">Note : <span class="text-grey">' + data['note'] + '</span></span>'
         html += '</div>'
 
         html += '<div class="col-12 col-md-6 text-right">'
