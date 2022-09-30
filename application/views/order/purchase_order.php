@@ -257,7 +257,6 @@
             beforeSend: function() {},
             success: function(response) {
                 data_pr = response['data']
-                console.log(data_pr)
                 var html = ""
                 $.each(data_pr, function(keys, values) {
                     var acc_check
@@ -319,7 +318,8 @@
                     html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                     html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-                    html += '<a class="dropdown-item" onclick="kirimPengajuanPR(' + values['id'] + ')"><i class="fa fa-share-alt me-2"></i> Kirim Pengajuan</a>'
+                    var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
+                    html += '<a class="dropdown-item" onclick="sharePR(' + values['id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Kirim Pengajuan</a>'
                     html += '</div>'
                     html += '</div>'
                     html += '</div>'
@@ -334,7 +334,7 @@
 
     function numberinPR() {
         no_pr = "001/SMM-IT/PR/2022"
-        sharePR(1, '6281944946015', 'http://127.0.0.1/smm-ntm/detailPR/1')
+        // sharePR(1, '6281944946015', 'http://127.0.0.1/smm-ntm/detailPR/1')
     }
 
     function detailPR(id) {
@@ -382,7 +382,12 @@
         html_body += '<div class="col-12 col-md-6">'
         html_body += '<div class="row">'
         html_body += '<div class="col-4 col-md-3">No. PR</div>'
-        html_body += '<div class="col-8 col-md-9"><span class="fw-bold">00../SMM-../PR/../2022</span></div>'
+        if (data == undefined) {
+            html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + no_pr + '</span></div>'
+        } else {
+            html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['no_pr'] + '</span></div>'
+        }
+
         html_body += '<div class="col-4 col-md-3">Tanggal</div>'
         if (data == undefined) {
             html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + currentDate() + '</span></div>'
@@ -525,10 +530,11 @@
         // notes
         html_body += '<td>'
         if (data == "") {
-            html_body += '<input style="border:none" type="text" name="" id="notes_pr' + i + '" data-id="' + i + '" class="form-control form-control-sm p-1 notes_pr" value=""></td>'
+            html_body += '<input style="border:none" type="text" name="" id="notes_pr' + i + '" data-id="' + i + '" class="form-control form-control-sm p-1 notes_pr" value="">'
         } else {
             html_body += data['note']
         }
+        html_body += '</td>'
         html_body += '</tr>'
         $('#bodyPR').append(html_body)
         $('.nominal').number(true, 2);
@@ -646,7 +652,7 @@
                     }).then((response) => {
                         // $('#modal').modal('hide')
                         getData()
-                        var link = '<?= base_url() ?>detailPR/' + id + ''
+                        var link = '<?= base_url() ?>order/detailPR/' + id + ''
                         sharePR(response['id_pr'], '6281944946015', link)
                         $(button).prop("disabled", false);
                     });
@@ -685,7 +691,7 @@
 
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary btn-sm">Kirim</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" onclick="kirimWhatsapp(' + id + ',' + no_telp + ',' + "'" + link + "'" + ')">Kirim</button>'
         $('#modalFooter2').html(html_footer);
     }
 
@@ -695,6 +701,14 @@
         $temp.val($('#linkPRPO').val()).select();
         document.execCommand("copy");
         $temp.remove();
+    }
+
+    function kirimWhatsapp(id, no_telp, link) {
+        var kalimat = ""
+        kalimat = 'Coba Link'
+        kalimat += 'Berikut Dibawah ini :'
+        var url = 'https://api.whatsapp.com/send?phone=' + no_telp + '&text=' + kalimat
+        window.open(url, '_blank').focus();
     }
 
     function formPO() {
