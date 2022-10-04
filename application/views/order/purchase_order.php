@@ -27,7 +27,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-truck"></i></div>
-                            Purchase Order
+                            Request & Order
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
@@ -210,10 +210,12 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 439
+    var user_id = 135
     var data_user = ""
     var data_item = ""
+    var data_supplier = ""
     var no_pr = ""
+    var no_po = ""
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
@@ -241,6 +243,7 @@
             success: function(response) {
                 data_item = response['data']['item'];
                 data_satuan = response['data']['itemSatuan'];
+                data_supplier = response['data']['supplier'];
                 masterPR()
             }
         })
@@ -264,10 +267,10 @@
                     var bg = ""
                     var btnPO = ""
                     var textPO = "text-light"
-                    if (values['state'] == 'DONE') {
+                    if (values['state'] == 'COMPLETE') {
                         badge = '<span class="badge rounded-pill bg-success"><i class="fa fa-check"></i></span>'
                         bg = 'bg-light'
-                        btnPO = 'onclick="formPO()"'
+                        btnPO = 'onclick="formPO(' + values['id'] + ')"'
                         textPO = ""
                     } else if (values['state'] == 'REJECTED') {
                         badge = '<span class="badge rounded-pill bg-danger"><i class="fa fa-times"></i></span>'
@@ -318,8 +321,10 @@
                     html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                     html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-                    var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
-                    html += '<a class="dropdown-item" onclick="sharePR(' + values['id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Kirim Pengajuan</a>'
+                    if (values['state'] != 'COMPLETE' && values['state'] != 'REJECTED') {
+                        var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
+                        html += '<a class="dropdown-item" onclick="sharePR(' + values['id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                    }
                     html += '</div>'
                     html += '</div>'
                     html += '</div>'
@@ -334,7 +339,11 @@
 
     function numberinPR() {
         no_pr = "001/SMM-IT/PR/2022"
-        // sharePR(1, '6281944946015', 'http://127.0.0.1/smm-ntm/detailPR/1')
+        numberinPO()
+    }
+
+    function numberinPO() {
+        no_po = "001/SMM/PO/2022"
     }
 
     function detailPR(id) {
@@ -370,7 +379,7 @@
         html_body += '<div class="row">'
         html_body += '<div class="col-4 col-md-2">From</div>'
         if (data == undefined) {
-            html_body += '<div class="col-8 col-md-10 fw-bold">' + data_user[0]['full_name'] + '</div>'
+            html_body += '<div class="col-8 col-md-10 fw-bold">' + data_user[0]['name'] + '</div>'
         } else {
             html_body += '<div class="col-8 col-md-10 fw-bold">' + data['name'] + '</div>'
         }
@@ -396,7 +405,7 @@
         }
         html_body += '<div class="col-4 col-md-3">Cost Centre</div>'
         if (data == undefined) {
-            html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_user[0]['name'] + '</span></div>'
+            html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_user[0]['division_name'] + '</span></div>'
         } else {
             html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['cost_center'] + '</span></div>'
         }
@@ -445,14 +454,14 @@
         var html_footer = '';
         var total = (data != undefined) ? data['grand_total'] : 0
 
-        html_footer += '<div class="me-auto fw-bold">Total : Rp. <span id="totalPR">' + total + '</span></div>'
+        html_footer += '<div class="me-auto fw-bold">Total : Rp. <span id="totalPR">' + number_format(total) + '</span></div>'
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         if (data == undefined) {
             html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnPreview" onclick="simpan(0)">Simpan</button>'
         }
         $('#modalFooter').html(html_footer);
         if (data == undefined) {
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 3; i++) {
                 last_number++
                 formRowPR(i, '')
             }
@@ -649,11 +658,11 @@
                         title: 'Success!',
                         text: 'Data Berhasil Disimpan',
                         icon: 'success',
-                    }).then((response) => {
-                        // $('#modal').modal('hide')
+                    }).then((responses) => {
                         getData()
-                        var link = '<?= base_url() ?>order/detailPR/' + id + ''
-                        sharePR(response['id_pr'], '6281944946015', link)
+                        var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
+                        $('#modal').modal('hide')
+                        sharePR(response.id_pr, '6281944946015', link)
                         $(button).prop("disabled", false);
                     });
                 } else {
@@ -711,9 +720,9 @@
         window.open(url, '_blank').focus();
     }
 
-    function formPO() {
+    function formPO(id_pr = "") {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen');
+        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Purchase Order</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -724,30 +733,46 @@
         html_body += '<div class="row">'
 
         html_body += '<div class="col-12 col-md-6">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-4 col-md-2 align-self-center">No. PR</div>'
-        html_body += '<div class="col-8 col-md-10 mb-2">'
-        html_body += '<select name="" id="satuan" class="form-control select2-single form-control-sm w-75" data-live-search="true" required="required">'
-        html_body += '<option value="" selected>PR9830198</option>'
-        html_body += '</select>'
-        html_body += '</div>'
 
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '<div class="col-12 col-md-6">'
-        html_body += '<div class="row">'
+        html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 col-md-2 align-self-center">No</div>'
-        html_body += '<div class="col-8 col-md-10 mb-2"><input class="form-control form-control-sm w-75" type="input"></div>'
+        html_body += '<div class="col-8 col-md-10 align-self-center">' + no_po + '</div>'
+        html_body += '</div>'
+        html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 col-md-2 align-self-center">Tanggal</div>'
-        html_body += '<div class="col-8 col-md-10 mb-2"><input class="form-control form-control-sm w-75" type="date"></div>'
+        html_body += '<div class="col-8 col-md-10 align-self-center">' + currentDate() + '</div>'
+        html_body += '</div>'
+        html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 col-md-2 align-self-center">Supplier</div>'
-        html_body += '<div class="col-8 col-md-10 mb-2">'
-        html_body += '<select name="" id="satuan" class="form-select form-select-sm w-75" required="required">'
-        html_body += '<option value="" selected>PT. BERCA KAWAN SEJATI</option>'
+        html_body += '<div class="col-8 col-md-10 align-self-center">'
+        html_body += '<select name="" id="supplier" class="form-select form-select-sm w-75" required="required">'
+        html_body += '<option value="" disabled selected>Pilih Supplier</option>'
+        $.each(data_supplier, function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
         html_body += '</select>'
         html_body += '</div>'
         html_body += '</div>'
+        html_body += '<div class="row mb-2">'
+        html_body += '<div class="col-4 col-md-2 align-self-center">No. PR</div>'
+        html_body += '<div class="col-8 col-md-10 align-self-center">'
+        var disabled = ""
+        if (id_pr != "") {
+            disabled = 'disabled'
+        }
+        html_body += '<select name="" id="no_pr" class="form-control select2-single form-control-sm w-75" data-live-search="true" required="required" ' + disabled + '>'
+        html_body += '<option value="" disabled selected>Pilih No. PR</option>'
+        $.each(data_pr, function(keys, values) {
+            var select = ""
+            if (values['id'] == id_pr) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['no_pr'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '</div>'
+
         html_body += '</div>'
 
         html_body += '<div class="col-12 mt-5">'
@@ -761,56 +786,72 @@
         html_body += '<th class="align-middle" style="width:10%">Satuan</th>'
         html_body += '<th class="align-middle">Harga</th>'
         html_body += '<th class="align-middle">Total</th>'
-        html_body += '<th class="align-middle">Tanggal Pengiriman</th>'
+        html_body += '<th class="align-middle text-wrap">Tanggal Pengiriman</th>'
         html_body += '</tr>'
-        for (let i = 1; i <= 5; i++) {
-            html_body += '<tr>'
-            html_body += '<td class="text-center align-middle">' + i + '</td>'
-            html_body += '<td>'
-            html_body += '<select style="border:none" name="" id="satuan" class="form-control form-control-sm select2-single">'
-            html_body += '<option value="" selected>Pilih Item</option>'
-            html_body += '</select>'
-            html_body += '</td>'
-            html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-            html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-            html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-            html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-            html_body += '<td><input style="border:none" type="date" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-            html_body += '</tr>'
-        }
-        html_body += '<tr>'
-        html_body += '<td colspan="4"></td>'
-        html_body += '<td class="fw-bold">Sub Total</td>'
-        html_body += '<td class="fw-bold">8,000,000</td>'
-        html_body += '<td class="fw-bold"></td>'
-        html_body += '</tr>'
-        html_body += '<tr>'
-        html_body += '<td colspan="4"></td>'
-        html_body += '<td class="fw-bold">PPN</td>'
-        html_body += '<td class="fw-bold"><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-        html_body += '<td></td>'
-        html_body += '</tr>'
-        html_body += '<tr>'
-        html_body += '<td colspan="4"></td>'
-        html_body += '<td class="fw-bold">Total</td>'
-        html_body += '<td class="fw-bold">8,000,000</td>'
-        html_body += '<td class="fw-bold"></td>'
-        html_body += '</tr>'
+        html_body += '<tbody id="bodyPO">'
+        html_body += '</tbody>'
         html_body += '</table>'
+        html_body += '<button class="btn btn-sm btn-outline-primary float-end" style="font-size:11px" id="btnNewRowPO"><i class="fa fa-plus me-2"></i> New Row</button>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-6">'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-6 mt-5">'
+
+        html_body += '<div class="row mb-2">'
+        html_body += '<div class="col-4 align-self-center text-end">Sub Total</div>'
+        html_body += '<div class="col-8 align-self-center">'
+        html_body += '<input type="text" name="" id="input" class="form-control form-control-sm p-1 w-100" value="">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row mb-2">'
+        html_body += '<div class="col-4 align-self-center text-end">PPN</div>'
+        html_body += '<div class="col-8 align-self-center">'
+        html_body += '<input type="text" name="" id="input" class="form-control form-control-sm p-1 w-100" value="">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row mb-2">'
+        html_body += '<div class="col-4 align-self-center text-end">Total</div>'
+        html_body += '<div class="col-8 align-self-center">'
+        html_body += '<input type="text" name="" id="input" class="form-control form-control-sm p-1 w-100" value="">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
 
         html_body += '</div>'
         html_body += '</div>'
-        html_body += '</div>'
         $('#modalBody').html(html_body);
-        $('.select2-single').select2({
-            theme: "bootstrap"
-        });
 
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Preview</button>'
         $('#modalFooter').html(html_footer);
+        for (let i = 1; i <= 1; i++) {
+            last_number++
+            formRowPO(i, '')
+        }
+    }
+
+    function formRowPO(i, data) {
+        var html_body = ""
+        html_body += '<tr>'
+        html_body += '<td class="text-center align-middle">' + i + '</td>'
+        html_body += '<td>'
+        html_body += '<select style="border:none" name="" id="satuan" class="form-control form-control-sm select2-single">'
+        html_body += '<option value="" selected></option>'
+        html_body += '</select>'
+        html_body += '</td>'
+        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '<td><input style="border:none" type="date" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '</tr>'
+        $('#bodyPO').append(html_body)
     }
 
     function checkTimelinePO() {

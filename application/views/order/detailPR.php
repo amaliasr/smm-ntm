@@ -41,6 +41,7 @@
             <div class="col-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body" id="tampilData">
+                        <h4 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h4>
                     </div>
                 </div>
             </div>
@@ -103,7 +104,8 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 439
+    // var user_id = 143
+    var user_id = 118
     var id_pr = '<?= $id ?>'
     var data_user = ""
     var data_item = ""
@@ -140,6 +142,7 @@
             }
         })
     }
+    var level = 0
 
     function masterPR() {
         $.ajax({
@@ -153,75 +156,121 @@
             beforeSend: function() {},
             success: function(response) {
                 data_pr = response['data'][0]
-                // console.log(data_pr)
-                // var jumlah_ttd = 0
-                // if (data_pr['data_approval'] != null) {
-                //     $.each(JSON.parse(data_pr['data_approval']), function(keys, values) {
-                //         jumlah_ttd++
-                //     })
-                // }
-                var image = 'request'
-                if (data_pr['state'] == 'CHECKED') {
-                    image = 'approval'
-                } else if (data_pr['state'] == 'DONE') {
-                    image = 'done'
-                } else if (data_pr['state'] == 'REJECTED') {
-                    image = 'rejected'
-                }
+                var data_approval = JSON.parse(data_pr['data_approval'])
+                var ada = "tidak"
 
-                var html = '';
-                html += '<div class="container-fluid small">'
-                html += '<div class="row">'
-
-                html += '<div class="col-12 col-md-4 mb-3">'
-                html += '<div class="text-center">'
-                html += '<img src="<?= base_url() ?>assets/image/logo/' + image + '.png" class="w-50" alt="Request">'
-                html += '</div>'
-                html += '</div>'
-
-                html += '<div class="col-12 col-md-8">'
-                html += '<div class="row">'
-                html += '<div class="col-5 col-md-3">From</div>'
-                html += '<div class="col-7 col-md-9 fw-bold">' + data_pr['name'] + '</div>'
-                html += '<div class="col-5 col-md-3">To</div>'
-                html += '<div class="col-7 col-md-9 fw-bold">Purchasing</div>'
-                html += '<div class="col-5 col-md-3">No. PR</div>'
-                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['no_pr'] + '</span></div>'
-                html += '<div class="col-5 col-md-3">Tanggal</div>'
-                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['date'] + '</span></div>'
-                html += '<div class="col-5 col-md-3">Cost Centre</div>'
-                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['cost_center'] + '</span></div>'
-                html += '<div class="col-5 col-md-3">Notes</div>'
-                if (data_pr['justification'] == "") {
-                    data_pr['justification'] = "-"
-                }
-                html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['justification'] + '</span></div>'
-
-                html += '<div class="col-5 col-md-3">Status</div>'
-                html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_pr['state'] + '</span></i></div>'
-
-                html += '</div>'
-                html += '</div>'
-
-                html += '<div class="col-12 mt-3 mb-2">'
-                html += '<b>List Item</b>'
-                html += '</div>'
-
-                html += '<div class="col-12" id="bodyPR">'
-                html += '</div>'
-
-                html += '<div class="col-12 mt-3">'
-                html += '<button class="btn btn-primary w-100">Approval</button>'
-                html += '</div>'
-
-                html += '</div>'
-                html += '</div>'
-                $('#tampilData').html(html);
-                $.each(JSON.parse(data_pr['data_detail']), function(keys, values) {
-                    formRowPR(last_number, JSON.parse(data_pr['data_detail'])[keys])
-                    last_number++
+                $.each(data_approval, function(keys, values) {
+                    if (user_id == values['user_id']) {
+                        if (keys == 0 && values['is_accept'] == 'Pending') {
+                            ada = "ya"
+                            level = values['id_approval']
+                        } else if (keys > 0 && data_approval[keys - 1]['is_accept'] != 'Pending') {
+                            ada = "ya"
+                            level = values['id_approval']
+                        }
+                    }
                 })
+                if (data_pr['state'] == 'COMPLETE') {
+                    ada = 'tidak'
+                }
+                if (ada == "tidak") {
+                    var html = ""
+                    html += '<h4 class="text-center mt-5 mb-5"><i>Anda Tidak Memiliki Hak Akses pada Halaman Ini</i></h4>'
+                    $('#tampilData').html(html);
+                } else {
+                    formDetail(data_approval)
+                }
             }
+        })
+    }
+
+    function formDetail(data_approval) {
+        var image = 'request'
+        if (data_pr['state'] == 'CHECKED') {
+            image = 'approval'
+        } else if (data_pr['state'] == 'DONE') {
+            image = 'done'
+        } else if (data_pr['state'] == 'REJECTED') {
+            image = 'rejected'
+        }
+
+        var html = '';
+        html += '<div class="container-fluid small">'
+        html += '<div class="row">'
+
+        // html += '<div class="col-12 col-md-4 mb-3">'
+        // html += '<div class="text-center">'
+        // html += '<img src="<?= base_url() ?>assets/image/logo/' + image + '.png" class="w-50" alt="Request">'
+        // html += '</div>'
+        // html += '</div>'
+
+        html += '<div class="col-12 col-md-6 mb-3">'
+        html += '<div class="row">'
+        html += '<div class="col-5 col-md-3">From</div>'
+        html += '<div class="col-7 col-md-9 fw-bold">' + data_pr['name'] + '</div>'
+        html += '<div class="col-5 col-md-3">To</div>'
+        html += '<div class="col-7 col-md-9 fw-bold">Purchasing</div>'
+        html += '<div class="col-5 col-md-3">No. PR</div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['no_pr'] + '</span></div>'
+        html += '<div class="col-5 col-md-3">Tanggal</div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['date'] + '</span></div>'
+        html += '<div class="col-5 col-md-3">Cost Centre</div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['cost_center'] + '</span></div>'
+        html += '<div class="col-5 col-md-3">Notes</div>'
+        if (data_pr['justification'] == "") {
+            data_pr['justification'] = "-"
+        }
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['justification'] + '</span></div>'
+
+        html += '<div class="col-5 col-md-3">Status</div>'
+        html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_pr['state'] + '</span></i></div>'
+
+
+        html += '</div>'
+        html += '</div>'
+
+        html += '<div class="col-12 col-md-6 mb-2">'
+        html += '<b>List Item</b>'
+        html += '<div id="bodyPR" class="mt-2">'
+        html += '</div>'
+        html += '<div class="mt-3">'
+        html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_pr['no_pr'] + "'" + ',' + data_pr['id'] + ')">Approval</button>'
+        html += '</div>'
+
+        html += '<div class="col-12 mt-3 mb-2">'
+        html += '<b>Approval</b>'
+        html += '<div class="row mt-2">'
+
+        $.each(data_approval, function(keys, values) {
+            var success = "fa-check text-light"
+            if (values['is_accept'] == 'Accepted') {
+                success = 'fa-check text-success'
+            } else if (values['is_accept'] == 'Rejected') {
+                success = 'fa-times text-danger'
+            }
+            html += '<div class="col-6">'
+            html += '<div class="card shadow-none h-100">'
+            html += '<div class="card-body text-center">'
+            html += '<i class="fa ' + success + ' fa-2x mb-2"></i>'
+            html += '<p class="fw-bold mb-0 small" style="font-size:10px;">' + values['user_name'] + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+
+
+
+        html += '</div>'
+        html += '</div>'
+        $('#tampilData').html(html);
+        $.each(JSON.parse(data_pr['data_detail']), function(keys, values) {
+            formRowPR(last_number, JSON.parse(data_pr['data_detail'])[keys])
+            last_number++
         })
     }
 
@@ -262,5 +311,136 @@
 
         $('#bodyPR').append(html)
         return true;
+    }
+
+    function approvalForm(no_pr, id) {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Approval</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 mb-5">'
+        html_body += '<div class="form-check">'
+        html_body += '<input class="form-check-input" type="checkbox" value="" id="checkedApproval">'
+        html_body += '<label class="form-check-label" for="checkedApproval">'
+        html_body += 'Saya dengan Bijaksana dan Tanpa Paksaan Menyetujui Segala Permintaan dari Nomor PR ' + no_pr
+        html_body += '</label>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row" id="formApproval">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + id + ')">Kirim Approval</button>'
+        $('#modalFooter').html(html_footer);
+    }
+
+    function formAccReject() {
+        var html_body = ""
+        html_body += '<div class="col-12 col-md-6 mb-2">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_reject" data-status="reject">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<span><i class="fa fa-times text-danger" id="icon_reject"></i> Reject</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-6">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_accept" data-status="accept">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<span><i class="fa fa-check text-success" id="icon_accept"></i> Accept</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#formApproval').html(html_body)
+        return true
+    }
+    $(document).on('click', '#checkedApproval', function(e) {
+        var value = $(this).is(':checked');
+        if (value == true) {
+            formAccReject()
+        } else {
+            $('#formApproval').empty()
+            $('#btnApprove').attr('disabled', true)
+        }
+    })
+    var approval_status = ""
+    $(document).on('click', '.btn-approval', function(e) {
+        $('#btnApprove').removeAttr('disabled', true)
+        var status = $(this).data('status')
+        approval_status = status
+        if (status == 'accept') {
+            $('#btn_accept').addClass('text-white bg-success')
+            $('#btn_reject').removeClass('text-white bg-danger')
+            $('#icon_accept').addClass('text-white').removeClass('text-success')
+            $('#icon_reject').removeClass('text-white').addClass('text-danger')
+        } else {
+            $('#btn_accept').removeClass('text-white bg-success')
+            $('#btn_reject').addClass('text-white bg-danger')
+            $('#icon_accept').removeClass('text-white').addClass('text-success')
+            $('#icon_reject').addClass('text-white').removeClass('text-danger')
+        }
+    })
+
+    function kirimApproval(id) {
+        var type = 'POST'
+        var data = {
+            id_users: user_id,
+            id_pr: id,
+            status: approval_status,
+            id_approval: level,
+        }
+        var button = '#btnApprove'
+        var url = '<?php echo api_url('Api_Warehouse/approvePr'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Berhasil Mengirimkan Approval',
+                        icon: 'success',
+                    }).then((responses) => {
+                        $('#modal').modal('hide')
+                        masterPR()
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Approve'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
     }
 </script>
