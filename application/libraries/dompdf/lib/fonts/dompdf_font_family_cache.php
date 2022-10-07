@@ -89,4 +89,11 @@
   'nunito' => array(
     'normal' => $fontDir . '/40be13e0838a28d85ef39e94d206a3ec',
   ),
+  'metropolis' => array(
+    'normal' => $fontDir . '\56c2c5e371470923a515e8c0538d8d54',
+    'italic' => $fontDir . '\58c65c13cb252ea2864a9449e4be5ae7',
+  ),
+  'fontawesome' => array(
+    'normal' => $fontDir . '\b1b6afb1e96018b3c0b0d59f2e697002',
+  ),
 ) ?>

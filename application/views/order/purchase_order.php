@@ -102,7 +102,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-
+                        <div id="qrcode" style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div>
                         <div class="tab-content" id="pills-tabContent">
                             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                             </div>
@@ -191,7 +191,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
+<!-- QR CODE -->
+<script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    var imgBase64Data
+
+    function getQrcode(url, id) {
+        var qrcode = new QRCode("qrcode", {
+            text: url,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        var image = btoa(imgBase64Data)
+        var url = '<?= base_url('order/cetakPR') ?>'
+        var params = "*$" + image + "*$" + id
+        window.open(url + '?params=' + (params), '_blank')
+    }
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -267,7 +287,7 @@
                     var bg = ""
                     var btnPO = ""
                     var textPO = "text-light"
-                    if (values['state'] == 'COMPLETE') {
+                    if (values['state'] == 'APPROVED') {
                         badge = '<span class="badge rounded-pill bg-success"><i class="fa fa-check"></i></span>'
                         bg = 'bg-light'
                         btnPO = 'onclick="formPO(' + values['id'] + ')"'
@@ -316,12 +336,12 @@
                     html += '</div>'
                     html += '</div>'
                     html += '<div class="col-auto">'
-                    html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1"><i class="fa fa-print"></i></button><br>'
+                    html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ')"><i class="fa fa-print"></i></button><br>'
                     html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
                     html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                     html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-                    if (values['state'] != 'COMPLETE' && values['state'] != 'REJECTED') {
+                    if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED') {
                         var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
                         html += '<a class="dropdown-item" onclick="sharePR(' + values['id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
                     }
@@ -344,7 +364,23 @@
 
     function numberinPO() {
         no_po = "001/SMM/PO/2022"
+        // formPO(20)
     }
+    // $(document).on('click', '.btn-print', function(e) {
+    //     var id = $(this).data('id')
+    //     var no = $(this).data('no')
+    //     var url = '<?= base_url('Order/cetakPR') ?>'
+    //     var params = "*$" + id + "*$" + no
+    //     window.open(url + '?params=' + encodeURIComponent(params), '_blank')
+    // });
+
+    // function cobaPrint() {
+    //     var id = 1
+    //     var image = btoa(imgBase64Data)
+    //     var url = '<?= base_url('order/cetak') ?>'
+    //     var params = "*$" + image + "*$" + id
+    //     window.open(url + '?params=' + (params), '_blank')
+    // }
 
     function detailPR(id) {
         $.each(data_pr, function(keys, values) {
@@ -722,7 +758,7 @@
 
     function formPO(id_pr = "") {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen');
         var html_header = '';
         html_header += '<h5 class="modal-title">Purchase Order</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -775,8 +811,17 @@
 
         html_body += '</div>'
 
+        html_body += '<div class="col-12 col-md-6">'
+        html_body += '<div class="card shadow-sm w-100 h-100">'
+        html_body += '<div class="card-body">'
+        html_body += '<h6>Detail Item PR : </h6>'
+        html_body += '<table>'
+        html_body += '</table>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
         html_body += '<div class="col-12 mt-5">'
-        // SKM
 
         html_body += '<table class="table table-bordered table-sm">'
         html_body += '<tr style="height:60px;">'
@@ -839,19 +884,42 @@
     function formRowPO(i, data) {
         var html_body = ""
         html_body += '<tr>'
+
         html_body += '<td class="text-center align-middle">' + i + '</td>'
+
         html_body += '<td>'
-        html_body += '<select style="border:none" name="" id="satuan" class="form-control form-control-sm select2-single">'
-        html_body += '<option value="" selected></option>'
+        html_body += '<select style="border:none" name="" id="item_po" class="form-control form-control-sm select2-single item_po" data-id="' + i + '">'
+        html_body += '<option value="" selected disabled></option>'
+        $.each(data_item, function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
         html_body += '</select>'
         html_body += '</td>'
+
         html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+
+        html_body += '<td>'
+        html_body += '<select style="border:none" name="" id="unit_pr" class="form-control form-control-sm select2-single unit_pr" data-id="' + i + '">'
+        html_body += '<option value="" selected disabled></option>'
+        html_body += '<option value="addNew"><i class="fa fa-plus"></i></option>'
+        $.each(data_satuan, function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</td>'
+
         html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+
         html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
-        html_body += '<td><input style="border:none" type="date" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+
+        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1 datepicker" value=""></td>'
         html_body += '</tr>'
         $('#bodyPO').append(html_body)
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true
+        });
     }
 
     function checkTimelinePO() {

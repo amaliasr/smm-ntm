@@ -30,6 +30,8 @@
 <script src="<?= base_url() ?>assets/js/vendor/jquery.validate/jquery.validate.min.js"></script>
 <script src="<?= base_url() ?>assets/js/vendor/jquery.validate/additional-methods.min.js"></script>
 
+
+
 <!-- bootstrap validation -->
 <script>
     $.validator.setDefaults({

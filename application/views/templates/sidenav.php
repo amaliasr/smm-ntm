@@ -86,7 +86,7 @@
     }
 </style>
 
-<div id="layoutSidenav_nav">
+<div id="layoutSidenav_nav" class="">
     <nav class="sidenav shadow-right sidenav-light">
         <div class="sidenav-menu">
             <div class="nav accordion text-capitalize" id="accordionSidenav">

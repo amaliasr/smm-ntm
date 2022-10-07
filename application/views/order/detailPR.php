@@ -170,7 +170,7 @@
                         }
                     }
                 })
-                if (data_pr['state'] == 'COMPLETE') {
+                if (data_pr['state'] == 'APPROVED') {
                     ada = 'tidak'
                 }
                 if (ada == "tidak") {
