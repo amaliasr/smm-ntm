@@ -27,7 +27,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-truck"></i></div>
-                            Approval PR
+                            Approval PO
                         </h1>
                     </div>
 
@@ -95,7 +95,7 @@
     }
 
     $('#modal').on('hidden.bs.modal', function(e) {
-        jumlahPR = 0
+        jumlahPO = 0
         last_number = 1
         clearModal();
     })
@@ -106,10 +106,11 @@
     });
     var user_id = 143
     // var user_id = 118
-    var id_pr = '<?= $id ?>'
+    var id_po = '<?= $id ?>'
     var data_user = ""
     var data_item = ""
-    var no_pr = ""
+    var data_po = ""
+    var no_po = ""
     var last_number = 1
     $(document).ready(function() {
         $.ajax({
@@ -146,17 +147,18 @@
 
     function masterPR() {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getDataPR'); ?>",
+            url: "<?= api_url('Api_Warehouse/getDataPo'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                id: id_pr
+                id: id_po
             },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                data_pr = response['data'][0]
-                var data_approval = JSON.parse(data_pr['data_approval'])
+                data_po = response['data'][0]
+                console.log(data_po)
+                var data_approval = JSON.parse(data_po['data_approval'])
                 var ada = "tidak"
 
                 $.each(data_approval, function(keys, values) {
@@ -170,7 +172,7 @@
                         }
                     }
                 })
-                if (data_pr['state'] == 'APPROVED') {
+                if (data_po['state'] == 'APPROVED') {
                     ada = 'tidak'
                 }
                 if (ada == "tidak") {
@@ -186,11 +188,11 @@
 
     function formDetail(data_approval) {
         var image = 'request'
-        if (data_pr['state'] == 'CHECKED') {
+        if (data_po['state'] == 'CHECKED') {
             image = 'approval'
-        } else if (data_pr['state'] == 'DONE') {
+        } else if (data_po['state'] == 'DONE') {
             image = 'done'
-        } else if (data_pr['state'] == 'REJECTED') {
+        } else if (data_po['state'] == 'REJECTED') {
             image = 'rejected'
         }
 
@@ -207,23 +209,23 @@
         html += '<div class="col-12 col-md-6 mb-3">'
         html += '<div class="row">'
         html += '<div class="col-5 col-md-3">From</div>'
-        html += '<div class="col-7 col-md-9 fw-bold">' + data_pr['name'] + '</div>'
+        html += '<div class="col-7 col-md-9 fw-bold">' + data_po['name'] + '</div>'
         html += '<div class="col-5 col-md-3">To</div>'
         html += '<div class="col-7 col-md-9 fw-bold">Purchasing</div>'
         html += '<div class="col-5 col-md-3">No. PR</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['no_pr'] + '</span></div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['no_po'] + '</span></div>'
         html += '<div class="col-5 col-md-3">Tanggal</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['date'] + '</span></div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['date'] + '</span></div>'
         html += '<div class="col-5 col-md-3">Cost Centre</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['cost_center'] + '</span></div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['cost_center'] + '</span></div>'
         html += '<div class="col-5 col-md-3">Notes</div>'
-        if (data_pr['justification'] == "") {
-            data_pr['justification'] = "-"
+        if (data_po['justification'] == "") {
+            data_po['justification'] = "-"
         }
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['justification'] + '</span></div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['justification'] + '</span></div>'
 
         html += '<div class="col-5 col-md-3">Status</div>'
-        html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_pr['state'] + '</span></i></div>'
+        html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_po['state'] + '</span></i></div>'
 
 
         html += '</div>'
@@ -234,7 +236,7 @@
         html += '<div id="bodyPR" class="mt-2">'
         html += '</div>'
         html += '<div class="mt-3">'
-        html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_pr['no_pr'] + "'" + ',' + data_pr['id'] + ')">Approval</button>'
+        html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_po['no_po'] + "'" + ',' + data_po['id'] + ')">Approval</button>'
         html += '</div>'
 
         html += '<div class="col-12 mt-3 mb-2">'
@@ -268,8 +270,8 @@
         html += '</div>'
         html += '</div>'
         $('#tampilData').html(html);
-        $.each(JSON.parse(data_pr['data_detail']), function(keys, values) {
-            formRowPR(last_number, JSON.parse(data_pr['data_detail'])[keys])
+        $.each(JSON.parse(data_po['data_detail']), function(keys, values) {
+            formRowPR(last_number, JSON.parse(data_po['data_detail'])[keys])
             last_number++
         })
     }
@@ -313,7 +315,7 @@
         return true;
     }
 
-    function approvalForm(no_pr, id) {
+    function approvalForm(no_po, id) {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal modal-dialog-centered');
         var html_header = '';
@@ -329,7 +331,7 @@
         html_body += '<div class="form-check">'
         html_body += '<input class="form-check-input" type="checkbox" value="" id="checkedApproval">'
         html_body += '<label class="form-check-label" for="checkedApproval">'
-        html_body += 'Saya dengan Bijaksana dan Tanpa Paksaan Menyetujui Segala Permintaan dari Nomor PR ' + no_pr
+        html_body += 'Saya dengan Bijaksana dan Tanpa Paksaan Menyetujui Segala Permintaan dari Nomor PR ' + no_po
         html_body += '</label>'
         html_body += '</div>'
         html_body += '</div>'
@@ -403,7 +405,7 @@
         var type = 'POST'
         var data = {
             id_users: user_id,
-            id_pr: id,
+            id_po: id,
             status: approval_status,
             id_approval: level,
         }

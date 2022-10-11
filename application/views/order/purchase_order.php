@@ -493,7 +493,7 @@
         html_footer += '<div class="me-auto fw-bold">Total : Rp. <span id="totalPR">' + number_format(total) + '</span></div>'
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         if (data == undefined) {
-            html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnPreview" onclick="simpan(0)">Simpan</button>'
+            html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPR" onclick="simpan(0)">Simpan</button>'
         }
         $('#modalFooter').html(html_footer);
         if (data == undefined) {
@@ -582,7 +582,7 @@
         html_body += '</td>'
         html_body += '</tr>'
         $('#bodyPR').append(html_body)
-        $('.nominal').number(true, 2);
+        $('.nominal').number(true);
         return true;
     }
 
@@ -661,13 +661,56 @@
                 total: jumlahPR,
                 justification: $('#justification').val()
             }
-            var button = '#btnSimpan'
+            var button = '#btnSimpanPR'
             var url = '<?php echo api_url('Api_Warehouse/insertPR'); ?>'
         } else {
-            var button = '#btnSimpan'
-            data['id'] = $(this).data('id')
-            // var url = '<?php echo api_url('MasterNtm/updateSupplier'); ?>'
+            // PO
+            var id_detail_pr = $('.item_po').map(function() {
+                return $(this).data('id_pr');
+            }).get();
+            var id_item = $('.item_po').map(function() {
+                return $(this).val();
+            }).get();
+            var qty = $('.qty_po').map(function() {
+                return $(this).val();
+            }).get();
+            var id_satuan = $('.unit_po').map(function() {
+                return $(this).val();
+            }).get();
+            var harga_po = $('.harga_po').map(function() {
+                return $(this).val();
+            }).get();
+            var total_po = $('.total_po').map(function() {
+                return $(this).val();
+            }).get();
+            var tanggal_po = $('.tanggal_po').map(function() {
+                return $(this).val();
+            }).get();
+            var grand_total = $('#totalPO').val()
+            var ppn = $('#ppnPO').val()
+            var total_all = $('#subtotalPO').val()
+            var id_supplier = $('#supplier').val()
+            var pr_id = $('#no_pr').val()
+            var data = {
+                no_po: no_po,
+                created_by: user_id,
+                id_supplier: id_supplier,
+                pr_id: pr_id,
+                id_detail_pr: id_detail_pr,
+                id_item: id_item,
+                qty: qty,
+                id_satuan: id_satuan,
+                harga_po: harga_po,
+                total_po: total_po,
+                tanggal_po: tanggal_po,
+                total_all: total_all,
+                ppn: ppn,
+                grand_total: grand_total
+            }
+            var button = '#btnSimpanPO'
+            var url = '<?php echo api_url('Api_Warehouse/insertPO'); ?>'
         }
+        // console.log(data)
         kelolaData(data, type, url, button)
     }
 
@@ -696,9 +739,15 @@
                         icon: 'success',
                     }).then((responses) => {
                         getData()
-                        var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
-                        $('#modal').modal('hide')
-                        sharePR(response.id_pr, '6281944946015', link)
+                        if (button == '#btnSimpanPR') {
+                            var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
+                            $('#modal').modal('hide')
+                            sharePR(response.id_pr, '6281944946015', link)
+                        } else {
+                            var link = '<?= base_url() ?>order/detailPO/' + response.id_po + ''
+                            $('#modal').modal('hide')
+                            sharePR(response.id_po, '6281944946015', link)
+                        }
                         $(button).prop("disabled", false);
                     });
                 } else {
@@ -756,7 +805,11 @@
         window.open(url, '_blank').focus();
     }
 
+    var status_more = "less"
+    var data_detail = ""
+
     function formPO(id_pr = "") {
+        status_more = "less"
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen');
         var html_header = '';
@@ -798,9 +851,11 @@
         }
         html_body += '<select name="" id="no_pr" class="form-control select2-single form-control-sm w-75" data-live-search="true" required="required" ' + disabled + '>'
         html_body += '<option value="" disabled selected>Pilih No. PR</option>'
+        data_detail = ""
         $.each(data_pr, function(keys, values) {
             var select = ""
             if (values['id'] == id_pr) {
+                data_detail = JSON.parse(values['data_detail'])
                 select = 'selected'
             }
             html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['no_pr'] + '</option>'
@@ -815,9 +870,15 @@
         html_body += '<div class="card shadow-sm w-100 h-100">'
         html_body += '<div class="card-body">'
         html_body += '<h6>Detail Item PR : </h6>'
-        html_body += '<table>'
-        html_body += '</table>'
+        html_body += '<div id="showDetailPRinPO">'
+
         html_body += '</div>'
+        html_body += '</div>'
+        if (data_detail.length > 2) {
+            html_body += '<div class="card-footer text-center text-primary p-2" style="cursor:pointer" id="showMorePR" onclick="showMoreFuction()">'
+            html_body += 'Show More <span class="fa fa-chevron-down"></span>'
+            html_body += '</div>'
+        }
         html_body += '</div>'
         html_body += '</div>'
 
@@ -836,7 +897,9 @@
         html_body += '<tbody id="bodyPO">'
         html_body += '</tbody>'
         html_body += '</table>'
+        // if (id_pr == "") {
         html_body += '<button class="btn btn-sm btn-outline-primary float-end" style="font-size:11px" id="btnNewRowPO"><i class="fa fa-plus me-2"></i> New Row</button>'
+        // }
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-6">'
@@ -846,21 +909,21 @@
         html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 align-self-center text-end">Sub Total</div>'
         html_body += '<div class="col-8 align-self-center">'
-        html_body += '<input type="text" name="" id="input" class="form-control form-control-sm p-1 w-100" value="">'
+        html_body += '<input type="text" name="" id="subtotalPO" class="form-control form-control-sm p-1 w-100 nominal" value="" style="border:0">'
         html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 align-self-center text-end">PPN</div>'
         html_body += '<div class="col-8 align-self-center">'
-        html_body += '<input type="text" name="" id="input" class="form-control form-control-sm p-1 w-100" value="">'
+        html_body += '<input type="text" name="" id="ppnPO" class="form-control form-control-sm p-1 w-100 nominal" value="0">'
         html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 align-self-center text-end">Total</div>'
         html_body += '<div class="col-8 align-self-center">'
-        html_body += '<input type="text" name="" id="input" class="form-control form-control-sm p-1 w-100" value="">'
+        html_body += '<input type="text" name="" id="totalPO" class="form-control form-control-sm p-1 w-100 nominal" value="" style="border:0">'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -873,11 +936,123 @@
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Preview</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPO" onclick="simpan(1)">Create PO</button>'
         $('#modalFooter').html(html_footer);
-        for (let i = 1; i <= 1; i++) {
-            last_number++
-            formRowPO(i, '')
+        $('.nominal').number(true);
+        if (data_detail != "") {
+            showDetailPRinPO(data_detail)
+            hiddenDetailPR(2)
+        }
+    }
+    $(document).on('click', '#btnNewRowPO', function(e) {
+        formRowPO(last_number, "")
+        last_number++
+    })
+
+    function showMoreFuction() {
+        if (status_more == 'less') {
+            status_more = "more"
+            $('#showMorePR').html('Show Less <span class="fa fa-chevron-up"></span>')
+            hiddenDetailPR(data_detail.length)
+        } else {
+            status_more = "less"
+            $('#showMorePR').html('Show More <span class="fa fa-chevron-down"></span>')
+            hiddenDetailPR(2)
+        }
+    }
+
+    function hiddenDetailPR(jumlah) {
+        $.each(data_detail, function(keys, values) {
+            if (keys < jumlah) {
+                $('#cardDetailPR' + keys).removeClass('d-none')
+            } else {
+                $('#cardDetailPR' + keys).addClass('d-none')
+            }
+        })
+    }
+
+    function showDetailPRinPO(data) {
+        var html_body = ""
+        $.each(data, function(keys, values) {
+            html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR" id="cardDetailPR' + keys + '" onclick="cardClickPR(' + keys + ',' + values['id'] + ')">'
+            html_body += '<div class="card-body p-2">'
+            html_body += '<div class="row d-flex align-items-center">'
+            html_body += '<div class="col-1">'
+            html_body += '<input class="form-check-input checkbox-PR" id="checkPR' + keys + '" type="checkbox" value="' + values['id'] + '" data-id="' + keys + '" data-id_pr="' + values['id'] + '">'
+            html_body += '</div>'
+            html_body += '<div class="col-6"><span class="">' + values['item_name'] + '</span></div>'
+            html_body += '<div class="col-5">'
+            html_body += '<span class="fa fa-shopping-basket fw-bold"></span> ' + values['qty'] + '<br>'
+            html_body += '<span class="fa fa-money fw-bold"></span> Rp. ' + number_format(values['extended_price'])
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
+        $('#showDetailPRinPO').html(html_body)
+    }
+    $(document).on('change', '.checkbox-PR', function(e) {
+        cardClickPR($(this).data('id'), $(this).data('id_pr'))
+    })
+
+    function cardClickPR(id, id_pr) {
+        if ($('#checkPR' + id).is(':checked')) {
+            $('#checkPR' + id).removeAttr('checked', true)
+            $('#cardDetailPR' + id).removeClass('bg-light')
+            deleteDataToBlankFormPO(id_pr)
+        } else {
+            $('#checkPR' + id).attr('checked', true)
+            $('#cardDetailPR' + id).addClass('bg-light')
+            insertDataToBlankFormPO(id_pr)
+        }
+    }
+
+    function insertDataToBlankFormPO(id) {
+        var data = data_detail.filter(x => x.id === id)
+        formRowPO(last_number, data[0])
+        last_number++
+    }
+
+    function deleteDataToBlankFormPO(id) {
+        last_number = 1
+        var data = []
+        var pr_id = $('.item_po').map(function() {
+            return $(this).data('id_pr');
+        }).get();
+        var item_po = $('.item_po').map(function() {
+            return $(this).val();
+        }).get();
+        var qty_po = $('.qty_po').map(function() {
+            return $(this).val();
+        }).get();
+        var unit_po = $('.unit_po').map(function() {
+            return $(this).val();
+        }).get();
+        var harga_po = $('.harga_po').map(function() {
+            return $(this).val();
+        }).get();
+        var total_po = $('.total_po').map(function() {
+            return $(this).val();
+        }).get();
+        var tanggal_po = $('.tanggal_po').map(function() {
+            return $(this).val();
+        }).get();
+        $('#bodyPO').empty()
+        for (let i = 0; i < item_po.length; i++) {
+            if (pr_id[i] != id) {
+                data.push({
+                    'id': pr_id[i],
+                    'item_id': item_po[i],
+                    'qty': qty_po[i],
+                    'unit_id': unit_po[i],
+                    'unit_price': harga_po[i],
+                    'extended_price': total_po[i],
+                    'tanggal': tanggal_po[i]
+                })
+                formRowPO(last_number, data[0])
+                last_number++
+            }
+            data = []
         }
     }
 
@@ -888,31 +1063,63 @@
         html_body += '<td class="text-center align-middle">' + i + '</td>'
 
         html_body += '<td>'
-        html_body += '<select style="border:none" name="" id="item_po" class="form-control form-control-sm select2-single item_po" data-id="' + i + '">'
-        html_body += '<option value="" selected disabled></option>'
+        html_body += '<select style="border:none" name="" id="item_po' + i + '" class="form-control form-control-sm select2-single item_po" data-id="' + i + '" data-id_pr="' + data['id'] + '">'
+        if (data == "") {
+            html_body += '<option value="" selected disabled></option>'
+        }
         $.each(data_item, function(keys, values) {
-            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            var select = ""
+            if (data != "") {
+                if (data['item_id'] == values['id']) {
+                    select = 'selected'
+                }
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
         html_body += '</select>'
         html_body += '</td>'
 
-        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        var qty = ""
+        var satuan = ""
+        var harga = ""
+        var total = ""
+        if (data != "") {
+            qty = data['qty']
+            harga = data['unit_price']
+            satuan = data['unit_id']
+            total = data['extended_price']
+        }
+        html_body += '<td><input style="border:none" type="text" name="" id="qty_po' + i + '" class="form-control form-control-sm p-1 qty_po" value="' + qty + '" data-id="' + i + '"></td>'
 
         html_body += '<td>'
-        html_body += '<select style="border:none" name="" id="unit_pr" class="form-control form-control-sm select2-single unit_pr" data-id="' + i + '">'
+        html_body += '<select style="border:none" name="" id="unit_po' + i + '" class="form-control form-control-sm select2-single unit_po" data-id="' + i + '">'
         html_body += '<option value="" selected disabled></option>'
         html_body += '<option value="addNew"><i class="fa fa-plus"></i></option>'
         $.each(data_satuan, function(keys, values) {
-            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            var select = ""
+            if (data != "") {
+                if (satuan == values['id']) {
+                    select = 'selected'
+                }
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
         html_body += '</select>'
         html_body += '</td>'
 
-        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '<td><input style="border:none" type="text" name="" id="harga_po' + i + '" class="form-control form-control-sm nominal p-1 harga_po" value="' + harga + '" data-id="' + i + '"></td>'
 
-        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1" value=""></td>'
+        html_body += '<td><input style="border:none" type="text" name="" id="total_po' + i + '" class="form-control form-control-sm nominal p-1 total_po" value="' + total + '"></td>'
+        if (data['tanggal'] == undefined) {
+            data['tanggal'] = ""
+        }
+        if (data == "") {
+            html_body += '<td><input style="border:none" type="text" name="" id="tanggal_po' + i + '" class="form-control form-control-sm p-1 datepicker tanggal_po" value=""></td>'
+        } else {
+            html_body += '<td><input style="border:none" type="text" name="" id="tanggal_po' + i + '" class="form-control form-control-sm p-1 datepicker tanggal_po" value="' + data['tanggal'] + '"></td>'
 
-        html_body += '<td><input style="border:none" type="text" name="" id="input" class="form-control form-control-sm p-1 datepicker" value=""></td>'
+        }
+
         html_body += '</tr>'
         $('#bodyPO').append(html_body)
         $('.datepicker').datepicker({
@@ -920,6 +1127,51 @@
             orientation: "auto",
             autoclose: true
         });
+        $('.nominal').number(true);
+        return true;
+    }
+
+    $(document).on('click', '.cardDetailPR,.checkbox-PR', function(e) {
+        countTotalPO()
+    })
+    $(document).on('keyup', '#ppnPO', function(e) {
+        countTotalPO()
+    })
+    $(document).on('keyup', '.qty_po,.harga_po', function(e) {
+        typingNominalPO($(this).data('id'))
+    })
+
+    function typingNominalPO(id) {
+        var price = 0
+        var unit = $('#harga_po' + id).val()
+        if (unit == "") {
+            unit = 0
+        }
+        var qty = $('#qty_po' + id).val()
+        if (qty == "") {
+            qty = 0
+        }
+        price = (parseInt(unit) * parseInt(qty))
+        $('#total_po' + id).val(price)
+        countTotalPO()
+    }
+
+    function countTotalPO() {
+        var total_po = $('.total_po').map(function() {
+            return $(this).val();
+        }).get();
+        var ppn = $('#ppnPO').val()
+
+        if (ppn == "") {
+            ppn = 0
+        }
+        var total_all = 0
+        for (let i = 0; i < total_po.length; i++) {
+            total_all = parseInt(total_po[i]) + parseInt(total_all)
+        }
+        $('#subtotalPO').val(total_all)
+        total_all = parseInt(total_all) + parseInt(ppn)
+        $('#totalPO').val(total_all)
     }
 
     function checkTimelinePO() {
