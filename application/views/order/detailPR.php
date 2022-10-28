@@ -104,8 +104,8 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 143
-    // var user_id = 118
+    // var user_id = 143
+    var user_id = 118
     var id_pr = '<?= $id ?>'
     var data_user = ""
     var data_item = ""
@@ -231,8 +231,14 @@
 
         html += '<div class="col-12 col-md-6 mb-2">'
         html += '<b>List Item</b>'
-        html += '<div id="bodyPR" class="mt-2">'
+        html += '<div id="bodyPR" class="mt-2 mb-2">'
         html += '</div>'
+        html += '<table style="width:100%" class="fw-bold mt-2 mb-2">'
+        html += '<tr>'
+        html += '<td class="text-end" style="width:65%">Total</td>'
+        html += '<td class="text-end" style="width:35%">' + number_format(data_pr['grand_total']) + '</td>'
+        html += '</tr>'
+        html += '</table>'
         html += '<div class="mt-3">'
         html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_pr['no_pr'] + "'" + ',' + data_pr['id'] + ')">Approval</button>'
         html += '</div>'
@@ -365,7 +371,7 @@
         html_body += '</div>'
         html_body += '<div class="col-12 mt-4 d-none" id="textareaReject">'
         html_body += '<b>Alasan Membatalkan :</b>'
-        html_body += '<textarea class="form-control form-control-sm small" rows="5"></textarea>'
+        html_body += '<textarea class="form-control form-control-sm small" rows="5" id="textReject"></textarea>'
         html_body += '</div>'
         $('#formApproval').html(html_body)
         return true
@@ -406,6 +412,7 @@
             id_pr: id,
             status: approval_status,
             id_approval: level,
+            note: $('#textReject').val()
         }
         var button = '#btnApprove'
         var url = '<?php echo api_url('Api_Warehouse/approvePr'); ?>'

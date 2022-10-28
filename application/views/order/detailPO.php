@@ -104,8 +104,8 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 143
-    // var user_id = 118
+    // var user_id = 143
+    var user_id = 118
     var id_po = '<?= $id ?>'
     var data_user = ""
     var data_item = ""
@@ -200,43 +200,41 @@
         html += '<div class="container-fluid small">'
         html += '<div class="row">'
 
-        // html += '<div class="col-12 col-md-4 mb-3">'
-        // html += '<div class="text-center">'
-        // html += '<img src="<?= base_url() ?>assets/image/logo/' + image + '.png" class="w-50" alt="Request">'
-        // html += '</div>'
-        // html += '</div>'
-
         html += '<div class="col-12 col-md-6 mb-3">'
         html += '<div class="row">'
-        html += '<div class="col-5 col-md-3">From</div>'
+        html += '<div class="col-5 col-md-3">Created By</div>'
         html += '<div class="col-7 col-md-9 fw-bold">' + data_po['name'] + '</div>'
-        html += '<div class="col-5 col-md-3">To</div>'
-        html += '<div class="col-7 col-md-9 fw-bold">Purchasing</div>'
-        html += '<div class="col-5 col-md-3">No. PR</div>'
+        html += '<div class="col-5 col-md-3">No. PO</div>'
         html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['no_po'] + '</span></div>'
         html += '<div class="col-5 col-md-3">Tanggal</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['date'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Cost Centre</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['cost_center'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Notes</div>'
-        if (data_po['justification'] == "") {
-            data_po['justification'] = "-"
-        }
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['justification'] + '</span></div>'
-
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['date_po'] + '</span></div>'
+        html += '<div class="col-5 col-md-3">Supplier</div>'
+        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['supplier_name'] + '</span></div>'
         html += '<div class="col-5 col-md-3">Status</div>'
         html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_po['state'] + '</span></i></div>'
-
-
         html += '</div>'
         html += '</div>'
 
         html += '<div class="col-12 col-md-6 mb-2">'
         html += '<b>List Item</b>'
-        html += '<div id="bodyPR" class="mt-2">'
+        html += '<div id="bodyPR" class="mt-2 mb-3">'
         html += '</div>'
+        html += '<table style="width:100%" class="fw-bold mt-2 mb-2">'
+        html += '<tr>'
+        html += '<td class="text-end" style="width:65%">Subtotal</td>'
+        html += '<td class="text-end" style="width:35%">' + number_format(data_po['total_harga']) + '</td>'
+        html += '</tr>'
+        html += '<tr>'
+        html += '<td class="text-end" style="width:65%">PPN</td>'
+        html += '<td class="text-end" style="width:35%">' + number_format(data_po['ppn']) + '</td>'
+        html += '</tr>'
+        html += '<tr>'
+        html += '<td class="text-end" style="width:65%">Total</td>'
+        html += '<td class="text-end" style="width:35%">' + number_format(data_po['grand_total']) + '</td>'
+        html += '</tr>'
+        html += '</table>'
         html += '<div class="mt-3">'
-        html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_po['no_po'] + "'" + ',' + data_po['id'] + ')">Approval</button>'
+        html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_po['no_po'] + "'" + ',' + data_po['po_id'] + ')">Approval</button>'
         html += '</div>'
 
         html += '<div class="col-12 mt-3 mb-2">'
@@ -264,9 +262,6 @@
         html += '</div>'
 
         html += '</div>'
-
-
-
         html += '</div>'
         html += '</div>'
         $('#tampilData').html(html);
@@ -284,25 +279,22 @@
 
         html += '<div class="col-12 col-md-6 align-self-center">'
         html += '<span class="fw-bold text-primary">' + data['item_name'] + '</span><br>'
-        if (data['note'] == "") {
-            data['note'] = "-"
-        }
-        html += '<span class="small">Note : <span class="text-grey">' + data['note'] + '</span></span>'
+        html += '<span class="small">Tanggal Kirim : <span class="text-grey">' + data['tanggal_pengiriman'] + '</span></span>'
         html += '</div>'
 
         html += '<div class="col-12 col-md-6 text-right">'
         html += '<table class="table small mt-2 align-self-center border-none">'
         html += '<tr>'
         html += '<td class="p-0 m-0">QTY</td>'
-        html += '<td class="fw-bold p-0 m-0">' + data['qty'] + ' ' + data['unit_name'] + '</td>'
+        html += '<td class="fw-bold p-0 m-0">' + data['qty'] + ' ' + data['satuan_name'] + '</td>'
         html += '</tr>'
         html += '<tr>'
-        html += '<td class="p-0 m-0">Unit Price</td>'
-        html += '<td class="fw-bold p-0 m-0">' + number_format(data['unit_price']) + '</td>'
+        html += '<td class="p-0 m-0">Harga Satuan</td>'
+        html += '<td class="fw-bold p-0 m-0">' + number_format(data['harga']) + '</td>'
         html += '</tr>'
         html += '<tr>'
-        html += '<td class="p-0 m-0">Total Price</td>'
-        html += '<td class="fw-bold p-0 m-0">' + number_format(data['extended_price']) + '</td>'
+        html += '<td class="p-0 m-0">Harga Total</td>'
+        html += '<td class="fw-bold p-0 m-0">' + number_format(data['subtotal']) + '</td>'
         html += '</tr>'
         html += '</table>'
         html += '</div>'
@@ -367,7 +359,7 @@
         html_body += '</div>'
         html_body += '<div class="col-12 mt-4 d-none" id="textareaReject">'
         html_body += '<b>Alasan Membatalkan :</b>'
-        html_body += '<textarea class="form-control form-control-sm small" rows="5"></textarea>'
+        html_body += '<textarea class="form-control form-control-sm small" rows="5" id="textReject"></textarea>'
         html_body += '</div>'
         $('#formApproval').html(html_body)
         return true
@@ -408,9 +400,10 @@
             id_po: id,
             status: approval_status,
             id_approval: level,
+            note: $('#textReject').val()
         }
         var button = '#btnApprove'
-        var url = '<?php echo api_url('Api_Warehouse/approvePr'); ?>'
+        var url = '<?php echo api_url('Api_Warehouse/approvePo'); ?>'
         kelolaData(data, type, url, button)
     }
 

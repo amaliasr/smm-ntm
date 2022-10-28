@@ -19,6 +19,10 @@ class Order extends CI_Controller
     {
         $this->template->views('order/history');
     }
+    public function payments()
+    {
+        $this->template->views('order/payments');
+    }
     public function detailPR($id)
     {
         $data['id'] = $id;
@@ -43,6 +47,46 @@ class Order extends CI_Controller
         $this->pdf->filename = $data['datas']->no_pr . ".pdf";
         $this->pdf->loadHtml($html);
         $this->pdf->render();
+        // Instantiate canvas instance 
+        $canvas = $this->pdf->getCanvas();
+        $w = $canvas->get_width();
+        $h = $canvas->get_height();
+        $imageURL = base_url() . 'assets/image/logo/SMMtrans.png';
+        $imgWidth = 250;
+        $imgHeight = 250;
+        $canvas->set_opacity(.2);
+        // Specify horizontal and vertical position 
+        $x = (($w - $imgWidth) / 2);
+        $y = (($h - $imgHeight) / 3);
+        $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
+        $this->pdf->stream("report_kas", array("Attachment" => 0));
+    }
+    public function cetakPO()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['qrcode'] = $explodedParams[1];
+        $data['id'] = $explodedParams[2];
+        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPo?id=' . $data['id'])))->data[0];
+        $data['detail'] = json_decode($data['datas']->data_detail);
+        $html = $this->load->view('Order/cetakPO', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = $data['datas']->no_po . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        // Instantiate canvas instance 
+        $canvas = $this->pdf->getCanvas();
+        $w = $canvas->get_width();
+        $h = $canvas->get_height();
+        $imageURL = base_url() . 'assets/image/logo/SMMtrans.png';
+        $imgWidth = 250;
+        $imgHeight = 250;
+        $canvas->set_opacity(.2);
+        // Specify horizontal and vertical position 
+        $x = (($w - $imgWidth) / 2);
+        $y = (($h - $imgHeight) / 3);
+        $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
         $this->pdf->stream("report_kas", array("Attachment" => 0));
     }
 }

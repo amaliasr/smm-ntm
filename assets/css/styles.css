@@ -17669,6 +17669,15 @@ body {
 	) !important;
 }
 
+.bg-gradient-danger-to-warning {
+	background-color: #f53b57 !important;
+	background-image: linear-gradient(
+		135deg,
+		#f53b57 0%,
+		rgba(255, 121, 63, 0.8) 100%
+	) !important;
+}
+
 .bg-transparent-light {
 	color: rgba(255, 255, 255, 0.5) !important;
 	background-color: rgba(0, 0, 0, 0.1) !important;

@@ -117,6 +117,7 @@
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
                         <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
+                        <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
                         <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
                         <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
                         <a class="nav-link" href="<?= base_url(); ?>order/history">History</a>
