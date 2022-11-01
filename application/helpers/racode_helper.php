@@ -8,7 +8,7 @@ function mobile_assets($param)
 function api_url($param)
 {
     // $url = 'https://api.pt-bks.com/office/' . $param;
-    $url = 'http://192.168.10.144/api.ntm/' . $param;
+    $url = 'http://192.168.10.76/api.ntm/' . $param;
     return $url;
 }
 function is_login()

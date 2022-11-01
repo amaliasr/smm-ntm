@@ -48,3 +48,6 @@ function toTitleCase(str) {
 function number_format(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
