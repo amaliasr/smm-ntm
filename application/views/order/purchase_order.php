@@ -247,6 +247,7 @@
     var no_po = ""
     var button_prpo = 'PR'
     var data_checked = ""
+    var initialDivision = "FAT"
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
@@ -424,8 +425,11 @@
                 let obj = response['data'].find((value, key) => {
                     if (value.no_bulan === thisMonth && value.tahun === thisYear.toString() && value.cost_center_id === divisi_id.toString()) return true
                 });
-                let count = parseInt(obj['count']) + 1;
-                no_pr = count.toString().padStart(3, "0") + '/SMM-' + obj['name'] + '/PR/' + thisYear
+                let count = 1
+                if (obj != undefined) {
+                    count = parseInt(obj['count']) + 1;
+                }
+                no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + thisYear
                 numberinPO()
             }
         })
@@ -446,7 +450,10 @@
                 let obj = response['data'].find((value, key) => {
                     if (value.no_bulan === thisMonth && value.tahun === thisYear.toString()) return true
                 });
-                let count = parseInt(obj['count']) + 1;
+                let count = 1
+                if (obj != undefined) {
+                    count = parseInt(obj['count']) + 1;
+                }
                 no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + thisYear
             }
         })
@@ -1089,7 +1096,7 @@
     var keys_select = 0
 
     function formPO(id_pr = "", data = "") {
-        // console.log(data)
+        console.log(data)
         status_more = "less"
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
@@ -1813,6 +1820,14 @@
         var html_body = ""
         if (state == null) {
             html_body += '<p class="text-dark-grey small mb-3">Untuk melanjutkan proses pada Supplier, pilih tekan Tombol dibawah ini</p>'
+            html_body += '<div class="row mb-2">'
+            html_body += '<div class="col align-self-center">'
+            html_body += '<p class="m-0 small">Tanggal Terakhir Pelunasan</p>'
+            html_body += '</div>'
+            html_body += '<div class="col">'
+            html_body += '<p class="m-0 small"><input type="text" class="form-control form-control-sm p-1 datepicker" id="tanggalPelunasan"></p>'
+            html_body += '</div>'
+            html_body += '</div>'
             html_body += '<button class="btn btn-success w-100 p-5" onclick="mulaiOrder(' + po_id + ')">Mulai Order ke Supplier</button>'
         } else if (state == 'PROCESS') {
             html_body += '<p class="text-dark-grey small mb-3">Jika Supplier telah memberikan Surat Jalan, maka Anda Dapat Input Surat tersebut dibawah ini</p>'
@@ -1828,6 +1843,11 @@
             html_body += '</div>'
         }
         $('#statusOrdering').html(html_body)
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true
+        });
         getSuratJalan(po_id)
     }
 
@@ -1960,12 +1980,14 @@
     }
 
     function mulaiOrder(po_id) {
+        var tgl = $('#tanggalPelunasan').val()
         var button = ''
         var url = '<?php echo api_url('Api_Warehouse/insertOrdering'); ?>'
         var type = 'POST'
         var data = {
             id_user: user_id,
             po_id: po_id,
+            tanggal_expired: tgl
         }
         var image = 'truck.gif'
         var text_loading = 'Sedang Membuat Order Baru...'
@@ -1980,6 +2002,7 @@
             'po_id': po_id,
             'state': state,
         }
+        // console.log(content)
         ajaxTemplate(content)
     }
 

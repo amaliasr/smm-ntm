@@ -82,6 +82,13 @@
         height: 1em;
         order: 2;
     }
+
+    .gambar-miring {
+        -ms-transform: rotate(20deg);
+        /* IE 9 */
+        transform: rotate(20deg);
+        opacity: 0.3;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -177,8 +184,8 @@
                                                 <li>
                                                     <h6 class="dropdown-header">Group By</h6>
                                                 </li>
-                                                <li><a class="dropdown-item" href="#" onclick="changeDetail('supplier')">Supplier <i class="ms-2 fa fa-check text-success" id="successSupplier"></i></a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="changeDetail('po')">PO <i class="ms-2 fa fa-check text-success d-none" id="successPO"></i></a></li>
+                                                <li><a class="dropdown-item" onclick="changeDetail('supplier')">Supplier <i class="ms-2 fa fa-check text-success" id="successSupplier"></i></a></li>
+                                                <li><a class="dropdown-item" onclick="changeDetail('po')">PO <i class="ms-2 fa fa-check text-success d-none" id="successPO"></i></a></li>
                                                 <li>
                                                     <hr class="dropdown-divider">
                                                 </li>
@@ -339,7 +346,7 @@
     })
     var data_payment = ""
 
-    function getData() {
+    function getData(po_id = "", modal = "") {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getDataPayment'); ?>",
             method: "GET",
@@ -359,10 +366,13 @@
                         total += parseInt(obj['grand_total']);
                     }
                 })
-                var percent = roundToTwo(parseInt(sum) / parseInt(total) * 100)
+                var percent = roundToTwo((parseInt(total) - parseInt(sum)) / parseInt(total) * 100)
                 $('#jumlahPending').html(data.length)
                 $('#persentPending').html(percent + '%')
                 tampilDetailPembayaran(data_payment['by_supplier'], 'supplier')
+                if (po_id != "") {
+                    formPaymentPO(po_id, modal)
+                }
             }
         })
     }
@@ -413,11 +423,14 @@
                 html += '<div class="card shadow-sm mb-2 w-100 card-hoper">'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
-                html += '<div class="col-11 align-self-center">'
+                html += '<div class="col-7 align-self-center">'
                 html += '<p class="m-0 text-grey small" style="font-size:11px ;">Ordered at ' + value['date_order'] + '</p>'
                 html += '<b style="cursor: pointer;" onclick="paymentPO(' + value['po_id'] + ')">PO ' + value['no_po'] + '</b>'
+                html += '<p class="m-0 small lh-2 mb-2" style="font-size: 10px;">Supplier ' + value['supplier_name'] + '</p>'
                 html += '<p class="m-0 lh-sm small"><i class="fa fa-money text-success"></i> ' + number_format(value['total_dibayar']) + ' / ' + number_format(value['grand_total']) + '</p>'
-                html += '<p class="m-0 mt-4 small" style="font-size:11px ;"><i class="fa fa-clock-o text-warning"></i> Due on ' + formatDate(value['masa_tenggang']) + '</p>'
+                html += '</div>'
+                html += '<div class="col-4">'
+                html += '<p class="m-0 small" style="font-size:11px ;"><i class="fa fa-clock-o text-warning"></i> Due on ' + formatDate(value['masa_tenggang']) + '</p>'
                 html += '<p class="m-0">'
                 var is_dp = 0
                 if (value['detail_pembayaran'] != null) {
@@ -458,22 +471,24 @@
     function tampilQuickPayment() {
         var html = ""
         $.each(data_payment['by_po'], function(key, value) {
-            html += '<div class="card shadow-none mb-1 p-1 card-hoper">'
-            html += '<div class="card-body p-2">'
-            html += '<div class="row">'
-            html += '<div class="col-3 align-self-center text-center">'
-            html += '<div id="profileImage"><i class="fa fa-truck"></i></div>'
-            html += '</div>'
-            html += '<div class="col-9 align-self-center text-break">'
-            html += '<a href="#" onclick="paymentPO(' + value['po_id'] + ')">'
-            html += '<p class="m-0 small fw-bold" style="font-size: 14px;">PO #' + value['no_po'] + '</p>'
-            html += '</a>'
-            html += '<p class="m-0 small lh-2" style="font-size: 11px;">Supplier ' + value['supplier_name'] + '</p>'
-            html += '<p class="m-0 mt-3 small lh-1 text-grey" style="font-size: 11px;">Due ' + formatDate(value['masa_tenggang']) + '</p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
+            if (value['is_lunas'] == 0) {
+                html += '<div class="card shadow-none mb-1 p-1 card-hoper">'
+                html += '<div class="card-body p-2">'
+                html += '<div class="row">'
+                html += '<div class="col-3 align-self-center text-center">'
+                html += '<div id="profileImage"><i class="fa fa-truck"></i></div>'
+                html += '</div>'
+                html += '<div class="col-9 align-self-center text-break">'
+                html += '<a onclick="paymentPO(' + value['po_id'] + ')" class="text-primary" style="cursor:pointer;">'
+                html += '<p class="m-0 small fw-bold" style="font-size: 14px;">PO #' + value['no_po'] + '</p>'
+                html += '</a>'
+                html += '<p class="m-0 small lh-2" style="font-size: 11px;">Supplier ' + value['supplier_name'] + '</p>'
+                html += '<p class="m-0 mt-3 small lh-1 text-grey" style="font-size: 11px;">Due ' + formatDate(value['masa_tenggang']) + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            }
         })
         $('#listQuickPayment').html(html)
     }
@@ -546,6 +561,9 @@
             html_body += '<p class="m-0 float-start" style="font-size:11px;">' + number_format(value['total_dibayar']) + ' / ' + number_format(value['grand_total']) + '</p>'
             var percent = 0
             percent = roundToTwo(parseInt(value['total_dibayar']) / parseInt(value['grand_total']) * 100)
+            if (percent > 100) {
+                percent = 100
+            }
             html_body += '<p class="m-0 float-end" style="font-size:11px;">' + percent + '%</p>'
             html_body += '<br>'
             html_body += '<div class="progress" style="height: 5px;">'
@@ -673,7 +691,12 @@
 
         html_body += '<p class="small mb-2"><b><span class="fa fa-list me-2"></span>Detail Pembayaran</b></p>'
         // detail
-        html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
+        html_body += '<div class="card shadow-none mb-1 small position-relative" style="font-size:12px;">'
+        if (data['is_lunas'] == 1) {
+            html_body += '<div class="position-absolute top-50 start-50 translate-middle">'
+            html_body += '<img class="gambar-miring" src="<?= base_url() ?>assets/image/logo/paid.png" style="width:60px;height:60px;">'
+            html_body += '</div>'
+        }
         html_body += '<div class="card-body p-3">'
         html_body += '<div class="row">'
 
@@ -687,7 +710,11 @@
         html_body += 'Total Belum Terbayar'
         html_body += '</div>'
         html_body += '<div class="col-6 text-end">'
-        html_body += number_format(parseInt(data['grand_total']) - parseInt(data['total_dibayar']))
+        var selisih = parseInt(data['grand_total']) - parseInt(data['total_dibayar'])
+        if (selisih < 0) {
+            selisih = 0 + ' (lebih biaya ' + Math.abs(selisih) + ')'
+        }
+        html_body += number_format(selisih)
         html_body += '</div>'
         html_body += '<div class="col-6 pt-3">'
         html_body += '<b>Total Semua</b>'
@@ -702,6 +729,7 @@
         // detail
 
         html_body += '<p class="small mb-2 mt-4"><b><span class="fa fa-clock-o me-2"></span>History Pembayaran</b></p>'
+        html_body += '<div class="mb-3">'
         // detail
         var jum_pay = 1;
         if (detail == null) {
@@ -713,7 +741,7 @@
         }
         $.each(detail, function(key, value) {
             html_body += '<div class="card shadow-none mb-1 small position-relative" style="font-size:11px;">'
-            html_body += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:14px;cursor:pointer;">'
+            html_body += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:14px;cursor:pointer;" onclick="hapusTransaksi(' + value['id_pembayaran_detail'] + ',' + "'" + value['kode_pembayaran'] + "'" + ',' + "'" + modal + "'" + ',' + id + ')">'
             html_body += '<i class="fa fa-trash"></i>'
             html_body += '<span class="visually-hidden">Delete</span>'
             html_body += '</span>'
@@ -741,6 +769,7 @@
             html_body += '</div>'
         })
         // detail
+        html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-6 ">'
@@ -816,12 +845,12 @@
         html_body += '<div class="card-body p-3">'
         html_body += '<p class="m-0 mb-3"><b>Nominal</b></p>'
 
-        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1" value="" placeholder="Rp. 400,000" id="nominalPembayaran">'
+        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1 nominal" value="" placeholder="Rp. 400,000" id="nominalPembayaran">'
         html_body += '<hr class="m-0">'
         html_body += '<div class="mt-2">'
         html_body += '<div class="form-check  float-end">'
-        html_body += '<input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">'
-        html_body += '<label class="form-check-label" for="flexCheckChecked">'
+        html_body += '<input class="form-check-input" type="checkbox" value="1" id="isLunas">'
+        html_body += '<label class="form-check-label" for="isLunas">'
         html_body += 'Langsung Lunas?'
         html_body += '</label>'
         html_body += '</div>'
@@ -830,7 +859,7 @@
         html_body += '</div>'
         html_body += '</div>'
 
-        html_body += '<button class="btn btn-success w-100 mt-2" onclick="tambahPembayaran()">Lanjutkan Pembayaran</button>'
+        html_body += '<button class="btn btn-success w-100 mt-2" id="btnPembayaran" onclick="tambahPembayaran(' + id + ',' + modal + ')">Lanjutkan Pembayaran</button>'
 
 
         html_body += '</div>'
@@ -838,6 +867,7 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody' + modal).html(html_body);
+        $('.nominal').number(true);
 
         var html_footer = ''
         $('#modalFooter' + modal).html(html_footer);
@@ -845,7 +875,100 @@
         $('#modalFooter' + modal).addClass('d-none');
     }
 
-    function tambahPembayaran() {
+    function tambahPembayaran(po_id, modal) {
+        var type = 'POST'
+        var account_source_id = $('.data_account:checked').val()
+        var jenis_payment = $('.jenis_pembayaran:checked').val()
+        var is_lunas = $('#isLunas:checked').val()
+        if (is_lunas == undefined) {
+            is_lunas = 0
+        }
+        if (modal == undefined) {
+            modal = ""
+        }
+        var nominal = $('#nominalPembayaran').val()
+        var data = {
+            account_source_id: account_source_id,
+            jenis_payment: jenis_payment,
+            nominal: nominal,
+            is_lunas: is_lunas,
+            user_id: user_id,
+            po_id: po_id,
+            modal: modal,
+        }
+        var button = '#btnPembayaran'
+        var url = '<?php echo api_url('Api_Warehouse/insertPayment'); ?>'
+        kelolaData(data, type, url, button)
+    }
 
+    function hapusTransaksi(id, kode, modal, po_id) {
+        if (modal == undefined) {
+            modal = ''
+        }
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus transaksi ' + kode + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Hapus'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?php echo api_url('Api_Warehouse/deletePayment'); ?>',
+                    type: 'POST',
+                    data: {
+                        id_pembayaran_detail: id,
+                        user_id: user_id
+                    },
+                    success: function(response) {
+                        getData(po_id, modal)
+                        Swal.fire(
+                            'Terhapus!',
+                            'Transaksi ' + kode + ' Terhapus',
+                            'success'
+                        )
+                    }
+                });
+            }
+        })
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Disimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        getData(data['po_id'], data['modal'])
+                        $(button).prop("disabled", false);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
     }
 </script>
