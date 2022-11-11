@@ -777,6 +777,14 @@
 
         html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
         html_body += '<div class="card-body p-3">'
+        html_body += '<p class="m-0 mb-3"><b>No. Invoice</b></p>'
+        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1" value="" id="no_invoice">'
+        html_body += '<hr class="m-0">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
+        html_body += '<div class="card-body p-3">'
         html_body += '<p class="m-0 mb-3"><b>Sumber Dana</b></p>'
 
         // sumber
@@ -844,7 +852,6 @@
         html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
         html_body += '<div class="card-body p-3">'
         html_body += '<p class="m-0 mb-3"><b>Nominal</b></p>'
-
         html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1 nominal" value="" placeholder="Rp. 400,000" id="nominalPembayaran">'
         html_body += '<hr class="m-0">'
         html_body += '<div class="mt-2">'
@@ -887,6 +894,7 @@
             modal = ""
         }
         var nominal = $('#nominalPembayaran').val()
+        var no_invoice = $('#no_invoice').val()
         var data = {
             account_source_id: account_source_id,
             jenis_payment: jenis_payment,
@@ -895,6 +903,7 @@
             user_id: user_id,
             po_id: po_id,
             modal: modal,
+            no_invoice: no_invoice,
         }
         var button = '#btnPembayaran'
         var url = '<?php echo api_url('Api_Warehouse/insertPayment'); ?>'
