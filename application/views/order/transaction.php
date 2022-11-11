@@ -240,95 +240,6 @@
                                         </div>
                                     </div>
                                     <div class="col-12 pt-4" id="tampilDetailSuratJalan">
-                                        <div class="card shadow-sm mb-2 w-100 card-hoper">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-1 align-self-center">
-                                                        <div id="profileImage"><i class="fa fa-truck"></i></div>
-                                                    </div>
-                                                    <div class="col-6 align-self-center">
-                                                        <p class="m-0 text-grey small" style="font-size:11px ;">Create at 02/11/2022</p>
-                                                        <b style="cursor: pointer;" onclick="detailSJ()">SJ #74927438</b>
-                                                        <p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> 3 Items from <b>PT BERCA KAWAN SEJATI</b></p>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <p class="m-0 small text-grey" style="font-size:10px ;">Item</p>
-                                                        <p class="m-0 small" style="font-size:12px ;"><b>NTM</b></p>
-                                                        <p class="m-0 small text-grey" style="font-size:10px ;">Status</p>
-                                                        <p class="m-0 small" style="font-size:12px ;"><b>DELIVER</b></p>
-                                                    </div>
-                                                    <div class="col-1 align-self-center">
-                                                        <button class="btn btn-sm float-end" id="dropdownMenuButton"><i class="fa fa-angle-down fa-2x"></i></button>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <hr>
-                                                    <div class="col-1">
-
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <p class="m-0 mb-3" style="font-size: 11px;"><b>Tracking</b></p>
-                                                        <div class="timeline timeline-sm">
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator bg-success text-white"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Order</div>
-                                                            </div>
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator bg-success text-white"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Deliver</div>
-                                                            </div>
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator text-grey"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Checked</div>
-                                                            </div>
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator text-grey"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Done</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-4 border-start">
-                                                        <p class="m-0 mb-3" style="font-size: 11px;"><b>Detail Item</b></p>
-                                                        <?php for ($i = 0; $i < 4; $i++) { ?>
-                                                            <div class="row">
-                                                                <div class="col-2 p-2 text-center">
-                                                                    <img src="<?= base_url() ?>assets/image/logo/box.png" class="w-100 mx-auto d-block">
-                                                                </div>
-                                                                <div class="col-5 align-self-center ps-0">
-                                                                    <p class="m-0 small" style="font-size:12px ;"><b>Nama Item</b></p>
-                                                                    <p class="m-0 small float-start" style="font-size:10px ;">20x</p>
-                                                                    <p class="m-0 small float-end" style="font-size:10px ;">Lembar</p>
-                                                                </div>
-                                                                <div class="col-5 align-self-center">
-                                                                    <p class="m-0 small text-end text-grey" style="font-size:12px ;"><i class="fa fa-check"></i> Uncheck</p>
-                                                                </div>
-                                                            </div>
-                                                        <?php } ?>
-                                                    </div>
-                                                    <div class="col-3 border-start text-center">
-                                                        <div id="qrcode" style="text-align:center;" class="mt-3 mx-auto d-block w-100"></div>
-
-                                                        <button type="button" class="btn btn-primary btn-sm mt-3" onclick="actionPerSJ()">Pengajuan Barang</button>
-
-                                                    </div>
-                                                    <div class="col-1">
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -425,23 +336,18 @@
     });
     var user_id = 135
     var divisi_id = 11
-    var data_account = ""
+    var data_suratjalan = ""
 
-
-    var qrcode = new QRCode("qrcode", {
-        text: "http://jindo.dev.naver.com/collie",
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
+    // var qrcode = new QRCode("qrcode", {
+    //     text: "http://jindo.dev.naver.com/collie",
+    //     width: 128,
+    //     height: 128,
+    //     colorDark: "#000000",
+    //     colorLight: "#ffffff",
+    //     correctLevel: QRCode.CorrectLevel.H
+    // });
 
     $(document).ready(function() {
-        $("#qrcode > img").css({
-            "margin": "auto"
-        });
-        detailSJ()
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",
@@ -453,10 +359,168 @@
             beforeSend: function() {},
             success: function(response) {
                 data_user = response['data']
-                // actionPerSJ()
+                getDataSJ()
             }
         })
     })
+
+    function getDataSJ() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getDataListSJ'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                data_suratjalan = response['data']
+                $.each(data_suratjalan, function(keys, values) {
+                    formListSJ(keys, data_suratjalan[keys], JSON.parse(values['data_detail']))
+                })
+            }
+        })
+    }
+
+    function formListSJ(keys, data, data_detail) {
+        var html = ""
+        html += '<div class="card shadow-sm mb-2 w-100 card-hoper">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-1 align-self-center">'
+        html += '<div id="profileImage"><i class="fa fa-truck"></i></div>'
+        html += '</div>'
+        html += '<div class="col-6 align-self-center">'
+        html += '<p class="m-0 text-grey small" style="font-size:11px ;">Create at ' + data['date_transaction'] + '</p>'
+        html += '<b style="cursor: pointer;" onclick="detailSJ(' + keys + ')">SJ #' + data['no_sj'] + '</b>'
+        html += '<p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> ' + data_detail.length + ' Items from <b>' + data['supplier_name'] + '</b></p>'
+        html += '</div>'
+        html += '<div class="col-4">'
+        html += '<p class="m-0 small text-grey" style="font-size:10px ;">Item</p>'
+        html += '<p class="m-0 small" style="font-size:12px ;"><b>NTM</b></p>'
+        html += '<p class="m-0 small text-grey" style="font-size:10px ;">Status</p>'
+        html += '<p class="m-0 small" style="font-size:12px ;"><b>' + data_detail[0]['status_order'] + '</b></p>'
+        html += '</div>'
+        html += '<div class="col-1 align-self-center">'
+        html += '<button class="btn btn-sm float-end" onclick="toggleDropdown(' + keys + ')"><i class="fa fa-angle-down fa-2x" id="iconUp' + keys + '"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="row mt-3 d-none" id="detailTransaction' + keys + '">'
+        html += '<hr>'
+        html += '<div class="col-1">'
+
+        html += '</div>'
+        var status = 'text-grey'
+        html += '<div class="col-3">'
+        html += '<p class="m-0 mb-3" style="font-size: 11px;"><b>Tracking</b></p>'
+        html += '<div class="timeline timeline-sm">'
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
+        if (data_detail[0]['status_order'] == 'PROCESS' || data_detail[0]['status_order'] == 'ON DELIVERY' || data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE') {
+            status = 'bg-success text-white'
+        } else {
+            status = 'text-grey'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">Ordered</div>'
+        html += '</div>'
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
+        if (data_detail[0]['status_order'] == 'ON DELIVERY' || data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE') {
+            status = 'bg-success text-white'
+        } else {
+            status = 'text-grey'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">Delivered</div>'
+        html += '</div>'
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
+        if (data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE') {
+            status = 'bg-success text-white'
+        } else {
+            status = 'text-grey'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">Checked</div>'
+        html += '</div>'
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
+        if (data_detail[0]['status_order'] == 'DONE') {
+            status = 'bg-success text-white'
+        } else {
+            status = 'text-grey'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">Done</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '<div class="col-4 border-start">'
+        html += '<p class="m-0 mb-3" style="font-size: 11px;"><b>Detail Item</b></p>'
+        $.each(data_detail, function(keys, values) {
+            html += '<div class="row">'
+            html += '<div class="col-2 p-2 text-center">'
+            html += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-100 mx-auto d-block">'
+            html += '</div>'
+            html += '<div class="col-5 align-self-center ps-0">'
+            html += '<p class="m-0 small" style="font-size:12px ;"><b>' + values['item_name'] + '</b></p>'
+            html += '<p class="m-0 small float-start" style="font-size:10px ;">' + values['jumlah'] + 'x</p>'
+            html += '<p class="m-0 small float-end" style="font-size:10px ;">' + values['satuan_name'] + '</p>'
+            html += '</div>'
+            html += '<div class="col-5 align-self-center">'
+            html += '<p class="m-0 small text-end text-grey" style="font-size:12px ;"><i class="fa fa-check"></i> Uncheck</p>'
+            html += '</div>'
+            html += '</div>'
+        })
+        html += '</div>'
+        html += '<div class="col-3 border-start text-center">'
+        html += '<div class="qrcode" id="qrcode' + keys + '" style="text-align:center;" class="mt-3 mx-auto d-block w-100"></div>'
+
+        html += '<button type="button" class="btn btn-primary btn-sm mt-3" onclick="actionPerSJ()">Pengajuan Barang</button>'
+
+        html += '</div>'
+        html += '<div class="col-1">'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#tampilDetailSuratJalan').append(html)
+        var qrcode = new QRCode("qrcode" + keys, {
+            text: "http://jindo.dev.naver.com/collie",
+            width: 128,
+            height: 128,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        $(".qrcode > img").css({
+            "margin": "auto"
+        });
+    }
+
+    function toggleDropdown(keys) {
+        var element = document.getElementById('detailTransaction' + keys).classList.contains('d-none');
+        if (element == false) {
+            // buka
+            $('#detailTransaction' + keys).addClass('d-none')
+            $('#iconUp' + keys).addClass('fa-angle-down')
+            $('#iconUp' + keys).removeClass('fa-angle-up')
+        } else {
+            // tutup
+            $('#detailTransaction' + keys).removeClass('d-none')
+            $('#iconUp' + keys).removeClass('fa-angle-down')
+            $('#iconUp' + keys).addClass('fa-angle-up')
+        }
+    }
 
     function actionPerSJ() {
         $('#modal').modal('show')
@@ -517,7 +581,8 @@
         $('#modalFooter').addClass('d-none')
     }
 
-    function detailSJ() {
+    function detailSJ(keys) {
+        var data = data_suratjalan[keys]
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-scrollable');
         var html_header = '';
@@ -528,22 +593,26 @@
         var html_body = '';
         html_body += '<div class="container small p-5 pt-2">'
         html_body += '<div class="row">'
-        html_body += '<p class="m-0 p-0 small">Surat Jalan <b>#123456</b></p>'
-        html_body += '<p class="m-0 p-0 mb-2 small">Supplier <b>PT BERCA KAWAN SEJATI</b></p>'
+        html_body += '<p class="m-0 p-0 small">Surat Jalan <b>#' + data['no_sj'] + '</b></p>'
+        html_body += '<p class="m-0 p-0 mb-2 small">Supplier <b>' + data['supplier_name'] + '</b></p>'
         html_body += '<div class="card shadow-sm">'
         html_body += '<div class="card-body p-2">'
-        for (let i = 0; i < 20; i++) {
+        var detail = JSON.parse(data['data_detail'])
+        var array = []
+        $.each(detail, function(keys, values) {
+            array.push(values['id_detail_order'])
             html_body += '<div class="row">'
             html_body += '<div class="col-3 p-2 text-center">'
             html_body += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-50 mx-auto d-block">'
             html_body += '</div>'
             html_body += '<div class="col-5 align-self-center ps-0">'
-            html_body += '<p class="m-0 small" style="font-size:12px ;"><b>Nama Item</b></p>'
-            html_body += '<p class="m-0 small float-start" style="font-size:10px ;">20x</p>'
-            html_body += '<p class="m-0 small float-end" style="font-size:10px ;">Lembar</p>'
+            html_body += '<p class="m-0 small" style="font-size:12px ;"><b>' + values['item_name'] + '</b></p>'
+            html_body += '<p class="m-0 small float-start" style="font-size:10px ;">' + values['jumlah'] + 'x</p>'
+            html_body += '<p class="m-0 small float-end" style="font-size:10px ;">' + values['satuan_name'] + '</p>'
             html_body += '</div>'
             html_body += '</div>'
-        }
+        })
+        var stringArray = JSON.stringify(array)
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
@@ -551,9 +620,57 @@
         $('#modalBody').html(html_body);
 
         var html_footer = ""
-        html_footer += '<button type="button" class="btn btn-success w-100" id="btnSimpanPO"><i class="fa fa-check me-2"></i> Checked</button>'
-        html_footer += '<span class="small mx-auto d-block text-danger" style="cursor:pointer;font-size:12px;">Pembatalan Surat Jalan</span>'
+        var state = "PROCESS"
+        var text = '<i class="fa fa-paper-plane-o me-2"></i> Process'
+        if (detail[0]['status_order'] == 'PROCESS') {
+            text = '<i class="fa fa-truck me-2"></i> Deliver'
+            state = "ON DELIVERY"
+        } else if (detail[0]['status_order'] == 'ON DELIVERY') {
+            text = '<i class="fa fa-check me-2"></i> Check'
+            state = 'CHECKED'
+        } else if (detail[0]['status_order'] == 'CHECKED') {
+            text = '<i class="fa fa-paper-plane-o me-2"></i> Finish it'
+            state = 'DONE'
+        } else if (detail[0]['status_order'] == 'DONE') {
+
+        }
+        if (detail[0]['status_order'] != 'DONE') {
+            html_footer += '<button type="button" class="btn btn-success w-100" onclick="approvalSJ(' + "'" + state + "'" + ',' + "'" + stringArray + "'" + ')">' + text + '</button>'
+            html_footer += '<span class="small mx-auto d-block text-danger" style="cursor:pointer;font-size:12px;">Pembatalan Surat Jalan</span>'
+        } else {
+            html_footer += '<span class="small mx-auto d-block text-grey"><i>Surat Jalan ini telah selesai</i></span>'
+        }
         $('#modalFooter').html(html_footer);
         $('#modalFooter').removeClass('d-none')
+    }
+
+    function approvalSJ(state, id) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Lanjut'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?php echo api_url('Api_Warehouse/updateStateSJ'); ?>',
+                    type: 'POST',
+                    data: {
+                        order_detail_id: JSON.parse(id),
+                        state: state
+                    },
+                    success: function(response) {
+                        $('#modal').modal('hide')
+                        getDataSJ()
+                        Swal.fire(
+                            'Berhasil!',
+                            'success'
+                        )
+                    }
+                });
+            }
+        })
     }
 </script>

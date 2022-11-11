@@ -1096,7 +1096,7 @@
     var keys_select = 0
 
     function formPO(id_pr = "", data = "") {
-        console.log(data)
+        // console.log(data)
         status_more = "less"
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');

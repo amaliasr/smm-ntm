@@ -99,32 +99,10 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-truck"></i></div>
-                            Transaction
+                            Logistic
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
-                        <div class="float-end">
-                            <div class="row">
-                                <div class="col-auto">
-                                    <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama">
-                                        <span class="input-group-text">
-                                            <i class="fa fa-search"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="btn-group">
-                                        <button class="btn btn-outline-light position-relative" type="button" id="dropdownMenuClickableOutside">
-                                            <i class="fa fa-bell"></i>
-                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                                                <span class="visually-hidden">New alerts</span>
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                 </div>
@@ -136,75 +114,31 @@
         <div class="row">
             <div class="col-12 col-md-12">
                 <div class="row">
-                    <div class="col mb-2 pe-1">
+                    <div class="col-12 col-md-5 mb-2">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-3 align-self-center text-center">
-                                        <i class="fa fa-clock-o text-warning fa-2x"></i>
+                                    <div class="col-12 mb-3">
+                                        <span class="small"><b>Check Arrived Package</b></span>
                                     </div>
-                                    <div class="col-9 align-self-center">
-                                        <h6 class="fw-bold m-0">Pending</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="persentPending">0</b></h1>
-                                        <!-- <p style="font-size: 11px;" class="mb-0">Done This Order</p> -->
+                                    <div class="col-12 mb-3">
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control basicAutoComplete" placeholder="Recipient's username" aria-label="No. Surat Jalan" aria-describedby="button-addon2" id="inputSearch" autocomplete="off">
+                                            <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="cariSuratJalan()"><i class="fa fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-3" id="tampilSuratJalan">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col mb-2 ps-1 pe-1">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-3 align-self-center text-center">
-                                        <i class="fa fa-truck text-primary fa-2x"></i>
-                                    </div>
-                                    <div class="col-9 align-self-center">
-                                        <h6 class="fw-bold m-0">Delivered</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
-                                        <!-- <p style="font-size: 11px;" class="lh-sm mb-0">Orders are On The Way</p> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col mb-2 ps-1 pe-1">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-3 align-self-center text-center">
-                                        <i class="fa fa-check text-success fa-2x"></i>
-                                    </div>
-                                    <div class="col-9 align-self-center">
-                                        <h6 class="fw-bold m-0">Checked</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
-                                        <!-- <p style="font-size: 11px;" class="lh-sm mb-0">Orders are Unpaid</p> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col mb-2 ps-1">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-3 align-self-center text-center">
-                                        <i class="fa fa-times text-danger fa-2x"></i>
-                                    </div>
-                                    <div class="col-9 align-self-center">
-                                        <h6 class="fw-bold m-0">Canceled</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-4">
+                    <div class="col-12 col-md-7 mb-4">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col">
-                                        <span class="small"><b>List Surat Jalan</b></span>
+                                        <span class="small"><b>History</b></span>
                                     </div>
                                     <div class="col">
                                         <div class="btn-group float-end">
@@ -240,95 +174,9 @@
                                         </div>
                                     </div>
                                     <div class="col-12 pt-4" id="tampilDetailSuratJalan">
-                                        <div class="card shadow-sm mb-2 w-100 card-hoper">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-1 align-self-center">
-                                                        <div id="profileImage"><i class="fa fa-truck"></i></div>
-                                                    </div>
-                                                    <div class="col-6 align-self-center">
-                                                        <p class="m-0 text-grey small" style="font-size:11px ;">Create at 02/11/2022</p>
-                                                        <b style="cursor: pointer;" onclick="detailSJ()">SJ #74927438</b>
-                                                        <p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> 3 Items from <b>PT BERCA KAWAN SEJATI</b></p>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <p class="m-0 small text-grey" style="font-size:10px ;">Item</p>
-                                                        <p class="m-0 small" style="font-size:12px ;"><b>NTM</b></p>
-                                                        <p class="m-0 small text-grey" style="font-size:10px ;">Status</p>
-                                                        <p class="m-0 small" style="font-size:12px ;"><b>DELIVER</b></p>
-                                                    </div>
-                                                    <div class="col-1 align-self-center">
-                                                        <button class="btn btn-sm float-end" id="dropdownMenuButton"><i class="fa fa-angle-down fa-2x"></i></button>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <hr>
-                                                    <div class="col-1">
 
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <p class="m-0 mb-3" style="font-size: 11px;"><b>Tracking</b></p>
-                                                        <div class="timeline timeline-sm">
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator bg-success text-white"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Order</div>
-                                                            </div>
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator bg-success text-white"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Deliver</div>
-                                                            </div>
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator text-grey"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Checked</div>
-                                                            </div>
-                                                            <div class="timeline-item">
-                                                                <div class="timeline-item-marker">
-                                                                    <div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>
-                                                                    <div class="timeline-item-marker-indicator text-grey"><i data-feather="check"></i></div>
-                                                                </div>
-                                                                <div class="timeline-item-content" style="font-size: 11px;">Done</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-4 border-start">
-                                                        <p class="m-0 mb-3" style="font-size: 11px;"><b>Detail Item</b></p>
-                                                        <?php for ($i = 0; $i < 4; $i++) { ?>
-                                                            <div class="row">
-                                                                <div class="col-2 p-2 text-center">
-                                                                    <img src="<?= base_url() ?>assets/image/logo/box.png" class="w-100 mx-auto d-block">
-                                                                </div>
-                                                                <div class="col-5 align-self-center ps-0">
-                                                                    <p class="m-0 small" style="font-size:12px ;"><b>Nama Item</b></p>
-                                                                    <p class="m-0 small float-start" style="font-size:10px ;">20x</p>
-                                                                    <p class="m-0 small float-end" style="font-size:10px ;">Lembar</p>
-                                                                </div>
-                                                                <div class="col-5 align-self-center">
-                                                                    <p class="m-0 small text-end text-grey" style="font-size:12px ;"><i class="fa fa-check"></i> Uncheck</p>
-                                                                </div>
-                                                            </div>
-                                                        <?php } ?>
-                                                    </div>
-                                                    <div class="col-3 border-start text-center">
-                                                        <div id="qrcode" style="text-align:center;" class="mt-3 mx-auto d-block w-100"></div>
 
-                                                        <button type="button" class="btn btn-primary btn-sm mt-3" onclick="actionPerSJ()">Pengajuan Barang</button>
 
-                                                    </div>
-                                                    <div class="col-1">
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -372,27 +220,13 @@
         </div>
     </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="modal3" role="dialog" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog" role="document" id="modalDialog3">
-        <div class="modal-content">
-            <div class="modal-header" id="modalHeader3">
-
-            </div>
-            <div class="modal-body" id="modalBody3">
-
-            </div>
-            <div class="modal-footer" id="modalFooter3">
-
-            </div>
-        </div>
-    </div>
-</div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
+<!-- autocomplete -->
+<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
@@ -426,77 +260,333 @@
     var user_id = 135
     var divisi_id = 11
     var data_account = ""
-
-
-    var qrcode = new QRCode("qrcode", {
-        text: "http://jindo.dev.naver.com/collie",
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
+    var data_user = ""
+    var data_history = ""
 
     $(document).ready(function() {
-        $("#qrcode > img").css({
-            "margin": "auto"
-        });
-        detailSJ()
+        blankSuratJalan()
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",
             dataType: 'JSON',
-            data: {
-                id: user_id
-            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
                 data_user = response['data']
-                // actionPerSJ()
+                dataHistory()
             }
         })
     })
 
-    function actionPerSJ() {
+    function dataHistory() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getHistoryPenerimaan'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                data_history = response['data']
+                listHistory()
+            }
+        })
+    }
+
+    function listHistory() {
+        var html = ""
+        $.each(data_history, function(keys, values) {
+            html += '<div class="card shadow-sm mb-2 w-100 card-hoper">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+            html += '<div class="col-3 col-md-2  align-self-center">'
+            html += '<div id="profileImage"><i class="fa fa-check"></i></div>'
+            html += '</div>'
+            html += '<div class="col-8 col-md-9  align-self-center">'
+            html += '<p class="m-0 text-grey small" style="font-size:11px ;">Checked at ' + values['date'] + '</p>'
+            html += '<b style="cursor: pointer;" onclick="detailSJ(' + keys + ')">SJ #' + values['no_sj'] + '</b>'
+            html += '<p class="m-0 p-0 small lh-2" style="font-size: 11px;">Supplier <b>' + values['supplier_name'] + '</b></p>'
+            html += '<p class="m-0 p-0 small lh-2" style="font-size: 11px;">'
+            var data_sesuai = JSON.parse(values['data_detail']).filter(x => x.jumlah_asli === x.jumlah_diterima)
+            var data_tidakksesuai = JSON.parse(values['data_detail']).filter(x => x.jumlah_asli != x.jumlah_diterima)
+
+            if (data_sesuai.length != 0) {
+                html += '<span class="badge bg-success"><i class="fa fa-check"></i> ' + data_sesuai.length + ' Item Jumlah telah sesuai</span> '
+            }
+            if (data_tidakksesuai.length != 0) {
+                html += '<span class="badge bg-waning"><i class="fa fa-times"></i> ' + data_tidakksesuai.length + ' Item Jumlah tidak sesuai</span>'
+            }
+            html += '</p>'
+            html += '</div>'
+            html += '<div class="col-1 col-md-1 align-self-center">'
+            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#tampilDetailSuratJalan').html(html)
+    }
+
+    function blankSuratJalan() {
+        var html = ""
+        html += '<div class="card shadow-none mb-2 h-100">'
+        html += '<div class="card-body">'
+        html += '<div class="row justify-content-center">'
+        html += '<div class="col-8 align-self-center text-center">'
+        html += '<img src="<?= base_url() ?>assets/image/logo/search.png" class="w-50 mx-auto d-block mb-3">'
+        html += '<p style="font-size:11px;" >Cari Nomor Surat Jalan untuk Melihat Detail</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#tampilSuratJalan').html(html)
+    }
+
+    function tidakAdaSuratJalan() {
+        var html = ""
+        html += '<div class="card shadow-none mb-2 h-100">'
+        html += '<div class="card-body">'
+        html += '<div class="row justify-content-center">'
+        html += '<div class="col-8 align-self-center text-center">'
+        html += '<img src="<?= base_url() ?>assets/image/logo/page-not-found.png" class="w-50 mx-auto d-block mb-3">'
+        html += '<p style="font-size:11px;" >Surat Jalan Tidak Ditemukan</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#tampilSuratJalan').html(html)
+    }
+    var data_sj = ""
+
+    function cariSuratJalan() {
+        data_sj = ""
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getDataListSJ'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_sj: $('#inputSearch').val()
+                // no_sj: 'AMA123'
+            },
+            error: function(xhr) {
+                $('#modal2').modal('hide')
+                tidakAdaSuratJalan()
+            },
+            beforeSend: function() {
+                loading('truck.gif', 'Sedang Mencari Data')
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil',
+                    icon: 'success',
+                }).then((responses) => {
+                    if (response['data'] == undefined) {
+                        $('#modal2').modal('hide')
+                        tidakAdaSuratJalan()
+                    } else {
+                        $('#modal2').modal('hide')
+                        data_sj = response['data'][0]
+                        formPencarianSJ(response['data'][0])
+                    }
+                })
+            }
+        })
+    }
+
+    function formPencarianSJ(data) {
+        let obj = JSON.parse(data['data_detail']).filter((value, key) => {
+            if (value.status_order === 'DONE' || value.tahun === 'PENDING') return true
+        }).length;
+        var html = ""
+        html += '<div class="card shadow-sm mb-2">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-auto align-self-center">'
+        html += '<div id="profileImage"><i class="fa fa-truck"></i></div>'
+        html += '</div>'
+        html += '<div class="col align-self-center">'
+        html += '<p class="m-0 small" style="font-size:11px ;">Surat Jalan <b class="m-0">#' + data['no_sj'] + '</b></p>'
+        html += '<p class="m-0 small" style="font-size:11px ;">Supplier <b class="m-0">' + data['supplier_name'] + '</b></p>'
+        html += '<p class="m-0 small" style="font-size:11px ;">Item <b class="m-0">NTM</b></p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body">'
+        html += '<p class="m-0 mb-3" style="font-size: 11px;"><b>Detail Item</b></p>'
+        $.each(JSON.parse(data['data_detail']), function(keys, values) {
+            html += '<div class="row">'
+            html += '<div class="col-2 p-2 text-center">'
+            html += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-50 mx-auto d-block">'
+            html += '</div>'
+            html += '<div class="col-5 align-self-center ps-0">'
+            html += '<p class="m-0 small" style="font-size:12px ;"><b>' + values['item_name'] + '</b></p>'
+            html += '<p class="m-0 small float-start" style="font-size:10px ;">' + values['jumlah'] + ' <span>' + values['satuan_name'] + '</span></p>'
+            html += '</div>'
+            html += '<div class="col-3 align-self-center ps-0">'
+            if (obj == 0) {
+                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '">'
+            }
+            html += '</div>'
+            html += '<div class="col-2 align-self-center">'
+            html += '<p class="m-0 small text-start text-success d-none" id="checkItem' + keys + '" style="font-size:12px ;"><i class="fa fa-check fa-1x"></i></p>'
+            html += '<p class="m-0 small text-start text-warning d-none" id="warningItem' + keys + '" style="font-size:12px ;"><i class="fa fa-exclamation fa-1x"></i></p>'
+            html += '</div>'
+            html += '</div>'
+        })
+        if (obj == 0) {
+            html += '<p class="m-0 mb-3 mt-3" style="font-size: 11px;"><b>User yang Melakukan Pengecekan</b></p>'
+            html += '<select name="" id="user_checking" class="form-select form-select-sm" required="required">'
+            html += '<option value="" disabled selected>Pilih User</option>'
+            $.each(data_user, function(key, value) {
+                html += '<option value="' + value['id'] + '">' + value['name'] + '</option>'
+            })
+            html += '</select>'
+        }
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="mt-2">'
+        if (obj == 0) {
+            html += '<button class="btn btn-success w-100" id="btnChecked" onclick="checkDataArrived(' + data['pr_id'] + ',' + data['po_id'] + ',' + data['pengiriman_id'] + ',' + "'" + data['no_sj'] + "'" + ')">Selesai Pengecekan</button>'
+        } else {
+            html += '<button class="btn btn-outline-success w-100" disabled>Anda telah melakukan pengecekan</button>'
+        }
+        html += '</div>'
+        $('#tampilSuratJalan').html(html)
+        $('.nominal').number(true);
+    }
+    var any_anomali = 0
+    $(document).on('keyup', '.jumlahMasuk', function(e) {
+        var key = $(this).data('key')
+        var jumlah = $(this).data('jumlah')
+        if (parseInt(jumlah) == parseInt($('#jumlahMasuk' + key).val())) {
+            any_anomali = 0
+            $('#checkItem' + key).removeClass('d-none')
+            $('#warningItem' + key).addClass('d-none')
+        } else {
+            any_anomali = 1
+            $('#checkItem' + key).addClass('d-none')
+            $('#warningItem' + key).removeClass('d-none')
+        }
+    })
+
+    function checkDataArrived(pr_id, po_id, pengiriman_id, no_sj) {
+        var jumlah = $('.jumlahMasuk').map(function() {
+            return $(this).val();
+        }).get();
+        var item = $('.jumlahMasuk').map(function() {
+            return $(this).data('item');
+        }).get();
+        var satuan = $('.jumlahMasuk').map(function() {
+            return $(this).data('satuan');
+        }).get();
+        var order = $('.jumlahMasuk').map(function() {
+            return $(this).data('order');
+        }).get();
+        var detail = []
+        for (let i = 0; i < jumlah.length; i++) {
+            detail.push({
+                'id_detail_order': order[i],
+                'jumlah_barang': jumlah[i],
+                'id_satuan': satuan[i],
+                'id_item': item[i],
+            })
+        }
+        var id_user_checking = $('#user_checking').val()
+        var type = 'POST'
+        var data = {
+            id_users: user_id,
+            pengiriman_id: pengiriman_id,
+            no_sj: no_sj,
+            po_id: po_id,
+            id_user_checking: id_user_checking,
+            detail: detail,
+        }
+        var button = '#btnChecked'
+        var url = '<?php echo api_url('Api_Warehouse/insertPenerimaan'); ?>'
+        if (any_anomali == 1) {
+            Swal.fire({
+                text: 'Terdapat jumlah yang tidak sesuai dengan Surat Jalan, apakah anda ingin langsung menerima?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Terima Saja'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    kelolaData(data, type, url, button)
+                }
+            })
+        } else {
+            kelolaData(data, type, url, button)
+        }
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Disimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        dataHistory()
+                        $(button).prop("disabled", false);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
+    }
+
+    function detailSJ(keys) {
+        var data_detail = JSON.parse(data_history[keys]['data_detail'])
+        var data = data_history[keys]
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md');
         var html_header = '';
-        html_header += '<h5 class="modal-title">SJ #12345</h5>';
+        html_header += '<h5 class="modal-title">SJ #' + data['no_sj'] + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
 
         var html_body = '';
         html_body += '<div class="container small p-5 pt-2">'
         html_body += '<div class="row">'
-        html_body += '<p class="m-0 mb-2 small"><b>Action</b></p>'
-        for (let i = 0; i < 3; i++) {
-            html_body += '<div class="card shadow-none mb-1 small">'
-            html_body += '<div class="card-body p-3">'
-            html_body += '<div class="row">'
-            html_body += '<div class="col-2 border-end">'
-            html_body += '<input class="form-check-input data_account" type="radio" name="data_account" id="radioAccount' + i + '" value="">'
-            html_body += '</div>'
-            html_body += '<div class="col-10">'
-            html_body += '<label class="form-check-label" for="radioAccount' + i + '">'
-            html_body += 'Barang Kurang'
-            html_body += '</label>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '<p class="m-0 mb-2 mt-2 small"><b>Jumlah Kekurangan</b></p>'
-        for ($i = 0; $i < 4; $i++) {
+        html_body += '<p class="m-0 mb-2 small"><b>Detail Item</b></p>'
+        $.each(data_detail, function(key, value) {
             html_body += '<div class="row">'
             html_body += '<div class="col-2 p-2 text-center">'
             html_body += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-75 mx-auto d-block">'
             html_body += '</div>'
             html_body += '<div class="col-4 align-self-center ps-0">'
-            html_body += '<p class="m-0 small" style="font-size:12px ;"><b>Nama Item</b> <i class="fa fa-check text-grey"></i></p>'
+            html_body += '<p class="m-0 small" style="font-size:12px ;"><b>' + value['item_name'] + '</b></p>'
+            html_body += '<p class="m-0 small float-start" style="font-size:10px ;">' + value['jumlah_asli'] + ' <span>' + value['item_satuan'] + '</span></p>'
             html_body += '</div>'
-            html_body += '<div class="col-3 align-self-center p-0">'
-            html_body += '<input type="text" name="" class="form-control form-control-sm p-1 nominal" value="" id="nominalPembayaran">'
+            html_body += '<div class="col-3 align-self-center text-center p-0">'
+            html_body += '<p class="m-0 small">' + value['jumlah_diterima'] + '</p>'
             html_body += '</div>'
             html_body += '<div class="col-3 align-self-center text-start">'
             html_body += '<select name="" class="form-control select2-single form-control-sm w-100 " style="border:0" data-live-search="true" required="required">'
@@ -504,11 +594,7 @@
             html_body += '</select>'
             html_body += '</div>'
             html_body += '</div>'
-        }
-        html_body += '<div class="mt-3 text-center">'
-        html_body += '<button class="btn btn-success w-100">Pengajuan Baru</button>'
-        html_body += '<a class="small mt-1 text-grey" style="cursor:pointer;">Diterima saja</a>'
-        html_body += '</div>'
+        })
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
@@ -517,43 +603,20 @@
         $('#modalFooter').addClass('d-none')
     }
 
-    function detailSJ() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-scrollable');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">SJ #12345</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
         var html_body = '';
-        html_body += '<div class="container small p-5 pt-2">'
-        html_body += '<div class="row">'
-        html_body += '<p class="m-0 p-0 small">Surat Jalan <b>#123456</b></p>'
-        html_body += '<p class="m-0 p-0 mb-2 small">Supplier <b>PT BERCA KAWAN SEJATI</b></p>'
-        html_body += '<div class="card shadow-sm">'
-        html_body += '<div class="card-body p-2">'
-        for (let i = 0; i < 20; i++) {
-            html_body += '<div class="row">'
-            html_body += '<div class="col-3 p-2 text-center">'
-            html_body += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-50 mx-auto d-block">'
-            html_body += '</div>'
-            html_body += '<div class="col-5 align-self-center ps-0">'
-            html_body += '<p class="m-0 small" style="font-size:12px ;"><b>Nama Item</b></p>'
-            html_body += '<p class="m-0 small float-start" style="font-size:10px ;">20x</p>'
-            html_body += '<p class="m-0 small float-end" style="font-size:10px ;">Lembar</p>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
         html_body += '</div>'
         html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body);
-
-        var html_footer = ""
-        html_footer += '<button type="button" class="btn btn-success w-100" id="btnSimpanPO"><i class="fa fa-check me-2"></i> Checked</button>'
-        html_footer += '<span class="small mx-auto d-block text-danger" style="cursor:pointer;font-size:12px;">Pembatalan Surat Jalan</span>'
-        $('#modalFooter').html(html_footer);
-        $('#modalFooter').removeClass('d-none')
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 </script>
