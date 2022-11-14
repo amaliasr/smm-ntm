@@ -305,6 +305,7 @@
             html += '<p class="m-0 text-grey small" style="font-size:11px ;">Checked at ' + values['date'] + '</p>'
             html += '<b style="cursor: pointer;" onclick="detailSJ(' + keys + ')">SJ #' + values['no_sj'] + '</b>'
             html += '<p class="m-0 p-0 small lh-2" style="font-size: 11px;">Supplier <b>' + values['supplier_name'] + '</b></p>'
+            html += '<p class="m-0 p-0 small lh-2" style="font-size: 11px;">Checked By <b>' + values['user_check_name'] + '</b></p>'
             html += '<p class="m-0 p-0 small lh-2" style="font-size: 11px;">'
             var data_sesuai = JSON.parse(values['data_detail']).filter(x => x.jumlah_asli === x.jumlah_diterima)
             var data_tidakksesuai = JSON.parse(values['data_detail']).filter(x => x.jumlah_asli != x.jumlah_diterima)
@@ -313,7 +314,7 @@
                 html += '<span class="badge bg-success"><i class="fa fa-check"></i> ' + data_sesuai.length + ' Item Jumlah telah sesuai</span> '
             }
             if (data_tidakksesuai.length != 0) {
-                html += '<span class="badge bg-waning"><i class="fa fa-times"></i> ' + data_tidakksesuai.length + ' Item Jumlah tidak sesuai</span>'
+                html += '<span class="badge bg-warning"><i class="fa fa-exclamation"></i> ' + data_tidakksesuai.length + ' Item Jumlah tidak sesuai</span>'
             }
             html += '</p>'
             html += '</div>'
@@ -406,16 +407,20 @@
         html += '<div id="profileImage"><i class="fa fa-truck"></i></div>'
         html += '</div>'
         html += '<div class="col align-self-center">'
-        html += '<p class="m-0 small" style="font-size:11px ;">Surat Jalan <b class="m-0">#' + data['no_sj'] + '</b></p>'
-        html += '<p class="m-0 small" style="font-size:11px ;">Supplier <b class="m-0">' + data['supplier_name'] + '</b></p>'
-        html += '<p class="m-0 small" style="font-size:11px ;">Item <b class="m-0">NTM</b></p>'
+        html += '<p class="m-0 small" style="font-size:11px;">Surat Jalan <b class="m-0">#' + data['no_sj'] + '</b></p>'
+        html += '<p class="m-0 small" style="font-size:11px;">Supplier <b class="m-0">' + data['supplier_name'] + '</b></p>'
+        html += '<p class="m-0 small" style="font-size:11px;">Item <b class="m-0">NTM</b></p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
-        html += '<p class="m-0 mb-3" style="font-size: 11px;"><b>Detail Item</b></p>'
+        html += '<div class="d-flex bd-highlight mb-3">'
+        html += '<p class="m-0 bd-highlight me-auto" style="font-size: 11px;"><b>Detail Item</b></p>'
+        html += '<span class="m-0 bd-highlight fa fa-print" style="cursor:pointer;" onclick="cetakPenerimaan(' + "'" + data['supplier_name'] + "'," + "'" + data['no_sj'] + "'" + ')"></span>'
+        html += '</div>'
+
         $.each(JSON.parse(data['data_detail']), function(keys, values) {
             html += '<div class="row">'
             html += '<div class="col-2 p-2 text-center">'
@@ -449,7 +454,7 @@
         html += '</div>'
         html += '<div class="mt-2">'
         if (obj == 0) {
-            html += '<button class="btn btn-success w-100" id="btnChecked" onclick="checkDataArrived(' + data['pr_id'] + ',' + data['po_id'] + ',' + data['pengiriman_id'] + ',' + "'" + data['no_sj'] + "'" + ')">Selesai Pengecekan</button>'
+            html += '<button class="btn btn-success w-100" id="btnChecked" onclick="checkDataArrived(' + data['pr_id'] + ',' + data['po_id'] + ',' + data['pengiriman_id'] + ',' + "'" + data['no_sj'] + "'" + ')">Selesaikan Pengecekan</button>'
         } else {
             html += '<button class="btn btn-outline-success w-100" disabled>Anda telah melakukan pengecekan</button>'
         }
@@ -618,5 +623,11 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+
+    function cetakPenerimaan(supplier, no_sj) {
+        var url = '<?= base_url('order/cetakPenerimaan') ?>'
+        var params = "*$" + btoa(no_sj) + "*$" + btoa(data_sj['data_detail']) + "*$" + btoa(supplier)
+        window.open(url + '?params=' + (params), '_blank')
     }
 </script>

@@ -89,4 +89,19 @@ class Order extends CI_Controller
         $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
         $this->pdf->stream("report_kas", array("Attachment" => 0));
     }
+    public function cetakPenerimaan()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['no_sj'] = base64_decode($explodedParams[1]);
+        $data['detail'] = json_decode(base64_decode($explodedParams[2]), TRUE);
+        $data['nama_supplier'] = base64_decode($explodedParams[3]);
+        $html = $this->load->view('Order/cetakPenerimaan', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = $data['no_sj'] . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream("report_kas", array("Attachment" => 0));
+    }
 }

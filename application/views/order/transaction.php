@@ -382,7 +382,7 @@
 
     function formListSJ(keys, data, data_detail) {
         var html = ""
-        html += '<div class="card shadow-sm mb-2 w-100 card-hoper">'
+        html += '<div class="card shadow-sm mb-2 w-100 card-hoper" id="card_search' + keys + '">'
         html += '<div class="card-body">'
         html += '<div class="row">'
         html += '<div class="col-1 align-self-center">'
@@ -390,8 +390,8 @@
         html += '</div>'
         html += '<div class="col-6 align-self-center">'
         html += '<p class="m-0 text-grey small" style="font-size:11px ;">Create at ' + data['date_transaction'] + '</p>'
-        html += '<b style="cursor: pointer;" onclick="detailSJ(' + keys + ')">SJ #' + data['no_sj'] + '</b>'
-        html += '<p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> ' + data_detail.length + ' Items from <b>' + data['supplier_name'] + '</b></p>'
+        html += '<b class="text_search" data-id="' + keys + '" style="cursor: pointer;" onclick="detailSJ(' + keys + ')">SJ #' + data['no_sj'] + '</b>'
+        html += '<p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> ' + data_detail.length + ' Items from <b class="text_search" data-id="' + keys + '">' + data['supplier_name'] + '</b></p>'
         html += '</div>'
         html += '<div class="col-4">'
         html += '<p class="m-0 small text-grey" style="font-size:10px ;">Item</p>'
@@ -672,5 +672,38 @@
                 });
             }
         })
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

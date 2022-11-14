@@ -393,11 +393,11 @@
         var html = ""
         $.each(data, function(key, value) {
             if (jenis == 'supplier') {
-                html += '<div class="card shadow-sm mb-2 w-100 card-hoper">'
+                html += '<div class="card shadow-sm mb-2 w-100 card-hoper" id="card_searchSUPPLIER' + key + '">'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
                 html += '<div class="col-11 align-self-center">'
-                html += '<b style="cursor: pointer;" onclick="modalSupplierpayment(' + value['supplier_id'] + ',' + "'" + value['supplier_name'] + "'" + ')">' + value['supplier_name'] + '</b>'
+                html += '<b class="text_search" data-id="SUPPLIER' + key + '" style="cursor: pointer;" onclick="modalSupplierpayment(' + value['supplier_id'] + ',' + "'" + value['supplier_name'] + "'" + ')">' + value['supplier_name'] + '</b>'
                 if (value['total_belum'] != 0) {
                     html += '<p class="m-0 lh-sm small"><span class="badge bg-danger fw-bold text-white">' + value['total_belum'] + ' PO</span> belum terselesaikan</p>'
                 } else {
@@ -420,12 +420,12 @@
                 html += '</div>'
                 html += '</div>'
             } else {
-                html += '<div class="card shadow-sm mb-2 w-100 card-hoper">'
+                html += '<div class="card shadow-sm mb-2 w-100 card-hoper" id="card_searchPO' + key + '">'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
                 html += '<div class="col-7 align-self-center">'
                 html += '<p class="m-0 text-grey small" style="font-size:11px ;">Ordered at ' + value['date_order'] + '</p>'
-                html += '<b style="cursor: pointer;" onclick="paymentPO(' + value['po_id'] + ')">PO ' + value['no_po'] + '</b>'
+                html += '<b class="text_search" data-id="PO' + key + '" style="cursor: pointer;" onclick="paymentPO(' + value['po_id'] + ')">PO ' + value['no_po'] + '</b>'
                 html += '<p class="m-0 small lh-2 mb-2" style="font-size: 10px;">Supplier ' + value['supplier_name'] + '</p>'
                 html += '<p class="m-0 lh-sm small"><i class="fa fa-money text-success"></i> ' + number_format(value['total_dibayar']) + ' / ' + number_format(value['grand_total']) + '</p>'
                 html += '</div>'
@@ -465,6 +465,7 @@
         })
 
         $('#tampilDetailPembayaran').html(html)
+        searching()
         tampilQuickPayment()
     }
 
@@ -522,7 +523,7 @@
         html_body += '</div>'
         html_body += '<div class="col-auto mt-4">'
         html_body += '<div class="input-group w-100">'
-        html_body += '<input class="form-control pe-0" type="text" placeholder="Cari No. PO" aria-label="Search" id="search_nama">'
+        html_body += '<input class="form-control pe-0" type="text" placeholder="Cari No. PO" aria-label="Search" id="search_nama_in_supplier">'
         html_body += '<span class="input-group-text">'
         html_body += '<i class="fa fa-search"></i>'
         html_body += '</span>'
@@ -979,5 +980,37 @@
                 }
             }
         });
+    }
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>
