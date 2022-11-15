@@ -37,8 +37,7 @@
         $('#name').html(sessionStorage.getItem('full_name'))
     })
     $(document).on('click', "#logout", function() {
-        sessionStorage.clear();
-        var url = '<?= base_url('auth') ?>'
+        var url = '<?= base_url('Auth/logout') ?>'
         window.location.href = url
     })
 </script>

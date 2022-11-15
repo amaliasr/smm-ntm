@@ -123,7 +123,7 @@
                                     </div>
                                     <div class="col-12 mb-3">
                                         <div class="input-group mb-3">
-                                            <input type="text" class="form-control basicAutoComplete" placeholder="Recipient's username" aria-label="No. Surat Jalan" aria-describedby="button-addon2" id="inputSearch" autocomplete="off">
+                                            <input type="text" class="form-control basicAutoComplete" placeholder="Cari No. Surat Jalan" aria-label="No. Surat Jalan" aria-describedby="button-addon2" id="inputSearch" autocomplete="off">
                                             <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="cariSuratJalan()"><i class="fa fa-search"></i></button>
                                         </div>
                                     </div>

@@ -638,11 +638,27 @@
         } else {
             html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['cost_center'] + '</span></div>'
         }
+
+
         html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="col-12 mt-5">'
-        // SKM
+
+        // category
+        html_body += '<div class="row mb-2 float-end">'
+        html_body += '<div class="col-auto align-self-center">Category :</div>'
+        if (data == undefined) {
+            html_body += '<div class="col-auto ps-0">'
+            html_body += '<select name="" id="category" class="form-control form-control-sm select2-single category">'
+            html_body += '<option value="NTM">NTM</option>'
+            html_body += '</select>'
+            html_body += '</div>'
+        } else {
+            html_body += '<div class="col-auto"><span class="fw-bold">' + data['category'] + '</span></div>'
+        }
+        html_body += '</div>'
+        // category
 
         html_body += '<table class="table table-bordered table-sm">'
         html_body += '<tr>'
@@ -940,7 +956,8 @@
                 extended_price: total,
                 notes: notes,
                 total: jumlahPR,
-                justification: $('#justification').val()
+                justification: $('#justification').val(),
+                category: $('#category').val()
             }
             var button = '#btnSimpanPR'
             var url = '<?php echo api_url('Api_Warehouse/insertPR'); ?>'
@@ -1028,11 +1045,13 @@
                             var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
                             $('#modal').modal('hide')
                             shareWhatsapp(response.id_pr, '6281944946015', link)
+                            ajaxPR()
                         } else {
                             button_prpo = 'PO'
                             var link = '<?= base_url() ?>order/detailPO/' + response.id_po + ''
                             $('#modal').modal('hide')
                             shareWhatsapp(response.id_po, '6281944946015', link)
+                            ajaxPO()
                         }
                         $(button).prop("disabled", false);
                     });

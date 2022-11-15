@@ -15,7 +15,7 @@
                             <div class="col-xl-8 col-xxl-12">
                                 <div class="text-center text-xl-start text-xxl-center mb-4 mb-xl-0 mb-xxl-4">
                                     <!-- jika jam menunjukkan waktu 00:00 s/d 10:00 maka Pagi 10:01 s/d 15:00 Siang 15:01 s/d 18:00 Sore 18:01 s/d 23:59 Malam -->
-                                    <h1 class="text-dark">Selamat Datang, <span id="full_name" class="text-primary">Amalia Safira</span>!</h1>
+                                    <h1 class="text-dark">Selamat Datang, <span id="full_name" class="text-primary"><?= $full_name ?></span>!</h1>
 
                                     <!-- Random Quotes Based on master -->
                                     <p class="text-gray-700 mb-0">Segala sesuatu memiliki kesudahan, yang sudah berakhir biarlah berlalu dan yakinlah semua akan baik-baik saja.</p>

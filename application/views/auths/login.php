@@ -47,12 +47,12 @@
     })
 
     const auth = (email, password) => {
-        var restURL = api_assesment_url + "Api_Employee/loginUser";
+        var restURL = "<?= api_url('Auth/login'); ?>"
         $.ajax({
             url: restURL,
             method: "POST",
             data: {
-                username: email,
+                email: email,
                 password: md5(password)
             },
             dataType: 'JSON',
@@ -61,7 +61,6 @@
             },
             success: function(response) {
                 let data = response['data'];
-
                 if (response['success'] == true) {
                     toast({
                         icon: 'success',
@@ -71,7 +70,8 @@
                         var sessions = [];
                         sessions = {
                             token: data['token'],
-                            user: data['user']
+                            user: data['user'],
+                            department: data['department']
                         }
                         $.ajax({
                             type: "POST",
@@ -83,7 +83,7 @@
                             },
                             success: function(response) {
                                 if (response['success'] == true) {
-                                    window.location = base_url + "Home";
+                                    window.location = base_url + "dashboard";
                                 }
                             }
                         }).done(function() {

@@ -230,8 +230,13 @@
                                         <button class="btn btn-sm float-end"><i class="fa fa-ellipsis-v"></i></button>
                                     </div>
                                 </div>
-                                <div class="mt-2" id="listQuickPayment">
+                                <div class="pagination-wrapper">
+                                    <div class="mt-2" id="listQuickPayment">
 
+                                    </div>
+                                    <div id="pagination-container">
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
