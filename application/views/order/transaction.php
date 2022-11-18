@@ -524,6 +524,7 @@
         html += '</div>'
         html += '</div>'
         $('#tampilDetailSuratJalan').append(html)
+        $('#qrcode' + keys).empty()
         var qrcode = new QRCode("qrcode" + keys, {
             text: "http://jindo.dev.naver.com/collie",
             width: 128,

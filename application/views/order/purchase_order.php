@@ -393,6 +393,9 @@
             html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ',0)"><i class="fa fa-print"></i></button><br>'
             html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+            if (values['state'] == 'APPROVED') {
+                html += '<a class="dropdown-item"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
+            }
             html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
             html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
             if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED') {

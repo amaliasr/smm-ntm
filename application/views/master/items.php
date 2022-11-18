@@ -159,6 +159,7 @@
 
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
+        no_satuan = 1
     })
 
     function loadingTable(divID) {
@@ -275,6 +276,7 @@
                     $('#example').DataTable({
                         fixedHeader: true,
                         "data": body,
+                        responsive: true,
                         pageLength: 10,
                         lengthMenu: [
                             [10, 20],
@@ -292,7 +294,7 @@
 
     function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null) {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Item Baru</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -310,18 +312,29 @@
 
         html_body += '<div class="col-12 col-md-4">Satuan</div>'
         html_body += '<div class="col-12 col-md-8 mb-2">'
-        html_body += '<select name="" id="satuan" class="form-select form-select-sm" required="required">'
-        if (satuan == null) {
-            html_body += '<option value="" selected disabled>Pilih Satuan</option>'
-        }
-        $.each(data_global['itemSatuan'], function(keys, values) {
-            var select = ""
-            if (satuan == values['id']) {
-                select = 'selected'
-            }
-            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
-        })
-        html_body += '</select>'
+
+        html_body += '<div class="row" id="formSatuan">'
+        html_body += '</div>'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-9 align-self-center">'
+        html_body += '<p class="lh-0 p-0 m-0" style="font-size:11px;">Satuan teratas merupakan satuan terbesar, maka untuk satuan selanjutnya merupakan hasil konversi dari satuan terbesar</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-3 text-end align-self-center">'
+        html_body += '<button type="button" class="btn btn-sm btn-success" onclick="tambahFormSatuan()"><i class="fa fa-plus me-2"></i> Add</button>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // html_body += '<select name="" id="satuan" class="form-select form-select-sm" required="required">'
+        // if (satuan == null) {
+        //     html_body += '<option value="" selected disabled>Pilih Satuan</option>'
+        // }
+        // $.each(data_global['itemSatuan'], function(keys, values) {
+        //     var select = ""
+        //     if (satuan == values['id']) {
+        //         select = 'selected'
+        //     }
+        //     html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+        // })
+        // html_body += '</select>'
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-4">Tipe</div>'
@@ -370,6 +383,33 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" data-id="' + id + '">Simpan</button>'
         $('#modalFooter').html(html_footer);
+        tambahFormSatuan()
+    }
+
+    var no_satuan = 1
+
+    function tambahFormSatuan() {
+        var html_body = ""
+        html_body += '<div class="col-4 mb-2 align-self-center">'
+        html_body += 'Satuan-' + no_satuan
+        html_body += '</div>'
+        html_body += '<div class="col-4 mb-2">'
+        html_body += '<select name="" id="satuan' + no_satuan + '" class="form-select form-select-sm satuan" required="required">'
+        html_body += '<option value="" selected disabled>Pilih Satuan</option>'
+        $.each(data_global['itemSatuan'], function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mb-2">'
+        if (no_satuan == 1) {
+            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="1" disabled>'
+        } else {
+            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi">'
+        }
+        html_body += '</div>'
+        $('#formSatuan').append(html_body)
+        no_satuan++
     }
 
     function hapusData(id, name) {
