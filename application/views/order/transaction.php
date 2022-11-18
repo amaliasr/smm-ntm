@@ -145,7 +145,7 @@
                                     </div>
                                     <div class="col-9 align-self-center">
                                         <h6 class="fw-bold m-0">Pending</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="persentPending">0</b></h1>
+                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
                                         <!-- <p style="font-size: 11px;" class="mb-0">Done This Order</p> -->
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@
                                     </div>
                                     <div class="col-9 align-self-center">
                                         <h6 class="fw-bold m-0">Delivered</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
+                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahDelivered">0</b></h1>
                                         <!-- <p style="font-size: 11px;" class="lh-sm mb-0">Orders are On The Way</p> -->
                                     </div>
                                 </div>
@@ -177,7 +177,7 @@
                                     </div>
                                     <div class="col-9 align-self-center">
                                         <h6 class="fw-bold m-0">Checked</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
+                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahChecked">0</b></h1>
                                         <!-- <p style="font-size: 11px;" class="lh-sm mb-0">Orders are Unpaid</p> -->
                                     </div>
                                 </div>
@@ -193,7 +193,7 @@
                                     </div>
                                     <div class="col-9 align-self-center">
                                         <h6 class="fw-bold m-0">Canceled</h6>
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahPending">0</b></h1>
+                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="jumlahCanceled">0</b></h1>
                                     </div>
                                 </div>
                             </div>
@@ -334,8 +334,8 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 135
-    var divisi_id = 11
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_suratjalan = ""
 
     // var qrcode = new QRCode("qrcode", {
@@ -373,7 +373,29 @@
             beforeSend: function() {},
             success: function(response) {
                 data_suratjalan = response['data']
+                var pending = 0
+                var delivered = 0
+                var checked = 0
+                var canceled = 0
                 $.each(data_suratjalan, function(keys, values) {
+                    $.each(JSON.parse(values['data_detail']), function(keys2, values2) {
+                        if (values2['status_order'] == 'PENDING') {
+                            pending++
+                        }
+                        if (values2['status_order'] == 'ON DELIVERY') {
+                            delivered++
+                        }
+                        if (values2['status_order'] == 'CHECKED') {
+                            checked++
+                        }
+                        if (values2['status_order'] == 'CANCELED') {
+                            canceled++
+                        }
+                    })
+                    $('#jumlahPending').html(pending)
+                    $('#jumlahDelivered').html(delivered)
+                    $('#jumlahChecked').html(checked)
+                    $('#jumlahCanceled').html(canceled)
                     formListSJ(keys, data_suratjalan[keys], JSON.parse(values['data_detail']))
                 })
             }
@@ -390,14 +412,18 @@
         html += '</div>'
         html += '<div class="col-6 align-self-center">'
         html += '<p class="m-0 text-grey small" style="font-size:11px ;">Create at ' + data['date_transaction'] + '</p>'
-        html += '<b class="text_search" data-id="' + keys + '" style="cursor: pointer;" onclick="detailSJ(' + keys + ')">SJ #' + data['no_sj'] + '</b>'
+        html += '<b class="text_search" data-id="' + keys + '" style="cursor: pointer;" onclick="detailSJ(' + "'" + data['no_sj'] + "'," + keys + ')">SJ #' + data['no_sj'] + '</b>'
         html += '<p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> ' + data_detail.length + ' Items from <b class="text_search" data-id="' + keys + '">' + data['supplier_name'] + '</b></p>'
         html += '</div>'
         html += '<div class="col-4">'
         html += '<p class="m-0 small text-grey" style="font-size:10px ;">Item</p>'
         html += '<p class="m-0 small" style="font-size:12px ;"><b>NTM</b></p>'
         html += '<p class="m-0 small text-grey" style="font-size:10px ;">Status</p>'
-        html += '<p class="m-0 small" style="font-size:12px ;"><b>' + data_detail[0]['status_order'] + '</b></p>'
+        var pending = ""
+        if (data_detail[0]['status_order'] == 'PENDING') {
+            pending = '<span class="ms-2 text-warning fa fa-exclamation-triangle"></span>'
+        }
+        html += '<p class="m-0 small" style="font-size:12px ;"><b>' + data_detail[0]['status_order'] + '</b>' + pending + '</p>'
         html += '</div>'
         html += '<div class="col-1 align-self-center">'
         html += '<button class="btn btn-sm float-end" onclick="toggleDropdown(' + keys + ')"><i class="fa fa-angle-down fa-2x" id="iconUp' + keys + '"></i></button>'
@@ -415,7 +441,7 @@
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
         // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
-        if (data_detail[0]['status_order'] == 'PROCESS' || data_detail[0]['status_order'] == 'ON DELIVERY' || data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE') {
+        if (data_detail[0]['status_order'] == 'PROCESS' || data_detail[0]['status_order'] == 'ON DELIVERY' || data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE' || data_detail[0]['status_order'] == 'PENDING') {
             status = 'bg-success text-white'
         } else {
             status = 'text-grey'
@@ -427,7 +453,7 @@
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
         // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
-        if (data_detail[0]['status_order'] == 'ON DELIVERY' || data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE') {
+        if (data_detail[0]['status_order'] == 'ON DELIVERY' || data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE' || data_detail[0]['status_order'] == 'PENDING') {
             status = 'bg-success text-white'
         } else {
             status = 'text-grey'
@@ -439,7 +465,7 @@
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
         // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
-        if (data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE') {
+        if (data_detail[0]['status_order'] == 'CHECKED' || data_detail[0]['status_order'] == 'DONE' || data_detail[0]['status_order'] == 'PENDING') {
             status = 'bg-success text-white'
         } else {
             status = 'text-grey'
@@ -451,12 +477,16 @@
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
         // html += '<div class="timeline-item-marker-text" style="white-space:normal;font-size:9px;">03/11/2022</div>'
+        var icon = "fa-check"
         if (data_detail[0]['status_order'] == 'DONE') {
             status = 'bg-success text-white'
+        } else if (data_detail[0]['status_order'] == 'PENDING') {
+            status = 'bg-warning text-white'
+            icon = 'fa-exclamation'
         } else {
             status = 'text-grey'
         }
-        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa ' + icon + '"></i></div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">Done</div>'
         html += '</div>'
@@ -484,7 +514,7 @@
         html += '<div class="col-3 border-start text-center">'
         html += '<div class="qrcode" id="qrcode' + keys + '" style="text-align:center;" class="mt-3 mx-auto d-block w-100"></div>'
 
-        html += '<button type="button" class="btn btn-primary btn-sm mt-3" onclick="actionPerSJ()">Pengajuan Barang</button>'
+        // html += '<button type="button" class="btn btn-primary btn-sm mt-3" onclick="actionPerSJ()">Pengajuan Barang</button>'
 
         html += '</div>'
         html += '<div class="col-1">'
@@ -581,12 +611,12 @@
         $('#modalFooter').addClass('d-none')
     }
 
-    function detailSJ(keys) {
+    function detailSJ(no_sj, keys) {
         var data = data_suratjalan[keys]
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-scrollable');
         var html_header = '';
-        html_header += '<h5 class="modal-title">SJ #12345</h5>';
+        html_header += '<h5 class="modal-title">SJ #' + no_sj + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
 
@@ -629,6 +659,9 @@
             text = '<i class="fa fa-check me-2"></i> Check'
             state = 'CHECKED'
         } else if (detail[0]['status_order'] == 'CHECKED') {
+            text = '<i class="fa fa-paper-plane-o me-2"></i> Finish it'
+            state = 'DONE'
+        } else if (detail[0]['status_order'] == 'PENDING') {
             text = '<i class="fa fa-paper-plane-o me-2"></i> Finish it'
             state = 'DONE'
         } else if (detail[0]['status_order'] == 'DONE') {

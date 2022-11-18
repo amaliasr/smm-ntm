@@ -135,10 +135,21 @@
                         <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
                     </nav>
                 </div>
-                <a class="nav-link" href="<?= base_url(); ?>report">
+                <!-- Sidenav Accordion Report-->
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards4" aria-expanded="true" aria-controls="collapseDashboards4">
                     <div class="nav-link-icon"><i class="fa fa-book"></i></div>
                     Report
+                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
                 </a>
+                <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
+                        <a class="nav-link" href="<?= base_url(); ?>report/hutang">Report Hutang</a>
+                    </nav>
+                </div>
+                <!-- <a class="nav-link" href="<?= base_url(); ?>report">
+                    <div class="nav-link-icon"><i class="fa fa-book"></i></div>
+                    Report
+                </a> -->
             </div>
         </div>
         <!-- Sidenav Footer-->

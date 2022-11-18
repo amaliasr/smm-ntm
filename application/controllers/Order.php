@@ -9,7 +9,11 @@ class Order extends CI_Controller
         if (!is_login()) {
             redirect('Auth');
         }
-        $this->user_id = $this->session->userdata('user_id');
+        $this->user_id = $this->session->userdata('id');
+        $this->department_id = $this->session->userdata('department_id');
+        $this->department_name = $this->session->userdata('department_name');
+        $this->full_name = $this->session->userdata('full_name');
+        $this->alias = $this->session->userdata('alias');
     }
     public function purchaseOrder()
     {

@@ -25,6 +25,8 @@ class Auth extends CI_Controller
 		foreach ($department as $key => $value) {
 			$this->session->set_userdata('department_id', $value['department_id']);
 			$this->session->set_userdata('department_name', $value['department_name']);
+			$this->session->set_userdata('alias', $value['alias']);
+			$this->session->set_userdata('employee_id', $value['employee_id']);
 		}
 
 		$response['success'] = true;

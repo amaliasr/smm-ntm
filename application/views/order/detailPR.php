@@ -104,8 +104,9 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 143
+    // var user_id = 143
     // var user_id = 118
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var id_pr = '<?= $id ?>'
     var data_user = ""
     var data_item = ""

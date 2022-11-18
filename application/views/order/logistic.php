@@ -257,8 +257,8 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 135
-    var divisi_id = 11
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_account = ""
     var data_user = ""
     var data_history = ""
@@ -397,7 +397,7 @@
 
     function formPencarianSJ(data) {
         let obj = JSON.parse(data['data_detail']).filter((value, key) => {
-            if (value.status_order === 'DONE' || value.tahun === 'PENDING') return true
+            if (value.status_order === 'DONE' || value.status_order === 'PENDING') return true
         }).length;
         var html = ""
         html += '<div class="card shadow-sm mb-2">'

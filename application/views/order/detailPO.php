@@ -107,6 +107,7 @@
     // var user_id = 143
     // var user_id = 118
     // var user_id = 127
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var id_po = '<?= $id ?>'
     var data_user = ""
     var data_item = ""

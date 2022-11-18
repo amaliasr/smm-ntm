@@ -238,8 +238,8 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
-    var user_id = 135
-    var divisi_id = 11
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
     var data_item = ""
     var data_supplier = ""
@@ -247,7 +247,7 @@
     var no_po = ""
     var button_prpo = 'PR'
     var data_checked = ""
-    var initialDivision = "FAT"
+    var initialDivision = "<?= $this->session->userdata('alias') ?>"
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
