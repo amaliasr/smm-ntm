@@ -556,11 +556,11 @@
         }
         $.each(data, function(key, value) {
             html_body += '<div class="col-12 col-sm-12 col-md-12">'
-            html_body += '<div class="card mb-2 w-100 shadow-sm card-hoper">'
+            html_body += '<div class="card mb-2 w-100 shadow-sm card-hoper" id="card_search_supplier' + key + '">'
             html_body += '<div class="card-body p-3">'
             html_body += '<div class="row">'
             html_body += '<div class="col-6 ">'
-            html_body += '<p class="m-0" style="cursor:pointer;" onclick="paymentPO(' + value['po_id'] + ',2)"><b>PO #' + value['no_po'] + '</b></p>'
+            html_body += '<p class="m-0" style="cursor:pointer;" onclick="paymentPO(' + value['po_id'] + ',2)"><b class="text_search_supplier" data-id="' + key + '">PO #' + value['no_po'] + '</b></p>'
             html_body += '<p class="m-0 small" style="font-size:11px;"><i class="fa fa-clock-o text-warning"></i> <i>Due at ' + formatDate(value['masa_tenggang']) + '</i></p>'
             html_body += '</div>'
             html_body += '<div class="col-5">'
@@ -590,7 +590,7 @@
                     html_body += '<span class="fa fa-clock-o text-primary"></span>'
                     html_body += '</div>'
                     html_body += '<div class="col-11 align-self-center">'
-                    html_body += '<p class="m-0 text-grey">#' + values['kode_pembayaran'] + '</p>'
+                    html_body += '<p class="m-0 text-grey text_search_supplier" data-id="' + key + '">#' + values['kode_pembayaran'] + '</p>'
                     var text = ""
                     if (values['pembayaran_dp'] == 1) {
                         text = "Pembayaran DP"
@@ -712,16 +712,35 @@
         html_body += '<div class="col-6 text-end">'
         html_body += number_format(data['total_dibayar'])
         html_body += '</div>'
-        html_body += '<div class="col-6">'
-        html_body += 'Total Belum Terbayar'
-        html_body += '</div>'
-        html_body += '<div class="col-6 text-end">'
-        var selisih = parseInt(data['grand_total']) - parseInt(data['total_dibayar'])
-        if (selisih < 0) {
-            selisih = 0 + ' (lebih biaya ' + Math.abs(selisih) + ')'
+        if (data['is_lunas'] == 0) {
+            html_body += '<div class="col-6">'
+            html_body += 'Total Belum Terbayar'
+            html_body += '</div>'
+            html_body += '<div class="col-6 text-end">'
+            var selisih = parseInt(data['grand_total']) - parseInt(data['total_dibayar'])
+            if (selisih < 0) {
+                selisih = 0 + ' (lebih biaya ' + Math.abs(selisih) + ')'
+            }
+            html_body += number_format(selisih)
+            html_body += '</div>'
+        } else {
+            html_body += '<div class="col-6">'
+            html_body += 'Total Belum Terbayar'
+            html_body += '</div>'
+            html_body += '<div class="col-6 text-end">0'
+            html_body += '</div>'
+            html_body += '<div class="col-6">'
+            html_body += 'Selisih'
+            html_body += '</div>'
+            html_body += '<div class="col-6 text-end">'
+            var selisih = parseInt(data['grand_total']) - parseInt(data['total_dibayar'])
+            if (selisih < 0) {
+                selisih = 0 + ' (lebih biaya ' + Math.abs(selisih) + ')'
+            }
+            html_body += number_format(selisih)
+            html_body += '</div>'
         }
-        html_body += number_format(selisih)
-        html_body += '</div>'
+
         html_body += '<div class="col-6 pt-3">'
         html_body += '<b>Total Semua</b>'
         html_body += '</div>'
@@ -990,6 +1009,9 @@
     $(document).on('keyup', '#search_nama', function(e) {
         searching()
     })
+    $(document).on('keyup', '#search_nama_in_supplier', function(e) {
+        searchingSupplier()
+    })
 
     function unique(array) {
         return array.filter(function(el, index, arr) {
@@ -1016,6 +1038,28 @@
         var array_arranged = unique(array)
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function searchingSupplier() {
+        var value = $('#search_nama_in_supplier').val().toLowerCase();
+        var cards = $('.text_search_supplier').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search_supplier').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search_supplier' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search_supplier' + array_arranged[i]).removeClass('d-none')
         }
     }
 </script>

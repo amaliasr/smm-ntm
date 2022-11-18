@@ -121,37 +121,20 @@
                                     <div class="col-12 mb-3">
                                         <span class="small"><b>Check Arrived Package</b></span>
                                     </div>
-                                    <div class="col-12 mb-3">
-                                        <div class="input-group mb-3">
-                                            <input type="text" class="form-control basicAutoComplete" placeholder="Cari No. Surat Jalan" aria-label="No. Surat Jalan" aria-describedby="button-addon2" id="inputSearch" autocomplete="off">
-                                            <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="cariSuratJalan()"><i class="fa fa-search"></i></button>
-                                        </div>
-                                    </div>
                                     <div class="col-12 mb-3" id="tampilReport">
 
-                                        <table class="table table-bordered table-hover table-sm small" id="example">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>No.PO</th>
-                                                    <th>Supplier</th>
-                                                    <th>Biaya</th>
-                                                    <th>Terbayar</th>
-                                                    <th>Status Hutang</th>
-                                                    <th>Persentase Pelunasan</th>
+                                        <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;">
+                                            <thead class="align-self-center">
+                                                <tr class="align-self-center">
+                                                    <th style="width: 5%;" class="align-self-center">No</th>
+                                                    <th style="width: 15%;" class="align-self-center">No.PO</th>
+                                                    <th style="width: 40%;" class="align-self-center">Supplier</th>
+                                                    <th style="width: 10%;" class="align-self-center">Biaya</th>
+                                                    <th style="width: 10%;" class="align-self-center">Terbayar</th>
+                                                    <th style="width: 10%;" class="align-self-center">Status Hutang</th>
+                                                    <th style="width: 10%;" class="align-self-center">Persentase Pelunasan</th>
                                                 </tr>
                                             </thead>
-                                            <!-- <tbody>
-                                                <tr class="small">
-                                                    <td>1</td>
-                                                    <td>002/PO-SMM/2022</td>
-                                                    <td>PT BERCA KAWAN SEJATI</td>
-                                                    <td class="text-end">600,000</td>
-                                                    <td class="text-end">600,000</td>
-                                                    <td>LUNAS</td>
-                                                    <td>100%</td>
-                                                </tr>
-                                            </tbody> -->
                                         </table>
 
                                     </div>
@@ -275,10 +258,12 @@
                             'data': 'supplier'
                         },
                         {
-                            'data': 'biaya'
+                            'data': 'biaya',
+                            className: "text-end"
                         },
                         {
-                            'data': 'terbayar'
+                            'data': 'terbayar',
+                            className: "text-end"
                         },
                         {
                             'data': 'status_hutang'
@@ -299,10 +284,10 @@
                             'no': keys + 1,
                             'no_po': values['no_po'],
                             'supplier': values['supplier_name'],
-                            'biaya': values['biaya'],
-                            'terbayar': values['total_bayar'],
+                            'biaya': number_format(values['biaya']),
+                            'terbayar': number_format(values['total_bayar']),
                             'status_hutang': status,
-                            'persentase_pelunasan': persen + '%',
+                            'persentase_pelunasan': roundToTwo(persen) + '%',
                         }
                         body.push(array)
                     })
