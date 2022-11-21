@@ -83,8 +83,10 @@
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
                                             <li><a class="dropdown-item" href="#" onclick="formPR()">Purchase Requisition (PR)</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="formPO()">Purchase Order (PO)</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="formRetur()">Retur</a></li>
+                                            <?php if ($this->session->userdata('division_id') == 1) { ?>
+                                                <li><a class="dropdown-item" href="#" onclick="formPO()">Purchase Order (PO)</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="formRetur()">Retur</a></li>
+                                            <?php } ?>
                                         </ul>
                                     </div>
                                 </div>
@@ -106,29 +108,33 @@
                         <div class="row">
                             <div class="col">
                                 <ul class="nav nav-pills" id="pills-tab" role="tablist">
+
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" data-status="PR">PR</button>
                                     </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-status="PO">PO</button>
-                                    </li>
-                                    <li class="nav-item float-end" role="presentation">
-                                        <button class="nav-link" id="pills-retur-tab" data-bs-toggle="pill" data-bs-target="#pills-retur" type="button" role="tab" aria-controls="pills-retur" aria-selected="false" data-status="Retur">Retur</button>
-                                    </li>
+                                    <?php if ($this->session->userdata('division_id') == 1) { ?>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-status="PO">PO</button>
+                                        </li>
+                                        <li class="nav-item float-end" role="presentation">
+                                            <button class="nav-link" id="pills-retur-tab" data-bs-toggle="pill" data-bs-target="#pills-retur" type="button" role="tab" aria-controls="pills-retur" aria-selected="false" data-status="Retur">Retur</button>
+                                        </li>
+                                    <?php } ?>
                                 </ul>
                             </div>
                             <div class="col">
                                 <div class="row justify-content-end">
                                     <div class="col-12 col-md-6 p-1">
-                                        <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example">
+                                        <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example" onchange="filterStatus()" id="selectStatus">
                                             <option selected value="all">Semua Status</option>
-                                            <option value="1">Proses</option>
-                                            <option value="2">Selesai</option>
-                                            <option value="3">Batal</option>
+                                            <option value="REQUESTED">Permintaan</option>
+                                            <option value="CHECKED">Checking</option>
+                                            <option value="APPROVED">Selesai</option>
+                                            <option value="REJECTED">Batal</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-6 p-1 ">
-                                        <input type="date" name="" id="input" class="form-control form-control-sm w-100">
+                                        <input type="date" name="" id="selectDate" class="form-control form-control-sm w-100" onchange="filterStatus()">
                                     </div>
                                 </div>
                             </div>
@@ -209,12 +215,12 @@
             } else {
                 var url = '<?= base_url('order/cetakPO') ?>'
             }
-            var params = "*$" + image + "*$" + id
+            var params = "*$" + image + "*$" + id + "*$" + user_id
             window.open(url + '?params=' + (params), '_blank')
         } else {
             // buat supplier
             var url = '<?= base_url('order/cetakPO') ?>'
-            var params = "*$0" + "*$" + id
+            var params = "*$0" + "*$" + id + "*$" + user_id
             window.open(url + '?params=' + (params), '_blank')
         }
     }
@@ -239,7 +245,7 @@
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
-    var divisi_id = '<?= $this->session->userdata('department_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var data_user = ""
     var data_item = ""
     var data_supplier = ""
@@ -312,14 +318,36 @@
             url: "<?= api_url('Api_Warehouse/getDataPR'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                user_id: user_id,
+            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                data_pr = response['data']
-                formMasterPR(data_pr)
+                if (response['message'] == 'Data data not found') {
+                    notFound('#pills-home')
+                } else {
+                    data_pr = response['data']
+                    formMasterPR(data_pr)
+                }
                 numberinPR()
+
             }
         })
+    }
+
+    function notFound(location) {
+        var html = ""
+        html += '<div class="card w-100 shadow-none mb-2 p-0">'
+        html += '<div class="card-body p-2">'
+        html += '<div class="row d-flex align-items-center">'
+        html += '<div class="col text-center p-5">'
+        html += '<i class="small">Tidak Ada Data yang Tersedia</i>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $(location).html(html)
     }
 
     function formMasterPR(data) {
@@ -351,7 +379,7 @@
                 checkStatusDocument = 'fa-check text-success'
                 textAcc = "text-success"
             }
-            html += '<div class="card card-PR w-100 shadow-none mb-2 p-0 ' + bg + '" id="card_searchPR' + keys + '">'
+            html += '<div class="card card-PR w-100 shadow-none mb-2 p-0 ' + bg + '" id="card_searchPR' + keys + '" data-status="' + values['state'] + '" data-date="' + values['date'] + '" data-key="PR' + keys + '">'
             html += '<div class="card-body p-2">'
             html += '<div class="row d-flex align-items-center">'
             html += '<div class="col">'
@@ -396,7 +424,9 @@
             if (values['state'] == 'APPROVED') {
                 html += '<a class="dropdown-item"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
             }
-            html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
+            if (divisi_id == 1) {
+                html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
+            }
             html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
             if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED') {
                 var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
@@ -432,7 +462,7 @@
                 if (obj != undefined) {
                     count = parseInt(obj['count']) + 1;
                 }
-                no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + thisYear
+                no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + thisMonth + '/' + thisYear
                 numberinPO()
             }
         })
@@ -457,7 +487,7 @@
                 if (obj != undefined) {
                     count = parseInt(obj['count']) + 1;
                 }
-                no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + thisYear
+                no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + thisMonth + '/' + thisYear
             }
         })
     }
@@ -479,6 +509,9 @@
             url: "<?= api_url('Api_Warehouse/getDataPo'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                user_id: user_id,
+            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
@@ -506,7 +539,7 @@
                 bg = 'bg-light'
                 textPO = 'text-light'
             }
-            html += '<div class="card w-100 shadow-none mb-2 p-0 ' + bg + '" id="card_searchPO' + keys + '">'
+            html += '<div class="card w-100 shadow-none mb-2 p-0 ' + bg + '" id="card_searchPO' + keys + '" data-status="' + values['state'] + '" data-date="' + values['date_po'] + '" data-key="' + keys + '">'
             html += '<div class="card-body p-2">'
             html += '<div class="row d-flex align-items-center">'
             html += '<div class="col">'
@@ -654,7 +687,9 @@
         if (data == undefined) {
             html_body += '<div class="col-auto ps-0">'
             html_body += '<select name="" id="category" class="form-control form-control-sm select2-single category">'
+            html_body += '<option value=""></option>'
             html_body += '<option value="NTM">NTM</option>'
+            html_body += '<option value="ASSETS">ASSETS</option>'
             html_body += '</select>'
             html_body += '</div>'
         } else {
@@ -2162,5 +2197,47 @@
                 });
             }
         })
+    }
+
+    function filterStatus() {
+        var status = $('#selectStatus').val()
+        var date = $('#selectDate').val()
+        var card_key = $('.card-PR').map(function() {
+            return $(this).data('key');
+        }).get();
+        var card_status = $('.card-PR').map(function() {
+            return $(this).data('status');
+        }).get();
+        var card_date = $('.card-PR').map(function() {
+            return $(this).data('date');
+        }).get();
+        var array = []
+        for (let i = 0; i < card_key.length; i++) {
+            $('#card_search' + card_key[i]).addClass('d-none')
+            if (status == 'all') {
+                if (date != "") {
+                    if (formatDate(card_date[i]) == formatDate(date)) {
+                        array.push(card_key[i])
+                    }
+                } else {
+                    array.push(card_key[i])
+                }
+            } else {
+                if (date != "") {
+                    if (card_status[i] == status && formatDate(card_date[i]) == formatDate(date)) {
+                        array.push(card_key[i])
+                    }
+                } else {
+                    if (card_status[i] == status) {
+                        array.push(card_key[i])
+                    }
+                }
+            }
+
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

@@ -27,6 +27,7 @@ class Auth extends CI_Controller
 			$this->session->set_userdata('department_name', $value['department_name']);
 			$this->session->set_userdata('alias', $value['alias']);
 			$this->session->set_userdata('employee_id', $value['employee_id']);
+			$this->session->set_userdata('division_id', $value['division_id']);
 		}
 
 		$response['success'] = true;

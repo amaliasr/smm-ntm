@@ -258,7 +258,7 @@
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
-    var divisi_id = '<?= $this->session->userdata('department_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var data_account = ""
     var data_user = ""
     var data_history = ""
@@ -283,6 +283,9 @@
             url: "<?= api_url('Api_Warehouse/getHistoryPenerimaan'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                user_id: user_id,
+            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
@@ -508,6 +511,7 @@
             po_id: po_id,
             id_user_checking: id_user_checking,
             detail: detail,
+            pr_id: pr_id,
         }
         var button = '#btnChecked'
         var url = '<?php echo api_url('Api_Warehouse/insertPenerimaan'); ?>'

@@ -330,7 +330,7 @@
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
-    var divisi_id = '<?= $this->session->userdata('department_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var data_account = ""
 
     $(document).ready(function() {

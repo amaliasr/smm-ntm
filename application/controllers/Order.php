@@ -52,7 +52,8 @@ class Order extends CI_Controller
         $explodedParams = explode("*$", $decodedParams);
         $data['qrcode'] = $explodedParams[1];
         $data['id'] = $explodedParams[2];
-        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPR?id=' . $data['id'])))->data[0];
+        $data['user_id'] = $explodedParams[3];
+        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPR?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
         $data['detail'] = json_decode($data['datas']->data_detail);
         $html = $this->load->view('Order/cetakPR', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
@@ -80,7 +81,8 @@ class Order extends CI_Controller
         $explodedParams = explode("*$", $decodedParams);
         $data['qrcode'] = $explodedParams[1];
         $data['id'] = $explodedParams[2];
-        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPo?id=' . $data['id'])))->data[0];
+        $data['user_id'] = $explodedParams[3];
+        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPo?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
         $data['detail'] = json_decode($data['datas']->data_detail);
         $html = $this->load->view('Order/cetakPO', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
