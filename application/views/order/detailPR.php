@@ -151,7 +151,8 @@
             method: "GET",
             dataType: 'JSON',
             data: {
-                id: id_pr
+                id: id_pr,
+                user_id: user_id,
             },
             error: function(xhr) {},
             beforeSend: function() {},

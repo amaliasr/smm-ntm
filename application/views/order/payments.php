@@ -113,7 +113,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-auto">
+                                <!-- <div class="col-auto">
                                     <div class="btn-group">
                                         <button class="btn btn-outline-light position-relative" type="button" id="dropdownMenuClickableOutside">
                                             <i class="fa fa-bell"></i>
@@ -122,7 +122,7 @@
                                             </span>
                                         </button>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -192,13 +192,13 @@
                                                 <li>
                                                     <form class="px-3">
                                                         <div class="form-check">
-                                                            <input type="checkbox" class="form-check-input" id="dropdownCheck2" checked>
+                                                            <input type="checkbox" class="form-check-input" id="dropdownCheck2" checked onclick="showPaidUnpaid()">
                                                             <label class="form-check-label" for="dropdownCheck2">
                                                                 Paid
                                                             </label>
                                                         </div>
                                                         <div class="form-check">
-                                                            <input type="checkbox" class="form-check-input" id="dropdownCheck3" checked>
+                                                            <input type="checkbox" class="form-check-input" id="dropdownCheck3" checked onclick="showPaidUnpaid()">
                                                             <label class="form-check-label" for="dropdownCheck3">
                                                                 Unpaid
                                                             </label>
@@ -392,13 +392,23 @@
             $('#successPO').removeClass('d-none')
             tampilDetailPembayaran(data_payment['by_po'], 'po')
         }
+        showPaidUnpaid()
     }
 
     function tampilDetailPembayaran(data, jenis) {
         var html = ""
         $.each(data, function(key, value) {
             if (jenis == 'supplier') {
-                html += '<div class="card shadow-sm mb-2 w-100 card-hoper" id="card_searchSUPPLIER' + key + '">'
+                var data = data_payment['by_po'].filter((values, keys) => {
+                    if (values.supplier_id === value['supplier_id'].toString()) return true
+                })
+                var length_paid = data.filter((values, keys) => {
+                    if (values.is_lunas === '1') return true
+                }).length
+                var length_unpaid = data.filter((values, keys) => {
+                    if (values.is_lunas === '0') return true
+                }).length
+                html += '<div class="card shadow-sm mb-2 w-100 card-hoper card-supplier" id="card_searchSUPPLIER' + key + '" data-paid="' + length_paid + '" data-unpaid="' + length_unpaid + '" data-key="' + key + '">'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
                 html += '<div class="col-11 align-self-center">'
@@ -425,7 +435,7 @@
                 html += '</div>'
                 html += '</div>'
             } else {
-                html += '<div class="card shadow-sm mb-2 w-100 card-hoper" id="card_searchPO' + key + '">'
+                html += '<div class="card shadow-sm mb-2 w-100 card-hoper card-PO" id="card_searchPO' + key + '" data-lunas="' + value['is_lunas'] + '"  data-key="' + key + '">'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
                 html += '<div class="col-7 align-self-center">'
@@ -591,17 +601,24 @@
                     html_body += '</div>'
                     html_body += '<div class="col-11 align-self-center">'
                     html_body += '<p class="m-0 text-grey text_search_supplier" data-id="' + key + '">#' + values['kode_pembayaran'] + '</p>'
-                    var text = ""
-                    if (values['pembayaran_dp'] == 1) {
-                        text = "Pembayaran DP"
+                    if (values['is_dibayar'] != "pending") {
+                        var text = ""
+                        if (values['pembayaran_dp'] == 1) {
+                            text = "Pembayaran DP"
+                        } else {
+                            text = "Pembayaran ke-" + jum_pay
+                            jum_pay++
+
+                        }
+                        html_body += '<b class="float-start">' + text + '</b>'
                     } else {
-                        text = "Pembayaran ke-" + jum_pay
-                        jum_pay++
+                        html_body += '<p class="float-start p-0 m-0"><i>PENDING</i></p>'
 
                     }
-                    html_body += '<b class="float-start">' + text + '</b>'
                     html_body += '<b class="float-end">Rp. ' + number_format(values['nominal']) + '</b><br>'
-                    html_body += '<p class="m-0" style="font-size:10px;">' + formatDate(values['tanggal_pembayaran']) + '</p>'
+                    if (values['is_dibayar'] != "pending") {
+                        html_body += '<p class="m-0" style="font-size:10px;">' + formatDate(values['tanggal_pembayaran']) + '</p>'
+                    }
                     html_body += '</div>'
                     html_body += '</div>'
                     html_body += '</div>'
@@ -777,17 +794,24 @@
             html_body += '</div>'
             html_body += '<div class="col-11 align-self-center">'
             html_body += '<p class="m-0 text-grey">#' + value['kode_pembayaran'] + '</p>'
-            var text = ""
-            if (value['pembayaran_dp'] == 1) {
-                text = "Pembayaran DP"
-            } else {
-                text = "Pembayaran ke-" + jum_pay
-                jum_pay++
+            if (value['is_dibayar'] != "pending") {
+                var text = ""
+                if (value['pembayaran_dp'] == 1) {
+                    text = "Pembayaran DP"
+                } else {
+                    text = "Pembayaran ke-" + jum_pay
+                    jum_pay++
 
+                }
+                html_body += '<b class="float-start">' + text + '</b>'
+            } else {
+                // html_body += '<p class="float-start p-0 m-0"><i>PENDING</i></p>'
+                html_body += '<button class="float-start btn btn-sm btn-success" style="font-size:9px;" onclick="formPembayaran(' + id + ',' + "'" + modal + "'" + ',' + value['id_pembayaran_detail'] + ')">Lanjutkan Pembayaran</button>'
             }
-            html_body += '<b class="float-start">' + text + '</b>'
             html_body += '<b class="float-end">Rp. ' + number_format(value['nominal']) + '</b><br>'
-            html_body += '<p class="m-0" style="font-size:10px;">' + formatDate(value['tanggal_pembayaran']) + '</p>'
+            if (value['is_dibayar'] != "pending") {
+                html_body += '<p class="m-0" style="font-size:10px;">' + formatDate(value['tanggal_pembayaran']) + '</p>'
+            }
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
@@ -798,15 +822,57 @@
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-6 ">'
-        html_body += '<p class="small mb-2"><b><span class="fa fa-plus me-2"></span>Buat Pembayaran Baru</b></p>'
+        html_body += '<div class="">'
+        html_body += '<p class="small"><b><span class="fa fa-plus me-2"></span>Buat Pembayaran Baru</b> <span class="btn btn-sm btn-outline-success float-end p-1" style="font-size:8px" onclick="formPembayaran(' + id + ',' + "'" + modal + "'" + ')"><i class="fa fa-refresh m-0 me-2"></i>Reset</span></p>'
 
+        html_body += '</div>'
+        html_body += '<div id="formPembayaran" class="mt-2">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody' + modal).html(html_body);
+        $('.nominal').number(true);
+
+        var html_footer = ''
+        $('#modalFooter' + modal).html(html_footer);
+        $('#modalBody' + modal).removeClass('p-0')
+        $('#modalFooter' + modal).addClass('d-none');
+        formPembayaran(id, modal)
+    }
+
+    function formPembayaran(id, modal, detail = "") {
+        $('#formPembayaran').empty()
+        var data_detail = ""
+        if (detail != "") {
+            data_detail = JSON.parse(data_payment['by_po'].find((values, keys) => {
+                if (values.po_id === id.toString()) return true
+            })['detail_pembayaran']).find((values2, keys2) => {
+                if (values2.id_pembayaran_detail === detail) return true
+            })
+        }
+        var html_body = ""
         html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
         html_body += '<div class="card-body p-3">'
         html_body += '<p class="m-0 mb-3"><b>No. Invoice</b></p>'
-        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1" value="" id="no_invoice">'
+        var no_invoice = (data_detail === '') ? data_detail : data_detail['kode_pembayaran'];
+        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1" value="' + no_invoice + '" id="no_invoice">'
         html_body += '<hr class="m-0">'
         html_body += '</div>'
         html_body += '</div>'
+
+        html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
+        html_body += '<div class="card-body p-3">'
+        html_body += '<p class="m-0 mb-3"><b>Tanggal Bayar</b></p>'
+        var tanggal = (data_detail === '') ? data_detail : data_detail['kode_pembayaran'];
+        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1" value="' + tanggal + '" id="no_invoice">'
+        html_body += '<hr class="m-0">'
+        html_body += '</div>'
+        html_body += '</div>'
+        var classed = (data_detail === '') ? 'd-none' : '';
+        html_body += '<div id="formBayar" class="' + classed + '">'
 
         html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
         html_body += '<div class="card-body p-3">'
@@ -870,6 +936,7 @@
         html_body += '</div>'
         html_body += '</div>'
         // sumber
+        html_body += '</div>'
 
         html_body += '</div>'
         html_body += '</div>'
@@ -877,10 +944,11 @@
         html_body += '<div class="card shadow-none mb-1 small" style="font-size:12px;">'
         html_body += '<div class="card-body p-3">'
         html_body += '<p class="m-0 mb-3"><b>Nominal</b></p>'
-        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1 nominal" value="" placeholder="Rp. 400,000" id="nominalPembayaran">'
+        var nominal = (data_detail === '') ? data_detail : data_detail['nominal'];
+        html_body += '<input style="border:none" type="text" name="" class="form-control form-control-sm p-1 nominal" value="' + nominal + '" placeholder="Rp. 400,000" id="nominalPembayaran">'
         html_body += '<hr class="m-0">'
         html_body += '<div class="mt-2">'
-        html_body += '<div class="form-check  float-end">'
+        html_body += '<div class="form-check d-none float-end" id="formLangsungLunas">'
         html_body += '<input class="form-check-input" type="checkbox" value="1" id="isLunas">'
         html_body += '<label class="form-check-label" for="isLunas">'
         html_body += 'Langsung Lunas?'
@@ -888,26 +956,40 @@
         html_body += '</div>'
         html_body += '</div>'
 
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '<button class="btn btn-success w-100 mt-2" id="btnPembayaran" onclick="tambahPembayaran(' + id + ',' + modal + ')">Lanjutkan Pembayaran</button>'
-
-
-        html_body += '</div>'
 
         html_body += '</div>'
         html_body += '</div>'
-        $('#modalBody' + modal).html(html_body);
+        if (data_detail == '') {
+            // check langsung bayar
+            html_body += '<div class="form-check mb-2 mt-2 small">'
+            html_body += '<input class="form-check-input" type="checkbox" id="flexlangsungDibayar" onclick="langsungDibayar()">'
+            html_body += '<label class="form-check-label" for="flexlangsungDibayar">'
+            html_body += 'Langsung Dibayar?'
+            html_body += '</label>'
+            html_body += '</div>'
+        }
+        // check langsung bayar
+
+
+        html_body += '<button class="btn btn-success w-100 mt-2" id="btnPembayaran" onclick="tambahPembayaran(' + id + ',' + "'" + modal + "'" + ',' + data_detail['id_pembayaran_detail'] + ')">Simpan Pembayaran</button>'
+        $('#formPembayaran').html(html_body)
         $('.nominal').number(true);
-
-        var html_footer = ''
-        $('#modalFooter' + modal).html(html_footer);
-        $('#modalBody' + modal).removeClass('p-0')
-        $('#modalFooter' + modal).addClass('d-none');
     }
 
-    function tambahPembayaran(po_id, modal) {
+    function langsungDibayar() {
+        if ($('#flexlangsungDibayar:checked').val() == 'on') {
+            $('#formBayar').removeClass('d-none')
+            $('#formLangsungLunas').removeClass('d-none')
+        } else {
+            $('#formBayar').addClass('d-none')
+            $('#formLangsungLunas').addClass('d-none')
+        }
+    }
+
+    function tambahPembayaran(po_id, modal, id_pembayaran_detail) {
+        if (id_pembayaran_detail == undefined) {
+            id_pembayaran_detail = ""
+        }
         var type = 'POST'
         var account_source_id = $('.data_account:checked').val()
         var jenis_payment = $('.jenis_pembayaran:checked').val()
@@ -917,6 +999,10 @@
         }
         if (modal == undefined) {
             modal = ""
+        }
+        var is_dibayar = 0
+        if ($('#flexlangsungDibayar:checked').val() == 'on') {
+            is_dibayar = 1
         }
         var nominal = $('#nominalPembayaran').val()
         var no_invoice = $('#no_invoice').val()
@@ -929,6 +1015,8 @@
             po_id: po_id,
             modal: modal,
             no_invoice: no_invoice,
+            is_dibayar: is_dibayar,
+            id_pembayaran_detail: id_pembayaran_detail,
         }
         var button = '#btnPembayaran'
         var url = '<?php echo api_url('Api_Warehouse/insertPayment'); ?>'
@@ -1060,6 +1148,62 @@
         var array_arranged = unique(array)
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search_supplier' + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function showPaidUnpaid() {
+        var paid = $('#dropdownCheck2:checked').val()
+        var unpaid = $('#dropdownCheck3:checked').val()
+        var supplier_key = $('.card-supplier').map(function() {
+            return $(this).data('key');
+        }).get();
+        var supplier_paid = $('.card-supplier').map(function() {
+            return $(this).data('paid');
+        }).get();
+        var supplier_unpaid = $('.card-supplier').map(function() {
+            return $(this).data('unpaid');
+        }).get();
+        var po_key = $('.card-PO').map(function() {
+            return $(this).data('key');
+        }).get();
+        var po_lunas = $('.card-PO').map(function() {
+            return $(this).data('lunas');
+        }).get();
+        var supplier = []
+        var po = []
+        for (let i = 0; i < supplier_key.length; i++) {
+            $('#card_searchSUPPLIER' + supplier_key[i]).addClass('d-none')
+            if (paid == 'on') {
+                if (supplier_paid[i] > 0) {
+                    supplier.push(supplier_key[i])
+                }
+            }
+            if (unpaid == 'on') {
+                if (supplier_unpaid[i] > 0) {
+                    supplier.push(supplier_key[i])
+                }
+            }
+        }
+        for (let i = 0; i < po_key.length; i++) {
+            $('#card_searchPO' + po_key[i]).addClass('d-none')
+            if (paid == 'on') {
+                if (po_lunas[i] == '1') {
+                    po.push(po_key[i])
+                }
+            }
+            if (unpaid == 'on') {
+                if (po_lunas[i] == '0') {
+                    po.push(po_key[i])
+                }
+            }
+        }
+        var supplier_arranged = unique(supplier)
+        for (let i = 0; i < supplier_arranged.length; i++) {
+            $('#card_searchSUPPLIER' + supplier_arranged[i]).removeClass('d-none')
+        }
+        var po_arranged = unique(po)
+        for (let i = 0; i < po_arranged.length; i++) {
+            $('#card_searchPO' + po_arranged[i]).removeClass('d-none')
         }
     }
 </script>

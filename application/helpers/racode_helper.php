@@ -21,11 +21,41 @@ function is_login()
         return false;
     }
 }
-function is_gudang_sr()
+function is_finance_staff()
 {
     $ci = get_instance();
-    $level = $ci->session->userdata('level');
-    if ($level['id'] == 7) {
+    $divisi_id = $ci->session->userdata('division_id');
+    if ($divisi_id == 7) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function is_fat()
+{
+    $ci = get_instance();
+    $divisi_id = $ci->session->userdata('division_id');
+    if ($divisi_id == 11) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function is_purchasing()
+{
+    $ci = get_instance();
+    $divisi_id = $ci->session->userdata('division_id');
+    if ($divisi_id == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function is_logistik()
+{
+    $ci = get_instance();
+    $divisi_id = $ci->session->userdata('division_id');
+    if ($divisi_id == 3) {
         return true;
     } else {
         return false;

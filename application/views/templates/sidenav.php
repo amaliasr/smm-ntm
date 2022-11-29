@@ -101,7 +101,7 @@
                     Warehouse
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
                 </a>
-                <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
+                <div class="collapse" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
                         <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a>
@@ -117,10 +117,15 @@
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
                         <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
-                        <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
-                        <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
-                        <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
-                        <a class="nav-link" href="<?= base_url(); ?>order/history">History</a>
+                        <?php if (is_finance_staff() || is_fat()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
+                        <?php } ?>
+                        <?php if (is_purchasing()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
+                        <?php } ?>
+                        <?php if (is_logistik()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
+                        <?php } ?>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Master-->

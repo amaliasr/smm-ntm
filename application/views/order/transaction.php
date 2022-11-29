@@ -113,7 +113,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-auto">
+                                <!-- <div class="col-auto">
                                     <div class="btn-group">
                                         <button class="btn btn-outline-light position-relative" type="button" id="dropdownMenuClickableOutside">
                                             <i class="fa fa-bell"></i>
@@ -122,7 +122,7 @@
                                             </span>
                                         </button>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
                                         <span class="small"><b>List Surat Jalan</b></span>
                                     </div>
                                     <div class="col">
-                                        <div class="btn-group float-end">
+                                        <!-- <div class="btn-group float-end">
                                             <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                                 Option
                                             </button>
@@ -237,7 +237,7 @@
                                                     </form>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div> -->
                                     </div>
                                     <div class="col-12 pt-4" id="tampilDetailSuratJalan">
                                     </div>
