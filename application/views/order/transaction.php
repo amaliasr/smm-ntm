@@ -57,8 +57,6 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: rgb(25, 128, 194);
-        background: linear-gradient(66deg, rgba(25, 128, 194, 1) 0%, rgba(215, 15, 232, 1) 100%);
         font-size: 15px;
         color: #fff;
         text-align: center;
@@ -66,6 +64,21 @@
         line-height: 39px;
         vertical-align: middle;
         margin: 0 auto;
+    }
+
+    .bg-ungu {
+        background: rgb(25, 128, 194);
+        background: linear-gradient(66deg, rgba(25, 128, 194, 1) 0%, rgba(215, 15, 232, 1) 100%);
+    }
+
+    .bg-hijau {
+        background: rgb(30, 121, 4);
+        background: linear-gradient(66deg, rgba(30, 121, 4, 1) 0%, rgba(213, 232, 15, 1) 100%);
+    }
+
+    .bg-oren {
+        background: rgb(208, 103, 58);
+        background: linear-gradient(66deg, rgba(208, 103, 58, 1) 0%, rgba(233, 188, 51, 1) 100%);
     }
 
     .dots-lead {
@@ -403,12 +416,27 @@
     }
 
     function formListSJ(keys, data, data_detail) {
+        // console.log(data)
+        background = ""
+        check_success = "fa fa-truck text-grey"
+        icon_profile = 'fa-truck'
+        color_icon_profile = 'bg-ungu'
+        if (data_detail[0]['status_order'] == 'DONE') {
+            background = "bg-light"
+            check_success = 'fa fa-check text-success'
+            icon_profile = 'fa-check'
+            color_icon_profile = 'bg-hijau'
+        } else if (data_detail[0]['status_order'] == 'PENDING') {
+            check_success = 'text-warning fa fa-exclamation-triangle'
+            color_icon_profile = 'bg-oren'
+            icon_profile = 'fa-clock-o'
+        }
         var html = ""
-        html += '<div class="card shadow-sm mb-2 w-100 card-hoper" id="card_search' + keys + '">'
-        html += '<div class="card-body">'
+        html += '<div class="card shadow-sm mb-2 w-100 card-hoper ' + background + '" id="card_search' + keys + '">'
+        html += '<div class="card-body p-2">'
         html += '<div class="row">'
         html += '<div class="col-1 align-self-center">'
-        html += '<div id="profileImage"><i class="fa fa-truck"></i></div>'
+        html += '<div id="profileImage" class="' + color_icon_profile + '"><i class="fa ' + icon_profile + '"></i></div>'
         html += '</div>'
         html += '<div class="col-6 align-self-center">'
         html += '<p class="m-0 text-grey small" style="font-size:11px ;">Create at ' + data['date_transaction'] + '</p>'
@@ -417,20 +445,21 @@
         html += '</div>'
         html += '<div class="col-4">'
         html += '<p class="m-0 small text-grey" style="font-size:10px ;">Item</p>'
-        html += '<p class="m-0 small" style="font-size:12px ;"><b>NTM</b></p>'
-        html += '<p class="m-0 small text-grey" style="font-size:10px ;">Status</p>'
-        var pending = ""
-        if (data_detail[0]['status_order'] == 'PENDING') {
-            pending = '<span class="ms-2 text-warning fa fa-exclamation-triangle"></span>'
+        if (data['category'] == null) {
+            data['category'] = '-'
         }
-        html += '<p class="m-0 small" style="font-size:12px ;"><b>' + data_detail[0]['status_order'] + '</b>' + pending + '</p>'
+        html += '<p class="m-0 small" style="font-size:12px ;"><b>' + data['category'] + '</b></p>'
+        html += '<p class="m-0 small text-grey" style="font-size:10px ;">Status</p>'
+        html += '<p class="m-0 small" style="font-size:12px ;"><b>' + data_detail[0]['status_order'] + '</b><span class="ms-2 ' + check_success + '"></span></p>'
         html += '</div>'
         html += '<div class="col-1 align-self-center">'
         html += '<button class="btn btn-sm float-end" onclick="toggleDropdown(' + keys + ')"><i class="fa fa-angle-down fa-2x" id="iconUp' + keys + '"></i></button>'
         html += '</div>'
         html += '</div>'
         html += '<div class="row mt-3 d-none" id="detailTransaction' + keys + '">'
+        html += '<div class="col-12">'
         html += '<hr>'
+        html += '</div>'
         html += '<div class="col-1">'
 
         html += '</div>'

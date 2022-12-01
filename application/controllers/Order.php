@@ -72,7 +72,7 @@ class Order extends CI_Controller
         $x = (($w - $imgWidth) / 2);
         $y = (($h - $imgHeight) / 3);
         $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
-        $this->pdf->stream("report_kas", array("Attachment" => 0));
+        $this->pdf->stream($data['datas']->no_pr, array("Attachment" => 0));
     }
     public function cetakPO()
     {
@@ -101,7 +101,7 @@ class Order extends CI_Controller
         $x = (($w - $imgWidth) / 2);
         $y = (($h - $imgHeight) / 3);
         $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
-        $this->pdf->stream("report_kas", array("Attachment" => 0));
+        $this->pdf->stream($data['datas']->no_po, array("Attachment" => 0));
     }
     public function cetakPenerimaan()
     {

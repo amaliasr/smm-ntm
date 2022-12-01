@@ -47,6 +47,10 @@
         background-color: #EDEDED;
     }
 
+    .card-hoper:hover {
+        background-color: #EDEDED;
+    }
+
     .card-PO:hover {
         background-color: #EDEDED;
     }
@@ -488,7 +492,7 @@
             html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ',0)"><i class="fa fa-print"></i></button><br>'
             html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            if (values['state'] == 'APPROVED') {
+            if (values['state'] == 'APPROVED' && values['order_detail'] != null) {
                 html += '<a class="dropdown-item" onclick="penerimaanBarangPR(' + values['id'] + ')"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
             }
             if (divisi_id == 1) {
@@ -599,7 +603,13 @@
     }
 
     function formMasterPO(data) {
+        var length_unclosing = data.filter((values, keys) => {
+            if (values.is_complete === '0' && values.state_order === 'DONE') return true
+        }).length
         var html = ""
+        if (length_unclosing > 0) {
+            html += '<button class="btn btn-sm btn-success float-start mb-2" onclick="showUncompletePO()"><span class="fw-bold me-2">' + length_unclosing + '</span>Data Belum Closing</button>'
+        }
         html += '<button class="btn btn-sm btn-outline-primary float-end mb-2" onclick="refresh(' + "'" + 'PO' + "'" + ')"><span class="fa fa-refresh me-2"></span> Refresh</button>'
         $.each(data, function(keys, values) {
             var acc_check
@@ -610,7 +620,7 @@
                 badge = '<span class="badge bg-success"><i class="fa fa-check"></i></span>'
                 bg = 'bg-light'
                 textPO = ""
-            } else if (values['state'] == 'REJECTED') {
+            } else if (values['state'] == 'REJECTED' || values['state'] == 'CANCEL') {
                 badge = '<span class="badge bg-danger"><i class="fa fa-times"></i></span>'
                 bg = 'bg-light'
                 textPO = 'text-light'
@@ -631,7 +641,15 @@
             html += '<span class="fw-bold" style="font-size: 11px;"><i class="fa fa-file me-2"></i> <i class="text-warning">' + values['state'] + '</i> | <i class="fa fa-truck me-2"></i> <i class="text-warning">' + values['state_order'] + '</i></span>'
             html += '</div>'
 
-            html += '<div class="col">'
+            html += '<div class="col-auto">'
+            if (values['state_order'] == 'DONE') {
+                if (values['is_complete'] == '0') {
+                    html += '<button class="btn btn-outline-success h-100 btnClosePO" onclick="doClosePO(' + values['po_id'] + ')">Close<br>PO</button>'
+                } else {
+                    // jika udah close
+                    html += '<img src="<?= base_url() ?>assets/image/logo/COMPLETE.svg" class="w-100 mx-auto d-block">'
+                }
+            }
             html += '</div>'
 
             html += '<div class="col-auto">'
@@ -642,7 +660,7 @@
             html += '</div>'
             // html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PO/" + values['po_id'] + "'," + values['po_id'] + ',1)"><i class="fa fa-print"></i></button><br>'
             html += '<button class="small btn btn-sm btn-outline-primary w-100 position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i>'
-            if (values['state'] == 'APPROVED' && values['state_order'] == null) {
+            if (values['state'] == 'APPROVED' && values['state_order'] == '-') {
                 html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle small">'
                 html += '<span class="visually-hidden">New alerts</span>'
                 html += '</span>'
@@ -687,11 +705,79 @@
         return false
     }
 
+    function showUncompletePO() {
+        var data = data_po.filter((values, keys) => {
+            if (values.is_complete === '0' && values.state_order === 'DONE') return true
+        })
+        console.log(data)
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Data Belum Closing</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+
+        $.each(data, function(key, value) {
+            html_body += '<div class="card shadow-sm m-0 w-100 card-hoper">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row align-self-center">'
+            html_body += '<div class="col">'
+            html_body += '<p class="m-0" style="font-size:12px;"><b>' + value['no_po'] + '</b></p>'
+            html_body += '<p class="m-0" style="font-size:12px;">Supplier : ' + value['supplier_name'] + '</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-auto">'
+            html_body += '<button class="btn btn-sm btn-outline-success h-100 btnClosePO" onclick="doClosePO(' + value['po_id'] + ')">Close PO</button>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer);
+    }
+
+    function doClosePO(po_id) {
+        var data = data_po.filter((values, keys) => {
+            if (values.po_id === po_id.toString()) return true
+        })[0]
+        Swal.fire({
+            text: 'Apakah anda yakin ingin Closing PO ' + data['no_po'] + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var data = {
+                    po_id: po_id,
+                }
+                var button = '.btnClosePO'
+                var url = '<?php echo api_url('Api_Warehouse/completePo'); ?>'
+                kelolaData(data, type, url, button)
+            }
+        })
+    }
+
     function cancelOrder(po_id) {
         var data = data_po.filter((values, keys) => {
             if (values.po_id === po_id.toString()) return true
         })[0]
-        console.log(data)
+        // console.log(data)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-centered');
         var html_header = '';
@@ -796,13 +882,14 @@
                 uncomplete_detail_order_id.push(values['pengiriman_detail_id'])
             }
         })
+        var type = 'POST'
         var data = {
             po_id: data['po_id'],
             id_user: user_id,
             uncomplete_detail_order_id: uncomplete_detail_order_id,
         }
         var button = '#btnCancelPO'
-        var url = '<?php echo api_url('Api_Warehouse/insertPO'); ?>'
+        var url = '<?php echo api_url('Api_Warehouse/cancelPO'); ?>'
         kelolaData(data, type, url, button)
     }
 
@@ -1366,7 +1453,7 @@
                         text: 'Data Berhasil Tersimpan',
                         icon: 'success',
                     }).then((responses) => {
-                        getData()
+                        // getData()
                         if (button == '#btnSimpanPR') {
                             button_prpo = 'PO'
                             var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
@@ -1679,60 +1766,62 @@
 
             html_body += '</div>'
         } else {
-            html_body += '<small class="mb-4"><b><i class="fa fa-clock-o text-primary me-2"></i> History Revisi</b></small>'
-            // approval
-            html_body += '<div class="row mt-2">'
-            if (JSON.parse(data['data_log'])[0]['old_date_po'] == null) {
-                html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-                html_body += '<div class="card shadow-none m-0 w-100">'
-                html_body += '<div class="card-body p-2 text-center">'
-                html_body += '<i class="small" style="font-size:10px;">Tidak Ada Riyawat Revisi PO</i>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-            } else {
-                $.each(JSON.parse(data['data_log']), function(key, value) {
+            if (perubahan != "") {
+                html_body += '<small class="mb-4"><b><i class="fa fa-clock-o text-primary me-2"></i> History Revisi</b></small>'
+                // approval
+                html_body += '<div class="row mt-2">'
+                if (JSON.parse(data['data_log'])[0]['old_date_po'] == null) {
                     html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
                     html_body += '<div class="card shadow-none m-0 w-100">'
-                    html_body += '<div class="card-body p-2">'
-                    html_body += '<div class="row">'
-                    html_body += '<div class="col-6">'
-                    html_body += '<span class="badge bg-primary text-white" style="font-size:10px;">' + value['date_action'] + '</span><br>'
-                    $.each(value['data_detail_log'], function(keys, values) {
-                        html_body += '<p class="m-0 p-0 float-start"><b class="small">' + values['item_name'] + '</b></p><br>'
-                        html_body += '<p class="m-0 p-0 float-start" style="font-size:10px;">' + number_format(values['qty']) + ' ' + values['satuan_name'] + '</p>'
-                        html_body += '<p class="m-0 mb-3 p-0 float-end" style="font-size:10px;">' + number_format(values['subtotal']) + '</p>'
+                    html_body += '<div class="card-body p-2 text-center">'
+                    html_body += '<i class="small" style="font-size:10px;">Tidak Ada Riyawat Revisi PO</i>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                } else {
+                    $.each(JSON.parse(data['data_log']), function(key, value) {
+                        html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
+                        html_body += '<div class="card shadow-none m-0 w-100">'
+                        html_body += '<div class="card-body p-2">'
+                        html_body += '<div class="row">'
+                        html_body += '<div class="col-6">'
+                        html_body += '<span class="badge bg-primary text-white" style="font-size:10px;">' + value['date_action'] + '</span><br>'
+                        $.each(value['data_detail_log'], function(keys, values) {
+                            html_body += '<p class="m-0 p-0 float-start"><b class="small">' + values['item_name'] + '</b></p><br>'
+                            html_body += '<p class="m-0 p-0 float-start" style="font-size:10px;">' + number_format(values['qty']) + ' ' + values['satuan_name'] + '</p>'
+                            html_body += '<p class="m-0 mb-3 p-0 float-end" style="font-size:10px;">' + number_format(values['subtotal']) + '</p>'
+                        })
+                        html_body += '</div>'
+                        html_body += '<div class="col-6 border-start" style="font-size:10px;">'
+
+                        html_body += '<div class="row mb-2">'
+                        html_body += '<div class="col-6 align-self-center text-end">Sub Total</div>'
+                        html_body += '<div class="col-6 align-self-center text-end">'
+                        html_body += number_format(value['old_total_harga'])
+                        html_body += '</div>'
+                        html_body += '</div>'
+                        html_body += '<div class="row mb-2">'
+                        html_body += '<div class="col-6 align-self-center text-end">PPN</div>'
+                        html_body += '<div class="col-6 align-self-center text-end">'
+                        html_body += number_format(value['old_ppn'])
+                        html_body += '</div>'
+                        html_body += '</div>'
+                        html_body += '<div class="row mb-2">'
+                        html_body += '<div class="col-6 align-self-center text-end">Grand Total</div>'
+                        html_body += '<div class="col-6 align-self-center text-end">'
+                        html_body += number_format(value['old_grand_total'])
+                        html_body += '</div>'
+                        html_body += '</div>'
+
+                        html_body += '</div>'
+                        html_body += '</div>'
+                        html_body += '</div>'
+                        html_body += '</div>'
+                        html_body += '</div>'
                     })
-                    html_body += '</div>'
-                    html_body += '<div class="col-6 border-start" style="font-size:10px;">'
-
-                    html_body += '<div class="row mb-2">'
-                    html_body += '<div class="col-6 align-self-center text-end">Sub Total</div>'
-                    html_body += '<div class="col-6 align-self-center text-end">'
-                    html_body += number_format(value['old_total_harga'])
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '<div class="row mb-2">'
-                    html_body += '<div class="col-6 align-self-center text-end">PPN</div>'
-                    html_body += '<div class="col-6 align-self-center text-end">'
-                    html_body += number_format(value['old_ppn'])
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '<div class="row mb-2">'
-                    html_body += '<div class="col-6 align-self-center text-end">Grand Total</div>'
-                    html_body += '<div class="col-6 align-self-center text-end">'
-                    html_body += number_format(value['old_grand_total'])
-                    html_body += '</div>'
-                    html_body += '</div>'
-
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '</div>'
-                })
+                }
+                html_body += '</div>'
             }
-            html_body += '</div>'
         }
         html_body += '</div>'
 

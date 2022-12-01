@@ -383,7 +383,11 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" data-id="' + id + '">Simpan</button>'
         $('#modalFooter').html(html_footer);
-        tambahFormSatuan()
+        if (id == null) {
+            tambahFormSatuan()
+        } else {
+
+        }
     }
 
     var no_satuan = 1
@@ -451,12 +455,25 @@
     }
 
     $(document).on('click', "#btnSimpan", function() {
+        var id_satuan = $('.satuan').map(function() {
+            return $(this).val();
+        }).get();
+        var konversi = $('.konversi').map(function() {
+            return $(this).val();
+        }).get();
+        var satuan = []
+        for (let i = 0; i < id_satuan.length; i++) {
+            satuan.push({
+                'id_satuan': id_satuan[i],
+                'konversi': konversi[i],
+            })
+        }
         var type = 'POST'
         var button = '#btnSimpan'
         var data = {
             code: $('#code').val(),
             name: $('#nama').val(),
-            satuan: $('#satuan').val(),
+            satuan: satuan,
             type: $('#tipe').val(),
             unit: $('#unit_mesin').val(),
             active: 1,
@@ -469,6 +486,7 @@
             var url = '<?php echo api_url('MasterNtm/updateItem'); ?>'
         }
         kelolaData(data, type, url, button)
+        // console.log(data)
     })
 
     function kelolaData(data, type, url, button) {
