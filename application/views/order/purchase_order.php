@@ -631,8 +631,10 @@
             html += '<div class="col">'
             html += '<small style="font-size: 11px;">' + values['date_po'] + '</small>'
             var rev = ''
-            if (JSON.parse(values['data_log'])[0]['old_date_po'] != null) {
-                rev = '<span class="badge bg-secondary me-1">REV</span>'
+            if (values['data_log'] != null) {
+                if (JSON.parse(values['data_log'])[0]['old_date_po'] != null) {
+                    rev = '<span class="badge bg-secondary me-1">REV</span>'
+                }
             }
             if (values['state_order'] == null) {
                 values['state_order'] = '-'
@@ -2397,7 +2399,7 @@
             var array = []
             $.each(JSON.parse(values['data_order']), function(keys2, values2) {
                 array.push(values2['detail_order_id'])
-                html_body += '<span style="font-size:12px;">' + values2['item_name'] + ' <b>' + values2['jumlah_order'] + 'x</b></span>'
+                html_body += '<span style="font-size:12px;">' + values2['item_name'] + ' <b>' + values2['jumlah_dikirim'] + 'x</b></span>'
                 html_body += '<br>'
             })
             var stringArray = JSON.stringify(array)

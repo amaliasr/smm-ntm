@@ -81,6 +81,15 @@
         background: linear-gradient(66deg, rgba(208, 103, 58, 1) 0%, rgba(233, 188, 51, 1) 100%);
     }
 
+    .bg-merah {
+        background: rgb(36, 0, 0);
+        background: linear-gradient(90deg, rgba(36, 0, 0, 1) 0%, rgba(255, 46, 0, 1) 100%);
+    }
+
+    .card-hoper:hover {
+        background-color: #EDEDED;
+    }
+
     .dots-lead {
         display: flex;
     }
@@ -401,7 +410,7 @@
                         if (values2['status_order'] == 'CHECKED') {
                             checked++
                         }
-                        if (values2['status_order'] == 'CANCELED') {
+                        if (values2['status_order'] == 'CANCEL') {
                             canceled++
                         }
                     })
@@ -430,6 +439,11 @@
             check_success = 'text-warning fa fa-exclamation-triangle'
             color_icon_profile = 'bg-oren'
             icon_profile = 'fa-clock-o'
+        } else if (data_detail[0]['status_order'] == 'CANCEL') {
+            background = "bg-light"
+            check_success = 'fa fa-truck text-danger'
+            icon_profile = 'fa-times'
+            color_icon_profile = 'bg-merah'
         }
         var html = ""
         html += '<div class="card shadow-sm mb-2 w-100 card-hoper ' + background + '" id="card_search' + keys + '">'
@@ -726,11 +740,11 @@
                     },
                     success: function(response) {
                         $('#modal').modal('hide')
-                        getDataSJ()
                         Swal.fire(
                             'Berhasil!',
                             'success'
                         )
+                        getDataSJ()
                     }
                 });
             }

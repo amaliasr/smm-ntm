@@ -412,7 +412,7 @@
         html += '<div class="col align-self-center">'
         html += '<p class="m-0 small" style="font-size:11px;">Surat Jalan <b class="m-0">#' + data['no_sj'] + '</b></p>'
         html += '<p class="m-0 small" style="font-size:11px;">Supplier <b class="m-0">' + data['supplier_name'] + '</b></p>'
-        html += '<p class="m-0 small" style="font-size:11px;">Item <b class="m-0">NTM</b></p>'
+        html += '<p class="m-0 small" style="font-size:11px;">Item <b class="m-0">' + data['category'] + '</b></p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
