@@ -86,11 +86,20 @@
         </tr>
     </table>
     <hr style="height:2px;border:none;color:#333;background-color:#333;margin-bottom:20px;" />
-    <table style="width: 50%;padding:0px;margin-bottom:30px;">
+    <table style="width: 100%;padding:0px;margin-bottom:30px;">
         <tr>
             <td style="width: auto;text-align:left;padding:0px;">No</td>
             <td style="width: 2px;">:</td>
-            <td style="word-wrap: break-word;width: 90%;"><?= $datas->no_po ?></td>
+            <?php
+            $rev = "";
+            if ($datas->data_log != null || $datas->data_log != "") {
+                if (json_decode($datas->data_log)[0]->old_date_po != "") {
+                    $rev =  '(REV)';
+                }
+            }
+            ?>
+            <td style="word-wrap: break-word;width: 50%;"><?= $datas->no_po ?> <?= $rev ?></td>
+            <td><?= date("d/m/Y", strtotime($datas->date_po)); ?></td>
         </tr>
         <tr>
             <td style="width: auto;text-align:left;padding:0px;">Hal</td>

@@ -132,7 +132,7 @@
                             </div>
                             <div class="col">
                                 <div class="row justify-content-end">
-                                    <div class="col-12 col-md-6 p-1">
+                                    <div class="col-12 col-md-4 p-1">
                                         <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example" onchange="filterStatus()" id="selectStatus">
                                             <option selected value="all">Semua Status</option>
                                             <option value="REQUESTED">Permintaan</option>
@@ -141,7 +141,16 @@
                                             <option value="REJECTED">Batal</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-6 p-1 ">
+                                    <div class="col-12 col-md-4 p-1">
+                                        <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example" onchange="filterStatus()" id="selectStatus">
+                                            <option selected value="all">Semua Status</option>
+                                            <option value="REQUESTED">Permintaan</option>
+                                            <option value="CHECKED">Checking</option>
+                                            <option value="APPROVED">Selesai</option>
+                                            <option value="REJECTED">Batal</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-4 p-1 ">
                                         <input type="date" name="" id="selectDate" class="form-control form-control-sm w-100" onchange="filterStatus()">
                                     </div>
                                 </div>
@@ -502,6 +511,10 @@
             if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED') {
                 var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
                 html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<hr class="m-2">'
+                html += '<div class="text-center pe-2 ps-2">'
+                html += '<button class="btn btn-sm btn-success w-100" onclick="orderPO(' + values['po_id'] + ')">Process Order</button>'
+                html += '</div>'
             }
             html += '</div>'
             html += '</div>'
@@ -533,7 +546,7 @@
                 if (obj != undefined) {
                     count = parseInt(obj['count']) + 1;
                 }
-                no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + thisMonth + '/' + thisYear
+                no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
                 numberinPO()
             }
         })
@@ -558,7 +571,7 @@
                 if (obj != undefined) {
                     count = parseInt(obj['count']) + 1;
                 }
-                no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + thisMonth + '/' + thisYear
+                no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + romanize(thisMonth) + '/' + thisYear
             }
         })
     }
@@ -1985,12 +1998,11 @@
                 }
             }
             var checkbox = ""
-            if (values['is_po'] == 1) {
+            if (values['is_po'] == 1 && values['qty_sisa'] == 0) {
                 checkbox = 'disabled'
                 html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR bg-grey" id="cardDetailPR' + keys + '">'
             } else {
                 html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR" id="cardDetailPR' + keys + '" onclick="cardClickPR(' + keys + ',' + values['id'] + ')">'
-
             }
             html_body += '<div class="card-body p-2">'
             html_body += '<div class="row d-flex align-items-center">'
@@ -1999,7 +2011,11 @@
             html_body += '</div>'
             html_body += '<div class="col-6"><span class="">' + values['item_name'] + '</span></div>'
             html_body += '<div class="col-5">'
-            html_body += '<span class="fa fa-shopping-basket fw-bold"></span> ' + values['qty'] + '<br>'
+            var sisa = ""
+            if (values['qty_sisa'] != 0 && values['qty_sisa'] != null) {
+                sisa = '<span class="text-danger" style="font-size:10px;">(Sisa : ' + values['qty_sisa'] + ')</span>'
+            }
+            html_body += '<span class="fa fa-shopping-basket fw-bold"></span> ' + values['qty'] + ' ' + sisa + '<br>'
             html_body += '<span class="fa fa-money fw-bold"></span> Rp. ' + number_format(values['extended_price'])
             html_body += '</div>'
             html_body += '</div>'
@@ -2018,7 +2034,6 @@
     $(document).on('change', '.checkbox-PR', function(e) {
         cardClickPR($(this).data('id'), $(this).data('id_pr'))
     })
-
 
     function cardClickPR(id, id_pr) {
         if ($('#checkPR' + id).is(':checked')) {
@@ -2118,7 +2133,11 @@
         var harga = ""
         var total = ""
         if (data != "") {
-            qty = data['qty']
+            if (data['qty_sisa'] == null) {
+                qty = data['qty']
+            } else {
+                qty = data['qty_sisa']
+            }
             if (data['unit_price'] == undefined) {
                 harga = data['harga']
             } else {
