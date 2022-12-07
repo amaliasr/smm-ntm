@@ -81,7 +81,7 @@
                             <div class="row">
                                 <div class="table-responsive">
 
-                                    <table class="table table-bordered table-hover table-sm" id="example">
+                                    <table class="table table-bordered table-hover table-sm small" id="example">
                                         <thead class="bg-light">
                                             <tr style="height: 50px;vertical-align: middle;">
                                                 <th style="width: 5%;">#</th>
@@ -260,11 +260,17 @@
                                 }
                             })
                         }
+                        var satuan = ""
+                        if (values['data_konversi'] != null) {
+                            $.each(JSON.parse(values['data_konversi']), function(keys2, values2) {
+                                satuan += values2['satuan_name'] + ' <span class="text-danger" style="font-size:10px;"><b> 1 ' + JSON.parse(values['data_konversi'])[0]['satuan_name'] + ' = ' + values2['jumlah_konversi'] + ' ' + values2['satuan_name'] + '</b></span><br>'
+                            })
+                        }
                         array = {
                             'id': keys + 1,
                             'kode': values['code'],
                             'nama': values['name'],
-                            'satuan': values['satuan_name'],
+                            'satuan': satuan,
                             'tipe': values['type_name'],
                             'unit': values['unit_name'],
                             'price': price,

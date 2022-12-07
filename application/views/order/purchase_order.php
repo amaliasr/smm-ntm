@@ -132,25 +132,19 @@
                             </div>
                             <div class="col">
                                 <div class="row justify-content-end">
-                                    <div class="col-12 col-md-4 p-1">
+                                    <!-- <div class="col-12 col-md-4 p-1">
+                                        
+                                    </div> -->
+                                    <div class="col-12 col-md-6 p-1">
                                         <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example" onchange="filterStatus()" id="selectStatus">
                                             <option selected value="all">Semua Status</option>
                                             <option value="REQUESTED">Permintaan</option>
                                             <option value="CHECKED">Checking</option>
                                             <option value="APPROVED">Selesai</option>
-                                            <option value="REJECTED">Batal</option>
+                                            <option value="CANCEL">Batal</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-4 p-1">
-                                        <select class="form-select form-select-sm h-100 w-100" aria-label=".form-select-sm example" onchange="filterStatus()" id="selectStatus">
-                                            <option selected value="all">Semua Status</option>
-                                            <option value="REQUESTED">Permintaan</option>
-                                            <option value="CHECKED">Checking</option>
-                                            <option value="APPROVED">Selesai</option>
-                                            <option value="REJECTED">Batal</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-md-4 p-1 ">
+                                    <div class="col-12 col-md-6 p-1 ">
                                         <input type="date" name="" id="selectDate" class="form-control form-control-sm w-100" onchange="filterStatus()">
                                     </div>
                                 </div>
@@ -414,10 +408,32 @@
         $(location).html(html)
     }
 
+    var res = {}
+    var itemYangSisa = []
+
     function formMasterPR(data) {
+        res = {}
+        itemYangSisa = []
         var html = ""
+        html += '<div class="row float-end">'
+        html += '<div class="col-auto pe-0">'
+        html += '<select class="form-select form-select-sm w-100 float-end" aria-label=".form-select-sm example" onchange="filterStatus()" id="selectItemYangBelumTuntas">'
+        html += '<option selected value="all">Semua Item</option>'
+        html += '</select>'
+        html += '</div>'
+        html += '<div class="col-auto">'
         html += '<button class="btn btn-sm btn-outline-primary float-end mb-2" onclick="refresh(' + "'" + 'PR' + "'" + ')"><span class="fa fa-refresh me-2"></span> Refresh</button>'
+        html += '</div>'
+        html += '</div>'
         $.each(data, function(keys, values) {
+            // console.log(JSON.parse(values['data_approval']))
+            var ttd_pending = ""
+            if (values['data_approval'] != null) {
+                ttd_pending = JSON.parse(values['data_approval']).find((value, key) => {
+                    if (value.is_accept === 'Pending') return true
+                })
+            }
+            // console.log(ttd_pending)
             var acc_check
             var badge = ""
             var bg = ""
@@ -430,7 +446,7 @@
                 bg = 'bg-light'
                 checkStatusDocument = 'fa-check text-success'
                 textAcc = "text-success"
-            } else if (values['state'] == 'REJECTED') {
+            } else if (values['state'] == 'REJECTED' || values['state'] == 'CANCEL') {
                 badge = '<span class="badge rounded-pill bg-danger"><i class="fa fa-times"></i></span>'
                 bg = 'bg-light'
                 textPO = 'text-light'
@@ -449,7 +465,7 @@
                 checkStatusDocument = 'fa-check text-success'
                 textAcc = "text-success"
             }
-            html += '<div class="card card-PR w-100 shadow-none mb-2 p-0 ' + bg + '" id="card_searchPR' + keys + '" data-status="' + values['state'] + '" data-date="' + values['date'] + '" data-key="PR' + keys + '">'
+            html += '<div class="card card-PR w-100 shadow-none mb-2 p-0 ' + bg + '" id="card_searchPR' + keys + '" data-status="' + values['state'] + '" data-date="' + values['date'] + '" data-key="PR' + keys + '" data-id="' + values['id'] + '">'
             html += '<div class="card-body p-2">'
             html += '<div class="row d-flex align-items-center">'
             html += '<div class="col">'
@@ -479,13 +495,27 @@
                     html += '<span class="fa fa-truck text-success" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">Order Selesai <span class="fa fa-check text-success" style="font-size: 12px;"></span>'
                 } else {
                     html += '<span class="fa fa-truck text-success" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">PO Telah Dibuat</span>'
+                    // html += '<span class="fa fa-truck text-success" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">PO Telah Dibuat</span>'
                 }
             } else if (JSON.parse(values['data_detail']).length == obj.length) {
                 // jika tidak ada yang di PO kan
                 html += '<span class="fa fa-truck text-grey" style="font-size: 12px;"></span> <span class="text-grey fw-bold" style="font-size: 12px;">Belum PO</span>'
             } else {
-                html += '<span class="fa fa-truck text-warning" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">' + obj1.length + ' dari ' + JSON.parse(values['data_detail']).length + ' Item sudah ter-PO</span>'
-
+                html += '<span class="fa fa-truck text-warning" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">' + obj1.length + ' dari ' + JSON.parse(values['data_detail']).length + ' Item Telah Dibuat PO</span>'
+            }
+            // html += '<br>'
+            let qtySisa = JSON.parse(values['data_detail']).filter((value, key) => {
+                if (value.qty_sisa !== 0 && value.qty_sisa !== null) return true
+            })
+            $.each(qtySisa, function(keys2, values2) {
+                itemYangSisa.push({
+                    'item': values2['item_id'],
+                    'pr_id': values['id']
+                })
+            })
+            var jumlahQtySisa = qtySisa.length
+            if (jumlahQtySisa > 0 && values['state_order'] != 'DONE') {
+                html += '<span class="text-grey ms-2" style="font-size: 12px;">(Partial)</span>'
             }
             html += '</div>'
 
@@ -501,19 +531,22 @@
             html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ',0)"><i class="fa fa-print"></i></button><br>'
             html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            if (values['state'] == 'APPROVED' && values['order_detail'] != null) {
+            if (values['state'] == 'APPROVED' && values['order_detail'] != '[null]' && values['state'] != 'CANCEL') {
                 html += '<a class="dropdown-item" onclick="penerimaanBarangPR(' + values['id'] + ')"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
             }
             if (divisi_id == 1) {
                 html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
             }
             html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED') {
+            if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && ttd_pending != undefined && values['state'] != 'CANCEL') {
                 var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
-                html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
+            }
+            if (values['state_order'] == null && values['state'] != 'CANCEL') {
                 html += '<hr class="m-2">'
                 html += '<div class="text-center pe-2 ps-2">'
-                html += '<button class="btn btn-sm btn-success w-100" onclick="orderPO(' + values['po_id'] + ')">Process Order</button>'
+                html += '<button class="btn btn-sm btn-danger w-100" onclick="formCancelPR(' + values['id'] + ')">Pembatalan PR</button>'
                 html += '</div>'
             }
             html += '</div>'
@@ -524,6 +557,19 @@
         })
         $('#pills-home').html(html)
         searching()
+        // console.log(itemYangSisa)
+
+        itemYangSisa.forEach(function(v) {
+            res[v.item] = (res[v.item] || 0) + 1;
+        })
+        var select = ""
+        select += '<option value="all">Pilih Item yang Belum Dibuat PO</option>'
+        $.each(data_item, function(keys, values) {
+            if (res[values['id']] > 0) {
+                select += '<option value="' + values['id'] + '">' + values['name'] + ' (' + res[values['id']] + ')</option>'
+            }
+        })
+        $('#selectItemYangBelumTuntas').html(select)
         return false
     }
 
@@ -616,6 +662,7 @@
     }
 
     function formMasterPO(data) {
+
         var length_unclosing = data.filter((values, keys) => {
             if (values.is_complete === '0' && values.state_order === 'DONE') return true
         }).length
@@ -625,6 +672,13 @@
         }
         html += '<button class="btn btn-sm btn-outline-primary float-end mb-2" onclick="refresh(' + "'" + 'PO' + "'" + ')"><span class="fa fa-refresh me-2"></span> Refresh</button>'
         $.each(data, function(keys, values) {
+            var ttd_pending = ""
+            if (values['data_approval'] != null) {
+                ttd_pending = JSON.parse(values['data_approval']).find((value, key) => {
+                    if (value.is_accept === 'Pending') return true
+                })
+            }
+            // console.log(ttd_pending)
             var acc_check
             var badge = ""
             var bg = ""
@@ -688,9 +742,10 @@
                 html += '<a class="dropdown-item" onclick="perubahanPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-pencil me-2"></i> Perubahan PO</a>'
             }
             html += '<a class="dropdown-item" onclick="detailPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED') {
+            if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && ttd_pending != undefined) {
                 var link = '<?= base_url() ?>order/detailPO/' + values['po_id'] + ''
-                html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['po_id'] + ',6281944946015,' + "'" + link + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['po_id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PO' + "'" + ',' + "'" + values['no_po'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',1)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
             }
             if (values['state'] == 'APPROVED' && (values['state_order'] != null && values['state_order'] != '-')) {
                 html += '<hr class="m-2">'
@@ -842,6 +897,8 @@
                     html_body += '</div>'
                     html_body += '</div>'
                 })
+                html_body += '<p class="m-0 mt-4"><b class="small">Alasan Pembatalan :</b></p>'
+                html_body += '<textarea class="form-control form-control-sm w-100" rows="10" id="catatanPembatalan"></textarea>'
                 html_body += '<button class="mt-2 p-3 btn btn-danger btn-sm w-100" id="btnCancelPO" onclick="formCancelPO(' + po_id + ')">Batalkan Purchase Order</button>'
                 html_body += '</div>'
             } else {
@@ -850,8 +907,10 @@
                 html_body += '<div class="card-body">'
                 html_body += '<div class="row align-self-center">'
                 html_body += '<div class="col-12 text-center">'
-                html_body += '<i class="small">Sebelumnya anda telah membuka order tanpa Surat Jalan, Apakah anda ingin membatalkan PO <span class="fw-bold text-primary">' + data['no_po'] + ' ?</span></i>'
-                html_body += '<button class="mt-5 btn btn-danger btn-sm" id="btnCancelPO" onclick="formCancelPO(' + po_id + ')">Batalkan Purchase Order</button>'
+                html_body += '<p class="m-0 mb-5"><i class="small">Sebelumnya anda telah membuka order tanpa Surat Jalan, Apakah anda ingin membatalkan PO <span class="fw-bold text-primary">' + data['no_po'] + ' ?</span></i></p>'
+                html_body += '<p class="m-0"><b class="small">Alasan Pembatalan :</b></p>'
+                html_body += '<textarea class="form-control form-control-sm w-100" rows="10" id="catatanPembatalan"></textarea>'
+                html_body += '<button class="mt-2 btn btn-danger btn-sm" id="btnCancelPO" onclick="formCancelPO(' + po_id + ')">Batalkan Purchase Order</button>'
                 html_body += '</div>'
                 html_body += '</div>'
                 html_body += '</div>'
@@ -902,6 +961,7 @@
             po_id: data['po_id'],
             id_user: user_id,
             uncomplete_detail_order_id: uncomplete_detail_order_id,
+            note: $('#catatanPembatalan').val()
         }
         var button = '#btnCancelPO'
         var url = '<?php echo api_url('Api_Warehouse/cancelPO'); ?>'
@@ -955,6 +1015,7 @@
     }
 
     function perubahanPO(pr_id, id) {
+        // console.log(pr_id, id)
         $.each(data_po, function(keys, values) {
             if (id == values['po_id']) {
                 formPO(pr_id, data_po[keys], 'yes')
@@ -1037,11 +1098,12 @@
             html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['date'] + '</span></div>'
         }
         html_body += '<div class="col-4 col-md-3">Cost Centre</div>'
-        if (data == undefined) {
-            html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_user[0]['division_name'] + '</span></div>'
-        } else {
-            html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['cost_center'] + '</span></div>'
-        }
+        // if (data == undefined) {
+        //     html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_user[0]['division_name'] + '</span></div>'
+        // } else {
+        //     html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['cost_center'] + '</span></div>'
+        // }
+        html_body += '<div class="col-8 col-md-9"><span class="fw-bold">NTM WAREHOUSE</span></div>'
 
 
         html_body += '</div>'
@@ -1055,9 +1117,9 @@
         if (data == undefined) {
             html_body += '<div class="col-auto ps-0">'
             html_body += '<select name="" id="category" class="form-control form-control-sm select2-single category">'
-            html_body += '<option value=""></option>'
+            // html_body += '<option value=""></option>'
             html_body += '<option value="NTM">NTM</option>'
-            html_body += '<option value="ASSETS">ASSETS</option>'
+            // html_body += '<option value="ASSETS">ASSETS</option>'
             html_body += '</select>'
             html_body += '</div>'
         } else {
@@ -1391,7 +1453,13 @@
                 return $(this).val();
             }).get();
             var grand_total = $('#totalPO').val()
-            var ppn = $('#ppnPO').val()
+            if ($('#ppnPO').val() == "") {
+                // $('#ppnPO').val() = 0
+                var ppn = 0
+            } else {
+
+                var ppn = $('#ppnPO').val()
+            }
             var total_all = $('#subtotalPO').val()
             var id_supplier = $('#supplier').val()
             // var pr_id = $('#no_pr').val()
@@ -1469,18 +1537,33 @@
                         icon: 'success',
                     }).then((responses) => {
                         // getData()
+                        // console.log(response.data_approval)
+
+                        // console.log(ttd_pending)
                         if (button == '#btnSimpanPR') {
+                            var ttd_pending = ""
+                            if (response.data_approval[0]['data_approval'] != null) {
+                                ttd_pending = JSON.parse(response.data_approval[0]['data_approval']).find((value, key) => {
+                                    if (value.is_accept === 'Pending') return true
+                                })
+                            }
                             button_prpo = 'PO'
                             var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
                             $('#modal').modal('hide')
-                            shareWhatsapp(response.id_pr, '6281944946015', link)
+                            shareWhatsapp(response.id_pr, ttd_pending['phone'], link, 'PR', response.no_pr, ttd_pending['user_name'])
                             ajaxPR()
                         } else if (button == '#btnSimpanPO') {
+                            var ttd_pending = ""
+                            if (response.data_approval[0]['data_approval'] != null) {
+                                ttd_pending = JSON.parse(response.data_approval[0]['data_approval']).find((value, key) => {
+                                    if (value.is_accept === 'Pending') return true
+                                })
+                            }
                             button_prpo = 'PO'
                             var link = '<?= base_url() ?>order/detailPO/' + response.id_po + ''
                             $('#modal').modal('hide')
                             if (data['po_id'] == "") {
-                                shareWhatsapp(response.id_po, '6281944946015', link)
+                                shareWhatsapp(response.id_po, ttd_pending['phone'], link, 'PO', response.no_po, ttd_pending['user_name'])
                             }
                             ajaxPO()
                         } else {
@@ -1502,7 +1585,51 @@
         });
     }
 
-    function shareWhatsapp(id, no_telp, link) {
+    function shareWhatsapp(id, no_telp, link, status, no_doc, nama) {
+        $.ajax({
+            url: "<?= base_url('api') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                link: link,
+                status: status,
+                nama: nama,
+                no_doc: no_doc,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                $('#modal2').modal('hide')
+                // console.log(response)
+                if (response.message = 'message sent') {
+                    // formWhatsapp(link)
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Berhasil Mengirimkan Approval',
+                        icon: 'success',
+                    }).then((responses) => {});
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Mengalami Masalah, Silahkan Kirim Ulang Pengajuan'
+                    });
+                }
+            }
+        })
+    }
+
+    function shareLink(link, status) {
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-md modal-dialog-centered');
         var html_header = '';
@@ -1517,15 +1644,14 @@
         html_body += '<div class="input-group mb-3">'
         html_body += '<input type="text" class="form-control" value="' + link + '" aria-describedby="button-addon2" onClick="this.select();" id="linkPRPO">'
         html_body += '<button class="btn btn-outline-primary" type="button" id="button-addon2" onClick="copyToClipboard()"><i class="fa fa-copy"></i></button>'
-        html_body += '<small class="mt-3">Atau juga bisa dengan mudah langsung kirim ke Whatsapp User terkait dengan menekan tombol <span class="fw-bold">Kirim</span> dibawah ini</small>'
+        // html_body += '<small class="mt-3">Atau juga bisa dengan mudah langsung kirim ke Whatsapp User terkait dengan menekan tombol <span class="fw-bold">Kirim</span> dibawah ini</small>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody2').html(html_body);
 
-
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" onclick="kirimWhatsapp(' + id + ',' + no_telp + ',' + "'" + link + "'" + ')">Kirim</button>'
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter2').html(html_footer);
     }
 
@@ -1551,7 +1677,7 @@
     var id_po_detail = []
 
     function formPO(id_pr = "", data = "", perubahan = "") {
-        // console.log(data)
+        console.log(data)
         status_more = "less"
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
@@ -1767,7 +1893,6 @@
                 html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + JSON.parse(data['data_approval'])[2]['user_name'] + '</span></p>'
             } else {
                 html_body += '<p class="m-0"><span class="small" style="font-size:10px;">-</span></p>'
-
             }
             html_body += '</div>'
             html_body += '</div>'
@@ -1785,7 +1910,58 @@
                 html_body += '<small class="mb-4"><b><i class="fa fa-clock-o text-primary me-2"></i> History Revisi</b></small>'
                 // approval
                 html_body += '<div class="row mt-2">'
-                if (JSON.parse(data['data_log'])[0]['old_date_po'] == null) {
+                if (data['data_log'] != null) {
+                    if (JSON.parse(data['data_log'])[0]['old_date_po'] == null) {
+                        html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
+                        html_body += '<div class="card shadow-none m-0 w-100">'
+                        html_body += '<div class="card-body p-2 text-center">'
+                        html_body += '<i class="small" style="font-size:10px;">Tidak Ada Riyawat Revisi PO</i>'
+                        html_body += '</div>'
+                        html_body += '</div>'
+                        html_body += '</div>'
+                    } else {
+                        $.each(JSON.parse(data['data_log']), function(key, value) {
+                            html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
+                            html_body += '<div class="card shadow-none m-0 w-100">'
+                            html_body += '<div class="card-body p-2">'
+                            html_body += '<div class="row">'
+                            html_body += '<div class="col-6">'
+                            html_body += '<span class="badge bg-primary text-white" style="font-size:10px;">' + value['date_action'] + '</span><br>'
+                            $.each(value['data_detail_log'], function(keys, values) {
+                                html_body += '<p class="m-0 p-0 float-start"><b class="small">' + values['item_name'] + '</b></p><br>'
+                                html_body += '<p class="m-0 p-0 float-start" style="font-size:10px;">' + number_format(values['qty']) + ' ' + values['satuan_name'] + '</p>'
+                                html_body += '<p class="m-0 mb-3 p-0 float-end" style="font-size:10px;">' + number_format(values['subtotal']) + '</p>'
+                            })
+                            html_body += '</div>'
+                            html_body += '<div class="col-6 border-start" style="font-size:10px;">'
+
+                            html_body += '<div class="row mb-2">'
+                            html_body += '<div class="col-6 align-self-center text-end">Sub Total</div>'
+                            html_body += '<div class="col-6 align-self-center text-end">'
+                            html_body += number_format(value['old_total_harga'])
+                            html_body += '</div>'
+                            html_body += '</div>'
+                            html_body += '<div class="row mb-2">'
+                            html_body += '<div class="col-6 align-self-center text-end">PPN</div>'
+                            html_body += '<div class="col-6 align-self-center text-end">'
+                            html_body += number_format(value['old_ppn'])
+                            html_body += '</div>'
+                            html_body += '</div>'
+                            html_body += '<div class="row mb-2">'
+                            html_body += '<div class="col-6 align-self-center text-end">Grand Total</div>'
+                            html_body += '<div class="col-6 align-self-center text-end">'
+                            html_body += number_format(value['old_grand_total'])
+                            html_body += '</div>'
+                            html_body += '</div>'
+
+                            html_body += '</div>'
+                            html_body += '</div>'
+                            html_body += '</div>'
+                            html_body += '</div>'
+                            html_body += '</div>'
+                        })
+                    }
+                } else {
                     html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
                     html_body += '<div class="card shadow-none m-0 w-100">'
                     html_body += '<div class="card-body p-2 text-center">'
@@ -1793,47 +1969,6 @@
                     html_body += '</div>'
                     html_body += '</div>'
                     html_body += '</div>'
-                } else {
-                    $.each(JSON.parse(data['data_log']), function(key, value) {
-                        html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-                        html_body += '<div class="card shadow-none m-0 w-100">'
-                        html_body += '<div class="card-body p-2">'
-                        html_body += '<div class="row">'
-                        html_body += '<div class="col-6">'
-                        html_body += '<span class="badge bg-primary text-white" style="font-size:10px;">' + value['date_action'] + '</span><br>'
-                        $.each(value['data_detail_log'], function(keys, values) {
-                            html_body += '<p class="m-0 p-0 float-start"><b class="small">' + values['item_name'] + '</b></p><br>'
-                            html_body += '<p class="m-0 p-0 float-start" style="font-size:10px;">' + number_format(values['qty']) + ' ' + values['satuan_name'] + '</p>'
-                            html_body += '<p class="m-0 mb-3 p-0 float-end" style="font-size:10px;">' + number_format(values['subtotal']) + '</p>'
-                        })
-                        html_body += '</div>'
-                        html_body += '<div class="col-6 border-start" style="font-size:10px;">'
-
-                        html_body += '<div class="row mb-2">'
-                        html_body += '<div class="col-6 align-self-center text-end">Sub Total</div>'
-                        html_body += '<div class="col-6 align-self-center text-end">'
-                        html_body += number_format(value['old_total_harga'])
-                        html_body += '</div>'
-                        html_body += '</div>'
-                        html_body += '<div class="row mb-2">'
-                        html_body += '<div class="col-6 align-self-center text-end">PPN</div>'
-                        html_body += '<div class="col-6 align-self-center text-end">'
-                        html_body += number_format(value['old_ppn'])
-                        html_body += '</div>'
-                        html_body += '</div>'
-                        html_body += '<div class="row mb-2">'
-                        html_body += '<div class="col-6 align-self-center text-end">Grand Total</div>'
-                        html_body += '<div class="col-6 align-self-center text-end">'
-                        html_body += number_format(value['old_grand_total'])
-                        html_body += '</div>'
-                        html_body += '</div>'
-
-                        html_body += '</div>'
-                        html_body += '</div>'
-                        html_body += '</div>'
-                        html_body += '</div>'
-                        html_body += '</div>'
-                    })
                 }
                 html_body += '</div>'
             }
@@ -1855,11 +1990,17 @@
         html_body += '</div>'
 
         html_body += '<div class="row mb-2">'
-        html_body += '<div class="col-4 align-self-center text-end">PPN</div>'
-        html_body += '<div class="col-8 align-self-center text-end">'
+        html_body += '<div class="col-4 text-end">PPN</div>'
+        html_body += '<div class="col-8 text-end">'
         if (data == "" || perubahan == 'yes') {
             var ppn = (perubahan === 'yes') ? data['ppn'] : 0;
-            html_body += '<input type="text" name="" id="ppnPO" class="form-control form-control-sm p-1 w-100 nominal" value="' + ppn + '">'
+            html_body += '<input type="text" name="" id="ppnPO" class="form-control form-control-sm p-1 w-100 nominal" value="' + ppn + '" disabled>'
+            html_body += '<div>'
+            html_body += '<input class="form-check-input" type="checkbox" value="on" id="checkPPN">'
+            html_body += '<label class="form-check-label" for="checkPPN">'
+            html_body += 'Tanpa Pajak ?'
+            html_body += '</label>'
+            html_body += '</div>'
         } else {
             html_body += number_format(data['ppn'])
         }
@@ -2205,6 +2346,9 @@
     $(document).on('keyup', '#ppnPO', function(e) {
         countTotalPO()
     })
+    $(document).on('change', '#checkPPN', function(e) {
+        countTotalPO()
+    })
     $(document).on('keyup', '.qty_po,.harga_po', function(e) {
         typingNominalPO($(this).data('id'))
     })
@@ -2238,7 +2382,12 @@
             total_all = parseInt(total_po[i]) + parseInt(total_all)
         }
         $('#subtotalPO').val(total_all)
-        total_all = parseInt(total_all) + parseInt(ppn)
+        var persen = 0
+        if ($('#checkPPN:checked').val() != 'on') {
+            persen = (parseInt(total_all) / 100 * 11)
+        }
+        $('#ppnPO').val(persen)
+        total_all = parseInt(total_all) + parseInt(persen)
         $('#totalPO').val(total_all)
     }
 
@@ -2675,6 +2824,8 @@
     }
 
     function filterStatus() {
+        // console.log(itemYangSisa)
+        var item = $('#selectItemYangBelumTuntas').val()
         var status = $('#selectStatus').val()
         var date = $('#selectDate').val()
         var card_key = $('.card-PR').map(function() {
@@ -2686,10 +2837,15 @@
         var card_date = $('.card-PR').map(function() {
             return $(this).data('date');
         }).get();
+        var card_id = $('.card-PR').map(function() {
+            return $(this).data('id');
+        }).get();
+        // console.log(item)
+        // console.log(card_id)
         var array = []
         for (let i = 0; i < card_key.length; i++) {
             $('#card_search' + card_key[i]).addClass('d-none')
-            if (status == 'all') {
+            if (status == 'all' && item == 'all') {
                 if (date != "") {
                     if (formatDate(card_date[i]) == formatDate(date)) {
                         array.push(card_key[i])
@@ -2708,7 +2864,17 @@
                     }
                 }
             }
-
+            // console.log(sisa)
+            if (item != 'all') {
+                var sisa = itemYangSisa.filter((value, key) => {
+                    if (value.item === parseInt(item)) return true
+                })
+                $.each(sisa, function(keys, values) {
+                    if (card_id[i] == values['pr_id']) {
+                        array.push(card_key[i])
+                    }
+                })
+            }
         }
         var array_arranged = unique(array)
         for (let i = 0; i < array_arranged.length; i++) {
@@ -2720,7 +2886,7 @@
         let data = data_pr.filter((value, key) => {
             if (value.id === id.toString()) return true
         })[0];
-        console.log(data)
+        // console.log(data)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-scrollable');
         var html_header = '';
@@ -3007,5 +3173,71 @@
         } else {
             kelolaData(data, type, url, button)
         }
+    }
+
+    // function pembatalanPR(pr_id) {
+    //     var data = data_pr.filter((values, keys) => {
+    //         if (values.id === pr_id.toString()) return true
+    //     })[0]
+    //     console.log(data)
+    //     $('#modal').modal('show')
+    //     $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-centered');
+    //     var html_header = '';
+    //     html_header += '<h5 class="modal-title">Cancel Order</h5>';
+    //     html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+    //     $('#modalHeader').html(html_header);
+
+    //     var html_body = '';
+    //     html_body += '<div class="container small">'
+    //     html_body += '<div class="row">'
+    //     html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
+    //     html_body += '<div class="card shadow-sm m-0 w-100">'
+    //     html_body += '<div class="card-body">'
+    //     html_body += '<div class="row align-self-center">'
+    //     html_body += '<div class="col-12 text-center">'
+    //     html_body += '<i class="small">Apakah anda yakin ingin membatalkan PR ' + data['no_pr'] + '</span></i>'
+    //     html_body += '<button class="mt-5 btn btn-danger btn-sm" id="btnCancelPR" onclick="formCancelPR(' + pr_id + ')">Batalkan PR</button>'
+    //     html_body += '</div>'
+    //     html_body += '</div>'
+    //     html_body += '</div>'
+    //     html_body += '</div>'
+    //     html_body += '</div>'
+    //     html_body += '</div>'
+    //     html_body += '</div>'
+    //     $('#modalBody').html(html_body);
+
+
+    //     var html_footer = '';
+    //     html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup Halaman</button>'
+    //     $('#modalFooter').html(html_footer);
+    // }
+
+    function formCancelPR(pr_id) {
+        var data = data_pr.filter((values, keys) => {
+            if (values.id === pr_id.toString()) return true
+        })[0]
+        Swal.fire({
+            text: 'Apakah anda yakin ingin membatalkan PO ' + data['no_pr'] + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                doCancelPR(pr_id)
+            }
+        })
+    }
+
+    function doCancelPR(pr_id) {
+        var type = 'POST'
+        var data = {
+            pr_id: pr_id,
+            id_user: user_id,
+        }
+        var button = '#btnCancelPR'
+        var url = '<?php echo api_url('Api_Warehouse/cancelPr'); ?>'
+        kelolaData(data, type, url, button)
     }
 </script>

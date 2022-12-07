@@ -117,7 +117,7 @@
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
                         <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
-                        <?php if (is_finance_staff() || is_fat()) { ?>
+                        <?php if (is_finance_staff() && is_fat()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
                         <?php } ?>
                         <?php if (is_purchasing()) { ?>
@@ -161,7 +161,7 @@
         <div class="sidenav-footer">
             <div class="sidenav-footer-content">
                 <div class="sidenav-footer-subtitle">Logged in as:</div>
-                <div class="sidenav-footer-title">Amalia Safira</div>
+                <div class="sidenav-footer-title"><?= $this->session->userdata('full_name') ?></div>
             </div>
         </div>
     </nav>
