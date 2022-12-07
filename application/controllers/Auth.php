@@ -8,6 +8,7 @@ class Auth extends CI_Controller
 		if (is_login()) {
 			redirect('Dashboard');
 		}
+		// echo $this->input->cookie('link');
 		$this->template->views('auths/login', null, true);
 	}
 

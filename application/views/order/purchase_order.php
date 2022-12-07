@@ -540,7 +540,7 @@
             html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
             if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && ttd_pending != undefined && values['state'] != 'CANCEL') {
                 var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
-                html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
                 html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
             }
             if (values['state_order'] == null && values['state'] != 'CANCEL') {
@@ -744,7 +744,7 @@
             html += '<a class="dropdown-item" onclick="detailPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
             if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && ttd_pending != undefined) {
                 var link = '<?= base_url() ?>order/detailPO/' + values['po_id'] + ''
-                html += '<a class="dropdown-item" onclick="shareWhatsapp(' + values['po_id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PO' + "'" + ',' + "'" + values['no_po'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['po_id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PO' + "'" + ',' + "'" + values['no_po'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
                 html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',1)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
             }
             if (values['state'] == 'APPROVED' && (values['state_order'] != null && values['state_order'] != '-')) {
@@ -1342,9 +1342,14 @@
         let obj = JSON.parse(data_item.find((value, key) => {
             if (value.id === id) return true
         })['data_konversi'])
+        var satuan_tetap = data_item.find((value, key) => {
+            if (value.id === id) return true
+        });
+        // console.log(satuan_tetap)
         if (obj != null) {
             var html_body = ""
             html_body += '<option value="" selected disabled></option>'
+            html_body += '<option value="' + satuan_tetap['satuan_id'] + '">' + satuan_tetap['satuan_name'] + '</option>'
             $.each(obj, function(keys, values) {
                 html_body += '<option value="' + values['satuan_id'] + '">' + values['satuan_name'] + '</option>'
             })
@@ -1583,6 +1588,21 @@
                 }
             }
         });
+    }
+
+    function beforeShareWhatsapp(id, no_telp, link, status, no_doc, nama) {
+        Swal.fire({
+            text: 'Membagikan Approval akan langsung masuk ke Whatsapp dengan User ' + nama + ', apakah anda ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsapp(id, no_telp, link, status, no_doc, nama)
+            }
+        })
     }
 
     function shareWhatsapp(id, no_telp, link, status, no_doc, nama) {

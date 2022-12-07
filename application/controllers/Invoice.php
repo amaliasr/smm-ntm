@@ -15,7 +15,6 @@ class Invoice extends CI_Controller
     {
         $data['id'] = $id;
         if ($status == 'PR') {
-
             $this->template->views('invoice/approvalPR', $data);
         } else {
             $this->template->views('invoice/approvalPO', $data);

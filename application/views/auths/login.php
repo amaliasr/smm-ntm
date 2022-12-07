@@ -83,7 +83,11 @@
                             },
                             success: function(response) {
                                 if (response['success'] == true) {
-                                    window.location = base_url + "dashboard";
+                                    if ('<?= $this->input->cookie('link') ?>' == "") {
+                                        window.location = base_url + "dashboard";
+                                    } else {
+                                        window.location = '<?= $this->input->cookie('link') ?>'
+                                    }
                                 }
                             }
                         }).done(function() {

@@ -159,7 +159,7 @@
             beforeSend: function() {},
             success: function(response) {
                 data_po = response['data'][0]
-                console.log(data_po)
+                // console.log(data_po)
                 var data_approval = JSON.parse(data_po['data_approval'])
                 var ada = "tidak"
 

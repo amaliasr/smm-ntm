@@ -48,7 +48,7 @@
         <div class="row">
             <div class="col-12 mb-4">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-none">
                         <div class="row">
                             <div class="col-md-auto col-12 mb-1 p-1">
                                 <input type="text" name="" id="input" class="form-control form-control-sm datepicker" placeholder="Tanggal">
@@ -88,6 +88,7 @@
                                                 <th>Kode</th>
                                                 <th>Nama</th>
                                                 <th>Satuan</th>
+                                                <th>Konversi</th>
                                                 <th>Tipe</th>
                                                 <th>Unit</th>
                                                 <th>Price</th>
@@ -193,7 +194,7 @@
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
     var data_global
-    var user_id = 999
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
 
     $(document).ready(function() {
         getData()
@@ -236,6 +237,9 @@
                             'data': 'satuan'
                         },
                         {
+                            'data': 'konversi'
+                        },
+                        {
                             'data': 'tipe'
                         },
                         {
@@ -271,7 +275,8 @@
                             'id': keys + 1,
                             'kode': values['code'],
                             'nama': values['name'],
-                            'satuan': satuan,
+                            'satuan': values['satuan_name'],
+                            'konversi': satuan,
                             'tipe': values['type_name'],
                             'unit': values['unit_name'],
                             'price': price,
@@ -311,20 +316,36 @@
         html_body += '<div class="container small">'
         html_body += '<div class="row">'
 
-        html_body += '<div class="col-12 col-md-4">Kode</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="code" class="form-control form-control-sm p-1" value="' + code + '"></div>'
+        html_body += '<div class="col-12 col-md-2">Kode</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="code" class="form-control form-control-sm p-1" value="' + code + '"></div>'
 
-        html_body += '<div class="col-12 col-md-4">Nama</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="nama" class="form-control form-control-sm p-1" value="' + name + '"></div>'
+        html_body += '<div class="col-12 col-md-2">Nama</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="nama" class="form-control form-control-sm p-1" value="' + name + '"></div>'
 
-        html_body += '<div class="col-12 col-md-4">Satuan</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2">'
+        html_body += '<div class="col-12 col-md-2">Satuan</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2">'
+        html_body += '<select name="" id="satuan_tetap" class="form-select form-select-sm satuan_tetap" required="required">'
+        html_body += '<option value="" selected disabled data-name=" ">Pilih Satuan Tetap</option>'
+        $.each(data_global['itemSatuan'], function(keys, values) {
+            var select = ""
+            if (satuan != "") {
+                if (values['id'] == satuan) {
+                    select = 'selected'
+                }
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + ' data-name="' + values['name'] + '">' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-2">Konversi</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2">'
 
         html_body += '<div id="formSatuan">'
         html_body += '</div>'
         html_body += '<div class="row">'
         html_body += '<div class="col-9 align-self-center">'
-        html_body += '<p class="lh-0 p-0 m-0" style="font-size:11px;">Satuan teratas merupakan satuan terbesar, maka untuk satuan selanjutnya merupakan hasil konversi dari satuan terbesar</p>'
+        html_body += '<p class="lh-0 p-0 m-0" style="font-size:11px;"><b>Satuan Tetap</b> merupakan satuan dimana sebagai acuan setiap konversi yang akan dibuat</p>'
         html_body += '</div>'
         html_body += '<div class="col-3 text-end align-self-center">'
         html_body += '<button type="button" class="btn btn-sm btn-success" onclick="tambahFormSatuan()"><i class="fa fa-plus me-2"></i> Add</button>'
@@ -332,9 +353,9 @@
         html_body += '</div>'
         html_body += '</div>'
 
-        html_body += '<div class="col-12 col-md-4">Tipe</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2">'
-        html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required">'
+        html_body += '<div class="col-12 col-md-2">Tipe</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2">'
+        html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required" onchange="changeName()">'
         if (type == null) {
             html_body += '<option value="" selected disabled>Pilih Tipe</option>'
         }
@@ -348,8 +369,8 @@
         html_body += '</select>'
         html_body += '</div>'
 
-        html_body += '<div class="col-12 col-md-4">Unit Mesin</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2">'
+        html_body += '<div class="col-12 col-md-2">Unit Mesin</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2">'
         html_body += '<select name="" id="unit_mesin" class="form-select form-select-sm" required="required">'
         if (unit == null) {
             html_body += '<option value="null" selected>Tanpa Unit Mesin</option>'
@@ -395,9 +416,7 @@
     function tambahFormSatuan(data = "") {
         var html_body = ""
         html_body += '<div class="row" id="rowKonversi' + no_satuan + '">'
-        html_body += '<div class="col-4 mb-2 align-self-center">'
-        html_body += 'Satuan-' + no_satuan
-        html_body += '</div>'
+
         html_body += '<div class="col-4 mb-2">'
         html_body += '<select name="" id="satuan' + no_satuan + '" class="form-select form-select-sm satuan" required="required">'
         html_body += '<option value="" selected disabled>Pilih Satuan</option>'
@@ -412,30 +431,41 @@
         })
         html_body += '</select>'
         html_body += '</div>'
+        html_body += '<div class="col-auto mb-2 align-self-center"> = '
+        html_body += '</div>'
         html_body += '<div class="col-4 mb-2">'
         if (data == "") {
-            if (no_satuan == 1) {
-                html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="1" disabled>'
-            } else {
-                html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi">'
-            }
+            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi" data-id_konversi="">'
         } else {
             html_body += '<div class="input-group">'
-            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="' + data['jumlah_konversi'] + '" placeholder="Nilai Konversi" data-id_koversi="' + data['konversi_id'] + '">'
+            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="' + data['jumlah_konversi'] + '" placeholder="Nilai Konversi" data-id_konversi="' + data['konversi_id'] + '">'
             html_body += '<button class="btn btn-sm btn-outline-danger" type="button" onclick="clickDeleteKonversi(' + no_satuan + ',' + data['konversi_id'] + ')"><i class="fa fa-trash"></i></button>'
             html_body += '</div>'
 
         }
         html_body += '</div>'
+        html_body += '<div class="col-2 mb-2 align-self-center">'
+        html_body += '<span class="namaSatuanTetap">...</span>'
+        html_body += '</div>'
         html_body += '</div>'
         $('#formSatuan').append(html_body)
+        changeName()
         no_satuan++
     }
     var deletedKonversi = []
 
     function clickDeleteKonversi(no, konversi_id) {
-        $('#rowKonversi' + no).addClass('d-none')
+        $('#rowKonversi' + no).empty()
         deletedKonversi.push(konversi_id)
+    }
+
+    $(document).on('change', "#satuan_tetap", function() {
+        changeName()
+    })
+
+    function changeName() {
+        var nama = $('#satuan_tetap').find(':selected').data('name')
+        $('.namaSatuanTetap').html(nama)
     }
 
     function hapusData(id, name) {
@@ -477,22 +507,28 @@
     }
 
     $(document).on('click', "#btnSimpan", function() {
+        var satuan_tetap = $('#satuan_tetap').val()
         var id_satuan = $('.satuan').map(function() {
             return $(this).val();
         }).get();
         var konversi = $('.konversi').map(function() {
             return $(this).val();
         }).get();
+        var id_konversi = $('.konversi').map(function() {
+            return $(this).data('id_konversi');
+        }).get();
         var satuan = []
         for (let i = 0; i < id_satuan.length; i++) {
             satuan.push({
                 'id_satuan': id_satuan[i],
                 'konversi': konversi[i],
+                'id_konversi': id_konversi[i],
             })
         }
         var type = 'POST'
         var button = '#btnSimpan'
         var data = {
+            satuan_tetap: satuan_tetap,
             code: $('#code').val(),
             name: $('#nama').val(),
             satuan: satuan,
@@ -508,6 +544,7 @@
             data['deleted_konversi_id'] = deletedKonversi
             var url = '<?php echo api_url('MasterNtm/updateItem'); ?>'
         }
+        // console.log(data)
         kelolaData(data, type, url, button)
     })
 
