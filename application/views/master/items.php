@@ -160,6 +160,7 @@
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
         no_satuan = 1
+        deletedKonversi = []
     })
 
     function loadingTable(divID) {
@@ -319,7 +320,7 @@
         html_body += '<div class="col-12 col-md-4">Satuan</div>'
         html_body += '<div class="col-12 col-md-8 mb-2">'
 
-        html_body += '<div class="row" id="formSatuan">'
+        html_body += '<div id="formSatuan">'
         html_body += '</div>'
         html_body += '<div class="row">'
         html_body += '<div class="col-9 align-self-center">'
@@ -329,18 +330,6 @@
         html_body += '<button type="button" class="btn btn-sm btn-success" onclick="tambahFormSatuan()"><i class="fa fa-plus me-2"></i> Add</button>'
         html_body += '</div>'
         html_body += '</div>'
-        // html_body += '<select name="" id="satuan" class="form-select form-select-sm" required="required">'
-        // if (satuan == null) {
-        //     html_body += '<option value="" selected disabled>Pilih Satuan</option>'
-        // }
-        // $.each(data_global['itemSatuan'], function(keys, values) {
-        //     var select = ""
-        //     if (satuan == values['id']) {
-        //         select = 'selected'
-        //     }
-        //     html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
-        // })
-        // html_body += '</select>'
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-4">Tipe</div>'
@@ -392,14 +381,20 @@
         if (id == null) {
             tambahFormSatuan()
         } else {
-
+            var data_satuan = JSON.parse(data_global['item'].filter((value, key) => {
+                if (value.id === id.toString()) return true
+            })[0]['data_konversi'])
+            $.each(data_satuan, function(keys, values) {
+                tambahFormSatuan(data_satuan[keys])
+            })
         }
     }
 
     var no_satuan = 1
 
-    function tambahFormSatuan() {
+    function tambahFormSatuan(data = "") {
         var html_body = ""
+        html_body += '<div class="row" id="rowKonversi' + no_satuan + '">'
         html_body += '<div class="col-4 mb-2 align-self-center">'
         html_body += 'Satuan-' + no_satuan
         html_body += '</div>'
@@ -407,19 +402,40 @@
         html_body += '<select name="" id="satuan' + no_satuan + '" class="form-select form-select-sm satuan" required="required">'
         html_body += '<option value="" selected disabled>Pilih Satuan</option>'
         $.each(data_global['itemSatuan'], function(keys, values) {
-            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            var select = ""
+            if (data != "") {
+                if (values['id'] == data['satuan_id']) {
+                    select = 'selected'
+                }
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
         html_body += '</select>'
         html_body += '</div>'
         html_body += '<div class="col-4 mb-2">'
-        if (no_satuan == 1) {
-            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="1" disabled>'
+        if (data == "") {
+            if (no_satuan == 1) {
+                html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="1" disabled>'
+            } else {
+                html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi">'
+            }
         } else {
-            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi">'
+            html_body += '<div class="input-group">'
+            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="' + data['jumlah_konversi'] + '" placeholder="Nilai Konversi" data-id_koversi="' + data['konversi_id'] + '">'
+            html_body += '<button class="btn btn-sm btn-outline-danger" type="button" onclick="clickDeleteKonversi(' + no_satuan + ',' + data['konversi_id'] + ')"><i class="fa fa-trash"></i></button>'
+            html_body += '</div>'
+
         }
+        html_body += '</div>'
         html_body += '</div>'
         $('#formSatuan').append(html_body)
         no_satuan++
+    }
+    var deletedKonversi = []
+
+    function clickDeleteKonversi(no, konversi_id) {
+        $('#rowKonversi' + no).addClass('d-none')
+        deletedKonversi.push(konversi_id)
     }
 
     function hapusData(id, name) {
@@ -489,10 +505,10 @@
             var url = '<?php echo api_url('MasterNtm/insertItem'); ?>'
         } else {
             data['id'] = $(this).data('id')
+            data['deleted_konversi_id'] = deletedKonversi
             var url = '<?php echo api_url('MasterNtm/updateItem'); ?>'
         }
         kelolaData(data, type, url, button)
-        // console.log(data)
     })
 
     function kelolaData(data, type, url, button) {
