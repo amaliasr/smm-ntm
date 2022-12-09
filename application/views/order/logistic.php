@@ -362,6 +362,8 @@
     }
     var data_sj = ""
 
+    var suratJalan = ""
+
     function cariSuratJalan() {
         data_sj = ""
         $.ajax({
@@ -556,6 +558,7 @@
                         text: 'Data Berhasil Disimpan',
                         icon: 'success',
                     }).then((responses) => {
+                        blankSuratJalan()
                         dataHistory()
                         $(button).prop("disabled", false);
                     });

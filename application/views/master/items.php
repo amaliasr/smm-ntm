@@ -356,8 +356,9 @@
         html_body += '<div class="col-12 col-md-2">Tipe</div>'
         html_body += '<div class="col-12 col-md-10 mb-2">'
         html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required" onchange="changeName()">'
+        // console.log(type)
         if (type == null) {
-            html_body += '<option value="" selected disabled>Pilih Tipe</option>'
+            html_body += '<option value="" selected>Tanpa Tipe</option>'
         }
         $.each(data_global['itemType'], function(keys, values) {
             var select = ""

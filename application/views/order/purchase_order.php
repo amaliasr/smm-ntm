@@ -1537,6 +1537,7 @@
                 po_id: po_id,
                 id_po_detail: id_po_detail,
                 job_level_id: job_level_id,
+                ppn_percent: 11,
             }
             var button = '#btnSimpanPO'
             var url = '<?php echo api_url('Api_Warehouse/insertPO'); ?>'

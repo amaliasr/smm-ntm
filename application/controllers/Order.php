@@ -64,7 +64,7 @@ class Order extends CI_Controller
         $data['user_id'] = $explodedParams[3];
         $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPR?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
         $data['detail'] = json_decode($data['datas']->data_detail);
-        $html = $this->load->view('Order/cetakPR', $data, true);
+        $html = $this->load->view('order/cetakPR', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = $data['datas']->no_pr . ".pdf";
         $this->pdf->loadHtml($html);
@@ -93,7 +93,7 @@ class Order extends CI_Controller
         $data['user_id'] = $explodedParams[3];
         $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPo?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
         $data['detail'] = json_decode($data['datas']->data_detail);
-        $html = $this->load->view('Order/cetakPO', $data, true);
+        $html = $this->load->view('order/cetakPO', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = $data['datas']->no_po . ".pdf";
         $this->pdf->loadHtml($html);
@@ -120,7 +120,7 @@ class Order extends CI_Controller
         $data['no_sj'] = base64_decode($explodedParams[1]);
         $data['detail'] = json_decode(base64_decode($explodedParams[2]), TRUE);
         $data['nama_supplier'] = base64_decode($explodedParams[3]);
-        $html = $this->load->view('Order/cetakPenerimaan', $data, true);
+        $html = $this->load->view('order/cetakPenerimaan', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = $data['no_sj'] . ".pdf";
         $this->pdf->loadHtml($html);

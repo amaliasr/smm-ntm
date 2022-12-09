@@ -508,7 +508,7 @@
             success: function(response) {
                 if (response.success == true) {
                     if (loop_next.length > 0) {
-                        shareWhatsapp(id_po, phone_next, '<?= base_url() ?>order/detailPO/' + id_po, 'PO', data_po['no_pr'], name_next)
+                        shareWhatsapp(id_po, phone_next, '<?= base_url() ?>order/detailPO/' + id_po, 'PO', data_po['no_po'], name_next)
                     } else {
                         Swal.fire({
                             title: 'Success!',
