@@ -144,8 +144,17 @@
         })
     }
     var level = 0
+    var key_next = ""
+    var loop_next = []
+    var phone_next = []
+    var name_next = []
 
     function masterPR() {
+        level = 0
+        key_next = ""
+        loop_next = []
+        phone_next = []
+        name_next = []
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getDataPR'); ?>",
             method: "GET",
@@ -155,32 +164,85 @@
                 user_id: user_id,
             },
             error: function(xhr) {},
-            beforeSend: function() {},
+            beforeSend: function() {
+                $('#tampilData').html('<h4 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h4>')
+            },
             success: function(response) {
                 data_pr = response['data'][0]
-                var data_approval = JSON.parse(data_pr['data_approval'])
-                var ada = "tidak"
-
-                $.each(data_approval, function(keys, values) {
-                    if (user_id == values['user_id']) {
-                        if (keys == 0 && values['is_accept'] == 'Pending') {
-                            ada = "ya"
-                            level = values['id_approval']
-                        } else if (keys > 0 && data_approval[keys - 1]['is_accept'] != 'Pending') {
-                            ada = "ya"
-                            level = values['id_approval']
+                data_pr_approval = response['data_approval']
+                if (data_pr['state'] != 'APPROVED') {
+                    // approval
+                    var ttd_pending = ""
+                    var pending = []
+                    var ttd_all = []
+                    for (let k = 0; k < data_pr_approval.length; k++) {
+                        for (let i = 0; i < data_pr_approval[k].length; i++) {
+                            for (let j = 0; j < data_pr_approval[k][i].length; j++) {
+                                ttd_all.push(JSON.parse(data_pr_approval[k][i][j]['data_approval'])[0])
+                                ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
+                                    if (value.is_accept === 'Pending') return true
+                                })
+                                if (ttd_pending.length > 0) {
+                                    pending.push({
+                                        'approval': ttd_pending[0],
+                                        'keys': i,
+                                    })
+                                }
+                            }
                         }
                     }
-                })
-                if (data_pr['state'] == 'APPROVED') {
-                    ada = 'tidak'
-                }
-                if (ada == "tidak") {
+                    // console.log(ttd_all)
+                    var key = pending[0]['keys']
+                    var loop = []
+                    $.each(pending, function(keys, values) {
+                        if (values['keys'] == key) {
+                            loop.push(values['approval'])
+                        }
+                    })
+                    // console.log(pending)
+                    // BUAT NEXT WHATSAPP
+                    key_next = parseInt(key) + 1
+                    loop_next = []
+                    phone_next = []
+                    name_next = []
+                    $.each(pending, function(keys, values) {
+                        if (values['keys'] == key_next) {
+                            loop_next.push(values['approval'])
+                        }
+                    })
+                    $.each(loop_next, function(keys, values) {
+                        phone_next.push(values['phone'])
+                        name_next.push(values['user_name'])
+                    })
+                    // console.log(loop_next)
+                    // BUAT NEXT WHATSAPP
+
+                    var data_approval = loop
+                    var ada = "tidak"
+                    // console.log(loop_next)
+                    $.each(data_approval, function(keys, values) {
+                        if (user_id == values['user_id']) {
+                            // console.log()
+                            if (values['is_accept'] == 'Pending') {
+                                ada = "ya"
+                                level = values['id_approval']
+                            }
+                        }
+                    })
+                    if (data_pr['state'] == 'APPROVED') {
+                        ada = 'tidak'
+                    }
+                    if (ada == "tidak") {
+                        var html = ""
+                        html += '<h4 class="text-center mt-5 mb-5"><i>Anda Tidak Memiliki Hak Akses pada Halaman Ini</i></h4>'
+                        $('#tampilData').html(html);
+                    } else {
+                        formDetail(ttd_all)
+                    }
+                } else {
                     var html = ""
                     html += '<h4 class="text-center mt-5 mb-5"><i>Anda Tidak Memiliki Hak Akses pada Halaman Ini</i></h4>'
                     $('#tampilData').html(html);
-                } else {
-                    formDetail(data_approval)
                 }
             }
         })
@@ -250,17 +312,44 @@
         html += '<div class="row mt-2">'
 
         $.each(data_approval, function(keys, values) {
+            // var success = "fa-check text-light"
+            // if (values['is_accept'] == 'Accepted') {
+            //     success = 'fa-check text-success'
+            // } else if (values['is_accept'] == 'Rejected') {
+            //     success = 'fa-times text-danger'
+            // }
+            // html += '<div class="col-6">'
+            // html += '<div class="card shadow-none h-100">'
+            // html += '<div class="card-body text-center">'
+            // html += '<i class="fa ' + success + ' fa-2x mb-2"></i>'
+            // html += '<p class="fw-bold mb-0 small" style="font-size:10px;">' + values['user_name'] + '</p>'
+            // html += '</div>'
+            // html += '</div>'
+            // html += '</div>'
             var success = "fa-check text-light"
             if (values['is_accept'] == 'Accepted') {
                 success = 'fa-check text-success'
             } else if (values['is_accept'] == 'Rejected') {
                 success = 'fa-times text-danger'
             }
-            html += '<div class="col-6">'
-            html += '<div class="card shadow-none h-100">'
-            html += '<div class="card-body text-center">'
-            html += '<i class="fa ' + success + ' fa-2x mb-2"></i>'
-            html += '<p class="fw-bold mb-0 small" style="font-size:10px;">' + values['user_name'] + '</p>'
+
+            html += '<div class="col-12 col-sm-12 m-0 p-1">'
+            html += '<div class="card shadow-sm m-0 w-100">'
+            html += '<div class="card-body p-2">'
+            html += '<div class="row align-self-center">'
+            html += '<div class="col-3">'
+            html += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+            html += '</div>'
+            html += '<div class="col-9">'
+            if (keys == 0) {
+                var name = 'Checked'
+            } else {
+                var name = 'Approved'
+            }
+            html += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
+            html += '<p class="m-0"><span class="small" style="font-size:10px;">' + values['user_name'] + '</span></p>'
+            html += '</div>'
+            html += '</div>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -439,14 +528,18 @@
             },
             success: function(response) {
                 if (response.success == true) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Berhasil Mengirimkan Approval',
-                        icon: 'success',
-                    }).then((responses) => {
-                        $('#modal').modal('hide')
-                        masterPR()
-                    });
+                    if (loop_next.length > 0) {
+                        shareWhatsapp(id_pr, phone_next, '<?= base_url() ?>order/detailPR/' + id_pr, 'PR', data_pr['no_pr'], name_next)
+                    } else {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Berhasil Melakukan Approval',
+                            icon: 'success',
+                        }).then((responses) => {
+                            $('#modal').modal('hide')
+                            masterPR()
+                        });
+                    }
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -457,5 +550,62 @@
                 }
             }
         });
+    }
+
+    function shareWhatsapp(id, no_telp, link, status, no_doc, nama) {
+        $.ajax({
+            url: "<?= base_url('api') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                link: link,
+                status: status,
+                nama: nama,
+                no_doc: no_doc,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+                    $('#modal2').modal('hide')
+                    $('#modal').modal('hide')
+                    masterPR()
+                });
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+                    $('#modal2').modal('hide')
+                    $('#modal').modal('hide')
+                    masterPR()
+                });
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 </script>

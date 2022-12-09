@@ -96,7 +96,7 @@
                     Beranda
                 </a>
                 <!-- Sidenav Accordion Warehouse-->
-                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
+                <!-- <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
                     <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
                     Warehouse
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
@@ -107,7 +107,7 @@
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/history">History</a>
                     </nav>
-                </div>
+                </div> -->
                 <!-- Sidenav Accordion Order-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards2" aria-expanded="true" aria-controls="collapseDashboards2">
                     <div class="nav-link-icon"><i class="fa fa-truck"></i></div>
@@ -117,10 +117,10 @@
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
                         <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
-                        <?php if (is_finance_staff() && is_fat()) { ?>
+                        <?php if (is_accounting() || is_fat()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
                         <?php } ?>
-                        <?php if (is_purchasing()) { ?>
+                        <?php if (is_purchasing() || is_direktur()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
                         <?php } ?>
                         <?php if (is_logistik()) { ?>
@@ -129,19 +129,21 @@
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Master-->
-                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards3" aria-expanded="true" aria-controls="collapseDashboards3">
-                    <div class="nav-link-icon"><i class="fa fa-file"></i></div>
-                    Master
-                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
-                </a>
-                <div class="collapse show" id="collapseDashboards3" data-bs-parent="#accordionSidenav3">
-                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav3Pages">
-                        <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
-                        <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
-                    </nav>
-                </div>
+                <?php if (is_purchasing() || is_direktur()) { ?>
+                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards3" aria-expanded="true" aria-controls="collapseDashboards3">
+                        <div class="nav-link-icon"><i class="fa fa-file"></i></div>
+                        Master
+                        <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse show" id="collapseDashboards3" data-bs-parent="#accordionSidenav3">
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav3Pages">
+                            <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
+                            <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
+                        </nav>
+                    </div>
+                <?php } ?>
                 <!-- Sidenav Accordion Report-->
-                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards4" aria-expanded="true" aria-controls="collapseDashboards4">
+                <!-- <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards4" aria-expanded="true" aria-controls="collapseDashboards4">
                     <div class="nav-link-icon"><i class="fa fa-book"></i></div>
                     Report
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
@@ -150,7 +152,7 @@
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
                         <a class="nav-link" href="<?= base_url(); ?>report/hutang">Report Hutang</a>
                     </nav>
-                </div>
+                </div> -->
                 <!-- <a class="nav-link" href="<?= base_url(); ?>report">
                     <div class="nav-link-icon"><i class="fa fa-book"></i></div>
                     Report

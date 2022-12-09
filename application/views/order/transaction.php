@@ -455,6 +455,7 @@
         html += '<div class="col-6 align-self-center">'
         html += '<p class="m-0 text-grey small" style="font-size:11px ;">Create at ' + data['date_transaction'] + '</p>'
         html += '<b class="text_search" data-id="' + keys + '" style="cursor: pointer;" onclick="detailSJ(' + "'" + data['no_sj'] + "'," + keys + ')">SJ #' + data['no_sj'] + '</b>'
+        html += '<p class="m-0 mb-3 small lh-2" style="font-size: 11px;">No. PO <b class="text_search" data-id="' + keys + '">' + data['no_po'] + '</b></p>'
         html += '<p class="m-0 small lh-2 mb-2" style="font-size: 11px;"><i class="fa fa-gift"></i> ' + data_detail.length + ' Items from <b class="text_search" data-id="' + keys + '">' + data['supplier_name'] + '</b></p>'
         html += '</div>'
         html += '<div class="col-4">'

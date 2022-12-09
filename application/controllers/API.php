@@ -21,25 +21,27 @@ class Api extends CI_Controller
         $status = $this->input->get('status');
         $nama = $this->input->get('nama');
         $no_doc = $this->input->get('no_doc');
-        $message = "*📝 Permintaan Tanda Tangan 📝*
+        for ($i = 0; $i < count($nama); $i++) {
+            $message = "*📝 Permintaan Tanda Tangan 📝*
 
-Hi, *" . $nama . "* anda mendapatkan pesan untuk Tanda Tangan *" . $status . " " . $no_doc . "*
+Teruntuk Bpk/Ibu *" . $nama[$i] . "* , anda mendapatkan pesan untuk Tanda Tangan *" . $status . " " . $no_doc . "*
 Silahkan klik link dibawah ini untuk melanjutkan proses tanda tangan
 
 
 " . $link . "";
-        $url = 'https://app.whacenter.com/api/send';
-        $ch = curl_init($url);
-        $data = array(
-            'device_id' => '0e49bcaebc1c3b47199003bc2cf07441',
-            'number' => $no_telp,
-            'message' => $message,
-        );
-        $payload = $data;
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        echo $result;
+            $url = 'https://app.whacenter.com/api/send';
+            $ch = curl_init($url);
+            $data = array(
+                'device_id' => '0e49bcaebc1c3b47199003bc2cf07441',
+                'number' => $no_telp[$i],
+                'message' => $message,
+            );
+            $payload = $data;
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($ch);
+            curl_close($ch);
+            echo $result;
+        }
     }
 }

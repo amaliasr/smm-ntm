@@ -22,11 +22,12 @@ function is_login()
         return false;
     }
 }
-function is_finance_staff()
+
+function is_accounting()
 {
     $ci = get_instance();
     $divisi_id = $ci->session->userdata('division_id');
-    if ($divisi_id == 7) {
+    if ($divisi_id == 8) {
         return true;
     } else {
         return false;
@@ -36,7 +37,7 @@ function is_fat()
 {
     $ci = get_instance();
     $divisi_id = $ci->session->userdata('division_id');
-    if ($divisi_id == 11) {
+    if ($divisi_id == 9) {
         return true;
     } else {
         return false;
@@ -46,7 +47,7 @@ function is_purchasing()
 {
     $ci = get_instance();
     $divisi_id = $ci->session->userdata('division_id');
-    if ($divisi_id == 1) {
+    if ($divisi_id == 4) {
         return true;
     } else {
         return false;
@@ -56,7 +57,17 @@ function is_logistik()
 {
     $ci = get_instance();
     $divisi_id = $ci->session->userdata('division_id');
-    if ($divisi_id == 3) {
+    if ($divisi_id == 7) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function is_direktur()
+{
+    $ci = get_instance();
+    $divisi_id = $ci->session->userdata('division_id');
+    if ($divisi_id == 10) {
         return true;
     } else {
         return false;

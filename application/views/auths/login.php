@@ -56,44 +56,48 @@
                 password: md5(password)
             },
             dataType: 'JSON',
+            error: function(xhr) {
+                $('#btnLogin').html('Login').prop('disabled', false);
+            },
             beforeSend: function() {
-                $('#btn-login').html('<i class="fas fa-spinner fa-spin"></i>').attr('disabled', true);
+                $('#btnLogin').html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...').prop('disabled', true);
             },
             success: function(response) {
                 let data = response['data'];
                 if (response['success'] == true) {
-                    toast({
-                        icon: 'success',
-                        title: 'Login Berhasil',
-                        timer: 1500
-                    }).then(() => {
-                        var sessions = [];
-                        sessions = {
-                            token: data['token'],
-                            user: data['user'],
-                            department: data['department']
-                        }
-                        $.ajax({
-                            type: "POST",
-                            data: sessions,
-                            url: base_url + "Auth/setSessions",
-                            dataType: 'JSON',
-                            error: function(e) {
-                                console.log(e)
-                            },
-                            success: function(response) {
-                                if (response['success'] == true) {
-                                    if ('<?= $this->input->cookie('link') ?>' == "") {
-                                        window.location = base_url + "dashboard";
-                                    } else {
-                                        window.location = '<?= $this->input->cookie('link') ?>'
-                                    }
+                    var sessions = [];
+                    sessions = {
+                        token: data['token'],
+                        user: data['user'],
+                        department: data['department']
+                    }
+                    $.ajax({
+                        type: "POST",
+                        data: sessions,
+                        url: base_url + "Auth/setSessions",
+                        dataType: 'JSON',
+                        error: function(e) {
+                            console.log(e)
+                        },
+                        success: function(response) {
+                            if (response['success'] == true) {
+                                if ('<?= $this->input->cookie('link') ?>' == "") {
+                                    window.location = base_url + "dashboard";
+                                } else {
+                                    window.location = '<?= $this->input->cookie('link') ?>'
                                 }
                             }
-                        }).done(function() {
-                            $('#btn-login').html('Login').attr('disabled', false);
-                        });
+                        }
+                    }).done(function() {
+                        $('#btnLogin').html('Login').prop('disabled', false);
                     });
+                    // toast({
+                    //     icon: 'success',
+                    //     title: 'Login Berhasil',
+                    //     timer: 1500
+                    // }).then(() => {
+
+                    // });
                 }
             }
         });

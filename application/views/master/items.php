@@ -268,7 +268,7 @@
                         var satuan = ""
                         if (values['data_konversi'] != null) {
                             $.each(JSON.parse(values['data_konversi']), function(keys2, values2) {
-                                satuan += values2['satuan_name'] + ' <span class="text-danger" style="font-size:10px;"><b> 1 ' + JSON.parse(values['data_konversi'])[0]['satuan_name'] + ' = ' + values2['jumlah_konversi'] + ' ' + values2['satuan_name'] + '</b></span><br>'
+                                satuan += '<span class="small">1 ' + values2['satuan_name'] + ' = <span class="text-success">' + values2['jumlah_konversi'] + '</span> ' + values['satuan_name'] + '</span><br>'
                             })
                         }
                         array = {

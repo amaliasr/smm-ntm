@@ -86,14 +86,16 @@
                                 </div>
                                 <div class="col-auto">
                                     <div class="btn-group">
-                                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="ms-2 d-none d-sm-block">Add New</span>
-                                        </button>
+                                        <?php if ($this->session->userdata('division_id') != 10) { ?>
+                                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="ms-2 d-none d-sm-block">Add New</span>
+                                            </button>
+                                        <?php } ?>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
                                             <li><a class="dropdown-item" href="#" onclick="formPR()">Purchase Requisition (PR)</a></li>
-                                            <?php if ($this->session->userdata('division_id') == 1) { ?>
+                                            <?php if ($this->session->userdata('division_id') == 4) { ?>
                                                 <li><a class="dropdown-item" href="#" onclick="formPO()">Purchase Order (PO)</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="formRetur()">Retur</a></li>
+                                                <!-- <li><a class="dropdown-item" href="#" onclick="formRetur()">Retur</a></li> -->
                                             <?php } ?>
                                         </ul>
                                     </div>
@@ -120,7 +122,7 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" data-status="PR">PR</button>
                                     </li>
-                                    <?php if ($this->session->userdata('division_id') == 1) { ?>
+                                    <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 10) { ?>
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-status="PO">PO</button>
                                         </li>
@@ -285,6 +287,7 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_level_id = '<?= $this->session->userdata('job_level_id') ?>'
     var data_user = ""
     var data_item = ""
     var data_supplier = ""
@@ -331,6 +334,8 @@
     }
     var data_pr
     var data_po
+    var data_pr_approval
+    var data_po_approval
 
     function masterPR(state = "") {
         if (state == "") {
@@ -371,6 +376,7 @@
                     notFound('#pills-home')
                 } else {
                     data_pr = response['data']
+                    data_pr_approval = response['data_approval']
                     formMasterPR(data_pr)
                 }
                 numberinPR()
@@ -426,13 +432,6 @@
         html += '</div>'
         html += '</div>'
         $.each(data, function(keys, values) {
-            // console.log(JSON.parse(values['data_approval']))
-            var ttd_pending = ""
-            if (values['data_approval'] != null) {
-                ttd_pending = JSON.parse(values['data_approval']).find((value, key) => {
-                    if (value.is_accept === 'Pending') return true
-                })
-            }
             // console.log(ttd_pending)
             var acc_check
             var badge = ""
@@ -528,26 +527,49 @@
             }
             html += '</div>'
             html += '<div class="col-auto">'
-            html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ',0)"><i class="fa fa-print"></i></button><br>'
-            html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
-            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            if (values['state'] == 'APPROVED' && values['order_detail'] != '[null]' && values['state'] != 'CANCEL') {
-                html += '<a class="dropdown-item" onclick="penerimaanBarangPR(' + values['id'] + ')"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
-            }
-            if (divisi_id == 1) {
-                html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
-            }
-            html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && ttd_pending != undefined && values['state'] != 'CANCEL') {
-                var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
-                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
-                html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
-            }
-            if (values['state_order'] == null && values['state'] != 'CANCEL') {
-                html += '<hr class="m-2">'
-                html += '<div class="text-center pe-2 ps-2">'
-                html += '<button class="btn btn-sm btn-danger w-100" onclick="formCancelPR(' + values['id'] + ')">Pembatalan PR</button>'
-                html += '</div>'
+            if (divisi_id != 10) {
+                html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ',0)"><i class="fa fa-print"></i></button><br>'
+                html += '<button class="small btn btn-sm btn-outline-primary w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
+                html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+                if (values['state'] == 'APPROVED' && values['order_detail'] != '[null]' && values['state'] != 'CANCEL') {
+                    html += '<a class="dropdown-item" onclick="penerimaanBarangPR(' + values['id'] + ')"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
+                }
+                if (divisi_id == 4) {
+                    html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
+                }
+                html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
+                // approval
+                var ttd_pending = ""
+                var pending = []
+                for (let k = 0; k < data_pr_approval.length; k++) {
+                    for (let i = 0; i < data_pr_approval[k].length; i++) {
+                        for (let j = 0; j < data_pr_approval[k][i].length; j++) {
+                            if (data_pr_approval[k][i][j]['reference_id'] == values['id']) {
+                                ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval']).find((value, key) => {
+                                    if (value.is_accept === 'Pending') return true
+                                })
+                                if (ttd_pending != undefined) {
+                                    pending.push({
+                                        'approval': ttd_pending,
+                                        'keys': i,
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+                // console.log(pending)
+                if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && pending.length != 0 && values['state'] != 'CANCEL') {
+                    var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
+                    html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + '081944946015' + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                    html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
+                }
+                if (values['state_order'] == null && values['state'] != 'CANCEL') {
+                    html += '<hr class="m-2">'
+                    html += '<div class="text-center pe-2 ps-2">'
+                    html += '<button class="btn btn-sm btn-danger w-100" onclick="formCancelPR(' + values['id'] + ')">Pembatalan PR</button>'
+                    html += '</div>'
+                }
             }
             html += '</div>'
             html += '</div>'
@@ -586,7 +608,7 @@
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
                 let obj = response['data'].find((value, key) => {
-                    if (value.no_bulan === thisMonth && value.tahun === thisYear.toString() && value.cost_center_id === divisi_id.toString()) return true
+                    if (value.no_bulan === thisMonth && value.tahun === thisYear.toString() && value.cost_center_id === '23') return true
                 });
                 let count = 1
                 if (obj != undefined) {
@@ -654,6 +676,7 @@
                     notFound('#pills-profile')
                 } else {
                     data_po = response['data']
+                    data_po_approval = response['data_approval']
                     formMasterPO(data_po)
                 }
                 numberinPR()
@@ -710,6 +733,16 @@
             html += '<span class="fw-bold" style="font-size: 11px;"><i class="fa fa-file me-2"></i> <i class="text-warning">' + values['state'] + '</i> | <i class="fa fa-truck me-2"></i> <i class="text-warning">' + values['state_order'] + '</i></span>'
             html += '</div>'
 
+            // SURAT JALAN PO
+            html += '<div class="col">'
+            if (values['order_detail'] != null) {
+                html += '<b style="font-size: 11px;">Surat Jalan :</b>'
+                $.each(JSON.parse(values['order_detail']), function(keys2, values2) {
+                    html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + values2['no_sj'] + '</p>'
+                })
+            }
+            html += '</div>'
+
             html += '<div class="col-auto">'
             if (values['state_order'] == 'DONE') {
                 if (values['is_complete'] == '0') {
@@ -722,47 +755,70 @@
             html += '</div>'
 
             html += '<div class="col-auto">'
-            html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1" id="dropdownMenuButtonCetak" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-print"></i></button><br>'
-            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonCetak">'
-            html += '<a class="dropdown-item" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PO/" + values['po_id'] + "'," + values['po_id'] + ',1)"><i class="fa fa-qrcode me-2"></i>Cetak Internal</a>'
-            html += '<a class="dropdown-item" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(0,' + values['po_id'] + ',1)"><i class="fa fa-truck me-2"></i>Cetak Supplier</a>'
-            html += '</div>'
-            // html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PO/" + values['po_id'] + "'," + values['po_id'] + ',1)"><i class="fa fa-print"></i></button><br>'
-            html += '<button class="small btn btn-sm btn-outline-primary w-100 position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i>'
-            if (values['state'] == 'APPROVED' && values['state_order'] == '-') {
-                html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle small">'
-                html += '<span class="visually-hidden">New alerts</span>'
-                html += '</span>'
-            }
-            html += '</button>'
-            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-
-            if (values['state'] == 'APPROVED') {
-
-                html += '<a class="dropdown-item" onclick="perubahanPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-pencil me-2"></i> Perubahan PO</a>'
-            }
-            html += '<a class="dropdown-item" onclick="detailPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && ttd_pending != undefined) {
-                var link = '<?= base_url() ?>order/detailPO/' + values['po_id'] + ''
-                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['po_id'] + ',' + "'" + ttd_pending['phone'] + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PO' + "'" + ',' + "'" + values['no_po'] + "'" + ',' + "'" + ttd_pending['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
-                html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',1)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
-            }
-            if (values['state'] == 'APPROVED' && (values['state_order'] != null && values['state_order'] != '-')) {
-                html += '<hr class="m-2">'
-                html += '<a class="dropdown-item" onclick="trackingOrder(' + values['po_id'] + ')"><i class="fa fa-truck me-2"></i> Tracking Order</a>'
-                html += '<a class="dropdown-item" onclick="orderPO(' + values['po_id'] + ')"><i class="fa fa-shopping-cart me-2"></i> Surat Jalan</a>'
-                html += '<a class="dropdown-item" onclick=""><i class="fa fa-undo me-2"></i> Retur Barang</a>'
-            }
-            if (values['state'] == 'APPROVED' && (values['state_order'] == null || values['state_order'] == '-')) {
-                html += '<hr class="m-2">'
-                html += '<div class="text-center pe-2 ps-2">'
-                html += '<button class="btn btn-sm btn-success w-100" onclick="orderPO(' + values['po_id'] + ')">Process Order</button>'
+            if (divisi_id != 10) {
+                html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1" id="dropdownMenuButtonCetak" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-print"></i></button><br>'
+                html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonCetak">'
+                html += '<a class="dropdown-item" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PO/" + values['po_id'] + "'," + values['po_id'] + ',1)"><i class="fa fa-qrcode me-2"></i>Cetak Internal</a>'
+                html += '<a class="dropdown-item" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(0,' + values['po_id'] + ',1)"><i class="fa fa-truck me-2"></i>Cetak Supplier</a>'
                 html += '</div>'
-            }
-            if (values['state_order'] != 'DONE') {
-                html += '<div class="text-center pe-2 ps-2 mt-2">'
-                html += '<button class="btn btn-sm btn-danger w-100" onclick="cancelOrder(' + values['po_id'] + ')">Cancel Order</button>'
-                html += '</div>'
+                // html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['po_id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PO/" + values['po_id'] + "'," + values['po_id'] + ',1)"><i class="fa fa-print"></i></button><br>'
+                html += '<button class="small btn btn-sm btn-outline-primary w-100 position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i>'
+                if (values['state'] == 'APPROVED' && values['state_order'] == '-') {
+                    html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle small">'
+                    html += '<span class="visually-hidden">New alerts</span>'
+                    html += '</span>'
+                }
+                html += '</button>'
+                html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+
+                if (values['state'] == 'APPROVED') {
+
+                    html += '<a class="dropdown-item" onclick="perubahanPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-pencil me-2"></i> Perubahan PO</a>'
+                }
+                html += '<a class="dropdown-item" onclick="detailPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
+                var ttd_pending = ""
+                var pending = []
+                for (let k = 0; k < data_po_approval.length; k++) {
+                    for (let i = 0; i < data_po_approval[k].length; i++) {
+                        for (let j = 0; j < data_po_approval[k][i].length; j++) {
+                            if (data_po_approval[k][i][j]['reference_id'] == values['po_id']) {
+                                ttd_pending = JSON.parse(data_po_approval[k][i][j]['data_approval']).find((value, key) => {
+                                    if (value.is_accept === 'Pending') return true
+                                })
+                                if (ttd_pending != undefined) {
+                                    pending.push({
+                                        'approval': ttd_pending,
+                                        'keys': i,
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+                console.log(pending)
+                console.log(values['po_id'])
+                if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && pending.length != 0) {
+                    var link = '<?= base_url() ?>order/detailPO/' + values['po_id'] + ''
+                    html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['po_id'] + ',' + "'" + '081944946015' + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PO' + "'" + ',' + "'" + values['no_po'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                    html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',1)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
+                }
+                if (values['state'] == 'APPROVED' && (values['state_order'] != null && values['state_order'] != '-')) {
+                    html += '<hr class="m-2">'
+                    html += '<a class="dropdown-item" onclick="trackingOrder(' + values['po_id'] + ')"><i class="fa fa-truck me-2"></i> Tracking Order</a>'
+                    html += '<a class="dropdown-item" onclick="orderPO(' + values['po_id'] + ')"><i class="fa fa-shopping-cart me-2"></i> Surat Jalan</a>'
+                    html += '<a class="dropdown-item" onclick=""><i class="fa fa-undo me-2"></i> Retur Barang</a>'
+                }
+                if (values['state'] == 'APPROVED' && (values['state_order'] == null || values['state_order'] == '-')) {
+                    html += '<hr class="m-2">'
+                    html += '<div class="text-center pe-2 ps-2">'
+                    html += '<button class="btn btn-sm btn-success w-100" onclick="orderPO(' + values['po_id'] + ')">Process Order</button>'
+                    html += '</div>'
+                }
+                if (values['state_order'] != 'DONE') {
+                    html += '<div class="text-center pe-2 ps-2 mt-2">'
+                    html += '<button class="btn btn-sm btn-danger w-100" onclick="cancelOrder(' + values['po_id'] + ')">Cancel Order</button>'
+                    html += '</div>'
+                }
             }
             html += '</div>'
             html += '</div>'
@@ -1161,73 +1217,63 @@
         html_body += '</div>'
         html_body += '<div class="col-12 col-md-4    mt-1">'
         if (data != undefined) {
-            // console.log(JSON.parse(data['data_approval']))
+            // approval
+            var ttd_pending = ""
+            var pending = []
+            for (let k = 0; k < data_pr_approval.length; k++) {
+                for (let i = 0; i < data_pr_approval[k].length; i++) {
+                    pending.push(data_pr_approval[k][i])
+                }
+            }
             html_body += '<small class="mb-2"><b>Approval</b></small>'
             html_body += '<div class="row">'
+            var e = []
             var acc_check = ""
-            html_body += '<div class="col-12 col-sm-12 m-0 p-1">'
-            html_body += '<div class="card shadow-sm m-0 w-100">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<div class="row align-self-center">'
-            html_body += '<div class="col-3">'
-            html_body += '<i class="fa fa-check text-success fa-3x me-2"></i>'
-            html_body += '</div>'
-            html_body += '<div class="col-9">'
-            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">Created</p>'
-            html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + data['name'] + '</span></p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
+            // console.log(data_pr_approval)
+            for (let i = 0; i < pending.length; i++) {
+                for (let j = 0; j < pending[i].length; j++) {
+                    if (data['id'] == pending[i][j]['reference_id']) {
+                        $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
+                            acc_check = value['is_accept']
+                        })
+                    }
+                }
+                if (pending[i][0]['reference_id'] == data['id']) {
+                    var success = "fa-check text-light"
+                    if (acc_check == 'Accepted') {
+                        success = 'fa-check text-success'
+                    } else if (acc_check == 'Rejected') {
+                        success = 'fa-times text-danger'
+                    }
 
-            acc_check = (JSON.parse(data['data_approval']) != null) ? (JSON.parse(data['data_approval'])[0] != null) ? JSON.parse(data['data_approval'])[0]['is_accept'] : "" : ""
-
-            var success = "fa-check text-light"
-            if (acc_check == 'Accepted') {
-                success = 'fa-check text-success'
-            } else if (acc_check == 'Rejected') {
-                success = 'fa-times text-danger'
+                    html_body += '<div class="col-12 col-sm-12 m-0 p-1">'
+                    html_body += '<div class="card shadow-sm m-0 w-100">'
+                    html_body += '<div class="card-body p-2">'
+                    html_body += '<div class="row align-self-center">'
+                    html_body += '<div class="col-3">'
+                    html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+                    html_body += '</div>'
+                    html_body += '<div class="col-9">'
+                    if (i == 0) {
+                        var name = 'Checked'
+                    } else {
+                        var name = 'Approved'
+                    }
+                    html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
+                    for (let j = 0; j < pending[i].length; j++) {
+                        if (data['id'] == pending[i][j]['reference_id']) {
+                            $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
+                                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
+                            })
+                        }
+                    }
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                }
             }
-            html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-            html_body += '<div class="card shadow-sm m-0 w-100">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<div class="row align-self-center">'
-            html_body += '<div class="col-3">'
-            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-            html_body += '</div>'
-            html_body += '<div class="col-9">'
-            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">Checked</p>'
-            html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + JSON.parse(data['data_approval'])[0]['user_name'] + '</span></p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-
-            success = "fa-check text-light"
-            acc_check = (JSON.parse(data['data_approval']) != null) ? (JSON.parse(data['data_approval'])[1] != null) ? JSON.parse(data['data_approval'])[1]['is_accept'] : "" : ""
-
-            if (acc_check == 'Accepted') {
-                success = 'fa-check text-success'
-            } else if (acc_check == 'Rejected') {
-                success = 'fa-times text-danger'
-            }
-            html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-            html_body += '<div class="card shadow-sm m-0 w-100">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<div class="row align-self-center">'
-            html_body += '<div class="col-3">'
-            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-            html_body += '</div>'
-            html_body += '<div class="col-9">'
-            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">Approved</p>'
-            html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + JSON.parse(data['data_approval'])[1]['user_name'] + '</span></p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
         }
 
         html_body += '</div>'
@@ -1430,7 +1476,8 @@
                 notes: notes,
                 total: jumlahPR,
                 justification: $('#justification').val(),
-                category: $('#category').val()
+                category: $('#category').val(),
+                job_level_id: job_level_id,
             }
             var button = '#btnSimpanPR'
             var url = '<?php echo api_url('Api_Warehouse/insertPR'); ?>'
@@ -1488,7 +1535,8 @@
                 ppn: ppn,
                 grand_total: grand_total,
                 po_id: po_id,
-                id_po_detail: id_po_detail
+                id_po_detail: id_po_detail,
+                job_level_id: job_level_id,
             }
             var button = '#btnSimpanPO'
             var url = '<?php echo api_url('Api_Warehouse/insertPO'); ?>'
@@ -1517,7 +1565,6 @@
 
     }
 
-
     function kelolaData(data, type, url, button) {
         $.ajax({
             url: url,
@@ -1541,34 +1588,81 @@
                         text: 'Data Berhasil Tersimpan',
                         icon: 'success',
                     }).then((responses) => {
-                        // getData()
-                        // console.log(response.data_approval)
-
-                        // console.log(ttd_pending)
                         if (button == '#btnSimpanPR') {
                             var ttd_pending = ""
-                            if (response.data_approval[0]['data_approval'] != null) {
-                                ttd_pending = JSON.parse(response.data_approval[0]['data_approval']).find((value, key) => {
-                                    if (value.is_accept === 'Pending') return true
+                            var pending = []
+                            var data_app = response.data_approval
+                            // console.log(data_app)
+                            $.each(data_app, function(keys, values) {
+                                $.each(data_app[keys], function(keys2, values2) {
+                                    ttd_pending = JSON.parse(values2['data_approval']).filter((value, key) => {
+                                        if (value.is_accept === 'Pending') return true
+                                    })
+                                    if (ttd_pending.length > 0) {
+                                        pending.push({
+                                            'approval': ttd_pending[0],
+                                            'keys': keys,
+                                        })
+                                    }
                                 })
-                            }
+                            })
+                            // console.log(pending)
+                            var key = pending[0]['keys']
+                            var phone = []
+                            var name = []
+                            $.each(pending, function(keys, values) {
+                                if (values['keys'] == key) {
+                                    phone.push(values['approval']['phone'])
+                                    name.push(values['approval']['user_name'])
+                                }
+                            })
                             button_prpo = 'PO'
                             var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
                             $('#modal').modal('hide')
-                            shareWhatsapp(response.id_pr, ttd_pending['phone'], link, 'PR', response.no_pr, ttd_pending['user_name'])
+                            shareWhatsapp(response.id_pr, phone, link, 'PR', response.no_pr, name)
                             ajaxPR()
                         } else if (button == '#btnSimpanPO') {
+                            // var ttd_pending = ""
+                            // if (response.data_approval[0]['data_approval'] != null) {
+                            //     ttd_pending = JSON.parse(response.data_approval[0]['data_approval']).find((value, key) => {
+                            //         if (value.is_accept === 'Pending') return true
+                            //     })
+                            // }
                             var ttd_pending = ""
-                            if (response.data_approval[0]['data_approval'] != null) {
-                                ttd_pending = JSON.parse(response.data_approval[0]['data_approval']).find((value, key) => {
-                                    if (value.is_accept === 'Pending') return true
+                            var pending = []
+                            var data_app = response.data_approval
+                            // console.log(data_app)
+                            $.each(data_app, function(keys, values) {
+                                $.each(data_app[keys], function(keys2, values2) {
+                                    ttd_pending = JSON.parse(values2['data_approval']).filter((value, key) => {
+                                        if (value.is_accept === 'Pending') return true
+                                    })
+                                    if (ttd_pending.length > 0) {
+                                        pending.push({
+                                            'approval': ttd_pending[0],
+                                            'keys': keys,
+                                        })
+                                    }
+                                })
+                            })
+                            // console.log(pending)
+                            // console.log(pending)
+                            if (pending.length > 0) {
+                                var key = pending[0]['keys']
+                                var phone = []
+                                var name = []
+                                $.each(pending, function(keys, values) {
+                                    if (values['keys'] == key) {
+                                        phone.push(values['approval']['phone'])
+                                        name.push(values['approval']['user_name'])
+                                    }
                                 })
                             }
                             button_prpo = 'PO'
                             var link = '<?= base_url() ?>order/detailPO/' + response.id_po + ''
                             $('#modal').modal('hide')
-                            if (data['po_id'] == "") {
-                                shareWhatsapp(response.id_po, ttd_pending['phone'], link, 'PO', response.no_po, ttd_pending['user_name'])
+                            if (data['po_id'] == "" && pending.length > 0) {
+                                shareWhatsapp(response.id_po, phone, link, 'PO', response.no_po, name)
                             }
                             ajaxPO()
                         } else {
@@ -1600,7 +1694,69 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                shareWhatsapp(id, no_telp, link, status, no_doc, nama)
+                if (status == 'PR') {
+                    var ttd_pending = ""
+                    var pending = []
+                    for (let k = 0; k < data_pr_approval.length; k++) {
+                        for (let i = 0; i < data_pr_approval[k].length; i++) {
+                            for (let j = 0; j < data_pr_approval[k][i].length; j++) {
+                                if (data_pr_approval[k][i][j]['reference_id'] == id) {
+                                    ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
+                                        if (value.is_accept === 'Pending') return true
+                                    })
+                                    if (ttd_pending.length > 0) {
+                                        pending.push({
+                                            'approval': ttd_pending[0],
+                                            'keys': i,
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    var key = pending[0]['keys']
+                    var phone = []
+                    var name = []
+                    $.each(pending, function(keys, values) {
+                        if (values['keys'] == key) {
+                            phone.push(values['approval']['phone'])
+                            // phone.push('081944946015')
+                            name.push(values['approval']['user_name'])
+                        }
+                    })
+                } else {
+                    var ttd_pending = ""
+                    var pending = []
+                    for (let k = 0; k < data_po_approval.length; k++) {
+                        for (let i = 0; i < data_po_approval[k].length; i++) {
+                            for (let j = 0; j < data_po_approval[k][i].length; j++) {
+                                if (data_po_approval[k][i][j]['reference_id'] == id) {
+                                    ttd_pending = JSON.parse(data_po_approval[k][i][j]['data_approval']).filter((value, key) => {
+                                        if (value.is_accept === 'Pending') return true
+                                    })
+                                    if (ttd_pending.length > 0) {
+                                        pending.push({
+                                            'approval': ttd_pending[0],
+                                            'keys': i,
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    var key = pending[0]['keys']
+                    var phone = []
+                    var name = []
+                    $.each(pending, function(keys, values) {
+                        if (values['keys'] == key) {
+                            phone.push(values['approval']['phone'])
+                            // phone.push('081944946015')
+                            name.push(values['approval']['user_name'])
+                        }
+                    })
+                }
+                // console.log(loop)
+                shareWhatsapp(id, phone, link, status, no_doc, name)
             }
         })
     }
@@ -1630,21 +1786,30 @@
             },
             success: function(response) {
                 $('#modal2').modal('hide')
-                // console.log(response)
-                if (response.message = 'message sent') {
-                    // formWhatsapp(link)
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Berhasil Mengirimkan Approval',
-                        icon: 'success',
-                    }).then((responses) => {});
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Mengalami Masalah, Silahkan Kirim Ulang Pengajuan'
-                    });
-                }
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {});
+                // if (response[0].message = 'message sent') {
+                //     // formWhatsapp(link)
+                //     Swal.fire({
+                //         title: 'Success!',
+                //         text: 'Berhasil Mengirimkan Approval',
+                //         icon: 'success',
+                //     }).then((responses) => {});
+                // } else {
+                //     // Swal.fire({
+                //     //     icon: 'error',
+                //     //     title: 'Oops...',
+                //     //     text: 'Mengalami Masalah, Silahkan Kirim Ulang Pengajuan'
+                //     // });
+                //     Swal.fire({
+                //         title: 'Success!',
+                //         text: 'Berhasil Mengirimkan Approval',
+                //         icon: 'success',
+                //     }).then((responses) => {});
+                // }
             }
         })
     }
@@ -1653,6 +1818,7 @@
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-md modal-dialog-centered');
         var html_header = '';
+        $('#modalHeader2').removeClass('d-none');
         html_header += '<h5 class="modal-title">Share to User</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader2').html(html_header);
@@ -1671,6 +1837,7 @@
         $('#modalBody2').html(html_body);
 
         var html_footer = '';
+        $('#modalHeader2').removeClass('d-none');
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter2').html(html_footer);
     }
@@ -1697,7 +1864,7 @@
     var id_po_detail = []
 
     function formPO(id_pr = "", data = "", perubahan = "") {
-        console.log(data)
+        // console.log(data)
         status_more = "less"
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
@@ -1760,7 +1927,12 @@
             html_body += '<select name="" class="form-control select2-single form-control-sm w-75 mb-2 no_pr" data-live-search="true" required="required" ' + disabled + '>'
             html_body += '<option value="" disabled selected>Pilih No. PR</option>'
             data_detail = ""
-            $.each(data_pr, function(keys, values) {
+            // console.log(data_pr)
+            var pr_filtered = data_pr.filter((value, key) => {
+                if (value.state === 'APPROVED') return true
+            })
+            // console.log(pr_filtered)
+            $.each(pr_filtered, function(keys, values) {
                 var select = ""
                 if (values['id'] == id_pr) {
                     data_detail = JSON.parse(values['data_detail'])
@@ -1824,105 +1996,65 @@
 
         html_body += '<div class="col-12 col-md-6 mt-2 ps-4 pe-4 pb-4">'
         if (data != "" && perubahan == "") {
+            var ttd_pending = ""
+            var pending = []
+            for (let k = 0; k < data_po_approval.length; k++) {
+                for (let i = 0; i < data_po_approval[k].length; i++) {
+                    pending.push(data_po_approval[k][i])
+                }
+            }
             html_body += '<small class="mb-2"><b>Approval</b></small>'
             // approval
             html_body += '<div class="row">'
-            var success = "fa-check text-light"
-            acc_check = (JSON.parse(data['data_approval']) != null) ? (JSON.parse(data['data_approval'])[0] != undefined) ? JSON.parse(data['data_approval'])[0]['is_accept'] : "undefined" : ""
-            if (acc_check == 'Accepted') {
-                success = 'fa-check text-success'
-            } else if (acc_check == 'Rejected') {
-                success = 'fa-times text-danger'
-            } else if (data['state'] == 'APPROVED') {
-                success = 'fa-check text-success'
-            }
 
-            html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-            html_body += '<div class="card shadow-sm m-0 w-100">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<div class="row align-self-center">'
-            html_body += '<div class="col-3">'
-            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-            html_body += '</div>'
-            html_body += '<div class="col-9">'
-            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">Created</p>'
-            html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + JSON.parse(data['data_approval'])[0]['user_name'] + '</span></p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            // html_body += '<div class="col-12 col-sm-auto">'
-            // html_body += '<i class="fa ' + success + ' fa-1x me-2"></i>'
-            // html_body += '<p class="small d-inline">Created</p>'
-            // html_body += '</div>'
+            var e = []
+            var acc_check = ""
+            // console.log(data)
+            // console.log(data_pr_approval)
+            for (let i = 0; i < pending.length; i++) {
+                for (let j = 0; j < pending[i].length; j++) {
+                    if (data['po_id'] == pending[i][j]['reference_id']) {
+                        $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
+                            acc_check = value['is_accept']
+                        })
+                    }
+                }
+                if (pending[i][0]['reference_id'] == data['po_id']) {
+                    var success = "fa-check text-light"
+                    if (acc_check == 'Accepted') {
+                        success = 'fa-check text-success'
+                    } else if (acc_check == 'Rejected') {
+                        success = 'fa-times text-danger'
+                    }
 
-            success = "fa-check text-light"
-            acc_check = (JSON.parse(data['data_approval']) != null) ? (JSON.parse(data['data_approval'])[1] != undefined) ? JSON.parse(data['data_approval'])[1]['is_accept'] : "undefined" : ""
-            if (acc_check == 'Accepted') {
-                success = 'fa-check text-success'
-            } else if (acc_check == 'Rejected') {
-                success = 'fa-times text-danger'
-            } else if (data['state'] == 'APPROVED') {
-                success = 'fa-check text-success'
+                    html_body += '<div class="col-12 col-sm-12 m-0 p-1">'
+                    html_body += '<div class="card shadow-sm m-0 w-100">'
+                    html_body += '<div class="card-body p-2">'
+                    html_body += '<div class="row align-self-center">'
+                    html_body += '<div class="col-3">'
+                    html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+                    html_body += '</div>'
+                    html_body += '<div class="col-9">'
+                    if (i == 0) {
+                        var name = 'Checked'
+                    } else {
+                        var name = 'Approved'
+                    }
+                    html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
+                    for (let j = 0; j < pending[i].length; j++) {
+                        if (data['po_id'] == pending[i][j]['reference_id']) {
+                            $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
+                                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
+                            })
+                        }
+                    }
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                }
             }
-            html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-            html_body += '<div class="card shadow-sm m-0 w-100">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<div class="row align-self-center">'
-            html_body += '<div class="col-3">'
-            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-            html_body += '</div>'
-            html_body += '<div class="col-9">'
-            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">Approved</p>'
-            if (acc_check != 'undefined') {
-                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + JSON.parse(data['data_approval'])[1]['user_name'] + '</span></p>'
-            } else {
-                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">-</span></p>'
-
-            }
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            // html_body += '<div class="col-12 col-sm-auto">'
-            // html_body += '<i class="fa ' + success + ' fa-1x me-2"></i>'
-            // html_body += '<p class="small d-inline">Approved</p>'
-            // html_body += '</div>'
-
-            success = "fa-check text-light"
-            acc_check = (JSON.parse(data['data_approval']) != null) ? (JSON.parse(data['data_approval'])[2] != undefined) ? JSON.parse(data['data_approval'])[2]['is_accept'] : "undefined" : ""
-            if (acc_check == 'Accepted') {
-                success = 'fa-check text-success'
-            } else if (acc_check == 'Rejected') {
-                success = 'fa-times text-danger'
-            } else if (data['state'] == 'APPROVED') {
-                success = 'fa-check text-success'
-            }
-            html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
-            html_body += '<div class="card shadow-sm m-0 w-100">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<div class="row align-self-center">'
-            html_body += '<div class="col-3">'
-            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-            html_body += '</div>'
-            html_body += '<div class="col-9">'
-            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">Done</p>'
-            if (acc_check != 'undefined') {
-                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + JSON.parse(data['data_approval'])[2]['user_name'] + '</span></p>'
-            } else {
-                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">-</span></p>'
-            }
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            // html_body += '<div class="col-12 col-sm-auto">'
-            // html_body += '<i class="fa ' + success + ' fa-1x me-2"></i>'
-            // html_body += '<p class="small d-inline">Done</p>'
-            // html_body += '</div>'
 
             html_body += '</div>'
         } else {
@@ -2074,7 +2206,10 @@
         html_body += '<div class="col-7">'
         html_body += '<select name="" class="form-control select2-single form-control-sm w-100 mb-2 no_pr" data-live-search="true" required="required">'
         html_body += '<option value="" disabled selected>Pilih No. PR</option>'
-        $.each(data_pr, function(keys, values) {
+        var pr_filtered = data_pr.filter((value, key) => {
+            if (value.state === 'APPROVED') return true
+        })
+        $.each(pr_filtered, function(keys, values) {
             html_body += '<option value="' + values['id'] + '">' + values['no_pr'] + '</option>'
         })
         html_body += '</select>'
@@ -2163,12 +2298,13 @@
                 checkbox = 'disabled'
                 html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR bg-grey" id="cardDetailPR' + keys + '">'
             } else {
-                html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR" id="cardDetailPR' + keys + '" onclick="cardClickPR(' + keys + ',' + values['id'] + ')">'
+                html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR" data-keys="' + keys + '" id="cardDetailPR' + keys + '">'
+                // html_body += '<div class="card shadow-none mb-1 p-0 small cardDetailPR" data-keys="' + keys + '" id="cardDetailPR' + keys + '" onclick="cardClickPR(' + keys + ',' + values['id'] + ')">'
             }
             html_body += '<div class="card-body p-2">'
             html_body += '<div class="row d-flex align-items-center">'
             html_body += '<div class="col-1">'
-            html_body += '<input class="form-check-input checkbox-PR" id="checkPR' + keys + '" type="checkbox" value="' + values['id'] + '" data-id="' + keys + '" data-id_pr="' + values['id'] + '" ' + check + ' data-parent="' + values['id_parent'] + '"' + checkbox + '>'
+            html_body += '<input class="form-check-input checkbox-PR" id="checkPR' + keys + '" type="checkbox" value="' + values['id'] + '" data-id="' + keys + '"  data-id_pr="' + values['id'] + '" ' + check + ' data-parent="' + values['id_parent'] + '"' + checkbox + '>'
             html_body += '</div>'
             html_body += '<div class="col-6"><span class="">' + values['item_name'] + '</span></div>'
             html_body += '<div class="col-5">'
@@ -2192,25 +2328,46 @@
             showMoreFuction()
         }
     }
-    $(document).on('change', '.checkbox-PR', function(e) {
-        cardClickPR($(this).data('id'), $(this).data('id_pr'))
-    })
-
-    function cardClickPR(id, id_pr) {
-        if ($('#checkPR' + id).is(':checked')) {
-            $('#checkPR' + id).removeAttr('checked', true)
-            $('#cardDetailPR' + id).removeClass('bg-light')
-            deleteDataToBlankFormPO(id_pr)
-        } else {
+    $(document).on('click', '.checkbox-PR', function(e) {
+        // cardClickPR($(this).data('id'), $(this).data('id_pr'))
+        // console.log('hehe')
+        var id = $(this).data('id')
+        var stat = $('#checkPR' + id + ':checked').val()
+        var id_pr = $('#checkPR' + id + '').data('id_pr')
+        // console.log($('#checkPR' + id).is(':checked'))
+        if (stat != undefined) {
             $('#checkPR' + id).attr('checked', true)
             $('#cardDetailPR' + id).addClass('bg-light')
             insertDataToBlankFormPO(id_pr)
+        } else {
+            // console.log('hehe')
+            $('#checkPR' + id).removeAttr('checked', true)
+            $('#cardDetailPR' + id).removeClass('bg-light')
+            deleteDataToBlankFormPO(id_pr)
         }
         var id = $('.checkbox-PR:checked').map(function() {
             return $(this).val();
         }).get();
         data_checked = id
-    }
+    })
+
+    // function cardClickPR(id, id_pr) {
+    //     var stat = $('#checkPR' + id + ':checked').val()
+    //     // console.log($('#checkPR' + id).is(':checked'))
+    //     if ($('#checkPR' + id).is(':checked')) {
+    //         $('#checkPR' + id).removeAttr('checked', true)
+    //         $('#cardDetailPR' + id).removeClass('bg-light')
+    //         deleteDataToBlankFormPO(id_pr)
+    //     } else {
+    //         $('#checkPR' + id).attr('checked', true)
+    //         $('#cardDetailPR' + id).addClass('bg-light')
+    //         insertDataToBlankFormPO(id_pr)
+    //     }
+    //     var id = $('.checkbox-PR:checked').map(function() {
+    //         return $(this).val();
+    //     }).get();
+    //     data_checked = id
+    // }
 
     function insertDataToBlankFormPO(id) {
         var data = data_detail.filter(x => x.id === id)
