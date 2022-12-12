@@ -747,9 +747,13 @@
             html += '<div class="col">'
             if (values['order_detail'] != null) {
                 html += '<b style="font-size: 11px;">Surat Jalan :</b>'
-                $.each(JSON.parse(values['order_detail']), function(keys2, values2) {
-                    html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + values2['no_sj'] + '</p>'
-                })
+                if (JSON.parse(values['order_detail'])[0]['no_sj'] != null) {
+                    $.each(JSON.parse(values['order_detail']), function(keys2, values2) {
+                        html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + values2['no_sj'] + '</p>'
+                    })
+                } else {
+                    html += '<p class="m-0 text-warning" style="font-size: 12px;"><i>Belum Ada Surat Jalan</i></p>'
+                }
             }
             html += '</div>'
 
@@ -814,9 +818,9 @@
                 }
                 if (values['state'] == 'APPROVED' && (values['state_order'] != null && values['state_order'] != '-')) {
                     html += '<hr class="m-2">'
-                    html += '<a class="dropdown-item" onclick="trackingOrder(' + values['po_id'] + ')"><i class="fa fa-truck me-2"></i> Tracking Order</a>'
+                    // html += '<a class="dropdown-item" onclick="trackingOrder(' + values['po_id'] + ')"><i class="fa fa-truck me-2"></i> Tracking Order</a>'
                     html += '<a class="dropdown-item" onclick="orderPO(' + values['po_id'] + ')"><i class="fa fa-shopping-cart me-2"></i> Surat Jalan</a>'
-                    html += '<a class="dropdown-item" onclick=""><i class="fa fa-undo me-2"></i> Retur Barang</a>'
+                    // html += '<a class="dropdown-item" onclick=""><i class="fa fa-undo me-2"></i> Retur Barang</a>'
                 }
                 if (values['state'] == 'APPROVED' && (values['state_order'] == null || values['state_order'] == '-')) {
                     html += '<hr class="m-2">'
@@ -2665,7 +2669,7 @@
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-6">'
-        html_body += '<b><h4>Order & Payment</h4></b>'
+        html_body += '<b><h4>Order & Shipment</h4></b>'
         html_body += '<div id="statusOrdering">'
         html_body += '</div>'
 
@@ -2686,7 +2690,7 @@
     }
 
     function statusOrdering(po_id, state, id_order = null) {
-        console.log(po_id, state, id_order)
+        // console.log(po_id, state, id_order)
         var html_body = ""
         if (state == null || state == '-') {
             html_body += '<p class="text-dark-grey small mb-3">Untuk melanjutkan proses pada Supplier, pilih tekan Tombol dibawah ini</p>'
@@ -2745,14 +2749,18 @@
         var html_body = ""
         $.each(data, function(keys, values) {
             html_body += '<div class="card shadow-sm mb-2 bg-light-grey">'
-            html_body += '<div class="card-body p-2">'
+            html_body += '<div class="card-body p-3">'
             html_body += '<div class="row">'
 
             html_body += '<div class="col-12 col-md-4 align-self-center">'
             html_body += '<span style="font-size:10px;">No. SJ</span><br>'
-            html_body += '<b style="font-size:14px;">' + values['no_sj'] + '</b>'
+            html_body += '<b style="font-size:14px;">' + values['no_sj'] + '</b><br>'
+            html_body += '<span style="font-size:10px;">Tanggal</span><br>'
+            html_body += '<b style="font-size:14px;">' + formatDate(JSON.parse(values['data_order'])[0]['tanggal_sj']) + '</b>'
             html_body += '</div>'
-            html_body += '<div class="col-12 col-md-7 align-self-center">'
+            html_body += '<div class="col-12 col-md-7">'
+            html_body += '<span style="font-size:10px;">Item </span><br>'
+            html_body += '<hr class="mt-1 mb-1">'
             var array = []
             $.each(JSON.parse(values['data_order']), function(keys2, values2) {
                 array.push(values2['detail_order_id'])
@@ -2780,6 +2788,12 @@
         html_body += '<div class="card-body">'
         html_body += '<div class="row">'
 
+        html_body += '<div class="col-12 col-md-3 align-self-center">'
+        html_body += '<b class="mb-2">Tanggal</b>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-9">'
+        html_body += '<input class="form-control form-control-sm tanggalSJ datepicker mb-2" data-id="' + last_number + '">'
+        html_body += '</div>'
         html_body += '<div class="col-12 col-md-3 align-self-center">'
         html_body += '<b>Nomor</b>'
         html_body += '</div>'
@@ -2812,6 +2826,11 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#listSuratJalan').append(html_body)
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true
+        });
         last_number++
     }
     $(document).on('keyup', '.inputJumlahyangDatang', function(e) {
@@ -2878,6 +2897,9 @@
     }
 
     function tambahSuratJalan(po_id, order_id) {
+        var tanggal_sj = $('.tanggalSJ').map(function() {
+            return $(this).val();
+        }).get();
         var no_sj = $('.nomorSJ').map(function() {
             return $(this).val();
         }).get();
@@ -2925,6 +2947,7 @@
             po_id: po_id,
             order_id: order_id,
             no_sj: no_sj,
+            tanggal_sj: tanggal_sj,
             detail_po_id: detail_po_id,
             jumlah_arrive: jumlah_arrive,
             item_id: item_arrivce

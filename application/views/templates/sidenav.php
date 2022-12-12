@@ -96,7 +96,7 @@
                     Beranda
                 </a>
                 <!-- Sidenav Accordion Warehouse-->
-                <!-- <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
                     <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
                     Warehouse
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
@@ -107,7 +107,7 @@
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/history">History</a>
                     </nav>
-                </div> -->
+                </div>
                 <!-- Sidenav Accordion Order-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards2" aria-expanded="true" aria-controls="collapseDashboards2">
                     <div class="nav-link-icon"><i class="fa fa-truck"></i></div>

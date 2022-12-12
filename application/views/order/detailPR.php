@@ -175,8 +175,10 @@
                     var ttd_pending = ""
                     var pending = []
                     var ttd_all = []
+                    var ttd_kelompok = []
                     for (let k = 0; k < data_pr_approval.length; k++) {
                         for (let i = 0; i < data_pr_approval[k].length; i++) {
+                            ttd_kelompok.push(data_pr_approval[k][i])
                             for (let j = 0; j < data_pr_approval[k][i].length; j++) {
                                 ttd_all.push(JSON.parse(data_pr_approval[k][i][j]['data_approval'])[0])
                                 ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
@@ -191,7 +193,7 @@
                             }
                         }
                     }
-                    // console.log(ttd_all)
+                    // console.log(ttd_kelompok)
                     var key = pending[0]['keys']
                     var loop = []
                     $.each(pending, function(keys, values) {
@@ -237,7 +239,7 @@
                         html += '<h4 class="text-center mt-5 mb-5"><i>Anda Tidak Memiliki Hak Akses pada Halaman Ini</i></h4>'
                         $('#tampilData').html(html);
                     } else {
-                        formDetail(ttd_all)
+                        formDetail(ttd_kelompok)
                     }
                 } else {
                     var html = ""
@@ -311,49 +313,82 @@
         html += '<b>Approval</b>'
         html += '<div class="row mt-2">'
 
-        $.each(data_approval, function(keys, values) {
-            // var success = "fa-check text-light"
-            // if (values['is_accept'] == 'Accepted') {
-            //     success = 'fa-check text-success'
-            // } else if (values['is_accept'] == 'Rejected') {
-            //     success = 'fa-times text-danger'
-            // }
-            // html += '<div class="col-6">'
-            // html += '<div class="card shadow-none h-100">'
-            // html += '<div class="card-body text-center">'
-            // html += '<i class="fa ' + success + ' fa-2x mb-2"></i>'
-            // html += '<p class="fw-bold mb-0 small" style="font-size:10px;">' + values['user_name'] + '</p>'
-            // html += '</div>'
-            // html += '</div>'
-            // html += '</div>'
+        // $.each(data_approval, function(keys, values) {
+        //     var success = "fa-check text-light"
+        //     if (values['is_accept'] == 'Accepted') {
+        //         success = 'fa-check text-success'
+        //     } else if (values['is_accept'] == 'Rejected') {
+        //         success = 'fa-times text-danger'
+        //     }
+
+        //     html += '<div class="col-12 col-sm-12 m-0 p-1">'
+        //     html += '<div class="card shadow-sm m-0 w-100">'
+        //     html += '<div class="card-body p-2">'
+        //     html += '<div class="row align-self-center">'
+        //     html += '<div class="col-3">'
+        //     html += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+        //     html += '</div>'
+        //     html += '<div class="col-9">'
+        //     if (keys == 0) {
+        //         var name = 'Checked'
+        //     } else {
+        //         var name = 'Approved'
+        //     }
+        //     html += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
+        //     html += '<p class="m-0"><span class="small" style="font-size:10px;">' + values['user_name'] + '</span></p>'
+        //     html += '</div>'
+        //     html += '</div>'
+        //     html += '</div>'
+        //     html += '</div>'
+        //     html += '</div>'
+        // })
+        var e = []
+        var acc_check = ""
+        // console.log(data_pr_approval)
+        for (let i = 0; i < ttd_kelompok.length; i++) {
+            for (let j = 0; j < ttd_kelompok[i].length; j++) {
+                // if (data['id'] == ttd_kelompok[i][j]['reference_id']) {
+                $.each(JSON.parse(ttd_kelompok[i][j]['data_approval']), function(key, value) {
+                    acc_check = value['is_accept']
+                })
+                // }
+            }
+            // if (ttd_kelompok[i][0]['reference_id'] == data['id']) {
             var success = "fa-check text-light"
-            if (values['is_accept'] == 'Accepted') {
+            if (acc_check == 'Accepted') {
                 success = 'fa-check text-success'
-            } else if (values['is_accept'] == 'Rejected') {
+            } else if (acc_check == 'Rejected') {
                 success = 'fa-times text-danger'
             }
 
-            html += '<div class="col-12 col-sm-12 m-0 p-1">'
-            html += '<div class="card shadow-sm m-0 w-100">'
-            html += '<div class="card-body p-2">'
-            html += '<div class="row align-self-center">'
-            html += '<div class="col-3">'
-            html += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-            html += '</div>'
-            html += '<div class="col-9">'
-            if (keys == 0) {
+            html_body += '<div class="col-12 col-sm-12 m-0 p-1">'
+            html_body += '<div class="card shadow-sm m-0 w-100">'
+            html_body += '<div class="card-body p-2">'
+            html_body += '<div class="row align-self-center">'
+            html_body += '<div class="col-3">'
+            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+            html_body += '</div>'
+            html_body += '<div class="col-9">'
+            if (i == 0) {
                 var name = 'Checked'
             } else {
                 var name = 'Approved'
             }
-            html += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
-            html += '<p class="m-0"><span class="small" style="font-size:10px;">' + values['user_name'] + '</span></p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        })
+            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
+            for (let j = 0; j < ttd_kelompok[i].length; j++) {
+                // if (data['id'] == ttd_kelompok[i][j]['reference_id']) {
+                $.each(JSON.parse(ttd_kelompok[i][j]['data_approval']), function(key, value) {
+                    html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
+                })
+                // }
+            }
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            // }
+        }
 
         html += '</div>'
         html += '</div>'
