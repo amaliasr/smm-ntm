@@ -1406,15 +1406,15 @@
             if (value.id === id) return true
         });
         // console.log(satuan_tetap)
+        var html_body = ""
+        html_body += '<option value="" selected disabled></option>'
+        html_body += '<option value="' + satuan_tetap['satuan_id'] + '">' + satuan_tetap['satuan_name'] + '</option>'
         if (obj != null) {
-            var html_body = ""
-            html_body += '<option value="" selected disabled></option>'
-            html_body += '<option value="' + satuan_tetap['satuan_id'] + '">' + satuan_tetap['satuan_name'] + '</option>'
             $.each(obj, function(keys, values) {
                 html_body += '<option value="' + values['satuan_id'] + '">' + values['satuan_name'] + '</option>'
             })
-            $('#unit_pr' + key).html(html_body)
         }
+        $('#unit_pr' + key).html(html_body)
     })
     $(document).on('click', '#btnNewRowPR', function(e) {
         formRowPR(last_number, "")

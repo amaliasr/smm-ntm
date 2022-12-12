@@ -105,7 +105,7 @@
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
                         <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a>
-                        <a class="nav-link" href="<?= base_url(); ?>warehouse/history">History</a>
+                        <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Kelola Stok</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Order-->

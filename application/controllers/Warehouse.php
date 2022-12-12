@@ -23,4 +23,8 @@ class Warehouse extends CI_Controller
     {
         $this->template->views('warehouse/history');
     }
+    public function kelolaStok()
+    {
+        $this->template->views('warehouse/kelola_stok');
+    }
 }
