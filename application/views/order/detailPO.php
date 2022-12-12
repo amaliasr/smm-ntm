@@ -487,6 +487,7 @@
         var button = '#btnApprove'
         var url = '<?php echo api_url('Api_Warehouse/approvePo'); ?>'
         kelolaData(data, type, url, button)
+        // console.log(approval_status)
     }
 
     function kelolaData(data, type, url, button) {
@@ -508,7 +509,18 @@
             success: function(response) {
                 if (response.success == true) {
                     if (loop_next.length > 0) {
-                        shareWhatsapp(id_po, phone_next, '<?= base_url() ?>order/detailPO/' + id_po, 'PO', data_po['no_po'], name_next)
+                        if (approval_status != 'reject') {
+                            shareWhatsapp(id_po, phone_next, '<?= base_url() ?>order/detailPO/' + id_po, 'PO', data_po['no_po'], name_next)
+                        } else {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Berhasil Melakukan Approval',
+                                icon: 'success',
+                            }).then((responses) => {
+                                $('#modal').modal('hide')
+                                masterPR()
+                            });
+                        }
                     } else {
                         Swal.fire({
                             title: 'Success!',

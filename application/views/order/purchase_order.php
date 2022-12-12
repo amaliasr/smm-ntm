@@ -607,14 +607,19 @@
                 var month = d.getMonth() + 1;
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
-                let obj = response['data'].find((value, key) => {
-                    if (value.no_bulan === thisMonth && value.tahun === thisYear.toString() && value.cost_center_id === '23') return true
-                });
-                let count = 1
-                if (obj != undefined) {
-                    count = parseInt(obj['count']) + 1;
+                if (response.message != 'Data data not found') {
+                    let obj = response['data'].find((value, key) => {
+                        if (value.no_bulan === thisMonth && value.tahun === thisYear.toString() && value.cost_center_id === '23') return true
+                    });
+                    let count = 1
+                    if (obj != undefined) {
+                        count = parseInt(obj['count']) + 1;
+                    }
+                    no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
+                } else {
+                    no_pr = '001' + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
+
                 }
-                no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
                 numberinPO()
             }
         })
@@ -632,14 +637,19 @@
                 var month = d.getMonth() + 1;
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
-                let obj = response['data'].find((value, key) => {
-                    if (value.no_bulan === thisMonth && value.tahun === thisYear.toString()) return true
-                });
-                let count = 1
-                if (obj != undefined) {
-                    count = parseInt(obj['count']) + 1;
+                if (response.message != 'Data data not found') {
+                    let obj = response['data'].find((value, key) => {
+                        if (value.no_bulan === thisMonth && value.tahun === thisYear.toString()) return true
+                    });
+                    let count = 1
+                    if (obj != undefined) {
+                        count = parseInt(obj['count']) + 1;
+                    }
+                    no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + romanize(thisMonth) + '/' + thisYear
+                } else {
+                    no_po = '001' + '/SMM/PO/' + romanize(thisMonth) + '/' + thisYear
+
                 }
-                no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + romanize(thisMonth) + '/' + thisYear
             }
         })
     }
@@ -2676,6 +2686,7 @@
     }
 
     function statusOrdering(po_id, state, id_order = null) {
+        console.log(po_id, state, id_order)
         var html_body = ""
         if (state == null || state == '-') {
             html_body += '<p class="text-dark-grey small mb-3">Untuk melanjutkan proses pada Supplier, pilih tekan Tombol dibawah ini</p>'
@@ -2688,7 +2699,7 @@
             html_body += '</div>'
             html_body += '</div>'
             html_body += '<button class="btn btn-success w-100 p-5" onclick="mulaiOrder(' + po_id + ')">Mulai Order ke Supplier</button>'
-        } else if (state == 'PROCESS') {
+        } else if (state == 'PROCESS' || state == 'PENDING') {
             html_body += '<p class="text-dark-grey small mb-3">Jika Supplier telah memberikan Surat Jalan, maka Anda Dapat Input Surat tersebut dibawah ini</p>'
             html_body += '<div class="mt-2">'
             html_body += '<b class="mb-2">Surat Jalan</b>'
@@ -2779,6 +2790,7 @@
         html_body += '<div class="col-12">'
         html_body += '<b class="mb-2">Pilih Item yang Akan Datang :</b>'
         // item
+        // console.log(data)
         $.each(data, function(keys, values) {
             html_body += '<div class="card shadow-none mt-2 barangAkanDatang" style="cursor:pointer;" id="barangAkanDatang' + last_number + keys + '">'
             html_body += '<div class="card-body m-0 p-2">'
@@ -2787,7 +2799,7 @@
             html_body += '<p class="m-0">' + values['item_name'] + '</p>'
             html_body += '</div>'
             html_body += '<div class="col align-self-center">'
-            html_body += '<input class="form-control form-control-sm bawahaja inputJumlahyangDatang" id="inputBarangAkanDatang' + last_number + keys + '" placeholder="Jumlah Item" data-id="' + last_number + '" data-key="' + keys + '" data-detail_id="' + values['id'] + '">'
+            html_body += '<input class="form-control form-control-sm bawahaja inputJumlahyangDatang" id="inputBarangAkanDatang' + last_number + keys + '" placeholder="Jumlah Item" data-id="' + last_number + '" data-key="' + keys + '" data-detail_id="' + values['id'] + '" data-item="' + values['item_id'] + '">'
             html_body += '</div>'
             html_body += '<i class="float-end fa fa-check text-grey" id="checkBarangAkanDatang' + last_number + keys + '"></i>'
             html_body += '</div>'
@@ -2881,21 +2893,29 @@
         var detail_input_jumlah = $('.inputJumlahyangDatang').map(function() {
             return $(this).data('detail_id');
         }).get();
+        var item_id = $('.inputJumlahyangDatang').map(function() {
+            return $(this).data('item');
+        }).get();
 
         var detail_po_id = []
         var jumlah_arrive = []
+        var item_arrivce = []
         for (let i = 0; i < no_sj.length; i++) {
             var array_id = []
             var array_jumlah = []
+            var array_item = []
             for (let j = 0; j < input_jumlah.length; j++) {
                 if (input_jumlah[j] != "" && number_input_jumlah[j] == number_sj[i]) {
                     array_id.push(detail_input_jumlah[j])
                     array_jumlah.push(input_jumlah[j])
+                    array_item.push(item_id[j])
                 }
             }
             detail_po_id.push(array_id)
             jumlah_arrive.push(array_jumlah)
+            item_arrivce.push(array_item)
         }
+        // console.log(item_arrivce)
         //-----------------------//
         var button = '#btnTambahSJ'
         var url = '<?php echo api_url('Api_Warehouse/insertSj'); ?>'
@@ -2907,6 +2927,7 @@
             no_sj: no_sj,
             detail_po_id: detail_po_id,
             jumlah_arrive: jumlah_arrive,
+            item_id: item_arrivce
         }
         var image = 'message.gif'
         var id_order = order_id

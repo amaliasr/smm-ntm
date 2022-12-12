@@ -529,7 +529,18 @@
             success: function(response) {
                 if (response.success == true) {
                     if (loop_next.length > 0) {
-                        shareWhatsapp(id_pr, phone_next, '<?= base_url() ?>order/detailPR/' + id_pr, 'PR', data_pr['no_pr'], name_next)
+                        if (approval_status != 'reject') {
+                            shareWhatsapp(id_pr, phone_next, '<?= base_url() ?>order/detailPR/' + id_pr, 'PR', data_pr['no_pr'], name_next)
+                        } else {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Berhasil Melakukan Approval',
+                                icon: 'success',
+                            }).then((responses) => {
+                                $('#modal').modal('hide')
+                                masterPR()
+                            });
+                        }
                     } else {
                         Swal.fire({
                             title: 'Success!',
