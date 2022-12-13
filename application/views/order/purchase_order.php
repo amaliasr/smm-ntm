@@ -2201,7 +2201,7 @@
             html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPO" onclick="simpan(1)" data-po_id="' + po_id + '">' + text_po + '</button>'
         }
         $('#modalFooter').html(html_footer);
-        $('.nominal').number(true, 2);
+        $('.nominal').number(true, 3);
         if (data_detail != "") {
             showDetailPRinPO(data_detail)
             hiddenDetailPR(2)
@@ -2528,7 +2528,7 @@
             orientation: "auto",
             autoclose: true
         });
-        $('.nominal').number(true, 2);
+        $('.nominal').number(true, 3);
         return true;
     }
 
