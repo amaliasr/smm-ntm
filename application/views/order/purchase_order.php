@@ -2201,7 +2201,7 @@
             html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPO" onclick="simpan(1)" data-po_id="' + po_id + '">' + text_po + '</button>'
         }
         $('#modalFooter').html(html_footer);
-        $('.nominal').number(true);
+        $('.nominal').number(true, 2);
         if (data_detail != "") {
             showDetailPRinPO(data_detail)
             hiddenDetailPR(2)
@@ -2528,7 +2528,7 @@
             orientation: "auto",
             autoclose: true
         });
-        $('.nominal').number(true);
+        $('.nominal').number(true, 2);
         return true;
     }
 
@@ -2555,7 +2555,8 @@
         if (qty == "") {
             qty = 0
         }
-        price = (parseInt(unit) * parseInt(qty))
+        price = (parseFloat(unit) * parseFloat(qty))
+        // console.log()
         $('#total_po' + id).val(price)
         countTotalPO()
     }
@@ -2571,15 +2572,15 @@
         }
         var total_all = 0
         for (let i = 0; i < total_po.length; i++) {
-            total_all = parseInt(total_po[i]) + parseInt(total_all)
+            total_all = parseFloat(total_po[i]) + parseFloat(total_all)
         }
         $('#subtotalPO').val(total_all)
         var persen = 0
         if ($('#checkPPN:checked').val() != 'on') {
-            persen = (parseInt(total_all) / 100 * 11)
+            persen = (parseFloat(total_all) / 100 * 11)
         }
         $('#ppnPO').val(persen)
-        total_all = parseInt(total_all) + parseInt(persen)
+        total_all = parseFloat(total_all) + parseFloat(persen)
         $('#totalPO').val(total_all)
     }
 

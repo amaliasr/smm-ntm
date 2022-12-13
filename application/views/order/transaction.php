@@ -262,6 +262,7 @@
                                         </div> -->
                                     </div>
                                     <div class="col-12 pt-4" id="tampilDetailSuratJalan">
+
                                     </div>
                                 </div>
 
@@ -392,34 +393,60 @@
             method: "GET",
             dataType: 'JSON',
             error: function(xhr) {},
-            beforeSend: function() {},
+            beforeSend: function() {
+                var html = ""
+                html += '<div class="card w-100 shadow-none mb-2 p-0">'
+                html += '<div class="card-body p-2">'
+                html += '<div class="row d-flex align-items-center">'
+                html += '<div class="col text-center p-5">'
+                html += '<i class="small">Memuat Data....</i>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                $('#tampilDetailSuratJalan').html(html)
+            },
             success: function(response) {
                 data_suratjalan = response['data']
-                var pending = 0
-                var delivered = 0
-                var checked = 0
-                var canceled = 0
-                $.each(data_suratjalan, function(keys, values) {
-                    $.each(JSON.parse(values['data_detail']), function(keys2, values2) {
-                        if (values2['status_order'] == 'PENDING') {
-                            pending++
-                        }
-                        if (values2['status_order'] == 'ON DELIVERY') {
-                            delivered++
-                        }
-                        if (values2['status_order'] == 'CHECKED') {
-                            checked++
-                        }
-                        if (values2['status_order'] == 'CANCEL') {
-                            canceled++
-                        }
+                if (data_suratjalan != undefined) {
+                    var pending = 0
+                    var delivered = 0
+                    var checked = 0
+                    var canceled = 0
+                    $.each(data_suratjalan, function(keys, values) {
+                        $.each(JSON.parse(values['data_detail']), function(keys2, values2) {
+                            if (values2['status_order'] == 'PENDING') {
+                                pending++
+                            }
+                            if (values2['status_order'] == 'ON DELIVERY') {
+                                delivered++
+                            }
+                            if (values2['status_order'] == 'CHECKED') {
+                                checked++
+                            }
+                            if (values2['status_order'] == 'CANCEL') {
+                                canceled++
+                            }
+                        })
+                        $('#jumlahPending').html(pending)
+                        $('#jumlahDelivered').html(delivered)
+                        $('#jumlahChecked').html(checked)
+                        $('#jumlahCanceled').html(canceled)
+                        formListSJ(keys, data_suratjalan[keys], JSON.parse(values['data_detail']))
                     })
-                    $('#jumlahPending').html(pending)
-                    $('#jumlahDelivered').html(delivered)
-                    $('#jumlahChecked').html(checked)
-                    $('#jumlahCanceled').html(canceled)
-                    formListSJ(keys, data_suratjalan[keys], JSON.parse(values['data_detail']))
-                })
+                } else {
+                    var html = ""
+                    html += '<div class="card w-100 shadow-none mb-2 p-0">'
+                    html += '<div class="card-body p-2">'
+                    html += '<div class="row d-flex align-items-center">'
+                    html += '<div class="col text-center p-5">'
+                    html += '<i class="small">Tidak Ada Data yang Tersedia</i>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    $('#tampilDetailSuratJalan').html(html)
+                }
             }
         })
     }
