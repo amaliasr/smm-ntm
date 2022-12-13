@@ -13,10 +13,12 @@ class Master extends CI_Controller
     }
     public function items()
     {
-        $this->template->views('master/items');
+        $data['title'] = 'Master Items';
+        $this->template->views('master/items', $data);
     }
     public function supplier()
     {
-        $this->template->views('master/supplier');
+        $data['title'] = 'Master Supplier';
+        $this->template->views('master/supplier', $data);
     }
 }

@@ -16,6 +16,7 @@ class Dashboard extends CI_Controller
 	}
 	public function index()
 	{
+		$data['title'] = 'Dashboard';
 		$data['full_name'] = $this->full_name;
 		$this->template->views('index', $data);
 	}

@@ -13,6 +13,7 @@ class Invoice extends CI_Controller
     }
     public function approval($status, $id)
     {
+        $data['title'] = 'Invoice ' . $status;
         $data['id'] = $id;
         if ($status == 'PR') {
             $this->template->views('invoice/approvalPR', $data);

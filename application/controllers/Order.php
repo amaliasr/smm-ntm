@@ -26,31 +26,33 @@ class Order extends CI_Controller
     }
     public function purchaseOrder()
     {
-        $this->template->views('order/purchase_order');
+        $data['title'] = 'Request & Order';
+        $this->template->views('order/purchase_order', $data);
     }
     public function transaction()
     {
-        $this->template->views('order/transaction');
+        $data['title'] = 'Transaction';
+        $this->template->views('order/transaction', $data);
     }
     public function logistic()
     {
-        $this->template->views('order/logistic');
-    }
-    public function history()
-    {
-        $this->template->views('order/history');
+        $data['title'] = 'Logistic';
+        $this->template->views('order/logistic', $data);
     }
     public function payments()
     {
-        $this->template->views('order/payments');
+        $data['title'] = 'Payments';
+        $this->template->views('order/payments', $data);
     }
     public function detailPR($id)
     {
+        $data['title'] = 'Detail PR';
         $data['id'] = $id;
         $this->template->views('order/detailPR', $data);
     }
     public function detailPO($id)
     {
+        $data['title'] = 'Detail PO';
         $data['id'] = $id;
         $this->template->views('order/detailPO', $data);
     }
@@ -69,18 +71,18 @@ class Order extends CI_Controller
         $this->pdf->filename = $data['datas']->no_pr . ".pdf";
         $this->pdf->loadHtml($html);
         $this->pdf->render();
-        // Instantiate canvas instance 
-        $canvas = $this->pdf->getCanvas();
-        $w = $canvas->get_width();
-        $h = $canvas->get_height();
-        $imageURL = base_url() . 'assets/image/logo/SMMtrans.png';
-        $imgWidth = 250;
-        $imgHeight = 250;
-        $canvas->set_opacity(.2);
-        // Specify horizontal and vertical position 
-        $x = (($w - $imgWidth) / 2);
-        $y = (($h - $imgHeight) / 3);
-        $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
+        // // Instantiate canvas instance 
+        // $canvas = $this->pdf->getCanvas();
+        // $w = $canvas->get_width();
+        // $h = $canvas->get_height();
+        // $imageURL = base_url() . 'assets/image/logo/SMMtrans.png';
+        // $imgWidth = 250;
+        // $imgHeight = 250;
+        // $canvas->set_opacity(.2);
+        // // Specify horizontal and vertical position 
+        // $x = (($w - $imgWidth) / 2);
+        // $y = (($h - $imgHeight) / 3);
+        // $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
         $this->pdf->stream($data['datas']->no_pr, array("Attachment" => 0));
     }
     public function cetakPO()
@@ -93,23 +95,24 @@ class Order extends CI_Controller
         $data['user_id'] = $explodedParams[3];
         $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPo?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
         $data['detail'] = json_decode($data['datas']->data_detail);
+        $data['approval'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPo?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data_approval;
         $html = $this->load->view('order/cetakPO', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = $data['datas']->no_po . ".pdf";
         $this->pdf->loadHtml($html);
         $this->pdf->render();
-        // Instantiate canvas instance 
-        $canvas = $this->pdf->getCanvas();
-        $w = $canvas->get_width();
-        $h = $canvas->get_height();
-        $imageURL = base_url() . 'assets/image/logo/SMMtrans.png';
-        $imgWidth = 250;
-        $imgHeight = 250;
-        $canvas->set_opacity(.2);
-        // Specify horizontal and vertical position 
-        $x = (($w - $imgWidth) / 2);
-        $y = (($h - $imgHeight) / 3);
-        $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
+        // // Instantiate canvas instance 
+        // $canvas = $this->pdf->getCanvas();
+        // $w = $canvas->get_width();
+        // $h = $canvas->get_height();
+        // $imageURL = base_url() . 'assets/image/logo/SMMtrans.png';
+        // $imgWidth = 250;
+        // $imgHeight = 250;
+        // $canvas->set_opacity(.2);
+        // // Specify horizontal and vertical position 
+        // $x = (($w - $imgWidth) / 2);
+        // $y = (($h - $imgHeight) / 3);
+        // $canvas->image($imageURL, $x, $y, $imgWidth, $imgHeight, $resolution = "normal");
         $this->pdf->stream($data['datas']->no_po, array("Attachment" => 0));
     }
     public function cetakPenerimaan()

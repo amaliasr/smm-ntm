@@ -154,18 +154,49 @@
                 <div style="text-align: left;">
                     <b style="margin-bottom: 10px;">Keterangan</b>
                     <ol>
-                        <li>Termin Pembayaran : hari/COD/CBD setelah pesanan kami terima</li>
+                        <li>Termin Pembayaran : <?= $datas->supplier_top ?> hari setelah pesanan diterima</li>
+                        <!-- <li>Termin Pembayaran : hari/COD/CBD setelah pesanan kami terima</li> -->
                         <li>Barang akan kami kembalikan apabila tidak sesuai pesanan</li>
                         <li>Nomor PO harus dicantumkan dalam Surat Jalan, Nota/Kwitansi/Invoice</li>
+                        <li>Quantity Pengiriman ±5% dari quantity PO</li>
                     </ol>
                     <p>Atas perhatian dan kerjasamanya kami ucapkan terima kasih</p>
                 </div>
             </td>
-            <td style="width: 40%;text-align:center;">
+            <td style="width: 40%;">
                 <?php if ($qrcode != '0') { ?>
-                    <b style="font-size:14px;">SCAN QRCODE</b>
-                    <p style="margin: 0px;margin-bottom:10px;">Scan untuk Melihat Approval</p>
-                    <img src="<?= base64_decode(str_replace(' ', '', $qrcode)) ?>" style="width:100px; height:100px">
+                    <div style="width: 100%;text-align:center;">
+                        <b style="font-size:14px;">SCAN QRCODE</b>
+                        <p style="margin: 0px;margin-bottom:10px;">Scan untuk Melihat Approval</p>
+                        <img src="<?= base64_decode(str_replace(' ', '', $qrcode)) ?>" style="width:100px; height:100px">
+                    </div>
+                <?php } else { ?>
+                    <b style="margin-bottom: 20px;">Persetujuan :</b>
+                    <ol>
+                        <?php
+                        $a = 0;
+                        for ($k = 0; $k < count($approval); $k++) {
+                            for ($i = 0; $i < count($approval[$k]); $i++) {
+                                for ($j = 0; $j < count($approval[$k][$i]); $j++) {
+
+                                    // $a = 0;
+                                    // foreach (json_decode($approval[$k][$i][$j]->data_approval) as $key => $value) {
+                                    if ($a == 0) {
+                                        $nama = 'Dibuat';
+                                    } else if ($a == 1) {
+                                        $nama = 'Disetujui';
+                                    } else if ($a == 2) {
+                                        $nama = 'Diketahui';
+                                    }
+                                    echo '<li><p style="margin:0px;">' . $nama . ' Oleh ' . json_decode($approval[$k][$i][$j]->data_approval)[0]->user_name . '</p></li>';
+                                    //     $a++;
+                                    // }
+                                    $a++;
+                                }
+                            }
+                        }
+                        ?>
+                    </ol>
                 <?php } ?>
             </td>
         </tr>

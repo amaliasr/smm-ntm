@@ -1,1 +1,1 @@
-<title>PT Sinar Mahkota Mas</title>
+<title><?= $title ?> | PT Sinar Mahkota Mas</title>

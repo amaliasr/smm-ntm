@@ -9,7 +9,8 @@ class Auth extends CI_Controller
 			redirect('Dashboard');
 		}
 		// echo $this->input->cookie('link');
-		$this->template->views('auths/login', null, true);
+		$data['title'] = 'Login';
+		$this->template->views('auths/login', $data, true);
 	}
 
 	public function setSessions()

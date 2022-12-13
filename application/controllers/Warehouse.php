@@ -25,6 +25,7 @@ class Warehouse extends CI_Controller
     }
     public function kelolaStok()
     {
-        $this->template->views('warehouse/kelola_stok');
+        $data['title'] = 'Stok Gudang';
+        $this->template->views('warehouse/kelola_stok', $data);
     }
 }
