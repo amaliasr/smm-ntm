@@ -645,9 +645,9 @@
                     if (obj != undefined) {
                         count = parseInt(obj['count']) + 1;
                     }
-                    no_po = count.toString().padStart(3, "0") + '/SMM/PO/' + romanize(thisMonth) + '/' + thisYear
+                    no_po = count.toString().padStart(3, "0") + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
                 } else {
-                    no_po = '001' + '/SMM/PO/' + romanize(thisMonth) + '/' + thisYear
+                    no_po = '001' + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
 
                 }
             }

@@ -152,24 +152,24 @@
                     <td class="td_main"><?= $value->item_name ?></td>
                     <td class="td_main"><?= $value->qty ?></td>
                     <td class="td_main"><?= $value->satuan_name ?></td>
-                    <td class="td_main" style="text-align:right;"><?= number_format($value->harga) ?></td>
-                    <td class="td_main" style="text-align:right;"><?= number_format($value->subtotal) ?></td>
+                    <td class="td_main" style="text-align:right;"><?= number_format($value->harga, 2, '.', ',') ?></td>
+                    <td class="td_main" style="text-align:right;"><?= number_format($value->subtotal, 2, '.', ',') ?></td>
                     <td class="td_main"><?= $value->tanggal_pengiriman ?></td>
                 </tr>
             <?php } ?>
             <tr>
                 <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>Sub Total</b></td>
-                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->total_harga) ?></b></td>
+                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->total_harga, 2, '.', ',') ?></b></td>
                 <td class="td_main"></td>
             </tr>
             <tr>
                 <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>PPN</b></td>
-                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->ppn) ?></b></td>
+                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->ppn, 2, '.', ',') ?></b></td>
                 <td class="td_main"></td>
             </tr>
             <tr>
                 <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>Total</b></td>
-                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->grand_total) ?></b></td>
+                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->grand_total, 2, '.', ',') ?></b></td>
                 <td class="td_main"></td>
             </tr>
         </table>
