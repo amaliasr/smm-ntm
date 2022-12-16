@@ -382,17 +382,27 @@
                 if (data_stok != undefined) {
                     var jumlah_in = response['dataCount'].find((value, key) => {
                         if (value.aksi === 'IN') return true
-                    })['jumlah']
+                    })
                     var jumlah_out = response['dataCount'].find((value, key) => {
                         if (value.aksi === 'OUT') return true
-                    })['jumlah']
-                    $('#jumlahIN').html(jumlah_in + ' x')
-                    $('#jumlahOUT').html(jumlah_out + ' x')
+                    })
+                    if (jumlah_in == undefined) {
+                        $('#jumlahIN').html('0 x')
+                    } else {
+                        $('#jumlahIN').html(jumlah_in['jumlah'] + ' x')
+                    }
+                    if (jumlah_out == undefined) {
+                        $('#jumlahOUT').html('0 x')
+                    } else {
+                        $('#jumlahOUT').html(jumlah_out['jumlah'] + ' x')
+                    }
                     data_all_stok = [];
                     for (let i = 0; i < data_stok.length; i++) {
                         for (let j = 0; j < JSON.parse(data_stok[i]['data_item']).length; j++) {
                             var array = JSON.parse(data_stok[i]['data_item'])[j]
                             array['tanggal'] = data_stok[i]['tanggal_kirim']
+                            array['subjek_name'] = data_stok[i]['subjek_name']
+                            array['jenis'] = data_stok[i]['jenis']
                             data_all_stok.push(array)
                         }
                     }
@@ -406,12 +416,12 @@
     }
 
     function tampilMaterialToday() {
-        console.log(data_all_stok)
+        // console.log(data_all_stok)
         var html = ""
         $.each(data_all_stok, function(key, value) {
             html += '<div class="row">'
-            html += '<div class="col fw-bold small">' + value['item_name'] + '</div>'
-            html += '<div class="col align-self-center">'
+            html += '<div class="col-5 fw-bold small"><p class="m-0 fw-bold">' + value['item_name'] + '</p><span class="text-primary" style="font-size:10px;">#' + value['jenis'] + '</span></div>'
+            html += '<div class="col-5 align-self-center">'
             html += '<div class="row">'
             html += '<div class="col-auto">'
             if (value['ket'] == 'OUT') {
@@ -421,16 +431,22 @@
             }
             html += '</div>'
             html += '<div class="col-auto align-self-center ps-0">'
-            html += '<p class="m-0" style="font-size: 12px;"><b>' + value['nama_lawan'] + '</b></p>'
+            if (value['nama_lawan'] == null) {
+                var lawan = value['subjek_lawan']
+            } else {
+                var lawan = value['nama_lawan']
+            }
+            html += '<p class="m-0 text-wrap" style="font-size: 12px;"><b>' + lawan + '</b></p>'
             html += '<p class="m-0" style="font-size: 10px;">' + value['tanggal'] + '</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col text-end">' + value['jumlah'] + ' ' + value['satuan_name'] + '</div>'
+            html += '<div class="col-2 text-end">' + value['jumlah'] + ' ' + value['satuan_name'] + '</div>'
             html += '</div>'
             html += '<hr>'
         })
         $('#tampilMaterialToday').html(html)
+        // formTransaksiStok()
     }
     // Pie Chart Example
     var ctx = document.getElementById("myPieChart");
@@ -592,7 +608,7 @@
         html_body += '</div>'
         // Tag
         // Gudang
-        html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2" id="tampilGudang">'
         html_body += '<div class="card-body">'
         html_body += '<div class="row align-self-center">'
         html_body += '<div class="col-12">'
@@ -602,25 +618,61 @@
         html_body += '<div id="profileImage" class="bg-ungu">4</div>'
         html_body += '</div>'
         html_body += '<div class="col-10 align-self-center mb-2">'
-        html_body += '<p class="m-0"><b>Gudang</b></p>'
+        html_body += '<p class="m-0"><b id="textTitleGudang">Gudang</b></p>'
+        html_body += '</div>'
         html_body += '</div>'
 
-        $.each(data_gudang, function(keys, values) {
-            html_body += '<div class="col-2 ">'
-            html_body += '</div>'
-            html_body += '<div class="col-10 mb-2">'
-            html_body += '<input type="radio" class="btn-check p-1 text-start radioGudang" name="radioGudang" id="radioGudang' + keys + '" autocomplete="off" value="' + values['id'] + '">'
-            html_body += '<label class="btn btn-sm btn-outline-primary w-100" for="radioGudang' + keys + '">' + values['name'] + '</label>'
-            html_body += '</div>'
-        })
-
+        html_body += '<div class="row" id="tampilGudangRow">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
         html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<div class="card shadow-none mt-3">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<p class="m-0 mt-5 mb-5" style="font-size:11px;">Pilih <b>Jenis Barang</b> terlebih dahulu</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
 
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         // Gudang
+        // supplier
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2 d-none" id="tampilSupplier">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">4</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Supplier</b></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<select class="form-select form-select-sm w-100 supplierStok" id="supplierStok">'
+        html_body += '<option value="" selected disabled>Pilih Supplier</option>'
+        $.each(data_supplier, function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // supplier
         // Upload Image
         html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
         html_body += '<div class="card-body">'
@@ -753,6 +805,15 @@
         numberItem++
         return true
     }
+    $(document).on('change', '.radioTag', function(e) {
+        var value = $('.radioTag:checked').val()
+        $('#tampilGudang').removeClass('d-none')
+        $('#tampilSupplier').addClass('d-none')
+        if (value == 'Terima Supplier' || value == 'Retur Supplier') {
+            $('#tampilGudang').addClass('d-none')
+            $('#tampilSupplier').removeClass('d-none')
+        }
+    })
 
     function tampilKategori(status) {
         // 0 = masuk
@@ -760,7 +821,9 @@
         var name1 = 'Kembali Pinjam'
         var name2 = 'Retur Produksi'
         var name3 = 'Terima Supplier'
+        $('#textTitleGudang').html('Gudang Asal')
         if (status == 1) {
+            $('#textTitleGudang').html('Gudang Tujuan')
             name1 = 'Peminjaman'
             name2 = 'Distribusi Produksi'
             name3 = 'Retur Supplier'
@@ -787,6 +850,19 @@
         html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag3">' + name3 + '</label>'
         html += '</div>'
         $('#tampilKategori').html(html)
+
+        var html_gudang = ""
+        $.each(data_gudang, function(keys, values) {
+            if (values['name'] != 'Gudang Utama') {
+                html_gudang += '<div class="col-2 ">'
+                html_gudang += '</div>'
+                html_gudang += '<div class="col-10 mb-2">'
+                html_gudang += '<input type="radio" class="btn-check p-1 text-start radioGudang" name="radioGudang" id="radioGudang' + keys + '" autocomplete="off" value="' + values['id'] + '">'
+                html_gudang += '<label class="btn btn-sm btn-outline-primary w-100" for="radioGudang' + keys + '">' + values['name'] + '</label>'
+                html_gudang += '</div>'
+            }
+        })
+        $('#tampilGudangRow').html(html_gudang)
         return true
     }
 
@@ -870,6 +946,7 @@
                 var gudang = $('.radioGudang:checked').val()
                 var image = images
                 var note = $('#catatanStok').val()
+                var supplier = $('#supplierStok').val()
                 var type = 'POST'
                 var form_data = {
                     'tanggal': tanggal,
@@ -881,6 +958,7 @@
                     'note': note,
                     'item': item,
                     'created_by': user_id,
+                    'id_supplier': supplier,
                 }
                 var button = '#btnClosePO'
                 var url = '<?php echo api_url('Api_Warehouse/insertTransaksiStok'); ?>'

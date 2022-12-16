@@ -588,6 +588,7 @@
         html_body += '<div class="container small p-5 pt-2">'
         html_body += '<div class="row">'
         html_body += '<p class="m-0 mb-2 small"><b>Detail Item</b></p>'
+        // console.log(data_detail)
         $.each(data_detail, function(key, value) {
             html_body += '<div class="row">'
             html_body += '<div class="col-2 p-2 text-center">'
@@ -602,7 +603,7 @@
             html_body += '</div>'
             html_body += '<div class="col-3 align-self-center text-start">'
             html_body += '<select name="" class="form-control select2-single form-control-sm w-100 " style="border:0" data-live-search="true" required="required">'
-            html_body += '<option value="">Lembar</option>'
+            html_body += '<option value="">' + value['item_satuan'] + '</option>'
             html_body += '</select>'
             html_body += '</div>'
             html_body += '</div>'
