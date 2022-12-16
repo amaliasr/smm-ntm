@@ -124,7 +124,7 @@
                 }
                 ?>
                 <td style="word-wrap: break-word;width: 50%;"><?= $datas->no_po ?> <?= $rev ?></td>
-                <td><?= date("d/m/Y", strtotime($datas->date_po)); ?></td>
+                <td style="width: 20%;"><?= date("d M Y", strtotime($datas->date_po)); ?></td>
             </tr>
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">Hal</td>
@@ -133,8 +133,11 @@
             </tr>
         </table>
         <div style="text-align: left;">
+            <!-- <?php print_r($datas); ?> -->
             Kepada Yth :<br>
-            <p><b><?= $datas->supplier_name ?></b></p>
+            <p style="margin-bottom: 0px;"><b><?= $datas->supplier_name ?></b></p>
+            <p style="margin-top: 0px;margin-bottom: 0px;"><?= $datas->supplier_addr ?></p>
+            <p style="margin-top: 0px;"><?= $datas->supplier_city ?></p>
             Dengan Hormat,<br>
             Bersama dengan surat ini kami memesan barang - barang berikut :
         </div>
@@ -150,8 +153,8 @@
             <?php foreach ($detail as $key => $value) { ?>
                 <tr>
                     <td class="td_main"><?= $value->item_name ?></td>
-                    <td class="td_main"><?= $value->qty ?></td>
-                    <td class="td_main"><?= $value->satuan_name ?></td>
+                    <td class="td_main" style="text-align: right;"><?= number_format($value->qty) ?></td>
+                    <td class="td_main" style="text-align: center;"><?= $value->satuan_name ?></td>
                     <td class="td_main" style="text-align:right;"><?= number_format($value->harga, 2, '.', ',') ?></td>
                     <td class="td_main" style="text-align:right;"><?= number_format($value->subtotal, 2, '.', ',') ?></td>
                     <td class="td_main"><?= $value->tanggal_pengiriman ?></td>
@@ -163,7 +166,7 @@
                 <td class="td_main"></td>
             </tr>
             <tr>
-                <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>PPN</b></td>
+                <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>PPN 11%</b></td>
                 <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->ppn, 2, '.', ',') ?></b></td>
                 <td class="td_main"></td>
             </tr>

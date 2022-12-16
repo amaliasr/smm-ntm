@@ -113,11 +113,17 @@
                                 <h6 class="fw-bold m-0">Stock In</h6>
                                 <div class="row">
                                     <div class="col-auto">
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="persentPending">255 x</b></h1>
+                                        <h1 class="m-0 mt-1 mb-1 fw-bold">
+                                            <b id="jumlahIN">
+                                                <div class="spinner-grow text-light" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </b>
+                                        </h1>
                                     </div>
                                     <div class="col-auto align-self-center ps-0">
                                         <p class="m-0" style="font-size: 10px;">Transaction</p>
-                                        <p class="m-0" style="font-size: 10px;">Today 13/12/2022</p>
+                                        <p class="m-0" style="font-size: 10px;">Today <?= date('d/m/Y') ?></p>
                                     </div>
                                 </div>
 
@@ -141,11 +147,17 @@
                                 <h6 class="fw-bold m-0">Stock Out</h6>
                                 <div class="row">
                                     <div class="col-auto">
-                                        <h1 class="m-0 mt-1 mb-1 fw-bold"><b id="persentPending">255 x</b></h1>
+                                        <h1 class="m-0 mt-1 mb-1 fw-bold">
+                                            <b id="jumlahOUT">
+                                                <div class="spinner-grow text-light" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </b>
+                                        </h1>
                                     </div>
                                     <div class="col-auto align-self-center ps-0">
                                         <p class="m-0" style="font-size: 10px;">Transaction</p>
-                                        <p class="m-0" style="font-size: 10px;">Today 13/12/2022</p>
+                                        <p class="m-0" style="font-size: 10px;">Today <?= date('d/m/Y') ?></p>
                                     </div>
                                 </div>
 
@@ -215,25 +227,7 @@
                         </div>
                     </div>
                     <div class="card-body overflow-auto" style="height: 300px;">
-                        <div class="container">
-                            <?php for ($i = 0; $i < 30; $i++) { ?>
-                                <div class="row">
-                                    <div class="col fw-bold">Foil Gold 12 SKM</div>
-                                    <div class="col align-self-center">
-                                        <div class="row">
-                                            <div class="col-auto">
-                                                <i class="fa fa-arrow-down text-success fa-2x"></i>
-                                            </div>
-                                            <div class="col-auto align-self-center ps-0">
-                                                <p class="m-0" style="font-size: 12px;"><b>Warehouse</b></p>
-                                                <p class="m-0" style="font-size: 10px;">13/12/2022</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col text-end">650 Roll</div>
-                                </div>
-                                <hr>
-                            <?php } ?>
+                        <div class="container" id="tampilMaterialToday">
                         </div>
 
                     </div>
@@ -338,6 +332,7 @@
     var data_supplier = ""
     var data_gudang = ""
     var data_stok = ""
+    var data_all_stok = []
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
@@ -378,15 +373,64 @@
             method: "GET",
             dataType: 'JSON',
             data: {
-                tanggal: currentDate()
+                tanggal: currentDate(),
             },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
                 data_stok = response['data']
-                // console.log(data_stok)
+                if (data_stok != undefined) {
+                    var jumlah_in = response['dataCount'].find((value, key) => {
+                        if (value.aksi === 'IN') return true
+                    })['jumlah']
+                    var jumlah_out = response['dataCount'].find((value, key) => {
+                        if (value.aksi === 'OUT') return true
+                    })['jumlah']
+                    $('#jumlahIN').html(jumlah_in + ' x')
+                    $('#jumlahOUT').html(jumlah_out + ' x')
+                    data_all_stok = [];
+                    for (let i = 0; i < data_stok.length; i++) {
+                        for (let j = 0; j < JSON.parse(data_stok[i]['data_item']).length; j++) {
+                            var array = JSON.parse(data_stok[i]['data_item'])[j]
+                            array['tanggal'] = data_stok[i]['tanggal_kirim']
+                            data_all_stok.push(array)
+                        }
+                    }
+                } else {
+                    $('#jumlahIN').html('0 x')
+                    $('#jumlahOUT').html('0 x')
+                }
+                tampilMaterialToday()
             }
         })
+    }
+
+    function tampilMaterialToday() {
+        console.log(data_all_stok)
+        var html = ""
+        $.each(data_all_stok, function(key, value) {
+            html += '<div class="row">'
+            html += '<div class="col fw-bold small">' + value['item_name'] + '</div>'
+            html += '<div class="col align-self-center">'
+            html += '<div class="row">'
+            html += '<div class="col-auto">'
+            if (value['ket'] == 'OUT') {
+                html += '<i class="fa fa-arrow-up text-danger fa-2x"></i>'
+            } else {
+                html += '<i class="fa fa-arrow-down text-success fa-2x"></i>'
+            }
+            html += '</div>'
+            html += '<div class="col-auto align-self-center ps-0">'
+            html += '<p class="m-0" style="font-size: 12px;"><b>' + value['nama_lawan'] + '</b></p>'
+            html += '<p class="m-0" style="font-size: 10px;">' + value['tanggal'] + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col text-end">' + value['jumlah'] + ' ' + value['satuan_name'] + '</div>'
+            html += '</div>'
+            html += '<hr>'
+        })
+        $('#tampilMaterialToday').html(html)
     }
     // Pie Chart Example
     var ctx = document.getElementById("myPieChart");
