@@ -787,7 +787,7 @@
         html += '<div class="row align-self-center mb-2">'
 
         html += '<div class="col-5">'
-        html += '<select style="border:none"  class="form-select form-select-sm w-100 itemStok" id="selectItemYangBelumTuntas" id="itemStok' + numberItem + '" data-id="' + numberItem + '">'
+        html += '<select style="border:none"  class="form-select form-select-sm w-100 itemStok" id="itemStok' + numberItem + '" data-id="' + numberItem + '">'
         html += '<option value="" selected disabled>Pilih Item</option>'
         $.each(data_item, function(keys, values) {
             html += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
