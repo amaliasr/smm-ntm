@@ -157,17 +157,7 @@
                     </div>
                     <div class="card-body">
                         <div class="container" id="tampilStockOpname">
-                            <?php for ($i = 0; $i < 20; $i++) { ?>
-                                <div class="card shadow-none card-hoper mb-2">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-1 align-self-center">
-                                                <div id="profileImage" class="bg-hijau"><i class="fa fa-check"></i></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php } ?>
+
                         </div>
                     </div>
                 </div>
@@ -248,9 +238,6 @@
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",
             dataType: 'JSON',
-            data: {
-                id: user_id
-            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
@@ -272,9 +259,70 @@
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
-                formMulaiSO()
+                getHistorySO()
             }
         })
+    }
+    var data_so = ""
+
+    function getHistorySO() {
+        $.ajax({
+            url: "<?= api_url('Api_So/historyOpname'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                data_so = response['data'];
+                console.log(data_so)
+                listStockOpname()
+            }
+        })
+    }
+
+    function listStockOpname() {
+        var html = ""
+        $.each(data_so, function(key, value) {
+            html += '<div class="card shadow-none card-hoper mb-2">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+
+            html += '<div class="col-1 align-self-center">'
+            html += '<div id="profileImage" class="bg-hijau"><i class="fa fa-check"></i></div>'
+            html += '</div>'
+
+            html += '<div class="col-5 align-self-center">'
+            html += '<p class="m-0" style="font-size:10px">' + value['kode'] + ' <span class="fa fa-copy text-grey"></span></p>'
+            html += '<h5><b>Stock Opname ' + formatDate(value['date_start']) + '</b></h5>'
+            html += '<p class="m-0 small">Note : ' + value['note'] + '</p>'
+            html += '</div>'
+
+            html += '<div class="col-5 align-self-center">'
+            html += '<p class="m-0" style="font-size:10px"><b>Executor :</b></p>'
+            html += '<ol style="font-size:10px;">'
+            $.each(JSON.parse(value['datas']), function(keys, values) {
+                html += '<li>' + values['user_name'] + '</li>'
+            })
+            html += '</ol>'
+            html += '</div>'
+
+            html += '<div class="col-1 align-self-center">'
+            html += '<button class="small btn btn-sm w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+            html += '<a class="dropdown-item" onclick="formMulaiSO(' + key + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
+            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan ke Executor</a>'
+            html += '<hr class="m-2">'
+            html += '<div class="text-center pe-2 ps-2">'
+            html += '<button class="btn btn-sm btn-danger w-100" onclick="">Hapus Program Stok Opname</button>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#tampilStockOpname').html(html)
     }
 
     function randomString(length, chars) {
@@ -284,8 +332,13 @@
     }
 
 
-    function formMulaiSO() {
-        var rString = randomString(20, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    function formMulaiSO(id_key = "") {
+        var data = data_so[id_key]
+        if (id_key === "") {
+            var rString = randomString(20, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        } else {
+            var rString = data['kode']
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
         var html_header = '';
@@ -308,9 +361,17 @@
 
         html_body += '<div class="row">'
         html_body += '<div class="col-4 align-self-center">Tanggal Pelaksanaan</div>'
-        html_body += '<div class="col-8"><input type="text" class="form-control form-control-sm datepicker"></div>'
+        if (id_key === "") {
+            html_body += '<div class="col-8"><input type="text" class="form-control form-control-sm datepicker" id="tanggalPelaksanaan"></div>'
+        } else {
+            html_body += '<div class="col-8 align-self-center">' + formatDate(data['date_start']) + '</div>'
+        }
         html_body += '<div class="col-4 pt-2 align-self-center">Catatan</div>'
-        html_body += '<div class="col-8 pt-2"><textarea class="form-control form-control-sm w-100" rows="5" id="catatanStok"></textarea></div>'
+        if (id_key === "") {
+            html_body += '<div class="col-8 pt-2"><textarea class="form-control form-control-sm w-100" rows="5" id="catatanOpname"></textarea></div>'
+        } else {
+            html_body += '<div class="col-8 align-self-center">' + data['note'] + '</div>'
+        }
         html_body += '</div>'
 
         html_body += '</div>'
@@ -338,13 +399,20 @@
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanStok" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
         $('#modalFooter').html(html_footer);
-        tampilParticipant()
+        if (id_key === "") {
+            tampilParticipant()
+        } else {
+            $.each(JSON.parse(data['datas']), function(key, value) {
+                tampilParticipant(JSON.parse(data['datas'])[key])
+            })
+        }
     }
     var numberParticipant = 0
 
-    function tampilParticipant() {
+    function tampilParticipant(detail = null) {
+        console.log(detail)
         var html = ""
         html += '<div class="card shadow-sm mb-2 position-relative" style="cursor:pointer;" id="fieldParticipant' + numberParticipant + '">'
         // btn delete
@@ -358,32 +426,40 @@
         html += '<div class="row">'
         html += '<div class="col-4 align-self-center">Checker By</div>'
         html += '<div class="col-8">'
-        html += '<select name="" id="userCheck' + numberParticipant + '" class="form-select form-select-sm userCheck" required="required">'
-        html += '<option value="" disabled selected>Pilih User</option>'
-        $.each(data_user, function(key, value) {
-            html += '<option value="' + value['id'] + '">' + value['name'] + '</option>'
-        })
-        html += '</select>'
+        if (detail == null) {
+            html += '<select name="" id="userCheck' + numberParticipant + '" class="form-select form-select-sm userCheck" required="required" data-no="' + numberParticipant + '">'
+            html += '<option value="" disabled selected>Pilih User</option>'
+            $.each(data_user, function(key, value) {
+                html += '<option value="' + value['id'] + '">' + value['name'] + '</option>'
+            })
+            html += '</select>'
+        } else {
+            html += '<b>' + detail['user_name'] + '</b>'
+        }
         html += '</div>'
         html += '<div class="col-4 pt-2 align-self-center">Tanggal Mulai</div>'
-        html += '<div class="col-8 pt-2"><input type="text" class="form-control form-control-sm datepicker" id="tanggalMulai' + numberParticipant + '"></div>'
+        html += '<div class="col-8 pt-2"><input type="text" class="form-control form-control-sm datepicker tanggalMulai" id="tanggalMulai' + numberParticipant + '"></div>'
         html += '</div>'
         html += '</div>'
 
         html += '<div class="col">'
         html += '<h6><b>List Item</b></h6>'
         html += '<p class="m-0 small" style="font-size:11px;">User tersebut akan mendapatkan bagian item yang sudah dipilih dibawah ini</p>'
-        html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriNONE' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(0,' + numberParticipant + ')">Tanpa Type</span>'
-        html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(1,' + numberParticipant + ')">SKM</span>'
-        html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKT' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(2,' + numberParticipant + ')">SKT</span>'
-        html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKTSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(3,' + numberParticipant + ')">SKT / SKM</span>'
-        html += '<div id="listItem' + numberParticipant + '" class="mb-2">'
+        if (detail == null) {
+            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriNONE' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(0,' + numberParticipant + ')">Tanpa Type</span>'
+            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(1,' + numberParticipant + ')">SKM</span>'
+            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKT' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(2,' + numberParticipant + ')">SKT</span>'
+            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKTSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(3,' + numberParticipant + ')">SKT / SKM</span>'
+            html += '<div id="listItem' + numberParticipant + '" class="mb-2">'
+        }
         html += '</div>'
         html += '<div class="row">'
         html += '<div class="col-10">'
         html += '</div>'
         html += '<div class="col-2 pt-2">'
-        html += '<button class="btn btn-sm btn-success" onclick="listItem(' + numberParticipant + ')"><i class="fa fa-plus"></i></button>'
+        if (detail == null) {
+            html += '<button class="btn btn-sm btn-success" onclick="listItem(' + numberParticipant + ')"><i class="fa fa-plus"></i></button>'
+        }
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -393,7 +469,18 @@
         html += '</div>'
         html += '</div>'
         $('#tampilParticipant').append(html)
-        listItem(numberParticipant)
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true
+        });
+        if (detail == null) {
+            listItem(numberParticipant)
+        } else {
+            $.each(detail['detail_item'], function(key, value) {
+                listItem(numberParticipant, '', '', detail['detail_item'][key])
+            })
+        }
         numberParticipant++
     }
     var kategori_none = ""
@@ -503,7 +590,7 @@
 
     var numberItem = []
 
-    function listItem(noParticipant, id = "", status = "") {
+    function listItem(noParticipant, id = "", status = "", detail = "") {
         var obj = numberItem.filter(x => x.id === noParticipant)
         if (obj.length == 0) {
             numberItem.push({
@@ -515,21 +602,27 @@
         var html = ""
         html += '<div class="row fieldItem" id="fieldItem' + noParticipant + objAfter[0]['jumlahNo'] + '" data-no="' + noParticipant + '" data-status="' + status + '">'
         html += '<div class="col-10 pt-2">'
-        html += '<select class="form-select form-select-sm w-100 itemStok" id="itemStok' + noParticipant + objAfter[0]['jumlahNo'] + '">'
-        html += '<option value="" selected disabled>Pilih Item</option>'
-        $.each(data_item, function(keys, values) {
-            var select = ""
-            if (id != "") {
-                if (id == values['id']) {
-                    select = "selected"
+        if (detail == "") {
+            html += '<select class="form-select form-select-sm w-100 itemStok itemStokNo' + noParticipant + '" id="itemStok' + noParticipant + objAfter[0]['jumlahNo'] + '">'
+            html += '<option value="" selected disabled>Pilih Item</option>'
+            $.each(data_item, function(keys, values) {
+                var select = ""
+                if (id != "") {
+                    if (id == values['id']) {
+                        select = "selected"
+                    }
                 }
-            }
-            html += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
-        })
-        html += '</select>'
+                html += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+            })
+            html += '</select>'
+        } else {
+            html += '<b>' + detail['item_name'] + '</b>'
+        }
         html += '</div>'
         html += '<div class="col-2 pt-2">'
-        html += '<button class="btn btn-sm btn-outline-danger" onclick="hapusFieldItem(' + noParticipant + ',' + objAfter[0]['jumlahNo'] + ')"><i class="fa fa-trash"></i></button>'
+        if (detail == "") {
+            html += '<button class="btn btn-sm btn-outline-danger" onclick="hapusFieldItem(' + noParticipant + ',' + objAfter[0]['jumlahNo'] + ')"><i class="fa fa-trash"></i></button>'
+        }
         html += '</div>'
         html += '</div>'
         $('#listItem' + noParticipant).append(html)
@@ -550,32 +643,29 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                var item = []
-                var id_item = $('.itemStok').map(function() {
+                var checking = []
+                var user = $('.userCheck').map(function() {
                     return $(this).val();
                 }).get();
-                var qty = $('.jumlahStok').map(function() {
+                var no = $('.userCheck').map(function() {
+                    return $(this).data('no');
+                }).get();
+                var tanggal = $('.tanggalMulai').map(function() {
                     return $(this).val();
                 }).get();
-                var satuan = $('.satuanStok').map(function() {
-                    return $(this).val();
-                }).get();
-                for (let i = 0; i < id_item.length; i++) {
-                    item.push({
-                        'id_item': id_item[i],
-                        'jumlah': qty[i],
-                        'id_satuan': satuan[i],
+                for (let i = 0; i < user.length; i++) {
+                    var item = $('.itemStokNo' + no[i]).map(function() {
+                        return $(this).val();
+                    }).get();
+                    checking.push({
+                        'id_user': user[i],
+                        'tanggal': tanggal[i],
+                        'item': item
                     })
                 }
                 var form_data = new FormData();
-                var tanggal = $('#tanggalStok').val()
-                var no_doc = $('#nomorDokumen').val()
-                var jenis_barang = $('.radioJenisBarang:checked').val()
-                var kategori = $('.radioTag:checked').val()
-                var gudang = $('.radioGudang:checked').val()
-                var image = images
-                var note = $('#catatanStok').val()
-                var supplier = $('#supplierStok').val()
+                var tanggal_mulai = $('#tanggalPelaksanaan').val()
+                var catatan = $('#catatanOpname').val()
                 var type = 'POST'
                 var form_data = {
                     'tanggal_mulai': tanggal_mulai,
@@ -584,8 +674,9 @@
                     'created_by': user_id,
                     'checking': checking,
                 }
-                var button = '#btnClosePO'
+                var button = '#btnCreateOpname'
                 var url = '<?php echo api_url('Api_So/insertTemplate'); ?>'
+                // console.log(form_data)
                 kelolaData(form_data, type, url, button)
             }
         })
