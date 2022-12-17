@@ -106,6 +106,7 @@
                         <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
+                        <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Order-->

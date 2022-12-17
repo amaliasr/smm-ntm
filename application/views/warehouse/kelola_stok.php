@@ -247,18 +247,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <?php for ($i = 0; $i < 10; $i++) { ?>
-                                <div class="col-6 col-xl-2 col-lg-3 col-md-3 col-sm-6 mb-3">
-                                    <div class="card shadow-sm w-100 h-100 p-1">
-                                        <div class="card-body text-center">
-                                            <small class="fw-bold">Filter DF 160</small>
-                                            <h2 class="text-primary m-0 p-0">6,000</h2>
-                                            <small class="m-0 p-0">Tray</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php } ?>
+                        <div class="row" id="tampilWarehouse">
                         </div>
                     </div>
                 </div>
@@ -446,7 +435,33 @@
             html += '<hr>'
         })
         $('#tampilMaterialToday').html(html)
-        // formTransaksiStok()
+        getStokPerItem()
+    }
+
+    function getStokPerItem() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getDataStokItem'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                var data = response['data']
+                var html = ""
+                $.each(data, function(key, value) {
+                    html += '<div class="col-6 col-xl-2 col-lg-3 col-md-3 col-sm-6 mb-3">'
+                    html += '<div class="card shadow-sm w-100 h-100 p-1">'
+                    html += '<div class="card-body text-center">'
+                    html += '<small class="fw-bold">' + value['name'] + '</small>'
+                    html += '<h2 class="text-primary m-0 p-0">' + number_format(value['jumlah']) + '</h2>'
+                    html += '<small class="m-0 p-0">' + value['satuan_name'] + '</small>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                })
+                $('#tampilWarehouse').html(html)
+            }
+        })
     }
     // Pie Chart Example
     var ctx = document.getElementById("myPieChart");

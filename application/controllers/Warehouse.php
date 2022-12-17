@@ -28,4 +28,9 @@ class Warehouse extends CI_Controller
         $data['title'] = 'Stok Gudang';
         $this->template->views('warehouse/kelola_stok', $data);
     }
+    public function opname()
+    {
+        $data['title'] = 'Stock Opname';
+        $this->template->views('warehouse/opname', $data);
+    }
 }
