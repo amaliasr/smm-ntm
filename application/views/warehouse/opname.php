@@ -275,8 +275,9 @@
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                data_so = response['data'];
-                // console.log(data_so)
+                data_so = response['data'].filter((values, keys) => {
+                    if (values.is_active === '1') return true
+                })
                 if (no == null) {
                     listStockOpname()
                 } else {
@@ -307,7 +308,11 @@
             html += '<p class="m-0" style="font-size:10px"><b>Eksekutor :</b></p>'
             html += '<ol style="font-size:10px;">'
             $.each(JSON.parse(value['datas']), function(keys, values) {
-                html += '<li>' + values['user_name'] + '</li>'
+                if (values['is_active'] == 1 || values['is_active'] == null) {
+                    html += '<li>' + values['user_name'] + '</li>'
+                } else {
+                    html += '<li>' + values['user_name'].strike() + ' <span class="fa fa-times-circle text-danger"></span></li>'
+                }
             })
             html += '</ol>'
             html += '</div>'
@@ -319,7 +324,7 @@
             html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan ke Eksekutor</a>'
             html += '<hr class="m-2">'
             html += '<div class="text-center pe-2 ps-2">'
-            html += '<button class="btn btn-sm btn-danger w-100" onclick="">Hapus Program Stok Opname</button>'
+            html += '<button class="btn btn-sm btn-danger w-100" id="btnBatalSO' + key + '" onclick="pembatalanSO(' + key + ',' + value['id_so'] + ",'" + formatDate(value['date_start']) + "'" + ')">Hapus Program Stok Opname</button>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -530,6 +535,30 @@
             })
         }
         numberParticipant++
+    }
+
+    function pembatalanSO(key, id_so, tanggal) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin Menghapus Program Stock Opname tanggal ' + tanggal + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form_data = new FormData();
+                var type = 'POST'
+                var form_data = {
+                    'id_so': id_so,
+                    'status': 'batal',
+                    'no': "",
+                }
+                var button = '#btnBatalSO' + key
+                var url = '<?php echo api_url('Api_So/hapusSo'); ?>'
+                kelolaData(form_data, type, url, button)
+            }
+        })
     }
 
     function pembatalanPartisipant(no, id_detail, nama) {

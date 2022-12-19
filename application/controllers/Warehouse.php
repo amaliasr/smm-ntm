@@ -33,4 +33,10 @@ class Warehouse extends CI_Controller
         $data['title'] = 'Stock Opname';
         $this->template->views('warehouse/opname', $data);
     }
+    public function checkingOpname($kode)
+    {
+        $data['title'] = 'Check Opname';
+        $data['kode'] = $kode;
+        $this->template->views('warehouse/detail_opname', $data);
+    }
 }
