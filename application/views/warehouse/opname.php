@@ -213,10 +213,12 @@
         $('#modalHeader').html('');
         $('#modalBody').html('');
         $('#modalFooter').html('');
+        numberParticipant = 0
+        last_number = 1
     }
 
     $('#modal').on('hidden.bs.modal', function(e) {
-        jumlahPR = 0
+        numberParticipant = 0
         last_number = 1
         clearModal();
     })
@@ -265,7 +267,7 @@
     }
     var data_so = ""
 
-    function getHistorySO() {
+    function getHistorySO(no = null, status = null) {
         $.ajax({
             url: "<?= api_url('Api_So/historyOpname'); ?>",
             method: "GET",
@@ -274,8 +276,12 @@
             beforeSend: function() {},
             success: function(response) {
                 data_so = response['data'];
-                console.log(data_so)
-                listStockOpname()
+                // console.log(data_so)
+                if (no == null) {
+                    listStockOpname()
+                } else {
+                    formMulaiSO(no)
+                }
             }
         })
     }
@@ -293,12 +299,12 @@
 
             html += '<div class="col-5 align-self-center">'
             html += '<p class="m-0" style="font-size:10px">' + value['kode'] + ' <span class="fa fa-copy text-grey"></span></p>'
-            html += '<h5><b>Stock Opname ' + formatDate(value['date_start']) + '</b></h5>'
+            html += '<h5 style="cursor:pointer;" onclick="formMulaiSO(' + key + ')"><b>Stock Opname ' + formatDate(value['date_start']) + '</b></h5>'
             html += '<p class="m-0 small">Note : ' + value['note'] + '</p>'
             html += '</div>'
 
             html += '<div class="col-5 align-self-center">'
-            html += '<p class="m-0" style="font-size:10px"><b>Executor :</b></p>'
+            html += '<p class="m-0" style="font-size:10px"><b>Eksekutor :</b></p>'
             html += '<ol style="font-size:10px;">'
             $.each(JSON.parse(value['datas']), function(keys, values) {
                 html += '<li>' + values['user_name'] + '</li>'
@@ -310,7 +316,7 @@
             html += '<button class="small btn btn-sm w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="formMulaiSO(' + key + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan ke Executor</a>'
+            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan ke Eksekutor</a>'
             html += '<hr class="m-2">'
             html += '<div class="text-center pe-2 ps-2">'
             html += '<button class="btn btn-sm btn-danger w-100" onclick="">Hapus Program Stok Opname</button>'
@@ -334,6 +340,7 @@
 
     function formMulaiSO(id_key = "") {
         var data = data_so[id_key]
+        // console.log(JSON.parse(data['datas']))
         if (id_key === "") {
             var rString = randomString(20, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
         } else {
@@ -370,7 +377,7 @@
         if (id_key === "") {
             html_body += '<div class="col-8 pt-2"><textarea class="form-control form-control-sm w-100" rows="5" id="catatanOpname"></textarea></div>'
         } else {
-            html_body += '<div class="col-8 align-self-center">' + data['note'] + '</div>'
+            html_body += '<div class="col-8 align-self-center pt-2">' + data['note'] + '</div>'
         }
         html_body += '</div>'
 
@@ -384,7 +391,7 @@
         html_body += '<div class="col-12" id="tampilParticipant">'
         html_body += '</div>'
         html_body += '<div class="col-12">'
-        html_body += '<button class="btn btn-success mt-2 w-100 btn-sm" onclick="tampilParticipant()"><i class="fa fa-plus me-2"></i>Tambah Participant</button>'
+        html_body += '<button class="btn btn-success mt-2 w-100 btn-sm" onclick="tampilParticipant(' + id_key + ')"><i class="fa fa-plus me-2"></i>Tambah Participant</button>'
         html_body += '</div>'
 
         html_body += '</div>'
@@ -402,72 +409,113 @@
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
         $('#modalFooter').html(html_footer);
         if (id_key === "") {
-            tampilParticipant()
+            tampilParticipant(id_key)
         } else {
             $.each(JSON.parse(data['datas']), function(key, value) {
-                tampilParticipant(JSON.parse(data['datas'])[key])
+                tampilParticipant(id_key, JSON.parse(data['datas'])[key])
             })
         }
     }
     var numberParticipant = 0
 
-    function tampilParticipant(detail = null) {
-        console.log(detail)
+    function tampilParticipant(key, detail = null) {
+        // console.log(detail)
         var html = ""
-        html += '<div class="card shadow-sm mb-2 position-relative" style="cursor:pointer;" id="fieldParticipant' + numberParticipant + '">'
-        // btn delete
-        html += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" onclick="hapusFieldParticipant(' + numberParticipant + ')"><i class="fa fa-trash"></i></span>'
-        // btn delete
-        html += '<div class="card-body">'
-
-        html += '<div class="row">'
-
-        html += '<div class="col">'
-        html += '<div class="row">'
-        html += '<div class="col-4 align-self-center">Checker By</div>'
-        html += '<div class="col-8">'
-        if (detail == null) {
-            html += '<select name="" id="userCheck' + numberParticipant + '" class="form-select form-select-sm userCheck" required="required" data-no="' + numberParticipant + '">'
-            html += '<option value="" disabled selected>Pilih User</option>'
-            $.each(data_user, function(key, value) {
-                html += '<option value="' + value['id'] + '">' + value['name'] + '</option>'
-            })
-            html += '</select>'
-        } else {
-            html += '<b>' + detail['user_name'] + '</b>'
+        var aktif = 1
+        if (detail != null) {
+            if (detail['is_active'] == 0) {
+                aktif = 0
+            }
         }
-        html += '</div>'
-        html += '<div class="col-4 pt-2 align-self-center">Tanggal Mulai</div>'
-        html += '<div class="col-8 pt-2"><input type="text" class="form-control form-control-sm datepicker tanggalMulai" id="tanggalMulai' + numberParticipant + '"></div>'
-        html += '</div>'
-        html += '</div>'
+        if (aktif != 0) {
+            // yang masih active
+            html += '<div class="card shadow-sm mb-2 position-relative" id="fieldParticipant' + numberParticipant + '">'
+            // btn delete
+            if (detail == null) {
+                html += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" onclick="hapusFieldParticipant(' + numberParticipant + ')"><i class="fa fa-trash"></i></span>'
+            }
+            // btn delete
+            html += '<div class="card-body">'
 
-        html += '<div class="col">'
-        html += '<h6><b>List Item</b></h6>'
-        html += '<p class="m-0 small" style="font-size:11px;">User tersebut akan mendapatkan bagian item yang sudah dipilih dibawah ini</p>'
-        if (detail == null) {
-            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriNONE' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(0,' + numberParticipant + ')">Tanpa Type</span>'
-            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(1,' + numberParticipant + ')">SKM</span>'
-            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKT' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(2,' + numberParticipant + ')">SKT</span>'
-            html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKTSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(3,' + numberParticipant + ')">SKT / SKM</span>'
+            html += '<div class="row">'
+
+            html += '<div class="col">'
+            html += '<div class="row">'
+            html += '<div class="col-4 align-self-center">Checker By</div>'
+            html += '<div class="col-8">'
+            if (detail == null) {
+                html += '<select name="" id="userCheck' + numberParticipant + '" class="form-select form-select-sm userCheck" required="required" data-no="' + numberParticipant + '">'
+                html += '<option value="" disabled selected>Pilih User</option>'
+                $.each(data_user, function(key, value) {
+                    html += '<option value="' + value['id'] + '">' + value['name'] + '</option>'
+                })
+                html += '</select>'
+            } else {
+                html += '<b>' + detail['user_name'] + '</b>'
+            }
+            html += '</div>'
+            html += '<div class="col-4 pt-2 align-self-center">Tanggal Mulai</div>'
+            html += '<div class="col-8 pt-2">'
+            if (detail == null) {
+                html += '<input type="text" class="form-control form-control-sm datepicker tanggalMulai" id="tanggalMulai' + numberParticipant + '">'
+            } else {
+                html += '<b>' + formatDate(detail['tanggal_mulai']) + '</b>'
+            }
+            html += '</div>'
+            if (detail != null) {
+                html += '<div class="col-12 pt-3">'
+                html += '<button class="btn btn-danger btn-sm" id="btnBatalPartisipan' + numberParticipant + '" onclick="pembatalanPartisipant(' + numberParticipant + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Batalkan</button>'
+                html += '</div>'
+            }
+            html += '</div>'
+            html += '</div>'
+
+            html += '<div class="col">'
+            html += '<h6><b>List Item</b></h6>'
+            html += '<p class="m-0 small" style="font-size:11px;">User tersebut akan mendapatkan bagian item yang sudah dipilih dibawah ini</p>'
+            if (detail == null) {
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriNONE' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(0,' + numberParticipant + ')">Tanpa Type</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(1,' + numberParticipant + ')">SKM</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKT' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(2,' + numberParticipant + ')">SKT</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKTSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(3,' + numberParticipant + ')">SKT / SKM</span>'
+            }
             html += '<div id="listItem' + numberParticipant + '" class="mb-2">'
-        }
-        html += '</div>'
-        html += '<div class="row">'
-        html += '<div class="col-10">'
-        html += '</div>'
-        html += '<div class="col-2 pt-2">'
-        if (detail == null) {
-            html += '<button class="btn btn-sm btn-success" onclick="listItem(' + numberParticipant + ')"><i class="fa fa-plus"></i></button>'
-        }
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
+            html += '</div>'
+            html += '<div class="row">'
+            html += '<div class="col-10">'
+            html += '</div>'
+            html += '<div class="col-2 pt-2">'
+            if (detail == null) {
+                html += '<button class="btn btn-sm btn-success" onclick="listItem(' + numberParticipant + ')"><i class="fa fa-plus"></i></button>'
+            }
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
 
-        html += '</div>'
+            html += '</div>'
 
-        html += '</div>'
-        html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        } else {
+            // yang tidak aktif
+            html += '<div class="card shadow-sm mb-2 position-relative bg-light" id="fieldParticipant' + numberParticipant + '">'
+            html += '<div class="card-body p-2">'
+            html += '<div class="row">'
+
+            html += '<div class="col-2 align-self-center">'
+            html += '<span class="badge rounded-pill bg-danger">Canceled</span>'
+            html += '</div>'
+            html += '<div class="col-5 align-self-center">'
+            html += '<b class="small">' + detail['user_name'] + '</b> ( ' + detail['detail_item'].length + ' Item )'
+            html += '</div>'
+            html += '<div class="col-5 text-right align-self-center">'
+            html += '<button class="btn btn-sm btn-success float-end" id="btnBukaPartisipan' + numberParticipant + '" onclick="bukaLagiPartisipant(' + numberParticipant + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Buka Lagi</button>'
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        }
         $('#tampilParticipant').append(html)
         $('.datepicker').datepicker({
             format: "yyyy-mm-dd",
@@ -482,6 +530,54 @@
             })
         }
         numberParticipant++
+    }
+
+    function pembatalanPartisipant(no, id_detail, nama) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin Membatalkan Partisipan dari ' + nama + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form_data = new FormData();
+                var type = 'POST'
+                var form_data = {
+                    'id_detail': id_detail,
+                    'status': 'batal',
+                    'no': no,
+                }
+                var button = '#btnBatalPartisipan' + no
+                var url = '<?php echo api_url('Api_So/batalPartisipant'); ?>'
+                kelolaData(form_data, type, url, button)
+            }
+        })
+    }
+
+    function bukaLagiPartisipant(no, id_detail, nama) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin Membatalkan Partisipan dari ' + nama + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form_data = new FormData();
+                var type = 'POST'
+                var form_data = {
+                    'id_detail': id_detail,
+                    'status': 'aktif',
+                    'no': no,
+                }
+                var button = '#btnBatalPartisipan' + no
+                var url = '<?php echo api_url('Api_So/batalPartisipant'); ?>'
+                kelolaData(form_data, type, url, button)
+            }
+        })
     }
     var kategori_none = ""
     var kategori_skm = ""
@@ -590,7 +686,8 @@
 
     var numberItem = []
 
-    function listItem(noParticipant, id = "", status = "", detail = "") {
+    function listItem(noParticipant, id = "", status = "", detail = null) {
+        // console.log(detail)
         var obj = numberItem.filter(x => x.id === noParticipant)
         if (obj.length == 0) {
             numberItem.push({
@@ -602,7 +699,7 @@
         var html = ""
         html += '<div class="row fieldItem" id="fieldItem' + noParticipant + objAfter[0]['jumlahNo'] + '" data-no="' + noParticipant + '" data-status="' + status + '">'
         html += '<div class="col-10 pt-2">'
-        if (detail == "") {
+        if (detail == null) {
             html += '<select class="form-select form-select-sm w-100 itemStok itemStokNo' + noParticipant + '" id="itemStok' + noParticipant + objAfter[0]['jumlahNo'] + '">'
             html += '<option value="" selected disabled>Pilih Item</option>'
             $.each(data_item, function(keys, values) {
@@ -616,17 +713,23 @@
             })
             html += '</select>'
         } else {
-            html += '<b>' + detail['item_name'] + '</b>'
+            if (detail['jumlah_input'] == null) {
+                var text = 'text-grey'
+            } else {
+                var text = 'text-success'
+            }
+            html += '<b class="small"><i class="fa fa-check-circle ' + text + ' me-2"></i>' + detail['item_name'] + '</b>'
         }
         html += '</div>'
         html += '<div class="col-2 pt-2">'
-        if (detail == "") {
+        if (detail == null) {
             html += '<button class="btn btn-sm btn-outline-danger" onclick="hapusFieldItem(' + noParticipant + ',' + objAfter[0]['jumlahNo'] + ')"><i class="fa fa-trash"></i></button>'
         }
         html += '</div>'
         html += '</div>'
         $('#listItem' + noParticipant).append(html)
         objAfter[0]['jumlahNo'] = parseInt(objAfter[0]['jumlahNo']) + 1
+        return true
     }
 
     function hapusFieldItem(no, no2) {
@@ -673,6 +776,7 @@
                     'kode': kode,
                     'created_by': user_id,
                     'checking': checking,
+                    'no': "",
                 }
                 var button = '#btnCreateOpname'
                 var url = '<?php echo api_url('Api_So/insertTemplate'); ?>'
@@ -705,8 +809,18 @@
                         text: 'Data Berhasil Tersimpan',
                         icon: 'success',
                     }).then((responses) => {
-                        getData()
-                        $('#modal').modal('hide')
+                        clearModal()
+                        // $('#modal').modal('hide')
+                        if (button == '#btnBatalPartisipan' + data['no']) {
+                            console.log('batal')
+                            getHistorySO(data['no'], 'batal')
+                        } else if (button == '#btnBukaPartisipan' + data['no']) {
+                            console.log('aktif')
+                            getHistorySO(data['no'], 'aktif')
+                        } else {
+                            $('#modal').modal('hide')
+                            getHistorySO()
+                        }
                         $(button).prop("disabled", false);
                     });
                 } else {
