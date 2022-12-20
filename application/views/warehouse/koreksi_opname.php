@@ -94,7 +94,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-check"></i></div>
-                            Checking Stock
+                            Correction Stock Opname
                         </h1>
                     </div>
                 </div>
@@ -104,43 +104,12 @@
     <!-- Main page content-->
     <div class="container-xl px-4 mt-n10">
         <div class="row">
-            <div class="col-12 col-lg-6 col-xl-6 mb-3">
+            <div class="col-12 mb-3">
                 <div class="card">
-                    <div class="card-body p-3">
-                        <div class="container">
-                            <div class="row small">
-                                <div class="col-6 col-md-4">Nama</div>
-                                <div class="col-6 col-md-8"><b><?= $this->session->userdata('full_name') ?></b></div>
-                                <div class="col-6 col-md-4">Tanggal Eksekusi</div>
-                                <div class="col-6 col-md-8"><b>20 Dec 2022</b></div>
-                                <div class="col-6 col-md-4">Jumlah Item</div>
-                                <div class="col-6 col-md-8"><b class="text-primary totalItemAll">0</b> Item</div>
-                                <div class="col-6 col-md-4">Jumlah Terisi</div>
-                                <div class="col-6 col-md-8"><b class="text-danger totalItemTerisi">0</b> / <b class="totalItemAll">0</b> Item</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6 col-xl-6 mb-3">
-                <div class="card h-100">
-                    <div class="card-body p-3">
-                        <div class="container small">
-                            <div class="row">
-                                <div class="col-12">
-                                    <p class="m-0"><b>MULAI STOCK OPNAME</b></p>
-                                    <p class="m-0" style="font-size: 10px;">Harap mengisi jumlah barang dari masing - masing item dengan benar</p>
-                                </div>
-                            </div>
-                            <div class="row pt-3">
-                                <div class="col-12" id="tampilStockOpname">
-                                    <div class="w-100 text-center">
-                                        <div class="spinner-border text-light" style="width: 10rem; height: 10rem;" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="card-body p-5">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
                         </div>
                     </div>
                 </div>
@@ -268,15 +237,46 @@
             beforeSend: function() {},
             success: function(response) {
                 // console.log(tanggalHariIni)
-                data_so = JSON.parse(response['data'].filter((values, keys) => {
-                    if (values.is_active === '1') return true
-                })[0]['datas']).filter((values, keys) => {
-                    if (values.user_check === parseInt(user_id) && formatDate(values.tanggal_mulai) === tanggalHariIni) return true
-                })
-                id_detail_partisipan = data_so[0]['id_detail']
-                formSO()
+                data_so = response['data']
+                data_detail_so = JSON.parse(data_so[0]['datas'])
+                console.log(data_detail_so)
+                showStockOpname()
             }
         })
+    }
+
+    function showStockOpname() {
+        var html_tab = ""
+        var html_content = ""
+        $.each(data_detail_so, function(key, value) {
+            html_tab += '<li class="nav-item" role="presentation">'
+            html_tab += '<button class="nav-link active position-relative p-3" id="' + key + '-tab" data-bs-toggle="tab" data-bs-target="#' + key + '" type="button" role="tab" aria-controls="' + key + '" aria-selected="true">'
+            html_tab += value['user_name'].split(' ').slice(0, 2).join(' ')
+            html_tab += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">'
+            html_tab += '<span class="visually-hidden">New alerts</span>'
+            html_tab += '</span>'
+            html_tab += '</button>'
+            html_tab += '</li>'
+
+            html_content += '<div class="tab-pane fade show active pt-4" id="' + key + '" role="tabpanel" aria-labelledby="' + key + '-tab">'
+            html_content += '<div class="row small">'
+            html_content += '<div class="col-5 col-md-3">Dihitung Oleh</div>'
+            html_content += '<div class="col-7 col-md-9"><b>' + value['user_name'] + '</b></div>'
+            html_content += '<div class="col-5 col-md-3">Waktu Hitung</div>'
+            html_content += '<div class="col-7 col-md-9"><b>' + value['tanggal_check'] + '</b></div>'
+            html_content += '</div>'
+
+            html_content += '<div class="row small">'
+            html_content += '<div class="col-5 col-md-3">Dihitung Oleh</div>'
+            html_content += '<div class="col-7 col-md-9"><b>' + value['user_name'] + '</b></div>'
+            html_content += '<div class="col-5 col-md-3">Waktu Hitung</div>'
+            html_content += '<div class="col-7 col-md-9"><b>' + value['tanggal_check'] + '</b></div>'
+            html_content += '</div>'
+
+            html_content += '</div>'
+        })
+        $('#myTab').html(html_tab)
+        $('#myTabContent').html(html_content)
     }
     var jumlahAll = 0
 

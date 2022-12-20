@@ -321,7 +321,7 @@
             html += '<button class="small btn btn-sm w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="formMulaiSO(' + key + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan ke Eksekutor</a>'
+            html += '<a class="dropdown-item" onclick="bagikanKeWhatsapp(' + key + ',' + "'" + value['kode'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan ke Eksekutor</a>'
             html += '<hr class="m-2">'
             html += '<div class="text-center pe-2 ps-2">'
             html += '<button class="btn btn-sm btn-danger w-100" id="btnBatalSO' + key + '" onclick="pembatalanSO(' + key + ',' + value['id_so'] + ",'" + formatDate(value['date_start']) + "'" + ')">Hapus Program Stok Opname</button>'
@@ -468,9 +468,16 @@
             }
             html += '</div>'
             if (detail != null) {
-                html += '<div class="col-12 pt-3">'
-                html += '<button class="btn btn-danger btn-sm" id="btnBatalPartisipan' + numberParticipant + '" onclick="pembatalanPartisipant(' + numberParticipant + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Batalkan</button>'
-                html += '</div>'
+                if (detail['detail_item'][0]['id_check'] == null) {
+                    html += '<div class="col-12 pt-3">'
+                    html += '<button class="btn btn-danger btn-sm" id="btnBatalPartisipan' + numberParticipant + '" onclick="pembatalanPartisipant(' + key + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Batalkan</button>'
+                    html += '</div>'
+                } else {
+                    html += '<div class="col-12 pt-3">'
+                    html += '<button class="btn btn-success btn-sm" id="btnKoreksiOpname' + numberParticipant + '" onclick="koreksiOpname()"><i class="me-2 fa fa-pencil"></i> Koreksi Input</button>'
+                    html += '</div>'
+
+                }
             }
             html += '</div>'
             html += '</div>'
@@ -514,7 +521,7 @@
             html += '<b class="small">' + detail['user_name'] + '</b> ( ' + detail['detail_item'].length + ' Item )'
             html += '</div>'
             html += '<div class="col-5 text-right align-self-center">'
-            html += '<button class="btn btn-sm btn-success float-end" id="btnBukaPartisipan' + numberParticipant + '" onclick="bukaLagiPartisipant(' + numberParticipant + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Buka Lagi</button>'
+            html += '<button class="btn btn-sm btn-success float-end" id="btnBukaPartisipan' + numberParticipant + '" onclick="bukaLagiPartisipant(' + key + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Buka Lagi</button>'
             html += '</div>'
 
             html += '</div>'
@@ -580,6 +587,7 @@
                 }
                 var button = '#btnBatalPartisipan' + no
                 var url = '<?php echo api_url('Api_So/batalPartisipant'); ?>'
+                // console.log(form_data)
                 kelolaData(form_data, type, url, button)
             }
         })
@@ -604,6 +612,7 @@
                 }
                 var button = '#btnBatalPartisipan' + no
                 var url = '<?php echo api_url('Api_So/batalPartisipant'); ?>'
+                // console.log(form_data)
                 kelolaData(form_data, type, url, button)
             }
         })
@@ -841,10 +850,8 @@
                         clearModal()
                         // $('#modal').modal('hide')
                         if (button == '#btnBatalPartisipan' + data['no']) {
-                            console.log('batal')
                             getHistorySO(data['no'], 'batal')
                         } else if (button == '#btnBukaPartisipan' + data['no']) {
-                            console.log('aktif')
                             getHistorySO(data['no'], 'aktif')
                         } else {
                             $('#modal').modal('hide')
@@ -862,5 +869,74 @@
                 }
             }
         });
+    }
+
+    function bagikanKeWhatsapp(key, kode) {
+        var data = JSON.parse(data_so[key]['datas']).filter((values, keys) => {
+            if (values.is_active === 1) return true
+        })
+        // console.log(data)
+        var link = '<?= base_url() ?>warehouse/checkingOpname/' + kode
+        var no_telp = []
+        var nama = []
+        var tanggal = []
+        $.each(data, function(key, value) {
+            nama.push(value['user_name'])
+            no_telp.push(value['user_telp'])
+            tanggal.push(formatDate(value['tanggal_mulai']))
+        })
+        shareWhatsapp(no_telp, link, nama, tanggal)
+    }
+
+    function shareWhatsapp(no_telp, link, nama, tanggal) {
+        $.ajax({
+            url: "<?= base_url('api/sendOpname') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                link: link,
+                nama: nama,
+                tanggal: tanggal,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Pesan kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                $('#modal2').modal('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+
+                });
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 </script>
