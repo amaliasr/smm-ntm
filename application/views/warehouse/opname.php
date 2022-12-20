@@ -89,7 +89,7 @@
                 <div class="row align-items-center justify-content-between">
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-truck"></i></div>
+                            <div class="page-header-icon"><i class="fa fa-cubes"></i></div>
                             Stock Opname
                         </h1>
                     </div>

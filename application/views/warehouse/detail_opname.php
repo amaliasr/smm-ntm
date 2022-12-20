@@ -89,8 +89,8 @@
                 <div class="row align-items-center justify-content-between">
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-truck"></i></div>
-                            Stock Opname
+                            <div class="page-header-icon"><i class="fa fa-check"></i></div>
+                            Checking Stock
                         </h1>
                     </div>
                 </div>
@@ -176,6 +176,9 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var full_name = '<?= $this->session->userdata('full_name') ?>'
+    var kode = '<?= $kode ?>'
+    var tanggalHariIni = '2022-12-20'
+    // var tanggalHariIni = currentDate()
     var data_user = ""
     var data_item = ""
     var data_supplier = ""
@@ -221,11 +224,17 @@
             url: "<?= api_url('Api_So/historyOpname'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                kode: kode
+            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                data_so = response['data'].filter((values, keys) => {
+                console.log(tanggalHariIni)
+                data_so = JSON.parse(response['data'].filter((values, keys) => {
                     if (values.is_active === '1') return true
+                })[0]['datas']).filter((values, keys) => {
+                    if (values.user_check === parseInt(user_id) && formatDate(values.tanggal_mulai) === tanggalHariIni) return true
                 })
                 console.log(data_so)
             }
