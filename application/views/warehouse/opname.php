@@ -469,11 +469,11 @@
             html += '</div>'
             if (detail != null) {
                 if (detail['detail_item'][0]['id_check'] == null) {
-                    html += '<div class="col-auto pt-3">'
+                    html += '<div class="col-auto pt-3 pe-0">'
                     html += '<button class="btn btn-danger btn-sm" id="btnBatalPartisipan' + numberParticipant + '" onclick="pembatalanPartisipant(' + key + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Batalkan</button>'
                     html += '</div>'
                 }
-                html += '<div class="col-auto pt-3">'
+                html += '<div class="col-auto pt-3 ps-1">'
                 html += '<button class="btn btn-success btn-sm" id="btnKoreksiOpname' + numberParticipant + '" onclick="koreksiOpname(' + detail['id_detail'] + ',' + "'" + kode + "'" + ')"><i class="me-2 fa fa-pencil"></i> Check Input</button>'
                 html += '</div>'
             }
