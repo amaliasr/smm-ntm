@@ -465,13 +465,13 @@
         }
         html += '</div>'
         $('#tampilSuratJalan').html(html)
-        $('.nominal').number(true);
+        $('.nominal').number(true, 2);
     }
     var any_anomali = 0
     $(document).on('keyup', '.jumlahMasuk', function(e) {
         var key = $(this).data('key')
         var jumlah = $(this).data('jumlah')
-        if (parseInt(jumlah) == parseInt($('#jumlahMasuk' + key).val())) {
+        if (parseFloat(jumlah) == parseFloat($('#jumlahMasuk' + key).val())) {
             any_anomali = 0
             $('#checkItem' + key).removeClass('d-none')
             $('#warningItem' + key).addClass('d-none')

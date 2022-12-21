@@ -213,8 +213,8 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var full_name = '<?= $this->session->userdata('full_name') ?>'
     var kode = '<?= $kode ?>'
-    // var tanggalHariIni = '2022-12-20'
-    var tanggalHariIni = currentDate()
+    var tanggalHariIni = '2022-12-20'
+    // var tanggalHariIni = currentDate()
     var data_user = ""
     var data_item = ""
     var data_supplier = ""

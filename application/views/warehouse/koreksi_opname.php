@@ -84,6 +84,19 @@
     .text-dark-grey {
         color: #B2B2B2;
     }
+
+    .checkbox-theme {
+        width: 30px;
+        height: 30px;
+        padding: 0px;
+        margin: 0px;
+        background-color: white;
+    }
+
+    .checkbox-theme:checked {
+        background-color: #4E944F;
+        border-color: #4E944F;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -266,17 +279,64 @@
             html_content += '<div class="col-7 col-md-9"><b>' + value['tanggal_check'] + '</b></div>'
             html_content += '</div>'
 
-            html_content += '<div class="row small">'
-            html_content += '<div class="col-5 col-md-3">Dihitung Oleh</div>'
-            html_content += '<div class="col-7 col-md-9"><b>' + value['user_name'] + '</b></div>'
-            html_content += '<div class="col-5 col-md-3">Waktu Hitung</div>'
-            html_content += '<div class="col-7 col-md-9"><b>' + value['tanggal_check'] + '</b></div>'
+            html_content += '<div class="row pt-5 small">'
+            html_content += '<div class="col-12 pb-2" style="font-size:10px;">'
+            html_content += '<div class="row">'
+            html_content += '<div class="col-4 align-self-center"><b class="ms-3">Nama Item</b></div>'
+            html_content += '<div class="col-2 align-self-center"><b>Input</b></div>'
+            html_content += '<div class="col-4 align-self-center"><b>Koreksi</b></div>'
+            html_content += '<div class="col-2 align-self-center text-end"><b class="me-3">Check</b></div>'
             html_content += '</div>'
+            html_content += '</div>'
+            $.each(data_detail_so[0]['detail_item'], function(keys, values) {
+                html_content += '<div class="col-12" style="font-size:11px;">'
+                html_content += '<div class="card shadow-none mb-2 card-hoper" id="cardItem' + key + keys + '">'
+                html_content += '<div class="card-body p-3">'
 
+                html_content += '<div class="row">'
+
+                html_content += '<div class="col-4 align-self-center"><b>' + values['item_name'] + '</b></div>'
+
+                html_content += '<div class="col-2 align-self-center"><p class="m-0">' + values['jumlah_input'] + ' ' + values['satuan_name'] + '</p></div>'
+
+                html_content += '<div class="col-4 align-self-center">'
+                html_content += '<div class="row" id="fieldInputLogistik' + key + keys + '">'
+                html_content += '<div class="col-6 align-self-center"><input class="form-control form-control-sm inputJumlah" id="inputJumlah' + key + keys + '"></div>'
+                html_content += '<div class="col-6 align-self-center">' + values['satuan_name'] + '</div>'
+                html_content += '</div>'
+                html_content += '</div>'
+
+                html_content += '<div class="col-2">'
+                html_content += '<input class="form-check-input checkbox-theme float-end checkItem" type="checkbox" id="checkItem' + key + keys + '" data-key="' + key + keys + '" value="on">'
+                html_content += '</div>'
+
+                html_content += '</div>'
+
+                html_content += '</div>'
+                html_content += '</div>'
+                html_content += '</div>'
+            })
+
+            html_content += '</div>'
             html_content += '</div>'
         })
         $('#myTab').html(html_tab)
         $('#myTabContent').html(html_content)
+    }
+    $(document).on('click', '.checkItem', function(e) {
+        var key = $(this).data('key')
+        colorizedCardAfterCheck(key)
+    })
+
+    function colorizedCardAfterCheck(key) {
+        console.log($('#checkItem' + key + ':checked').val())
+        // if ($('#checkItem' + key + ':checked').val() != "") {
+        //     // kalau ga kosong
+        //     $('#cardItem' + key).addClass('bg-teals')
+        // } else {
+        //     // kalau kosong
+        //     $('#cardItem' + key).removeClass('bg-teals')
+        // }
     }
     var jumlahAll = 0
 

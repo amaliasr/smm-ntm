@@ -2814,7 +2814,7 @@
             html_body += '<p class="m-0">' + values['item_name'] + '</p>'
             html_body += '</div>'
             html_body += '<div class="col align-self-center">'
-            html_body += '<input class="form-control form-control-sm bawahaja inputJumlahyangDatang" id="inputBarangAkanDatang' + last_number + keys + '" placeholder="Jumlah Item" data-id="' + last_number + '" data-key="' + keys + '" data-detail_id="' + values['id'] + '" data-item="' + values['item_id'] + '">'
+            html_body += '<input class="form-control form-control-sm bawahaja inputJumlahyangDatang nominal" id="inputBarangAkanDatang' + last_number + keys + '" placeholder="Jumlah Item" data-id="' + last_number + '" data-key="' + keys + '" data-detail_id="' + values['id'] + '" data-item="' + values['item_id'] + '">'
             html_body += '</div>'
             html_body += '<i class="float-end fa fa-check text-grey" id="checkBarangAkanDatang' + last_number + keys + '"></i>'
             html_body += '</div>'
@@ -2832,6 +2832,7 @@
             orientation: "auto",
             autoclose: true
         });
+        $('.nominal').number(true, 2);
         last_number++
     }
     $(document).on('keyup', '.inputJumlahyangDatang', function(e) {
