@@ -39,10 +39,11 @@ class Warehouse extends CI_Controller
         $data['kode'] = $kode;
         $this->template->views('warehouse/detail_opname', $data);
     }
-    public function koreksiOpname($kode)
+    public function koreksiOpname($kode, $id_detail_partisipan = "")
     {
         $data['title'] = 'Koreksi Opname';
         $data['kode'] = $kode;
+        $data['id_detail_partisipan'] = $id_detail_partisipan;
         $this->template->views('warehouse/koreksi_opname', $data);
     }
 }

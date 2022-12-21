@@ -417,13 +417,13 @@
             tampilParticipant(id_key)
         } else {
             $.each(JSON.parse(data['datas']), function(key, value) {
-                tampilParticipant(id_key, JSON.parse(data['datas'])[key])
+                tampilParticipant(id_key, JSON.parse(data['datas'])[key], rString)
             })
         }
     }
     var numberParticipant = 0
 
-    function tampilParticipant(key, detail = null) {
+    function tampilParticipant(key, detail = null, kode) {
         // console.log(detail)
         var html = ""
         var aktif = 1
@@ -469,15 +469,13 @@
             html += '</div>'
             if (detail != null) {
                 if (detail['detail_item'][0]['id_check'] == null) {
-                    html += '<div class="col-12 pt-3">'
+                    html += '<div class="col-auto pt-3">'
                     html += '<button class="btn btn-danger btn-sm" id="btnBatalPartisipan' + numberParticipant + '" onclick="pembatalanPartisipant(' + key + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Batalkan</button>'
                     html += '</div>'
-                } else {
-                    html += '<div class="col-12 pt-3">'
-                    html += '<button class="btn btn-success btn-sm" id="btnKoreksiOpname' + numberParticipant + '" onclick="koreksiOpname()"><i class="me-2 fa fa-pencil"></i> Koreksi Input</button>'
-                    html += '</div>'
-
                 }
+                html += '<div class="col-auto pt-3">'
+                html += '<button class="btn btn-success btn-sm" id="btnKoreksiOpname' + numberParticipant + '" onclick="koreksiOpname(' + detail['id_detail'] + ',' + "'" + kode + "'" + ')"><i class="me-2 fa fa-pencil"></i> Check Input</button>'
+                html += '</div>'
             }
             html += '</div>'
             html += '</div>'
@@ -938,5 +936,10 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+
+    function koreksiOpname(id_checking, kode) {
+        var url = '<?= base_url() ?>warehouse/koreksiOpname/' + kode + '/' + id_checking
+        window.open(url, '_blank').focus();
     }
 </script>
