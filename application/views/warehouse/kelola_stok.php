@@ -836,12 +836,14 @@
         var name1 = 'Kembali Pinjam'
         var name2 = 'Retur Produksi'
         var name3 = 'Terima Supplier'
+        var name4 = 'Adjustment In'
         $('#textTitleGudang').html('Gudang Asal')
         if (status == 1) {
             $('#textTitleGudang').html('Gudang Tujuan')
             name1 = 'Peminjaman'
             name2 = 'Distribusi Produksi'
             name3 = 'Retur Supplier'
+            name4 = 'Adjustment Out'
         }
         var html = ""
         html += '<div class="col-2 ">'
@@ -863,6 +865,17 @@
         html += '<div class="col-10 mb-2">'
         html += '<input type="radio" class="btn-check p-1 text-start radioTag" name="radioTag" id="radioTag3" autocomplete="off" value="' + name3 + '">'
         html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag3">' + name3 + '</label>'
+        html += '</div>'
+
+        html += '<div class="col-12">'
+        html += '<hr>'
+        html += '</div>'
+
+        html += '<div class="col-2 ">'
+        html += '</div>'
+        html += '<div class="col-10 mb-2">'
+        html += '<input type="radio" class="btn-check p-1 text-start radioTag" name="radioTag" id="radioTag4" autocomplete="off" value="' + name4 + '">'
+        html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag4">' + name4 + '</label>'
         html += '</div>'
         $('#tampilKategori').html(html)
 

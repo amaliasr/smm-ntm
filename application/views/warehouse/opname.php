@@ -77,6 +77,10 @@
         color: #D8D9CF;
     }
 
+    .bg-grey {
+        background-color: #D8D9CF;
+    }
+
     .text-dark-grey {
         color: #B2B2B2;
     }
@@ -289,13 +293,25 @@
 
     function listStockOpname() {
         var html = ""
+        console.log(data_so)
         $.each(data_so, function(key, value) {
-            html += '<div class="card shadow-none card-hoper mb-2">'
+            var jumlah_belum_checking = JSON.parse(value['datas']).filter((values, keys) => {
+                if (values.tanggal_check === null && values.is_active === 1) return true
+            }).length
+            var bgCard = ""
+            if (value['is_close'] == 1) {
+                bgCard = 'bg-grey'
+            }
+            html += '<div class="card shadow-none card-hoper mb-2 ' + bgCard + '">'
             html += '<div class="card-body">'
             html += '<div class="row">'
 
             html += '<div class="col-1 align-self-center">'
-            html += '<div id="profileImage" class="bg-hijau"><i class="fa fa-check"></i></div>'
+            if (jumlah_belum_checking == 0) {
+                html += '<div id="profileImage" class="bg-hijau"><i class="fa fa-check"></i></div>'
+            } else {
+                html += '<div id="profileImage" class="bg-grey"><i class="fa fa-clock-o"></i></div>'
+            }
             html += '</div>'
 
             html += '<div class="col-5 align-self-center">'
@@ -307,9 +323,18 @@
             html += '<div class="col-5 align-self-center">'
             html += '<p class="m-0" style="font-size:10px"><b>Eksekutor :</b></p>'
             html += '<ol style="font-size:10px;">'
+            var jumlah_belum = 0
             $.each(JSON.parse(value['datas']), function(keys, values) {
                 if (values['is_active'] == 1 || values['is_active'] == null) {
-                    html += '<li>' + values['user_name'] + '</li>'
+                    var sisa_belum = values['detail_item'].filter((values, keys) => {
+                        if (values.jumlah_input === null) return true
+                    }).length
+                    jumlah_belum = parseInt(jumlah_belum) + parseInt(sisa_belum)
+                    var check = ""
+                    if (sisa_belum == 0) {
+                        check = '<i class="fa fa-check-circle text-success ms-2"></i>'
+                    }
+                    html += '<li>' + values['user_name'] + check + '</li>'
                 } else {
                     html += '<li>' + values['user_name'].strike() + ' <span class="fa fa-times-circle text-danger"></span></li>'
                 }
@@ -321,11 +346,15 @@
             html += '<button class="small btn btn-sm w-100" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="formMulaiSO(' + key + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            html += '<a class="dropdown-item" onclick="bagikanKeWhatsapp(' + key + ',' + "'" + value['kode'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan ke Eksekutor</a>'
-            html += '<hr class="m-2">'
-            html += '<div class="text-center pe-2 ps-2">'
-            html += '<button class="btn btn-sm btn-danger w-100" id="btnBatalSO' + key + '" onclick="pembatalanSO(' + key + ',' + value['id_so'] + ",'" + formatDate(value['date_start']) + "'" + ')">Hapus Program Stok Opname</button>'
-            html += '</div>'
+            if (value['is_close'] == 0) {
+                html += '<a class="dropdown-item" onclick="bagikanKeWhatsapp(' + key + ',' + "'" + value['kode'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan ke Eksekutor</a>'
+                if (jumlah_belum != 0) {
+                    html += '<hr class="m-2">'
+                    html += '<div class="text-center pe-2 ps-2">'
+                    html += '<button class="btn btn-sm btn-danger w-100" id="btnBatalSO' + key + '" onclick="pembatalanSO(' + key + ',' + value['id_so'] + ",'" + formatDate(value['date_start']) + "'" + ')">Hapus Program Stok Opname</button>'
+                    html += '</div>'
+                }
+            }
             html += '</div>'
             html += '</div>'
 
@@ -396,7 +425,13 @@
         html_body += '<div class="col-12" id="tampilParticipant">'
         html_body += '</div>'
         html_body += '<div class="col-12">'
-        html_body += '<button class="btn btn-success mt-2 w-100 btn-sm" onclick="tampilParticipant(' + id_key + ')"><i class="fa fa-plus me-2"></i>Tambah Participant</button>'
+        if (id_key === "") {
+            html_body += '<button class="btn btn-success mt-2 w-100 btn-sm" onclick="tampilParticipant(' + id_key + ')"><i class="fa fa-plus me-2"></i>Tambah Participant</button>'
+        } else {
+            if (data['is_close'] == 0) {
+                html_body += '<button class="btn btn-success mt-2 w-100 btn-sm" onclick="tampilParticipant(' + id_key + ')"><i class="fa fa-plus me-2"></i>Tambah Participant</button>'
+            }
+        }
         html_body += '</div>'
 
         html_body += '</div>'
@@ -417,14 +452,13 @@
             tampilParticipant(id_key)
         } else {
             $.each(JSON.parse(data['datas']), function(key, value) {
-                tampilParticipant(id_key, JSON.parse(data['datas'])[key], rString)
+                tampilParticipant(id_key, JSON.parse(data['datas'])[key], rString, data['is_close'])
             })
         }
     }
     var numberParticipant = 0
 
-    function tampilParticipant(key, detail = null, kode) {
-        // console.log(detail)
+    function tampilParticipant(key, detail = null, kode = null, is_close = null) {
         var html = ""
         var aktif = 1
         if (detail != null) {
@@ -467,7 +501,7 @@
                 html += '<b>' + formatDate(detail['tanggal_mulai']) + '</b>'
             }
             html += '</div>'
-            if (detail != null) {
+            if (detail != null && is_close != 1) {
                 if (detail['detail_item'][0]['id_check'] == null) {
                     html += '<div class="col-auto pt-3 pe-0">'
                     html += '<button class="btn btn-danger btn-sm" id="btnBatalPartisipan' + numberParticipant + '" onclick="pembatalanPartisipant(' + key + ',' + detail['id_detail'] + ",'" + detail['user_name'] + "'" + ')">Batalkan</button>'
