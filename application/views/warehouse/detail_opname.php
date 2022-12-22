@@ -267,16 +267,33 @@
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                // console.log(tanggalHariIni)
-                data_so = JSON.parse(response['data'].filter((values, keys) => {
-                    if (values.is_active === '1') return true
-                })[0]['datas']).filter((values, keys) => {
-                    if (values.user_check === parseInt(user_id) && formatDate(values.tanggal_mulai) === tanggalHariIni) return true
-                })
-                id_detail_partisipan = data_so[0]['id_detail']
-                formSO()
+                if (response.message != 'Data data not found') {
+                    data_so = JSON.parse(response['data'].filter((values, keys) => {
+                        if (values.is_active === '1') return true
+                    })[0]['datas']).filter((values, keys) => {
+                        if (values.user_check === parseInt(user_id) && formatDate(values.tanggal_mulai) === tanggalHariIni) return true
+                    })
+                    if (data_so.length != 0) {
+                        id_detail_partisipan = data_so[0]['id_detail']
+                        formSO()
+                    } else {
+                        tidakAda()
+                    }
+                } else {
+                    tidakAda()
+                }
             }
         })
+    }
+
+    function tidakAda() {
+        var html = ""
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-body text-center">'
+        html += '<p class="m-0 m-5 small"><i>Tidak Ada Jadwal Opname yang Tersedia atau Anda Tidak Mendapatkan Akses</i></p>'
+        html += '</div>'
+        html += '</div>'
+        $('#tampilStockOpname').html(html)
     }
     var jumlahAll = 0
 

@@ -71,6 +71,21 @@
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="input-group w-100">
+                                    <span class="input-group-text" style="border:none;background-color: transparent;color:white;cursor:pointer;" id="mengurangiHari">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </span>
+                                    <input type="text" name="" id="inputTanggalCurrent" class="form-control pe-0 datepicker" value="<?= date('Y-m-d') ?>" style="background-color:transparent;text-align:center;color:white;border-radius:20px;">
+                                    <span class="input-group-text" style="border:none;background-color: transparent;color:white;cursor:pointer;" id="menambahHari">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto mt-4">
                         <div class="float-end">
                             <div class="row">
                                 <div class="col-auto">
@@ -92,7 +107,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -356,13 +370,47 @@
         })
     }
 
+    // var tanggalCurrent = currentDate()
+    var tanggalCurrent = currentDate()
+
+    $(document).on('change', '#inputTanggalCurrent', function(e) {
+        changeDateCurrent()
+    })
+    $(document).on('click', '#mengurangiHari', function(e) {
+        tanggalCurrent = formatDate(minDays(tanggalCurrent, 1))
+        $('#inputTanggalCurrent').val(tanggalCurrent)
+        getDataStok()
+    })
+    $(document).on('click', '#menambahHari', function(e) {
+        tanggalCurrent = formatDate(addDays(tanggalCurrent, 1))
+        $('#inputTanggalCurrent').val(tanggalCurrent)
+        getDataStok()
+    })
+
+    function changeDateCurrent() {
+        tanggalCurrent = $('#inputTanggalCurrent').val()
+        getDataStok()
+    }
+
+    function addDays(date, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+    }
+
+    function minDays(date, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() - days);
+        return result;
+    }
+
     function getDataStok() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getDataStok'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                tanggal: currentDate(),
+                tanggal: tanggalCurrent,
             },
             error: function(xhr) {},
             beforeSend: function() {},

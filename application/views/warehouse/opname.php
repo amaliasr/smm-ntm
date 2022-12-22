@@ -22,6 +22,10 @@
         left: 25% !important;
     }
 
+    .start-75 {
+        left: 75% !important;
+    }
+
     .top-25 {
         top: 25% !important;
     }
@@ -293,7 +297,7 @@
 
     function listStockOpname() {
         var html = ""
-        console.log(data_so)
+        // console.log(data_so)
         $.each(data_so, function(key, value) {
             var jumlah_belum_checking = JSON.parse(value['datas']).filter((values, keys) => {
                 if (values.tanggal_check === null && values.is_active === 1) return true
@@ -302,8 +306,11 @@
             if (value['is_close'] == 1) {
                 bgCard = 'bg-grey'
             }
-            html += '<div class="card shadow-none card-hoper mb-2 ' + bgCard + '">'
+            html += '<div class="card shadow-none card-hoper mb-2 ' + bgCard + '" id="card_search' + key + '">'
             html += '<div class="card-body">'
+            if (value['is_close'] == 1) {
+                html += '<img src="<?= base_url() ?>assets/image/logo/CLOSE.svg" class="image-20 position-absolute top-50 start-75 translate-middle" alt="" style="width:100px;opacity: 0.5;">'
+            }
             html += '<div class="row">'
 
             html += '<div class="col-1 align-self-center">'
@@ -316,8 +323,8 @@
 
             html += '<div class="col-5 align-self-center">'
             html += '<p class="m-0" style="font-size:10px">' + value['kode'] + ' <span class="fa fa-copy text-grey"></span></p>'
-            html += '<h5 style="cursor:pointer;" onclick="formMulaiSO(' + key + ')"><b>Stock Opname ' + formatDate(value['date_start']) + '</b></h5>'
-            html += '<p class="m-0 small">Note : ' + value['note'] + '</p>'
+            html += '<h5 style="cursor:pointer;" onclick="formMulaiSO(' + key + ')" class="text_search" data-id="' + key + '"><b>Stock Opname ' + formatDate(value['date_start']) + '</b></h5>'
+            html += '<p class="m-0 small text_search" data-id="' + key + '">Note : ' + value['note'] + '</p>'
             html += '</div>'
 
             html += '<div class="col-5 align-self-center">'
@@ -334,9 +341,9 @@
                     if (sisa_belum == 0) {
                         check = '<i class="fa fa-check-circle text-success ms-2"></i>'
                     }
-                    html += '<li>' + values['user_name'] + check + '</li>'
+                    html += '<li class="text_search" data-id="' + key + '">' + values['user_name'] + check + '</li>'
                 } else {
-                    html += '<li>' + values['user_name'].strike() + ' <span class="fa fa-times-circle text-danger"></span></li>'
+                    html += '<li class="text_search" data-id="' + key + '">' + values['user_name'].strike() + ' <span class="fa fa-times-circle text-danger"></span></li>'
                 }
             })
             html += '</ol>'
@@ -353,6 +360,12 @@
                     html += '<div class="text-center pe-2 ps-2">'
                     html += '<button class="btn btn-sm btn-danger w-100" id="btnBatalSO' + key + '" onclick="pembatalanSO(' + key + ',' + value['id_so'] + ",'" + formatDate(value['date_start']) + "'" + ')">Hapus Program Stok Opname</button>'
                     html += '</div>'
+                } else {
+                    html += '<hr class="m-2">'
+                    html += '<div class="text-center pe-2 ps-2">'
+                    html += '<button class="btn btn-sm btn-success w-100" id="btnClosingSO' + key + '" onclick="closingSO(' + key + ',' + value['id_so'] + ",'" + formatDate(value['date_start']) + "'" + ')">Closing Opname</button>'
+                    html += '</div>'
+
                 }
             }
             html += '</div>'
@@ -446,7 +459,11 @@
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
+        if (id_key !== "") {
+            if (data['is_close'] == 0) {
+                html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
+            }
+        }
         $('#modalFooter').html(html_footer);
         if (id_key === "") {
             tampilParticipant(id_key)
@@ -595,6 +612,29 @@
                 }
                 var button = '#btnBatalSO' + key
                 var url = '<?php echo api_url('Api_So/hapusSo'); ?>'
+                kelolaData(form_data, type, url, button)
+            }
+        })
+    }
+
+    function closingSO(key, id_so, tanggal) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin Melakukan Closing SO tanggal ' + tanggal + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form_data = new FormData();
+                var type = 'POST'
+                var form_data = {
+                    'id': id_so,
+                    'user_id': user_id,
+                }
+                var button = '#btnClosingSO' + key
+                var url = '<?php echo api_url('Api_So/closingSo'); ?>'
                 kelolaData(form_data, type, url, button)
             }
         })
@@ -975,5 +1015,37 @@
     function koreksiOpname(id_checking, kode) {
         var url = '<?= base_url() ?>warehouse/koreksiOpname/' + kode + '/' + id_checking
         window.open(url, '_blank').focus();
+    }
+    // search multi
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>
