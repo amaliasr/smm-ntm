@@ -89,6 +89,18 @@
         transform: rotate(20deg);
         opacity: 0.3;
     }
+
+    /* .sticky-col {
+        position: -webkit-sticky;
+        position: sticky;
+        background-color: white;
+    } */
+
+    /* .sticky-col {
+        position: sticky;
+        left: 0px;
+        background-color: white;
+    } */
 </style>
 <main>
     <!-- Main page content-->
@@ -104,7 +116,6 @@
                     </div>
                     <div class="col-auto mt-4">
                     </div>
-
                 </div>
             </div>
         </div>
@@ -119,37 +130,28 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col mb-3">
-                                        <span class="small"><b>Check Arrived Package</b></span>
+                                        <span class="small"><b></b></span>
                                     </div>
                                     <div class="col mb-3">
                                         <button type="button" class="btn btn-primary btn-sm float-end" onclick="tampilFilter()"><i class="fa fa-filter me-2"></i> Filter</button>
+                                        <button type="button" class="btn btn-outline-success btn-sm float-end me-2" onclick="tampilFilter()"><i class="fa fa-download me-2"></i> Export</button>
                                     </div>
                                     <div class="col-12 mb-3" id="tampilReport">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;white-space:nowrap;">
+                                                <thead class="align-items-center">
+                                                    <tr class="align-items-center" id="headerTable">
+                                                    </tr>
+                                                    <tr class="align-items-center" style="width:100%;" id="dateTable">
+                                                    </tr>
+                                                    <tr class="align-items-center" style="width:100%;" id="ketTable">
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="contentTable">
 
-                                        <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;">
-                                            <thead class="align-self-center">
-                                                <tr class="align-self-center">
-                                                    <th class="text-center" rowspan="2">No</th>
-                                                    <th class="text-center" rowspan="2">Nama Item</th>
-                                                    <th class="text-center" colspan="3">Waktu Opname</th>
-                                                </tr>
-                                                <tr class="align-self-center" id="dateTable">
-                                                    <th class="text-center">2022-21-12</th>
-                                                    <th class="text-center">2022-21-12</th>
-                                                    <th class="text-center">2022-21-12</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -201,9 +203,12 @@
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
-    var data_account = ""
     var data_user = ""
     var data_report = ""
+    var data_item = ""
+    var data_satuan = ""
+    var data_supplier = ""
+    var data_gudang = ""
 
     $(document).ready(function() {
         // tampilFilter()
@@ -215,9 +220,28 @@
             beforeSend: function() {},
             success: function(response) {
                 data_user = response['data']
+                getData()
             }
         })
     })
+
+    function getData() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                data_item = response['data']['item'];
+                data_satuan = response['data']['itemSatuan'];
+                data_supplier = response['data']['supplier'];
+                data_gudang = response['data']['gudang'];
+                // tampilFilter()
+                getDataOpname()
+            }
+        })
+    }
 
     function tampilFilter() {
         $('#modal').modal('show')
@@ -233,11 +257,11 @@
         html_body += '<div class="row">'
         html_body += '<b class="small">Tanggal</b>'
         html_body += '<div class="col pe-0">'
-        html_body += '<input class="form-control" type="text">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem">'
         html_body += '</div>'
         html_body += '<div class="col-auto align-self-center">-</div>'
         html_body += '<div class="col ps-0">'
-        html_body += '<input class="form-control" type="text">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem">'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -246,9 +270,9 @@
         html_body += '<div class="col">'
         html_body += '<select class="form-select w-100 itemStok">'
         html_body += '<option value="" selected disabled>All Item</option>'
-        // $.each(data_item, function(keys, values) {
-        //     html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
-        // })
+        $.each(data_item, function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
         html_body += '</select>'
         html_body += '</div>'
         html_body += '</div>'
@@ -263,80 +287,77 @@
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanStok" onclick="doSimpanStok()">Simpan</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanStok" onclick="getDataOpname()">Simpan</button>'
         $('#modalFooter').html(html_footer);
     }
 
-    // function dataHistory() {
-    //     $.ajax({
-    //         url: "<?= api_url('Api_Warehouse/reportHutang'); ?>",
-    //         method: "GET",
-    //         dataType: 'JSON',
-    //         error: function(xhr) {},
-    //         beforeSend: function() {},
-    //         success: function(response) {
-    //             data_report = response['data']
-    //             // console.log(data_report)
-    //             var header = []
-    //             var body = []
-    //             if (data_report != null || data_report != undefined) {
-    //                 header = [{
-    //                         'data': 'no'
-    //                     }, {
-    //                         'data': 'no_po'
-    //                     },
-    //                     {
-    //                         'data': 'supplier'
-    //                     },
-    //                     {
-    //                         'data': 'biaya',
-    //                         className: "text-end"
-    //                     },
-    //                     {
-    //                         'data': 'terbayar',
-    //                         className: "text-end"
-    //                     },
-    //                     {
-    //                         'data': 'status_hutang'
-    //                     },
-    //                     {
-    //                         'data': 'persentase_pelunasan'
-    //                     },
-    //                 ]
-    //                 var array = {}
-    //                 // console.log(data)
-    //                 $.each(data_report, function(keys, values) {
-    //                     var status = 'BELUM LUNAS'
-    //                     if (values['status'] == '1') {
-    //                         status = 'LUNAS'
-    //                     }
-    //                     var persen = (parseInt(values['total_bayar']) / parseInt(values['biaya'])) * 100
-    //                     array = {
-    //                         'no': keys + 1,
-    //                         'no_po': values['no_po'],
-    //                         'supplier': values['supplier_name'],
-    //                         'biaya': number_format(values['biaya']),
-    //                         'terbayar': number_format(values['total_bayar']),
-    //                         'status_hutang': status,
-    //                         'persentase_pelunasan': roundToTwo(persen) + '%',
-    //                     }
-    //                     body.push(array)
-    //                 })
-    //                 $('#example').DataTable().destroy();
-    //                 $('#example').DataTable({
-    //                     fixedHeader: true,
-    //                     "data": body,
-    //                     pageLength: 10,
-    //                     lengthMenu: [
-    //                         [10, 20],
-    //                         [10, 20]
-    //                     ],
-    //                     "columns": header,
-    //                 })
-    //             } else {
-    //                 $('#tampilReport').html('<div class="container d-flex h-100 text-center d-none"><div class="row justify-content-center align-items-center align-self-center text-center mx-auto "><i class="">Tidak Ada Data yang Tersedia</i></div></div>');
-    //             }
-    //         }
-    //     })
-    // }
+    function getDataOpname() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/mutasiStock'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                item_id: "",
+                date_start: '2022-12-10',
+                date_end: '2022-12-23',
+            },
+            // data: {
+            //     item_id: "",
+            //     date_start: $('#dateStart').val(),
+            //     date_end: $('#dateEnd').val(),
+            // },
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                $('#modal').modal('hide')
+                data_report = response['data']
+                // dataTampilReport()
+                console.log(data_report)
+                console.log(JSON.parse(data_report[0]['datas']))
+                dataTampilReport()
+            }
+        })
+    }
+
+    function dataTampilReport() {
+        var html = ""
+        var html_header = ""
+        var html_date = ""
+        var html_ket = ""
+        html_header += '<th class="text-center sticky-col" rowspan="3" style="vertical-align: middle;">No</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Nama Item</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Satuan</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Stock<br>Awal</th>'
+        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
+            // console.log(value['data_perhari'].length)
+            html_header += '<th class="text-center" id="waktuOpname" style="width:auto;" colspan="' + (value['data_perhari'].length * 4) + '">' + value['bulan'] + '</th>'
+            $.each(value['data_perhari'], function(keys, values) {
+                html_date += '<th class="text-center p-1" style="width:200px" colspan="4">' + values['perhari'] + '</th>'
+                html_ket += '<td class="p-2 text-center">IN</td>'
+                html_ket += '<td class="p-2 text-center">IN<br>OTHERS</td>'
+                html_ket += '<td class="p-2 text-center">OUT</td>'
+                html_ket += '<td class="p-2 text-center">OUT<br>OTHERS</td>'
+            })
+        })
+        $('#ketTable').html(html_ket)
+        $('#headerTable').html(html_header)
+        $('#dateTable').html(html_date)
+        $.each(data_report, function(key, value) {
+            html += '<tr>'
+            html += '<td class="sticky-col">' + (parseInt(key) + 1) + '</td>'
+            html += '<td>' + value['name'] + '</td>'
+            html += '<td class="text-center">' + value['satuan_name'] + '</td>'
+            html += '<td class="text-end">' + value['stok_awal'] + '</td>'
+            $.each(JSON.parse(value['datas']), function(key2, value2) {
+                $.each(value2['data_perhari'], function(key3, value3) {
+                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_in'] + '</td>'
+                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_in_other'] + '</td>'
+                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_out'] + '</td>'
+                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_out_other'] + '</td>'
+                })
+            })
+            html += '</tr>'
+        })
+        $('#contentTable').html(html)
+    }
 </script>

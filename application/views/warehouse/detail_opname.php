@@ -332,6 +332,7 @@
         jumlahAll = a
         $('.totalItemAll').html(a)
         $('#tampilStockOpname').html(html)
+        $('.jumlah').number(true, 2)
         countJumlahTerisi()
     }
     $(document).on('keyup', '.jumlah', function(e) {
