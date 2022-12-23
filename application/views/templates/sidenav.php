@@ -143,17 +143,19 @@
                         </nav>
                     </div>
                 <?php } ?>
+
                 <!-- Sidenav Accordion Report-->
-                <!-- <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards4" aria-expanded="true" aria-controls="collapseDashboards4">
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards4" aria-expanded="true" aria-controls="collapseDashboards4">
                     <div class="nav-link-icon"><i class="fa fa-book"></i></div>
                     Report
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
                 </a>
                 <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
-                        <a class="nav-link" href="<?= base_url(); ?>report/hutang">Report Hutang</a>
+                        <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
+                        <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                     </nav>
-                </div> -->
+                </div>
                 <!-- <a class="nav-link" href="<?= base_url(); ?>report">
                     <div class="nav-link-icon"><i class="fa fa-book"></i></div>
                     Report

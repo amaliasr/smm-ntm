@@ -15,4 +15,14 @@ class Report extends CI_Controller
     {
         $this->template->views('report/hutang');
     }
+    public function reportMutasiGudang()
+    {
+        $data['title'] = 'Report Gudang';
+        $this->template->views('report/mutasi_gudang', $data);
+    }
+    public function reportOpname()
+    {
+        $data['title'] = 'Report Opname';
+        $this->template->views('report/opname', $data);
+    }
 }

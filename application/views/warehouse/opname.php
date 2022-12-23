@@ -463,6 +463,8 @@
             if (data['is_close'] == 0) {
                 html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
             }
+        } else {
+            html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
         }
         $('#modalFooter').html(html_footer);
         if (id_key === "") {

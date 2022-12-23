@@ -112,7 +112,7 @@
                                 <div class="col-6 col-md-4">Nama</div>
                                 <div class="col-6 col-md-8"><b><?= $this->session->userdata('full_name') ?></b></div>
                                 <div class="col-6 col-md-4">Tanggal Eksekusi</div>
-                                <div class="col-6 col-md-8"><b>20 Dec 2022</b></div>
+                                <div class="col-6 col-md-8"><b><?= date('l, d M Y') ?></b></div>
                                 <div class="col-6 col-md-4">Jumlah Item</div>
                                 <div class="col-6 col-md-8"><b class="text-primary totalItemAll">0</b> Item</div>
                                 <div class="col-6 col-md-4">Jumlah Terisi</div>
@@ -213,8 +213,8 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var full_name = '<?= $this->session->userdata('full_name') ?>'
     var kode = '<?= $kode ?>'
-    var tanggalHariIni = '2022-12-20'
-    // var tanggalHariIni = currentDate()
+    // var tanggalHariIni = '2022-12-20'
+    var tanggalHariIni = currentDate()
     var data_user = ""
     var data_item = ""
     var data_supplier = ""

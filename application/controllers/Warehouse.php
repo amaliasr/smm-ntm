@@ -7,6 +7,15 @@ class Warehouse extends CI_Controller
     {
         parent::__construct();
         if (!is_login()) {
+            $this->load->helper('cookie');
+            $link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $name   = 'link';
+            $value  = $link;
+            $expire = time() + 1000;
+            $path  = '/';
+            $secure = TRUE;
+            setcookie($name, $value, $expire, $path);
+            // echo $this->input->cookie('link');
             redirect('Auth');
         }
         $this->user_id = $this->session->userdata('user_id');
