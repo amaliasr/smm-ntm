@@ -101,14 +101,20 @@
                     Warehouse
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
                 </a>
-                <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
-                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                        <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
+                <?php if (is_logistik()) { ?>
+                    <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
-                        <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
-                        <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
-                    </nav>
-                </div>
+                            <?php if (is_logistik()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
+                            <?php } ?>
+                            <?php if (is_logistik()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
+                            <?php } ?>
+                        </nav>
+                    </div>
+                <?php } ?>
                 <!-- Sidenav Accordion Order-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards2" aria-expanded="true" aria-controls="collapseDashboards2">
                     <div class="nav-link-icon"><i class="fa fa-truck"></i></div>
@@ -152,8 +158,12 @@
                 </a>
                 <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
-                        <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
-                        <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
+                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
+                        <?php } ?>
+                        <?php if (is_logistik()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
+                        <?php } ?>
                     </nav>
                 </div>
                 <!-- <a class="nav-link" href="<?= base_url(); ?>report">

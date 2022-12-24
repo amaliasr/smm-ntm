@@ -119,7 +119,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col mb-3">
-                                        <span class="small"><b></b></span>
+                                        <span class="small">Date : <b id="showDate"></b></span>
                                     </div>
                                     <div class="col mb-3">
                                         <button type="button" class="btn btn-primary btn-sm float-end" onclick="tampilFilter()"><i class="fa fa-filter me-2"></i> Filter</button>
@@ -129,11 +129,13 @@
                                             <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;white-space:nowrap;">
                                                 <thead class="align-self-center">
                                                     <tr class="align-self-center">
-                                                        <th class="text-center" rowspan="2">No</th>
-                                                        <th class="text-center" rowspan="2">Nama Item</th>
+                                                        <th class="text-center" rowspan="3">No</th>
+                                                        <th class="text-center" rowspan="3">Nama Item</th>
                                                         <th class="text-center" id="waktuOpname" style="width:auto;">Waktu Opname</th>
                                                     </tr>
                                                     <tr class="align-self-center" style="width:100%;" id="dateTable">
+                                                    </tr>
+                                                    <tr class="align-self-center" style="width:100%;" id="ketTable">
                                                     </tr>
                                                 </thead>
                                                 <tbody id="contentTable">
@@ -174,6 +176,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- autocomplete -->
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <!-- QR CODE -->
@@ -198,6 +201,9 @@
     var data_satuan = ""
     var data_supplier = ""
     var data_gudang = ""
+    var item_id = ""
+    var date_start = ""
+    var date_end = ""
 
     $(document).ready(function() {
         // tampilFilter()
@@ -226,8 +232,8 @@
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
-                // tampilFilter()
-                getDataOpname()
+                tampilFilter()
+                // getDataOpname()
             }
         })
     }
@@ -246,11 +252,11 @@
         html_body += '<div class="row">'
         html_body += '<b class="small">Tanggal</b>'
         html_body += '<div class="col pe-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_start + '">'
         html_body += '</div>'
         html_body += '<div class="col-auto align-self-center">-</div>'
         html_body += '<div class="col ps-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '">'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -268,11 +274,17 @@
 
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        $('.datepicker').datepicker({
-            format: "yyyy-mm-dd",
-            orientation: "auto",
-            autoclose: true
-        });
+        // $('.datepicker').datepicker({
+        //     format: "yyyy-mm-dd",
+        //     orientation: "auto",
+        //     autoclose: true
+        // });
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+        })
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
@@ -282,25 +294,34 @@
     var item_id = ""
 
     function getDataOpname() {
+        date_start = $('#dateStart').val()
+        date_end = $('#dateEnd').val()
+        item_id = $('.itemStok').val()
         $.ajax({
             url: "<?= api_url('Api_So/laporanSo'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
                 item_id: item_id,
-                date_start: '2022-12-01',
-                date_end: '2022-12-23',
+                date_start: date_start,
+                date_end: date_end,
             },
-            // data: {
-            //     item_id: item_id,
-            //     date_start: $('#dateStart').val(),
-            //     date_end: $('#dateEnd').val(),
-            // },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                $('#btnFilter').removeAttr('disabled', true)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Data',
+                    text: 'Please Refresh This Page'
+                });
+            },
+            beforeSend: function() {
+                $('#btnFilter').attr('disabled', true)
+            },
             success: function(response) {
+                $('#btnFilter').removeAttr('disabled', true)
                 $('#modal').modal('hide')
                 data_report = response['data']
+                $('#showDate').html(formatDate($('#dateStart').val()) + ' - ' + formatDate($('#dateEnd').val()))
                 dataTampilReport()
                 // console.log(data_report)
 
@@ -311,11 +332,18 @@
     function dataTampilReport() {
         var html = ""
         var html_date = ""
+        var html_ket = ""
         $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            html_date += '<th class="text-center p-2" colspan="2" style="width:200px">' + value['tanggal'] + '</th>'
+            html_date += '<th class="text-center p-2" colspan="5">' + value['tanggal'] + '</th>'
+            html_ket += '<th class="text-center p-2">Stok Sistem</th>'
+            html_ket += '<th class="text-center p-2">Stok Hitung</th>'
+            html_ket += '<th class="text-center p-2">Stok Cek</th>'
+            html_ket += '<th class="text-center p-2">Dihitung Oleh</th>'
+            html_ket += '<th class="text-center p-2">Dicek Oleh</th>'
         })
         $('#waktuOpname').attr('colspan', JSON.parse(data_report[0]['datas']).length)
         $('#dateTable').html(html_date)
+        $('#ketTable').html(html_ket)
         $.each(data_report, function(key, value) {
             html += '<tr>'
             html += '<td>' + (parseInt(key) + 1) + '</td>'
@@ -324,6 +352,8 @@
                 var stok_input = 0
                 var stok_sistem = 0
                 var stok_koreksi = 0
+                var employee_hitung = "-"
+                var employee_koreksi = "-"
                 if (value['data_so']['stok_opname'] != null) {
                     stok_input = value['data_so']['stok_opname']
                 }
@@ -333,8 +363,17 @@
                 if (value['data_so']['stok_opname_koreksi'] != null) {
                     stok_koreksi = value['data_so']['stok_opname_koreksi']
                 }
-                html += '<td class="text-center"><p class="m-0" style="font-size:9px">Sistem</p>' + stok_sistem + '</td>'
-                html += '<td class="text-center"><p class="m-0" style="font-size:9px">Opname</p>' + stok_input + '</td>'
+                if (value['data_so']['employee_hitung'] != null) {
+                    employee_hitung = value['data_so']['employee_hitung'].split(' ').slice(0, 2).join(' ')
+                }
+                if (value['data_so']['employee_koreksi_name'] != null) {
+                    employee_koreksi = value['data_so']['employee_koreksi_name'].split(' ').slice(0, 2).join(' ')
+                }
+                html += '<td class="text-center">' + stok_sistem + '</td>'
+                html += '<td class="text-center">' + stok_input + '</td>'
+                html += '<td class="text-center">' + stok_koreksi + '</td>'
+                html += '<td class="">' + employee_hitung + '</td>'
+                html += '<td class="">' + employee_koreksi + '</td>'
             })
             html += '</tr>'
         })
