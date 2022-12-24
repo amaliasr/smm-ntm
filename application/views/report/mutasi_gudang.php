@@ -275,7 +275,11 @@
         html_body += '<select class="form-select w-100 itemStok">'
         html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
-            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            var select = ""
+            if (values['id'] == item_id) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
         html_body += '</select>'
         html_body += '</div>'

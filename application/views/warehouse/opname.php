@@ -1024,12 +1024,12 @@
                 tanggal: tanggal,
             },
             error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
                 $('#modal2').modal('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {});
             },
             beforeSend: function() {
                 preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Pesan kepada yang Bersangkutan'), 500)

@@ -104,7 +104,7 @@
     <!-- Main page content-->
     <div class="container-xl px-4 mt-n10">
         <div class="row">
-            <div class="col-12 col-lg-6 col-xl-6 mb-3">
+            <div class="col-12 col-xl-6 col-xl-6 mb-3">
                 <div class="card">
                     <div class="card-body p-3">
                         <div class="container">
@@ -122,7 +122,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-6 col-xl-6 mb-3">
+            <div class="col-12 col-xl-6 col-xl-6 mb-3">
                 <div class="card h-100">
                     <div class="card-body p-3">
                         <div class="container small">
@@ -300,8 +300,11 @@
     function formSO() {
         var html = ""
         var a = 0
+        var jumlah_dikoreksi = data_so[0]['detail_item'].filter((values, keys) => {
+            if (values.jumlah_koreksi !== null) return true
+        }).length
         $.each(data_so, function(key, value) {
-            console.log(value['detail_item'])
+            // console.log(value['detail_item'])
             $.each(value['detail_item'], function(keys, values) {
                 var input = ""
                 var color = ""
@@ -316,7 +319,11 @@
                 html += '<b style="font-size: 11px;">' + values['item_name'] + '</b>'
                 html += '</div>'
                 html += '<div class="col-4 col-md-2 align-self-center">'
-                html += '<input type="text" data-id_check="' + values['id_check'] + '" data-id_item="' + values['item_id'] + '" data-key="' + a + '" data-id_satuan="' + values['satuan_id'] + '" id="jumlah' + a + '" class="form-control form-control-sm jumlah" value="' + input + '" required="required">'
+                if (jumlah_dikoreksi == 0) {
+                    html += '<input type="text" data-id_check="' + values['id_check'] + '" data-id_item="' + values['item_id'] + '" data-key="' + a + '" data-id_satuan="' + values['satuan_id'] + '" id="jumlah' + a + '" class="form-control form-control-sm jumlah" value="' + input + '" required="required">'
+                } else {
+                    html += input
+                }
                 html += '</div>'
                 html += '<div class="col-2 col-md-2 align-self-center">'
                 html += '<p class="m-0" style="font-size: 9px;">' + values['satuan_name'] + '</p>'
@@ -328,7 +335,9 @@
                 a++
             })
         })
-        html += '<button type="button" class="btn btn-success w-100 mt-3" id="btnSelesaiPerhitungan" onclick="selesaikanPerhitungan()">Simpan Perhitungan</button>'
+        if (jumlah_dikoreksi == 0) {
+            html += '<button type="button" class="btn btn-success w-100 mt-3" id="btnSelesaiPerhitungan" onclick="selesaikanPerhitungan()">Simpan Perhitungan</button>'
+        }
         jumlahAll = a
         $('.totalItemAll').html(a)
         $('#tampilStockOpname').html(html)

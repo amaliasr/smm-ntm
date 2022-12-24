@@ -375,13 +375,15 @@
 
                     var selisih = ""
                     if (values['jumlah_input'] > values['jumlah_sistem']) {
-                        selisih = '<span class="fw-bold badge bg-success">(+' + (parseFloat(values['jumlah_input']) - parseFloat(values['jumlah_sistem'])) + ')</span>'
+                        selisih = '<span class="fw-bold badge bg-primary">(+' + (parseFloat(values['jumlah_input']) - parseFloat(values['jumlah_sistem'])) + ')</span>'
                     } else if (values['jumlah_input'] < values['jumlah_sistem']) {
                         selisih = '<span class="fw-bold badge bg-danger">(-' + (parseFloat(values['jumlah_sistem']) - parseFloat(values['jumlah_input'])) + ')</span>'
-
+                    } else {
+                        selisih = '<span class="m-0"><b><i class="fa fa-check-circle fa-1x text-success me-2"></i></b></span>'
                     }
                     if (values['jumlah_input'] != null) {
-                        html_content += '<div class="col-2 align-self-center"><p class="m-0">' + values['jumlah_input'] + '  ' + values['satuan_name'] + ' ' + selisih + '</p></div>'
+                        html_content += '<div class="col-2 align-self-center"><p class="m-0">' + values['jumlah_input'] + '  ' + values['satuan_name'] + ' ' + selisih + '</p>'
+                        html_content += '</div>'
                     } else {
                         html_content += '<div class="col-2 align-self-center"><p class="m-0">-</p></div>'
                     }
@@ -458,12 +460,20 @@
             $('#cardItem' + key).removeClass('bg-teals')
             var html = ""
             if (satuan != null) {
-                if (jumlah_sistem == jumlah_input) {
-                    html += '<p class="m-0"><b><i class="fa fa-check text-success me-2"></i> Cocok</b></p>'
-                } else {
-                    html += '<div class="col-12 align-self-center"><input class="form-control form-control-sm inputJumlah nominal" id="inputJumlah' + key + '" value="' + nilai + '" data-item_id="' + item_id + '" data-id_check="' + id_check + '"></div>'
+                // if (jumlah_sistem == jumlah_input) {
+                //     html += '<p class="m-0"><b><i class="fa fa-check text-success me-2"></i> Cocok</b></p>'
+                // }
+                html += '<div class="col-12 align-self-center">'
+                html += '<div class="row">'
+                html += '<div class="col-10">'
+                html += '<input class="form-control form-control-sm inputJumlah nominal" id="inputJumlah' + key + '" value="' + nilai + '" data-item_id="' + item_id + '" data-id_check="' + id_check + '">'
+                html += '</div>'
+                html += '<div class="col-2 align-self-center">'
+                if (nilai === jumlah_sistem) {
+                    html += '<span class="m-0"><b><i class="fa fa-check-circle fa-1x text-success me-2"></i></b></span>'
                 }
-                // console.log(html)
+                html += '</div>'
+                html += '</div>'
             }
             $('#fieldInputLogistik' + key).html(html)
             $('.nominal').number(true, 2)
