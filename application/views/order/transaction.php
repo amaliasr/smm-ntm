@@ -407,6 +407,7 @@
                 $('#tampilDetailSuratJalan').html(html)
             },
             success: function(response) {
+                $('#tampilDetailSuratJalan').empty()
                 data_suratjalan = response['data']
                 if (data_suratjalan != undefined) {
                     var pending = 0
