@@ -225,9 +225,17 @@
         last_number = 1
     }
 
+    function randomString(length, chars) {
+        var result = '';
+        for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+        return result;
+    }
+
     $('#modal').on('hidden.bs.modal', function(e) {
         numberParticipant = 0
         last_number = 1
+        data_item = data_item_all
+        selected_item = []
         clearModal();
     })
     $(document).on('show.bs.modal', '.modal', function() {
@@ -235,14 +243,20 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
+
+    function removeItemArray(arr, item) {
+        return arr.filter(f => f !== item)
+    }
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var full_name = '<?= $this->session->userdata('full_name') ?>'
     var data_user = ""
     var data_item = ""
+    var data_item_all = ""
     var data_supplier = ""
     var data_gudang = ""
     var data_stok = ""
     var data_all_stok = []
+    var selected_item_check = []
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
@@ -265,7 +279,8 @@
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                data_item = response['data']['item'];
+                data_item_all = response['data']['item'];
+                data_item = data_item_all
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
@@ -376,12 +391,6 @@
             html += '</div>'
         })
         $('#tampilStockOpname').html(html)
-    }
-
-    function randomString(length, chars) {
-        var result = '';
-        for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-        return result;
     }
 
 
@@ -512,14 +521,14 @@
                 html += '<b>' + detail['user_name'] + '</b>'
             }
             html += '</div>'
-            html += '<div class="col-4 pt-2 align-self-center">Tanggal Mulai</div>'
-            html += '<div class="col-8 pt-2">'
-            if (detail == null) {
-                html += '<input type="text" class="form-control form-control-sm datepicker tanggalMulai" id="tanggalMulai' + numberParticipant + '">'
-            } else {
-                html += '<b>' + formatDate(detail['tanggal_mulai']) + '</b>'
-            }
-            html += '</div>'
+            // html += '<div class="col-4 pt-2 align-self-center">Tanggal Mulai</div>'
+            // html += '<div class="col-8 pt-2">'
+            // if (detail == null) {
+            //     html += '<input type="text" class="form-control form-control-sm datepicker tanggalMulai" id="tanggalMulai' + numberParticipant + '">'
+            // } else {
+            //     html += '<b>' + formatDate(detail['tanggal_mulai']) + '</b>'
+            // }
+            // html += '</div>'
             if (detail != null && is_close != 1) {
                 if (detail['detail_item'][0]['id_check'] == null) {
                     html += '<div class="col-auto pt-3 pe-0">'
@@ -537,10 +546,10 @@
             html += '<h6><b>List Item</b></h6>'
             html += '<p class="m-0 small" style="font-size:11px;">User tersebut akan mendapatkan bagian item yang sudah dipilih dibawah ini</p>'
             if (detail == null) {
-                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriNONE' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(0,' + numberParticipant + ')">Tanpa Type</span>'
-                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(1,' + numberParticipant + ')">SKM</span>'
-                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKT' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(2,' + numberParticipant + ')">SKT</span>'
-                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2" id="itemKategoriSKTSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(3,' + numberParticipant + ')">SKT / SKM</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2 pillKategori" id="itemKategoriNONE' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(0,' + numberParticipant + ')">Tanpa Type</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2 pillKategori" id="itemKategoriSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(1,' + numberParticipant + ')">SKM</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2 pillKategori" id="itemKategoriSKT' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(2,' + numberParticipant + ')">SKT</span>'
+                html += '<span class="badge rounded-pill me-2 bg-light text-dark p-2 pillKategori" id="itemKategoriSKTSKM' + numberParticipant + '" style="cursor:pointer;" onclick="showItemKategori(3,' + numberParticipant + ')">SKT / SKM</span>'
             }
             html += '<div id="listItem' + numberParticipant + '" class="mb-2">'
             html += '</div>'
@@ -691,28 +700,29 @@
             }
         })
     }
-    var kategori_none = ""
-    var kategori_skm = ""
-    var kategori_skt = ""
-    var kategori_skmskt = ""
+
+    var kategori_none = []
+    var kategori_skm = []
+    var kategori_skt = []
+    var kategori_skmskt = []
 
     function showItemKategori(id, no) {
-        // console.log(data_item)
+        // console.log(kategori_none[no])
         var type_name = ''
         if (id == 0) {
             // NON
             type_name = null
             var obj = data_item.filter(x => x.type_name === type_name)
             // console.log(obj)
-            if (kategori_none == 'checked') {
+            if (kategori_none[no] == 'checked') {
                 $('#itemKategoriNONE' + no).addClass('bg-light text-dark')
                 $('#itemKategoriNONE' + no).removeClass('bg-dark text-light')
-                kategori_none = ''
-                removeItemFromKategori('NONE')
+                kategori_none[no] = ''
+                removeItemFromKategori('NONE', no)
             } else {
                 $('#itemKategoriNONE' + no).removeClass('bg-light text-dark')
                 $('#itemKategoriNONE' + no).addClass('bg-dark text-light')
-                kategori_none = 'checked'
+                kategori_none[no] = 'checked'
                 $.each(obj, function(key, value) {
                     listItem(no, value['id'], 'NONE')
                 })
@@ -722,15 +732,15 @@
             // SKM
             type_name = 'SKM'
             var obj = data_item.filter(x => x.type_name === type_name)
-            if (kategori_skm == 'checked') {
+            if (kategori_skm[no] == 'checked') {
                 $('#itemKategoriSKM' + no).addClass('bg-light text-dark')
                 $('#itemKategoriSKM' + no).removeClass('bg-dark text-light')
                 kategori_skm = ''
-                removeItemFromKategori('SKM')
+                removeItemFromKategori('SKM', no)
             } else {
                 $('#itemKategoriSKM' + no).removeClass('bg-light text-dark')
                 $('#itemKategoriSKM' + no).addClass('bg-dark text-light')
-                kategori_skm = 'checked'
+                kategori_skm[no] = 'checked'
                 $.each(obj, function(key, value) {
                     listItem(no, value['id'], 'SKM')
                 })
@@ -740,15 +750,15 @@
             // SKT
             type_name = 'SKT'
             var obj = data_item.filter(x => x.type_name === type_name)
-            if (kategori_skt == 'checked') {
+            if (kategori_skt[no] == 'checked') {
                 $('#itemKategoriSKT' + no).addClass('bg-light text-dark')
                 $('#itemKategoriSKT' + no).removeClass('bg-dark text-light')
                 kategori_skt = ''
-                removeItemFromKategori('SKT')
+                removeItemFromKategori('SKT', no)
             } else {
                 $('#itemKategoriSKT' + no).removeClass('bg-light text-dark')
                 $('#itemKategoriSKT' + no).addClass('bg-dark text-light')
-                kategori_skt = 'checked'
+                kategori_skt[no] = 'checked'
                 $.each(obj, function(key, value) {
                     listItem(no, value['id'], 'SKT')
                 })
@@ -758,31 +768,36 @@
             // SKM/SKT
             type_name = 'SKT / SKM'
             var obj = data_item.filter(x => x.type_name === type_name)
-            if (kategori_skmskt == 'checked') {
+            if (kategori_skmskt[no] == 'checked') {
                 $('#itemKategoriSKTSKM' + no).addClass('bg-light text-dark')
                 $('#itemKategoriSKTSKM' + no).removeClass('bg-dark text-light')
                 kategori_skmskt = ''
-                removeItemFromKategori('SKMSKT')
+                removeItemFromKategori('SKMSKT', no)
             } else {
                 $('#itemKategoriSKTSKM' + no).removeClass('bg-light text-dark')
                 $('#itemKategoriSKTSKM' + no).addClass('bg-dark text-light')
-                kategori_skmskt = 'checked'
+                kategori_skmskt[no] = 'checked'
                 $.each(obj, function(key, value) {
                     listItem(no, value['id'], 'SKMSKT')
                 })
             }
         }
+        changeWhenClickable()
     }
 
-    function removeItemFromKategori(status) {
+    function removeItemFromKategori(status, no) {
         var st = $('.fieldItem').map(function() {
             return $(this).attr('data-status');
+        }).get();
+        var nost = $('.fieldItem').map(function() {
+            return $(this).attr('data-no');
         }).get();
         var idst = $('.fieldItem').map(function() {
             return $(this).attr('id');
         }).get();
         for (let i = 0; i < st.length; i++) {
-            if (st[i] == status) {
+            if (st[i] == status && no == nost[i]) {
+                // selected_item = removeItem(selected_item, idst[i])
                 hapusFieldItemFromKategory(idst[i])
             }
         }
@@ -790,13 +805,45 @@
 
     function hapusFieldItemFromKategory(text) {
         $('#' + text).remove()
+        changeWhenClickable()
+
     }
 
     function hapusFieldParticipant(no) {
         $('#fieldParticipant' + no).remove()
+        changeWhenClickable()
     }
 
     var numberItem = []
+    var selected_item = []
+    var selected_item_ada = []
+
+    function selectedItem() {
+        selected_item.concat(selected_item_ada)
+        data_item = data_item_all.filter(values => !selected_item.includes(values.id))
+    }
+    $(document).on('change', '.fieldItem', function(e) {
+        changeWhenClickable()
+    })
+
+    $(document).on('click', '.pillKategori', function(e) {
+        changeWhenClickable()
+    })
+
+    function changeWhenClickable() {
+        selected_item = []
+        var item = $('.itemStok').map(function() {
+            return $(this).val();
+        }).get();
+        selected_item = unique(selected_item.concat(item))
+        selectedItem()
+    }
+
+    function selectedItemCheck() {
+        selected_item_ada = unique(selected_item_check)
+        selectedItem()
+        return true
+    }
 
     function listItem(noParticipant, id = "", status = "", detail = null) {
         // console.log(detail)
@@ -830,6 +877,7 @@
             } else {
                 var text = 'text-success'
             }
+            selected_item_check.push(detail['item_id'].toString())
             html += '<b class="small"><i class="fa fa-check-circle ' + text + ' me-2"></i>' + detail['item_name'] + '</b>'
         }
         html += '</div>'
@@ -841,6 +889,8 @@
         html += '</div>'
         $('#listItem' + noParticipant).append(html)
         objAfter[0]['jumlahNo'] = parseInt(objAfter[0]['jumlahNo']) + 1
+        // console.log(selected_item)
+        // selectedItemCheck()
         return true
     }
 
