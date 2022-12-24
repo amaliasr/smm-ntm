@@ -322,6 +322,7 @@
                 if (jumlah_dikoreksi == 0) {
                     html += '<input type="text" data-id_check="' + values['id_check'] + '" data-id_item="' + values['item_id'] + '" data-key="' + a + '" data-id_satuan="' + values['satuan_id'] + '" id="jumlah' + a + '" class="form-control form-control-sm jumlah" value="' + input + '" required="required">'
                 } else {
+                    html += '<input type="text" data-id_check="' + values['id_check'] + '" data-id_item="' + values['item_id'] + '" data-key="' + a + '" data-id_satuan="' + values['satuan_id'] + '" id="jumlah' + a + '" class="form-control form-control-sm jumlah d-none" value="' + input + '" required="required">'
                     html += input
                 }
                 html += '</div>'

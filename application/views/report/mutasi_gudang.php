@@ -185,6 +185,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- autocomplete -->
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <!-- QR CODE -->
@@ -267,6 +268,14 @@
         html_body += '<div class="col ps-0">'
         html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '">'
         html_body += '</div>'
+        // html_body += '<div class="col">'
+        // html_body += '<div class="input-group input-group-joined" style="width: 16.5rem;">'
+        // html_body += '<span class="input-group-text">'
+        // html_body += '<i data-feather="calendar"></i>'
+        // html_body += '</span>'
+        // html_body += '<input class="form-control ps-0" id="litepickerRangePlugin" placeholder="Select date range..." />'
+        // html_body += '</div>'
+        // html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="row pt-2">'
@@ -287,11 +296,17 @@
 
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        $('.datepicker').datepicker({
-            format: "yyyy-mm-dd",
-            orientation: "auto",
-            autoclose: true
-        });
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+        })
+        // $('.datepicker').datepicker({
+        //     format: "yyyy-mm-dd",
+        //     orientation: "auto",
+        //     autoclose: true
+        // });
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'

@@ -76,8 +76,10 @@ Silahkan klik link dibawah ini untuk melanjutkan proses tanda tangan
 
 Teruntuk Bpk/Ibu *" . $nama[$i] . "* , Stock Opname akan dilakukan dengan rincian dibawah ini :
 
-Waktu           : " . tgl_indo($tanggal[$i]) . "
-Form Pengisian  : " . $link . "
+⏰ Waktu :
+*" . tgl_indo($tanggal[$i]) . "*
+🔗 Form Pengisian :
+" . $link . "
 
 Informasi Tambahan, Link dapat digunakan ketika sudah waktunya melakukan SO (sesuai jadwal)";
             $url = 'https://app.whacenter.com/api/send';
