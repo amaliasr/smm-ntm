@@ -130,11 +130,11 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col mb-3">
-                                        <span class="small"><b></b></span>
+                                        <span class="small">Date : <b id="showDate"></b></span>
                                     </div>
                                     <div class="col mb-3">
                                         <button type="button" class="btn btn-primary btn-sm float-end" onclick="tampilFilter()"><i class="fa fa-filter me-2"></i> Filter</button>
-                                        <button type="button" class="btn btn-outline-success btn-sm float-end me-2" onclick="tampilFilter()"><i class="fa fa-download me-2"></i> Export</button>
+                                        <button type="button" class="btn btn-outline-success btn-sm float-end me-2" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export</button>
                                     </div>
                                     <div class="col-12 mb-3" id="tampilReport">
                                         <div class="table-responsive">
@@ -209,6 +209,9 @@
     var data_satuan = ""
     var data_supplier = ""
     var data_gudang = ""
+    var item_id = ""
+    var date_start = ""
+    var date_end = ""
 
     $(document).ready(function() {
         // tampilFilter()
@@ -237,8 +240,8 @@
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
-                // tampilFilter()
-                getDataOpname()
+                tampilFilter()
+                // getDataOpname()
             }
         })
     }
@@ -257,11 +260,11 @@
         html_body += '<div class="row">'
         html_body += '<b class="small">Tanggal</b>'
         html_body += '<div class="col pe-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_start + '">'
         html_body += '</div>'
         html_body += '<div class="col-auto align-self-center">-</div>'
         html_body += '<div class="col ps-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '">'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -269,7 +272,7 @@
         html_body += '<b class="small">Item</b>'
         html_body += '<div class="col">'
         html_body += '<select class="form-select w-100 itemStok">'
-        html_body += '<option value="" selected disabled>All Item</option>'
+        html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
             html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
         })
@@ -287,33 +290,40 @@
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanStok" onclick="getDataOpname()">Simpan</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
         $('#modalFooter').html(html_footer);
     }
 
+
     function getDataOpname() {
+        date_start = $('#dateStart').val()
+        date_end = $('#dateEnd').val()
+        item_id = $('.itemStok').val()
         $.ajax({
             url: "<?= api_url('Api_Warehouse/mutasiStock'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                item_id: "",
-                date_start: '2022-12-10',
-                date_end: '2022-12-23',
+                item_id: item_id,
+                date_start: date_start,
+                date_end: date_end,
             },
-            // data: {
-            //     item_id: "",
-            //     date_start: $('#dateStart').val(),
-            //     date_end: $('#dateEnd').val(),
-            // },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                $('#btnFilter').removeAttr('disabled', true)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Data',
+                    text: 'Please Refresh This Page'
+                });
+            },
+            beforeSend: function() {
+                $('#btnFilter').attr('disabled', true)
+            },
             success: function(response) {
+                $('#btnFilter').removeAttr('disabled', true)
                 $('#modal').modal('hide')
                 data_report = response['data']
-                // dataTampilReport()
-                console.log(data_report)
-                console.log(JSON.parse(data_report[0]['datas']))
+                $('#showDate').html(formatDate($('#dateStart').val()) + ' - ' + formatDate($('#dateEnd').val()))
                 dataTampilReport()
             }
         })
@@ -339,6 +349,8 @@
                 html_ket += '<td class="p-2 text-center">OUT<br>OTHERS</td>'
             })
         })
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Stock<br>Akhir</th>'
+
         $('#ketTable').html(html_ket)
         $('#headerTable').html(html_header)
         $('#dateTable').html(html_date)
@@ -356,8 +368,22 @@
                     html += '<td class="text-end">' + value3['total_mutasi']['jumlah_out_other'] + '</td>'
                 })
             })
+            html += '<td class="text-end">' + value['stok_akhir'] + '</td>'
             html += '</tr>'
         })
         $('#contentTable').html(html)
+    }
+
+    function exportExcel() {
+        var url = '<?= base_url('report/exportLaporanGudang') ?>';
+        var params = "*$" + item_id + "*$'2022-12-10'*$'2022-12-23'"
+        // var params = "*$" + item_id + "*$" + $('#dateStart').val() + "*$" + $('#dateEnd').val()
+        // window.open(url + '?' + params, '_blank');
+        // window.open(url + '?params=' + encodeURIComponent(params), '_blank');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Belum Tersedia',
+            text: 'Fungsi ini Masih Dalam Perbaikan'
+        });
     }
 </script>

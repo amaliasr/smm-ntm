@@ -30,9 +30,13 @@ class Report extends CI_Controller
     }
     public function exportLaporanGudang()
     {
-        $item_id = $this->input->get('item_id');
-        $date_start = $this->input->get('date_start');
-        $date_end = $this->input->get('date_end');
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        print_r($explodedParams);
+        $item_id = $explodedParams[1];
+        $date_start = date('Y-m-d', strtotime($explodedParams[2]));
+        $date_end = date('Y-m-d', strtotime($explodedParams[3]));
         $url = "Api_Warehouse/mutasiStock?item_id=" . $item_id . "&date_start=" . $date_start . "&date_end=" . $date_end . "";
         $main = json_decode(file_get_contents(api_url($url)), true);
         $body = $main['data'];
@@ -41,20 +45,21 @@ class Report extends CI_Controller
         $fileName = 'Report Gudang';
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        for ($j = 0; $j < count($huruf); $j++) {
-            if (!empty($header[$j])) {
-                $sheet->setCellValue($huruf[$j] . '1', $header[$j]);
-            }
-        }
-        $rowCount = 2;
-        for ($k = 0; $k < count($body); $k++) {
-            for ($m = 0; $m < count($huruf); $m++) {
-                if (!empty($header[$m])) {
-                    $sheet->setCellValue($huruf[$m] . $rowCount, $body[$k][$header[$m]]);
-                }
-            }
-            $rowCount++;
-        }
+        $sheet->mergeCells('A1:A2')->setCellValue('A1', 'No');
+        // for ($j = 0; $j < count($huruf); $j++) {
+        //     if (!empty($header[$j])) {
+        //         $sheet->setCellValue($huruf[$j] . '1', $header[$j]);
+        //     }
+        // }
+        // $rowCount = 2;
+        // for ($k = 0; $k < count($body); $k++) {
+        //     for ($m = 0; $m < count($huruf); $m++) {
+        //         if (!empty($header[$m])) {
+        //             $sheet->setCellValue($huruf[$m] . $rowCount, $body[$k][$header[$m]]);
+        //         }
+        //     }
+        //     $rowCount++;
+        // }
 
 
         $date_time = date('Y-m-d H:i:s');
