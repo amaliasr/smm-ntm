@@ -187,9 +187,10 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- autocomplete -->
-<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <script>
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -268,20 +269,12 @@
         html_body += '<div class="col ps-0">'
         html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '">'
         html_body += '</div>'
-        // html_body += '<div class="col">'
-        // html_body += '<div class="input-group input-group-joined" style="width: 16.5rem;">'
-        // html_body += '<span class="input-group-text">'
-        // html_body += '<i data-feather="calendar"></i>'
-        // html_body += '</span>'
-        // html_body += '<input class="form-control ps-0" id="litepickerRangePlugin" placeholder="Select date range..." />'
-        // html_body += '</div>'
-        // html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="row pt-2">'
         html_body += '<b class="small">Item</b>'
         html_body += '<div class="col">'
-        html_body += '<select class="form-select w-100 itemStok">'
+        html_body += '<select class="form-control w-100 itemStok">'
         html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
             var select = ""
@@ -296,6 +289,9 @@
 
         html_body += '</div>'
         $('#modalBody').html(html_body);
+        // $('.itemStok').multiselect({
+        //     includeSelectAllOption: true,
+        // });
         new Litepicker({
             element: document.getElementById('dateStart'),
             elementEnd: document.getElementById('dateEnd'),

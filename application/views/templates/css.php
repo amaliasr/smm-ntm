@@ -28,6 +28,8 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script> -->
 
+<link rel="stylesheet" href="<?= base_url() ?>assets/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" />
+
 
 <!-- time range -->
 <!-- <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly.min.css">

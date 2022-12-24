@@ -35,7 +35,7 @@
 <script src="<?= base_url() ?>assets/js/pagination.min.js"></script>
 
 
-
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
 <!-- bootstrap validation -->
 <script>
     $.validator.setDefaults({
