@@ -274,13 +274,13 @@
                         array = {
                             'id': keys + 1,
                             'kode': values['code'],
-                            'nama': values['name'],
+                            'nama': values['item_name'],
                             'satuan': values['satuan_name'],
                             'konversi': satuan,
                             'tipe': values['type_name'],
                             'unit': values['unit_name'],
                             'price': price,
-                            'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ')" style="cursor:pointer;"></i>'
+                            'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['item_name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ')" style="cursor:pointer;"></i>'
                         }
                         body.push(array)
                     })

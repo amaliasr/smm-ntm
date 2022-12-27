@@ -187,10 +187,12 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- autocomplete -->
-
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+
 <script>
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -243,6 +245,7 @@
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
+
                 tampilFilter()
                 // getDataOpname()
             }
@@ -251,7 +254,7 @@
 
     function tampilFilter() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Filter</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -274,8 +277,14 @@
         html_body += '<div class="row pt-2">'
         html_body += '<b class="small">Item</b>'
         html_body += '<div class="col">'
-        html_body += '<select class="form-control w-100 itemStok">'
-        html_body += '<option value="" selected>All Item</option>'
+        html_body += '<div class="form-check">'
+        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()">'
+        html_body += '<label class="form-check-label" for="checkPilihSemua">'
+        html_body += 'Pilih Semua'
+        html_body += '</label>'
+        html_body += '</div>'
+        html_body += '<select class="form-select form-select-lg w-100 itemStok" multiple id="itemStok" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        // html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
             var select = ""
             if (values['id'] == item_id) {
@@ -289,20 +298,17 @@
 
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        // $('.itemStok').multiselect({
-        //     includeSelectAllOption: true,
-        // });
+        $('#itemStok').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            dropdownParent: $('#modal'),
+        });
         new Litepicker({
             element: document.getElementById('dateStart'),
             elementEnd: document.getElementById('dateEnd'),
             singleMode: false,
             allowRepick: true,
         })
-        // $('.datepicker').datepicker({
-        //     format: "yyyy-mm-dd",
-        //     orientation: "auto",
-        //     autoclose: true
-        // });
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
@@ -310,6 +316,21 @@
         $('#modalFooter').html(html_footer);
     }
 
+    function itemAll() {
+        var check = $('#checkPilihSemua:checked').val()
+        var html_body = ""
+        if (check == 'on') {
+            $.each(data_item, function(keys, values) {
+                html_body += '<option value="' + values['id'] + '" selected>' + values['name'] + '</option>'
+            })
+        } else {
+            $('#itemStok').empty()
+            $.each(data_item, function(keys, values) {
+                html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            })
+        }
+        $('#itemStok').html(html_body)
+    }
 
     function getDataOpname() {
         date_start = $('#dateStart').val()
@@ -378,10 +399,10 @@
             html += '<td class="text-end">' + value['stok_awal'] + '</td>'
             $.each(JSON.parse(value['datas']), function(key2, value2) {
                 $.each(value2['data_perhari'], function(key3, value3) {
-                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_in'] + '</td>'
-                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_in_other'] + '</td>'
-                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_out'] + '</td>'
-                    html += '<td class="text-end">' + value3['total_mutasi']['jumlah_out_other'] + '</td>'
+                    html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_in']) + '</td>'
+                    html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_in_other']) + '</td>'
+                    html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_out']) + '</td>'
+                    html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_out_other']) + '</td>'
                 })
             })
             html += '<td class="text-end">' + value['stok_akhir'] + '</td>'

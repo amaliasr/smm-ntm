@@ -129,15 +129,13 @@
                                     <div class="col-auto">
                                         <h1 class="m-0 mt-1 mb-1 fw-bold">
                                             <b id="jumlahIN">
-                                                <div class="spinner-grow text-light" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
-                                                </div>
+
                                             </b>
                                         </h1>
                                     </div>
                                     <div class="col-auto align-self-center ps-0">
                                         <p class="m-0" style="font-size: 10px;">Transaction</p>
-                                        <p class="m-0" style="font-size: 10px;">Today <?= date('d/m/Y') ?></p>
+                                        <p class="m-0" style="font-size: 10px;">At <span class="dateToday"><?= date('d/m/Y') ?></span></p>
                                     </div>
                                 </div>
 
@@ -163,15 +161,12 @@
                                     <div class="col-auto">
                                         <h1 class="m-0 mt-1 mb-1 fw-bold">
                                             <b id="jumlahOUT">
-                                                <div class="spinner-grow text-light" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
-                                                </div>
                                             </b>
                                         </h1>
                                     </div>
                                     <div class="col-auto align-self-center ps-0">
                                         <p class="m-0" style="font-size: 10px;">Transaction</p>
-                                        <p class="m-0" style="font-size: 10px;">Today <?= date('d/m/Y') ?></p>
+                                        <p class="m-0" style="font-size: 10px;">At <span class="dateToday"><?= date('d/m/Y') ?></span></p>
                                     </div>
                                 </div>
 
@@ -187,8 +182,8 @@
             <div class="col-lg-4 col-xl-4 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
-                        Request Today
-                        <div class="row">
+                        Request <span class="dateToday"><?= date('d/m/Y') ?></span>
+                        <!-- <div class="row">
                             <div class="col-auto mb-1 p-1">
                                 <select class="form-select form-select-sm" aria-label=".form-select-sm example">
                                     <option selected value="all">Semua Gudang</option>
@@ -200,7 +195,7 @@
                             <div class="col-auto mb-1 p-1">
                                 <button type="button" class="btn btn-primary btn-sm w-100"><i class="fa fa-search"></i> Cari</button>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="card-body">
 
@@ -212,8 +207,8 @@
             <div class="col-lg-8 col-xl-8 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
-                        Material Today
-                        <div class="row">
+                        Material <span class="dateToday"><?= date('d/m/Y') ?></span>
+                        <!-- <div class="row">
                             <div class="col-12 col-md-3 mb-1 p-1">
                                 <select class="form-select form-select-sm" aria-label=".form-select-sm example">
                                     <option selected value="all">Semua Gudang</option>
@@ -238,12 +233,16 @@
                             <div class="col-12 col-md-3 mb-1 p-1">
                                 <button type="button" class="btn btn-primary btn-sm w-100"><i class="fa fa-search"></i> Cari</button>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="card-body overflow-auto" style="height: 300px;">
                         <div class="container" id="tampilMaterialToday">
+                            <!-- <div class="row">
+                                <div class="col-12 h-100 text-center">
+                                    <p class="align-self-center">text</p>
+                                </div>
+                            </div> -->
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -311,6 +310,21 @@
 <script src="<?= base_url() ?>assets/js/vendor/jquery.validate/additional-methods.min.js"></script>
 <script src="<?= base_url(); ?>assets/js/ImageTools.js"></script> -->
 <script>
+    function formatDateSlash(orginaldate) {
+        var date = new Date(orginaldate);
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        if (day < 10) {
+            day = "0" + day;
+        }
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var date = day + "/" + month + "/" + year;
+        return date;
+    }
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -405,6 +419,7 @@
     }
 
     function getDataStok() {
+        $('.dateToday').html(formatDateSlash(tanggalCurrent))
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getDataStok'); ?>",
             method: "GET",
@@ -412,9 +427,31 @@
             data: {
                 tanggal: tanggalCurrent,
             },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                var html = ""
+                $('#tampilMaterialToday').html(html)
+                $('#jumlahIN').html(html)
+                $('#jumlahOUT').html(html)
+            },
+            beforeSend: function() {
+                var html = ""
+                html += '<div class="d-flex justify-content-center h-100 align-self-center">'
+                html += '<div class="spinner-border m-5" style="width: 3rem; height: 3rem;" role="status">'
+                html += '<span class="visually-hidden">Loading...</span>'
+                html += '</div>'
+                html += '</div>'
+                $('#tampilMaterialToday').html(html)
+                var html_stock = ""
+                html_stock += '<div class="spinner-grow text-light" role="status">'
+                html_stock += '<span class="visually-hidden">Loading...</span>'
+                html_stock += '</div>'
+                $('#jumlahIN').html(html_stock)
+                $('#jumlahOUT').html(html_stock)
+            },
             success: function(response) {
+                $('#tampilMaterialToday').empty()
+                $('#jumlahIN').empty()
+                $('#jumlahOUT').empty()
                 data_stok = response['data']
                 if (data_stok != undefined) {
                     var jumlah_in = response['dataCount'].find((value, key) => {
@@ -447,9 +484,53 @@
                     $('#jumlahIN').html('0 x')
                     $('#jumlahOUT').html('0 x')
                 }
-                tampilMaterialToday()
+                // tampilMaterialToday()
+                baganRequestToday()
             }
         })
+    }
+
+    function baganRequestToday() {
+        // Pie Chart Example
+        var ctx = document.getElementById("myPieChart");
+        var myPieChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Direct", "Referral", "Social"],
+                datasets: [{
+                    data: [55, 30, 15],
+                    backgroundColor: [
+                        "rgba(0, 97, 242, 1)",
+                        "rgba(0, 172, 105, 1)",
+                        "rgba(88, 0, 232, 1)"
+                    ],
+                    hoverBackgroundColor: [
+                        "rgba(0, 97, 242, 0.9)",
+                        "rgba(0, 172, 105, 0.9)",
+                        "rgba(88, 0, 232, 0.9)"
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)"
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: "#dddfeb",
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10
+                },
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 80
+            }
+        });
+        tampilMaterialToday()
     }
 
     function tampilMaterialToday() {
@@ -511,45 +592,6 @@
             }
         })
     }
-    // Pie Chart Example
-    var ctx = document.getElementById("myPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: "doughnut",
-        data: {
-            labels: ["Direct", "Referral", "Social"],
-            datasets: [{
-                data: [55, 30, 15],
-                backgroundColor: [
-                    "rgba(0, 97, 242, 1)",
-                    "rgba(0, 172, 105, 1)",
-                    "rgba(88, 0, 232, 1)"
-                ],
-                hoverBackgroundColor: [
-                    "rgba(0, 97, 242, 0.9)",
-                    "rgba(0, 172, 105, 0.9)",
-                    "rgba(88, 0, 232, 0.9)"
-                ],
-                hoverBorderColor: "rgba(234, 236, 244, 1)"
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: "#dddfeb",
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                caretPadding: 10
-            },
-            legend: {
-                display: false
-            },
-            cutoutPercentage: 80
-        }
-    });
 
     function formTransaksiStok() {
         $('#modal').modal('show')
@@ -796,7 +838,8 @@
         $('.datepicker').datepicker({
             format: "yyyy-mm-dd",
             orientation: "auto",
-            autoclose: true
+            autoclose: true,
+            todayHighlight: true,
         });
 
         var html_footer = '';

@@ -178,6 +178,8 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- autocomplete -->
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
@@ -263,10 +265,20 @@
         html_body += '<div class="row pt-2">'
         html_body += '<b class="small">Item</b>'
         html_body += '<div class="col">'
-        html_body += '<select class="form-select w-100 itemStok">'
-        html_body += '<option value="" selected disabled>All Item</option>'
+        html_body += '<div class="form-check">'
+        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()">'
+        html_body += '<label class="form-check-label" for="checkPilihSemua">'
+        html_body += 'Pilih Semua'
+        html_body += '</label>'
+        html_body += '</div>'
+        html_body += '<select class="form-select form-select-lg w-100 itemStok" multiple id="itemStok" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        // html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
-            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            var select = ""
+            if (values['id'] == item_id) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
         html_body += '</select>'
         html_body += '</div>'
@@ -274,11 +286,11 @@
 
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        // $('.datepicker').datepicker({
-        //     format: "yyyy-mm-dd",
-        //     orientation: "auto",
-        //     autoclose: true
-        // });
+        $('#itemStok').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            dropdownParent: $('#modal'),
+        });
         new Litepicker({
             element: document.getElementById('dateStart'),
             elementEnd: document.getElementById('dateEnd'),
@@ -290,6 +302,22 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanStok" onclick="getDataOpname()">Simpan</button>'
         $('#modalFooter').html(html_footer);
+    }
+
+    function itemAll() {
+        var check = $('#checkPilihSemua:checked').val()
+        var html_body = ""
+        if (check == 'on') {
+            $.each(data_item, function(keys, values) {
+                html_body += '<option value="' + values['id'] + '" selected>' + values['name'] + '</option>'
+            })
+        } else {
+            $('#itemStok').empty()
+            $.each(data_item, function(keys, values) {
+                html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            })
+        }
+        $('#itemStok').html(html_body)
     }
     var item_id = ""
 
@@ -341,7 +369,7 @@
             html_ket += '<th class="text-center p-2">Dihitung Oleh</th>'
             html_ket += '<th class="text-center p-2">Dicek Oleh</th>'
         })
-        $('#waktuOpname').attr('colspan', JSON.parse(data_report[0]['datas']).length)
+        $('#waktuOpname').attr('colspan', (JSON.parse(data_report[0]['datas']).length * 5))
         $('#dateTable').html(html_date)
         $('#ketTable').html(html_ket)
         $.each(data_report, function(key, value) {

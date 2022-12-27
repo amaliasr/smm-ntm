@@ -161,7 +161,7 @@
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
                         <?php } ?>
-                        <?php if (is_logistik()) { ?>
+                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                         <?php } ?>
                     </nav>
