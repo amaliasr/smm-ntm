@@ -139,7 +139,7 @@
                                     </div>
                                 </div>
 
-                                <button type="button" class="btn btn-outline-primary btn-sm p-1">
+                                <button type="button" class="btn btn-outline-primary btn-sm p-1" onclick="detail('IN')">
                                     <p style="font-size: 11px;" class="mb-0">Detail Stock In</p>
                                 </button>
 
@@ -170,7 +170,7 @@
                                     </div>
                                 </div>
 
-                                <button type="button" class="btn btn-outline-primary btn-sm p-1">
+                                <button type="button" class="btn btn-outline-primary btn-sm p-1" onclick="detail('OUT')">
                                     <p style="font-size: 11px;" class="mb-0">Detail Stock Out</p>
                                 </button>
 
@@ -198,8 +198,19 @@
                         </div> -->
                     </div>
                     <div class="card-body">
-
-                        <div class="chart-pie"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-4">
+                                <select id="inputSelectChart" class="form-control form-control-sm mb-2" required="required">
+                                    <option value="IN">IN</option>
+                                    <option value="OUT">OUT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="initialPieChart">
+                            <div class="chart-pie">
+                                <canvas id="myPieChart" width="100%" height="50"></canvas>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
                 </div>
@@ -358,8 +369,28 @@
             data: {
                 id: user_id
             },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Data',
+                    text: 'Please Refresh This Page'
+                });
+            },
+            beforeSend: function() {
+                var html = ""
+                html += '<div class="d-flex justify-content-center h-100 align-self-center">'
+                html += '<div class="spinner-border m-5" style="width: 3rem; height: 3rem;" role="status">'
+                html += '<span class="visually-hidden">Loading...</span>'
+                html += '</div>'
+                html += '</div>'
+                $('#tampilMaterialToday').html(html)
+                var html_stock = ""
+                html_stock += '<div class="spinner-grow text-light" role="status">'
+                html_stock += '<span class="visually-hidden">Loading...</span>'
+                html_stock += '</div>'
+                $('#jumlahIN').html(html_stock)
+                $('#jumlahOUT').html(html_stock)
+            },
             success: function(response) {
                 data_user = response['data']
                 getData()
@@ -372,7 +403,13 @@
             url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
             method: "GET",
             dataType: 'JSON',
-            error: function(xhr) {},
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Data',
+                    text: 'Please Refresh This Page'
+                });
+            },
             beforeSend: function() {},
             success: function(response) {
                 data_item = response['data']['item'];
@@ -417,6 +454,9 @@
         result.setDate(result.getDate() - days);
         return result;
     }
+    var detail_in = ""
+    var detail_out = ""
+    var choosen_pie = 'IN'
 
     function getDataStok() {
         $('.dateToday').html(formatDateSlash(tanggalCurrent))
@@ -432,27 +472,19 @@
                 $('#tampilMaterialToday').html(html)
                 $('#jumlahIN').html(html)
                 $('#jumlahOUT').html(html)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Data',
+                    text: 'Please Refresh This Page'
+                });
             },
-            beforeSend: function() {
-                var html = ""
-                html += '<div class="d-flex justify-content-center h-100 align-self-center">'
-                html += '<div class="spinner-border m-5" style="width: 3rem; height: 3rem;" role="status">'
-                html += '<span class="visually-hidden">Loading...</span>'
-                html += '</div>'
-                html += '</div>'
-                $('#tampilMaterialToday').html(html)
-                var html_stock = ""
-                html_stock += '<div class="spinner-grow text-light" role="status">'
-                html_stock += '<span class="visually-hidden">Loading...</span>'
-                html_stock += '</div>'
-                $('#jumlahIN').html(html_stock)
-                $('#jumlahOUT').html(html_stock)
-            },
+            beforeSend: function() {},
             success: function(response) {
                 $('#tampilMaterialToday').empty()
                 $('#jumlahIN').empty()
                 $('#jumlahOUT').empty()
                 data_stok = response['data']
+                data_all_stok = [];
                 if (data_stok != undefined) {
                     var jumlah_in = response['dataCount'].find((value, key) => {
                         if (value.aksi === 'IN') return true
@@ -470,7 +502,6 @@
                     } else {
                         $('#jumlahOUT').html(jumlah_out['jumlah'] + ' x')
                     }
-                    data_all_stok = [];
                     for (let i = 0; i < data_stok.length; i++) {
                         for (let j = 0; j < JSON.parse(data_stok[i]['data_item']).length; j++) {
                             var array = JSON.parse(data_stok[i]['data_item'])[j]
@@ -480,65 +511,104 @@
                             data_all_stok.push(array)
                         }
                     }
+                    detail_in = data_all_stok.filter((value, key) => {
+                        if (value.ket === 'IN') return true
+                    })
+                    detail_out = data_all_stok.filter((value, key) => {
+                        if (value.ket === 'OUT') return true
+                    })
                 } else {
+                    detail_in = ""
+                    detail_out = ""
                     $('#jumlahIN').html('0 x')
                     $('#jumlahOUT').html('0 x')
                 }
-                // tampilMaterialToday()
-                baganRequestToday()
+                baganRequestToday(choosen_pie)
             }
         })
     }
+    $(document).on('change', '#inputSelectChart', function(e) {
+        choosen_pie = $(this).val()
+        baganRequestToday(choosen_pie)
+    })
 
-    function baganRequestToday() {
+    function baganRequestToday(status) {
         // Pie Chart Example
-        var ctx = document.getElementById("myPieChart");
-        var myPieChart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: ["Direct", "Referral", "Social"],
-                datasets: [{
-                    data: [55, 30, 15],
-                    backgroundColor: [
-                        "rgba(0, 97, 242, 1)",
-                        "rgba(0, 172, 105, 1)",
-                        "rgba(88, 0, 232, 1)"
-                    ],
-                    hoverBackgroundColor: [
-                        "rgba(0, 97, 242, 0.9)",
-                        "rgba(0, 172, 105, 0.9)",
-                        "rgba(88, 0, 232, 0.9)"
-                    ],
-                    hoverBorderColor: "rgba(234, 236, 244, 1)"
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                tooltips: {
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyFontColor: "#858796",
-                    borderColor: "#dddfeb",
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    caretPadding: 10
+        if (status == 'IN') {
+            var detail = detail_in
+        } else {
+            var detail = detail_out
+        }
+        var data = []
+        if (detail != "") {
+            data.push({
+                'Gudang Others': detail.filter((value, key) => {
+                    if (value.nama_lawan === 'Gudang Others') return true
+                }).length,
+                'Gudang Adjustment': detail.filter((value, key) => {
+                    if (value.nama_lawan === 'Gudang Adjustment') return true
+                }).length,
+                'Gudang Bawah': detail.filter((value, key) => {
+                    if (value.nama_lawan === 'Gudang Bawah') return true
+                }).length,
+                'Supplier': detail.filter((value, key) => {
+                    if (value.subjek_lawan === 'SUPPLIER') return true
+                }).length,
+            })
+        }
+        // console.log(data)
+        $('#initialPieChart').empty()
+        $('#initialPieChart').html('<div class="chart-pie"><canvas id="myPieChart" width="100%" height="50"></canvas></div>')
+        if (detail != "") {
+            var ctx = document.getElementById("myPieChart");
+            var myPieChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Gudang Others", "Gudang Adjustment", "Gudang Bawah", "Supplier"],
+                    datasets: [{
+                        data: [data[0]['Gudang Others'], data[0]['Gudang Adjustment'], data[0]['Gudang Bawah'], data[0]['Supplier']],
+                        backgroundColor: [
+                            "rgb(71, 33, 131, 1)",
+                            "rgb(75, 86, 210, 1)",
+                            "rgb(130, 195, 236, 1)",
+                            "rgb(241, 246, 245, 1)"
+                        ],
+                        hoverBackgroundColor: [
+                            "rgb(71, 33, 131, 0.9)",
+                            "rgb(75, 86, 210, 0.9)",
+                            "rgb(130, 195, 236, 0.9)",
+                            "rgb(241, 246, 245, 0.9)"
+                        ],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)"
+                    }]
                 },
-                legend: {
-                    display: false
-                },
-                cutoutPercentage: 80
-            }
-        });
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyFontColor: "#858796",
+                        borderColor: "#dddfeb",
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10
+                    },
+                    legend: {
+                        display: false
+                    },
+                    cutoutPercentage: 80
+                }
+            });
+        }
         tampilMaterialToday()
     }
 
     function tampilMaterialToday() {
-        // console.log(data_all_stok)
         var html = ""
         $.each(data_all_stok, function(key, value) {
-            html += '<div class="row">'
-            html += '<div class="col-5 fw-bold small"><p class="m-0 fw-bold">' + value['item_name'] + '</p><span class="text-primary" style="font-size:10px;">#' + value['jenis'] + '</span></div>'
+            html += '<div class="row" id="card_searchMATERIAL' + key + '">'
+            html += '<div class="col-5 fw-bold small"><p class="m-0 fw-bold text_search" data-id="MATERIAL' + key + '">' + value['item_name'] + '</p><span class="text-primary text_search" style="font-size:10px;" data-id="MATERIAL' + key + '">#' + value['jenis'] + '</span></div>'
             html += '<div class="col-5 align-self-center">'
             html += '<div class="row">'
             html += '<div class="col-auto">'
@@ -554,14 +624,14 @@
             } else {
                 var lawan = value['nama_lawan']
             }
-            html += '<p class="m-0 text-wrap" style="font-size: 12px;"><b>' + lawan + '</b></p>'
+            html += '<p class="m-0 text-wrap text_search" data-id="MATERIAL' + key + '" style="font-size: 12px;"><b>' + lawan + '</b></p>'
             html += '<p class="m-0" style="font-size: 10px;">' + value['tanggal'] + '</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
             html += '<div class="col-2 text-end">' + value['jumlah'] + ' ' + value['satuan_name'] + '</div>'
+            html += '<hr class="mt-2">'
             html += '</div>'
-            html += '<hr>'
         })
         $('#tampilMaterialToday').html(html)
         getStokPerItem()
@@ -578,10 +648,10 @@
                 var data = response['data']
                 var html = ""
                 $.each(data, function(key, value) {
-                    html += '<div class="col-6 col-xl-2 col-lg-3 col-md-3 col-sm-6 mb-3">'
+                    html += '<div class="col-6 col-xl-2 col-lg-3 col-md-3 col-sm-6 mb-3" id="card_searchITEM' + key + '">'
                     html += '<div class="card shadow-sm w-100 h-100 p-1">'
                     html += '<div class="card-body text-center">'
-                    html += '<small class="fw-bold">' + value['name'] + '</small>'
+                    html += '<small class="fw-bold text_search" data-id="ITEM' + key + '">' + value['name'] + '</small>'
                     html += '<h2 class="text-primary m-0 p-0">' + number_format(value['jumlah']) + '</h2>'
                     html += '<small class="m-0 p-0">' + value['satuan_name'] + '</small>'
                     html += '</div>'
@@ -1124,5 +1194,90 @@
                 }
             }
         });
+    }
+
+    function detail(keterangan) {
+        if (keterangan == 'IN') {
+            var data = detail_in
+        } else {
+            var data = detail_out
+        }
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Filter</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container">'
+        $.each(data, function(key, value) {
+            html_body += '<div class="card shadow-none mb-2 card-hoper">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-5 fw-bold small"><p class="m-0 fw-bold">' + value['item_name'] + '</p><span class="text-primary" style="font-size:10px;">#' + value['jenis'] + '</span></div>'
+            html_body += '<div class="col-5 align-self-center">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-auto">'
+            if (value['ket'] == 'OUT') {
+                html_body += '<i class="fa fa-arrow-up text-danger fa-2x"></i>'
+            } else {
+                html_body += '<i class="fa fa-arrow-down text-success fa-2x"></i>'
+            }
+            html_body += '</div>'
+            html_body += '<div class="col-auto align-self-center ps-0">'
+            if (value['nama_lawan'] == null) {
+                var lawan = value['subjek_lawan']
+            } else {
+                var lawan = value['nama_lawan']
+            }
+            html_body += '<p class="m-0 text-wrap" style="font-size: 12px;"><b>' + lawan + '</b></p>'
+            html_body += '<p class="m-0" style="font-size: 10px;">' + value['tanggal'] + '</p>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 text-end">' + value['jumlah'] + ' ' + value['satuan_name'] + '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        $('#modalFooter').html(html_footer);
+    }
+    // search multi
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    $(document).on('keyup', '#search_nama', function(e) {
+        searchingAll()
+    })
+
+    function searchingAll(value) {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>
