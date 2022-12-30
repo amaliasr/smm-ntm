@@ -150,6 +150,19 @@
                     </div>
                 <?php } ?>
 
+                <!-- Sidenav Accordion Rekap-->
+                <?php if (is_accounting() || is_direktur() || is_purchasing()) { ?>
+                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards5" aria-expanded="true" aria-controls="collapseDashboards5">
+                        <div class="nav-link-icon"><i class="fa fa-table"></i></div>
+                        Rekap
+                        <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse show" id="collapseDashboards5" data-bs-parent="#accordionSidenav5">
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav5Pages">
+                            <a class="nav-link" href="<?= base_url(); ?>rekap/rekapPO">Rekap PO</a>
+                        </nav>
+                    </div>
+                <?php } ?>
                 <!-- Sidenav Accordion Report-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards4" aria-expanded="true" aria-controls="collapseDashboards4">
                     <div class="nav-link-icon"><i class="fa fa-book"></i></div>
@@ -158,9 +171,6 @@
                 </a>
                 <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
-                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportPO">Report PO</a>
-                        <?php } ?>
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
                         <?php } ?>

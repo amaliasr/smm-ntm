@@ -99,7 +99,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-book"></i></div>
-                            Report PO
+                            Rekap PO
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
