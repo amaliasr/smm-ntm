@@ -651,7 +651,6 @@
                     no_po = count.toString().padStart(3, "0") + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
                 } else {
                     no_po = '001' + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
-
                 }
             }
         })
@@ -3467,8 +3466,166 @@
         var url = '<?php echo api_url('Api_Warehouse/cancelPr'); ?>'
         kelolaData(data, type, url, button)
     }
+    var date_start_filter = ""
+    var date_end_filter = ""
+    var supplier_id_filter = ""
+    var data_report = ""
 
     function formReport() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Report PR PO</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
 
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12 col-md-4">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<b class="small">Tanggal Mulai</b>'
+        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_start_filter + '">'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<b class="small">Tanggal Akhir</b>'
+        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end_filter + '">'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<b class="small">Supplier</b>'
+        html_body += '<select class="form-select form-select-lg w-100 supplierStok" id="supplierStok" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        html_body += '<option value="" selected>All Supplier</option>'
+        $.each(data_supplier, function(keys, values) {
+            var select = ""
+            if (values['id'] == supplier_id_filter) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 text-end">'
+        html_body += '<button class="btn btn-sm btn-primary mt-2" id="btnFilter" onclick="searchLaporan()">Cari</button>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-8">'
+        html_body += '<b style="font-size:12px;">Hasil</b>'
+        html_body += '<div class="table-responsive">'
+        html_body += '<table class="table table-bordered table-hover table-sm small" style="width: 100%;white-space:nowrap;">'
+        html_body += '<thead class="align-self-center">'
+        html_body += '<tr class="align-self-center">'
+        html_body += '<th class="text-center p-3">No</th>'
+        html_body += '<th class="text-center p-3">Tanggal PO</th>'
+        html_body += '<th class="text-center p-3">Kode NTM</th>'
+        html_body += '<th class="text-center p-3">No. PR</th>'
+        html_body += '<th class="text-center p-3">No. PO</th>'
+        html_body += '<th class="text-center p-3">Nama Supplier</th>'
+        html_body += '<th class="text-center p-3">Nama Bahan</th>'
+        html_body += '<th class="text-center p-3">QTY</th>'
+        html_body += '<th class="text-center p-3">Satuan</th>'
+        html_body += '<th class="text-center p-3">Harga</th>'
+        html_body += '<th class="text-center p-3">DPP</th>'
+        html_body += '<th class="text-center p-3">PPN</th>'
+        html_body += '<th class="text-center p-3">TOTAL</th>'
+        html_body += '</tr>'
+        html_body += '</thead>'
+        html_body += '<tbody id="contentTable">'
+        html_body += '<tr class="align-self-center">'
+        html_body += '<td colspan="13" class="text-center pt-5 pb-5 align-self-center"><i>Anda Belum Melakukan Pencarian</i></td>'
+        html_body += '</tr>'
+        html_body += '</tbody>'
+        html_body += '</table>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+        })
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup Halaman</button>'
+        $('#modalFooter').html(html_footer);
+        if (data_report != "") {
+            searchLaporanForm()
+        }
+    }
+
+    function searchLaporan() {
+        date_start_filter = $('#dateStart').val()
+        date_end_filter = $('#dateEnd').val()
+        supplier_id_filter = $('#supplierStok').val()
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/rekapPrPo'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                supplier_id: supplier_id_filter,
+                date_start: date_start_filter,
+                date_end: date_end_filter,
+            },
+            error: function(xhr) {
+                $('#btnFilter').removeAttr('disabled', true)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Data',
+                    text: 'Please Refresh This Page'
+                });
+            },
+            beforeSend: function() {
+                $('#btnFilter').attr('disabled', true)
+            },
+            success: function(response) {
+                $('#contentTable').empty()
+                $('#btnFilter').removeAttr('disabled', true)
+                data_report = response['data']
+                searchLaporanForm()
+
+            }
+        })
+    }
+
+    function searchLaporanForm() {
+        var html_body = ""
+        $.each(data_report, function(key, value) {
+            if (value['harga'] == null) {
+                value['harga'] = 0
+            }
+            if (value['dpp'] == null) {
+                value['dpp'] = 0
+            }
+            if (value['ppn'] == null) {
+                value['ppn'] = 0
+            }
+            if (value['total'] == null) {
+                value['total'] = 0
+            }
+            html_body += '<tr>'
+            html_body += '<td>' + (key + 1) + '</td>'
+            html_body += '<td>' + value['date'] + '</td>'
+            html_body += '<td>' + value['item_code'] + '</td>'
+            html_body += '<td>' + value['no_pr'] + '</td>'
+            html_body += '<td>' + value['no_po'] + '</td>'
+            html_body += '<td>' + value['supplier_name'] + '</td>'
+            html_body += '<td>' + value['item_concat'] + '</td>'
+            html_body += '<td class="text-end">' + value['jumlah'] + '</td>'
+            html_body += '<td>' + value['item_satuan'] + '</td>'
+            html_body += '<td class="text-end">' + number_format(value['harga']) + '</td>'
+            html_body += '<td class="text-end">' + number_format(value['dpp']) + '</td>'
+            html_body += '<td class="text-end">' + number_format(value['ppn']) + '</td>'
+            html_body += '<td class="text-end">' + number_format(value['total']) + '</td>'
+            html_body += '</tr>'
+        })
+        $('#contentTable').html(html_body)
     }
 </script>
