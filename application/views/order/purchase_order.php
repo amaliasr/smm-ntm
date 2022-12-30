@@ -3597,35 +3597,42 @@
 
     function searchLaporanForm() {
         var html_body = ""
-        $.each(data_report, function(key, value) {
-            if (value['harga'] == null) {
-                value['harga'] = 0
-            }
-            if (value['dpp'] == null) {
-                value['dpp'] = 0
-            }
-            if (value['ppn'] == null) {
-                value['ppn'] = 0
-            }
-            if (value['total'] == null) {
-                value['total'] = 0
-            }
-            html_body += '<tr>'
-            html_body += '<td>' + (key + 1) + '</td>'
-            html_body += '<td>' + value['date'] + '</td>'
-            html_body += '<td>' + value['item_code'] + '</td>'
-            html_body += '<td>' + value['no_pr'] + '</td>'
-            html_body += '<td>' + value['no_po'] + '</td>'
-            html_body += '<td>' + value['supplier_name'] + '</td>'
-            html_body += '<td>' + value['item_concat'] + '</td>'
-            html_body += '<td class="text-end">' + value['jumlah'] + '</td>'
-            html_body += '<td>' + value['item_satuan'] + '</td>'
-            html_body += '<td class="text-end">' + number_format(value['harga']) + '</td>'
-            html_body += '<td class="text-end">' + number_format(value['dpp']) + '</td>'
-            html_body += '<td class="text-end">' + number_format(value['ppn']) + '</td>'
-            html_body += '<td class="text-end">' + number_format(value['total']) + '</td>'
+        // console.log(data_report.length)
+        if (data_report != undefined) {
+            $.each(data_report, function(key, value) {
+                if (value['harga'] == null) {
+                    value['harga'] = 0
+                }
+                if (value['dpp'] == null) {
+                    value['dpp'] = 0
+                }
+                if (value['ppn'] == null) {
+                    value['ppn'] = 0
+                }
+                if (value['total'] == null) {
+                    value['total'] = 0
+                }
+                html_body += '<tr>'
+                html_body += '<td>' + (key + 1) + '</td>'
+                html_body += '<td>' + value['date'] + '</td>'
+                html_body += '<td>' + value['item_code'] + '</td>'
+                html_body += '<td>' + value['no_pr'] + '</td>'
+                html_body += '<td>' + value['no_po'] + '</td>'
+                html_body += '<td>' + value['supplier_name'] + '</td>'
+                html_body += '<td>' + value['item_concat'] + '</td>'
+                html_body += '<td class="text-end">' + value['jumlah'] + '</td>'
+                html_body += '<td>' + value['item_satuan'] + '</td>'
+                html_body += '<td class="text-end">' + number_format(value['harga']) + '</td>'
+                html_body += '<td class="text-end">' + number_format(value['dpp']) + '</td>'
+                html_body += '<td class="text-end">' + number_format(value['ppn']) + '</td>'
+                html_body += '<td class="text-end">' + number_format(value['total']) + '</td>'
+                html_body += '</tr>'
+            })
+        } else {
+            html_body += '<tr class="align-self-center">'
+            html_body += '<td colspan="13" class="text-center pt-5 pb-5 align-self-center"><i>Data Tidak Tersedia</i></td>'
             html_body += '</tr>'
-        })
+        }
         $('#contentTable').html(html_body)
     }
 </script>
