@@ -28,6 +28,11 @@ class Report extends CI_Controller
         $data['title'] = 'Report Opname';
         $this->template->views('report/opname', $data);
     }
+    public function reportPO()
+    {
+        $data['title'] = 'Report PO';
+        $this->template->views('report/laporanPO', $data);
+    }
     public function exportLaporanGudang()
     {
         $params = $this->input->get('params');

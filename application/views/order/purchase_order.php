@@ -99,6 +99,9 @@
                                             <?php } ?>
                                         </ul>
                                     </div>
+                                    <?php if ($this->session->userdata('division_id') == 4) { ?>
+                                        <button type="button" class="btn btn-outline-light text-white" onclick="formReport()"><i class="fa fa-table"></i></button>
+                                    <?php } ?>
                                 </div>
                             </div>
 
@@ -3463,5 +3466,9 @@
         var button = '#btnCancelPR'
         var url = '<?php echo api_url('Api_Warehouse/cancelPr'); ?>'
         kelolaData(data, type, url, button)
+    }
+
+    function formReport() {
+
     }
 </script>

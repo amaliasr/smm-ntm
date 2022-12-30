@@ -99,7 +99,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-book"></i></div>
-                            Report Opname
+                            Report PO
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
@@ -129,13 +129,21 @@
                                             <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;white-space:nowrap;">
                                                 <thead class="align-self-center">
                                                     <tr class="align-self-center">
-                                                        <th class="text-center" rowspan="3">No</th>
-                                                        <th class="text-center" rowspan="3">Nama Item</th>
-                                                        <th class="text-center" id="waktuOpname" style="width:auto;">Waktu Opname</th>
+                                                        <th class="text-center" rowspan="2">No</th>
+                                                        <th class="text-center" rowspan="2">Tanggal</th>
+                                                        <th class="text-center" rowspan="2" id="namaSubject">-</th>
+                                                        <th class="text-center" style="width:auto;" colspan="2">Dokumen</th>
+                                                        <th class="text-center" style="width:auto;" colspan="2">Pengiriman</th>
+                                                        <th class="text-center" style="width:auto;" colspan="3">Barang</th>
                                                     </tr>
-                                                    <tr class="align-self-center" style="width:100%;" id="dateTable">
-                                                    </tr>
-                                                    <tr class="align-self-center" style="width:100%;" id="ketTable">
+                                                    <tr class="align-self-center" style="width:100%;">
+                                                        <th class="text-center">Batal</th>
+                                                        <th class="text-center">Revisi</th>
+                                                        <th class="text-center">Tepat Waktu</th>
+                                                        <th class="text-center">Terlambat</th>
+                                                        <th class="text-center">Barang Sesuai</th>
+                                                        <th class="text-center">Barang Kurang</th>
+                                                        <th class="text-center">Barang Lebih</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="contentTable">
@@ -203,7 +211,8 @@
     var data_satuan = ""
     var data_supplier = ""
     var data_gudang = ""
-    var item_id = ""
+    var periode = ""
+    var subject = ""
     var date_start = ""
     var date_end = ""
 
@@ -234,8 +243,8 @@
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
+                // getDataReport()
                 tampilFilter()
-                // getDataOpname()
             }
         })
     }
@@ -263,34 +272,71 @@
         html_body += '</div>'
 
         html_body += '<div class="row pt-2">'
-        html_body += '<b class="small">Item</b>'
+        html_body += '<b class="small">Periode</b>'
         html_body += '<div class="col">'
-        html_body += '<div class="form-check">'
-        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()">'
-        html_body += '<label class="form-check-label" for="checkPilihSemua">'
-        html_body += 'Pilih Semua'
-        html_body += '</label>'
+        html_body += '<select class="form-control w-100 selectPeriode" id="selectPeriode">'
+        var select_d = ""
+        var select_w = ""
+        var select_m = ""
+        if (periode == 'daily') {
+            select_d = "selected"
+            select_w = ""
+            select_m = ""
+        } else if (periode == 'weekly') {
+            select_d = ""
+            select_w = "selected"
+            select_m = ""
+        } else if (periode == 'monthly') {
+            select_d = ""
+            select_w = ""
+            select_m = "selected"
+        }
+        html_body += '<option value="daily" ' + select_d + '>Daily</option>'
+        html_body += '<option value="weekly" ' + select_w + '>Weekly</option>'
+        html_body += '<option value="monthly" ' + select_m + '>Monthly</option>'
+        html_body += '</select>'
         html_body += '</div>'
-        html_body += '<select class="form-select form-select-lg w-100 itemStok" multiple id="itemStok" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
-        // html_body += '<option value="" selected>All Item</option>'
-        $.each(data_item, function(keys, values) {
-            var select = ""
-            if (values['id'] == item_id) {
-                select = 'selected'
-            }
-            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
-        })
+        html_body += '</div>'
+
+        html_body += '<div class="row pt-2">'
+        html_body += '<b class="small">Subject</b>'
+        html_body += '<div class="col">'
+        html_body += '<select class="form-control w-100 selectSubject" id="selectSubject">'
+        var select_u = ""
+        var select_c = ""
+        var select_s = ""
+        var select_d = ""
+        if (subject == 'user') {
+            select_u = "selected"
+            select_c = ""
+            select_s = ""
+            select_d = ""
+        } else if (subject == 'costcenter') {
+            select_u = ""
+            select_c = "selected"
+            select_s = ""
+            select_d = ""
+        } else if (subject == 'supplier') {
+            select_u = ""
+            select_c = ""
+            select_s = "selected"
+            select_d = ""
+        } else if (subject == 'department') {
+            select_u = ""
+            select_c = ""
+            select_s = ""
+            select_d = "selected"
+        }
+        html_body += '<option value="user" ' + select_u + '>User</option>'
+        html_body += '<option value="costcenter" ' + select_c + '>Cost Center</option>'
+        html_body += '<option value="supplier" ' + select_s + '>Supplier</option>'
+        html_body += '<option value="department" ' + select_d + '>Department</option>'
         html_body += '</select>'
         html_body += '</div>'
         html_body += '</div>'
 
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        $('#itemStok').select2({
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-            closeOnSelect: false,
-            dropdownParent: $('#modal'),
-        });
         new Litepicker({
             element: document.getElementById('dateStart'),
             elementEnd: document.getElementById('dateEnd'),
@@ -300,37 +346,22 @@
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataReport()">Simpan</button>'
         $('#modalFooter').html(html_footer);
     }
 
-    function itemAll() {
-        var check = $('#checkPilihSemua:checked').val()
-        var html_body = ""
-        if (check == 'on') {
-            $.each(data_item, function(keys, values) {
-                html_body += '<option value="' + values['id'] + '" selected>' + values['name'] + '</option>'
-            })
-        } else {
-            $('#itemStok').empty()
-            $.each(data_item, function(keys, values) {
-                html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
-            })
-        }
-        $('#itemStok').html(html_body)
-    }
-    var item_id = ""
-
-    function getDataOpname() {
+    function getDataReport() {
         date_start = $('#dateStart').val()
         date_end = $('#dateEnd').val()
-        item_id = $('.itemStok').val()
+        periode = $('#selectPeriode').val()
+        subject = $('#selectSubject').val()
         $.ajax({
-            url: "<?= api_url('Api_So/laporanSo'); ?>",
+            url: "<?= api_url('Api_Warehouse/reportPo'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                item_id: item_id,
+                periode: periode,
+                subject: subject,
                 date_start: date_start,
                 date_end: date_end,
             },
@@ -346,12 +377,13 @@
                 $('#btnFilter').attr('disabled', true)
             },
             success: function(response) {
+                $('#contentTable').empty()
+                $('#namaSubject').html(toTitleCase(subject))
                 $('#btnFilter').removeAttr('disabled', true)
                 $('#modal').modal('hide')
                 data_report = response['data']
                 $('#showDate').html(formatDate($('#dateStart').val()) + ' - ' + formatDate($('#dateEnd').val()))
                 dataTampilReport()
-                // console.log(data_report)
 
             }
         })
@@ -361,51 +393,50 @@
         var html = ""
         var html_date = ""
         var html_ket = ""
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            html_date += '<th class="text-center p-2" colspan="5">' + value['tanggal'] + '</th>'
-            html_ket += '<th class="text-center p-2">Stok Sistem</th>'
-            html_ket += '<th class="text-center p-2">Stok Hitung</th>'
-            html_ket += '<th class="text-center p-2">Stok Cek</th>'
-            html_ket += '<th class="text-center p-2">Dihitung Oleh</th>'
-            html_ket += '<th class="text-center p-2">Dicek Oleh</th>'
-        })
-        $('#waktuOpname').attr('colspan', (JSON.parse(data_report[0]['datas']).length * 5))
-        $('#dateTable').html(html_date)
-        $('#ketTable').html(html_ket)
         $.each(data_report, function(key, value) {
-            html += '<tr>'
-            html += '<td>' + (parseInt(key) + 1) + '</td>'
-            html += '<td>' + JSON.parse(value['item'])['name'] + '</td>'
-            $.each(JSON.parse(value['datas']), function(key, value) {
-                var stok_input = 0
-                var stok_sistem = 0
-                var stok_koreksi = 0
-                var employee_hitung = "-"
-                var employee_koreksi = "-"
-                if (value['data_so']['stok_opname'] != null) {
-                    stok_input = value['data_so']['stok_opname']
+            var laporan = JSON.parse(value['data_laporan'])
+            $.each(laporan, function(keys, values) {
+                if (keys == 0) {
+                    fieldContentDetail(laporan[keys], laporan.length, key, value['date'], 'parent', data_report[key])
                 }
-                if (value['data_so']['stok_sistem'] != null) {
-                    stok_sistem = value['data_so']['stok_sistem']
-                }
-                if (value['data_so']['stok_opname_koreksi'] != null) {
-                    stok_koreksi = value['data_so']['stok_opname_koreksi']
-                }
-                if (value['data_so']['employee_hitung'] != null) {
-                    employee_hitung = value['data_so']['employee_hitung'].split(' ').slice(0, 2).join(' ')
-                }
-                if (value['data_so']['employee_koreksi_name'] != null) {
-                    employee_koreksi = value['data_so']['employee_koreksi_name'].split(' ').slice(0, 2).join(' ')
-                }
-                html += '<td class="text-center">' + stok_sistem + '</td>'
-                html += '<td class="text-center">' + stok_input + '</td>'
-                html += '<td class="text-center">' + stok_koreksi + '</td>'
-                html += '<td class="">' + employee_hitung + '</td>'
-                html += '<td class="">' + employee_koreksi + '</td>'
             })
-            html += '</tr>'
+
+            if (laporan.length > 1) {
+                $.each(laporan, function(keys, values) {
+                    if (keys > 0) {
+                        fieldContentDetail(laporan[keys], laporan.length, key, value['date'], 'child', data_report[key])
+                    }
+                })
+            }
         })
-        $('#contentTable').html(html)
+    }
+
+    function fieldContentDetail(laporan, jumlah, key, date, jenis, data) {
+        var html = ""
+        html += '<tr>'
+        if (jenis == 'parent') {
+            html += '<td rowspan="' + jumlah + '">' + (key + 1) + '</td>'
+            var param_lain = ""
+            if (periode == 'weekly') {
+                param_lain = 'Minggu ke-' + data['minggu_ke'] + '<br>'
+            } else if (periode == 'monthly') {
+                param_lain = data['bulan'] + '<br>'
+            }
+            html += '<td class="text-center" rowspan="' + jumlah + '">' + param_lain + date + '</td>'
+        }
+        if (laporan['subject_name'] == null) {
+            laporan['subject_name'] = "-"
+        }
+        html += '<td>' + laporan['subject_name'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_batal'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_revisi'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_tepat_waktu'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_telat_kirim'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_barang_sesuai'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_barang_kurang'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_barang_lebih'] + '</td>'
+        html += '</tr>'
+        $('#contentTable').append(html)
     }
 
     function exportExcel() {

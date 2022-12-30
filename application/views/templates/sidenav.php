@@ -159,6 +159,9 @@
                 <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportPO">Report PO</a>
+                        <?php } ?>
+                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
                         <?php } ?>
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
