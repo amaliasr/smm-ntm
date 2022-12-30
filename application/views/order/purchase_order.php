@@ -3566,7 +3566,7 @@
         date_end_filter = $('#dateEnd').val()
         supplier_id_filter = $('#supplierStok').val()
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/rekapPrPo'); ?>",
+            url: "<?= api_url('Api_Warehouse/reportPrPo'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {

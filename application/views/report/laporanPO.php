@@ -356,7 +356,7 @@
         periode = $('#selectPeriode').val()
         subject = $('#selectSubject').val()
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/reportPo'); ?>",
+            url: "<?= api_url('Api_Warehouse/rekapPo'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
