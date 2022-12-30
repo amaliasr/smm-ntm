@@ -470,7 +470,7 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
         if (id_key !== "") {
             if (data['is_close'] == 0) {
-                html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
+                html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ',' + data['id_so'] + ',' + "'" + formatDate(data['date_start']) + "'" + ')">Simpan</button>'
             }
         } else {
             html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnCreateOpname" onclick="createNewOpname(' + "'" + rString + "'" + ')">Simpan</button>'
@@ -898,7 +898,7 @@
         $('#fieldItem' + no + no2).remove()
     }
 
-    function createNewOpname(kode) {
+    function createNewOpname(kode, id_so = null, date = null) {
         Swal.fire({
             text: 'Apakah anda yakin ingin membuat Program Stock Opname Baru untuk kode ' + kode + ' ?',
             icon: 'warning',
@@ -928,21 +928,33 @@
                         'item': item
                     })
                 }
-                var form_data = new FormData();
-                var tanggal_mulai = $('#tanggalPelaksanaan').val()
-                var catatan = $('#catatanOpname').val()
-                var type = 'POST'
-                var form_data = {
-                    'tanggal_mulai': tanggal_mulai,
-                    'catatan': catatan,
-                    'kode': kode,
-                    'created_by': user_id,
-                    'checking': checking,
-                    'no': "",
+                if (id_so == null) {
+                    // BARU
+                    var form_data = new FormData();
+                    var tanggal_mulai = $('#tanggalPelaksanaan').val()
+                    var catatan = $('#catatanOpname').val()
+                    var type = 'POST'
+                    var form_data = {
+                        'tanggal_mulai': tanggal_mulai,
+                        'catatan': catatan,
+                        'kode': kode,
+                        'created_by': user_id,
+                        'checking': checking,
+                        'no': "",
+                    }
+                    var button = '#btnCreateOpname'
+                    var url = '<?php echo api_url('Api_So/insertTemplate'); ?>'
+                } else {
+                    //TAMBAH PARTISIPANT
+                    var type = 'POST'
+                    var form_data = {
+                        'id_so': id_so,
+                        'checking': checking,
+                        'tanggal': date,
+                    }
+                    var button = '#btnCreateOpname'
+                    var url = '<?php echo api_url('Api_So/tambahPartisipant'); ?>'
                 }
-                var button = '#btnCreateOpname'
-                var url = '<?php echo api_url('Api_So/insertTemplate'); ?>'
-                // console.log(form_data)
                 kelolaData(form_data, type, url, button)
             }
         })
