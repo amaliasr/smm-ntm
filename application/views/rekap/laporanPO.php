@@ -135,6 +135,7 @@
                                                         <th class="text-center" style="width:auto;" colspan="2">Dokumen</th>
                                                         <th class="text-center" style="width:auto;" colspan="2">Pengiriman</th>
                                                         <th class="text-center" style="width:auto;" colspan="3">Barang</th>
+                                                        <th class="text-center" rowspan="2">Transaksi<br>Diterima</th>
                                                     </tr>
                                                     <tr class="align-self-center" style="width:100%;">
                                                         <th class="text-center">Batal</th>
@@ -435,6 +436,7 @@
         html += '<td class="text-center">' + laporan['total_barang_sesuai'] + '</td>'
         html += '<td class="text-center">' + laporan['total_barang_kurang'] + '</td>'
         html += '<td class="text-center">' + laporan['total_barang_lebih'] + '</td>'
+        html += '<td class="text-center">' + laporan['total_transaksi_diterima'] + '</td>'
         html += '</tr>'
         $('#contentTable').append(html)
     }
