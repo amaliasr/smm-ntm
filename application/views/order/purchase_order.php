@@ -60,6 +60,18 @@
         border-width: 0 0 2px;
         border-color: #00ABB3;
     }
+
+    .select2-selection {
+        border: 0px white !important;
+    }
+
+    .select2-selection__arrow b {
+        display: none !important;
+    }
+
+    ul.select2-results__options li {
+        font-size: 12px;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -235,6 +247,7 @@
 <!-- Chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
@@ -537,7 +550,7 @@
                 if (values['state'] == 'APPROVED' && values['order_detail'] != '[null]' && values['state'] != 'CANCEL') {
                     html += '<a class="dropdown-item" onclick="penerimaanBarangPR(' + values['id'] + ')"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
                 }
-                if (divisi_id == 4) {
+                if (divisi_id == 4 && values['state_order'] != 'DONE') {
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                 }
                 html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
@@ -811,8 +824,8 @@
                         }
                     }
                 }
-                console.log(pending)
-                console.log(values['po_id'])
+                // console.log(pending)
+                // console.log(values['po_id'])
                 if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && pending.length != 0) {
                     var link = '<?= base_url() ?>order/detailPO/' + values['po_id'] + ''
                     html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['po_id'] + ',' + "'" + '081944946015' + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PO' + "'" + ',' + "'" + values['no_po'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
@@ -1329,8 +1342,8 @@
         // item
         html_body += '<td>'
         if (data == "") {
-            html_body += '<select style="border:none" name="" id="item_pr" class="form-control form-control-sm select2-single item_pr" data-id="' + i + '">'
-            html_body += '<option value="" selected disabled></option>'
+            html_body += '<select style="border:none" name="" id="item_pr' + i + '" class="form-control form-control-sm selectpicker item_pr" data-id="' + i + '">'
+            html_body += '<option value="" selected disabled> </option>'
             $.each(data_item, function(keys, values) {
                 html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
             })
@@ -1394,7 +1407,17 @@
         html_body += '</tr>'
         $('#bodyPR').append(html_body)
         $('.nominal').number(true);
-        return true;
+        $('#item_pr' + i).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        $('#unit_pr' + i).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        return false;
     }
 
     $(document).on('change', '.item_pr', function(e) {
@@ -1944,9 +1967,8 @@
             html_body += '<select name="" class="form-control select2-single form-control-sm w-75 mb-2 no_pr" data-live-search="true" required="required" ' + disabled + '>'
             html_body += '<option value="" disabled selected>Pilih No. PR</option>'
             data_detail = ""
-            // console.log(data_pr)
             var pr_filtered = data_pr.filter((value, key) => {
-                if (value.state === 'APPROVED') return true
+                if (value.state === 'APPROVED' && value.state_order !== 'DONE') return true
             })
             // console.log(pr_filtered)
             $.each(pr_filtered, function(keys, values) {
@@ -2193,7 +2215,11 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
-
+        $('#supplier').select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
@@ -2530,6 +2556,16 @@
             orientation: "auto",
             autoclose: true
         });
+        $('#item_po' + i).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        $('#unit_po' + i).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
         $('.nominal').number(true, 3);
         return true;
     }
