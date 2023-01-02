@@ -134,7 +134,6 @@
                                     </div>
                                     <div class="col mb-3">
                                         <button type="button" class="btn btn-primary btn-sm float-end" onclick="tampilFilter()"><i class="fa fa-filter me-2"></i> Filter</button>
-                                        <button type="button" class="btn btn-outline-success btn-sm float-end me-2" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export</button>
                                     </div>
                                     <div class="col-12 mb-3" id="tampilReport">
                                         <div class="table-responsive">
@@ -278,7 +277,11 @@
         html_body += '<b class="small">Item</b>'
         html_body += '<div class="col">'
         html_body += '<div class="form-check">'
-        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()">'
+        var check = ""
+        if (data_item.length == item_id.length) {
+            check = 'checked'
+        }
+        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()" ' + check + '>'
         html_body += '<label class="form-check-label" for="checkPilihSemua">'
         html_body += 'Pilih Semua'
         html_body += '</label>'
@@ -287,8 +290,10 @@
         // html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
             var select = ""
-            if (values['id'] == item_id) {
-                select = 'selected'
+            for (let i = 0; i < item_id.length; i++) {
+                if (values['id'] == item_id[i]) {
+                    select = 'selected'
+                }
             }
             html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
@@ -311,7 +316,8 @@
         })
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        html_footer += '<button type="button" class="btn btn-outline-success btn-sm" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
         $('#modalFooter').html(html_footer);
     }
@@ -335,7 +341,9 @@
     function getDataOpname() {
         date_start = $('#dateStart').val()
         date_end = $('#dateEnd').val()
-        item_id = $('.itemStok').val()
+        item_id = $('.itemStok').map(function() {
+            return $(this).val();
+        }).get();
         $.ajax({
             url: "<?= api_url('Api_Warehouse/mutasiStock'); ?>",
             method: "GET",
@@ -386,6 +394,10 @@
                 html_ket += '<td class="p-2 text-center">OUT<br>OTHERS</td>'
             })
         })
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Total<br>IN</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Total<br>IN OTHER</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Total<br>OUT</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Total<br>OUT OTHER</th>'
         html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Stock<br>Akhir</th>'
 
         $('#ketTable').html(html_ket)
@@ -397,14 +409,26 @@
             html += '<td>' + value['name'] + '</td>'
             html += '<td class="text-center">' + value['satuan_name'] + '</td>'
             html += '<td class="text-end">' + value['stok_awal'] + '</td>'
+            var total_in = 0
+            var total_inother = 0
+            var total_out = 0
+            var total_outother = 0
             $.each(JSON.parse(value['datas']), function(key2, value2) {
                 $.each(value2['data_perhari'], function(key3, value3) {
+                    total_in += parseFloat(value3['total_mutasi']['jumlah_in'])
+                    total_inother += parseFloat(value3['total_mutasi']['jumlah_in_other'])
+                    total_out += parseFloat(value3['total_mutasi']['jumlah_out'])
+                    total_outother += parseFloat(value3['total_mutasi']['jumlah_out_other'])
                     html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_in']) + '</td>'
                     html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_in_other']) + '</td>'
                     html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_out']) + '</td>'
                     html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_out_other']) + '</td>'
                 })
             })
+            html += '<td class="text-end">' + total_in + '</td>'
+            html += '<td class="text-end">' + total_inother + '</td>'
+            html += '<td class="text-end">' + total_out + '</td>'
+            html += '<td class="text-end">' + total_outother + '</td>'
             html += '<td class="text-end">' + value['stok_akhir'] + '</td>'
             html += '</tr>'
         })
@@ -412,15 +436,13 @@
     }
 
     function exportExcel() {
+        date_start = $('#dateStart').val()
+        date_end = $('#dateEnd').val()
+        item_id = $('.itemStok').map(function() {
+            return $(this).val();
+        }).get().toString()
         var url = '<?= base_url('report/exportLaporanGudang') ?>';
-        var params = "*$" + item_id + "*$'2022-12-10'*$'2022-12-23'"
-        // var params = "*$" + item_id + "*$" + $('#dateStart').val() + "*$" + $('#dateEnd').val()
-        // window.open(url + '?' + params, '_blank');
-        // window.open(url + '?params=' + encodeURIComponent(params), '_blank');
-        Swal.fire({
-            icon: 'warning',
-            title: 'Belum Tersedia',
-            text: 'Fungsi ini Masih Dalam Perbaikan'
-        });
+        var params = "*$" + item_id + "*$" + date_start + "*$" + date_end;
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

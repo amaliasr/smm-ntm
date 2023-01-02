@@ -123,7 +123,6 @@
                                     </div>
                                     <div class="col mb-3">
                                         <button type="button" class="btn btn-primary btn-sm float-end" onclick="tampilFilter()"><i class="fa fa-filter me-2"></i> Filter</button>
-                                        <button type="button" class="btn btn-success btn-sm float-end me-2" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>
                                     </div>
                                     <div class="col-12 mb-3" id="tampilReport">
                                         <div class="table-responsive">
@@ -294,7 +293,8 @@
         })
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        html_footer += '<button type="button" class="btn btn-success btn-sm float-end me-2" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataReport()">Simpan</button>'
         $('#modalFooter').html(html_footer);
     }
@@ -358,7 +358,7 @@
                 html_body += '<td>' + value['no_pr'] + '</td>'
                 html_body += '<td>' + value['no_po'] + '</td>'
                 html_body += '<td>' + value['supplier_name'] + '</td>'
-                html_body += '<td>' + value['item_concat'] + '</td>'
+                html_body += '<td>' + value['item_name'] + '</td>'
                 html_body += '<td class="text-end">' + value['jumlah'] + '</td>'
                 html_body += '<td>' + value['item_satuan'] + '</td>'
                 html_body += '<td class="text-end">' + number_format(value['harga']) + '</td>'
@@ -376,6 +376,9 @@
     }
 
     function exportExcel() {
+        date_start = $('#dateStart').val()
+        date_end = $('#dateEnd').val()
+        supplier_id = $('#supplierStok').val()
         var url = '<?= base_url('report/exportReportPO') ?>';
         var params = "*$" + supplier_id + "*$" + date_start + "*$" + date_end;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
