@@ -147,7 +147,9 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="contentTable">
-
+                                                    <tr class="align-self-center">
+                                                        <td colspan="13" class="text-center pt-5 pb-5 align-self-center"><i>Anda Belum Melakukan Pencarian</i></td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
