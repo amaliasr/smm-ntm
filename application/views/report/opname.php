@@ -139,7 +139,9 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="contentTable">
-
+                                                    <tr class="align-self-center">
+                                                        <td colspan="13" class="text-center pt-5 pb-5 align-self-center"><i>Anda Belum Melakukan Pencarian</i></td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -242,7 +244,7 @@
 
     function tampilFilter() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Filter</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -266,7 +268,11 @@
         html_body += '<b class="small">Item</b>'
         html_body += '<div class="col">'
         html_body += '<div class="form-check">'
-        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()">'
+        var check = ""
+        if (data_item.length == item_id.length) {
+            check = 'checked'
+        }
+        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()"' + check + '>'
         html_body += '<label class="form-check-label" for="checkPilihSemua">'
         html_body += 'Pilih Semua'
         html_body += '</label>'
@@ -275,8 +281,10 @@
         // html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
             var select = ""
-            if (values['id'] == item_id) {
-                select = 'selected'
+            for (let i = 0; i < item_id.length; i++) {
+                if (values['id'] == item_id[i]) {
+                    select = 'selected'
+                }
             }
             html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
         })
@@ -324,7 +332,9 @@
     function getDataOpname() {
         date_start = $('#dateStart').val()
         date_end = $('#dateEnd').val()
-        item_id = $('.itemStok').val()
+        item_id = $('.itemStok').map(function() {
+            return $(this).val();
+        }).get();
         $.ajax({
             url: "<?= api_url('Api_So/laporanSo'); ?>",
             method: "GET",
@@ -397,9 +407,9 @@
                 if (value['data_so']['employee_koreksi_name'] != null) {
                     employee_koreksi = value['data_so']['employee_koreksi_name'].split(' ').slice(0, 2).join(' ')
                 }
-                html += '<td class="text-center">' + stok_sistem + '</td>'
-                html += '<td class="text-center">' + stok_input + '</td>'
-                html += '<td class="text-center">' + stok_koreksi + '</td>'
+                html += '<td class="text-center">' + number_format(stok_sistem) + '</td>'
+                html += '<td class="text-center">' + number_format(stok_input) + '</td>'
+                html += '<td class="text-center">' + number_format(stok_koreksi) + '</td>'
                 html += '<td class="">' + employee_hitung + '</td>'
                 html += '<td class="">' + employee_koreksi + '</td>'
             })
