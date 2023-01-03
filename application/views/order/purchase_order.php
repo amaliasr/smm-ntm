@@ -72,6 +72,10 @@
     ul.select2-results__options li {
         font-size: 12px;
     }
+
+    .under-hover:hover {
+        text-decoration: underline;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -434,6 +438,7 @@
     var itemYangSisa = []
 
     function formMasterPR(data) {
+        console.log(data)
         res = {}
         itemYangSisa = []
         var html = ""
@@ -529,6 +534,7 @@
                 })
             })
             var jumlahQtySisa = qtySisa.length
+            // console.log(jumlahQtySisa)
             if (jumlahQtySisa > 0 && values['state_order'] != 'DONE') {
                 html += '<span class="text-grey ms-2" style="font-size: 12px;">(Partial)</span>'
             }
@@ -550,7 +556,11 @@
                 if (values['state'] == 'APPROVED' && values['order_detail'] != '[null]' && values['state'] != 'CANCEL') {
                     html += '<a class="dropdown-item" onclick="penerimaanBarangPR(' + values['id'] + ')"> <i class="fa fa-check me-2"></i> Penerimaan Barang</a>'
                 }
-                if (divisi_id == 4 && values['state_order'] != 'DONE') {
+                let qtyMasihAda = JSON.parse(values['data_detail']).filter((value, key) => {
+                    if (value.qty_sisa !== 0) return true
+                }).length
+                console.log(qtyMasihAda)
+                if (divisi_id == 4 && values['state_order'] != 'DONE' && qtyMasihAda > 0) {
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                 }
                 html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
@@ -701,6 +711,7 @@
                     notFound('#pills-profile')
                 } else {
                     data_po = response['data']
+                    console.log(data_po)
                     data_po_approval = response['data_approval']
                     formMasterPO(data_po)
                 }
@@ -760,8 +771,8 @@
 
             // SURAT JALAN PO
             html += '<div class="col">'
+            html += '<b style="font-size: 11px;">Surat Jalan :</b>'
             if (values['order_detail'] != null) {
-                html += '<b style="font-size: 11px;">Surat Jalan :</b>'
                 if (JSON.parse(values['order_detail'])[0]['no_sj'] != null) {
                     $.each(JSON.parse(values['order_detail']), function(keys2, values2) {
                         html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + values2['no_sj'] + '</p>'
@@ -769,10 +780,28 @@
                 } else {
                     html += '<p class="m-0 text-warning" style="font-size: 12px;"><i>Belum Ada Surat Jalan</i></p>'
                 }
+            } else {
+                html += '<p class="m-0 text-warning" style="font-size: 12px;"><i>Belum Ada Surat Jalan</i></p>'
             }
             html += '</div>'
 
-            html += '<div class="col-auto">'
+            // LIST NO PR
+            html += '<div class="col">'
+            if (values['data_pr'] != null) {
+                html += '<b style="font-size: 11px;">No. PR :</b>'
+                if (JSON.parse(values['data_pr']) != null) {
+                    $.each(JSON.parse(values['data_pr']), function(keys2, values2) {
+                        if (values2['no_pr'] != null) {
+                            html += '<p class="m-0 text_search under-hover" data-id="PO' + keys + '" style="font-size: 12px;cursor:pointer;" onclick="openDetailPR(' + values2['pr_id'] + ',' + values['po_id'] + ')">' + values2['no_pr'] + '</p>'
+                        }
+                    })
+                } else {
+                    html += '<p class="m-0 text-warning" style="font-size: 12px;">-</p>'
+                }
+            }
+            html += '</div>'
+
+            html += '<div class="col-1">'
             if (values['state_order'] == 'DONE') {
                 if (values['is_complete'] == '0') {
                     html += '<button class="btn btn-outline-success h-100 btnClosePO" onclick="doClosePO(' + values['po_id'] + ')">Close<br>PO</button>'
@@ -3670,5 +3699,10 @@
             html_body += '</tr>'
         }
         $('#contentTable').html(html_body)
+    }
+
+    function openDetailPR(pr_id, po_id) {
+        var url = '<?= base_url() ?>order/infoPR/' + pr_id + '/' + po_id
+        window.open(url, '_blank')
     }
 </script>

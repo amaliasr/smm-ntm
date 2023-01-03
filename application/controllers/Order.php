@@ -130,4 +130,17 @@ class Order extends CI_Controller
         $this->pdf->render();
         $this->pdf->stream("report_kas", array("Attachment" => 0));
     }
+    public function infoPR($id, $id_po = "")
+    {
+        $data['title'] = 'Information PR';
+        $data['id'] = $id;
+        $data['id_po'] = $id_po;
+        $this->template->views('order/infoPR', $data);
+    }
+    public function infoPO($id)
+    {
+        $data['title'] = 'Information PO';
+        $data['id'] = $id;
+        $this->template->views('order/infoPO', $data);
+    }
 }
