@@ -409,6 +409,7 @@
             success: function(response) {
                 $('#tampilDetailSuratJalan').empty()
                 data_suratjalan = response['data']
+                console.log(data_suratjalan)
                 if (data_suratjalan != undefined) {
                     var pending = 0
                     var delivered = 0
@@ -433,7 +434,7 @@
                         $('#jumlahDelivered').html(delivered)
                         $('#jumlahChecked').html(checked)
                         $('#jumlahCanceled').html(canceled)
-                        formListSJ(keys, data_suratjalan[keys], JSON.parse(values['data_detail']))
+                        formListSJ(keys, data_suratjalan[keys], JSON.parse(values['data_detail']), JSON.parse(values['data_penerimaan']))
                     })
                 } else {
                     var html = ""
@@ -452,8 +453,7 @@
         })
     }
 
-    function formListSJ(keys, data, data_detail) {
-        // console.log(data)
+    function formListSJ(keys, data, data_detail, data_terima) {
         background = ""
         check_success = "fa fa-truck text-grey"
         icon_profile = 'fa-truck'
@@ -475,7 +475,7 @@
         }
         var html = ""
         html += '<div class="card shadow-sm mb-2 w-100 card-hoper ' + background + '" id="card_search' + keys + '">'
-        html += '<div class="card-body p-2">'
+        html += '<div class="card-body p-3">'
         html += '<div class="row">'
         html += '<div class="col-1 align-self-center">'
         html += '<div id="profileImage" class="' + color_icon_profile + '"><i class="fa ' + icon_profile + '"></i></div>'
@@ -568,17 +568,27 @@
         html += '<div class="col-4 border-start">'
         html += '<p class="m-0 mb-3" style="font-size: 11px;"><b>Detail Item</b></p>'
         $.each(data_detail, function(keys, values) {
+            var terima = data_terima.filter((value, key) => {
+                if (value.item_id === values.item_id) return true
+            })
             html += '<div class="row">'
             html += '<div class="col-2 p-2 text-center">'
             html += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-100 mx-auto d-block">'
             html += '</div>'
             html += '<div class="col-5 align-self-center ps-0">'
             html += '<p class="m-0 small" style="font-size:12px ;"><b>' + values['item_name'] + '</b></p>'
-            html += '<p class="m-0 small float-start" style="font-size:10px ;">' + values['jumlah'] + 'x</p>'
-            html += '<p class="m-0 small float-end" style="font-size:10px ;">' + values['satuan_name'] + '</p>'
+            html += '<p class="m-0 small float-start" style="font-size:10px ;">' + number_format(values['jumlah']) + ' ' + values['satuan_name'] + '</p>'
             html += '</div>'
             html += '<div class="col-5 align-self-center">'
-            html += '<p class="m-0 small text-end text-grey" style="font-size:12px ;"><i class="fa fa-check"></i> Uncheck</p>'
+            if (terima.length > 0) {
+                var badge_qty = "bg-success"
+                if (terima[0]['qty'] != values['jumlah']) {
+                    badge_qty = 'bg-danger'
+                }
+                html += '<p class="m-0 small text-end text-success" style="font-size:12px ;"><i class="fa fa-check"></i> Checked <br><span class="badge ' + badge_qty + '">' + number_format(terima[0]['qty']) + ' ' + terima[0]['item_satuan'] + '</span></p>'
+            } else {
+                html += '<p class="m-0 small text-end text-grey" style="font-size:12px ;"><i class="fa fa-check"></i> Uncheck</p>'
+            }
             html += '</div>'
             html += '</div>'
         })
