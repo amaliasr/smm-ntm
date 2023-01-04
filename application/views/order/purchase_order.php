@@ -438,7 +438,7 @@
     var itemYangSisa = []
 
     function formMasterPR(data) {
-        console.log(data)
+        // console.log(data)
         res = {}
         itemYangSisa = []
         var html = ""
@@ -559,7 +559,7 @@
                 let qtyMasihAda = JSON.parse(values['data_detail']).filter((value, key) => {
                     if (value.qty_sisa !== 0) return true
                 }).length
-                console.log(qtyMasihAda)
+                // console.log(qtyMasihAda)
                 if (divisi_id == 4 && values['state_order'] != 'DONE' && qtyMasihAda > 0) {
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                 }
@@ -711,7 +711,7 @@
                     notFound('#pills-profile')
                 } else {
                     data_po = response['data']
-                    console.log(data_po)
+                    // console.log(data_po)
                     data_po_approval = response['data_approval']
                     formMasterPO(data_po)
                 }
@@ -772,13 +772,11 @@
             // SURAT JALAN PO
             html += '<div class="col">'
             html += '<b style="font-size: 11px;">Surat Jalan :</b>'
-            if (values['order_detail'] != null) {
-                if (JSON.parse(values['order_detail'])[0]['no_sj'] != null) {
-                    $.each(JSON.parse(values['order_detail']), function(keys2, values2) {
-                        html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + values2['no_sj'] + '</p>'
-                    })
-                } else {
-                    html += '<p class="m-0 text-warning" style="font-size: 12px;"><i>Belum Ada Surat Jalan</i></p>'
+            // console.log(JSON.parse(values['no_sj_luar']))
+            if (JSON.parse(values['no_sj_luar'])[0] != null) {
+                var h = JSON.parse(values['no_sj_luar'])
+                for (let i = 0; i < h.length; i++) {
+                    html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + h[i] + '</p>'
                 }
             } else {
                 html += '<p class="m-0 text-warning" style="font-size: 12px;"><i>Belum Ada Surat Jalan</i></p>'
@@ -893,7 +891,7 @@
         var data = data_po.filter((values, keys) => {
             if (values.is_complete === '0' && values.state_order === 'DONE') return true
         })
-        console.log(data)
+        // console.log(data)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-centered');
         var html_header = '';
@@ -2771,7 +2769,7 @@
             html_body += '</div>'
             html_body += '</div>'
             html_body += '<button class="btn btn-success w-100 p-5" onclick="mulaiOrder(' + po_id + ')">Mulai Order ke Supplier</button>'
-        } else if (state == 'PROCESS' || state == 'PENDING') {
+        } else if (state == 'PROCESS' || state == 'PENDING' || state == 'DONE') {
             html_body += '<p class="text-dark-grey small mb-3">Jika Supplier telah memberikan Surat Jalan, maka Anda Dapat Input Surat tersebut dibawah ini</p>'
             html_body += '<div class="mt-2">'
             html_body += '<b class="mb-2">Surat Jalan</b>'
@@ -3276,7 +3274,7 @@
         let data = data_pr.filter((value, key) => {
             if (value.id === id.toString()) return true
         })[0];
-        console.log(data)
+        // console.log(data)
         var html_body = ""
         // html_body += '<div class="card shadow-sm mb-2">'
         // html_body += '<div class="card-body">'
@@ -3333,7 +3331,7 @@
         let obj = JSON.parse(data['data_detail']).filter((value, key) => {
             if (value.status_order === 'DONE' || value.status_order === 'PENDING') return true
         }).length;
-        console.log(data)
+        // console.log(data)
         var html = ""
         html += '<div class="card shadow-sm mb-2">'
         html += '<div class="card-body">'

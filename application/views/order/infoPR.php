@@ -416,7 +416,7 @@
         html += '<table class="table small mt-2 align-self-center border-none">'
         html += '<tr>'
         html += '<td style="border-bottom: none;" class="p-0 m-0">QTY</td>'
-        html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + data['qty'] + ' ' + data['unit_name'] + '</td>'
+        html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(data['qty']) + ' ' + data['unit_name'] + '</td>'
         html += '</tr>'
         html += '<tr>'
         html += '<td style="border-bottom: none;" class="p-0 m-0">Unit Price</td>'
