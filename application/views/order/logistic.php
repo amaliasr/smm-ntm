@@ -394,7 +394,7 @@
                         $('#modal2').modal('hide')
                         data_sj = response['data']
                         if (data_sj.length > 1) {
-
+                            modalSJMulti()
                         } else {
                             formPencarianSJ(response['data'][0])
                         }
@@ -404,11 +404,66 @@
         })
     }
 
-    function modalSJMulti() {
+    function formPencarianSJKey(key) {
+        formPencarianSJ(data_sj[key])
+    }
 
+    function modalSJMulti() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pilih Surat Jalan Terkait</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        $.each(data_sj, function(key, value) {
+            let obj = JSON.parse(value['data_detail']).filter((value, key) => {
+                if (value.status_order === 'ON DELIVERY') return true
+            }).length;
+            html_body += '<div class="col-12">'
+            var check = "text-light"
+            if (obj > 0) {
+                html_body += '<div class="card shadow-none mb-2" style="cursor:pointer;" onclick="formPencarianSJKey(' + key + ')">'
+            } else {
+                check = 'text-success'
+                html_body += '<div class="card shadow-none mb-2 bg-light">'
+            }
+            html_body += '<div class="card-body">'
+
+            html_body += '<div class="row">'
+            html_body += '<div class="col-6">'
+            html_body += '<p class="m-0" style="font-size:10px;"><i class="fa fa-clock-o"></i> : ' + value['date_transaction'] + '</p>'
+            html_body += '<b style="font-size:16px;" class="mb-3">' + value['no_sj'] + '</b>'
+            html_body += '<p class="m-0" style="font-size:11px;">NO. PO : <span class="fw-bold">' + value['no_po'] + '</span></p>'
+            html_body += '<p class="m-0" style="font-size:11px;">Supplier : <span class="fw-bold">' + value['supplier_name'] + '</span></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-6">'
+            html_body += '<b style="font-size:11;">Item :</b>'
+            $.each(JSON.parse(value['data_detail']), function(keys, values) {
+                html_body += '<p class="m-0" style="font-size:11px;"><i class="fa fa-check ' + check + ' me-2"></i>' + values['item_name'] + ' (' + values['jumlah'] + ')</p>'
+            })
+            html_body += '</div>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup Halaman</button>'
+        $('#modalFooter').html(html_footer);
     }
 
     function formPencarianSJ(data) {
+        $('#modal').modal('hide');
         let obj = JSON.parse(data['data_detail']).filter((value, key) => {
             if (value.status_order === 'DONE' || value.status_order === 'PENDING') return true
         }).length;
