@@ -392,12 +392,20 @@
                         tidakAdaSuratJalan()
                     } else {
                         $('#modal2').modal('hide')
-                        data_sj = response['data'][0]
-                        formPencarianSJ(response['data'][0])
+                        data_sj = response['data']
+                        if (data_sj.length > 1) {
+
+                        } else {
+                            formPencarianSJ(response['data'][0])
+                        }
                     }
                 })
             }
         })
+    }
+
+    function modalSJMulti() {
+
     }
 
     function formPencarianSJ(data) {

@@ -2752,10 +2752,11 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer);
-        statusOrdering(data_parent['po_id'], data_parent['state_order'], data_parent['order_id'])
+        console.log(data_parent)
+        statusOrdering(data_parent['po_id'], data_parent['state_order'], data_parent['order_id'], data_parent['supplier_id'])
     }
 
-    function statusOrdering(po_id, state, id_order = null) {
+    function statusOrdering(po_id, state, id_order = null, supplier_id = null) {
         // console.log(po_id, state, id_order)
         var html_body = ""
         if (state == null || state == '-') {
@@ -2778,7 +2779,7 @@
             html_body += '</div>'
             html_body += '<div id="listSuratJalan" mb-2>'
             html_body += '</div>'
-            html_body += '<button class="btn btn-primary btn-sm mt-2 float-end" id="btnTambahSJ" onclick="tambahSuratJalan(' + po_id + ',' + id_order + ')"><i class="fa fa-save me-2"></i>Save</button>'
+            html_body += '<button class="btn btn-primary btn-sm mt-2 float-end" id="btnTambahSJ" onclick="tambahSuratJalan(' + po_id + ',' + id_order + ',' + supplier_id + ')"><i class="fa fa-save me-2"></i>Save</button>'
             html_body += '<button class="btn btn-outline-primary btn-sm mt-2 float-end me-2" onclick="listSuratJalan(' + po_id + ')"><i class="fa fa-plus me-2"></i>New</button>'
             html_body += '</div>'
         }
@@ -2963,7 +2964,7 @@
         ajaxTemplate(content)
     }
 
-    function tambahSuratJalan(po_id, order_id) {
+    function tambahSuratJalan(po_id, order_id, supplier_id) {
         var tanggal_sj = $('.tanggalSJ').map(function() {
             return $(this).val();
         }).get();
@@ -3017,7 +3018,8 @@
             tanggal_sj: tanggal_sj,
             detail_po_id: detail_po_id,
             jumlah_arrive: jumlah_arrive,
-            item_id: item_arrivce
+            item_id: item_arrivce,
+            supplier_id: supplier_id,
         }
         var image = 'message.gif'
         var id_order = order_id
