@@ -41,10 +41,10 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        List PR
+                        List Surat Jalan
                     </div>
                     <div class="card-body">
-                        <div id="tampilPR">
+                        <div id="tampilSJ">
                             <h6 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h6>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
             <div class="col-12 col-md-8 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
-                        Detail PR
+                        Detail Surat Jalan
                     </div>
                     <div class="card-body" id="tampilData">
                         <h4 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h4>
@@ -122,14 +122,14 @@
     // var user_id = 143
     // var user_id = 118
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
-    var id_pr = '<?= $id ?>'
+    var suratJalan = '<?= $suratJalan ?>'
     var id_po = '<?= $id_po ?>'
     var data_user = ""
     var data_item = ""
     var no_pr = ""
     var data_po = ""
     var data_po_detail = ""
-    var data_pr = ""
+    var data_sj = ""
     var last_number = 1
     $(document).ready(function() {
         $.ajax({
@@ -159,7 +159,7 @@
                 data_item = response['data']['item'];
                 data_satuan = response['data']['itemSatuan'];
                 if (id_po == "") {
-                    masterPR()
+                    masterSuratJalan()
                 } else {
                     getDataPO()
                 }
@@ -179,96 +179,27 @@
             beforeSend: function() {},
             success: function(response) {
                 data_po = response['data'][0]
+                console.log(data_po)
                 data_po_detail = JSON.parse(data_po['data_detail'])
-                masterPR()
+                masterSuratJalan()
             }
         })
     }
-    var level = 0
-    var key_next = ""
-    var loop_next = []
-    var phone_next = []
-    var name_next = []
 
-    function masterPR() {
-        level = 0
-        key_next = ""
-        loop_next = []
-        phone_next = []
-        name_next = []
+    function masterSuratJalan() {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getDataPR'); ?>",
+            url: "<?= api_url('Api_Warehouse/getDataSuratJalan'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                id: id_pr,
+                po_id: id_po,
             },
             error: function(xhr) {},
             beforeSend: function() {
                 $('#tampilData').html('<h4 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h4>')
             },
             success: function(response) {
-                data_pr = response['data'][0]
-                data_pr_approval = response['data_approval']
-                var ttd_pending = ""
-                var pending = []
-                var ttd_all = []
-                var data_approval = ""
-                for (let k = 0; k < data_pr_approval.length; k++) {
-                    for (let i = 0; i < data_pr_approval[k].length; i++) {
-                        for (let j = 0; j < data_pr_approval[k][i].length; j++) {
-                            ttd_all.push(JSON.parse(data_pr_approval[k][i][j]['data_approval'])[0])
-                            ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
-                                if (value.is_accept === 'Pending') return true
-                            })
-                            if (ttd_pending.length > 0) {
-                                pending.push({
-                                    'approval': ttd_pending[0],
-                                    'keys': i,
-                                })
-                            }
-                        }
-                    }
-                }
-                // console.log(ttd_all)
-                if (pending.length > 0) {
-                    var key = pending[0]['keys']
-                    var loop = []
-                    $.each(pending, function(keys, values) {
-                        if (values['keys'] == key) {
-                            loop.push(values['approval'])
-                        }
-                    })
-                    // console.log(pending)
-                    // BUAT NEXT WHATSAPP
-                    key_next = parseInt(key) + 1
-                    loop_next = []
-                    phone_next = []
-                    name_next = []
-                    $.each(pending, function(keys, values) {
-                        if (values['keys'] == key_next) {
-                            loop_next.push(values['approval'])
-                        }
-                    })
-                    $.each(loop_next, function(keys, values) {
-                        phone_next.push(values['phone'])
-                        name_next.push(values['user_name'])
-                    })
-                    // console.log(loop_next)
-                    // BUAT NEXT WHATSAPP
-                    var data_approval = loop
-                    var ada = "tidak"
-                    // console.log(loop_next)
-                    $.each(data_approval, function(keys, values) {
-                        if (user_id == values['user_id']) {
-                            // console.log()
-                            if (values['is_accept'] == 'Pending') {
-                                ada = "ya"
-                                level = values['id_approval']
-                            }
-                        }
-                    })
-                }
+                data_sj = response['data']
                 var html = ""
                 if (data_po != "") {
                     html += '<div class="row pb-2">'
@@ -285,216 +216,81 @@
                     html += '<p class="m-0 fw-bold" style="font-size:11px;">' + data_po['date_po'] + '</p>'
                     html += '</div>'
                     html += '</div>'
-                    $.each(JSON.parse(data_po['data_pr']), function(key, value) {
+                    var sj = JSON.parse(data_po['no_sj_luar'])
+                    for (let i = 0; i < sj.length; i++) {
                         var bg = ""
-                        if (value['pr_id'] == id_pr) {
+                        if (sj[i] == suratJalan) {
                             bg = 'bg-light'
                         }
-                        html += '<div class="card shadow-none mb-2 ' + bg + '" style="cursor:pointer;" onclick="changePR(' + value['pr_id'] + ')">'
+                        html += '<div class="card shadow-none mb-2 ' + bg + '" style="cursor:pointer;" onclick="changePR(' + "'" + sj[i] + "'" + ')">'
                         html += '<div class="card-body p-2">'
-                        html += '<b style="font-size:11px;">' + value['no_pr'] + '</b>'
+                        html += '<b style="font-size:11px;">' + sj[i] + '</b>'
                         html += '</div>'
                         html += '</div>'
-                    })
+                    }
                 } else {
                     html += '<div class="card shadow-none mb-2 bg-light" style="cursor:pointer;">'
                     html += '<div class="card-body p-2">'
-                    html += '<b style="font-size:11px;">' + data_pr['no_pr'] + '</b>'
+                    html += '<b style="font-size:11px;">' + suratJalan + '</b>'
                     html += '</div>'
                     html += '</div>'
                 }
-                $('#tampilPR').html(html)
-                formDetail(ttd_all)
+                $('#tampilSJ').html(html)
+                formDetail()
             }
         })
     }
 
-    function formDetail(data_approval) {
-        var image = 'request'
-        if (data_pr['state'] == 'CHECKED') {
-            image = 'approval'
-        } else if (data_pr['state'] == 'DONE') {
-            image = 'done'
-        } else if (data_pr['state'] == 'REJECTED') {
-            image = 'rejected'
-        }
-
+    function formDetail() {
+        let obj = data_sj.filter((value, key) => {
+            if (value.no_sj === suratJalan) return true
+        })[0]
+        console.log(obj)
         var html = '';
         html += '<div class="container-fluid small">'
         html += '<div class="row">'
-
-        html += '<div class="col-12 col-md-12 mb-3">'
-        html += '<div class="row">'
-        html += '<div class="col-5 col-md-3">From</div>'
-        html += '<div class="col-7 col-md-9 fw-bold">' + data_pr['name'] + '</div>'
-        html += '<div class="col-5 col-md-3">To</div>'
-        html += '<div class="col-7 col-md-9 fw-bold">Purchasing</div>'
-        html += '<div class="col-5 col-md-3">No. PR</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['no_pr'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Tanggal</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['date'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Cost Centre</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['cost_center'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Notes</div>'
-        if (data_pr['justification'] == "") {
-            data_pr['justification'] = "-"
-        }
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_pr['justification'] + '</span></div>'
-
-        html += '<div class="col-5 col-md-3">Status</div>'
-        html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_pr['state'] + '</span></i></div>'
-
-
-        html += '</div>'
-        html += '</div>'
-
-        html += '<div class="col-12 col-md-12 mb-2">'
-        html += '<b>List Item</b>'
-        html += '<div id="bodyPR" class="mt-2 mb-2">'
-        html += '</div>'
-        html += '<table style="width:100%" class="fw-bold mt-2 mb-2">'
-        html += '<tr>'
-        html += '<td class="text-end" style="width:65%">Total</td>'
-        html += '<td class="text-end" style="width:35%">' + number_format(data_pr['grand_total']) + '</td>'
-        html += '</tr>'
-        html += '</table>'
-        html += '</div>'
-
-        html += '<div class="col-6 mt-3 mb-2">'
-        html += '</div>'
-        html += '<div class="col-6 mt-3 mb-2">'
-        html += '<b>Approval</b>'
-        html += '<div class="row mt-2">'
-
-        $.each(data_approval, function(keys, values) {
-            var success = "fa-check text-light"
-            if (values['is_accept'] == 'Accepted') {
-                success = 'fa-check text-success'
-            } else if (values['is_accept'] == 'Rejected') {
-                success = 'fa-times text-danger'
+        $.each(JSON.parse(obj['data_order']), function(key, value) {
+            var bg = ""
+            if (value['state_order'] == 'DONE') {
+                bg = 'bg-light'
             }
+            html += '<div class="col-12">'
+            html += '<div class="card shadow-none mb-2 ' + bg + '">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
 
-            html += '<div class="col-12 col-sm-12 m-0 p-1">'
-            html += '<div class="card shadow-sm m-0 w-100">'
-            html += '<div class="card-body p-2">'
-            html += '<div class="row align-self-center">'
-            html += '<div class="col-3">'
-            html += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+            html += '<div class="col-12 col-md-5">'
+            html += '<p class="m-0"><b>' + value['item_name'] + '</b></p>'
             html += '</div>'
-            html += '<div class="col-9">'
-            if (keys == 0) {
-                var name = 'Checked'
-            } else {
-                var name = 'Approved'
-            }
-            html += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
-            html += '<p class="m-0"><span class="small" style="font-size:10px;">' + values['user_name'] + '</span></p>'
+            html += '<div class="col-12 col-md-7">'
+            html += '<div class="row">'
+            html += '<div class="col-5">'
+            html += '<p class="m-0" style="font-size:11px;">Tanggal Create</p>'
             html += '</div>'
+            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + formatDate(value['tanggal_sj']) + '</p></div>'
+            html += '<div class="col-5">'
+            html += '<p class="m-0" style="font-size:11px;">Jumlah Order</p>'
+            html += '</div>'
+            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + number_format(value['jumlah_order']) + ' ' + value['item_satuan'] + '</p></div>'
+            html += '<div class="col-5">'
+            html += '<p class="m-0" style="font-size:11px;">Jumlah Dikirim</p>'
+            html += '</div>'
+            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + number_format(value['jumlah_dikirim']) + ' ' + value['item_satuan'] + '</p></div>'
+            html += '<div class="col-5">'
+            html += '<p class="m-0" style="font-size:11px;">Status</p>'
+            html += '</div>'
+            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + value['state_order'] + '</p></div>'
+            html += '</div>'
+
             html += '</div>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
         })
-
-
-        html += '</div>'
-
-        html += '</div>'
-
-
-
         html += '</div>'
         html += '</div>'
         $('#tampilData').html(html);
-        $.each(JSON.parse(data_pr['data_detail']), function(keys, values) {
-            formRowPR(last_number, JSON.parse(data_pr['data_detail'])[keys])
-            last_number++
-        })
     }
-
-    function formRowPR(i, data) {
-        // console.log(data_po_detail)
-        if (data_po != "") {
-            var idPr = data_po_detail.filter((value, key) => {
-                if (value.pr_detail_id === data.id) return true
-            })
-        } else {
-            var idPr = []
-        }
-        var html = ""
-        var bg = ''
-        var text = ''
-        if (idPr.length > 0) {
-            bg = 'bg-light'
-            text = '<p class="m-0 text-success" style="font-size:9px;"><i>Item dari PR ini Masuk PO Terkait</i></p>'
-        }
-        html += '<div class="card w-100 shadow-sm mb-2 p-0 position-relative ' + bg + '">'
-        // badge
-        if (idPr.length > 0) {
-            html += '<span class="position-absolute top-50 start-0 translate-middle badge rounded-pill bg-success"><i class="fa fa-check"></i></span>'
-        }
-        // badge
-        html += '<div class="card-body p-2 ps-4 pe-4">'
-        html += '<div class="row d-flex align-items-center ">'
-
-        html += '<div class="col-12 col-md-6 align-self-center">'
-        html += text
-        html += '<span class="fw-bold text-primary">' + data['item_name'] + '</span><br>'
-        if (data['note'] == "") {
-            data['note'] = "-"
-        }
-        html += '<span class="small">Note : <span class="text-grey">' + data['note'] + '</span></span>'
-        html += '</div>'
-
-        html += '<div class="col-12 col-md-6 text-right">'
-        html += '<table class="table small mt-2 align-self-center border-none">'
-        html += '<tr>'
-        html += '<td style="border-bottom: none;" class="p-0 m-0">QTY</td>'
-        html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(data['qty']) + ' ' + data['unit_name'] + '</td>'
-        html += '</tr>'
-        html += '<tr>'
-        html += '<td style="border-bottom: none;" class="p-0 m-0">Unit Price</td>'
-        html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(data['unit_price']) + '</td>'
-        html += '</tr>'
-        html += '<tr>'
-        html += '<td style="border-bottom: none;" class="p-0 m-0">Total Price</td>'
-        html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(data['extended_price']) + '</td>'
-        html += '</tr>'
-        if (idPr.length > 0) {
-            html += '<tr>'
-            html += '<td colspan="2" style="border-bottom: none;"><hr class="m-1"></td>'
-            html += '</tr>'
-            html += '<tr class="text-success">'
-            html += '<td style="border-bottom: none;" class="p-0 m-0">QTY (PO)</td>'
-            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(idPr[0]['qty']) + ' ' + idPr[0]['satuan_name'] + '</td>'
-            html += '</tr>'
-            html += '<tr class="text-success">'
-            html += '<td style="border-bottom: none;" class="p-0 m-0">Unit Price (PO)</td>'
-            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(idPr[0]['harga']) + '</td>'
-            html += '</tr>'
-            html += '<tr class="text-success">'
-            html += '<td style="border-bottom: none;" class="p-0 m-0">Total Price (PO)</td>'
-            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(idPr[0]['subtotal']) + '</td>'
-            html += '</tr>'
-            html += '<tr>'
-            html += '<td colspan="2" style="border-bottom: none;"><hr class="m-1"></td>'
-            html += '</tr>'
-            html += '<tr class="text-success">'
-            html += '<td style="border-bottom: none;" class="p-0 m-0">Tanggal Pengiriman</td>'
-            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + idPr[0]['tanggal_pengiriman'] + '</td>'
-            html += '</tr>'
-        }
-        html += '</table>'
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-
-        $('#bodyPR').append(html)
-        return true;
-    }
-
 
     function loading(image, text) {
         $('#modal2').modal('show')
@@ -514,7 +310,7 @@
     }
 
     function changePR(id) {
-        id_pr = id
-        masterPR()
+        suratJalan = id
+        masterSuratJalan()
     }
 </script>

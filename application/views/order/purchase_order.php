@@ -776,7 +776,7 @@
             if (JSON.parse(values['no_sj_luar'])[0] != null) {
                 var h = JSON.parse(values['no_sj_luar'])
                 for (let i = 0; i < h.length; i++) {
-                    html += '<p class="m-0 text_search" data-id="PO' + keys + '" style="font-size: 12px;">' + h[i] + '</p>'
+                    html += '<p class="m-0 text_search under-hover" data-id="PO' + keys + '" style="font-size: 12px;cursor:pointer;" onclick="openDetailSuratJalan(' + "'" + h[i] + "'" + ',' + values['po_id'] + ')">' + h[i] + '</p>'
                 }
             } else {
                 html += '<p class="m-0 text-warning" style="font-size: 12px;"><i>Belum Ada Surat Jalan</i></p>'
@@ -3703,6 +3703,11 @@
 
     function openDetailPR(pr_id, po_id) {
         var url = '<?= base_url() ?>order/infoPR/' + pr_id + '/' + po_id
+        window.open(url, '_blank')
+    }
+
+    function openDetailSuratJalan(suratJalan, po_id) {
+        var url = '<?= base_url() ?>order/infoSuratJalan/' + encodeURIComponent(suratJalan) + '/' + po_id
         window.open(url, '_blank')
     }
 </script>
