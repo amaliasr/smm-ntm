@@ -143,4 +143,11 @@ class Order extends CI_Controller
         $data['id'] = $id;
         $this->template->views('order/infoPO', $data);
     }
+    public function infoSuratJalan($id, $id_po = "")
+    {
+        $data['title'] = 'Information Surat Jalan';
+        $data['id'] = $id;
+        $data['id_po'] = $id_po;
+        $this->template->views('order/infoSuratJalan', $data);
+    }
 }

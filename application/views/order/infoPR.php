@@ -128,6 +128,7 @@
     var data_item = ""
     var no_pr = ""
     var data_po = ""
+    var data_po_detail = ""
     var data_pr = ""
     var last_number = 1
     $(document).ready(function() {
@@ -178,7 +179,7 @@
             beforeSend: function() {},
             success: function(response) {
                 data_po = response['data'][0]
-                console.log(data_po)
+                data_po_detail = JSON.parse(data_po['data_detail'])
                 masterPR()
             }
         })
@@ -208,7 +209,6 @@
             },
             success: function(response) {
                 data_pr = response['data'][0]
-                console.log(data_pr)
                 data_pr_approval = response['data_approval']
                 var ttd_pending = ""
                 var pending = []
@@ -271,6 +271,20 @@
                 }
                 var html = ""
                 if (data_po != "") {
+                    html += '<div class="row pb-2">'
+                    html += '<div class="col-4 align-self-center">'
+                    html += '<p class="m-0" style="font-size:11px;">No. PO</p>'
+                    html += '</div>'
+                    html += '<div class="col-8">'
+                    html += '<p class="m-0 fw-bold" style="font-size:11px;">' + data_po['no_po'] + '</p>'
+                    html += '</div>'
+                    html += '<div class="col-4 align-self-center">'
+                    html += '<p class="m-0" style="font-size:11px;">Tgl. PO</p>'
+                    html += '</div>'
+                    html += '<div class="col-8">'
+                    html += '<p class="m-0 fw-bold" style="font-size:11px;">' + data_po['date_po'] + '</p>'
+                    html += '</div>'
+                    html += '</div>'
                     $.each(JSON.parse(data_po['data_pr']), function(key, value) {
                         var bg = ""
                         if (value['pr_id'] == id_pr) {
@@ -399,12 +413,32 @@
     }
 
     function formRowPR(i, data) {
+        // console.log(data_po_detail)
+        if (data_po != "") {
+            var idPr = data_po_detail.filter((value, key) => {
+                if (value.pr_detail_id === data.id) return true
+            })
+        } else {
+            var idPr = []
+        }
         var html = ""
-        html += '<div class="card w-100 shadow-sm mb-2 p-0">'
+        var bg = ''
+        var text = ''
+        if (idPr.length > 0) {
+            bg = 'bg-light'
+            text = '<p class="m-0 text-success" style="font-size:9px;"><i>Item dari PR ini Masuk PO Terkait</i></p>'
+        }
+        html += '<div class="card w-100 shadow-sm mb-2 p-0 position-relative ' + bg + '">'
+        // badge
+        if (idPr.length > 0) {
+            html += '<span class="position-absolute top-50 start-0 translate-middle badge rounded-pill bg-success"><i class="fa fa-check"></i></span>'
+        }
+        // badge
         html += '<div class="card-body p-2 ps-4 pe-4">'
         html += '<div class="row d-flex align-items-center ">'
 
         html += '<div class="col-12 col-md-6 align-self-center">'
+        html += text
         html += '<span class="fw-bold text-primary">' + data['item_name'] + '</span><br>'
         if (data['note'] == "") {
             data['note'] = "-"
@@ -426,6 +460,30 @@
         html += '<td style="border-bottom: none;" class="p-0 m-0">Total Price</td>'
         html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(data['extended_price']) + '</td>'
         html += '</tr>'
+        if (idPr.length > 0) {
+            html += '<tr>'
+            html += '<td colspan="2" style="border-bottom: none;"><hr class="m-1"></td>'
+            html += '</tr>'
+            html += '<tr class="text-success">'
+            html += '<td style="border-bottom: none;" class="p-0 m-0">QTY (PO)</td>'
+            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(idPr[0]['qty']) + ' ' + idPr[0]['satuan_name'] + '</td>'
+            html += '</tr>'
+            html += '<tr class="text-success">'
+            html += '<td style="border-bottom: none;" class="p-0 m-0">Unit Price (PO)</td>'
+            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(idPr[0]['harga']) + '</td>'
+            html += '</tr>'
+            html += '<tr class="text-success">'
+            html += '<td style="border-bottom: none;" class="p-0 m-0">Total Price (PO)</td>'
+            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + number_format(idPr[0]['subtotal']) + '</td>'
+            html += '</tr>'
+            html += '<tr>'
+            html += '<td colspan="2" style="border-bottom: none;"><hr class="m-1"></td>'
+            html += '</tr>'
+            html += '<tr class="text-success">'
+            html += '<td style="border-bottom: none;" class="p-0 m-0">Tanggal Pengiriman</td>'
+            html += '<td style="border-bottom: none;" class="fw-bold p-0 m-0">' + idPr[0]['tanggal_pengiriman'] + '</td>'
+            html += '</tr>'
+        }
         html += '</table>'
         html += '</div>'
 
