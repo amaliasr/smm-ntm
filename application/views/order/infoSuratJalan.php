@@ -179,8 +179,25 @@
             beforeSend: function() {},
             success: function(response) {
                 data_po = response['data'][0]
-                console.log(data_po)
                 data_po_detail = JSON.parse(data_po['data_detail'])
+                detailSJ()
+            }
+        })
+    }
+    var detailSJPenerimaan = ''
+
+    function detailSJ() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getDataListSJ'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_sj: suratJalan
+            },
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                detailSJPenerimaan = response['data']
                 masterSuratJalan()
             }
         })
@@ -245,11 +262,20 @@
         let obj = data_sj.filter((value, key) => {
             if (value.no_sj === suratJalan) return true
         })[0]
-        console.log(obj)
+        let objDetailItem = JSON.parse(detailSJPenerimaan.filter((value, key) => {
+            if (value.no_sj === suratJalan && value.po_id === id_po.toString()) return true
+        })[0]['data_penerimaan'])
+        // console.log(objDetailItem)
         var html = '';
         html += '<div class="container-fluid small">'
         html += '<div class="row">'
         $.each(JSON.parse(obj['data_order']), function(key, value) {
+            // let objPenerimaan = detailSJPenerimaan.filter((value, key) => {
+            //     if (value.no_sj === suratJalan && value.po_id === id_po.toString()) return true
+            // })[0]['data_penerimaan'].filter((value, key) => {
+            //     if (value.item_id === suratJalan && value.po_id === id_po.toString()) return true
+            // })
+            // console.log(objPenerimaan)
             var bg = ""
             if (value['state_order'] == 'DONE') {
                 bg = 'bg-light'
@@ -311,6 +337,6 @@
 
     function changePR(id) {
         suratJalan = id
-        masterSuratJalan()
+        detailSJ()
     }
 </script>

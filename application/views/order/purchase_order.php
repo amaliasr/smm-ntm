@@ -515,7 +515,6 @@
                     html += '<span class="fa fa-truck text-success" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">Order Selesai <span class="fa fa-check text-success" style="font-size: 12px;"></span>'
                 } else {
                     html += '<span class="fa fa-truck text-success" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">PO Telah Dibuat</span>'
-                    // html += '<span class="fa fa-truck text-success" style="font-size: 12px;"></span> <span class="fw-bold" style="font-size: 12px;">PO Telah Dibuat</span>'
                 }
             } else if (JSON.parse(values['data_detail']).length == obj.length) {
                 // jika tidak ada yang di PO kan
@@ -548,6 +547,20 @@
                 html += '<p class="m-0 text_search" style="font-size:10px;" data-id="PR' + keys + '">' + values['justification'] + '</p>'
             }
             html += '</div>'
+            if (divisi_id == 4) {
+                let resultPOPR = unique(JSON.parse(values['data_po_detail']).filter((value, key) => {
+                    if (JSON.parse(values['data_po_detail'])[key] !== null) return true
+                }).map(a => a.no_po))
+                html += '<div class="col">'
+                html += '<p class="m-0" style="font-size:10px;"><b>No.PO :</b></p>'
+                for (let i = 0; i < resultPOPR.length; i++) {
+                    html += '<p class="m-0 text_search under-hover" data-id="PR' + keys + '" style="font-size: 12px;cursor:pointer;" onclick="openDetailPO()">' + resultPOPR[i] + '</p>'
+                }
+                if (resultPOPR.length == 0) {
+                    html += '<p class="m-0">-</p>'
+                }
+                html += '</div>'
+            }
             html += '<div class="col-auto">'
             if (divisi_id != 10) {
                 html += '<button class="small btn btn-sm btn-outline-primary w-100 mb-1 btn-print" data-id="' + values['id'] + '" data-no="' + values['no_pr'] + '" onclick="getQrcode(' + "'<?= base_url() ?>invoice/approval/PR/" + values['id'] + "'," + values['id'] + ',0)"><i class="fa fa-print"></i></button><br>'
