@@ -989,6 +989,10 @@
             $('#tampilGudang').addClass('d-none')
             $('#tampilSupplier').removeClass('d-none')
         }
+        if (value == 'Adjustment In' || value == 'Adjustment Out') {
+            $('#tampilGudang').addClass('d-none')
+            $('#tampilSupplier').addClass('d-none')
+        }
     })
 
     function tampilKategori(status) {
@@ -1042,7 +1046,7 @@
 
         var html_gudang = ""
         $.each(data_gudang, function(keys, values) {
-            if (values['name'] != 'Gudang Utama') {
+            if (values['name'] != 'Gudang Utama' && values['name'] != 'Gudang Adjustment') {
                 html_gudang += '<div class="col-2 ">'
                 html_gudang += '</div>'
                 html_gudang += '<div class="col-10 mb-2">'
