@@ -7,7 +7,7 @@ function mobile_assets($param)
 
 function api_url($param)
 {
-    $url = 'http://192.168.10.247/api.ntm/' . $param;
+    $url = 'http://192.168.10.25/api.ntm/' . $param;
     // $url = 'https://rest.pt-smm.com/api.ntm/' . $param;
     return $url;
 }

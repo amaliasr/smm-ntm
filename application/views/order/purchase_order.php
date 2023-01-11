@@ -1298,7 +1298,6 @@
             html_body += '<div class="row">'
             var e = []
             var acc_check = ""
-            // console.log(data_pr_approval)
             for (let i = 0; i < pending.length; i++) {
                 for (let j = 0; j < pending[i].length; j++) {
                     if (data['id'] == pending[i][j]['reference_id']) {
@@ -2089,7 +2088,6 @@
             var e = []
             var acc_check = ""
             // console.log(data)
-            // console.log(data_pr_approval)
             for (let i = 0; i < pending.length; i++) {
                 for (let j = 0; j < pending[i].length; j++) {
                     if (data['po_id'] == pending[i][j]['reference_id']) {
@@ -2099,6 +2097,7 @@
                     }
                 }
                 if (pending[i][0]['reference_id'] == data['po_id']) {
+                    // console.log(acc_check)
                     var success = "fa-check text-light"
                     if (acc_check == 'Accepted') {
                         success = 'fa-check text-success'
