@@ -989,10 +989,6 @@
             $('#tampilGudang').addClass('d-none')
             $('#tampilSupplier').removeClass('d-none')
         }
-        if (value == 'Adjustment In' || value == 'Adjustment Out') {
-            $('#tampilGudang').addClass('d-none')
-            $('#tampilSupplier').addClass('d-none')
-        }
     })
 
     function tampilKategori(status) {

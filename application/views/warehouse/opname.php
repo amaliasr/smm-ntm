@@ -258,17 +258,7 @@
     var data_all_stok = []
     var selected_item_check = []
     $(document).ready(function() {
-        $.ajax({
-            url: "<?= api_url('Api_Warehouse/getUser'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            error: function(xhr) {},
-            beforeSend: function() {},
-            success: function(response) {
-                data_user = response['data']
-                getData()
-            }
-        })
+        getData()
     })
 
     function getData() {
@@ -284,6 +274,7 @@
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
+                data_user = response['data']['userSo'];
                 getHistorySO()
             }
         })
