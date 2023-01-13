@@ -1420,7 +1420,7 @@
         // unit price
         html_body += '<td class="text-end">'
         if (data == "") {
-            html_body += '<input onkeypress="return event.charCode >= 48" min="1" style="border:none" type="text" name="" id="unit_price_pr' + i + '" data-id="' + i + '" class="form-control form-control-sm p-1 unit_price_pr nominal" value="">'
+            html_body += '<input style="border:none" type="text" name="" id="unit_price_pr' + i + '" data-id="' + i + '" class="nominal form-control form-control-sm p-1 unit_price_pr " value="">'
         } else {
             html_body += number_format(data['unit_price'])
         }
@@ -1429,7 +1429,7 @@
         // extended price
         html_body += '<td class="text-end">'
         if (data == "") {
-            html_body += '<input onkeypress="return event.charCode >= 48" min="1" style="border:none" type="text" name="" id="extended_price_pr' + i + '" data-id="' + i + '" class="form-control form-control-sm p-1 extended_price_pr nominal" value="">'
+            html_body += '<input style="border:none" type="text" name="" id="extended_price_pr' + i + '" data-id="' + i + '" class="nominal form-control form-control-sm p-1 extended_price_pr " value="">'
         } else {
             html_body += number_format(data['extended_price'])
         }
@@ -1445,7 +1445,6 @@
         html_body += '</td>'
         html_body += '</tr>'
         $('#bodyPR').append(html_body)
-        $('.nominal').number(true);
         $('#item_pr' + i).select2({
             closeOnSelect: true,
             dropdownParent: $('#modal'),
@@ -1456,7 +1455,9 @@
             dropdownParent: $('#modal'),
             width: '100%',
         })
-        return false;
+        $('#unit_price_pr' + i).number(true, 2);
+        $('#extended_price_pr' + i).number(true, 2);
+        return true;
     }
 
     $(document).on('change', '.item_pr', function(e) {
@@ -1498,7 +1499,7 @@
         if (qty == "") {
             qty = 0
         }
-        price = (parseInt(unit) * parseInt(qty))
+        price = (parseFloat(unit) * parseFloat(qty))
         $('#extended_price_pr' + id).val(price)
         totalPricePR()
     }
@@ -1512,7 +1513,7 @@
         }).get();
         for (let i = 0; i < total.length; i++) {
             if (total[i] != "")
-                jumlahPR += parseInt(total[i]);
+                jumlahPR += parseFloat(total[i]);
         }
         $('#totalPR').html(number_format(jumlahPR))
     }

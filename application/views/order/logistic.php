@@ -115,7 +115,7 @@
             <div class="col-12 col-md-12">
                 <div class="row">
                     <div class="col-12 col-md-5 mb-2">
-                        <div class="card h-100 shadow-sm">
+                        <div class="card shadow-sm">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12 mb-3">
@@ -396,7 +396,7 @@
                         if (data_sj.length > 1) {
                             modalSJMulti()
                         } else {
-                            formPencarianSJ(response['data'][0])
+                            formPencarianSJ(response['data'][0], 0)
                         }
                     }
                 })
@@ -405,7 +405,7 @@
     }
 
     function formPencarianSJKey(key) {
-        formPencarianSJ(data_sj[key])
+        formPencarianSJ(data_sj[key], key)
     }
 
     function modalSJMulti() {
@@ -462,7 +462,7 @@
         $('#modalFooter').html(html_footer);
     }
 
-    function formPencarianSJ(data) {
+    function formPencarianSJ(data, id) {
         $('#modal').modal('hide');
         let obj = JSON.parse(data['data_detail']).filter((value, key) => {
             if (value.status_order === 'DONE' || value.status_order === 'PENDING') return true
@@ -500,7 +500,7 @@
             html += '</div>'
             html += '<div class="col-3 align-self-center ps-0">'
             if (obj == 0) {
-                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '">'
+                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '" autocomplete="off">'
             }
             html += '</div>'
             html += '<div class="col-2 align-self-center">'
@@ -510,6 +510,10 @@
             html += '</div>'
         })
         if (obj == 0) {
+            html += '<p class="m-0 mb-2 mt-3" style="font-size: 11px;"><b>Tambah Stok Sample</b></p>'
+            html += '<div id="dataSample">'
+            html += '</div>'
+            html += '<button class="btn btn-success btn-sm" onclick="tambahSample(' + id + ')"><i class="fa fa-plus me-2"></i>Tambah Sample</button>'
             html += '<p class="m-0 mb-3 mt-3" style="font-size: 11px;"><b>User yang Melakukan Pengecekan</b></p>'
             html += '<select name="" id="user_checking" class="form-select form-select-sm" required="required">'
             html += '<option value="" disabled selected>Pilih User</option>'
@@ -530,6 +534,51 @@
         $('#tampilSuratJalan').html(html)
         $('.nominal').number(true, 2);
     }
+    var noSampel = 0
+
+    function tambahSample(id) {
+        var data = JSON.parse(data_sj[id]['data_detail'])
+        var html = ""
+        html += '<div class="row pb-2">'
+        html += '<div class="col-6 align-self-center">'
+        html += '<select name="" id="itemSampel' + noSampel + '" class="form-select form-select-sm itemSampel" required="required" data-no="' + noSampel + '" onchange="isiSatuanSampel(' + noSampel + ',' + id + ')">'
+        html += '<option value="" disabled selected>Pilih Item</option>'
+        $.each(data, function(key, value) {
+            html += '<option value="' + value['item_id'] + '" data-satuan="' + value['satuan_id'] + '">' + value['item_name'] + '</option>'
+        })
+        html += '</select>'
+        html += '</div>'
+        html += '<div class="col-3 align-self-center ps-0">'
+        html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahSampel" id="jumlahSampel' + noSampel + '" autocomplete="off">'
+        html += '</div>'
+        html += '<div class="col-3 align-self-center ps-0">'
+        html += '<p class="m-0 small float-start" style="font-size:10px;" id="satuanSampel' + noSampel + '"></p>'
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += '<div class="form-check">'
+        html += '<input class="form-check-input checkStockSampel" type="checkbox" value="BAD" id="checkBadStock">'
+        html += '<label class="form-check-label small" for="checkBadStock">'
+        html += 'Bad Stock?'
+        html += '</label>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#dataSample').append(html)
+        $('.nominal').number(true, 2);
+        noSampel++
+    }
+
+    function isiSatuanSampel(no, id) {
+        var data = JSON.parse(data_sj[id]['data_detail'])
+        var value = $('#itemSampel' + no).val()
+        $.each(data, function(keys, values) {
+            if (value == values['item_id']) {
+                $('#satuanSampel' + no).html(values['satuan_name'])
+            }
+        })
+        // console.log(value)
+    }
+
     var any_anomali = 0
     $(document).on('keyup', '.jumlahMasuk', function(e) {
         var key = $(this).data('key')
@@ -558,13 +607,38 @@
         var order = $('.jumlahMasuk').map(function() {
             return $(this).data('order');
         }).get();
+        var item_sampel = $('.itemSampel').map(function() {
+            return $(this).val();
+        }).get();
+        var satuan_sampel = $('.itemSampel').map(function() {
+            return $(this).find(':selected').data('satuan');
+        }).get();
+        var jumlah_sampel = $('.jumlahSampel').map(function() {
+            return $(this).val();
+        }).get();
+        var check_sampel = $('.checkStockSampel').map(function() {
+            if ($('.checkStockSampel:checked').val() == 'BAD') {
+                return 'BAD'
+            } else {
+                return 'GOOD'
+            }
+        }).get();
         var detail = []
+        var detail_sampel = []
         for (let i = 0; i < jumlah.length; i++) {
             detail.push({
                 'id_detail_order': order[i],
                 'jumlah_barang': jumlah[i],
                 'id_satuan': satuan[i],
                 'id_item': item[i],
+            })
+        }
+        for (let i = 0; i < jumlah_sampel.length; i++) {
+            detail_sampel.push({
+                'item_sampel': item_sampel[i],
+                'satuan_sampel': satuan_sampel[i],
+                'jumlah_sampel': jumlah_sampel[i],
+                'check_sampel': check_sampel[i],
             })
         }
         var id_user_checking = $('#user_checking').val()
@@ -576,26 +650,28 @@
             po_id: po_id,
             id_user_checking: id_user_checking,
             detail: detail,
+            detail_sampel: detail_sampel,
             pr_id: pr_id,
         }
         var button = '#btnChecked'
         var url = '<?php echo api_url('Api_Warehouse/insertPenerimaan'); ?>'
-        if (any_anomali == 1) {
-            Swal.fire({
-                text: 'Terdapat jumlah yang tidak sesuai dengan Surat Jalan, apakah anda ingin langsung menerima?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Terima Saja'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    kelolaData(data, type, url, button)
-                }
-            })
-        } else {
-            kelolaData(data, type, url, button)
-        }
+        console.log(data)
+        // if (any_anomali == 1) {
+        //     Swal.fire({
+        //         text: 'Terdapat jumlah yang tidak sesuai dengan Surat Jalan, apakah anda ingin langsung menerima?',
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#3085d6',
+        //         cancelButtonColor: '#d33',
+        //         confirmButtonText: 'Terima Saja'
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             kelolaData(data, type, url, button)
+        //         }
+        //     })
+        // } else {
+        //     kelolaData(data, type, url, button)
+        // }
     }
 
     function kelolaData(data, type, url, button) {
@@ -650,7 +726,7 @@
         var html_body = '';
         html_body += '<div class="container small p-5 pt-2">'
         html_body += '<div class="row">'
-        html_body += '<p class="m-0 mb-2 small"><b>Detail Item</b></p>'
+        html_body += '<p class="m-0 mb-2 small"><b>Penerimaan Item</b></p>'
         // console.log(data_detail)
         $.each(data_detail, function(key, value) {
             html_body += '<div class="row">'
