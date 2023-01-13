@@ -24,7 +24,6 @@
     .nav-sub {
         padding-top: 0.35rem !important;
         margin-top: 0.35rem !important;
-
         padding-bottom: 0.35rem !important;
         margin-bottom: 0.35rem !important;
     }
@@ -95,6 +94,19 @@
                     <div class="nav-link-icon"><i class="fa fa-home"></i></div>
                     Beranda
                 </a>
+                <!-- Sidenav Accordion Production-->
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
+                    <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
+                    Production
+                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                </a>
+                <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                        <!-- <?php if (is_logistik()) { ?> -->
+                        <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
+                        <!-- <?php } ?> -->
+                    </nav>
+                </div>
                 <!-- Sidenav Accordion Warehouse-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
                     <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
