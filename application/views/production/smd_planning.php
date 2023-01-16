@@ -200,7 +200,7 @@
                                                     <div class="card-body p-0">
                                                         <div class="row p-0 m-0">
                                                             <div class="col-1 p-3 rounded-start bg-skm text-center">
-                                                                <span class="vertical-text text-white">SKM</span>
+                                                                <span class="vertical-text text-white align-middle">SKM</span>
                                                             </div>
                                                             <div class="col-11 p-3">
                                                                 <div class="row">

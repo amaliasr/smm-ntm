@@ -89,6 +89,15 @@
         transform: rotate(20deg);
         opacity: 0.3;
     }
+
+    .litepicker .container__months .month-item {
+        box-sizing: content-box !important;
+        width: 280px !important;
+    }
+
+    .container__months {
+        width: 280px !important;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -131,6 +140,7 @@
                                                     <tr class="align-self-center">
                                                         <th class="text-center" rowspan="3">No</th>
                                                         <th class="text-center" rowspan="3">Nama Item</th>
+                                                        <th class="text-center" rowspan="3">Satuan</th>
                                                         <th class="text-center" id="waktuOpname" style="width:auto;">Waktu Opname</th>
                                                     </tr>
                                                     <tr class="align-self-center" style="width:100%;" id="dateTable">
@@ -304,6 +314,7 @@
             elementEnd: document.getElementById('dateEnd'),
             singleMode: false,
             allowRepick: true,
+            firstDay: 0,
         })
 
         var html_footer = '';
@@ -386,6 +397,7 @@
             html += '<tr>'
             html += '<td>' + (parseInt(key) + 1) + '</td>'
             html += '<td>' + JSON.parse(value['item'])['name'] + '</td>'
+            html += '<td>' + JSON.parse(value['item'])['satuan_name'] + '</td>'
             $.each(JSON.parse(value['datas']), function(key, value) {
                 var stok_input = 0
                 var stok_sistem = 0

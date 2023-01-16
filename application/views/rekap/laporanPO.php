@@ -89,6 +89,15 @@
         transform: rotate(20deg);
         opacity: 0.3;
     }
+
+    .litepicker .container__months .month-item {
+        box-sizing: content-box !important;
+        width: 280px !important;
+    }
+
+    .container__months {
+        width: 280px !important;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -343,6 +352,7 @@
             elementEnd: document.getElementById('dateEnd'),
             singleMode: false,
             allowRepick: true,
+            firstDay: 0,
         })
 
         var html_footer = '';

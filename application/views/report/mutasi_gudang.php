@@ -90,17 +90,14 @@
         opacity: 0.3;
     }
 
-    /* .sticky-col {
-        position: -webkit-sticky;
-        position: sticky;
-        background-color: white;
-    } */
+    .litepicker .container__months .month-item {
+        box-sizing: content-box !important;
+        width: 280px !important;
+    }
 
-    /* .sticky-col {
-        position: sticky;
-        left: 0px;
-        background-color: white;
-    } */
+    .container__months {
+        width: 280px !important;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -315,6 +312,7 @@
             elementEnd: document.getElementById('dateEnd'),
             singleMode: false,
             allowRepick: true,
+            firstDay: 0,
         })
 
         var html_footer = '';
