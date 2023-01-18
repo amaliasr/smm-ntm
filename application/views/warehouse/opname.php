@@ -499,7 +499,7 @@
 
             html += '<div class="col">'
             html += '<div class="row">'
-            html += '<div class="col-4 align-self-center">Checker By</div>'
+            html += '<div class="col-4 align-self-center">Dihitung Oleh</div>'
             html += '<div class="col-8">'
             if (detail == null) {
                 html += '<select name="" id="userCheck' + numberParticipant + '" class="form-select form-select-sm userCheck" required="required" data-no="' + numberParticipant + '">'

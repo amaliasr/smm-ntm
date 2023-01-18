@@ -327,7 +327,7 @@
                 pengecekan = "sudah"
                 html_content += '<div class="col-7 col-md-9"><b>' + value['tanggal_check'] + '</b></div>'
             } else {
-                html_content += '<div class="col-7 col-md-9"><i class="fa fa-warning text-warning me-2"></i> <i>Belum Melakukan Pengecekan</i></div>'
+                html_content += '<div class="col-7 col-md-9"><i class="fa fa-warning text-warning me-2"></i> <i>Belum Melakukan Input Hitung</i></div>'
             }
             html_content += '<div class="col-5 col-md-3">Keterangan</div>'
             var keterangan = "-"
@@ -416,7 +416,7 @@
                 html_content += '<div class="col-12">'
                 html_content += '<div class="card shadow-none mt-2 mb-2">'
                 html_content += '<div class="card-body text-center">'
-                html_content += '<p class="m-0 mt-5 mb-5"><i>' + value['user_name'] + ' Belum Melakukan Pengecekan</i></p>'
+                html_content += '<p class="m-0 mt-5 mb-5"><i>' + value['user_name'] + ' Belum Melakukan Input Hitung</i></p>'
                 html_content += '</div>'
                 html_content += '</div>'
                 html_content += '</div>'
