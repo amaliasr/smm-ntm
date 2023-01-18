@@ -271,14 +271,21 @@
                     data_so = JSON.parse(response['data'].filter((values, keys) => {
                         if (values.is_active === '1') return true
                     })[0]['datas']).filter((values, keys) => {
-                        if (values.user_check === parseInt(user_id) && formatDate(values.tanggal_mulai) === tanggalHariIni) return true
+                        if (values.user_check === parseInt(user_id)) return true
                     })
-                    if (data_so.length != 0) {
-                        id_detail_partisipan = data_so[0]['id_detail']
-                        formSO()
-                    } else {
-                        tidakAda()
-                    }
+                    console.log(data_so)
+                    // data_so = JSON.parse(response['data'].filter((values, keys) => {
+                    //     if (values.is_active === '1') return true
+                    // })[0]['datas']).filter((values, keys) => {
+                    //     if (values.user_check === parseInt(user_id) && formatDate(values.tanggal_mulai) === tanggalHariIni) return true
+                    // })
+                    id_detail_partisipan = data_so[0]['id_detail']
+                    formSO()
+                    // if (data_so.length != 0) {
+                    //     formSO()
+                    // } else {
+                    //     tidakAda()
+                    // }
                 } else {
                     tidakAda()
                 }
@@ -415,7 +422,8 @@
         var type = 'POST'
         var data = {
             id_user: user_id,
-            tanggal: currentDate(),
+            tanggal: data_so[0]['tanggal_mulai'],
+            // tanggal: currentDate(),
             checking: checking,
             id_detail: id_detail_partisipan
         }

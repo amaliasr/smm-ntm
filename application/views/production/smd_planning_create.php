@@ -247,6 +247,10 @@
         width: 120px;
         z-index: 1030;
     }
+
+    .font-small {
+        font-size: 9px;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -288,22 +292,20 @@
                                                     <div class="col-12 text-center p-0 pb-2">
                                                         <p class="m-0 text-orange" style="font-size: 14px;"><b>TARGET</b></p>
                                                     </div>
-                                                    <div class="col-12 p-0 border-top text-center pb-2 pt-2">
-                                                        <p class="m-0" style="font-size: 9px;">ABLF 20</p>
-                                                        <p class="m-0" style="font-size: 9px;"></p>
-                                                        <p class="m-0" style="font-size: 11px;"><b>200 / 200</b></p>
-                                                    </div>
-                                                    <div class="col-12 p-0 border-top text-center pb-2 pt-2">
-                                                        <p class="m-0" style="font-size: 8px;">ABF 20</p>
-                                                        <p class="m-0" style="font-size: 11px;"><b>200 / 200</b></p>
+                                                    <div class="col-12 p-0 text-center">
+                                                        <div class="row p-0" id="detailTargetPane">
+                                                            <div class="col-12 p-0 border-top text-center pb-2 pt-2">
+                                                                <p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Terbuat</p>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="card-footer text-center p-2 bg-white">
+                                            <!-- <div class="card-footer text-center p-2 bg-white">
 
                                                 <button type="button" class="btn btn-success p-2 mb-1 w-100" style="font-size: 11px;"><i class="fa fa-save me-1"></i>Simpan</button>
 
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                     <!-- side count -->
@@ -362,7 +364,7 @@
                                                                     <div id="dataDailyPlanning">
                                                                     </div>
 
-                                                                    <button type="button" class="btn btn-success float-end"><i class="fa fa-save me-2"></i> Simpan SKM</button>
+                                                                    <button type="button" class="btn btn-success float-end" onclick="saveAsIndividual()"><i class="fa fa-save me-2"></i> Simpan SKM</button>
                                                                     <button type="button" class="btn btn-outline-success float-end me-2"><i class="fa fa-save me-2"></i> Simpan Semua</button>
 
                                                                 </div>
@@ -503,13 +505,20 @@
     function changeTab(stat) {
         jenis_produksi = stat
         if (jenis_produksi == "skm") {
-            if (data_skm['dateStart'] == undefined) {
-                clearForm()
-            }
+            // if (data_skm['dateStart'] == undefined) {
+            clearForm()
+            // }
+            var data = data_skm
         } else {
-            if (data_skt['dateStart'] == undefined) {
-                clearForm()
-            }
+            // if (data_skt['dateStart'] == undefined) {
+            clearForm()
+            // }
+            var data = data_skt
+        }
+        if (data['productionPlanGoal'] != undefined) {
+            $.each(data['productionPlanGoal'], function(key, value) {
+                targetProduksi(value['qty'], value['item_id_product'])
+            })
         }
         getDateRange()
     }
@@ -530,12 +539,18 @@
         $('#dateRange').val('')
         $('#createTargetProduksi').empty()
         $('#dataDailyPlanning').html('<div class="row d-flex align-items-center" style="height: 200px;"><div class="col text-center p-5"><i class="small">Isi Terlebih Dahulu <b>Main Planning</b> agar dapat mengisi Daily Planning</i></div></div>')
+        noTarget = 0;
+        $('#detailTargetPane').html('<div class="col-12 p-0 border-top text-center pb-2 pt-2"><p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Terbuat</p></div>')
+        $('.totalMesin').empty()
     }
 
+    var dateStart = ""
+    var dateEnd = ""
+
     function getDateRange() {
+        dateStart = ""
+        dateEnd = ""
         $('#dateRange').val('')
-        var dateStart = ""
-        var dateEnd = ""
         if (jenis_produksi == 'skm') {
             if (data_skm['dateEnd'] != undefined && data_skm['dateStart'] != undefined) {
                 dateStart = data_skm['dateStart']
@@ -567,6 +582,7 @@
                         data_skt['dateStart'] = dateStart
                         data_skt['dateEnd'] = dateEnd
                     }
+                    createCode(dateStart, dateEnd)
                     // $('#dateRange').val(formatInternationalDate(dateStart) + ' - ' + formatInternationalDate(dateEnd))
                     createDailyPlanning(dateStart, dateEnd)
                 });
@@ -613,63 +629,64 @@
     }
 
     function createDailyPlanning(dateStart, dateEnd) {
+        var data = ""
         $('#dataDailyPlanning').empty()
         var html = ""
         var date = getDateFromRange(dateStart, dateEnd)
         var a = 0
         date.forEach(function(dates) {
-            html += '<div class="card shadow-sm bd-callout-' + a + ' mb-5 ">'
+            html += '<div class="card shadow-sm bd-callout-' + a + ' mb-5 small">'
             html += '<div class="card-body">'
-            html += '<div class="pb-3">'
-            html += '<h4>'
+            html += '<div class="pb-2">'
+            html += '<h6>'
             html += '<p class="m-0 mb-2"><b><i class="fa fa-calendar-o me-2"></i> ' + formatDateIndonesia(dates) + '</b></p>'
-            html += '</h4>'
+            html += '</h6>'
             html += '</div>'
             html += '<div class="table-responsive">'
             html += '<table class="table table-bordered table-hover table-sm mt-3">'
             html += '<thead>'
             html += '<tr class="bg-grey text-dark">'
-            html += '<th class="p-2">Mesin</th>'
-            html += '<th class="p-2">Satuan</th>'
+            html += '<th class="p-2 font-small">Mesin</th>'
+            html += '<th class="p-2 font-small">Satuan</th>'
             var jumlah = (data_master[jenis_produksi]['product'].length + 3)
             $.each(data_master[jenis_produksi]['product'], function(key, value) {
-                html += '<th class="p-2">' + value['code'] + '</th>'
+                html += '<th class="p-2 font-small">' + value['code'] + '</th>'
             })
-            html += '<th class="p-2">TOTAL</th>'
+            html += '<th class="p-2 font-small">TOTAL</th>'
             html += '</tr>'
             html += '</thead>'
             html += '<tbody>'
             $.each(data_master[jenis_produksi]['machine'], function(key, value) {
                 html += '<tr class="bg-callout-' + a + ' text-black">'
-                html += '<td colspan="' + jumlah + '" class="p-2"><b>' + value['type_name'] + '</b></td>'
+                html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['type_name'] + '</b></td>'
                 html += '</tr>'
                 $.each(value['machine'], function(keys, values) {
                     html += '<tr>'
-                    html += '<td>' + values['code'] + '</td>'
-                    html += '<td>' + values['unit_name'] + '</td>'
+                    html += '<td class="font-small">' + values['code'] + '</td>'
+                    html += '<td class="font-small">' + values['unit_name'] + '</td>'
                     $.each(data_master[jenis_produksi]['product'], function(keys2, values2) {
                         if (jenis_produksi == 'skm') {
-                            var data = data_skm
+                            data = data_skm
                         } else {
-                            var data = data_skt
+                            data = data_skt
                         }
                         var obj = ""
                         // console.log(data['detail'])
-                        if (data['detail'] != undefined) {
+                        if (data['productionPlanDetail'] != undefined) {
                             // console.log(values['id'], formatDate(dates), values2['id'])
-                            obj = data['detail'].find((value3, key3) => {
-                                if (value3.mesin === values['id'] && value3.tanggal === formatDate(dates) && value3.produk === parseInt(values2['id'])) return true
+                            obj = data['productionPlanDetail'].find((value3, key3) => {
+                                if (value3.machine_id === values['id'] && value3.date === formatDate(dates) && value3.item_id_product === parseInt(values2['id'])) return true
                             })
                             if (obj != undefined) {
-                                obj = obj['jumlah']
+                                obj = obj['qty']
                             } else {
                                 obj = ""
                             }
                         }
                         // console.log(obj)
-                        html += '<td class="p-0"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:14px;font-weight:bold;text-align:right;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' + values2['code'] + ' for ' + values['code'] + '" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '"></td>'
+                        html += '<td class="p-0 bg-light font-small allfieldDPlan fieldDPlan' + values2['id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' + values2['code'] + ' for ' + values['code'] + '" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['unit_id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '"></td>'
                     })
-                    html += '<td class="align-self-center" style="font-size:14px;font-weight:bold;text-align:right;"></td>'
+                    html += '<td class="align-self-center totalMesin" style="font-size:14px;font-weight:bold;text-align:right;" id="totalMesin' + values['id'] + formatDate(dates) + '"></td>'
                     html += '</tr>'
                 })
             })
@@ -689,6 +706,12 @@
         var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl)
         })
+        if (data['productionPlanGoal'] != undefined) {
+            $.each(data['productionPlanGoal'], function(key, value) {
+                changeColorTarget(value['item_id_product'])
+            })
+        }
+        simpanProdukTarget()
     }
     $(document).on('keyup', '.jumlahPlanning', function(e) {
         simpanJumlahPlanning()
@@ -708,37 +731,48 @@
         var tanggal = $('.jumlahPlanning').map(function() {
             return $(this).data('tanggal');
         }).get();
+        var unit = $('.jumlahPlanning').map(function() {
+            return $(this).data('unit');
+        }).get();
         for (let i = 0; i < jumlah.length; i++) {
             if (jumlah[i] != "") {
                 obj.push({
-                    'jumlah': jumlah[i],
-                    'produk': produk[i],
-                    'mesin': mesin[i],
-                    'tanggal': tanggal[i],
+                    'qty': jumlah[i],
+                    'item_id_product': produk[i],
+                    'machine_id': mesin[i],
+                    'date': tanggal[i],
+                    'unit_id': unit[i],
                 })
             }
         }
         if (jenis_produksi == 'skm') {
-            data_skm['detail'] = obj
+            data_skm['productionPlanDetail'] = obj
+            getPaneTarget(data_skm)
         } else {
-            data_skt['detail'] = obj
+            data_skt['productionPlanDetail'] = obj
+            getPaneTarget(data_skt)
         }
     }
 
     var noTarget = 0;
 
-    function targetProduksi() {
+    function targetProduksi(jumlah = "", id_item = "") {
         var html = ""
         html += '<div class="row mb-2" id="fieldTarget' + noTarget + '">'
         html += '<div class="col-4">'
         html += '<select id="produkTarget' + noTarget + '" class="form-control form-control-sm produkTarget" required="required">'
+        html += '<option value="" selected disabled>Pilih Produk</option>'
         $.each(data_master[jenis_produksi]['product'], function(key, value) {
-            html += '<option value="' + value['code'] + '">' + value['code'] + '</option>'
+            var select = ""
+            if (value['id'] == id_item) {
+                select = 'selected'
+            }
+            html += '<option value="' + value['id'] + '" data-kode="' + value['code'] + '" ' + select + '>' + value['code'] + '</option>'
         })
         html += '</select>'
         html += '</div>'
         html += '<div class="col-3">'
-        html += '<input type="text" id="jumlahTarget' + noTarget + '" class="form-control form-control-sm jumlahTarget">'
+        html += '<input type="text" id="jumlahTarget' + noTarget + '" class="form-control form-control-sm jumlahTarget" value="' + jumlah + '">'
         html += '</div>'
         html += '<div class="col-3 align-self-center">Box</div>'
         html += '<div class="col-2 text-end">'
@@ -751,5 +785,141 @@
 
     function removeFieldTarget(no) {
         $('#fieldTarget' + no).remove()
+        simpanProdukTarget()
+    }
+    $(document).on('change', '.produkTarget', function(e) {
+        simpanProdukTarget()
+    })
+    $(document).on('keyup', '.jumlahTarget', function(e) {
+        simpanProdukTarget()
+    })
+
+    function changeColorTarget(id) {
+        $('.fieldDPlan' + id).removeClass('bg-light')
+    }
+
+    function simpanProdukTarget() {
+        $('.allfieldDPlan').addClass('bg-light')
+        var obj = []
+        var produk = $('.produkTarget').map(function() {
+            return $(this).val();
+        }).get();
+        var kode = $('.produkTarget').map(function() {
+            return $(this).find(':selected').data('kode');
+        }).get();
+        var jumlah = $('.jumlahTarget').map(function() {
+            return $(this).val();
+        }).get();
+
+        for (let i = 0; i < produk.length; i++) {
+            changeColorTarget(produk[i])
+            if (jumlah[i] != "") {
+                obj.push({
+                    'qty': jumlah[i],
+                    'item_id_product': produk[i],
+                    'kode': kode[i],
+                })
+            }
+        }
+        if (jenis_produksi == 'skm') {
+            data_skm['productionPlanGoal'] = obj
+            getPaneTarget(data_skm)
+        } else {
+            data_skt['productionPlanGoal'] = obj
+            getPaneTarget(data_skt)
+        }
+    }
+
+    function getPaneTarget(data) {
+        var html = ""
+        if (data['productionPlanGoal'] != undefined) {
+            if (data['productionPlanGoal'].length > 0) {
+                $.each(data['productionPlanGoal'], function(key, value) {
+                    var jumlah_isi = 0
+                    var text_color = ''
+                    if (data['productionPlanDetail'] != undefined) {
+                        var obj = data['productionPlanDetail'].filter((values, keys) => {
+                            if (values.item_id_product === parseInt(value['item_id_product'])) return true
+                        })
+                        jumlah_isi = obj.reduce((n, {
+                            qty
+                        }) => parseInt(n) + parseInt(qty), 0)
+                    }
+                    if (value['qty'] <= jumlah_isi) {
+                        text_color = 'text-success'
+                    } else {
+                        text_color = 'text-danger'
+                    }
+                    html += '<div class="col-12 p-0 border-top text-center pb-2 pt-2">'
+                    html += '<p class="m-0" style="font-size: 9px;">' + value['kode'] + '</p>'
+                    html += '<p class="m-0" style="font-size: 11px;"><b><span class="' + text_color + '">' + jumlah_isi + '</span> / ' + value['qty'] + '</b></p>'
+                    html += '</div>'
+                })
+            } else {
+                html += '<div class="col-12 p-0 border-top text-center pb-2 pt-2">'
+                html += '<p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Terbuat</p>'
+                html += '</div>'
+            }
+        } else {
+            html += '<div class="col-12 p-0 border-top text-center pb-2 pt-2">'
+            html += '<p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Terbuat</p>'
+            html += '</div>'
+        }
+        $('#detailTargetPane').html(html)
+        hiungTotalMesinPerHari(data)
+    }
+
+    function hiungTotalMesinPerHari(data) {
+        // console.log(data)
+        var date = getDateFromRange(dateStart, dateEnd)
+        date.forEach(function(dates) {
+            $.each(data_master[jenis_produksi]['machine'], function(key, value) {
+                $.each(value['machine'], function(keys, values) {
+                    var jumlah_isi = 0
+                    if (data['productionPlanDetail'] != undefined) {
+                        var obj = data['productionPlanDetail'].filter((values2, keys2) => {
+                            if (values2.date === formatDate(dates) && values2.machine_id === parseInt(values['id'])) return true
+                        })
+                        if (obj != undefined) {
+                            jumlah_isi = obj.reduce((n, {
+                                qty
+                            }) => parseInt(n) + parseInt(qty), 0)
+                        }
+                        $('#totalMesin' + values['id'] + formatDate(dates)).html(jumlah_isi)
+                    }
+                })
+            })
+        })
+    }
+    var code = ""
+
+    function createCode(dateStart, dateEnd) {
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        if (month < 10) {
+            month = "0" + month;
+        }
+        code = 'SMD-P' + d.getFullYear().toString().substr(-2) + month + getNumberWeek(dateStart)
+        return false
+    }
+
+    function saveAsIndividual() {
+        var jenis = 'skm'
+        if (jenis_produksi == 'skt') {
+            jenis = 'skt'
+        }
+        data_skm['productionPlan'] = {
+            'code': code,
+            'date_start': formatDate(dateStart),
+            'date_end': formatDate(dateEnd),
+            'created_id': user_id,
+            'status': 'CREATED',
+            'is_active': 1,
+            'note': "",
+        }
+        var save = {
+            'skm': data_skm
+        }
+        console.log(save)
     }
 </script>

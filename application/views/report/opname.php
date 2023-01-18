@@ -338,7 +338,9 @@
         }
         $('#itemStok').html(html_body)
     }
+
     var item_id = ""
+    var data_header = ""
 
     function getDataOpname() {
         date_start = $('#dateStart').val()
@@ -370,9 +372,10 @@
                 $('#btnFilter').removeAttr('disabled', true)
                 $('#modal').modal('hide')
                 data_report = response['data']
+                data_header = response['dataHeaderTanggal']
+                console.log(data_report)
                 $('#showDate').html(formatDate($('#dateStart').val()) + ' - ' + formatDate($('#dateEnd').val()))
                 dataTampilReport()
-                // console.log(data_report)
 
             }
         })
@@ -382,15 +385,18 @@
         var html = ""
         var html_date = ""
         var html_ket = ""
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            html_date += '<th class="text-center p-2" colspan="5">' + value['tanggal'] + '</th>'
+        // var obj = JSON.parse(data_report).filter((value, key) => {
+        //     if (value3.mesin === values['id'] && value3.tanggal === formatDate(dates) && value3.produk === parseInt(values2['id'])) return true
+        // })
+        $.each(data_header, function(key, value) {
+            html_date += '<th class="text-center p-2" colspan="5">' + value['perhari'] + '</th>'
             html_ket += '<th class="text-center p-2">Stok Sistem</th>'
             html_ket += '<th class="text-center p-2">Stok Hitung</th>'
             html_ket += '<th class="text-center p-2">Stok Cek</th>'
             html_ket += '<th class="text-center p-2">Dihitung Oleh</th>'
             html_ket += '<th class="text-center p-2">Dicek Oleh</th>'
         })
-        $('#waktuOpname').attr('colspan', (JSON.parse(data_report[0]['datas']).length * 5))
+        $('#waktuOpname').attr('colspan', (data_header.length * 5))
         $('#dateTable').html(html_date)
         $('#ketTable').html(html_ket)
         $.each(data_report, function(key, value) {
