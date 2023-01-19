@@ -364,8 +364,8 @@
                                                                     <div id="dataDailyPlanning">
                                                                     </div>
 
-                                                                    <button type="button" class="btn btn-success float-end" onclick="saveAsIndividual()"><i class="fa fa-save me-2"></i> Simpan SKM</button>
-                                                                    <button type="button" class="btn btn-outline-success float-end me-2"><i class="fa fa-save me-2"></i> Simpan Semua</button>
+                                                                    <button type="button" class="btn btn-success float-end btnSimpan" onclick="saveAsIndividual()"><i class="fa fa-save me-2"></i> Simpan SKM</button>
+                                                                    <button type="button" class="btn btn-outline-success float-end me-2 btnSimpan"><i class="fa fa-save me-2"></i> Simpan Semua</button>
 
                                                                 </div>
                                                             </div>
@@ -904,22 +904,96 @@
     }
 
     function saveAsIndividual() {
-        var jenis = 'skm'
-        if (jenis_produksi == 'skt') {
-            jenis = 'skt'
+        if (jenis_produksi == 'skm') {
+            data_skm['productionPlan'] = {
+                'code': code,
+                'date_start': formatDate(dateStart),
+                'date_end': formatDate(dateEnd),
+                'created_id': user_id,
+                'status': 'CREATED',
+                'is_active': 1,
+                'note': "",
+            }
+            var save = {
+                'skm': data_skm
+            }
+        } else {
+            data_skt['productionPlan'] = {
+                'code': code,
+                'date_start': formatDate(dateStart),
+                'date_end': formatDate(dateEnd),
+                'created_id': user_id,
+                'status': 'CREATED',
+                'is_active': 1,
+                'note': "",
+            }
+            var save = {
+                'skt': data_skt
+            }
         }
-        data_skm['productionPlan'] = {
-            'code': code,
-            'date_start': formatDate(dateStart),
-            'date_end': formatDate(dateEnd),
-            'created_id': user_id,
-            'status': 'CREATED',
-            'is_active': 1,
-            'note': "",
+        doSimpan(save)
+    }
+
+    function doSimpan(save) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menyimpan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                createVarSave(save)
+            }
+        })
+    }
+
+    function createVarSave(save) {
+        var type = 'POST'
+        var data = {
+            data: save,
         }
-        var save = {
-            'skm': data_skm
-        }
-        console.log(save)
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('setProductionPlan'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Disimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        getDateRange()
+                        $(button).prop("disabled", false);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
     }
 </script>

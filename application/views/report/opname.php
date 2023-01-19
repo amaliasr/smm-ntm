@@ -405,9 +405,9 @@
             html += '<td>' + JSON.parse(value['item'])['name'] + '</td>'
             html += '<td>' + JSON.parse(value['item'])['satuan_name'] + '</td>'
             $.each(JSON.parse(value['datas']), function(key, value) {
-                var stok_input = 0
-                var stok_sistem = 0
-                var stok_koreksi = 0
+                var stok_input = '-'
+                var stok_sistem = '-'
+                var stok_koreksi = '-'
                 var employee_hitung = "-"
                 var employee_koreksi = "-"
                 if (value['data_so']['stok_opname'] != null) {
