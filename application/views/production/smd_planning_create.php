@@ -315,12 +315,12 @@
                                                 <nav>
                                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                                         <button style="width: 100px;" class="p-3 nav-link position-relative active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="changeTab('skm')">SKM
-                                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                                                            </span>
+                                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle skmCircleDanger"></span>
+                                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle skmCircleSuccess d-none"></span>
                                                         </button>
                                                         <button style="width: 100px;" class="p-3 nav-link position-relative" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="changeTab('skt')">SKT
-                                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                                                            </span>
+                                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle sktCircleDanger"></span>
+                                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle sktCircleSuccess d-none"></span>
                                                         </button>
                                                     </div>
                                                 </nav>
@@ -334,7 +334,7 @@
                                                                         <div class="col-12 col-md-6">
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Date Range</b></p>
                                                                             <input type="text" class="form-control form-control-sm litepicker mb-2" required="required" id="dateRange" disabled>
-                                                                            <p class="m-0 mb-2" style="font-size: 12px;"><b>Target Produksi</b> (Optional)</p>
+                                                                            <p class="m-0 mb-2" style="font-size: 12px;"><b>Target Produksi</b></p>
                                                                             <div id="createTargetProduksi">
                                                                             </div>
                                                                             <button type="button" class="btn btn-outline-success btn-sm small w-100 p-3" onclick="targetProduksi()"><i class="fa fa-plus me-2"></i> Target Produksi Baru</button>
@@ -684,7 +684,7 @@
                             }
                         }
                         // console.log(obj)
-                        html += '<td class="p-0 bg-light font-small allfieldDPlan fieldDPlan' + values2['id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' + values2['code'] + ' for ' + values['code'] + '" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['unit_id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '"></td>'
+                        html += '<td class="p-0 bg-light font-small allfieldDPlan fieldType' + value['type_name'] + ' fieldDPlan' + values2['id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' + values2['code'] + ' for ' + values['code'] + '" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['unit_id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '"></td>'
                     })
                     html += '<td class="align-self-center totalMesin" style="font-size:14px;font-weight:bold;text-align:right;" id="totalMesin' + values['id'] + formatDate(dates) + '"></td>'
                     html += '</tr>'
@@ -818,6 +818,7 @@
                     'qty': jumlah[i],
                     'item_id_product': produk[i],
                     'kode': kode[i],
+                    'unit_id': data_master[jenis_produksi]['goalSatuan']['id'],
                 })
             }
         }
@@ -839,8 +840,9 @@
                     var text_color = ''
                     if (data['productionPlanDetail'] != undefined) {
                         var obj = data['productionPlanDetail'].filter((values, keys) => {
-                            if (values.item_id_product === parseInt(value['item_id_product'])) return true
+                            if (values.item_id_product === parseInt(value['item_id_product']) && values.unit_id === parseInt(data_master[jenis_produksi]['goalSatuan']['id'])) return true
                         })
+                        console.log(obj)
                         jumlah_isi = obj.reduce((n, {
                             qty
                         }) => parseInt(n) + parseInt(qty), 0)
@@ -870,7 +872,6 @@
     }
 
     function hiungTotalMesinPerHari(data) {
-        // console.log(data)
         var date = getDateFromRange(dateStart, dateEnd)
         date.forEach(function(dates) {
             $.each(data_master[jenis_produksi]['machine'], function(key, value) {
@@ -890,6 +891,23 @@
                 })
             })
         })
+        correctionAll(data)
+    }
+    var lanjutSave = "ya"
+
+    function correctionAll(data) {
+        if (data['productionPlanDetail'] != undefined && data['productionPlanGoal'].length > 0) {
+            $('.' + jenis_produksi + 'CircleDanger').addClass('d-none')
+            $('.' + jenis_produksi + 'CircleSuccess').removeClass('d-none')
+        } else if (data['productionPlanDetail'] == undefined && data['productionPlanGoal'].length <= 0) {
+            lanjutSave = "tidak"
+            $('.' + jenis_produksi + 'CircleDanger').removeClass('d-none')
+            $('.' + jenis_produksi + 'CircleSuccess').addClass('d-none')
+        } else {
+            lanjutSave = "tidak"
+            $('.' + jenis_produksi + 'CircleDanger').removeClass('d-none')
+            $('.' + jenis_produksi + 'CircleSuccess').removeClass('d-none')
+        }
     }
     var code = ""
 
@@ -931,7 +949,15 @@
                 'skt': data_skt
             }
         }
-        doSimpan(save)
+        if (lanjutSave == 'ya') {
+            doSimpan(save)
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Pengisian Belum Lengkap',
+                text: 'Lengkapi Dulu Datanya Yaa :)'
+            });
+        }
     }
 
     function doSimpan(save) {
