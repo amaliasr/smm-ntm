@@ -46,9 +46,22 @@ class Production extends CI_Controller
         }
         $this->template->views('production/' . $name . '_planning_detail', $data);
     }
-    public function draftMaterial()
+    public function draftMaterial($id)
     {
+        $data['id'] = $id;
         $data['title'] = 'Draft Material';
         $this->template->views('production/draft_material', $data);
+    }
+    public function materialRequest()
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Material Request';
+        $this->template->views('production/material_request', $data);
+    }
+    public function createMaterialRequest($id = "")
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Create Material Request';
+        $this->template->views('production/material_request_create', $data);
     }
 }

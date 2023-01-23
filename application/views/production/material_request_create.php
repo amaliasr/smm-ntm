@@ -103,14 +103,100 @@
     }
 
     .bg-skt {
-        background-color: #FED049;
+        background-color: #FEC868;
     }
 
-    .bg-gradient-production {
-        background-color: #1C315E !important;
+    .bd-callout-0 {
+        border-left-color: #9b5fe0;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-1 {
+        border-left-color: #16a4d8;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-2 {
+        border-left-color: #60dbe8;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-3 {
+        border-left-color: #8bd346;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-4 {
+        border-left-color: #efdf48;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-5 {
+        border-left-color: #f9a52c;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-6 {
+        border-left-color: #d64e12;
+        border-left-width: 10px;
+    }
+
+    .bg-callout-0 {
+        background-color: #9b5fe0;
+    }
+
+    .bg-callout-1 {
+        background-color: #16a4d8;
+    }
+
+    .bg-callout-2 {
+        background-color: #60dbe8;
+    }
+
+    .bg-callout-3 {
+        background-color: #8bd346;
+    }
+
+    .bg-callout-4 {
+        background-color: #efdf48;
+    }
+
+    .bg-callout-5 {
+        background-color: #f9a52c;
+    }
+
+    .bg-callout-6 {
+        background-color: #d64e12;
+    }
+
+    .font-small {
+        font-size: 11px;
+    }
+
+    .table {
+        border-color: #808080 !important;
+    }
+
+    .fixed-right {
+        position: fixed;
+        right: 0;
+        width: 120px;
+        z-index: 1030;
+    }
+
+    .start-25 {
+        left: 25% !important;
+    }
+
+    .start-10 {
+        left: 10% !important;
+    }
+
+    .bg-gradient-material_request {
+        background-color: #9A1663 !important;
         background-image: linear-gradient(135deg,
-                #1C315E 0%,
-                rgba(34, 124, 112, 0.8) 100%) !important;
+                #9A1663 0%,
+                rgba(224, 20, 76, 0.8) 100%) !important;
     }
 </style>
 <!-- loading CSS -->
@@ -231,14 +317,14 @@
 </style>
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-production pb-10">
+    <header class="page-header page-header-dark bg-gradient-material_request pb-10">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-industry"></i></div>
-                            SMD Planning
+                            Create Material Request
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
@@ -252,16 +338,6 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-auto">
-                                    <div class="btn-group">
-                                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="ms-2 d-none d-sm-block">Add New</span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
-                                            <li><a class="dropdown-item" href="#" onclick="openNewPlanning()">Create Planning</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -271,40 +347,116 @@
         </div>
     </header>
     <!-- Main page content-->
+    <!-- side count -->
+    <!-- <div class="fixed-bottom">
+        <div class="card shadow" id="targetPane">
+            <div class="card-body p-2">
+                <div class="row p-0">
+                    <div class="col-6 text-center p-0 align-self-center">
+                        <p class="m-0 text-orange" style="font-size: 14px;"><b>PLAN 1 WEEK</b></p>
+                    </div>
+                    <div class="col-auto p-0 align-self-center">
+                        <div class="row p-0" id="detailTargetPane">
+                            <?php for ($i = 0; $i < 3; $i++) { ?>
+                                <div class="col-auto text-center align-self-center">
+                                    <p class="m-0 text-orange" style="font-size: 14px;">ABLF 20</p>
+                                    <p class="m-0" style="font-size: 11px;"><b><span class="">2,000</span> / 2,000</b></p>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <!-- side count -->
     <div class="container-xl px-4 mt-n10">
         <div class="row">
-            <div class="col-12 col-md-12">
-                <div class="row">
-                    <div class="col-12 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <span class="small"><b>List</b></span>
-                                    </div>
-                                    <div class="col">
-
-
-                                        <div class="float-end">
-                                            <button type="button" class="btn btn-primary btn-sm me-2" onclick="getData()"><span class="fa fa-refresh me-2"></span> Refresh</button>
-                                            <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                                Option
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                                <li>
-                                                    <h6 class="dropdown-header">Group By</h6>
-                                                </li>
-                                                <li><a class="dropdown-item" onclick="changeFilter('all')">Semua Bagian <i class="ms-2 fa fa-check text-success" id="successAll"></i></a></li>
-                                                <li><a class="dropdown-item" onclick="changeFilter('skm')">SKM <i class="ms-2 fa fa-check text-success d-none" id="successSkm"></i></a></li>
-                                                <li><a class="dropdown-item" onclick="changeFilter('skt')">SKT <i class="ms-2 fa fa-check text-success d-none" id="successSkt"></i></a></li>
-                                            </ul>
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card h-100 shadow-sm position-relative">
+                    <h3><span class="position-absolute top-0 start-25 translate-middle badge bg-warning">Main Request</span></h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 align-self-center">
+                                <p class="m-0">#KODEMATERIAL1234</p>
+                                <h5 class="m-0"><b>Minggu, 1 JANUARI 2023</b></h5>
+                            </div>
+                            <div class="col-12">
+                                <hr>
+                            </div>
+                            <div class="col-12 pt-2 small">
+                                <b class="text-orange" style="font-size: 14px;">DETAIL</b>
+                                <div class="row pt-2">
+                                    <div class="col-6 pt-1 pb-1 small">No. Planning</div>
+                                    <div class="col-6 pt-1 pb-1 small text-end"><b>#KODEPLANNING123</b></div>
+                                    <div class="col-6 pt-1 pb-1 small">Jenis Produksi</div>
+                                    <div class="col-6 pt-1 pb-1 small text-end"><b><span class="badge bg-primary">SKM</span></b></div>
+                                    <div class="col-6 pt-1 pb-1 small">Shift</div>
+                                    <div class="col-6 pt-1 pb-1 small text-end"><b>#1 (07.00 - 15.00)</b></div>
+                                    <div class="col-6 pt-1 pb-1 small">Created By</div>
+                                    <div class="col-6 pt-1 pb-1 small text-end"><i class="fa fa-user me-2"></i><b>MADE</b></div>
+                                    <div class="col-6 pt-1 pb-1 small">Time Created</div>
+                                    <div class="col-6 pt-1 pb-1 small text-end"><i class="fa fa-calendar-o me-2"></i><b>01-01-2023 07:01:00</b></div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <hr>
+                            </div>
+                            <div class="col-12 pt-2 small">
+                                <b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>
+                                <div class="card shadow-none mt-2 bd-callout-0">
+                                    <div class="card-body p-2">
+                                        <b class="small">MAKER</b>
+                                        <div class="row pt-2">
+                                            <div class="col-6 pt-1 pb-1 small">Filter Reg</div>
+                                            <div class="col-6 pt-1 pb-1 small text-end"><b><span class="text-success">1,000</span> / 1,000</b></div>
+                                            <div class="col-6 pt-1 pb-1 small">CP Black</div>
+                                            <div class="col-6 pt-1 pb-1 small text-end"><b><span class="text-success">1,000</span> / 1,000</b></div>
                                         </div>
                                     </div>
-                                    <div class="col-12 pt-4" id="tampilDetailPembayaran">
-
-                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-8 mb-4">
+                <div class="card shadow-sm position-relative">
+                    <h3><span class="position-absolute top-0 start-10 translate-middle badge bg-warning">List Request</span></h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 pt-3">
+                                <h3 class="m-0"><b>MAKER</b></h3>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-sm">
+                                        <thead>
+                                            <tr class="bg-grey text-dark">
+                                                <th class="p-2 font-small" rowspan="2">ID MATERIAL</th>
+                                                <th class="p-2 font-small" rowspan="2" style="width: 300px;">Nama Bahan</th>
+                                                <th class="p-2 font-small" rowspan="2">Satuan</th>
+                                                <th class="p-2 font-small" colspan="3">Mesin Maker</th>
+                                            </tr>
+                                            <tr class="bg-grey text-dark">
+                                                <th class="p-2 font-small">MK9-A</th>
+                                                <th class="p-2 font-small">MK9-B</th>
+                                                <th class="p-2 font-small">MK9-C</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php for ($i = 0; $i < 10; $i++) { ?>
+                                                <tr>
+                                                    <td class="p-2 font-small">RM.001</td>
+                                                    <td class="p-2 font-small">Filter Reg</td>
+                                                    <td class="p-2 font-small">Tray</td>
+                                                    <?php for ($j = 0; $j < 3; $j++) { ?>
+                                                        <td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>
+                                                    <?php } ?>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
 
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -340,22 +492,6 @@
 
             </div>
             <div class="modal-footer" id="modalFooter2">
-
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="modal3" role="dialog" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog" role="document" id="modalDialog3">
-        <div class="modal-content">
-            <div class="modal-header" id="modalHeader3">
-
-            </div>
-            <div class="modal-body" id="modalBody3">
-
-            </div>
-            <div class="modal-footer" id="modalFooter3">
 
             </div>
         </div>
@@ -455,120 +591,6 @@
     })
 
     function getData() {
-        $.ajax({
-            url: "<?= api_produksi('getProductionPlanSmd'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                employeeId: user_id,
-            },
-            error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
-            },
-            beforeSend: function() {
-                loadingData('#tampilDetailPembayaran')
-            },
-            success: function(response) {
-                data_plan = response['data']
-                console.log(data_plan)
-                listPlan()
-            }
-        })
-    }
 
-    function changeFilter(jenis) {
-        if (jenis == 'all') {
-            $('#successAll').removeClass('d-none')
-            $('#successSkm').addClass('d-none')
-            $('#successSkt').addClass('d-none')
-        } else if (jenis == 'skm') {
-            $('#successAll').addClass('d-none')
-            $('#successSkm').removeClass('d-none')
-            $('#successSkt').addClass('d-none')
-        } else if (jenis == 'skt') {
-            $('#successAll').addClass('d-none')
-            $('#successSkm').addClass('d-none')
-            $('#successSkt').removeClass('d-none')
-        }
-        listPlan(jenis)
-    }
-
-    function listPlan(jenis = "") {
-        var data = data_plan
-        if (jenis == 'skt' || jenis == 'skm') {
-            data = data_plan.filter((values, keys) => {
-                if (values.production_type['name'].toLowerCase() === jenis.toLowerCase()) return true
-            })
-        }
-        var html = ""
-        $.each(data, function(keys, values) {
-            html += '<div class="row">'
-            html += '<div class="col-12">'
-            html += '<div class="card shadow-none mb-2">'
-            html += '<div class="card-body p-0">'
-            html += '<div class="row p-0 m-0">'
-            html += '<div class="col-1 p-3 rounded-start bg-' + values['production_type']['name'].toLowerCase() + ' text-center">'
-            html += '<div class="row d-flex align-items-center h-100">'
-            html += '<div class="col text-center">'
-            html += '<span class="small text-white vertical-text">' + values['production_type']['name'] + '</span>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '<div class="col-11 p-3">'
-            html += '<div class="row">'
-            html += '<div class="col">'
-            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
-            html += '<p class="m-0" style="font-size: 14px;">#' + values['code'] + '</p>'
-            html += '<h6 class="m-0 mb-3"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
-            html += '<div class="row" style="font-size: 11px;">'
-            html += '<div class="col-auto">'
-            var text = 'text-grey'
-            if (values['is_created'] == 1) {
-                text = 'text-success'
-            }
-            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Created</p>'
-            html += '</div>'
-            html += '<div class="col-auto">'
-            text = 'text-grey'
-            if (values['is_processed'] == 1) {
-                text = 'text-success'
-            }
-            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Drafted</p>'
-            html += '</div>'
-            html += '<div class="col-auto">'
-            text = 'text-grey'
-            if (values['is_done'] == 1) {
-                text = 'text-success'
-            }
-            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Done</p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '<div class="col-auto text-center align-self-center">'
-            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
-            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        })
-        $('#tampilDetailPembayaran').html(html)
-        if (data.length <= 0) {
-            notFound('#tampilDetailPembayaran')
-        }
-    }
-
-    function openNewPlanning() {
-        var url = '<?= base_url() ?>production/createPlanning/smd'
-        window.open(url, '_blank')
     }
 </script>

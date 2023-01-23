@@ -251,10 +251,17 @@
     .font-small {
         font-size: 9px;
     }
+
+    .bg-gradient-production {
+        background-color: #1C315E !important;
+        background-image: linear-gradient(135deg,
+                #1C315E 0%,
+                rgba(34, 124, 112, 0.8) 100%) !important;
+    }
 </style>
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <header class="page-header page-header-dark bg-gradient-production pb-10">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
