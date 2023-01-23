@@ -29,13 +29,26 @@ class Production extends CI_Controller
         if ($name == 'smd') {
             $data['title'] = 'SMD Planning';
         }
-        $this->template->views('production/smd_planning', $data);
+        $this->template->views('production/' . $name . '_planning', $data);
     }
     public function createPlanning($name)
     {
         if ($name == 'smd') {
             $data['title'] = 'Create SMD Planning';
         }
-        $this->template->views('production/smd_planning_create', $data);
+        $this->template->views('production/' . $name . '_planning_create', $data);
+    }
+    public function detailPlanning($name, $id = "")
+    {
+        $data['id'] = $id;
+        if ($name == 'smd') {
+            $data['title'] = 'Detail SMD Planning';
+        }
+        $this->template->views('production/' . $name . '_planning_detail', $data);
+    }
+    public function draftMaterial()
+    {
+        $data['title'] = 'Draft Material';
+        $this->template->views('production/draft_material', $data);
     }
 }

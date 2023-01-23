@@ -900,11 +900,11 @@
             $('.' + jenis_produksi + 'CircleDanger').addClass('d-none')
             $('.' + jenis_produksi + 'CircleSuccess').removeClass('d-none')
         } else if (data['productionPlanDetail'] == undefined && data['productionPlanGoal'].length <= 0) {
-            lanjutSave = "tidak"
+            // lanjutSave = "tidak"
             $('.' + jenis_produksi + 'CircleDanger').removeClass('d-none')
             $('.' + jenis_produksi + 'CircleSuccess').addClass('d-none')
         } else {
-            lanjutSave = "tidak"
+            // lanjutSave = "tidak"
             $('.' + jenis_produksi + 'CircleDanger').removeClass('d-none')
             $('.' + jenis_produksi + 'CircleSuccess').removeClass('d-none')
         }
