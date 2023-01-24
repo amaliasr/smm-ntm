@@ -344,17 +344,11 @@
         <div class="card shadow" id="targetPane">
             <div class="card-body p-2">
                 <div class="row p-0">
-                    <div class="col-6 text-center p-0 align-self-center">
+                    <div class="col-4 text-end p-0 pe-4 align-self-center border-end">
                         <p class="m-0 text-orange" style="font-size: 14px;"><b>PLAN 1 WEEK</b></p>
                     </div>
-                    <div class="col-auto p-0 align-self-center">
+                    <div class="col-auto p-0 ps-4 align-self-end">
                         <div class="row p-0" id="detailTargetPane">
-                            <?php for ($i = 0; $i < 3; $i++) { ?>
-                                <div class="col-auto text-center align-self-center">
-                                    <p class="m-0 text-orange" style="font-size: 14px;">ABLF 20</p>
-                                    <p class="m-0" style="font-size: 11px;"><b><span class="">2,000</span> / 2,000</b></p>
-                                </div>
-                            <?php } ?>
                         </div>
                     </div>
                 </div>
@@ -368,189 +362,17 @@
                 <div class="card h-100 shadow-sm">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-12 col-md-9 align-self-center">
-                                <p class="m-0">#KODESMF1234</p>
-                                <h5 class="m-0"><b>1 JANUARI 2023 - 7 JANUARI 2023</b></h5>
-                                <?php for ($i = 0; $i < 3; $i++) { ?>
-                                    <span class="badge bg-cyan">
-                                        <p class="m-0" style="font-size: 11px;">ABLF 20</p>
-                                    </span>
-                                <?php } ?>
+                            <div class="col-12 col-md-10 align-self-center" id="mainDraftMaterial">
                             </div>
-                            <div class="col-12 col-md-3">
-                                <button type="button" class="btn btn-teal w-100 btn-sm h-100"><i class="fa fa-cog me-2"></i>Auto Generate Material</button>
+                            <div class="col-12 col-md-2">
+                                <button type="button" class="btn btn-teal w-100 btn-sm h-100" onclick="fieldDetailDateAuto()"><i class="fa fa-magic me-2"></i>Auto Generate Material</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 mb-4">
-                <?php for ($i = 0; $i < 7; $i++) { ?>
-                    <div class="card shadow-sm bd-callout-<?= $i ?> mb-3">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12 col-md-6">
-                                    <p class="m-0" style="font-size:11px;">Date</p>
-                                    <h4 class="m-0"><b>Minggu, 1 Januari 2023</b></h4>
-                                    <p class="m-0 mt-3 mb-2" style="font-size:11px;">Additional :</p>
-                                    <div class="form-check small" style="font-size: 11px;">
-                                        <input class="form-check-input" type="checkbox" value="" id="checkLeftover">
-                                        <label class="form-check-label" for="checkLeftover">
-                                            Include Leftover Material
-                                        </label>
-                                    </div>
-                                    <div class="form-check small" style="font-size: 11px;">
-                                        <input class="form-check-input" type="checkbox" value="" id="checkWasteAllMachine" checked>
-                                        <label class="form-check-label" for="checkWasteAllMachine">
-                                            Include All for Waste (%)
-                                            <br>
-                                            <button class="btn btn-outline-dark btn-sm dropdown-toggle w-100 mt-2" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                                Option (6 Item)
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                                <li>
-                                                    <h6 class="dropdown-header">Customized Waste</h6>
-                                                </li>
-                                                <li>
-                                                    <form class="px-3">
-                                                        <div class="row">
-                                                            <?php for ($k = 0; $k < 2; $k++) { ?>
-                                                                <div class="col">
-                                                                    <div class="form-check">
-                                                                        <input type="checkbox" class="form-check-input" id="dropdownCheck2" checked>
-                                                                        <label class="form-check-label" for="dropdownCheck2">
-                                                                            MK9-A
-                                                                            <div class="form-check">
-                                                                                <input type="checkbox" class="form-check-input" id="dropdownCheck21" checked>
-                                                                                <label class="form-check-label" for="dropdownCheck21">
-                                                                                    FILTER REG
-                                                                                </label>
-                                                                            </div>
-                                                                            <div class="form-check">
-                                                                                <input type="checkbox" class="form-check-input" id="dropdownCheck22" checked>
-                                                                                <label class="form-check-label" for="dropdownCheck22">
-                                                                                    FILTER PD160
-                                                                                </label>
-                                                                            </div>
-                                                                            <div class="form-check">
-                                                                                <input type="checkbox" class="form-check-input" id="dropdownCheck23" checked>
-                                                                                <label class="form-check-label" for="dropdownCheck23">
-                                                                                    FILTER PD180
-                                                                                </label>
-                                                                            </div>
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            <?php } ?>
-                                                        </div>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <p class="m-0 mb-2" style="font-size:11px;"><b><i class="fa fa-file-o me-2"></i>Plan Production Daily</b></p>
-                                    <div id="listDetailProduction">
-                                        <?php for ($k = 0; $k < 2; $k++) { ?>
-                                            <div class="card shadow-none w-100 mb-2">
-                                                <div class="card-body p-2 ps-3 pe-3">
-                                                    <div class="row">
-                                                        <div class="col-5 align-self-center">
-                                                            <h4 class="m-0"><b>ABLF 20</b></h4>
-                                                            <p class="m-0 font-small"><i class="fa fa-cogs me-2"></i>MKA-9</p>
-                                                        </div>
-                                                        <div class="col-7 align-self-center">
-                                                            <div class="row">
-                                                                <div class="col-6 border-end">
-                                                                    <div class="row">
-                                                                        <div class="col-auto p-0 pe-2 align-self-center">
-                                                                            <h1 class="m-0 text-success"><b>60</b></h1>
-                                                                        </div>
-                                                                        <div class="col-auto p-0 align-self-center">
-                                                                            <p class="m-0" style="font-size:9px">Box</p>
-                                                                            <p class="m-0" style="font-size:9px"><b>Terpakai</b></p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <div class="row">
-                                                                        <div class="col-auto pt-0 pb-0 pe-2 align-self-center">
-                                                                            <h1 class="m-0"><b>60</b></h1>
-                                                                        </div>
-                                                                        <div class="col-auto p-0 align-self-center">
-                                                                            <p class="m-0" style="font-size:9px">Box</p>
-                                                                            <p class="m-0" style="font-size:9px"><b>Target Plan</b></p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="col-12 pt-4">
-                                    <div class="row">
-                                        <?php for ($k = 0; $k < 2; $k++) { ?>
-                                            <div class="col-12">
-                                                <b style="font-size: 14px;">MAKER</b>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-hover table-sm">
-                                                        <thead>
-                                                            <tr class="bg-grey text-dark">
-                                                                <th class="p-2 font-small" rowspan="3">Machine</th>
-                                                                <th class="p-2 font-small" rowspan="3">Total Production</th>
-                                                            </tr>
-                                                            <tr class="bg-grey text-dark">
-                                                                <th class="p-2 font-small" colspan="3">BRAND / MERK</th>
-                                                                <th class="p-2 font-small" colspan="3">FILTER</th>
-                                                                <th class="p-2 font-small" colspan="3">CP/BOBIN</th>
-                                                                <th class="p-2 font-small" colspan="4">CTP</th>
-                                                                <th class="p-2 font-small" colspan="2">TSG</th>
-                                                            </tr>
-                                                            <tr class="bg-grey text-dark">
-                                                                <th class="p-2 font-small">ARF</th>
-                                                                <th class="p-2 font-small">ARF PD180</th>
-                                                                <th class="p-2 font-small">ABLF</th>
-                                                                <th class="p-2 font-small">FILTER REG</th>
-                                                                <th class="p-2 font-small">FILTER PD160</th>
-                                                                <th class="p-2 font-small">FILTER PD180</th>
-                                                                <th class="p-2 font-small">BLACK</th>
-                                                                <th class="p-2 font-small">REPSE</th>
-                                                                <th class="p-2 font-small">VERGE</th>
-                                                                <th class="p-2 font-small">RED</th>
-                                                                <th class="p-2 font-small">BLACK</th>
-                                                                <th class="p-2 font-small">BOLD</th>
-                                                                <th class="p-2 font-small">GINZA</th>
-                                                                <th class="p-2 font-small">KRETEK BOLD</th>
-                                                                <th class="p-2 font-small">KRETEK GINZA</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="p-2 font-small">MK9-A</td>
-                                                                <?php for ($j = 0; $j < 16; $j++) { ?>
-                                                                    <td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>
-                                                                <?php } ?>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
+            <div class="col-12 mb-4" id="detailDateForm">
 
-                                                </div>
-                                            </div>
-                                        <?php } ?>
-                                        <div class="col-12 text-end">
-                                            <button type="button" class="btn btn-dark btn-sm mt-2"><i class="fa fa-plus me-2"></i>Buat Material Request</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
             </div>
         </div>
     </div>
@@ -618,6 +440,12 @@
         clearModal2();
     })
 
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
     function loadingData(location) {
         var html = ""
         html += '<div class="card w-100 shadow-none mb-2 p-0">'
@@ -649,6 +477,25 @@
         html += '</div>'
         $(location).html(html)
     }
+
+    function startPane(location) {
+        var html = ""
+        html += '<div class="card w-100 shadow-none mb-2 p-0">'
+        html += '<div class="card-body p-2">'
+        html += '<div class="row d-flex align-items-center">'
+        html += '<div class="col text-center p-5">'
+        html += '<p class="m-0 small">Anda dapat Melakukan Auto Generate Material dari Plan</>'
+        html += '<p class="m-0 mb-4 small">Atau dengan <b>Manual</b></>'
+        html += '<br>'
+        html += '<button class="btn btn-outline-success btn-sm mt-4"><i class="fa fa-plus me-2"></i>Tambah Draft Manual</button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $(location).html(html)
+    }
+
+
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
         $(this).css('z-index', zIndex);
@@ -668,10 +515,10 @@
                 id: user_id
             },
             error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
+                notFound('#detailDateForm')
             },
             beforeSend: function() {
-                loadingData('#tampilDetailPembayaran')
+                loadingData('#detailDateForm')
             },
             success: function(response) {
                 data_user = response['data']
@@ -679,8 +526,271 @@
             }
         })
     })
+    var jenis_produksi = ""
 
     function getData() {
+        $.ajax({
+            url: "<?= api_produksi('getProductionPlanSmdDetail'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                id: '<?= $id ?>'
+            },
+            error: function(xhr) {
+                notFound('#detailDateForm')
+            },
+            beforeSend: function() {
+                loadingData('#detailDateForm')
+            },
+            success: function(response) {
+                data_plan = response['data']
+                jenis_produksi = data_plan['data'][0]['production_type']['name'].toLowerCase()
+                calculateTotal()
+                mainDraft('#mainDraftMaterial')
+                startPane('#detailDateForm')
+                console.log(data_plan)
+            }
+        })
+    }
 
+    var a = 0
+
+    function fieldDetailDateAuto() {
+        $('#detailDateForm').html('')
+        $.each(data_plan['data'][0]['detail'], function(key, value) {
+            formDetail(data_plan['data'][0]['detail'][key])
+        })
+
+    }
+
+    function groupAndSum(arr, groupKeys, sumKeys) {
+        return Object.values(
+            arr.reduce((acc, curr) => {
+                const group = groupKeys.map(k => curr[k]).join('-');
+                acc[group] = acc[group] || Object.fromEntries(groupKeys.map(k => [k, curr[k]]).concat(sumKeys.map(k => [k, 0])));
+                sumKeys.forEach(k => acc[group][k] += curr[k]);
+                return acc;
+            }, {})
+        );
+    }
+
+    var grupMachineType = ""
+    var grupMachineTypeWithDate = ""
+    var listProduct = ""
+
+    function calculateTotal() {
+        var array_product = []
+        var product = []
+        data_plan['data'][0]['detail'].forEach(a => {
+            a['data'].forEach(b => {
+                b['data'].forEach(c => {
+                    c['data'].forEach(d => {
+                        product.push(d['product']['code'])
+                        array_product.push({
+                            code: d['product']['code'],
+                            product: d['product']['id'],
+                            unit: d['unit']['name'],
+                            qty: d['qty'],
+                            machine: c['machine']['id'],
+                            machine_name: c['machine']['name'],
+                            machine_type: b['machine_type']['id'],
+                            machine_type_name: b['machine_type']['name'],
+                            date: a['date'],
+                        })
+                    })
+                })
+            });
+        });
+        // penjumlahan dan grouping
+        grupMachineType = groupAndSum(array_product, ['product', 'machine_type', 'code', 'machine_type_name'], ['qty']);
+        grupMachineTypeWithDate = groupAndSum(array_product, ['product', 'machine', 'machine_name', 'code', 'date', 'machine_type', 'unit'], ['qty']);
+        console.log(grupMachineTypeWithDate);
+        listProduct = unique(product)
+        planAWeek()
+    }
+
+    function mainDraft(location) {
+        var html = ""
+        html += '<p class="m-0">#' + data_plan['data'][0]['code'] + '</p>'
+        html += '<h5 class="m-0"><b>' + formatDateIndonesia(data_plan['data'][0]['date_start']) + ' - ' + formatDateIndonesia(data_plan['data'][0]['date_end']) + '</b></h5>'
+        for (let i = 0; i < listProduct.length; i++) {
+            html += '<span class="badge bg-dark me-2">'
+            html += '<p class="m-0" style="font-size: 11px;">' + listProduct[i] + '</p>'
+            html += '</span>'
+        }
+        $(location).html(html)
+    }
+
+    function planAWeek() {
+        var html = ""
+        $.each(grupMachineType, function(key, value) {
+            html += '<div class="col-auto text-center align-self-center">'
+            html += '<p class="m-0" style="font-size: 12px;"><span class="text-orange">' + value['code'] + '</span> <span style="font-size:9px">[ ' + value['machine_type_name'] + ' ]</span></p>'
+            html += '<p class="m-0" style="font-size: 14px;"><b><span class="">' + number_format(value['qty']) + '</span> / ' + number_format(value['qty']) + '</b></p>'
+            html += '</div>'
+        })
+        $('#detailTargetPane').html(html)
+    }
+
+    function formDetail(data) {
+        var html = ""
+        html += '<div class="card shadow-sm bd-callout-' + a + ' mb-3">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-12 col-md-6">'
+        html += '<p class="m-0" style="font-size:11px;">Date</p>'
+        html += '<h4 class="m-0"><b>' + formatDateIndonesia(data['date']) + '</b></h4>'
+        html += '<p class="m-0 mt-3 mb-2" style="font-size:11px;">Additional :</p>'
+        html += '<div class="form-check small" style="font-size: 11px;">'
+        html += '<input class="form-check-input" type="checkbox" value="" id="checkLeftover' + a + '">'
+        html += '<label class="form-check-label" for="checkLeftover' + a + '">'
+        html += 'Include Leftover Material'
+        html += '</label>'
+        html += '</div>'
+        html += '<div class="form-check small" style="font-size: 11px;">'
+        html += '<input class="form-check-input" type="checkbox" value="" id="checkWasteAllMachine' + a + '" checked>'
+        html += '<label class="form-check-label" for="checkWasteAllMachine' + a + '">'
+        html += 'Include All for Waste (%)'
+        html += '<br>'
+        html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle w-100 mt-2" id="dropdownMenuButton2' + a + '" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">'
+        html += 'Option (6 Item)'
+        html += '</button>'
+        html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2' + a + '">'
+        html += '<li>'
+        html += '<h6 class="dropdown-header">Customized Waste</h6>'
+        html += '</li>'
+        html += '<li>'
+        html += '<form class="px-3">'
+        html += '<div class="row">'
+
+        html += '<div class="col">'
+        html += '<div class="form-check">'
+        html += '<input type="checkbox" class="form-check-input" id="dropdownCheck' + a + '2" checked>'
+        html += '<label class="form-check-label" for="dropdownCheck' + a + '2">'
+        html += 'MK9-A'
+        html += '<div class="form-check">'
+        html += '<input type="checkbox" class="form-check-input" id="dropdownCheck' + a + '21" checked>'
+        html += '<label class="form-check-label" for="dropdownCheck' + a + '21">'
+        html += 'FILTER REG'
+        html += '</label>'
+        html += '</div>'
+        html += '<div class="form-check">'
+        html += '<input type="checkbox" class="form-check-input" id="dropdownCheck' + a + '22" checked>'
+        html += '<label class="form-check-label" for="dropdownCheck' + a + '22">'
+        html += 'FILTER PD160'
+        html += '</label>'
+        html += '</div>'
+        html += '<div class="form-check">'
+        html += '<input type="checkbox" class="form-check-input" id="dropdownCheck' + a + '23" checked>'
+        html += '<label class="form-check-label" for="dropdownCheck' + a + '23">'
+        html += 'FILTER PD180'
+        html += ' </label>'
+        html += '</div>'
+        html += '</label>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</form>'
+        html += '</li>'
+        html += '</ul>'
+        html += '</label>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 col-md-6">'
+        html += '<p class="m-0 mb-2" style="font-size:11px;"><b><i class="fa fa-file-o me-2"></i>Plan Production Daily</b></p>'
+        html += '<div class="row" id="listDetailProduction">'
+        $.each(grupMachineTypeWithDate, function(key, value) {
+            if (value['date'] == data['date']) {
+                html += '<div class="col-12 col-md-6">'
+                html += '<div class="card shadow-none w-100 mb-2">'
+                html += '<div class="card-body p-2 ps-3 pe-3">'
+                html += '<div class="row">'
+                html += '<div class="col-5 align-self-center">'
+                html += '<h6 class="m-0" style="font-size:12px;"><b>' + value['code'] + '</b></h6>'
+                html += '<p class="m-0 font-small" style="font-size:8px;"><i class="fa fa-cogs me-2"></i>' + value['machine_name'] + '</p>'
+                html += '</div>'
+                html += '<div class="col-7 align-self-center">'
+                html += '<div class="row">'
+                html += '<div class="col-6 border-end">'
+                html += '<p class="m-0 text-success lh-1" style="font-size:12px;"><b>' + value['qty'] + '</b> <br><span style="font-size:11px;">' + value['unit']
+                '</span></p>'
+                html += '</div>'
+                html += '<div class="col-6">'
+                html += '<p class="m-0 lh-1" style="font-size:12px;"><b>' + value['qty'] + '</b> <br><span style="font-size:11px;">' + value['unit']
+                '</span></p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            }
+        })
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 pt-4">'
+        html += '<div class="row">'
+
+        html += '<div class="col-12">'
+        html += '<b style="font-size: 14px;">MAKER</b>'
+        html += '<div class="table-responsive">'
+        html += '<table class="table table-bordered table-hover table-sm">'
+        html += '<thead>'
+        html += '<tr class="bg-grey text-dark">'
+        html += '<th class="p-2 font-small" rowspan="3">Machine</th>'
+        html += '<th class="p-2 font-small" rowspan="3">Total Production</th>'
+        html += '</tr>'
+        html += '<tr class="bg-grey text-dark">'
+        html += '<th class="p-2 font-small" colspan="3">BRAND / MERK</th>'
+        html += '<th class="p-2 font-small" colspan="3">FILTER</th>'
+        html += '<th class="p-2 font-small" colspan="3">CP/BOBIN</th>'
+        html += '<th class="p-2 font-small" colspan="4">CTP</th>'
+        html += '<th class="p-2 font-small" colspan="2">TSG</th>'
+        html += '</tr>'
+        html += '<tr class="bg-grey text-dark">'
+        html += '<th class="p-2 font-small">ARF</th>'
+        html += '<th class="p-2 font-small">ARF PD180</th>'
+        html += '<th class="p-2 font-small">ABLF</th>'
+        html += '<th class="p-2 font-small">FILTER REG</th>'
+        html += '<th class="p-2 font-small">FILTER PD160</th>'
+        html += '<th class="p-2 font-small">FILTER PD180</th>'
+        html += '<th class="p-2 font-small">BLACK</th>'
+        html += '<th class="p-2 font-small">REPSE</th>'
+        html += '<th class="p-2 font-small">VERGE</th>'
+        html += '<th class="p-2 font-small">RED</th>'
+        html += '<th class="p-2 font-small">BLACK</th>'
+        html += '<th class="p-2 font-small">BOLD</th>'
+        html += '<th class="p-2 font-small">GINZA</th>'
+        html += '<th class="p-2 font-small">KRETEK BOLD</th>'
+        html += '<th class="p-2 font-small">KRETEK GINZA</th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        html += '<tr>'
+        html += '<td class="p-2 font-small">MK9-A</td>'
+        html += '<?php for ($j = 0; $j < 16; $j++) { ?>'
+        html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>'
+        html += '<?php } ?>'
+        html += '</tr>'
+        html += '</tbody>'
+        html += '</table>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '<div class="col-12 text-end">'
+        html += '<button type="button" class="btn btn-dark btn-sm mt-2"><i class="fa fa-plus me-2"></i>Buat Material Request</button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#detailDateForm').append(html)
+        a++
+        if (a == 7) {
+            a = 0
+        }
     }
 </script>

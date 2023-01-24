@@ -103,6 +103,7 @@
                 <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
                         <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
