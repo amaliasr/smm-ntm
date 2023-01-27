@@ -492,6 +492,7 @@
         })
     })
 
+
     function getData() {
         $.ajax({
             url: "<?= api_produksi('getProductionPlanSmdDetail'); ?>",
@@ -506,10 +507,51 @@
             beforeSend: function() {},
             success: function(response) {
                 data_plan = response['data']
-                console.log(data_plan)
-                formDetail()
+                calculateTotal()
             }
         })
+    }
+
+    function groupAndSum(arr, groupKeys, sumKeys) {
+        return Object.values(
+            arr.reduce((acc, curr) => {
+                const group = groupKeys.map(k => curr[k]).join('-');
+                acc[group] = acc[group] || Object.fromEntries(groupKeys.map(k => [k, curr[k]]).concat(sumKeys.map(k => [k, 0])));
+                sumKeys.forEach(k => acc[group][k] += curr[k]);
+                return acc;
+            }, {})
+        );
+    }
+
+    var grupMachineType = ""
+    var grupMachineTypeWithDate = ""
+    var listProduct = ""
+
+    function calculateTotal() {
+        var array_product = []
+        data_plan['data'][0]['detail'].forEach(a => {
+            a['data'].forEach(b => {
+                b['data'].forEach(c => {
+                    c['data'].forEach(d => {
+                        array_product.push({
+                            code: d['product']['code'],
+                            product: d['product']['id'],
+                            unit: d['unit']['name'],
+                            qty: d['qty'],
+                            machine: c['machine']['id'],
+                            machine_name: c['machine']['name'],
+                            machine_type: b['machine_type']['id'],
+                            machine_type_name: b['machine_type']['name'],
+                            date: a['date'],
+                        })
+                    })
+                })
+            });
+        });
+        // penjumlahan dan grouping
+        grupMachineTypeWithDate = groupAndSum(array_product, ['product', 'machine', 'machine_name', 'code', 'date', 'machine_type', 'unit'], ['qty']);
+        console.log(grupMachineTypeWithDate);
+        formDetail()
     }
 
     var jenis_produksi = ""
