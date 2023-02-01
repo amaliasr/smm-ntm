@@ -393,32 +393,7 @@
                     </div>
                     <div class="collapse show head-collapse" id="collapseExample0" data-key="0">
                         <div class="card-body pt-3">
-                            <div class="row">
-                                <div class="col-12 small">
-                                    <b class="text-orange" style="font-size: 14px;">DETAIL</b>
-                                    <div class="row pt-2">
-                                        <div class="col-6 pt-1 pb-1 small">No. Planning</div>
-                                        <div class="col-6 pt-1 pb-1 small text-end"><b>#KODEPLANNING123</b></div>
-                                        <div class="col-6 pt-1 pb-1 small">Date Planning</div>
-                                        <div class="col-6 pt-1 pb-1 small text-end"><b>01-01-2023</b></div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <hr>
-                                </div>
-                                <div class="col-12 pt-2 small">
-                                    <b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>
-                                    <div class="card shadow-none mt-2 bd-callout-0">
-                                        <div class="card-body p-2">
-                                            <b class="small">MAKER</b>
-                                            <div class="row pt-2">
-                                                <div class="col-4 pt-1 pb-1 font-small text-oyen"><b>ABLF12</b></div>
-                                                <div class="col-4 pt-1 pb-1 font-small">MK9C</div>
-                                                <div class="col-4 pt-1 pb-1 font-small text-end"><b>100 Tray</b></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="row" id="dataPlanning">
                             </div>
                         </div>
                     </div>
@@ -572,22 +547,7 @@
         </div>
     </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="modal2" role="dialog" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog" role="document" id="modalDialog2">
-        <div class="modal-content">
-            <div class="modal-header" id="modalHeader2">
 
-            </div>
-            <div class="modal-body" id="modalBody2">
-
-            </div>
-            <div class="modal-footer" id="modalFooter2">
-
-            </div>
-        </div>
-    </div>
-</div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
@@ -657,6 +617,7 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var id_draft = '<?= $id ?>'
     var data_user = ""
     var data_plan = ""
 
@@ -676,12 +637,127 @@
             },
             success: function(response) {
                 data_user = response['data']
-                getData()
+                if (id_draft == "") {
+                    chooseDate()
+                } else {
+                    getData()
+                }
             }
         })
     })
 
+    function chooseDate() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pilih Planning</h5>'
+        html_header += '<div class="input-group w-50">'
+        html_header += '<input class="form-control form-control-sm pe-0" type="text" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_nama">'
+        html_header += '<span class="input-group-text">'
+        html_header += '<i class="fa fa-search"></i>'
+        html_header += '</span>'
+        html_header += '</div>'
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12">'
+        html_body += '<div class="card shadow-sm mb-2" style="cursor:pointer;">'
+        html_body += '<div class="card-body">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-8 align-self-center">'
+        html_body += '<p class="m-0">#KODEPLANNING123</p>'
+        html_body += '<p class="m-0"><b>Minggu, 1 Januari 2022 <span class="badge bg-success">Today</span></b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 align-self-end">'
+        html_body += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        $('#modalFooter').addClass('d-none');
+    }
+
     function getData() {
+        $.ajax({
+            url: "<?= api_produksi('loadPageMaterialRequestCreate'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                draftId: id_draft,
+                employeeId: user_id,
+            },
+            error: function(xhr) {
+                notFound('#tampilDetailPembayaran')
+            },
+            beforeSend: function() {
+                loadingData('#tampilDetailPembayaran')
+            },
+            success: function(response) {
+                data_plan = response['data']
+                console.log(data_plan)
+                if (data_plan['productionPlan'].length > 0) {
+                    dataPlanning()
+                } else {
+                    notFound('#dataPlanning')
+                }
+                if (data_plan['draft'].length > 0) {
+                    dataDraft()
+                } else {
+                    notFound('#dataDraft')
+                }
+            }
+        })
+    }
+
+    function dataPlanning() {
+        var html = ""
+        html += '<div class="col-12 small">'
+        html += '<b class="text-orange" style="font-size: 14px;">DETAIL</b>'
+        html += '<div class="row pt-2">'
+        html += '<div class="col-6 pt-1 pb-1 small">No. Planning</div>'
+        html += '<div class="col-6 pt-1 pb-1 small text-end"><b>#' + data_plan['productionPlan'][0]['code'] + '</b></div>'
+        html += '<div class="col-6 pt-1 pb-1 small">Date Planning</div>'
+        html += '<div class="col-6 pt-1 pb-1 small text-end"><b>' + data_plan['productionPlan'][0]['date'] + '</b></div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += '<hr>'
+        html += '</div>'
+        html += '<div class="col-12 pt-2 small">'
+        html += '<b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>'
+        $.each(data_plan['productionPlan'][0]['detail'], function(key, value) {
+            html += '<div class="card shadow-none mt-2 bd-callout-' + key + '">'
+            html += '<div class="card-body p-2">'
+            html += '<b class="small">' + value['machine_type']['name'] + '</b>'
+
+            html += '<div class="row pt-2">'
+            $.each(value['data'], function(keys, values) {
+                $.each(values['data'], function(keys2, values2) {
+                    html += '<div class="col-4 pt-1 pb-1 font-small text-oyen"><b>' + values2['product']['code'] + '</b></div>'
+                    html += '<div class="col-4 pt-1 pb-1 font-small">' + values['machine']['name'] + '</div>'
+                    html += '<div class="col-4 pt-1 pb-1 font-small text-end"><b>' + values2['qty'] + ' ' + values2['unit']['name'] + '</b></div>'
+                })
+            })
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+        })
+        html += '</div>'
+        $('#dataPlanning').html(html)
+    }
+
+    function dataDraft() {
 
     }
 

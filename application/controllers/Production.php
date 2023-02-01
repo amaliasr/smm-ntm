@@ -52,8 +52,9 @@ class Production extends CI_Controller
         $data['title'] = 'Draft Material';
         $this->template->views('production/draft_material', $data);
     }
-    public function materialRequest()
+    public function materialRequest($id = "")
     {
+        $data['id'] = $id;
         $data['title'] = 'Material Request';
         $this->template->views('production/material_request', $data);
     }
