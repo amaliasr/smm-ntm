@@ -198,6 +198,18 @@
                 #9A1663 0%,
                 rgba(224, 20, 76, 0.8) 100%) !important;
     }
+
+    .translate-samping {
+        transform: translate(0%, -50%) !important;
+    }
+
+    .bg-oyen {
+        background-color: #EF9A53;
+    }
+
+    .text-oyen {
+        color: #EF9A53;
+    }
 </style>
 <!-- loading CSS -->
 <style type="text/css">
@@ -373,45 +385,104 @@
     <div class="container-xl px-4 mt-n10">
         <div class="row">
             <div class="col-12 col-md-4 mb-4">
-                <div class="card h-100 shadow-sm position-relative">
-                    <h3><span class="position-absolute top-0 start-25 translate-middle badge bg-warning">Main Request</span></h3>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 align-self-center">
-                                <p class="m-0">#KODEMATERIAL1234</p>
-                                <h5 class="m-0"><b>Minggu, 1 JANUARI 2023</b></h5>
-                            </div>
-                            <div class="col-12">
-                                <hr>
-                            </div>
-                            <div class="col-12 pt-2 small">
-                                <b class="text-orange" style="font-size: 14px;">DETAIL</b>
-                                <div class="row pt-2">
-                                    <div class="col-6 pt-1 pb-1 small">No. Planning</div>
-                                    <div class="col-6 pt-1 pb-1 small text-end"><b>#KODEPLANNING123</b></div>
-                                    <div class="col-6 pt-1 pb-1 small">Jenis Produksi</div>
-                                    <div class="col-6 pt-1 pb-1 small text-end"><b><span class="badge bg-primary">SKM</span></b></div>
-                                    <div class="col-6 pt-1 pb-1 small">Shift</div>
-                                    <div class="col-6 pt-1 pb-1 small text-end"><b>#1 (07.00 - 15.00)</b></div>
-                                    <div class="col-6 pt-1 pb-1 small">Created By</div>
-                                    <div class="col-6 pt-1 pb-1 small text-end"><i class="fa fa-user me-2"></i><b>MADE</b></div>
-                                    <div class="col-6 pt-1 pb-1 small">Time Created</div>
-                                    <div class="col-6 pt-1 pb-1 small text-end"><i class="fa fa-calendar-o me-2"></i><b>01-01-2023 07:01:00</b></div>
+                <div class="card shadow-sm position-relative mb-3" style="border: 0px;border-radius:0%">
+                    <!-- <h3><span class="position-absolute top-0 start-10 translate-samping badge bg-warning">Planning</span></h3> -->
+                    <div class="card-header text-white bg-oyen" style="border:0px;cursor:pointer;border-radius:0%" data-bs-toggle="collapse" data-bs-target="#collapseExample0" aria-expanded="false" aria-controls="collapseExample0">
+                        <h6 class="m-0 float-start text-white"><b>PLANNING</b></h6>
+                        <i class="fa fa-chevron-up fa-1x float-end" id="iconChevron0"></i>
+                    </div>
+                    <div class="collapse show head-collapse" id="collapseExample0" data-key="0">
+                        <div class="card-body pt-3">
+                            <div class="row">
+                                <div class="col-12 small">
+                                    <b class="text-orange" style="font-size: 14px;">DETAIL</b>
+                                    <div class="row pt-2">
+                                        <div class="col-6 pt-1 pb-1 small">No. Planning</div>
+                                        <div class="col-6 pt-1 pb-1 small text-end"><b>#KODEPLANNING123</b></div>
+                                        <div class="col-6 pt-1 pb-1 small">Date Planning</div>
+                                        <div class="col-6 pt-1 pb-1 small text-end"><b>01-01-2023</b></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <hr>
+                                </div>
+                                <div class="col-12 pt-2 small">
+                                    <b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>
+                                    <div class="card shadow-none mt-2 bd-callout-0">
+                                        <div class="card-body p-2">
+                                            <b class="small">MAKER</b>
+                                            <div class="row pt-2">
+                                                <div class="col-4 pt-1 pb-1 font-small text-oyen"><b>ABLF12</b></div>
+                                                <div class="col-4 pt-1 pb-1 font-small">MK9C</div>
+                                                <div class="col-4 pt-1 pb-1 font-small text-end"><b>100 Tray</b></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <hr>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm position-relative mb-3" style="border: 0px;border-radius:0%">
+                    <!-- <h3><span class="position-absolute top-0 start-10 translate-samping badge bg-warning">Planning</span></h3> -->
+                    <div class="card-header text-white bg-oyen" style="border:0px;cursor:pointer;border-radius:0%" data-bs-toggle="collapse" data-bs-target="#collapseExample1" aria-expanded="false" aria-controls="collapseExample1">
+                        <h6 class="m-0 float-start text-white"><b>DRAFT MATERIAL</b></h6>
+                        <i class="fa fa-chevron-up fa-1x float-end" id="iconChevron1"></i>
+                    </div>
+                    <div class="collapse show head-collapse" id="collapseExample1" data-key="1">
+                        <div class="card-body pt-3">
+                            <div class="row">
+                                <div class="col-12 small">
+                                    <b class="text-orange" style="font-size: 14px;">DETAIL</b>
+                                    <div class="row pt-2">
+                                        <div class="col-6 pt-1 pb-1 small">No. Draft</div>
+                                        <div class="col-6 pt-1 pb-1 small text-end"><b>#KODEMATERIAL123</b></div>
+                                        <div class="col-6 pt-1 pb-1 small">Time Draft</div>
+                                        <div class="col-6 pt-1 pb-1 small text-end"><b>01-01-2023 11:10:00</b></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <hr>
+                                </div>
+                                <div class="col-12 pt-2 small">
+                                    <b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>
+                                    <div class="card shadow-none mt-2 bd-callout-0">
+                                        <div class="card-body p-2">
+                                            <b class="small">MAKER</b>
+                                            <div class="row pt-2">
+                                                <div class="col-7 pt-1 pb-1 font-small text-oyen"><b>Cigarette Paper <span class="badge bg-orange">2 <i class="fa fa-cog"></i></span></b></div>
+                                                <div class="col-5 pt-1 pb-1 font-small text-end"><b>100 / 100 Roll</b></div>
+                                                <div class="col-7 pt-1 pb-1 font-small text-oyen"><b>Filter Rods Dual <span class="badge bg-orange">2 <i class="fa fa-cog"></i></span></b></div>
+                                                <div class="col-5 pt-1 pb-1 font-small text-end"><b>100 / 100 Roll</b></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-12 pt-2 small">
-                                <b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>
-                                <div class="card shadow-none mt-2 bd-callout-0">
-                                    <div class="card-body p-2">
-                                        <b class="small">MAKER</b>
-                                        <div class="row pt-2">
-                                            <div class="col-6 pt-1 pb-1 small">Filter Reg</div>
-                                            <div class="col-6 pt-1 pb-1 small text-end"><b><span class="text-success">1,000</span> / 1,000</b></div>
-                                            <div class="col-6 pt-1 pb-1 small">CP Black</div>
-                                            <div class="col-6 pt-1 pb-1 small text-end"><b><span class="text-success">1,000</span> / 1,000</b></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm position-relative mb-3" style="border: 0px;border-radius:0%">
+                    <!-- <h3><span class="position-absolute top-0 start-10 translate-samping badge bg-warning">Planning</span></h3> -->
+                    <div class="card-header text-white bg-oyen" style="border:0px;cursor:pointer;border-radius:0%" data-bs-toggle="collapse" data-bs-target="#collapseExample2" aria-expanded="false" aria-controls="collapseExample2">
+                        <h6 class="m-0 float-start text-white"><b>LOGS MATERIAL REQUEST</b></h6>
+                        <i class="fa fa-chevron-up fa-1x float-end" id="iconChevron2"></i>
+                    </div>
+                    <div class="collapse show head-collapse" id="collapseExample2" data-key="2">
+                        <div class="card-body pt-3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card shadow-none mt-2 bd-callout-0">
+                                        <div class="card-body p-2">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <b class="small">#MR-1234</b>
+                                                    <p class="m-0 font-small">Minggu, 1 Januari 2023</p>
+                                                </div>
+                                                <div class="col">
+
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -421,11 +492,31 @@
                 </div>
             </div>
             <div class="col-12 col-md-8 mb-4">
-                <div class="card shadow-sm position-relative">
-                    <h3><span class="position-absolute top-0 start-10 translate-middle badge bg-warning">List Request</span></h3>
+                <div class="card shadow-sm position-relative" style="border-radius:0%">
+                    <!-- <h3><span class="position-absolute top-0 start-10 translate-samping badge bg-warning">List Request</span></h3> -->
+                    <div class="card-header" style="border-radius:0%">
+                        <div class="row">
+                            <div class="col-6 align-self-center">
+                                <p class="m-0 text-dark-grey">#KODEMATERIAL1234</p>
+                                <h5 class="m-0 "><b>Minggu, 1 JANUARI 2023</b></h5>
+                            </div>
+                            <div class="col-6 align-self-center text-end">
+                                <div class="row">
+                                    <div class="col-6 font-small text-dark p-0 pe-3">Jenis Produksi</div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><b><span class="badge bg-primary">SKM</span></b></div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3">Shift</div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><b>#1 (07.00 - 15.00)</b></div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3">Created By</div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><i class="fa fa-user me-2"></i><b>MADE</b></div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3">Time Created</div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><i class="fa fa-calendar-o me-2"></i><b>01-01-2023 07:01:00</b></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-12 pt-3">
+                            <div class="col-12 pt-2">
                                 <h3 class="m-0"><b>MAKER</b></h3>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-hover table-sm">
@@ -593,4 +684,15 @@
     function getData() {
 
     }
+
+    $('.head-collapse').on('hide.bs.collapse', function() {
+        var key = $(this).data('key')
+        $('#iconChevron' + key).removeClass('fa-chevron-up')
+        $('#iconChevron' + key).addClass('fa-chevron-down')
+    })
+    $('.head-collapse').on('show.bs.collapse', function() {
+        var key = $(this).data('key')
+        $('#iconChevron' + key).addClass('fa-chevron-up')
+        $('#iconChevron' + key).removeClass('fa-chevron-down')
+    })
 </script>

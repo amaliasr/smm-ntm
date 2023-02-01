@@ -348,11 +348,11 @@
     <!-- Main page content-->
     <!-- side count -->
     <div class="fixed-bottom">
-        <div class="card shadow" id="targetPane">
+        <div class="card shadow" id="targetPane" style="background-color: #0A2647;border-radius:0px;">
             <div class="card-body p-2">
                 <div class="row p-0 justify-content-between">
                     <div class="col-4 text-end p-0 pe-4 align-self-center border-end">
-                        <p class="m-0 text-orange" style="font-size: 14px;"><b>PLAN 1 WEEK</b></p>
+                        <p class="m-0 text-yellow" style="font-size: 14px;"><b>PLAN 1 WEEK</b></p>
                     </div>
                     <div class="col-auto p-0 ps-4 pe-4">
                         <div class="row p-0" id="detailTargetPane">
@@ -655,8 +655,8 @@
         var html = ""
         $.each(grupMachineType, function(key, value) {
             html += '<div class="col-auto text-center align-self-center">'
-            html += '<p class="m-0" style="font-size: 12px;"><span class="text-orange">' + value['product_group_code'] + '</span> <span style="font-size:9px">[ ' + value['machine_type_name'] + ' ]</span></p>'
-            html += '<p class="m-0" style="font-size: 14px;"><b><span class="text-success" id="planAWeek' + value['machine_type'] + value['product_group'] + '">0</span> / ' + number_format(value['qty']) + '</b></p>'
+            html += '<p class="m-0" style="font-size: 12px;"><span class="text-yellow">' + value['product_group_code'] + '</span> <span style="font-size:9px;color:white;">[ ' + value['machine_type_name'] + ' ]</span></p>'
+            html += '<p class="m-0 text-white" style="font-size: 14px;"><b><span class="text-success" id="planAWeek' + value['machine_type'] + value['product_group'] + '">0</span> / ' + number_format(value['qty']) + '</b></p>'
             html += '</div>'
         })
         $('#detailTargetPane').html(html)
@@ -698,66 +698,32 @@
         html += '<p class="m-0" style="font-size:11px;">Date</p>'
         html += '<h4 class="m-0"><b>' + formatDateIndonesia(data['date']) + '</b></h4>'
         html += '<p class="m-0 mt-3 mb-2" style="font-size:11px;">Additional :</p>'
+
+        html += '<div class="row">'
+        html += '<div class="col-auto">'
         html += '<div class="form-check small" style="font-size: 11px;">'
-        html += '<input class="form-check-input" type="checkbox" value="" id="checkLeftover' + a + '">'
-        html += '<label class="form-check-label" for="checkLeftover' + a + '">'
+        html += '<input class="form-check-input checkAllMachine checkLeftOverAllMachine" type="checkbox" value="" id="checkLeftOverAllMachine' + a + '" data-date="' + a + '" data-status="LeftOver">'
+        html += '<label class="form-check-label" for="checkLeftOverAllMachine' + a + '">'
         html += 'Include Leftover Material'
+        html += '<div id="optionLeftOver' + a + '">'
+        html += '</div>'
         html += '</label>'
         html += '</div>'
+        html += '</div>'
+
+        html += '<div class="col-auto">'
         html += '<div class="form-check small" style="font-size: 11px;">'
-        html += '<input class="form-check-input" type="checkbox" value="" id="checkWasteAllMachine' + a + '" checked>'
+        html += '<input class="form-check-input checkAllMachine checkWasteAllMachine" type="checkbox" value="" id="checkWasteAllMachine' + a + '" data-date="' + a + '" data-status="Waste">'
         html += '<label class="form-check-label" for="checkWasteAllMachine' + a + '">'
         html += 'Include All for Waste (%)'
         html += '<br>'
-        html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle w-100 mt-2" id="dropdownMenuButton2' + a + '" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">'
-        html += 'Option <span id="jumlahDataWaste' + a + '" class="me-1 ms-1">( 0 Item )</span>'
-        html += '</button>'
-        html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2' + a + '">'
-        html += '<li>'
-        html += '<h6 class="dropdown-header">Customized Waste</h6>'
-        html += '</li>'
-        html += '<li>'
-        html += '<form class="px-3">'
-        html += '<div class="row">'
-        var totalMaterial = 0
-        $.each(data_table, function(key, value) {
-            $.each(value['detail'], function(keya, valuea) {
-                $.each(valuea['machine'], function(keys, values) {
-                    html += '<div class="col">'
-                    html += '<div class="form-check">'
-                    html += '<input type="checkbox" class="form-check-input" id="dropdownCheckParent' + key + keya + keys + '" checked>'
-                    html += '<label class="form-check-label" style="font-size:9px;" for="dropdownCheckParent' + key + keya + keys + '">'
-                    html += values['machine']['code']
-                    html += '</label>'
-                    $.each(values['material'][0], function(key3, value3) {
-                        $.each(value3['item'], function(key4, value4) {
-                            if (value3['group']['name'] != 'Brand') {
-                                totalMaterial++
-                                var text = value4['item']['name'].split(' ')
-                                if (text[2] == undefined) {
-                                    text[2] = ""
-                                }
-                                var text2 = text[0] + ' ' + text[1] + ' ' + text[2]
-                                html += '<div class="form-check">'
-                                html += '<input type="checkbox" class="form-check-input" id="dropdownCheck' + key + keya + keys + key3 + key4 + '" checked>'
-                                html += '<label class="form-check-label small" style="font-size:9px;" for="dropdownCheck' + key + keya + keys + key3 + key4 + '">'
-                                html += text2
-                                html += '</label>'
-                                html += '</div>'
-                            }
-                        })
-                    })
-                    html += '</div>'
-                    html += '</div>'
-                })
-            })
-        })
+        html += '<div id="optionWaste' + a + '">'
         html += '</div>'
-        html += '</form>'
-        html += '</li>'
-        html += '</ul>'
         html += '</label>'
         html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
         html += '</div>'
         html += '<div class="col-12 col-md-6">'
         html += '<p class="m-0 mb-2" style="font-size:11px;"><b><i class="fa fa-file-o me-2"></i>Plan Production Daily</b></p>'
@@ -832,25 +798,29 @@
                 $.each(valuea['machine'], function(keys, values) {
                     html += '<tr>'
                     html += '<td class="p-2 font-small">' + values['machine']['code'] + '</td>'
-                    html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal totalPerHariPerMesin" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..." id="totalPerHariPerMesin' + data['date'] + values['machine']['id'] + '"></td>'
+                    html += '<td class="align-self-center font-small totalPerHariPerMesin" id="totalPerHariPerMesin' + data['date'] + values['machine']['id'] + '" style="font-size:9px;font-weight:bold;text-align:right;background-color:transparent;vertical-align: middle;"></td>'
                     $.each(values['material'][0], function(keysa, valuesa) {
                         $.each(valuesa['item'], function(keys2, values2) {
                             var variable = ""
                             var unit = ""
+                            var item_id = ""
                             // brand
                             var brand = ""
                             if (values2['brand'] != undefined) {
                                 brand = values2['brand']['id']
                                 unit = values2['brand']['item'][0]['unit']['id']
+                                item_id = values2['brand']['item'][0]['item']['id']
                                 variable = 'inputDataBrand'
                             }
                             // brand
                             var item = ""
                             if (values2['item'] != undefined) {
                                 item = 'item' + values2['item']['id']
+                                unit = values2['unit']['id']
+                                item_id = values2['item']['id']
                                 variable = 'inputDataItem'
                             }
-                            html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal inputData ' + variable + '" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..." data-unit="' + unit + '" data-category="' + valuesa['group']['name'] + '" data-machine_type="' + value['machine_type']['id'] + '" data-machine="' + values['machine']['id'] + '" data-brand="' + brand + '" data-date="' + data['date'] + '" id="inputData' + data['date'] + values['machine']['id'] + brand + item + '" data-akses="data_table[' + key + '][' + "'" + 'detail' + "'" + '][' + keya + '][' + "'" + 'machine' + "'" + '][' + keys + '][' + "'" + 'material' + "'" + '][0][' + keysa + '][' + "'" + 'item' + "'" + '][' + keys2 + '][' + "'" + 'brand' + "'" + '][' + "'" + 'item' + "'" + '][0]"></td>'
+                            html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal inputData ' + variable + '" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..." data-unit="' + unit + '" data-category="' + valuesa['group']['name'] + '" data-machine_type="' + value['machine_type']['id'] + '" data-machine="' + values['machine']['id'] + '" data-brand="' + brand + '" data-date="' + data['date'] + '" data-item="' + item_id + '" id="inputData' + data['date'] + values['machine']['id'] + brand + item + '" data-akses="data_table[' + key + '][' + "'" + 'detail' + "'" + '][' + keya + '][' + "'" + 'machine' + "'" + '][' + keys + '][' + "'" + 'material' + "'" + '][0][' + keysa + '][' + "'" + 'item' + "'" + '][' + keys2 + '][' + "'" + 'brand' + "'" + '][' + "'" + 'item' + "'" + '][0]"></td>'
                         })
                     })
                     html += '</tr>'
@@ -862,6 +832,7 @@
             html += '</div>'
         })
         html += '<div class="col-12 text-end">'
+        html += '<button type="button" class="btn btn-outline-success btn-sm mt-2 me-2 btnSimpan" onclick="createMaterialDraft(' + "'" + data['date'] + "'" + ')"><i class="fa fa-save me-2"></i>Simpan</button>'
         html += '<button type="button" class="btn btn-dark btn-sm mt-2"><i class="fa fa-plus me-2"></i>Buat Material Request</button>'
         html += '</div>'
         html += '</div>'
@@ -871,11 +842,94 @@
         html += '</div>'
         $('#detailDateForm').append(html)
         $('.nominal').number(true);
-        $('#jumlahDataWaste' + a).html('( ' + totalMaterial + ' Item )')
+        option('Waste', a)
+        option('LeftOver', a)
+        countAllCheckCheckbox(a, 'Waste')
+        countAllCheckCheckbox(a, 'LeftOver')
         a++
         if (a == 7) {
             a = 0
         }
+    }
+    var variableWaste = []
+    var variableAllWaste = []
+    var variableLeftOver = []
+    var variableAllLeftOver = []
+
+    function option(status, a) {
+        var html = ""
+        html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle w-100 mt-2" id="dropdownMenuButton2' + status + a + '" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">'
+        html += 'Option ' + status + ' <span id="jumlahData' + status + a + '" class="me-1 ms-1">( 0 Item )</span>'
+        html += '</button>'
+        html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2' + status + a + '">'
+        html += '<li>'
+        html += '<h6 class="dropdown-header">Customized ' + status + '</h6>'
+        html += '</li>'
+        html += '<li>'
+        html += '<form class="px-3">'
+        html += '<div class="row">'
+        var totalMaterial = 0
+        $.each(data_table, function(key, value) {
+            $.each(value['detail'], function(keya, valuea) {
+                $.each(valuea['machine'], function(keys, values) {
+                    var jumlahMachine = 0
+                    html += '<div class="col">'
+                    html += '<div class="form-check">'
+                    html += '<input type="checkbox" class="form-check-input customizeParents customize' + status + ' customize' + status + 'Parents customize' + status + 'Parent' + a + '" id="dropdownCheckParent' + status + a + key + keya + keys + '" data-date="' + a + '" data-column="' + a + key + keya + keys + '" data-status="' + status + '">'
+                    html += '<label class="form-check-label" style="font-size:9px;" for="dropdownCheckParent' + status + a + key + keya + keys + '">'
+                    html += values['machine']['code']
+                    html += '</label>'
+                    $.each(values['material'][0], function(key3, value3) {
+                        $.each(value3['item'], function(key4, value4) {
+                            if (value3['group']['name'] != 'Brand') {
+                                totalMaterial++
+                                jumlahMachine++
+                                var text = value4['item']['name'].split(' ')
+                                if (text[2] == undefined) {
+                                    text[2] = ""
+                                }
+                                var text2 = text[0] + ' ' + text[1] + ' ' + text[2]
+                                html += '<div class="form-check">'
+                                html += '<input type="checkbox" class="form-check-input customizeChilds customize' + status + ' customize' + status + 'ChildParent' + a + ' customize' + status + 'Childs customize' + status + 'Child' + a + key + keya + keys + '" id="dropdownCheck' + status + a + key + keya + keys + key3 + key4 + '" data-column="' + a + key + keya + keys + '"  data-date="' + a + '" data-status="' + status + '">'
+                                html += '<label class="form-check-label small" style="font-size:9px;" for="dropdownCheck' + status + a + key + keya + keys + key3 + key4 + '">'
+                                html += text2
+                                html += '</label>'
+                                html += '</div>'
+                            }
+                        })
+                    })
+                    html += '</div>'
+                    html += '</div>'
+                    if (status == 'Waste') {
+                        variableWaste.push({
+                            'column': a + '' + key + '' + keya + '' + keys,
+                            'jumlah': jumlahMachine
+                        })
+                    } else {
+                        variableLeftOver.push({
+                            'column': a + '' + key + '' + keya + '' + keys,
+                            'jumlah': jumlahMachine
+                        })
+                    }
+                })
+            })
+        })
+        if (status == 'Waste') {
+            variableAllWaste.push({
+                'date': a,
+                'jumlah': totalMaterial,
+            })
+        } else {
+            variableAllLeftOver.push({
+                'date': a,
+                'jumlah': totalMaterial,
+            })
+        }
+        html += '</div>'
+        html += '</form>'
+        html += '</li>'
+        html += '</ul>'
+        $('#option' + status + a).html(html)
     }
     var draftPerBrand = []
 
@@ -937,7 +991,7 @@
         })
         var group = groupAndSum(draftPerBrand, ['date', 'id_machine'], ['qty']);
         $.each(group, function(key, value) {
-            $('#totalPerHariPerMesin' + value['date'] + value['id_machine']).val(value['qty'])
+            $('#totalPerHariPerMesin' + value['date'] + value['id_machine']).html(number_format(value['qty']))
         })
         generateConvertToMaterial(mcn, dt)
     }
@@ -982,6 +1036,7 @@
         $.each(data, function(key, value) {
             $('#planAWeek' + value['machine_type'] + value['id_brand']).html(number_format(value['qty']))
         })
+        createVariableMentah()
     }
 
     $(document).on('keyup', '.inputDataBrand', function(e) {
@@ -1001,6 +1056,240 @@
         loopingCalculationBrand(array, $(this).data('machine'), $(this).data('date'))
     })
 
+    var data_mentah = []
+
+    function createVariableMentah() {
+        // brand
+        var date = $('.inputDataBrand').map(function() {
+            return $(this).data('date');
+        }).get();
+        var machine = $('.inputDataBrand').map(function() {
+            return $(this).data('machine');
+        }).get();
+        var brand = $('.inputDataBrand').map(function() {
+            return $(this).data('brand');
+        }).get();
+        var unit = $('.inputDataBrand').map(function() {
+            return $(this).data('unit');
+        }).get();
+        var value_brand = $('.inputDataBrand').map(function() {
+            return $(this).val();
+        }).get();
+        var item_id_brand = $('.inputDataBrand').map(function() {
+            return $(this).data('item');
+        }).get();
+        // item
+        var value_item = $('.inputDataItem').map(function() {
+            return $(this).val();
+        }).get();
+        var item_id = $('.inputDataItem').map(function() {
+            return $(this).data('item');
+        }).get();
+        var unit_item = $('.inputDataItem').map(function() {
+            return $(this).data('unit');
+        }).get();
+        var machine_item = $('.inputDataItem').map(function() {
+            return $(this).data('machine');
+        }).get();
+        var date_item = $('.inputDataItem').map(function() {
+            return $(this).data('date');
+        }).get();
+
+        data_mentah = []
+        var array_detail = []
+        for (let i = 0; i < value_brand.length; i++) {
+            array_detail = []
+            if (value_brand[i] != "") {
+                for (let j = 0; j < value_item.length; j++) {
+                    if (value_item[j] != "" && machine_item[j] == machine[i] && date_item[j] == date[i]) {
+                        array_detail.push({
+                            'item_id': item_id[j],
+                            'qty': value_item[j],
+                            'unit': unit_item[j],
+                        })
+                    }
+                }
+                data_mentah.push({
+                    'date': date[i],
+                    'machine': machine[i],
+                    'brand': brand[i],
+                    'qty': value_brand[i],
+                    'unit': unit[i],
+                    'detail': array_detail,
+                    'item_id': item_id_brand[i],
+                })
+            }
+        }
+        console.log(data_mentah)
+        checkingWasteAndLeftOver()
+    }
+
+    function checkingWasteAndLeftOver() {
+
+    }
+
+    function createMaterialDraft(date) {
+        var data = []
+        var material_draft = []
+        var material_draft_machine = []
+        var material_draft_product = []
+        var material_draft_item = []
+
+        var id = new Date().getTime()
+        var d = new Date(date);
+        var month = d.getMonth() + 1;
+        if (month < 10) {
+            month = "0" + month;
+        }
+        material_draft.push({
+            'id': id,
+            'production_plan_id': data_plan[0]['production_plan_id'],
+            'code': 'DRAFT-' + d.getFullYear().toString().substr(-2) + month + d.getDate(),
+            'date': date,
+            'note': '',
+            'created_at': currentDateTime(),
+            'updated_at': currentDateTime(),
+            'created_id': user_id
+        })
+        var dataToday = data_mentah.filter((value, key) => {
+            if (value.date === date) return true
+        })
+        var machineDataToday = groupAndSum(dataToday, ['machine'], ['qty']);
+        $.each(machineDataToday, function(key, value) {
+            var mcn_id = new Date().getTime() + '' + key
+            material_draft_machine.push({
+                'id': mcn_id,
+                'material_draft_id': id,
+                'machine_id': value['machine'],
+                'created_at': currentDateTime(),
+                'updated_at': currentDateTime(),
+            })
+            $.each(dataToday, function(keys, values) {
+                if (value['machine'] == values['machine']) {
+                    var prod_id = new Date().getTime() + '' + key + '' + keys
+                    material_draft_product.push({
+                        'id': prod_id,
+                        'material_draft_machine_id': mcn_id,
+                        'item_id_product': values['item_id'],
+                        'qty': values['qty'],
+                        'created_at': currentDateTime(),
+                        'updated_at': currentDateTime(),
+                    })
+                    $.each(values['detail'], function(keys2, values2) {
+                        material_draft_item.push({
+                            'id': new Date().getTime() + '' + key + '' + keys + '' + keys2,
+                            'material_draft_machine_id': mcn_id,
+                            'item_id_material': values2['item_id'],
+                            'qty': values2['qty'],
+                            'unit_id': values2['unit'],
+                            'created_at': currentDateTime(),
+                            'updated_at': currentDateTime(),
+                        })
+                        // material_draft_waste.push({
+                        //     'id': new Date().getTime(),
+                        //     'material_draft_id': id,
+                        //     'machine_id': '',
+                        //     'item_id': '',
+                        //     'qty': '',
+                        //     'unit_id': '',
+                        //     'percentage': '',
+                        //     'use_waste': '',
+                        //     'created_at': currentDateTime(),
+                        //     'updated_at': currentDateTime(),
+                        // })
+                        // material_draft_leftover.push({
+                        //     'id': new Date().getTime(),
+                        //     'material_draft_id': id,
+                        //     'machine_id': '',
+                        //     'item_id': '',
+                        //     'unit_id': '',
+                        //     'use_leftover': '',
+                        //     'qty': '',
+                        //     'created_at': currentDateTime(),
+                        //     'updated_at': currentDateTime(),
+                        // })
+                    })
+                }
+            })
+        })
+        data.push({
+            'material_draft': material_draft,
+            'material_draft_machine': material_draft_machine,
+            'material_draft_product': material_draft_product,
+            'material_draft_item': material_draft_item,
+        })
+        // console.log(data)
+        doSimpan(data)
+    }
+    // OPTION
+    $(document).on('change', '.checkAllMachine', function(e) {
+        var date = $(this).data('date')
+        var status = $(this).data('status')
+        if ($(this).is(':checked')) {
+            $('.customize' + status + 'Parent' + date).prop('checked', true)
+            $('.customize' + status + 'ChildParent' + date).prop('checked', true)
+        } else {
+            $('.customize' + status + 'Parent' + date).prop('checked', false)
+            $('.customize' + status + 'ChildParent' + date).prop('checked', false)
+        }
+        countAllCheckCheckbox(date, status)
+    })
+    $(document).on('change', '.customizeParents', function(e) {
+        var column = $(this).data('column')
+        var status = $(this).data('status')
+        var date = $(this).data('date')
+        if ($(this).is(':checked')) {
+            $('.customize' + status + 'Child' + column).prop('checked', true)
+        } else {
+            $('.customize' + status + 'Child' + column).prop('checked', false)
+        }
+        countAllCheckCheckbox(date, status)
+    })
+    $(document).on('change', '.customizeChilds', function(e) {
+        var column = $(this).data('column')
+        var date = $(this).data('date')
+        var status = $(this).data('status')
+        countColumnCheckWaste(column, date, status)
+    })
+
+    function countColumnCheckWaste(column, date, status) {
+        if (status == 'Waste') {
+            var obj = variableWaste.filter((values, keys) => {
+                if (values.column === column) return true
+            })[0]['jumlah']
+        } else {
+            var obj = variableLeftOver.filter((values, keys) => {
+                if (values.column === column) return true
+            })[0]['jumlah']
+        }
+        var total = $('.customizeWasteChild' + column + ':checked').length
+        if (obj == total) {
+            $('#dropdownCheckParent' + status + column).prop('checked', true)
+        } else {
+            $('#dropdownCheckParent' + status + column).prop('checked', false)
+        }
+        countAllCheckCheckbox(date, status)
+    }
+
+    function countAllCheckCheckbox(date, status) {
+        if (status == 'Waste') {
+            var obj = variableAllWaste.filter((values, keys) => {
+                if (values.date === date) return true
+            })[0]['jumlah']
+        } else {
+            var obj = variableAllLeftOver.filter((values, keys) => {
+                if (values.date === date) return true
+            })[0]['jumlah']
+        }
+        var panjang = $('.customize' + status + 'ChildParent' + date + ':checked').length
+        $('#jumlahData' + status + '' + date).html('( ' + panjang + ' Item )')
+        if (obj == panjang) {
+            $('#check' + status + 'AllMachine' + date).prop('checked', true)
+        } else {
+            $('#check' + status + 'AllMachine' + date).prop('checked', false)
+        }
+    }
+
     function tampilPlanManual() {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
@@ -1016,6 +1305,19 @@
         html_body += '<div class="col-12">'
         html_body += '<div class="card shadow-sm">'
         html_body += '<div class="card-body">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-6 align-self-center">'
+        html_body += '<p class="m-0"><b>Minggu, 1 Januari 2022</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6">'
+        html_body += '<p class="m-0 font-small">Item</p>'
+        html_body += '<div id="listItemPlanManual">'
+        html_body += '<p class=""></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
@@ -1027,5 +1329,64 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
         $('#modalFooter').html(html_footer);
+    }
+
+    function doSimpan(data) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menyimpan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                createVarSave(data)
+            }
+        })
+    }
+
+    function createVarSave(datas) {
+        var type = 'POST'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('setMaterialDraft'); ?>'
+        kelolaData(datas[0], type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Disimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        $(button).prop("disabled", false);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
     }
 </script>
