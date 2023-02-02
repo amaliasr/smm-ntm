@@ -466,40 +466,8 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 pt-2">
-                                <h3 class="m-0"><b>MAKER</b></h3>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover table-sm">
-                                        <thead>
-                                            <tr class="bg-grey text-dark">
-                                                <th class="p-2 font-small" rowspan="2">ID MATERIAL</th>
-                                                <th class="p-2 font-small" rowspan="2" style="width: 300px;">Nama Bahan</th>
-                                                <th class="p-2 font-small" rowspan="2">Satuan</th>
-                                                <th class="p-2 font-small" colspan="3">Mesin Maker</th>
-                                            </tr>
-                                            <tr class="bg-grey text-dark">
-                                                <th class="p-2 font-small">MK9-A</th>
-                                                <th class="p-2 font-small">MK9-B</th>
-                                                <th class="p-2 font-small">MK9-C</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php for ($i = 0; $i < 10; $i++) { ?>
-                                                <tr>
-                                                    <td class="p-2 font-small">RM.001</td>
-                                                    <td class="p-2 font-small">Filter Reg</td>
-                                                    <td class="p-2 font-small">Tray</td>
-                                                    <?php for ($j = 0; $j < 3; $j++) { ?>
-                                                        <td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>
-                                                    <?php } ?>
-                                                </tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
+                        <div class="row" id="listMaterialRequest">
 
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -607,9 +575,13 @@
             },
             error: function(xhr) {
                 notFound('#dataPlanning')
+                notFound('#dataDraft')
+                notFound('#listMaterialRequest')
             },
             beforeSend: function() {
                 loadingData('#dataPlanning')
+                loadingData('#dataDraft')
+                loadingData('#listMaterialRequest')
             },
             success: function(response) {
                 data_user = response['data']
@@ -674,17 +646,23 @@
             },
             error: function(xhr) {
                 notFound('#dataPlanning')
+                notFound('#dataDraft')
+                notFound('#listMaterialRequest')
             },
             beforeSend: function() {
                 loadingData('#dataPlanning')
+                loadingData('#dataDraft')
+                loadingData('#listMaterialRequest')
             },
             success: function(response) {
                 data_plan = response['data']
                 console.log(data_plan)
                 if (data_plan['productionPlan'].length > 0) {
                     dataPlanning()
+                    dataMaterialRequest()
                 } else {
                     notFound('#dataPlanning')
+                    notFound('#listMaterialRequest')
                 }
                 if (data_plan['draft'].length > 0) {
                     dataDraft()
@@ -757,7 +735,6 @@
                 })
             })
         })
-        console.log(data_draft)
         data_draft_group_machine_type = groupAndSum(data_draft, ['machine_type_id', 'machine_type_name', 'material_id', 'material_name', 'unit_name'], ['qty']);
         machine_type = groupAndSum(data_draft_group_machine_type, ['machine_type_id', 'machine_type_name'], []);
         formDraft()
@@ -811,6 +788,47 @@
             return new bootstrap.Popover(popoverTriggerEl)
         })
     }
+    var machine_type = []
+
+    function dataMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 pt-2">'
+        html += '<h3 class="m-0"><b>MAKER</b></h3>'
+        html += '<div class="table-responsive">'
+        html += '<table class="table table-bordered table-hover table-sm">'
+        html += '<thead>'
+        html += '<tr class="bg-grey text-dark">'
+        html += '<th class="p-2 font-small" rowspan="2">ID MATERIAL</th>'
+        html += '<th class="p-2 font-small" rowspan="2" style="width: 300px;">Nama Bahan</th>'
+        html += '<th class="p-2 font-small" rowspan="2">Satuan</th>'
+        html += '<th class="p-2 font-small" colspan="3">Mesin Maker</th>'
+        html += '</tr>'
+        html += '<tr class="bg-grey text-dark">'
+        html += '<th class="p-2 font-small">MK9-A</th>'
+        html += '<th class="p-2 font-small">MK9-B</th>'
+        html += '<th class="p-2 font-small">MK9-C</th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        html += '<?php for ($i = 0; $i < 10; $i++) { ?>'
+        html += '<tr>'
+        html += '<td class="p-2 font-small">RM.001</td>'
+        html += '<td class="p-2 font-small">Filter Reg</td>'
+        html += '<td class="p-2 font-small">Tray</td>'
+        html += '<?php for ($j = 0; $j < 3; $j++) { ?>'
+        html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>'
+        html += '<?php } ?>'
+        html += '</tr>'
+        html += '<?php } ?>'
+        html += '</tbody>'
+        html += '</table>'
+
+        html += '</div>'
+        html += '</div>'
+        $('#listMaterialRequest').html(html)
+    }
+
+    function formMaterialRequest() {}
 
     $('.head-collapse').on('hide.bs.collapse', function() {
         var key = $(this).data('key')

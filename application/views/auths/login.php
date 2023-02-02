@@ -75,7 +75,7 @@
         </div>
     </div> -->
     <div class="row h-100">
-        <div class="col-6 bg-rainbow h-100 align-self-center">
+        <div class="col-12 col-md-6 bg-rainbow h-100 align-self-center d-none d-md-none d-lg-block d-lg-block">
             <div class="centered">
                 <div class="container justify-content-center mt-4 mt-sm-0">
                     <h1 style="font-size: 30px;margin: auto;width:100%;">
@@ -86,13 +86,13 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 bg-white h-100">
+        <div class="col-12 col-md-6 bg-white h-100">
             <div class="row h-100 d-flex align-self-center justify-content-center">
                 <div class="col-8 h-100 align-items-center align-content-center flex-wrap">
                     <div class="centered">
                         <div class="container justify-content-center">
                             <img class="mb-3" src="<?= base_url() ?>assets/image/logo/SMM.png" style="width: 50px;">
-                            <h1 class="text-dongker fw-bold"><b>Hello, Buddy !</b></h1>
+                            <h1 class="text-dongker fw-bold"><b>Welcome Back, Buddy !</b></h1>
                             <p class="m-0 small">Learn to level up yout life. Love the wotk, the grnd, the sweat, and the hard work. It pays off in the end.</p>
                             <form class="m-0 mt-5">
                                 <div class="mb-3">
