@@ -212,116 +212,117 @@
     }
 </style>
 <!-- loading CSS -->
+
 <style type="text/css">
-    @keyframes ldio-wf2k1rxtsnb {
+    @keyframes ldio-4vsyzdoqibk {
         0% {
-            transform: translate(12px, 80px) scale(0);
+            transform: translate(6px, 40px) scale(0);
         }
 
         25% {
-            transform: translate(12px, 80px) scale(0);
+            transform: translate(6px, 40px) scale(0);
         }
 
         50% {
-            transform: translate(12px, 80px) scale(1);
+            transform: translate(6px, 40px) scale(1);
         }
 
         75% {
-            transform: translate(80px, 80px) scale(1);
+            transform: translate(40px, 40px) scale(1);
         }
 
         100% {
-            transform: translate(148px, 80px) scale(1);
+            transform: translate(74px, 40px) scale(1);
         }
     }
 
-    @keyframes ldio-wf2k1rxtsnb-r {
+    @keyframes ldio-4vsyzdoqibk-r {
         0% {
-            transform: translate(148px, 80px) scale(1);
+            transform: translate(74px, 40px) scale(1);
         }
 
         100% {
-            transform: translate(148px, 80px) scale(0);
+            transform: translate(74px, 40px) scale(0);
         }
     }
 
-    @keyframes ldio-wf2k1rxtsnb-c {
+    @keyframes ldio-4vsyzdoqibk-c {
         0% {
-            background: #93dbe9
+            background: #e15b64
         }
 
         25% {
-            background: #3b4368
+            background: #abbd81
         }
 
         50% {
-            background: #5e6fa3
+            background: #f8b26a
         }
 
         75% {
-            background: #689cc5
+            background: #f47e60
         }
 
         100% {
-            background: #93dbe9
+            background: #e15b64
         }
     }
 
-    .ldio-wf2k1rxtsnb div {
+    .ldio-4vsyzdoqibk div {
         position: absolute;
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        transform: translate(80px, 80px) scale(1);
-        background: #93dbe9;
-        animation: ldio-wf2k1rxtsnb 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
+        transform: translate(40px, 40px) scale(1);
+        background: #e15b64;
+        animation: ldio-4vsyzdoqibk 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(1) {
-        background: #689cc5;
-        transform: translate(148px, 80px) scale(1);
-        animation: ldio-wf2k1rxtsnb-r 0.25s infinite cubic-bezier(0, 0.5, 0.5, 1), ldio-wf2k1rxtsnb-c 1s infinite step-start;
+    .ldio-4vsyzdoqibk div:nth-child(1) {
+        background: #f47e60;
+        transform: translate(74px, 40px) scale(1);
+        animation: ldio-4vsyzdoqibk-r 0.25s infinite cubic-bezier(0, 0.5, 0.5, 1), ldio-4vsyzdoqibk-c 1s infinite step-start;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(2) {
+    .ldio-4vsyzdoqibk div:nth-child(2) {
         animation-delay: -0.25s;
-        background: #93dbe9;
+        background: #e15b64;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(3) {
+    .ldio-4vsyzdoqibk div:nth-child(3) {
         animation-delay: -0.5s;
-        background: #689cc5;
+        background: #f47e60;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(4) {
+    .ldio-4vsyzdoqibk div:nth-child(4) {
         animation-delay: -0.75s;
-        background: #5e6fa3;
+        background: #f8b26a;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(5) {
+    .ldio-4vsyzdoqibk div:nth-child(5) {
         animation-delay: -1s;
-        background: #3b4368;
+        background: #abbd81;
     }
 
-    .loadingio-spinner-ellipsis-16zv7w22yjg {
-        width: 200px;
-        height: 200px;
+    .loadingio-spinner-ellipsis-6qq63lm6xx6 {
+        width: 71px;
+        height: 71px;
         display: inline-block;
         overflow: hidden;
         background: none;
     }
 
-    .ldio-wf2k1rxtsnb {
+    .ldio-4vsyzdoqibk {
         width: 100%;
         height: 100%;
         position: relative;
-        transform: translateZ(0) scale(1);
+        transform: translateZ(0) scale(0.71);
         backface-visibility: hidden;
         transform-origin: 0 0;
         /* see note above */
     }
 
-    .ldio-wf2k1rxtsnb div {
+    .ldio-4vsyzdoqibk div {
         box-sizing: content-box;
     }
 
@@ -406,33 +407,8 @@
                     </div>
                     <div class="collapse show head-collapse" id="collapseExample1" data-key="1">
                         <div class="card-body pt-3">
-                            <div class="row">
-                                <div class="col-12 small">
-                                    <b class="text-orange" style="font-size: 14px;">DETAIL</b>
-                                    <div class="row pt-2">
-                                        <div class="col-6 pt-1 pb-1 small">No. Draft</div>
-                                        <div class="col-6 pt-1 pb-1 small text-end"><b>#KODEMATERIAL123</b></div>
-                                        <div class="col-6 pt-1 pb-1 small">Time Draft</div>
-                                        <div class="col-6 pt-1 pb-1 small text-end"><b>01-01-2023 11:10:00</b></div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <hr>
-                                </div>
-                                <div class="col-12 pt-2 small">
-                                    <b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>
-                                    <div class="card shadow-none mt-2 bd-callout-0">
-                                        <div class="card-body p-2">
-                                            <b class="small">MAKER</b>
-                                            <div class="row pt-2">
-                                                <div class="col-7 pt-1 pb-1 font-small text-oyen"><b>Cigarette Paper <span class="badge bg-orange">2 <i class="fa fa-cog"></i></span></b></div>
-                                                <div class="col-5 pt-1 pb-1 font-small text-end"><b>100 / 100 Roll</b></div>
-                                                <div class="col-7 pt-1 pb-1 font-small text-oyen"><b>Filter Rods Dual <span class="badge bg-orange">2 <i class="fa fa-cog"></i></span></b></div>
-                                                <div class="col-5 pt-1 pb-1 font-small text-end"><b>100 / 100 Roll</b></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="row" id="dataDraft">
+
                             </div>
                         </div>
                     </div>
@@ -581,12 +557,12 @@
 
     function loadingData(location) {
         var html = ""
-        html += '<div class="card w-100 shadow-none mb-2 p-0">'
+        html += '<div class="card w-100 shadow-none mb-2 p-0" style="border:0px;">'
         html += '<div class="card-body p-2">'
         html += '<div class="row d-flex align-items-center">'
         html += '<div class="col text-center p-5">'
-        html += '<i class="small mb-5">Memuat Data</i><br>'
-        html += '<div class="loadingio-spinner-ellipsis-16zv7w22yjg"><div class="ldio-wf2k1rxtsnb">'
+        // html += '<i class="small mb-5">Memuat Data</i><br>'
+        html += '<div class="loadingio-spinner-ellipsis-6qq63lm6xx6"><div class="ldio-4vsyzdoqibk">'
         html += '<div></div><div></div><div></div><div></div><div></div>'
         html += '</div></div>'
         html += '</div>'
@@ -599,7 +575,7 @@
 
     function notFound(location) {
         var html = ""
-        html += '<div class="card w-100 shadow-none mb-2 p-0">'
+        html += '<div class="card w-100 shadow-none mb-2 p-0" style="border:0px;">'
         html += '<div class="card-body p-2">'
         html += '<div class="row d-flex align-items-center">'
         html += '<div class="col text-center p-5">'
@@ -630,10 +606,10 @@
                 id: user_id
             },
             error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
+                notFound('#dataPlanning')
             },
             beforeSend: function() {
-                loadingData('#tampilDetailPembayaran')
+                loadingData('#dataPlanning')
             },
             success: function(response) {
                 data_user = response['data']
@@ -697,10 +673,10 @@
                 employeeId: user_id,
             },
             error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
+                notFound('#dataPlanning')
             },
             beforeSend: function() {
-                loadingData('#tampilDetailPembayaran')
+                loadingData('#dataPlanning')
             },
             success: function(response) {
                 data_plan = response['data']
@@ -757,8 +733,83 @@
         $('#dataPlanning').html(html)
     }
 
-    function dataDraft() {
+    var data_draft = []
+    var data_draft_group_machine_type = []
+    var machine_type = []
 
+    function dataDraft() {
+        $.each(data_plan['draft'][0]['detail'], function(key, value) {
+            // machine type
+            $.each(value['machine'], function(keys, values) {
+                // machine
+                $.each(values['material'][0], function(keys2, values2) {
+                    data_draft.push({
+                        'machine_type_id': value['machine_type']['id'],
+                        'machine_type_name': value['machine_type']['name'],
+                        'machine_id': values['machine']['id'],
+                        'machine_name': values['machine']['name'],
+                        'material_id': values2['material']['id'],
+                        'material_name': values2['material']['name'],
+                        'unit_id': values2['unit']['id'],
+                        'unit_name': values2['unit']['name'],
+                        'qty': values2['qty'],
+                    })
+                })
+            })
+        })
+        console.log(data_draft)
+        data_draft_group_machine_type = groupAndSum(data_draft, ['machine_type_id', 'machine_type_name', 'material_id', 'material_name', 'unit_name'], ['qty']);
+        machine_type = groupAndSum(data_draft_group_machine_type, ['machine_type_id', 'machine_type_name'], []);
+        formDraft()
+    }
+
+    function formDraft() {
+        var html = ""
+        html += '<div class="col-12 small">'
+        html += '<b class="text-orange" style="font-size: 14px;">DETAIL</b>'
+        html += '<div class="row pt-2">'
+        html += '<div class="col-6 pt-1 pb-1 small">No. Draft</div>'
+        html += '<div class="col-6 pt-1 pb-1 small text-end"><b>#' + data_plan['draft'][0]['code'] + '</b></div>'
+        html += '<div class="col-6 pt-1 pb-1 small">Time Draft</div>'
+        html += '<div class="col-6 pt-1 pb-1 small text-end"><b>' + getDateTime(data_plan['draft'][0]['created_at']) + '</b></div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += '<hr>'
+        html += '</div>'
+        html += '<div class="col-12 pt-2 small">'
+        html += '<b class="text-orange" style="font-size: 14px;">INFORMATION ITEMS</b>'
+        $.each(machine_type, function(key, value) {
+            html += '<div class="card shadow-none mt-2 bd-callout-' + key + '">'
+            html += '<div class="card-body p-2">'
+            html += '<b class="small">' + value['machine_type_name'] + '</b>'
+            html += '<div class="row pt-2">'
+
+            $.each(data_draft_group_machine_type, function(keys, values) {
+                if (values['machine_type_id'] == value['machine_type_id']) {
+                    var data = data_draft.filter((values2, keys2) => {
+                        if (values2['machine_type_id'] === values['machine_type_id'] && values2['material_id'] === values['material_id']) return true
+                    })
+                    var text = values['material_name'].split(' ')
+                    if (text[2] == undefined) {
+                        text[2] = ""
+                    }
+                    var text2 = text[0] + ' ' + text[1] + ' ' + text[2]
+                    html += '<div class="col-7 pt-1 pb-1 font-small text-oyen"><b>' + text2 + ' <span class="badge bg-orange" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="...">' + data.length + ' <i class="fa fa-cog"></i></span></b></div>'
+                    html += '<div class="col-5 pt-1 pb-1 font-small text-end"><b>' + values['qty'] + ' / ' + values['qty'] + ' ' + values['unit_name'] + '</b></div>'
+                }
+            })
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        html += '</div>'
+        $('#dataDraft').html(html)
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
     }
 
     $('.head-collapse').on('hide.bs.collapse', function() {

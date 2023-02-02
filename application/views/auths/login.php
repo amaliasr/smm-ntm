@@ -1,33 +1,70 @@
-<main>
-    <div class="container-xl px-4">
+<style>
+    html {
+        background-color: #30475E !important;
+    }
+
+    .background {
+        height: 100vh;
+        width: 100vw;
+    }
+
+    .bg-dongker {
+        background-color: #30475E;
+    }
+
+    .text-dongker {
+        color: #30475E;
+    }
+
+    .bg-dark-grey {
+        background-color: #3C4048;
+    }
+
+    .text-dark-grey {
+        color: #3C4048;
+    }
+
+    .bg-rainbow {
+        background: rgb(208, 103, 58);
+        background: linear-gradient(66deg, rgba(208, 103, 58, 1) 0%, rgba(130, 51, 233, 1) 100%);
+    }
+
+    .text-rainbow {
+        color: rgb(208, 103, 58);
+        color: linear-gradient(66deg, rgba(208, 103, 58, 1) 0%, rgba(130, 51, 233, 1) 100%);
+    }
+
+    .centered {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+</style>
+<main class="background">
+    <!-- <div class="container-xl px-4">
         <div class="row justify-content-center">
             <div class="col-lg-5">
-                <!-- Basic login form-->
                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                     <div class="card-header justify-content-center">
                         <h3 class="fw-medium my-4 text-center">PT. SINAR MAHKOTA MAS</h3>
                     </div>
                     <div class="card-body">
-                        <!-- Login form-->
                         <form>
-                            <!-- Form Group (email address)-->
                             <div class="mb-3">
                                 <label class="small mb-1" for="inputEmailAddress">Email</label>
                                 <input class="form-control" id="inputEmailAddress" type="email" placeholder="Enter email address" />
                             </div>
-                            <!-- Form Group (password)-->
                             <div class="mb-3">
                                 <label class="small mb-1" for="inputPassword">Password</label>
                                 <input class="form-control" id="inputPassword" type="password" placeholder="Enter password" />
                             </div>
-                            <!-- Form Group (remember password checkbox)-->
                             <div class="mb-3">
                                 <div class="form-check">
                                     <input class="form-check-input" id="rememberPasswordCheck" type="checkbox" value="" />
                                     <label class="form-check-label" for="rememberPasswordCheck">Remember password</label>
                                 </div>
                             </div>
-                            <!-- Form Group (login box)-->
                             <div class="mt-4 mb-0">
                                 <a class="btn btn-primary float-end" style="cursor: pointer" id="btnLogin">Login</a>
                             </div>
@@ -36,9 +73,115 @@
                 </div>
             </div>
         </div>
+    </div> -->
+    <div class="row h-100">
+        <div class="col-6 bg-rainbow h-100 align-self-center">
+            <div class="centered">
+                <div class="container justify-content-center mt-4 mt-sm-0">
+                    <h1 style="font-size: 30px;margin: auto;width:100%;">
+                        <a class="typewrite text-white" data-period="2000" data-type='[ "“We cannot solve problems with the kind of thinking we employed when we came up with them.” — Albert Einstein", "“When you change your thoughts, remember to also change your world.”—Norman Vincent Peale", "“It is only when we take chances, when our lives improve. The initial and the most difficult risk that we need to take is to become honest. —Walter Anderson"]' style="text-decoration:none">
+                            <span class="wrap"></span>
+                        </a>
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 bg-white h-100">
+            <div class="row h-100 d-flex align-self-center justify-content-center">
+                <div class="col-8 h-100 align-items-center align-content-center flex-wrap">
+                    <div class="centered">
+                        <div class="container justify-content-center">
+                            <img class="mb-3" src="<?= base_url() ?>assets/image/logo/SMM.png" style="width: 50px;">
+                            <h1 class="text-dongker fw-bold"><b>Hello, Buddy !</b></h1>
+                            <p class="m-0 small">Learn to level up yout life. Love the wotk, the grnd, the sweat, and the hard work. It pays off in the end.</p>
+                            <form class="m-0 mt-5">
+                                <div class="mb-3">
+                                    <!-- <label class="small mb-1" for="inputEmailAddress">Email</label> -->
+                                    <input class="form-control" id="inputEmailAddress" type="email" placeholder="Enter email address" />
+                                </div>
+                                <div class="mb-3">
+                                    <!-- <label class="small mb-1" for="inputPassword">Password</label> -->
+                                    <input class="form-control" id="inputPassword" type="password" placeholder="Enter password" />
+                                </div>
+                                <!-- <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="rememberPasswordCheck" type="checkbox" value="" />
+                                        <label class="form-check-label" for="rememberPasswordCheck">Remember password</label>
+                                    </div>
+                                </div> -->
+                                <div class="mt-4 mb-0">
+                                    <a class="btn btn-dark float-end" style="cursor: pointer" id="btnLogin">Login</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 <script>
+    var TxtType = function(el, toRotate, period) {
+        this.toRotate = toRotate;
+        this.el = el;
+        this.loopNum = 0;
+        this.period = parseInt(period, 10) || 2000;
+        this.txt = '';
+        this.tick();
+        this.isDeleting = false;
+    };
+
+    TxtType.prototype.tick = function() {
+        var i = this.loopNum % this.toRotate.length;
+        var fullTxt = this.toRotate[i];
+
+        if (this.isDeleting) {
+            this.txt = fullTxt.substring(0, this.txt.length - 1);
+        } else {
+            this.txt = fullTxt.substring(0, this.txt.length + 1);
+        }
+
+        this.el.innerHTML = '<span class="wrap">' + this.txt + '</span>';
+
+        var that = this;
+        var delta = 200 - Math.random() * 100;
+
+        if (this.isDeleting) {
+            delta /= 2;
+        }
+
+        if (!this.isDeleting && this.txt === fullTxt) {
+            delta = this.period;
+            this.isDeleting = true;
+        } else if (this.isDeleting && this.txt === '') {
+            this.isDeleting = false;
+            this.loopNum++;
+            delta = 500;
+        }
+
+        setTimeout(function() {
+            that.tick();
+        }, delta);
+    };
+
+    window.onload = function() {
+        var elements = document.getElementsByClassName('typewrite');
+        for (var i = 0; i < elements.length; i++) {
+            var toRotate = elements[i].getAttribute('data-type');
+            var period = elements[i].getAttribute('data-period');
+            if (toRotate) {
+                new TxtType(elements[i], JSON.parse(toRotate), period);
+            }
+        }
+        // INJECT CSS
+        var css = document.createElement("style");
+        css.type = "text/css";
+        css.innerHTML = ".typewrite > .wrap { border-right: 0.08em solid #fff}";
+        document.body.appendChild(css);
+    };
+    $(document).ready(function() {
+        $('#layoutAuthentication_footer').addClass('d-none')
+    })
     var email, password;
     $(document).on('click', '#btnLogin', function(e) {
         email = $('#inputEmailAddress').val()

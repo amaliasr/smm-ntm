@@ -157,3 +157,39 @@ function currentDateTime() {
     var date = year + "-" + month + "-" + day+' '+jam + ":" + menit + ":" + detik;
     return date;
 }
+function getDateTime(orginaldate) {
+    var date = new Date(orginaldate);
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var jam = date.getHours();
+    var menit = date.getMinutes();
+    var detik = date.getSeconds();
+    if (detik < 10) {
+        detik = "0" + detik;
+    }
+    if (menit < 10) {
+        menit = "0" + menit;
+    }
+    if (jam < 10) {
+        jam = "0" + jam;
+    }
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = year + "-" + month + "-" + day+' '+jam + ":" + menit + ":" + detik;
+    return date;
+}
+function groupAndSum(arr, groupKeys, sumKeys) {
+    return Object.values(
+        arr.reduce((acc, curr) => {
+            const group = groupKeys.map(k => curr[k]).join('-');
+            acc[group] = acc[group] || Object.fromEntries(groupKeys.map(k => [k, curr[k]]).concat(sumKeys.map(k => [k, 0])));
+            sumKeys.forEach(k => acc[group][k] += curr[k]);
+            return acc;
+        }, {})
+    );
+}
