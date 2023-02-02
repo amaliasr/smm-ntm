@@ -467,7 +467,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row" id="listMaterialRequest">
-
                         </div>
                     </div>
                 </div>
@@ -791,40 +790,47 @@
     var machine_type = []
 
     function dataMaterialRequest() {
+        var data = data_plan['materialItemHeader'].filter((value, key) => {
+            if (value['detail'] != null) return true
+        })
         var html = ""
-        html += '<div class="col-12 pt-2">'
-        html += '<h3 class="m-0"><b>MAKER</b></h3>'
-        html += '<div class="table-responsive">'
-        html += '<table class="table table-bordered table-hover table-sm">'
-        html += '<thead>'
-        html += '<tr class="bg-grey text-dark">'
-        html += '<th class="p-2 font-small" rowspan="2">ID MATERIAL</th>'
-        html += '<th class="p-2 font-small" rowspan="2" style="width: 300px;">Nama Bahan</th>'
-        html += '<th class="p-2 font-small" rowspan="2">Satuan</th>'
-        html += '<th class="p-2 font-small" colspan="3">Mesin Maker</th>'
-        html += '</tr>'
-        html += '<tr class="bg-grey text-dark">'
-        html += '<th class="p-2 font-small">MK9-A</th>'
-        html += '<th class="p-2 font-small">MK9-B</th>'
-        html += '<th class="p-2 font-small">MK9-C</th>'
-        html += '</tr>'
-        html += '</thead>'
-        html += '<tbody>'
-        html += '<?php for ($i = 0; $i < 10; $i++) { ?>'
-        html += '<tr>'
-        html += '<td class="p-2 font-small">RM.001</td>'
-        html += '<td class="p-2 font-small">Filter Reg</td>'
-        html += '<td class="p-2 font-small">Tray</td>'
-        html += '<?php for ($j = 0; $j < 3; $j++) { ?>'
-        html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>'
-        html += '<?php } ?>'
-        html += '</tr>'
-        html += '<?php } ?>'
-        html += '</tbody>'
-        html += '</table>'
+        $.each(data, function(key, value) {
+            html += '<div class="col-12 pt-2">'
+            html += '<h3 class="m-0"><b>' + value['label'] + '</b></h3>'
+            html += '<div class="table-responsive">'
+            html += '<table class="table table-bordered table-hover table-sm">'
+            html += '<thead>'
+            html += '<tr class="bg-grey text-dark">'
+            html += '<th class="p-2 font-small" rowspan="2">ID MATERIAL</th>'
+            html += '<th class="p-2 font-small" rowspan="2" style="width: 300px;">Nama Bahan</th>'
+            html += '<th class="p-2 font-small" rowspan="2">Satuan</th>'
+            html += '<th class="p-2 font-small" colspan="' + value['detail']['machine'].length + '">' + value['detail']['machine_type']['name'] + '</th>'
+            html += '</tr>'
+            html += '<tr class="bg-grey text-dark">'
+            $.each(value['detail']['machine'], function(keys, values) {
+                html += '<th class="p-2 font-small">' + values['code'] + '</th>'
+            })
+            html += '</tr>'
+            html += '</thead>'
+            html += '<tbody>'
+            $.each(data_plan['materialItem'], function(keya, valuea) {
+                if (value['detail']['machine_type']['id'] == valuea['machine_type'][0]['machine_type']['id']) {
+                    html += '<tr>'
+                    html += '<td class="p-2 font-small">' + valuea['material_code'] + '</td>'
+                    html += '<td class="p-2 font-small">' + valuea['material_name'] + '</td>'
+                    html += '<td class="p-2 font-small">' + valuea['unit']['name'] + '</td>'
+                    $.each(value['detail']['machine'], function(keys, values) {
+                        html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>'
+                    })
+                    html += '</tr>'
+                }
+            })
+            html += '</tbody>'
+            html += '</table>'
 
-        html += '</div>'
-        html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
         $('#listMaterialRequest').html(html)
     }
 
