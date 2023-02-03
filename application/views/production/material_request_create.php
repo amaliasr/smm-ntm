@@ -361,27 +361,17 @@
     </header>
     <!-- Main page content-->
     <!-- side count -->
-    <!-- <div class="fixed-bottom">
-        <div class="card shadow" id="targetPane">
+    <div class="fixed-bottom">
+        <div class="card shadow" id="targetPane" style="border-radius:0px;">
             <div class="card-body p-2">
                 <div class="row p-0">
-                    <div class="col-6 text-center p-0 align-self-center">
-                        <p class="m-0 text-orange" style="font-size: 14px;"><b>PLAN 1 WEEK</b></p>
-                    </div>
-                    <div class="col-auto p-0 align-self-center">
-                        <div class="row p-0" id="detailTargetPane">
-                            <?php for ($i = 0; $i < 3; $i++) { ?>
-                                <div class="col-auto text-center align-self-center">
-                                    <p class="m-0 text-orange" style="font-size: 14px;">ABLF 20</p>
-                                    <p class="m-0" style="font-size: 11px;"><b><span class="">2,000</span> / 2,000</b></p>
-                                </div>
-                            <?php } ?>
-                        </div>
+                    <div class="col p-0 ps-4 pe-4 text-end">
+                        <button type="button" class="btn btn-success btn-sm btnSimpan" onclick="createMaterialRequest()"><i class="fa fa-paper-plane me-2"></i> Simpan dan Kirim</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
     <!-- side count -->
     <div class="container-xl px-4 mt-n10">
         <div class="row">
@@ -448,19 +438,19 @@
                     <div class="card-header" style="border-radius:0%">
                         <div class="row">
                             <div class="col-6 align-self-center">
-                                <p class="m-0 text-dark-grey">#KODEMATERIAL1234</p>
-                                <h5 class="m-0 "><b>Minggu, 1 JANUARI 2023</b></h5>
+                                <p class="m-0 text-dark-grey">#<span id="kodeMaterial"><i>Loading. . .</i></span></p>
+                                <h5 class="m-0 "><b id="today"><i>Loading . . .</i></b></h5>
                             </div>
                             <div class="col-6 align-self-center text-end">
                                 <div class="row">
                                     <div class="col-6 font-small text-dark p-0 pe-3">Jenis Produksi</div>
-                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><b><span class="badge bg-primary">SKM</span></b></div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><b><span class="badge bg-primary" id="prodType"><i>Loading . . .</i></span></b></div>
                                     <div class="col-6 font-small text-dark p-0 pe-3">Shift</div>
                                     <div class="col-6 font-small text-dark p-0 pe-3 text-end"><b>#1 (07.00 - 15.00)</b></div>
                                     <div class="col-6 font-small text-dark p-0 pe-3">Created By</div>
-                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><i class="fa fa-user me-2"></i><b>MADE</b></div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><i class="fa fa-user me-2"></i><b id="fullName"></b></div>
                                     <div class="col-6 font-small text-dark p-0 pe-3">Time Created</div>
-                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><i class="fa fa-calendar-o me-2"></i><b>01-01-2023 07:01:00</b></div>
+                                    <div class="col-6 font-small text-dark p-0 pe-3 text-end"><i class="fa fa-calendar-o me-2"></i><b id="time"><i>Loading . . .</i></b></div>
                                 </div>
                             </div>
                         </div>
@@ -499,6 +489,43 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    var timeDisplay = document.getElementById("time");
+    var dateDisplay = document.getElementById("today");
+    var kodeDisplay = document.getElementById("kodeMaterial");
+    var codeMaterial = ''
+    var codeProd = ''
+
+    function refreshTime() {
+        // Parse our locale string to [date, time]
+        var date = new Date().toLocaleString().split(" ");
+
+        // Now we can access our time at date[1], and monthdayyear @ date[0]
+        var time = date[1].replace('.', ':');
+        var mdy = date[0];
+
+        // We then parse  the mdy into parts
+        mdy = mdy.split('/');
+        var month = parseInt(mdy[0]);
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var day = parseInt(mdy[1]);
+        if (day < 10) {
+            day = "0" + day;
+        }
+        var year = parseInt(mdy[2]);
+
+        // Putting it all together
+        var formattedDate = day + '-' + month + '-' + year + ' ' + time;
+
+        timeDisplay.innerHTML = formattedDate;
+        dateDisplay.innerHTML = formatDateIndonesia(year + '-' + month + '-' + day);
+        codeMaterial = 'MR' + codeProd + '-' + year + month + day + time.split(':')[0] + time.split(':')[1]
+        kodeMaterial.innerHTML = codeMaterial
+    }
+
+    setInterval(refreshTime, 1000);
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -560,11 +587,26 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var full_name = '<?= $this->session->userdata('full_name') ?>'
     var id_draft = '<?= $id ?>'
     var data_user = ""
     var data_plan = ""
 
+    function shortenName(data, jumlah) {
+        var text = data.split(' ')
+        var text2 = ""
+        for (let i = 0; i < jumlah; i++) {
+            if (text[i] == undefined) {
+                text2 = text2 + ''
+            } else {
+                text2 = text2 + '' + text[i] + ' '
+            }
+        }
+        return text2
+    }
+
     $(document).ready(function() {
+        $('#fullName').html(shortenName(full_name, 2))
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",
@@ -655,18 +697,19 @@
             },
             success: function(response) {
                 data_plan = response['data']
+                codeProd = data_plan['productionPlan'][0]['production_type']['name']
+                $('#prodType').html(codeProd)
                 console.log(data_plan)
                 if (data_plan['productionPlan'].length > 0) {
                     dataPlanning()
-                    dataMaterialRequest()
                 } else {
                     notFound('#dataPlanning')
-                    notFound('#listMaterialRequest')
                 }
                 if (data_plan['draft'].length > 0) {
                     dataDraft()
                 } else {
                     notFound('#dataDraft')
+                    notFound('#listMaterialRequest')
                 }
             }
         })
@@ -766,13 +809,8 @@
                     var data = data_draft.filter((values2, keys2) => {
                         if (values2['machine_type_id'] === values['machine_type_id'] && values2['material_id'] === values['material_id']) return true
                     })
-                    var text = values['material_name'].split(' ')
-                    if (text[2] == undefined) {
-                        text[2] = ""
-                    }
-                    var text2 = text[0] + ' ' + text[1] + ' ' + text[2]
-                    html += '<div class="col-7 pt-1 pb-1 font-small text-oyen"><b>' + text2 + ' <span class="badge bg-orange" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="...">' + data.length + ' <i class="fa fa-cog"></i></span></b></div>'
-                    html += '<div class="col-5 pt-1 pb-1 font-small text-end"><b>' + values['qty'] + ' / ' + values['qty'] + ' ' + values['unit_name'] + '</b></div>'
+                    html += '<div class="col-7 pt-1 pb-1 font-small text-oyen"><b>' + shortenName(values['material_name'], 3) + ' <span class="badge bg-orange" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="...">' + data.length + ' <i class="fa fa-cog"></i></span></b></div>'
+                    html += '<div class="col-5 pt-1 pb-1 font-small text-end"><b><span class="qtyMesin" id="qtyMesin' + values['machine_type_id'] + values['material_id'] + '">' + values['qty'] + '</span> / ' + values['qty'] + ' ' + values['unit_name'] + '</b></div>'
                 }
             })
 
@@ -786,10 +824,13 @@
         var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl)
         })
+        dataMaterialRequest()
     }
     var machine_type = []
+    var filled_cell = []
 
     function dataMaterialRequest() {
+        // console.log(data_draft)
         var data = data_plan['materialItemHeader'].filter((value, key) => {
             if (value['detail'] != null) return true
         })
@@ -820,7 +861,23 @@
                     html += '<td class="p-2 font-small">' + valuea['material_name'] + '</td>'
                     html += '<td class="p-2 font-small">' + valuea['unit']['name'] + '</td>'
                     $.each(value['detail']['machine'], function(keys, values) {
-                        html += '<td class="p-0 font-small"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..."></td>'
+                        // console.log(values['id'], valuea['material_id'])
+                        var hasil = data_draft.find((values2, keys2) => {
+                            if (values2.machine_id === values['id'] && values2.material_id === valuea['material_id']) return true
+                        })
+                        if (hasil == undefined) {
+                            hasil = ''
+                        } else {
+                            hasil = hasil['qty']
+                            filled_cell.push({
+                                'machine_id': values['id'],
+                                'material_id': valuea['material_id'],
+                                'machine_type': value['detail']['machine_type']['id'],
+                                'unit_id': valuea['unit']['id'],
+                                'qty': hasil,
+                            })
+                        }
+                        html += '<td class="p-0 font-small cellMaterial" id="cellMaterial' + values['id'] + valuea['material_id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..." value="' + hasil + '" id="inputMaterial' + values['id'] + valuea['material_id'] + '" data-machine="' + values['id'] + '" data-material="' + valuea['material_id'] + '" data-machine_type="' + value['detail']['machine_type']['id'] + '" data-unit="' + valuea['unit']['id'] + '"></td>'
                     })
                     html += '</tr>'
                 }
@@ -832,9 +889,171 @@
             html += '</div>'
         })
         $('#listMaterialRequest').html(html)
+        $('.nominal').number(true);
+        collectDataInput()
     }
 
-    function formMaterialRequest() {}
+    $(document).on('keyup', '.jumlahPlanning', function(e) {
+        collectDataInput()
+    })
+
+    function collectDataInput() {
+        filled_cell = []
+        var machine = $('.jumlahPlanning').map(function() {
+            return $(this).data('machine');
+        }).get();
+        var material = $('.jumlahPlanning').map(function() {
+            return $(this).data('material');
+        }).get();
+        var machine_type = $('.jumlahPlanning').map(function() {
+            return $(this).data('machine_type');
+        }).get();
+        var unit_id = $('.jumlahPlanning').map(function() {
+            return $(this).data('unit');
+        }).get();
+        var qty = $('.jumlahPlanning').map(function() {
+            return $(this).val();
+        }).get();
+        for (let i = 0; i < qty.length; i++) {
+            if (qty[i] != "") {
+                filled_cell.push({
+                    'machine_id': machine[i],
+                    'material_id': material[i],
+                    'machine_type': machine_type[i],
+                    'unit_id': unit_id[i],
+                    'qty': parseFloat(qty[i])
+                })
+            }
+        }
+        checkFilledForm()
+    }
+
+    function checkFilledForm() {
+        console.log(filled_cell)
+        $('.cellMaterial').removeClass('bg-light')
+        $.each(filled_cell, function(key, value) {
+            $('#cellMaterial' + value['machine_id'] + value['material_id']).addClass('bg-light')
+        })
+        correctingToDraft()
+    }
+
+    function correctingToDraft() {
+        $('.qtyMesin').html('')
+        var groupInput = groupAndSum(filled_cell, ['machine_type', 'material_id'], ['qty'])
+        $.each(groupInput, function(key, value) {
+            $('#qtyMesin' + value['machine_type'] + value['material_id']).html(number_format(value['qty']))
+        })
+    }
+
+    function createMaterialRequest() {
+        var data = {}
+        var material_request = []
+        var material_request_machine = []
+        var material_request_item = []
+
+        var id = new Date().getTime()
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        if (month < 10) {
+            month = "0" + month;
+        }
+        material_request.push({
+            'id': id,
+            'material_draft_id': data_plan['draft'][0]['id'],
+            'production_type_id': data_plan['productionPlan'][0]['production_type']['id'],
+            'date': formatDate(currentDateTime()),
+            'code': codeMaterial,
+            'created_at': currentDateTime(),
+            'updated_at': currentDateTime(),
+            'created_id': user_id
+        })
+        var mesin = groupAndSum(filled_cell, ['machine_id'], ['qty'])
+        $.each(mesin, function(key, value) {
+            var mcn_id = new Date().getTime() + '' + key
+            material_request_machine.push({
+                'id': mcn_id,
+                'material_request_id': id,
+                'machine_id': value['machine_id'],
+            })
+            $.each(filled_cell, function(keys, values) {
+                if (values['machine_id'] == value['machine_id']) {
+                    material_request_item.push({
+                        'id': new Date().getTime() + '' + key + keys,
+                        'material_request_machine_id': mcn_id,
+                        'item_id': values['material_id'],
+                        'unit_id': values['unit_id'],
+                        'qty_request': values['qty']
+                    })
+                }
+            })
+        })
+        data = {
+            'material_request': material_request,
+            'material_request_machine': material_request_machine,
+            'material_request_item': material_request_item,
+        }
+        // console.log(filled_cell)
+        doSimpan(data)
+    }
+
+    function doSimpan(data) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menyimpan dan mengirimkan ke Warehouse?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                createVarSave(data)
+            }
+        })
+    }
+
+    function createVarSave(data) {
+        var type = 'POST'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('setMaterialRequest'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Disimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        $(button).prop("disabled", false);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
+    }
 
     $('.head-collapse').on('hide.bs.collapse', function() {
         var key = $(this).data('key')

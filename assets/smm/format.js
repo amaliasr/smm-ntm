@@ -193,3 +193,15 @@ function groupAndSum(arr, groupKeys, sumKeys) {
         }, {})
     );
 }
+function shortenName(data, jumlah) {
+    var text = data.split(' ')
+    var text2 = ""
+    for (let i = 0; i < jumlah; i++) {
+        if (text[i] == undefined) {
+            text2 = text2 + ''
+        } else {
+            text2 = text2 + '' + text[i] + ' '
+        }
+    }
+    return text2
+}
