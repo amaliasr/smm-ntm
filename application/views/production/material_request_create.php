@@ -635,6 +635,7 @@
         })
     })
 
+
     function chooseDate() {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
@@ -674,6 +675,11 @@
         html_body += '</div>'
         $('#modalBody').html(html_body);
         $('#modalFooter').addClass('d-none');
+        getDataPlanning()
+    }
+
+    function getDataPlanning() {
+
     }
 
     function getData() {

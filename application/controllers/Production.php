@@ -64,4 +64,10 @@ class Production extends CI_Controller
         $data['title'] = 'Create Material Request';
         $this->template->views('production/material_request_create', $data);
     }
+    public function detailMaterialRequest($id = "")
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Detail Material Request';
+        $this->template->views('production/material_request_detail', $data);
+    }
 }
