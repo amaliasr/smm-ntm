@@ -634,6 +634,17 @@
         return false
     }
 
+    function groupAndSum(arr, groupKeys, sumKeys) {
+        return Object.values(
+            arr.reduce((acc, curr) => {
+                const group = groupKeys.map(k => curr[k]).join('-');
+                acc[group] = acc[group] || Object.fromEntries(groupKeys.map(k => [k, curr[k]]).concat(sumKeys.map(k => [k, 0])));
+                sumKeys.forEach(k => acc[group][k] += parseFloat(curr[k]));
+                return acc;
+            }, {})
+        );
+    }
+
     function numberinPR() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getCountDocPR'); ?>",
@@ -647,12 +658,13 @@
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
                 if (response.message != 'Data data not found') {
-                    let obj = response['data'].find((value, key) => {
-                        if (value.no_bulan === thisMonth && value.tahun === thisYear.toString() && value.cost_center_id === '23') return true
+                    let obj = response['data'].filter((value, key) => {
+                        if (value.tahun === thisYear.toString() && value.cost_center_id === '23') return true
                     });
                     let count = 1
-                    if (obj != undefined) {
-                        count = parseInt(obj['count']) + 1;
+                    if (obj != undefined || obj.length == 0) {
+                        var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
+                        count = parseInt(data_hasil[0]['count']) + 1;
                     }
                     no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
                 } else {
@@ -677,12 +689,14 @@
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
                 if (response.message != 'Data data not found') {
-                    let obj = response['data'].find((value, key) => {
-                        if (value.no_bulan === thisMonth && value.tahun === thisYear.toString()) return true
+                    let obj = response['data'].filter((value, key) => {
+                        if (value.tahun === thisYear.toString()) return true
                     });
                     let count = 1
-                    if (obj != undefined) {
-                        count = parseInt(obj['count']) + 1;
+                    if (obj != undefined || obj.length == 0) {
+                        var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
+                        count = parseInt(data_hasil[0]['count']) + 1;
+                        // count = parseInt(obj['count']) + 1;
                     }
                     no_po = count.toString().padStart(3, "0") + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
                 } else {
