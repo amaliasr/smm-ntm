@@ -202,8 +202,15 @@
         <!-- Sidenav Footer-->
         <div class="sidenav-footer">
             <div class="sidenav-footer-content">
-                <div class="sidenav-footer-subtitle">Logged in as:</div>
-                <div class="sidenav-footer-title"><?= $this->session->userdata('full_name') ?></div>
+                <div class="row">
+                    <div class="col-3 align-self-center text-center">
+                        <img src="<?= base_url() ?>assets/image/gif/astronaut-1.svg" style="width: 50px;">
+                    </div>
+                    <div class="col-9 align-self-center">
+                        <div class="sidenav-footer-subtitle">Logged in as:</div>
+                        <div class="sidenav-footer-title lh-1"><?= $this->session->userdata('full_name') ?></div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

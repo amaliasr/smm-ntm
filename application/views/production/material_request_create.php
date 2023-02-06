@@ -210,6 +210,10 @@
     .text-oyen {
         color: #EF9A53;
     }
+
+    .card-hoper:hover {
+        background-color: #EDEDED;
+    }
 </style>
 <!-- loading CSS -->
 
@@ -591,6 +595,7 @@
     var id_draft = '<?= $id ?>'
     var data_user = ""
     var data_plan = ""
+    var list_data_plan = []
 
     function shortenName(data, jumlah) {
         var text = data.split(' ')
@@ -629,7 +634,12 @@
                 if (id_draft == "") {
                     chooseDate()
                 } else {
-                    getData()
+                    var data = {
+                        draftId: id_draft,
+                        employeeId: user_id,
+                    }
+                    var url = "<?= api_produksi('loadPageMaterialRequestCreate'); ?>"
+                    getData(data, url)
                 }
             }
         })
@@ -642,7 +652,7 @@
         var html_header = '';
         html_header += '<h5 class="modal-title">Pilih Planning</h5>'
         html_header += '<div class="input-group w-50">'
-        html_header += '<input class="form-control form-control-sm pe-0" type="text" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_nama">'
+        html_header += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_nama">'
         html_header += '<span class="input-group-text">'
         html_header += '<i class="fa fa-search"></i>'
         html_header += '</span>'
@@ -653,22 +663,7 @@
         html_body += '<div class="container small">'
         html_body += '<div class="row">'
 
-        html_body += '<div class="col-12">'
-        html_body += '<div class="card shadow-sm mb-2" style="cursor:pointer;">'
-        html_body += '<div class="card-body">'
-
-        html_body += '<div class="row">'
-        html_body += '<div class="col-8 align-self-center">'
-        html_body += '<p class="m-0">#KODEPLANNING123</p>'
-        html_body += '<p class="m-0"><b>Minggu, 1 Januari 2022 <span class="badge bg-success">Today</span></b></p>'
-        html_body += '</div>'
-        html_body += '<div class="col-4 align-self-end">'
-        html_body += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
+        html_body += '<div class="col-12" id="listPlanning">'
         html_body += '</div>'
 
         html_body += '</div>'
@@ -678,19 +673,82 @@
         getDataPlanning()
     }
 
+    var data_after_click_plan = ""
+
     function getDataPlanning() {
-
-    }
-
-    function getData() {
         $.ajax({
             url: "<?= api_produksi('loadPageMaterialRequestCreate'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                draftId: id_draft,
                 employeeId: user_id,
             },
+            error: function(xhr) {
+                notFound('#listPlanning')
+            },
+            beforeSend: function() {
+                loadingData('#listPlanning')
+            },
+            success: function(response) {
+                data_after_click_plan = response['data']
+                $.each(data_after_click_plan['listProductionPlan'], function(key, value) {
+                    // kode smd
+                    $.each(value['detail'], function(keys, values) {
+                        // tgl smd
+                        list_data_plan.push({
+                            'id': value['id'],
+                            'code': value['code'],
+                            'production_type': value['production_type']['id'],
+                            'date': values['date'],
+                        })
+                    })
+                })
+                formDataPlanning()
+            }
+        })
+    }
+
+    function formDataPlanning() {
+        var html = ""
+        $.each(list_data_plan, function(key, value) {
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')">'
+            html += '<div class="card-body">'
+
+            html += '<div class="row">'
+            html += '<div class="col-8 align-self-center">'
+            html += '<p class="m-0">#' + value['code'] + '</p>'
+            var today = ''
+            if (value['date'] == currentDateTime()) {
+                today = '<span class="badge bg-success">Today</span>'
+            }
+            html += '<p class="m-0"><b>' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
+            html += '</div>'
+            html += '<div class="col-4 align-self-end">'
+            html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#listPlanning').html(html)
+    }
+
+    function loadDataPlanning(id, date) {
+        var data = {
+            productionPlanId: id,
+            date: date,
+        }
+        var url = "<?= api_produksi('getLoadPageMaterialRequestCreate'); ?>"
+        getData(data, url)
+    }
+
+    function getData(data, url) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
             error: function(xhr) {
                 notFound('#dataPlanning')
                 notFound('#dataDraft')
@@ -702,10 +760,14 @@
                 loadingData('#listMaterialRequest')
             },
             success: function(response) {
+                $('#modal').modal('hide')
                 data_plan = response['data']
                 codeProd = data_plan['productionPlan'][0]['production_type']['name']
                 $('#prodType').html(codeProd)
-                console.log(data_plan)
+                if (data_plan['materialItem'] == undefined) {
+                    data_plan['materialItem'] = data_after_click_plan['materialItem']
+                    data_plan['materialItemHeader'] = data_after_click_plan['materialItemHeader']
+                }
                 if (data_plan['productionPlan'].length > 0) {
                     dataPlanning()
                 } else {
@@ -714,8 +776,10 @@
                 if (data_plan['draft'].length > 0) {
                     dataDraft()
                 } else {
+
                     notFound('#dataDraft')
                     notFound('#listMaterialRequest')
+                    dataMaterialRequest()
                 }
             }
         })
@@ -751,7 +815,6 @@
                 })
             })
             html += '</div>'
-
             html += '</div>'
             html += '</div>'
         })
@@ -935,7 +998,6 @@
     }
 
     function checkFilledForm() {
-        console.log(filled_cell)
         $('.cellMaterial').removeClass('bg-light')
         $.each(filled_cell, function(key, value) {
             $('#cellMaterial' + value['machine_id'] + value['material_id']).addClass('bg-light')
@@ -952,6 +1014,7 @@
     }
 
     function createMaterialRequest() {
+
         var data = {}
         var material_request = []
         var material_request_machine = []
@@ -965,7 +1028,7 @@
         }
         material_request.push({
             'id': id,
-            'material_draft_id': data_plan['draft'][0]['id'],
+            'production_plan_id': data_plan['productionPlan'][0]['id'],
             'production_type_id': data_plan['productionPlan'][0]['production_type']['id'],
             'date': formatDate(currentDateTime()),
             'code': codeMaterial,
@@ -973,6 +1036,9 @@
             'updated_at': currentDateTime(),
             'created_id': user_id
         })
+        if (data_plan['draft'].length > 0) {
+            material_request[0]['material_draft_id'] = data_plan['draft'][0]['id']
+        }
         var mesin = groupAndSum(filled_cell, ['machine_id'], ['qty'])
         $.each(mesin, function(key, value) {
             var mcn_id = new Date().getTime() + '' + key
@@ -998,7 +1064,7 @@
             'material_request_machine': material_request_machine,
             'material_request_item': material_request_item,
         }
-        // console.log(filled_cell)
+        // console.log(data)
         doSimpan(data)
     }
 

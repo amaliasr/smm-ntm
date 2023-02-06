@@ -17661,12 +17661,15 @@ body {
 }
 
 .bg-gradient-primary-to-secondary {
-	background-color: #0061f2 !important;
+	/* background-color: #0061f2 !important;
 	background-image: linear-gradient(
 		135deg,
 		#0061f2 0%,
 		rgba(105, 0, 199, 0.8) 100%
-	) !important;
+	) !important; */
+	background: #9a2697;
+background: -webkit-linear-gradient(141deg, #9a2697 0%, #5d09b0 100%);
+background: linear-gradient(141deg, #9a2697 0%, #5d09b0 100%);
 }
 
 .bg-gradient-danger-to-warning {
