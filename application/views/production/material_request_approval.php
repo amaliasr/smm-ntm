@@ -372,7 +372,7 @@
         </div>
         <div class="row">
             <div class="col-12 text-end">
-                <button type="button" class="btn btn-success d-none btnApprove">Selesaikan Persetujuan</button>
+                <button type="button" class="btn btn-success d-none btnApprove" onclick="approvalForm()">Selesaikan Persetujuan</button>
             </div>
         </div>
 </main>
@@ -812,7 +812,7 @@
         html_body += '<div class="form-check">'
         html_body += '<input class="form-check-input" type="checkbox" value="" id="checkedApproval">'
         html_body += '<label class="form-check-label" for="checkedApproval">'
-        html_body += 'Saya dengan Bijaksana dan Tanpa Paksaan Menyetujui Segala Permintaan Material Request dari ' + no_pr
+        html_body += 'Saya dengan Bijaksana dan Tanpa Paksaan Menyetujui Segala Permintaan Material Request dari ' + data_material['materialRequest'][0]['created_employee']['name'] + ' pada tanggal ' + formatDateIndonesia(data_material['materialRequest'][0]['date'])
         html_body += '</label>'
         html_body += '</div>'
         html_body += '</div>'
@@ -826,7 +826,7 @@
 
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + id + ')">Kirim Approval</button>'
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval()">Kirim Approval</button>'
         $('#modalFooter').html(html_footer);
     }
 
