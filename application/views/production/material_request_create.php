@@ -568,7 +568,6 @@
         html += '</div>'
         html += '</div>'
         $(location).html(html)
-
     }
 
     function notFound(location) {

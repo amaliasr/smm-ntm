@@ -169,6 +169,34 @@
         background-color: #d64e12;
     }
 
+    .text-callout-0 {
+        color: #9b5fe0;
+    }
+
+    .text-callout-1 {
+        color: #16a4d8;
+    }
+
+    .text-callout-2 {
+        color: #60dbe8;
+    }
+
+    .text-callout-3 {
+        color: #8bd346;
+    }
+
+    .text-callout-4 {
+        color: #efdf48;
+    }
+
+    .text-callout-5 {
+        color: #f9a52c;
+    }
+
+    .text-callout-6 {
+        color: #d64e12;
+    }
+
     .font-small {
         font-size: 9px;
     }
@@ -211,133 +239,121 @@
 </style>
 <!-- loading CSS -->
 <style type="text/css">
-    @keyframes ldio-wf2k1rxtsnb {
+    @keyframes ldio-4vsyzdoqibk {
         0% {
-            transform: translate(12px, 80px) scale(0);
+            transform: translate(6px, 40px) scale(0);
         }
 
         25% {
-            transform: translate(12px, 80px) scale(0);
+            transform: translate(6px, 40px) scale(0);
         }
 
         50% {
-            transform: translate(12px, 80px) scale(1);
+            transform: translate(6px, 40px) scale(1);
         }
 
         75% {
-            transform: translate(80px, 80px) scale(1);
+            transform: translate(40px, 40px) scale(1);
         }
 
         100% {
-            transform: translate(148px, 80px) scale(1);
+            transform: translate(74px, 40px) scale(1);
         }
     }
 
-    @keyframes ldio-wf2k1rxtsnb-r {
+    @keyframes ldio-4vsyzdoqibk-r {
         0% {
-            transform: translate(148px, 80px) scale(1);
+            transform: translate(74px, 40px) scale(1);
         }
 
         100% {
-            transform: translate(148px, 80px) scale(0);
+            transform: translate(74px, 40px) scale(0);
         }
     }
 
-    @keyframes ldio-wf2k1rxtsnb-c {
+    @keyframes ldio-4vsyzdoqibk-c {
         0% {
-            background: #93dbe9
+            background: #e15b64
         }
 
         25% {
-            background: #3b4368
+            background: #abbd81
         }
 
         50% {
-            background: #5e6fa3
+            background: #f8b26a
         }
 
         75% {
-            background: #689cc5
+            background: #f47e60
         }
 
         100% {
-            background: #93dbe9
+            background: #e15b64
         }
     }
 
-    .ldio-wf2k1rxtsnb div {
+    .ldio-4vsyzdoqibk div {
         position: absolute;
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        transform: translate(80px, 80px) scale(1);
-        background: #93dbe9;
-        animation: ldio-wf2k1rxtsnb 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
+        transform: translate(40px, 40px) scale(1);
+        background: #e15b64;
+        animation: ldio-4vsyzdoqibk 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(1) {
-        background: #689cc5;
-        transform: translate(148px, 80px) scale(1);
-        animation: ldio-wf2k1rxtsnb-r 0.25s infinite cubic-bezier(0, 0.5, 0.5, 1), ldio-wf2k1rxtsnb-c 1s infinite step-start;
+    .ldio-4vsyzdoqibk div:nth-child(1) {
+        background: #f47e60;
+        transform: translate(74px, 40px) scale(1);
+        animation: ldio-4vsyzdoqibk-r 0.25s infinite cubic-bezier(0, 0.5, 0.5, 1), ldio-4vsyzdoqibk-c 1s infinite step-start;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(2) {
+    .ldio-4vsyzdoqibk div:nth-child(2) {
         animation-delay: -0.25s;
-        background: #93dbe9;
+        background: #e15b64;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(3) {
+    .ldio-4vsyzdoqibk div:nth-child(3) {
         animation-delay: -0.5s;
-        background: #689cc5;
+        background: #f47e60;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(4) {
+    .ldio-4vsyzdoqibk div:nth-child(4) {
         animation-delay: -0.75s;
-        background: #5e6fa3;
+        background: #f8b26a;
     }
 
-    .ldio-wf2k1rxtsnb div:nth-child(5) {
+    .ldio-4vsyzdoqibk div:nth-child(5) {
         animation-delay: -1s;
-        background: #3b4368;
+        background: #abbd81;
     }
 
-    .loadingio-spinner-ellipsis-16zv7w22yjg {
-        width: 200px;
-        height: 200px;
+    .loadingio-spinner-ellipsis-6qq63lm6xx6 {
+        width: 71px;
+        height: 71px;
         display: inline-block;
         overflow: hidden;
         background: none;
     }
 
-    .ldio-wf2k1rxtsnb {
+    .ldio-4vsyzdoqibk {
         width: 100%;
         height: 100%;
         position: relative;
-        transform: translateZ(0) scale(1);
+        transform: translateZ(0) scale(0.71);
         backface-visibility: hidden;
         transform-origin: 0 0;
         /* see note above */
     }
 
-    .ldio-wf2k1rxtsnb div {
+    .ldio-4vsyzdoqibk div {
         box-sizing: content-box;
     }
 
-    .start-25 {
-        left: 25% !important;
-    }
-
-    .start-15 {
-        left: 15% !important;
-    }
-
-    .bg-gradient-production {
-        background-color: #1C315E !important;
-        background-image: linear-gradient(135deg,
-                #1C315E 0%,
-                rgba(34, 124, 112, 0.8) 100%) !important;
-    }
+    /* generated by https://loading.io/ */
 </style>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
@@ -348,80 +364,17 @@
     <div class="container-xl px-4 mt-n10">
 
         <div class="row justify-content-center">
-            <div class="col-6 col-md-3 pb-5">
-                <div class="position-relative m-4">
-                    <div class="progress" style="height: 4px;">
-                        <div class="progress-bar bg-pinku" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <button type="button" class="position-absolute top-0 start-0 translate-middle btn btn-sm bg-pinku rounded-pill" style="width: 2rem; height:2rem;"><i class="fa fa-thumbs-up fa-1x"></i></button>
-                    <button type="button" class="position-absolute top-0 start-50 translate-middle btn btn-sm bg-pinku rounded-pill" style="width: 2rem; height:2rem;"><i class="fa fa-thumbs-up fa-1x"></i></button>
-                    <button type="button" class="position-absolute top-0 start-100 translate-middle btn btn-sm btn-white rounded-pill" style="width: 2rem; height:2rem;"><i class="fa fa-spinner fa-1x"></i></button>
-                </div>
+            <div class="col-12 pb-2">
+                <h1 class="text-white"><b><i class="fa fa-envelope-o me-2"></i>MATERIAL REQUEST</b></h1>
             </div>
         </div>
-        <div class="row justify-content-center">
-
-            <div class="col-12 col-md-4">
-                <div class="card shadow-none mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <h3 class="mb-3 mt-3"><b>Detail Information</b></h3>
-                                <hr class="w-25 bg-orange" style="height:2px;margin: auto;">
-                            </div>
-                            <div class="col-12 small">
-                                <div class="row pt-4">
-                                    <div class="col-5 pt-1 pb-1 small">No. Material</div>
-                                    <div class="col-7 pt-1 pb-1 small text-end"><b>#MRSKM-2098749787</b></div>
-                                    <div class="col-5 pt-1 pb-1 small">Create At</div>
-                                    <div class="col-7 pt-1 pb-1 small text-end"><b>Senin, 8 Januari 2022</b></div>
-                                    <div class="col-5 pt-1 pb-1 small">Create By</div>
-                                    <div class="col-7 pt-1 pb-1 small text-end"><b>MADE</b></div>
-                                    <div class="col-5 pt-1 pb-1 small">Production Type</div>
-                                    <div class="col-7 pt-1 pb-1 small text-end"><b>SKM</b></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card shadow-none mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <h3 class="mb-3 mt-3"><b>Result Material</b></h3>
-                                <hr class="w-25 bg-orange" style="height:2px;margin: auto;">
-                            </div>
-                            <div class="col-12 small pt-3">
-                                <div class="card shadow-none">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-6 pt-1 pb-1 small">Filter ACE802779 (120mm x 24,50mm x 165 PD)</div>
-                                            <div class="col-6 pt-1 pb-1 small text-end"><b>100 Tray</b></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="row justify-content-center" id="fieldIsi">
+        </div>
+        <div class="row">
+            <div class="col-12 text-end">
+                <button type="button" class="btn btn-success d-none btnApprove">Selesaikan Persetujuan</button>
             </div>
-            <div class="col-12 col-md-8">
-                <div class="card shadow-none mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <h3 class="mb-3 mt-3"><b>Detail Material Request</b></h3>
-                                <hr class="w-25 bg-orange" style="height:2px;margin: auto;">
-                            </div>
-                            <div class="col-12 small">
-                                <div class="row pt-4">
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </div>
 </main>
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
@@ -474,12 +427,11 @@
 
     function loadingData(location) {
         var html = ""
-        html += '<div class="card w-100 shadow-none mb-2 p-0">'
+        html += '<div class="card w-100 shadow-none mb-2 p-0" style="border:0px;">'
         html += '<div class="card-body p-2">'
         html += '<div class="row d-flex align-items-center">'
         html += '<div class="col text-center p-5">'
-        html += '<i class="small mb-5">Memuat Data</i><br>'
-        html += '<div class="loadingio-spinner-ellipsis-16zv7w22yjg"><div class="ldio-wf2k1rxtsnb">'
+        html += '<div class="loadingio-spinner-ellipsis-6qq63lm6xx6"><div class="ldio-4vsyzdoqibk">'
         html += '<div></div><div></div><div></div><div></div><div></div>'
         html += '</div></div>'
         html += '</div>'
@@ -487,7 +439,6 @@
         html += '</div>'
         html += '</div>'
         $(location).html(html)
-
     }
 
     function notFound(location) {
@@ -503,19 +454,23 @@
         html += '</div>'
         $(location).html(html)
     }
+
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
+
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var id_material = '<?= $id ?>'
     var data_user = ""
-    var data_plan = ""
+    var data_material = ""
+    var stage_step = []
+    var stage = 0
 
     $(document).ready(function() {
         $('#layoutSidenav_content').addClass('bg-lembut')
-        // $('#layoutSidenav_content').append('<svg class="fixed-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#e7008a" fill-opacity="1" d="M0,64L15,90.7C30,117,60,171,90,165.3C120,160,150,96,180,85.3C210,75,240,117,270,128C300,139,330,117,360,138.7C390,160,420,224,450,229.3C480,235,510,181,540,186.7C570,192,600,256,630,266.7C660,277,690,235,720,218.7C750,203,780,213,810,197.3C840,181,870,139,900,122.7C930,107,960,117,990,106.7C1020,96,1050,64,1080,58.7C1110,53,1140,75,1170,106.7C1200,139,1230,181,1260,197.3C1290,213,1320,203,1350,176C1380,149,1410,107,1425,85.3L1440,64L1440,320L1425,320C1410,320,1380,320,1350,320C1320,320,1290,320,1260,320C1230,320,1200,320,1170,320C1140,320,1110,320,1080,320C1050,320,1020,320,990,320C960,320,930,320,900,320C870,320,840,320,810,320C780,320,750,320,720,320C690,320,660,320,630,320C600,320,570,320,540,320C510,320,480,320,450,320C420,320,390,320,360,320C330,320,300,320,270,320C240,320,210,320,180,320C150,320,120,320,90,320C60,320,30,320,15,320L0,320Z"></path></svg>')
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",
@@ -524,10 +479,10 @@
                 id: user_id
             },
             error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
+                $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
-                loadingData('#tampilDetailPembayaran')
+                $('#fieldIsi').html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
             },
             success: function(response) {
                 data_user = response['data']
@@ -538,8 +493,297 @@
 
 
     function getData() {
-
+        $.ajax({
+            url: "<?= api_produksi('getMaterialRequestApproval'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                id: id_material,
+                employeeId: user_id,
+            },
+            error: function(xhr) {
+                $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            },
+            beforeSend: function() {
+                $('#fieldIsi').html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
+            },
+            success: function(response) {
+                data_material = response['data']
+                console.log(data_material)
+                stages()
+            }
+        })
     }
+
+    function stages() {
+        $('#fieldIsi').html('')
+        if (data_material['materialRequest'].length > 0) {
+            $('.btnApprove').removeClass('d-none')
+            infoMaterialRequest()
+            detailMaterialRequest()
+            resultMaterialRequest()
+        } else {
+            $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+        }
+    }
+
+    function infoMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 col-md-4">'
+        html += '<div class="card shadow-none mb-4">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<div class="row">'
+        html += '<div class="col-auto align-self-center">'
+        html += '<span class="btn btn-sm bg-pinku rounded-pill" style="width: 3rem; height:3rem;"><i class="fa fa-info fa-2x text-white"></i></span>'
+        html += '</div>'
+        html += '<div class="col align-self-center p-0">'
+        html += '<p class="m-0" style="font-size:10px;">Material Request</p>'
+        html += '<h3 class="m-0"><b>' + data_material['materialRequest'][0]['code'] + '</b></h3>'
+        html += '<p class="m-0" style="font-size:10px;"><i class="fa fa-calendar me-2"></i>' + formatDateIndonesia(data_material['materialRequest'][0]['date']) + '</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += '<hr>'
+        html += '</div>'
+        html += '<div class="col-12 small">'
+        html += '<div class="row">'
+        html += '<div class="col-5 pt-1 pb-1 small">Create By</div>'
+        html += '<div class="col-7 pt-1 pb-1 small text-end"><b><i class="fa fa-user-o me-2"></i>' + data_material['materialRequest'][0]['created_employee']['name'] + '</b></div>'
+        html += '<div class="col-5 pt-1 pb-1 small">Production Type</div>'
+        html += '<div class="col-7 pt-1 pb-1 small text-end"><b>' + data_material['materialRequest'][0]['production_type']['name'] + '</b></div>'
+        html += '<div class="col-5 pt-1 pb-1 small">Shift</div>'
+        html += '<div class="col-7 pt-1 pb-1 small text-end"><b>#1 (07:00 - 15:00)</b></div>'
+        html += '<div class="col-5 pt-1 pb-1 small">Status Material</div>'
+        html += '<div class="col-7 pt-1 pb-1 small text-end text-orange"><b>' + data_material['materialRequest'][0]['status'] + '</b></div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#fieldIsi').append(html)
+    }
+    var data_isi_material = []
+    var data_isi_material_group = []
+
+    function detailMaterialRequest() {
+        // pembentukan variable
+        $.each(data_material['materialRequest'][0]['machine_type'], function(key, value) {
+            // machine type
+            $.each(value['machine_sub_type'], function(keys, values) {
+                // machine sub type
+                $.each(values['detail'], function(keys2, values2) {
+                    // machine
+                    $.each(values2['machine']['material'], function(keys3, values3) {
+                        data_isi_material.push({
+                            'machine_type_id': value['id'],
+                            'machine_type_name': value['name'],
+                            'machine_subtype_id': values['id'],
+                            'machine_subtype_name': values['name'],
+                            'machine_id': values2['machine']['id'],
+                            'machine_code': values2['machine']['code'],
+                            'material_id': values3['material']['id'],
+                            'material_name': values3['material']['name'],
+                            'material_code': values3['material']['code'],
+                            'unit_id': values3['unit']['id'],
+                            'unit': values3['unit']['name'],
+                            'qty': values3['qty_request'],
+                        })
+                    })
+                })
+            })
+        })
+        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
+        console.log(data_isi_material_group)
+        formDetailMaterialRequest()
+    }
+
+    function formDetailMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 col-md-8">'
+        html += '<div class="card shadow-none mb-4">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<div class="row">'
+        html += '<div class="col-auto align-self-center">'
+        html += '<span class="btn btn-sm bg-pinku rounded-pill" style="width: 3rem; height:3rem;"><i class="fa fa-file-text-o fa-2x text-white"></i></span>'
+        html += '</div>'
+        html += '<div class="col align-self-center p-0 pl-1">'
+        html += '<h3 class="m-0"><b>Detail Material Request</b></h3>'
+        html += '<p class="m-0" style="font-size:10px;">List Material Request berdasarkan Tiap Mesin yang akan digunakan</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 small">'
+        html += '<div class="row pt-4">'
+        $.each(data_material['machineMaterialHeader'], function(key, value) {
+            var nama = data_material['machineMaterialHeader'][key].filter((values2, keys2) => {
+                if (values2.detail != null) return true
+            })
+            var nama_non = data_material['machineMaterialHeader'][key].filter((values2, keys2) => {
+                if (values2.detail == null) return true
+            })
+            var data = data_isi_material.filter((values2, keys2) => {
+                if (values2['machine_type_name'] == nama[0]['label']) return true
+            })
+            var data_group = groupAndSum(data, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
+            html += '<div class="col-12 pt-2">'
+            html += '<h3 class="m-0 mb-2"><b>' + nama[0]['label'] + '</b></h3>'
+            html += '<div class="table-responsive">'
+            html += '<table class="table table-bordered table-hover table-sm">'
+            html += '<thead>'
+            html += '<tr class="bg-grey text-dark">'
+            $.each(data_material['machineMaterialHeader'][key], function(keys, values) {
+                var row = 'rowspan="2"'
+                if (values['detail'] != null) {
+                    row = 'colspan="' + values['detail']['machine'].length + '"'
+                }
+                html += '<th class="p-2 font-small" ' + row + '>' + values['label'].toUpperCase() + '</th>'
+            })
+            html += '</tr>'
+            html += '<tr class="bg-grey text-dark">'
+            var a = 0
+            $.each(nama, function(keys, values) {
+                $.each(values['detail']['machine'], function(keys2, values2) {
+                    html += '<th class="p-2 font-small">' + values2['code'] + '</th>'
+                    a++
+                })
+            })
+            html += '</tr>'
+            html += '</thead>'
+            html += '<tbody>'
+            if (data_group.length > 0) {
+                $.each(data_group, function(keya, valuea) {
+                    html += '<tr>'
+                    $.each(nama_non, function(keys, values) {
+                        html += '<td class="p-2 font-small">' + valuea[values['label'].replace(' ', '_')] + '</td>'
+                    })
+                    $.each(nama, function(keys, values) {
+                        $.each(values['detail']['machine'], function(keys2, values2) {
+                            var datas = data.find((valuesa, keysa) => {
+                                if (valuesa['material_id'] == valuea['material_id'] && values2['id'] == valuesa['machine_id']) return true
+                            })
+                            var jumlah = ""
+                            var bg = ""
+                            if (datas != undefined) {
+                                jumlah = datas['qty']
+                                bg = 'bg-light'
+                            }
+                            html += '<td class="p-2 font-small text-end fw-bold ' + bg + '"><b>' + number_format(jumlah) + '</b></td>'
+                        })
+                    })
+                    html += '</tr>'
+                })
+            } else {
+                var jumlah = parseInt(nama_non.length) + parseInt(a)
+                html += '<tr>'
+                html += '<td colspan="' + jumlah + '" class="text-center p-5">'
+                html += '<i class="small">Tidak Ada Data yang Tersedia</i>'
+                html += '</td>'
+                html += '</tr>'
+            }
+            html += '</tbody>'
+            html += '</table>'
+            html += '</div>'
+            html += '</div>'
+        })
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#fieldIsi').append(html)
+    }
+
+    function resultMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 col-md-4">'
+        html += '</div>'
+        html += '<div class="col-12 col-md-8">'
+        html += '<div class="card shadow-none mb-4">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<div class="row">'
+        html += '<div class="col-auto align-self-center">'
+        html += '<span class="btn btn-sm bg-pinku rounded-pill" style="width: 3rem; height:3rem;"><i class="fa fa-th fa-2x text-white"></i></span>'
+        html += '</div>'
+        html += '<div class="col align-self-center p-0 pl-1">'
+        html += '<h3 class="m-0"><b>Result Material</b></h3>'
+        html += '<p class="m-0" style="font-size:10px;">Rangkuman dari detail Material Request berdasarkan Per Material yang diminta</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 text-end pt-2">'
+        html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle shadow-none" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" style="font-size: 10px;">View</button>'
+        html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">'
+        html += '<li>'
+        html += '<h6 class="dropdown-header">View By</h6>'
+        html += '</li>'
+        html += '<li><a class="dropdown-item" onclick="formatCard(' + "'" + 'cardboard' + "'" + ')"><i class="fa fa-th-large me-1"></i>Cardboard <i class="ms-2 fa fa-check text-success" id="successCardboard"></i></a></li>'
+        html += '<li><a class="dropdown-item" onclick="formatCard(' + "'" + 'table' + "'" + ')"><i class="fa fa-table me-1"></i>Table <i class="ms-2 fa fa-check text-success d-none" id="successTable"></i></a></li>'
+        html += '</ul>'
+        html += '</div>'
+        html += '<div class="col-12 small pt-3" id="formatCard">'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#fieldIsi').append(html)
+        formatCard('cardboard')
+    }
+
+    function formatCard(status) {
+        var html = ""
+        if (status == 'cardboard') {
+            $('#successCardboard').removeClass('d-none')
+            $('#successTable').addClass('d-none')
+            $.each(data_isi_material_group, function(key, value) {
+                html += '<div class="card shadow-none bd-callout-0 mb-2">'
+                html += '<div class="card-body p-2">'
+                html += '<div class="row">'
+                html += '<div class="col-7 pt-1 pb-1 small">' + value['material_name'] + '</div>'
+                html += '<div class="col-5 pt-1 pb-1 text-end"><b><span class="text-orange">' + number_format(value['qty']) + '</span> ' + value['unit'] + '</b></div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            })
+        } else {
+            $('#successCardboard').addClass('d-none')
+            $('#successTable').removeClass('d-none')
+            html += '<div class="table-responsive">'
+            html += '<table class="table table-bordered table-hover table-sm">'
+            html += '<thead>'
+            html += '<tr class="bg-grey text-dark">'
+            html += '<th class="p-2 font-small">Material Code</th>'
+            html += '<th class="p-2 font-small">Material Name</th>'
+            html += '<th class="p-2 font-small">QTY</th>'
+            html += '<th class="p-2 font-small">Unit</th>'
+            html += '</tr>'
+            html += '</thead>'
+            html += '<tbody>'
+            $.each(data_isi_material_group, function(key, value) {
+                html += '<tr>'
+                html += '<td class="p-2 font-small">' + value['material_code'] + '</td>'
+                html += '<td class="p-2 font-small">' + value['material_name'] + '</td>'
+                html += '<td class="p-2 font-small text-end fw-bold"><b>' + number_format(value['qty']) + '</b></td>'
+                html += '<td class="p-2 font-small">' + value['unit'] + '</td>'
+                html += '</tr>'
+            })
+            html += '</tbody>'
+            html += '</table>'
+            html += '</div>'
+        }
+        $('#formatCard').html(html)
+    }
+
 
     function groupAndSum(arr, groupKeys, sumKeys) {
         return Object.values(
@@ -551,4 +795,90 @@
             }, {})
         );
     }
+
+    function approvalForm() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Approval</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 mb-5">'
+        html_body += '<div class="form-check">'
+        html_body += '<input class="form-check-input" type="checkbox" value="" id="checkedApproval">'
+        html_body += '<label class="form-check-label" for="checkedApproval">'
+        html_body += 'Saya dengan Bijaksana dan Tanpa Paksaan Menyetujui Segala Permintaan Material Request dari ' + no_pr
+        html_body += '</label>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row" id="formApproval">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + id + ')">Kirim Approval</button>'
+        $('#modalFooter').html(html_footer);
+    }
+
+    function formAccReject() {
+        var html_body = ""
+        html_body += '<div class="col-12 col-md-6 mb-2">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_reject" data-status="reject">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<span><i class="fa fa-times text-danger" id="icon_reject"></i> Reject</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-6">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_accept" data-status="accept">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<span><i class="fa fa-check text-success" id="icon_accept"></i> Accept</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mt-4 d-none" id="textareaReject">'
+        html_body += '<b>Alasan Membatalkan :</b>'
+        html_body += '<textarea class="form-control form-control-sm small" rows="5" id="textReject"></textarea>'
+        html_body += '</div>'
+        $('#formApproval').html(html_body)
+        return true
+    }
+    $(document).on('click', '#checkedApproval', function(e) {
+        var value = $(this).is(':checked');
+        if (value == true) {
+            formAccReject()
+        } else {
+            $('#formApproval').empty()
+            $('#btnApprove').attr('disabled', true)
+        }
+    })
+    var approval_status = ""
+    $(document).on('click', '.btn-approval', function(e) {
+        $('#btnApprove').removeAttr('disabled', true)
+        var status = $(this).data('status')
+        approval_status = status
+        if (status == 'accept') {
+            $('#btn_accept').addClass('text-white bg-success')
+            $('#btn_reject').removeClass('text-white bg-danger')
+            $('#icon_accept').addClass('text-white').removeClass('text-success')
+            $('#icon_reject').removeClass('text-white').addClass('text-danger')
+            $('#textareaReject').addClass('d-none')
+        } else {
+            $('#btn_accept').removeClass('text-white bg-success')
+            $('#btn_reject').addClass('text-white bg-danger')
+            $('#icon_accept').removeClass('text-white').addClass('text-success')
+            $('#icon_reject').addClass('text-white').removeClass('text-danger')
+            $('#textareaReject').removeClass('d-none')
+        }
+    })
 </script>
