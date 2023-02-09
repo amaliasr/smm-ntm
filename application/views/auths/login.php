@@ -77,12 +77,14 @@
     <div class="row h-100">
         <div class="col-12 col-md-6 bg-rainbow h-100 align-self-center d-none d-md-none d-lg-block d-lg-block">
             <div class="centered">
-                <div class="container justify-content-center mt-4 mt-sm-0">
-                    <h1 style="font-size: 30px;margin: auto;width:100%;">
+                <div class="container justify-content-center mt-4 mt-sm-0 text-center">
+                    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+                    <lottie-player src="https://assets6.lottiefiles.com/packages/lf20_abwhds4i.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 500px;" loop autoplay></lottie-player>
+                    <!-- <h5 style="font-size: 20px;margin: auto;width:100%;">
                         <a class="typewrite text-white" data-period="2000" data-type='[ "“We cannot solve problems with the kind of thinking we employed when we came up with them.” — Albert Einstein", "“When you change your thoughts, remember to also change your world.”—Norman Vincent Peale", "“It is only when we take chances, when our lives improve. The initial and the most difficult risk that we need to take is to become honest. —Walter Anderson"]' style="text-decoration:none">
                             <span class="wrap"></span>
                         </a>
-                    </h1>
+                    </h5> -->
                 </div>
             </div>
         </div>
@@ -94,7 +96,10 @@
                             <img class="mb-3" src="<?= base_url() ?>assets/image/logo/SMM.png" style="width: 50px;">
                             <h1 class="text-dongker fw-bold"><b>Welcome Back, Buddy !</b></h1>
                             <p class="m-0 small">Learn to level up yout life. Love the wotk, the grnd, the sweat, and the hard work. It pays off in the end.</p>
-                            <form class="m-0 mt-5">
+                            <div class="alert alert-danger mt-2 p-3 d-none" id="alertSalah" role="alert" style="font-size:12px;">
+                                <b>Email atau Password</b> tidak sesuai, silahkan coba lagi. Atau jika belum memiliki akses, silahkan hubungi pihak IT
+                            </div>
+                            <form class="m-0 mt-3">
                                 <div class="mb-3">
                                     <!-- <label class="small mb-1" for="inputEmailAddress">Email</label> -->
                                     <input class="form-control" id="inputEmailAddress" type="email" placeholder="Enter email address" />
@@ -112,6 +117,9 @@
                                 <div class="mt-4 mb-0">
                                     <a class="btn btn-dark float-end" style="cursor: pointer" id="btnLogin">Login</a>
                                 </div>
+                                <!-- <div class="alert alert-danger" role="alert">
+                                    A simple danger alert—check it out!
+                                </div> -->
                             </form>
                         </div>
                     </div>
@@ -200,12 +208,15 @@
             },
             dataType: 'JSON',
             error: function(xhr) {
-                $('#btnLogin').html('Login').prop('disabled', false);
+                $('#btnLogin').html('Login').removeAttr('disabled', true);
+                $('#alertSalah').removeClass('d-none')
             },
             beforeSend: function() {
-                $('#btnLogin').html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...').prop('disabled', true);
+                $('#btnLogin').html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...').attr('disabled', true);
+                $('#alertSalah').addClass('d-none')
             },
             success: function(response) {
+                $('#alertSalah').addClass('d-none')
                 let data = response['data'];
                 if (response['success'] == true) {
                     var sessions = [];
@@ -232,7 +243,7 @@
                             }
                         }
                     }).done(function() {
-                        $('#btnLogin').html('Login').prop('disabled', false);
+                        $('#btnLogin').html('Login').removeAttr('disabled', true);
                     });
                     // toast({
                     //     icon: 'success',

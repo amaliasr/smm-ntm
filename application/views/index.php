@@ -28,7 +28,12 @@
                     </a>
                 </p> -->
                 <p class="m-0 lh-1 mb-5" style="font-size: 50px;"><b><span id="full_name" style="color:#F5EDCE"><?= $full_name ?></span></b></p>
-                <div class="row">
+                <h5 style="font-size: 20px;margin: auto;width:100%;">
+                    <a class="typewrite text-white" data-period="2000" data-type='[ "“We cannot solve problems with the kind of thinking we employed when we came up with them.” — Albert Einstein", "“When you change your thoughts, remember to also change your world.”—Norman Vincent Peale", "“It is only when we take chances, when our lives improve. The initial and the most difficult risk that we need to take is to become honest. —Walter Anderson"]' style="text-decoration:none">
+                        <span class="wrap"></span>
+                    </a>
+                </h5>
+                <!-- <div class="row">
                     <?php for ($i = 0; $i < 3; $i++) { ?>
                         <div class="col-4">
                             <div class="card shadow-sm" style="opacity: 0.7; height:200px;">
@@ -38,7 +43,7 @@
                             </div>
                         </div>
                     <?php } ?>
-                </div>
+                </div> -->
 
             </div>
         </div>

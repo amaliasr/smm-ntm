@@ -70,4 +70,10 @@ class Production extends CI_Controller
         $data['title'] = 'Approval Material Request';
         $this->template->views('production/material_request_approval', $data);
     }
+    public function managementMaterialRequest($id = "")
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Management Material Request';
+        $this->template->views('production/material_request_management', $data);
+    }
 }

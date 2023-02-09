@@ -19,7 +19,7 @@
     <div id="layoutSidenav">
         <?= $sidenav ?>
 
-        <div id="layoutSidenav_content">
+        <div id="layoutSidenav_content" class="bg-white">
             <?= $content ?>
             <?= $footer ?>
         </div>

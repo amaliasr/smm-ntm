@@ -365,7 +365,7 @@
 
         <div class="row justify-content-center">
             <div class="col-12 pb-2">
-                <h1 class="text-white"><b><i class="fa fa-envelope-o me-2"></i>MATERIAL REQUEST</b></h1>
+                <h1 class="text-white"><b><i class="fa fa-envelope-o me-2"></i>Material Request</b></h1>
             </div>
         </div>
         <div class="row justify-content-center" id="fieldIsi">
@@ -521,7 +521,7 @@
             $('.btnApprove').removeClass('d-none')
             infoMaterialRequest()
             detailMaterialRequest()
-            resultMaterialRequest()
+            sizing()
         } else {
             $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
         }
@@ -529,7 +529,7 @@
 
     function infoMaterialRequest() {
         var html = ""
-        html += '<div class="col-12 col-md-4">'
+        html += '<div class="col-12 col-md-4" id="cardSampingKiri">'
         html += '<div class="card shadow-none mb-4">'
         html += '<div class="card-body">'
         html += '<div class="row">'
@@ -597,13 +597,13 @@
             })
         })
         data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
-        console.log(data_isi_material_group)
+        // console.log(data_isi_material_group)
         formDetailMaterialRequest()
     }
 
     function formDetailMaterialRequest() {
         var html = ""
-        html += '<div class="col-12 col-md-8">'
+        html += '<div class="col-12 col-md-8" id="cardSampingKanan">'
         html += '<div class="card shadow-none mb-4">'
         html += '<div class="card-body">'
         html += '<div class="row">'
@@ -700,12 +700,12 @@
         $('#fieldIsi').append(html)
     }
 
-    function resultMaterialRequest() {
+    function resultMaterialRequest(location) {
         var html = ""
-        html += '<div class="col-12 col-md-4">'
-        html += '</div>'
-        html += '<div class="col-12 col-md-8">'
-        html += '<div class="card shadow-none mb-4">'
+        // html += '<div class="col-12 col-md-4 ">'
+        // html += '</div>'
+        // html += '<div class="col-12 col-md-4 order-last">'
+        html += '<div class="card shadow-none mb-4" id="resultPane">'
         html += '<div class="card-body">'
         html += '<div class="row">'
         html += '<div class="col-12">'
@@ -733,8 +733,8 @@
 
         html += '</div>'
         html += '</div>'
-        html += '</div>'
-        $('#fieldIsi').append(html)
+        // html += '</div>'
+        $(location).append(html)
         formatCard('cardboard')
     }
 
@@ -794,6 +794,19 @@
                 return acc;
             }, {})
         );
+    }
+    $(window).on('resize', function() {
+        sizing()
+    })
+
+    function sizing() {
+        $('#resultPane').remove()
+        var width = $(window).width()
+        if (width <= 720) {
+            resultMaterialRequest('#cardSampingKanan')
+        } else {
+            resultMaterialRequest('#cardSampingKiri')
+        }
     }
 
     function approvalForm() {

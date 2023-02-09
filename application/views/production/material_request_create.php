@@ -610,6 +610,7 @@
     }
 
     $(document).ready(function() {
+        $('#layoutSidenav_content').addClass('bg-white')
         $('#fullName').html(shortenName(full_name, 2))
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",

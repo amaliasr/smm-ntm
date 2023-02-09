@@ -534,7 +534,7 @@
             })
             var jumlahQtySisa = qtySisa.length
             // console.log(jumlahQtySisa)
-            if (jumlahQtySisa > 0 && values['state_order'] != 'DONE') {
+            if (jumlahQtySisa > 0 && (values['state_order'] != 'DONE' || values['is_complete'] != 1)) {
                 html += '<span class="text-grey ms-2" style="font-size: 12px;">(Partial)</span>'
             }
             html += '</div>'
@@ -573,7 +573,7 @@
                     if (value.qty_sisa !== 0) return true
                 }).length
                 // console.log(qtyMasihAda)
-                if (divisi_id == 4 && values['state_order'] != 'DONE' && qtyMasihAda > 0) {
+                if (divisi_id == 4 && values['state_order'] != 'DONE' && qtyMasihAda > 0 || values['is_complete'] != 1) {
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                 }
                 html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
@@ -603,10 +603,13 @@
                     html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + '081944946015' + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
                     html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
                 }
-                if (values['state_order'] == null && values['state'] != 'CANCEL') {
+                if (values['state_order'] == null && values['state'] != 'CANCEL' || values['is_complete'] == null || values['is_complete'] == 0) {
                     html += '<hr class="m-2">'
                     html += '<div class="text-center pe-2 ps-2">'
                     html += '<button class="btn btn-sm btn-danger w-100" onclick="formCancelPR(' + values['id'] + ')">Pembatalan PR</button>'
+                    html += '</div>'
+                    html += '<div class="text-center pe-2 ps-2">'
+                    html += '<button class="btn btn-sm btn-success w-100 mt-2" onclick="formClosingPR(' + values['id'] + ')"><i class="fa fa-check text-white me-2"></i>CLOSING PR</button>'
                     html += '</div>'
                 }
             }
@@ -2022,7 +2025,7 @@
             html_body += '<option value="" disabled selected>Pilih No. PR</option>'
             data_detail = ""
             var pr_filtered = data_pr.filter((value, key) => {
-                if (value.state === 'APPROVED' && value.state_order !== 'DONE') return true
+                if (value.state === 'APPROVED' && (value.state_order !== 'DONE' || value.is_complete !== '1')) return true
             })
             // console.log(pr_filtered)
             $.each(pr_filtered, function(keys, values) {
@@ -3535,7 +3538,7 @@
             if (values.id === pr_id.toString()) return true
         })[0]
         Swal.fire({
-            text: 'Apakah anda yakin ingin membatalkan PO ' + data['no_pr'] + '?',
+            text: 'Apakah anda yakin ingin membatalkan PR ' + data['no_pr'] + '?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -3558,6 +3561,35 @@
         var url = '<?php echo api_url('Api_Warehouse/cancelPr'); ?>'
         kelolaData(data, type, url, button)
     }
+
+    function formClosingPR(pr_id) {
+        var data = data_pr.filter((values, keys) => {
+            if (values.id === pr_id.toString()) return true
+        })[0]
+        Swal.fire({
+            text: 'Apakah anda yakin ingin Closing PR ' + data['no_pr'] + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                doClosingPR(pr_id)
+            }
+        })
+    }
+
+    function doClosingPR(pr_id) {
+        var type = 'POST'
+        var data = {
+            pr_id: pr_id,
+        }
+        var button = '#btnClosingPR'
+        var url = '<?php echo api_url('Api_Warehouse/completePr'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
     var date_start_filter = ""
     var date_end_filter = ""
     var supplier_id_filter = ""

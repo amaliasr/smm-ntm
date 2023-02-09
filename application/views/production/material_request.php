@@ -460,6 +460,7 @@
     var data_plan = ""
 
     $(document).ready(function() {
+        $('#layoutSidenav_content').addClass('bg-white')
         // $.ajax({
         //     url: "<?= api_url('Api_Warehouse/getUser'); ?>",
         //     method: "GET",
