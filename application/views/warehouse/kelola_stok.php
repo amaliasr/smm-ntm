@@ -362,6 +362,12 @@
     var data_stok = ""
     var data_all_stok = []
     $(document).ready(function() {
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayHighlight: true,
+            maxViewMode: 2 //year
+        });
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",

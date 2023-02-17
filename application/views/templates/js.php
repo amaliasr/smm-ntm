@@ -127,12 +127,12 @@
 
 <script>
     $(document).ready(function() {
-        $('.datepicker').datepicker({
-            format: "yyyy-mm-dd",
-            autoclose: true,
-            todayHighlight: true,
-            maxViewMode: 2 //year
-        });
+        // $('.datepicker').datepicker({
+        //     format: "yyyy-mm-dd",
+        //     autoclose: true,
+        //     todayHighlight: true,
+        //     maxViewMode: 2 //year
+        // });
     });
 </script>
 

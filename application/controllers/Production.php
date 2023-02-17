@@ -76,4 +76,10 @@ class Production extends CI_Controller
         $data['title'] = 'Management Material Request';
         $this->template->views('production/material_request_management', $data);
     }
+    public function managementWarehouse($id = "")
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Management Warehouse';
+        $this->template->views('production/warehouse_management', $data);
+    }
 }

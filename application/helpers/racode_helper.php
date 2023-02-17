@@ -61,7 +61,7 @@ function is_logistik()
 {
     $ci = get_instance();
     $divisi_id = $ci->session->userdata('division_id');
-    if ($divisi_id == 7) {
+    if ($divisi_id == 7 || $divisi_id == 35) {
         return true;
     } else {
         return false;
