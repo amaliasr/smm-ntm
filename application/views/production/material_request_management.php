@@ -842,6 +842,7 @@
     }
 
     function reset() {
+        // test
         data_isi_material = []
         data_isi_material_group = []
         data_materialrequest = ''
