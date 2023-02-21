@@ -45,6 +45,7 @@
 
     .card-hoper:hover {
         background-color: #F7F7F7;
+        cursor: pointer;
     }
 
     input.bawahaja {
@@ -278,6 +279,10 @@
 
     .bg-skt {
         background-color: #FED049;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        font-size: 11px;
     }
 </style>
 <!-- loading CSS -->
@@ -536,7 +541,7 @@
                             <div class="col-12 pt-4 pb-2">
                                 <div class="form-group has-search">
                                     <span class="fa fa-search form-control-feedback"></span>
-                                    <input type="text" class="form-control" placeholder="Search">
+                                    <input type="text" class="form-control" placeholder="Search" id="search_nama">
                                 </div>
                             </div>
                         </div>
@@ -548,248 +553,10 @@
             <div class="col-12 col-md-7">
                 <div class="card shadow-sm h-100" style="border: 0px;border-radius:5px">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-1 text-center align-self-center">
-                                        <img src="<?= base_url() ?>assets/image/svg/detail.svg" class="img-responsive" alt="Image" style="width:100%">
-                                    </div>
-                                    <div class="col-8 align-self-center">
-                                        <h3 class="m-0"><b>MRSKM-20230203331</b></h3>
-                                        <p class="m-0 small-text"><i class="fa fa-calendar me-2"></i>Minggu, 18 Maret 2023</p>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="float-end">
-                                            <button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>
-                                            <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                                Option
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                                <li>
-                                                    <h6 class="dropdown-header">Utilities</h6>
-                                                </li>
-
-                                                <li>
-                                                    <h6 class="dropdown-header">Show By</h6>
-                                                </li>
-                                                <li><a class="dropdown-item">Table <i class="ms-2 fa fa-check text-success" id="successAll"></i></a></li>
-                                                <li><a class="dropdown-item">Cardboard <i class="ms-2 fa fa-check text-success d-none" id="successSkm"></i></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 pt-5">
-                                <div class="card shadow-none">
-                                    <div class="card-body">
-                                        <nav>
-                                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                                <button class="nav-link p-3 small text-dark active" id="nav-0-tab" data-bs-toggle="tab" data-bs-target="#nav-0" type="button" role="tab" aria-controls="nav-0" aria-selected="true"><i class="fa fa-list me-2"></i>Detail Request</button>
-                                                <button class="nav-link p-3 small text-dark " id="nav-1-tab" data-bs-toggle="tab" data-bs-target="#nav-1" type="button" role="tab" aria-controls="nav-1" aria-selected="false"><i class="fa fa-cog me-2"></i>Machine Usage</span></button>
-                                                <button class="nav-link p-3 small text-dark" id="nav-2-tab" data-bs-toggle="tab" data-bs-target="#nav-2" type="button" role="tab" aria-controls="nav-2" aria-selected="false"><i class="fa fa-clock-o me-2"></i>Activities</button>
-                                            </div>
-                                        </nav>
-                                        <div class="tab-content" id="nav-tabContent">
-                                            <div class="tab-pane fade show active" id="nav-0" role="tabpanel" aria-labelledby="nav-0-tab">
-                                                <!-- <b class="mb-2">Detail Material</b>
-                                                <hr style="width:25%;height:2px;" class="text-orange"> -->
-                                                <div class="table-responsive mt-3">
-                                                    <table class="table table-sm table-hover" style="font-size: 10px;">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Kode</th>
-                                                                <th>Material</th>
-                                                                <th>Mesin</th>
-                                                                <th>QTY</th>
-                                                                <th>Unit</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <?php for ($i = 0; $i < 5; $i++) { ?>
-                                                                <tr>
-                                                                    <td>RM.02-203</td>
-                                                                    <td>Filter Rods Dual Shape Code SDW809053</td>
-                                                                    <td>
-                                                                        <span class="badge bg-purple p-1 me-1">MK9A</span>
-                                                                        <span class="badge bg-pink p-1 me-1">MK9C</span>
-                                                                    </td>
-                                                                    <td class="text-end">30</td>
-                                                                    <td>Tray</td>
-                                                                </tr>
-                                                            <?php } ?>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div class="tab-pane fade" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
-                                                <?php for ($i = 0; $i < 3; $i++) { ?>
-                                                    <div class="card card-hoper mt-2 mb-2 shadow-none bd-callout-<?= $i ?>">
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <div class="col-6 align-self-center">
-                                                                    <h3><b class="float-start">MK9 A</b></h3>
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <div class="row">
-                                                                        <div class="col small-text">Catcher / Helper</div>
-                                                                        <div class="col small-text text-end"><b>Supri</b></div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col small-text">Operator</div>
-                                                                        <div class="col small-text text-end"><b>Denny</b></div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12">
-                                                                    <hr class="mt-2 mb-2">
-                                                                </div>
-                                                                <div class="col-12 pt-2">
-                                                                    <div class="table-responsive">
-                                                                        <table class="table table-sm table-hover" style="font-size: 10px;">
-                                                                            <thead>
-                                                                                <tr>
-                                                                                    <th>Kode</th>
-                                                                                    <th>Material</th>
-                                                                                    <th>QTY</th>
-                                                                                    <th>Unit</th>
-                                                                                    <th>Status</th>
-                                                                                    <th>Received</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                <tr>
-                                                                                    <td>RM.02-203</td>
-                                                                                    <td>Filter Rods Dual Shape Code SDW809053</td>
-                                                                                    <td class="text-end">30</td>
-                                                                                    <td class="text-center">Tray</td>
-                                                                                    <td>
-                                                                                        <i class="fa fa-check text-success me-2"></i>Diterima
-                                                                                    </td>
-                                                                                    <td class="text-end">
-                                                                                        <b class="text-dark">30</b>
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>RM.02-203</td>
-                                                                                    <td>Cigarette Paper CP45W Black 600201 K MF 25g</td>
-                                                                                    <td class="text-end">100</td>
-                                                                                    <td class="text-center">Tray</td>
-                                                                                    <td>
-                                                                                        <i class="fa fa-cog text-success me-2"></i>Proses Produksi
-                                                                                    </td>
-                                                                                    <td class="text-end">
-                                                                                        <span class="text-success me-2">(+1)</span><b class="text-dark">101</b>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 pt-2">
-                                                                    <div class="row">
-                                                                        <div class="col">
-                                                                            <div class="row">
-                                                                                <div class="col-auto">
-                                                                                    <!-- Progress bar 1 -->
-                                                                                    <div class="progress mx-auto" data-value='80'>
-                                                                                        <span class="progress-left">
-                                                                                            <span class="progress-bar border-pink"></span>
-                                                                                        </span>
-                                                                                        <span class="progress-right">
-                                                                                            <span class="progress-bar border-pink"></span>
-                                                                                        </span>
-                                                                                        <div class="progress-value w-100 h-100 rounded-circle d-flex align-items-center justify-content-center">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <!-- END -->
-                                                                                </div>
-                                                                                <div class="col-auto align-self-center">
-                                                                                    <div class="h4 font-weight-bold m-0">80%</div>
-                                                                                    <p class="small-text text-gray m-0">Item diterima Oleh Catcher</p>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col text-end align-self-end">
-                                                                            <!-- diisi apa aja untuk informasi -->
-
-                                                                            <button type="button" class="btn btn-sm btn-danger text-center small-text p-1"><i class="fa fa-exchange me-1"></i>Pindah Mesin</button>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                <?php } ?>
-                                            </div>
-                                            <div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
-                                                <!-- <div class="p-3 "> -->
-                                                <div class="timeline p-5 super-small-text">
-                                                    <?php for ($i = 0; $i < 1; $i++) { ?>
-                                                        <div class="timeline-item">
-                                                            <div class="timeline-item-marker">
-                                                                <div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">Minggu, 8 Maret 2022</div>
-                                                                <div class="timeline-item-marker-indicator bg-primary-soft text-primary"><i class="fa fa-check text-success fa-3x"></i></div>
-                                                            </div>
-                                                            <div class="timeline-item-content pt-0">
-                                                                <div class="card shadow-sm">
-                                                                    <div class="card-body">
-                                                                        <h6 class="text-dark">Received by Logistik</h6>
-                                                                        <p>This is the content for the first timeline item. In this styled example, we're styling the timeline marker with background and typography utility classes. We've also shown that you can use the card component within the timeline item content.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    <?php } ?>
-                                                    <?php for ($i = 0; $i < 1; $i++) { ?>
-                                                        <div class="timeline-item">
-                                                            <div class="timeline-item-marker">
-                                                                <div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">Minggu, 8 Maret 2022</div>
-                                                                <div class="timeline-item-marker-indicator bg-primary-soft text-primary"><i class="fa fa-check text-success fa-3x"></i></div>
-                                                            </div>
-                                                            <div class="timeline-item-content pt-0">
-                                                                <div class="card shadow-sm">
-                                                                    <div class="card-body">
-                                                                        <h6 class="text-dark">Approval SMD SPV</h6>
-                                                                        <p>This is the content for the first timeline item. In this styled example, we're styling the timeline marker with background and typography utility classes. We've also shown that you can use the card component within the timeline item content.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    <?php } ?>
-                                                </div>
-                                                <!-- </div> -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 pt-3 text-end">
-                                <button type="button" class="btn btn-success btn-sm"><i class="fa fa-truck text-white me-2"></i>Penerimaan Logistik</button>
-                            </div>
-                            <div class="col-12 pt-3">
-                                <div class="card shadow-none">
-                                    <div class="card-body">
-                                        <b>More Information</b>
-                                        <div class="row mt-3">
-                                            <div class="col-4 pb-3">
-                                                <p class="m-0 text-dark"><b>Create By</b></p>
-                                                <p class="m-0 small-text">I Made Dharma</p>
-                                            </div>
-                                            <div class="col-4 pb-3">
-                                                <p class="m-0 text-dark"><b>Date & Time</b></p>
-                                                <p class="m-0 small-text">Minggu, 18 Maret 2023 16:00:12</p>
-                                            </div>
-                                            <div class="col-4 pb-3">
-                                                <p class="m-0 text-dark"><b>Shift</b></p>
-                                                <p class="m-0 small-text">#1 (07:00 - 15:00)</p>
-                                            </div>
-                                            <div class="col-4 pb-3">
-                                                <p class="m-0 text-dark"><b>Status</b></p>
-                                                <p class="m-0 small-text">Requested</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="row h-100" id="detailMaterialRequest">
+                            <div class="col-12 align-self-center text-center">
+                                <p class="small"><i>Pilih Material Request pada <br>Bagian Kiri untuk Melihat Detail</i></p>
+                                <lottie-player style="margin:auto;width: 200px; height: 100%;" src="https://assets8.lottiefiles.com/packages/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>
                             </div>
                         </div>
                     </div>
@@ -816,8 +583,8 @@
                                         <li>
                                             <h6 class="dropdown-header">Show By</h6>
                                         </li>
-                                        <li><a class="dropdown-item">Graph <i class="ms-2 fa fa-check text-success" id="successAll"></i></a></li>
-                                        <li><a class="dropdown-item">Table <i class="ms-2 fa fa-check text-success d-none" id="successSkm"></i></a></li>
+                                        <li><a class="dropdown-item" onclick="changeStatistic('graph')">Graph <i class="ms-2 fa fa-check text-success" id="successGraph"></i></a></li>
+                                        <li><a class="dropdown-item" onclick="changeStatistic('table')">Table <i class="ms-2 fa fa-check text-success d-none" id="successTable"></i></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -831,53 +598,41 @@
                                                     <label class="small-text mt-2 mb-2">Date Range</label>
                                                     <div class="col-6">
                                                         <div class="form-floating">
-                                                            <input type="text" class="form-control form-control-sm" id="dateStart" placeholder="" value="<?= date('d/m/Y') ?>">
+                                                            <input type="text" class="form-control form-control-sm" id="dateStart" placeholder="">
                                                             <label for="dateStart">Date Start</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-6">
                                                         <div class="form-floating">
-                                                            <input type="text" class="form-control form-control-sm" id="dateEnd" placeholder="" value="<?= date('d/m/Y') ?>">
+                                                            <input type="text" class="form-control form-control-sm" id="dateEnd" placeholder="">
                                                             <label for="dateEnd">Date End</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-12">
                                                         <label class="small-text mt-2 mb-2">Production Type</label>
                                                         <br>
-                                                        <span class="badge rounded-pill me-1 bg-dark text-light p-2">SKM</span>
-                                                        <span class="badge rounded-pill me-1 bg-dark text-light p-2">SKT</span>
+                                                        <div id="listProductionType">
+                                                        </div>
                                                     </div>
-                                                    <!-- <div class="col-12">
-                                                        <label class="small-text mt-2 mb-2">Status</label>
-                                                        <br>
-                                                        <span class="badge rounded-pill me-1 bg-dark text-light p-2">Requested</span>
-                                                        <span class="badge rounded-pill me-1 bg-dark text-light p-2">Received</span>
-                                                    </div> -->
                                                     <div class="col-12">
                                                         <label class="small-text mt-2 mb-2">Items</label>
                                                         <br>
+                                                        <div id="listItems">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-12 col-md-7">
                                                 <p><b class="small">Data</b></p>
-                                                <canvas id="myChart2"></canvas>
+                                                <div id="graphStats">
+                                                    <canvas id="myChart2" width="100%"></canvas>
+                                                </div>
                                             </div>
                                             <div class="col-12 pt-5">
                                                 <p><b class="small">Average Request in A Day</b></p>
                                                 <div class="mt-3">
-                                                    <div class="row">
-                                                        <?php for ($i = 0; $i < 6; $i++) { ?>
-                                                            <div class="col-2 pb-3">
-                                                                <div class="card shadow-none h-100 text-white" style="background-color: #645CBB;">
-                                                                    <div class="card-body p-2">
-                                                                        <p class="small m-0">Filter Rods</p>
-                                                                        <b class="h2 text-white">300</b>
-                                                                        <p class="m-0 small-text">Tray per day</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        <?php } ?>
+                                                    <div class="row" id="listAverage">
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -963,6 +718,7 @@
     var data_request_manage = ""
     var stage_step = []
     var stage = 0
+    var data_stats = ''
 
     $(document).ready(function() {
         $.ajax({
@@ -976,7 +732,7 @@
 
             },
             beforeSend: function() {
-
+                $('#listMaterialRequest').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             success: function(response) {
                 data_user = response['data']
@@ -998,10 +754,11 @@
 
             },
             beforeSend: function() {
-
+                $('#listMaterialRequest').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             success: function(response) {
                 data_request_manage = response['data']
+                data_stats = data_request_manage.stats
                 console.log(data_request_manage)
                 listMaterialRequest()
             }
@@ -1011,8 +768,12 @@
     function listMaterialRequest() {
         var html = ""
         $.each(data_request_manage['materialRequest'], function(key, value) {
-            html += '<div class="col-12">'
-            html += '<div class="card shadow-none mb-2" style="cursor:pointer;">'
+            var jum = 0
+            if (value['material'][0] != null) {
+                jum = value['material'][0].length
+            }
+            html += '<div class="col-12" id="card_search' + key + '">'
+            html += '<div class="card shadow-none card-hoper mb-2" onclick="detailMaterialRequest(' + key + ')">'
             html += '<div class="card-body p-0">'
             html += '<div class="row p-0 m-0">'
             html += '<div class="col-1 p-1 rounded-start bg-' + value['production_type']['name'].toLowerCase() + ' text-center">'
@@ -1025,9 +786,9 @@
             html += '<div class="col-11 p-3">'
             html += '<div class="row">'
             html += '<div class="col">'
-            html += '<b class="m-0">' + value['code'] + '</b>'
-            html += '<p class="m-0 small-text text-orange fw-bold">' + value['created_employee']['name'] + '</p>'
-            html += '<p class="m-0 mt-2 super-small-text">Time : Minggu, 18 Maret 2023 <span class="text-light ps-1 pe-1">|</span> Status : <span class="text-success">Requested</span> <span class="text-light ps-1 pe-1">|</span> 10 Items</p>'
+            html += '<b class="m-0 text_search" data-id="' + key + '">' + value['code'] + '</b>'
+            html += '<p class="m-0 small-text text-orange fw-bold text_search" data-id="' + key + '">' + value['created_employee']['name'] + '</p>'
+            html += '<p class="m-0 mt-2 super-small-text">Time : ' + formatDateIndonesia(value['date']) + ' <span class="text-light ps-1 pe-1">|</span> Status : <span class="text-success">' + value['status'] + '</span> <span class="text-light ps-1 pe-1">|</span> ' + jum + ' Items</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -1037,84 +798,509 @@
             html += '</div>'
         })
         $('#listMaterialRequest').html(html)
+        dataStats()
     }
-    const ctx = document.getElementById('myChart');
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Filter Rods', 'Cigarette Paper', 'CTP Armour'],
-            datasets: [{
-                    label: 'Request',
-                    data: [12, 19, 3, 5, 2, 3],
-                    // borderWidth: 1
-                    backgroundColor: '#645CBB',
-                    borderColor: '#645CBB',
-                },
-                {
-                    label: 'Warehouse',
-                    data: [30, 40, 30, 50, 20, 30],
-                    // borderWidth: 1
-                    backgroundColor: '#A084DC',
-                    borderColor: '#A084DC',
+    var data_isi_material = []
+    var data_isi_material_group = []
+    var data_isi_machine_group = []
+    var data_materialrequest = ''
+
+    function detailMaterialRequest(id) {
+        reset()
+        // pembentukan variable
+        data_materialrequest = data_request_manage['materialRequest'][id]
+        $.each(data_materialrequest['machine_type'], function(key, value) {
+            // machine type
+            $.each(value['machine_sub_type'], function(keys, values) {
+                // machine sub type
+                $.each(values['detail'], function(keys2, values2) {
+                    // machine
+                    $.each(values2['machine']['material'], function(keys3, values3) {
+                        data_isi_material.push({
+                            'machine_type_id': value['id'],
+                            'machine_type_name': value['name'],
+                            'machine_subtype_id': values['id'],
+                            'machine_subtype_name': values['name'],
+                            'machine_id': values2['machine']['id'],
+                            'machine_code': values2['machine']['code'],
+                            'material_id': values3['material']['id'],
+                            'material_name': values3['material']['name'],
+                            'material_code': values3['material']['code'],
+                            'unit_id': values3['unit']['id'],
+                            'unit': values3['unit']['name'],
+                            'qty': values3['qty_request'],
+                        })
+                    })
+                })
+            })
+        })
+        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
+        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty'])
+        console.log(data_isi_machine_group)
+        formDetailMaterialRequest()
+    }
+
+    function reset() {
+        data_isi_material = []
+        data_isi_material_group = []
+        data_materialrequest = ''
+        $('#detailMaterialRequest').html('')
+    }
+
+    function formDetailMaterialRequest() {
+        headerMaterialRequest()
+        btnMaterialRequest()
+        contentMaterialRequest()
+        infoMaterialRequest()
+    }
+
+    function headerMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12">'
+        html += '<div class="row">'
+        html += '<div class="col-1 text-center align-self-center">'
+        html += '<img src="<?= base_url() ?>assets/image/svg/detail.svg" class="img-responsive" alt="Image" style="width:100%">'
+        html += '</div>'
+        html += '<div class="col-8 align-self-center">'
+        html += '<h3 class="m-0"><b>' + data_materialrequest['code'] + '</b></h3>'
+        html += '<p class="m-0 small-text"><i class="fa fa-calendar me-2"></i>' + formatDateIndonesia(data_materialrequest['date']) + '</p>'
+        html += '</div>'
+        html += '<div class="col-3">'
+        html += '<div class="float-end">'
+        html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
+        html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
+        html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">'
+        html += '<li>'
+        html += '<h6 class="dropdown-header">Show By</h6>'
+        html += '</li>'
+        html += '<li><a class="dropdown-item">Table <i class="ms-2 fa fa-check text-success" id="successAll"></i></a></li>'
+        html += '<li><a class="dropdown-item">Cardboard <i class="ms-2 fa fa-check text-success d-none" id="successSkm"></i></a></li>'
+        html += '</ul>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#detailMaterialRequest').append(html)
+    }
+
+    function contentMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 pt-2">'
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-body">'
+        html += '<nav>'
+        html += '<div class="nav nav-tabs" id="nav-tab" role="tablist">'
+        html += '<button class="nav-link p-3 small text-dark active" id="nav-0-tab" data-bs-toggle="tab" data-bs-target="#nav-0" type="button" role="tab" aria-controls="nav-0" aria-selected="true"><i class="fa fa-list me-2"></i>Detail Request</button>'
+        html += '<button class="nav-link p-3 small text-dark " id="nav-1-tab" data-bs-toggle="tab" data-bs-target="#nav-1" type="button" role="tab" aria-controls="nav-1" aria-selected="false"><i class="fa fa-cog me-2"></i>Machine Usage</span></button>'
+        html += '<button class="nav-link p-3 small text-dark" id="nav-2-tab" data-bs-toggle="tab" data-bs-target="#nav-2" type="button" role="tab" aria-controls="nav-2" aria-selected="false"><i class="fa fa-clock-o me-2"></i>Activities</button>'
+        html += '</div>'
+        html += '</nav>'
+        html += '<div class="tab-content" id="nav-tabContent">'
+        html += '<div class="tab-pane fade show active" id="nav-0" role="tabpanel" aria-labelledby="nav-0-tab">'
+        html += '<div class="table-responsive mt-3">'
+        html += '<table class="table table-sm table-hover" style="font-size: 10px;">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th>Kode</th>'
+        html += '<th>Material</th>'
+        html += '<th>Mesin</th>'
+        html += '<th>QTY</th>'
+        html += '<th>Unit</th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        $.each(data_isi_material_group, function(key, value) {
+            html += '<tr>'
+            html += '<td>' + value['material_code'] + '</td>'
+            html += '<td>' + value['material_name'] + '</td>'
+            html += '<td>'
+            $.each(data_isi_material, function(keys, values) {
+                if (value['material_id'] == values['material_id']) {
+                    html += '<span class="badge bg-callout-' + keys + ' p-1 me-1">' + values['machine_code'] + '</span>'
                 }
-            ]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+            })
+            html += '</td>'
+            html += '<td class="text-end">' + value['qty'] + '</td>'
+            html += '<td>' + value['unit'] + '</td>'
+            html += '</tr>'
+        })
+        html += '</tbody>'
+        html += '</table>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="tab-pane fade" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">'
+        $.each(data_isi_machine_group, function(key, value) {
+            html += '<div class="card card-hoper mt-2 mb-2 shadow-none bd-callout-' + key + '">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+            html += '<div class="col-6 align-self-center">'
+            html += '<h3><b class="float-start">' + value['machine_code'] + '</b></h3>'
+            html += '</div>'
+            html += '<div class="col-6">'
+            html += '<div class="row">'
+            html += '<div class="col small-text">Catcher / Helper</div>'
+            html += '<div class="col small-text text-end"><b>Supri</b></div>'
+            html += '</div>'
+            html += '<div class="row">'
+            html += '<div class="col small-text">Operator</div>'
+            html += '<div class="col small-text text-end"><b>Denny</b></div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-12">'
+            html += '<hr class="mt-2 mb-2">'
+            html += '</div>'
+            html += '<div class="col-12 pt-2">'
+            html += '<div class="table-responsive">'
+            html += '<table class="table table-sm table-hover" style="font-size: 10px;">'
+            html += '<thead>'
+            html += '<tr>'
+            html += '<th>Kode</th>'
+            html += '<th>Material</th>'
+            html += '<th>QTY</th>'
+            html += '<th>Unit</th>'
+            html += '</tr>'
+            html += '</thead>'
+            html += '<tbody>'
+            console.log(data_isi_material)
+            $.each(data_isi_material, function(keys, values) {
+                if (value['machine_id'] == values['machine_id']) {
+                    html += '<tr>'
+                    html += '<td>' + values['material_code'] + '</td>'
+                    html += '<td>' + values['material_name'] + '</td>'
+                    html += '<td class="text-end">' + values['qty'] + '</td>'
+                    html += '<td class="text-center">' + values['unit'] + '</td>'
+                    html += '</tr>'
                 }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
+            })
+            html += '</tbody>'
+            html += '</table>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        html += '</div>'
+        html += '<div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">'
+        html += '<div class="timeline p-5 super-small-text">'
+
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">Minggu, 8 Maret 2022</div>'
+        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary"><i class="fa fa-check text-success fa-3x"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content pt-0">'
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body">'
+        html += '<h6 class="text-dark">Received by Logistik</h6>'
+        html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
+
+
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">Minggu, 8 Maret 2022</div>'
+        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary"><i class="fa fa-check text-success fa-3x"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content pt-0">'
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body">'
+        html += '<h6 class="text-dark">Approval SMD SPV</h6>'
+        html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#detailMaterialRequest').append(html)
+    }
+
+    function btnMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 pt-2 text-end">'
+        html += '<button type="button" class="btn btn-success btn-sm"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
+        html += '</div>'
+        $('#detailMaterialRequest').append(html)
+    }
+
+    function infoMaterialRequest() {
+        var html = ""
+        html += '<div class="col-12 pt-2">'
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-body">'
+        html += '<b>More Information</b>'
+        html += '<div class="row mt-3">'
+        html += '<div class="col-4 pb-3">'
+        html += '<p class="m-0 text-dark"><b>Create By</b></p>'
+        html += '<p class="m-0 small-text">' + data_materialrequest.created_employee.name + '</p>'
+        html += '</div>'
+        html += '<div class="col-4 pb-3">'
+        html += '<p class="m-0 text-dark"><b>Date & Time</b></p>'
+        html += '<p class="m-0 small-text">' + formatDateIndonesia(data_materialrequest.date) + '</p>'
+        html += '</div>'
+        html += '<div class="col-4 pb-3">'
+        html += '<p class="m-0 text-dark"><b>Shift</b></p>'
+        html += '<p class="m-0 small-text">#1 (07:00 - 15:00)</p>'
+        html += '</div>'
+        html += '<div class="col-4 pb-3">'
+        html += '<p class="m-0 text-dark"><b>Status</b></p>'
+        html += '<p class="m-0 small-text">' + data_materialrequest.status + '</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#detailMaterialRequest').append(html)
+
+    }
+    var dateStart = ''
+    var dateEnd = ''
+    var productionTypeId = []
+
+    function dataStats() {
+        dateStart = data_stats.stats[0].datasets[0].label
+        dateEnd = data_stats.stats[0].datasets[(data_stats.stats[0].datasets.length - 1)].label
+        $('#dateStart').val(dateStart)
+        $('#dateEnd').val(dateEnd)
+        createStats()
+    }
+
+    function changeType(type) {
+        var data = $('#typeBtn' + type).hasClass('active')
+        if (data == true) {
+            // remove
+            productionTypeId.splice($.inArray(type, productionTypeId), 1);
+            $('#typeBtn' + type).removeClass('bg-dark text-light active')
+            $('#typeBtn' + type).addClass('bg-light text-dark')
+        } else {
+            // insert
+            productionTypeId.push(type)
+            $('#typeBtn' + type).addClass('bg-dark text-light active')
+            $('#typeBtn' + type).removeClass('bg-light text-dark')
         }
-    });
-    const ctx2 = document.getElementById('myChart2');
-    new Chart(ctx2, {
-        type: 'line',
-        data: {
-            labels: ['Filter Rods', 'Cigarette Paper', 'CTP Armour'],
-            datasets: [{
-                    label: 'Minggu, 12 Januari 2023',
-                    data: [12, 19, 34, 5, 24, 3],
-                    // borderWidth: 1,
-                    backgroundColor: '#645CBB',
-                    borderColor: '#645CBB',
-                },
-                {
-                    label: 'Senin, 13 Januari 2023',
-                    data: [30, 40, 30, 50, 20, 30],
-                    // borderWidth: 1,
-                    backgroundColor: '#EBC7E6',
-                    borderColor: '#EBC7E6',
-                },
-                {
-                    label: 'Selasa, 14 Januari 2023',
-                    data: [22, 34, 4, 5, 55, 5],
-                    // borderWidth: 1,
-                    backgroundColor: '#A084DC',
-                    borderColor: '#A084DC',
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            interaction: {
-                mode: 'index',
-                intersect: false,
+        dataChangeStats()
+    }
+
+    function dataChangeStats() {
+        $.ajax({
+            url: "<?= api_produksi('getMaterialRequestStats'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                productionTypeId: productionTypeId
             },
-            stacked: false,
-            plugins: {},
-            scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                },
+            error: function(xhr) {
+                $('#graphStats').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_rc6CDU.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            },
+            beforeSend: function() {
+                $('#graphStats').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            },
+            success: function(response) {
+                data_stats = response['data']
+                console.log(data_stats)
+                $('#graphStats').html('')
+                $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
+                if (data_stats.average.length == 0) {
+                    $('#graphStats').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_rc6CDU.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+                } else {
+                    listItems()
+                }
             }
-        },
-    });
+        })
+    }
+
+    function createStats() {
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+            firstDay: 0,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    dateStart = formatDate(date1['dateInstance'])
+                    dateEnd = formatDate(date2['dateInstance'])
+                    dataChangeStats()
+                });
+            },
+        })
+        listProductionType()
+    }
+
+    function listProductionType() {
+        var html = ""
+        $.each(data_request_manage.productionType, function(key, value) {
+            productionTypeId.push(value['id'])
+            html += '<span class="badge rounded-pill me-1 bg-dark text-light p-2 active" style="cursor:pointer;" onclick="changeType(' + value['id'] + ')" id="typeBtn' + value['id'] + '">' + value['name'] + '</span>'
+        })
+        $('#listProductionType').html(html)
+        listItems()
+    }
+
+    function listItems() {
+        var html = ""
+        html += '<select class="form-select w-100 items" multiple id="items" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        $.each(data_stats.average, function(key, value) {
+            html += '<option value="' + value['id'] + '" selected>' + value['name'] + '</option>'
+        })
+        html += '</select>'
+        $('#listItems').html(html)
+        $('#items').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            // dropdownParent: $('#modal'),
+        });
+        averageStats()
+    }
+
+    function averageStats() {
+        var html = ""
+        $.each(data_stats.average, function(key, value) {
+            html += '<div class="col-3 pb-3">'
+            html += '<div class="card shadow-none h-100 text-white" style="background-color: #645CBB;">'
+            html += '<div class="card-body p-2">'
+            html += '<p class="small-text m-0">' + value['name'] + '</p>'
+            html += '<b class="h2 text-white">' + roundToTwo(value['avg']) + '</b>'
+            html += '<p class="m-0 small-text">Tray per day</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#listAverage').html(html)
+        statsGraph()
+    }
+
+    function statsGraph() {
+        var data = data_stats.stats[0].datasets.filter((value, key) => {
+            if (value.data[0] != null) return true
+        })
+        var labels = []
+        for (let i = 0; i < data_stats.stats[0].labels.length; i++) {
+            labels.push(shortenName(data_stats.stats[0].labels[i], 2))
+        }
+        const ctx2 = document.getElementById('myChart2');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: data
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                stacked: false,
+                plugins: {},
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                }
+            },
+        });
+    }
+
+    function statsTable() {
+        var html = ""
+        html += '<div class="table-responsive">'
+        html += '<table class="table table-bordered table-sm table-hover" style="font-size: 10px;" id="myTable">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th rowspan="2" class="small">Tanggal</th>'
+        html += '<th colspan="' + data_stats.stats[0].labels.length + '" class="small">Material</th>'
+        html += '</tr>'
+        html += '<tr>'
+        for (let i = 0; i < data_stats.stats[0].labels.length; i++) {
+            html += '<th style="word-wrap: break-word;min-width: 10%;max-width: 10%;" class="small">' + shortenName(data_stats.stats[0].labels[i], 2) + '</th>'
+        }
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        $.each(data_stats.stats[0].datasets, function(key, value) {
+            html += '<tr>'
+            html += '<td>' + value['label'] + '</td>'
+            for (let i = 0; i < value['data'].length; i++) {
+                var nilai = value['data'][i]
+                if (value['data'][i] == null) {
+                    nilai = ''
+                }
+                html += '<td class="text-end">' + number_format(nilai) + '</td>'
+            }
+            html += '</tr>'
+        })
+        html += '</tbody>'
+        html += '</table>'
+        html += '</div>'
+        $('#graphStats').html(html)
+        $('#myTable').DataTable({
+            responsive: true
+        });
+    }
+
+    function changeStatistic(status) {
+        if (status == 'graph') {
+            $('#successGraph').removeClass('d-none')
+            $('#successTable').addClass('d-none')
+            $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
+            statsGraph()
+        } else {
+            $('#successGraph').addClass('d-none')
+            $('#successTable').removeClass('d-none')
+            $('#graphStats').html('')
+            statsTable()
+        }
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
+    }
 
 
     function openNewMaterialRequest() {
