@@ -759,7 +759,29 @@
             success: function(response) {
                 data_request_manage = response['data']
                 data_stats = data_request_manage.stats
-                console.log(data_request_manage)
+                getDataCurrentStok()
+            }
+        })
+    }
+    var data_all_stok = ''
+    var stok_by_id = {}
+
+    function getDataCurrentStok() {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getDataStokItem'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {
+
+            },
+            beforeSend: function() {
+                $('#listMaterialRequest').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            },
+            success: function(response) {
+                data_all_stok = response['data']
+                $.each(data_all_stok, function(key, value) {
+                    stok_by_id[value.item_id] = value.jumlah
+                })
                 listMaterialRequest()
             }
         })
@@ -838,7 +860,7 @@
         })
         data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
         data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty'])
-        console.log(data_isi_machine_group)
+        // console.log(data_isi_machine_group)
         formDetailMaterialRequest()
     }
 
@@ -873,7 +895,7 @@
         html += '<div class="float-end" id="listBtnDetail">'
         html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
         html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle me-1" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
-        html += '<button type="button" class="btn btn-success btn-sm"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
+        html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
         html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">'
         html += '<li>'
         html += '<h6 class="dropdown-header">Show By</h6>'
@@ -966,7 +988,7 @@
             html += '</tr>'
             html += '</thead>'
             html += '<tbody>'
-            console.log(data_isi_material)
+            // console.log(data_isi_material)
             $.each(data_isi_material, function(keys, values) {
                 if (value['machine_id'] == values['machine_id']) {
                     html += '<tr>'
@@ -989,32 +1011,97 @@
         html += '<div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">'
         html += '<div class="timeline p-5 super-small-text">'
 
+        var date = formatDateIndonesia(data_materialrequest.created_at)
+        var check = '<i class="fa fa-check text-success fa-3x"></i>'
+        var user = data_materialrequest.created_employee.name
+
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
-        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">Minggu, 8 Maret 2022</div>'
-        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary"><i class="fa fa-check text-success fa-3x"></i></div>'
+        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">' + date + '</div>'
+        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary">' + check + '</div>'
         html += '</div>'
         html += '<div class="timeline-item-content pt-0">'
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
-        html += '<h6 class="text-dark">Received by Logistik</h6>'
+        html += '<h6 class="text-dark">Material Request Created</h6>'
+        html += '<p>Material Request made by ' + user + '</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
+        if (data_materialrequest.approve_at != null) {
+            date = formatDateIndonesia(data_materialrequest.approve_at)
+            if (data_materialrequest.is_approve == 1) {
+                check = '<i class="fa fa-check text-success fa-3x"></i>'
+            } else {
+                check = '<i class="fa fa-times text-danger fa-3x"></i>'
+            }
+        } else {
+            date = '<i>(Not Available)</i>'
+            check = '<i class="fa fa-check text-light fa-3x"></i>'
+        }
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">' + date + '</div>'
+        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary">' + check + '</div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content pt-0">'
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body">'
+        html += '<h6 class="text-dark">Approval SMD SPV</h6>'
         html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
 
-
-
+        if (data_materialrequest.process_at != null) {
+            date = formatDateIndonesia(data_materialrequest.process_at)
+            if (data_materialrequest.is_process == 1) {
+                check = '<i class="fa fa-check text-success fa-3x"></i>'
+            } else {
+                check = '<i class="fa fa-times text-danger fa-3x"></i>'
+            }
+        } else {
+            date = '<i>(Not Available)</i>'
+            check = '<i class="fa fa-check text-light fa-3x"></i>'
+        }
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
-        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">Minggu, 8 Maret 2022</div>'
-        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary"><i class="fa fa-check text-success fa-3x"></i></div>'
+        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">' + date + '</div>'
+        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary">' + check + '</div>'
         html += '</div>'
         html += '<div class="timeline-item-content pt-0">'
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
-        html += '<h6 class="text-dark">Approval SMD SPV</h6>'
+        html += '<h6 class="text-dark">Processed by Logistik</h6>'
+        html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
+        if (data_materialrequest.receive_at != null) {
+            date = formatDateIndonesia(data_materialrequest.receive_at)
+            if (data_materialrequest.is_receive == 1) {
+                check = '<i class="fa fa-check text-success fa-3x"></i>'
+            } else {
+                check = '<i class="fa fa-times text-danger fa-3x"></i>'
+            }
+        } else {
+            date = '<i>(Not Available)</i>'
+            check = '<i class="fa fa-check text-light fa-3x"></i>'
+        }
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+        html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">' + date + '</div>'
+        html += '<div class="timeline-item-marker-indicator bg-primary-soft text-primary">' + check + '</div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content pt-0">'
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body">'
+        html += '<h6 class="text-dark">Received by Foreman</h6>'
         html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
         html += '</div>'
         html += '</div>'
@@ -1336,4 +1423,75 @@
         }
 
     });
+
+    function prosesLogistik() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Proses Logistik ' + data_materialrequest.code + '</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        $.each(data_isi_machine_group, function(key, value) {
+            html_body += '<div class="card mt-2 mb-2 shadow-none bd-callout-' + key + '">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-6 align-self-center">'
+            html_body += '<h3><b class="float-start">' + value['machine_code'] + '</b></h3>'
+            html_body += '</div>'
+            html_body += '<div class="col-12 pt-3">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-4"><b>Material</b></div>'
+            html_body += '<div class="col"><b>QTY</b></div>'
+            html_body += '<div class="col"><b>Stok Gudang</b></div>'
+            html_body += '<div class="col"><b>Unit</b></div>'
+            html_body += '<div class="col-1"><b></b></div>'
+            html_body += '</div>'
+            $.each(data_isi_material, function(keys, values) {
+                if (value['machine_id'] == values['machine_id']) {
+                    html_body += '<div class="card shadow-none mb-2">'
+                    html_body += '<div class="card-body p-2">'
+                    html_body += '<div class="row">'
+                    html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><br>' + values['material_name'] + '</div>'
+                    html_body += '<div class="col"><b>' + values['qty'] + '</b><i class="fa fa-pencil text-primary ms-2" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br><div class="d-none" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input class="form-control form-control-sm p-1"></div></div>'
+                    html_body += '<div class="col">' + number_format(stok_by_id[values.material_id]) + '</div>'
+                    html_body += '<div class="col">' + values['unit'] + '</div>'
+                    html_body += '<div class="col-1 text-center align-self-center p-3">'
+                    html_body += '<i class="fa fa-check fa-2x text-light"></i>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                }
+            })
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval()">Selesaikan dan Kirim ke Foreman</button>'
+        $('#modalFooter').html(html_footer);
+    }
+
+    function showInputBaru(key, keys) {
+        var data = $('#showInputBaru' + key + keys).hasClass('active')
+        console.log(key)
+        if (data == true) {
+            // remove
+            $('#showInputBaru' + key + keys).removeClass('active')
+            $('#inputBaru' + key + keys).addClass('d-none')
+        } else {
+            // insert
+            $('#showInputBaru' + key + keys).addClass('active')
+            $('#inputBaru' + key + keys).removeClass('d-none')
+        }
+    }
 </script>
