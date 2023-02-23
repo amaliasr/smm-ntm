@@ -432,6 +432,7 @@
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var data_user = ""
     var data_plan = ""
+    var data_notif = ""
 
     $(document).ready(function() {
         $.ajax({
@@ -470,7 +471,8 @@
             },
             success: function(response) {
                 data_plan = response['data']
-                console.log(data_plan)
+                data_notif = response['sendNotif']
+                console.log(data_notif)
                 listPlan()
             }
         })
@@ -550,7 +552,7 @@
             html += '<a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
             html += '<a class="dropdown-item"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
             html += '<a class="dropdown-item"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
+            html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -570,5 +572,74 @@
     function openNewPlanning() {
         var url = '<?= base_url() ?>production/createPlanning/smd'
         window.open(url, '_blank')
+    }
+
+    function beforeShareWhatsapp(id, id_plannning, tanggal) {
+        let obj = data_notif.find((value, key) => {
+            if (value.production_type.id === id) return true
+        });
+        console.log(obj)
+        Swal.fire({
+            text: 'Membagikan Approval akan langsung masuk ke Whatsapp dengan ' + obj.employee[0].full_name + ', apakah anda ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsapp(obj.employee[0], id_plannning, tanggal)
+            }
+        })
+    }
+
+    function shareWhatsapp(data, id_plannning, tanggal) {
+        $.ajax({
+            url: "<?= base_url('api/sendPlanForeman') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: '081944946015',
+                link: '<?= base_url() ?>production/detailPlanning/smd/' + id_plannning,
+                nama: data.full_name,
+                tanggal: tanggal,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                $('#modal2').modal('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {});
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 </script>

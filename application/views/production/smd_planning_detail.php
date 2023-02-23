@@ -330,7 +330,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama">
+                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
                                         <span class="input-group-text">
                                             <i class="fa fa-search"></i>
                                         </span>

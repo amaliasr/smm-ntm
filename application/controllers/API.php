@@ -97,4 +97,31 @@ Informasi Tambahan, Link dapat digunakan ketika sudah waktunya melakukan SO (ses
             echo $result;
         }
     }
+    public function sendPlanForeman()
+    {
+        $no_telp = $this->input->get('no_telp');
+        $link = $this->input->get('link');
+        $nama = $this->input->get('nama');
+        $tanggal = $this->input->get('tanggal');
+        $message = "*📄 Planning Produksi Mingguan 📄*
+
+Teruntuk Bpk/Ibu *" . $nama . "* , anda mendapatkan pesan List Detail Planning untuk tanggal *" . $tanggal . "*
+Silahkan klik link dibawah ini untuk melihat detail Planning Produksi mingguan
+
+
+" . $link . "";
+        $url = 'https://app.whacenter.com/api/send';
+        $ch = curl_init($url);
+        $data = array(
+            'device_id' => '0e49bcaebc1c3b47199003bc2cf07441',
+            'number' => $no_telp,
+            'message' => $message,
+        );
+        $payload = $data;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        echo $result;
+    }
 }

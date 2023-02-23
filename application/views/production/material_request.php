@@ -292,10 +292,8 @@
                                         <span class="small"><b>List</b></span>
                                     </div>
                                     <div class="col">
-
-
                                         <div class="float-end">
-                                            <button type="button" class="btn btn-primary btn-sm me-2" onclick="getData()"><span class="fa fa-refresh me-2"></span> Refresh</button>
+                                            <button type="button" class="btn btn-primary btn-sm me-2" onclick="getData(),changeFilter('all')"><span class="fa fa-refresh me-2"></span> Refresh</button>
                                             <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                                 Option
                                             </button>
@@ -309,60 +307,13 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-12 pt-4" id="tampilDetailPembayaran">
+                                    <div class="col-12 pt-4">
                                         <div class="row">
-                                            <div class="col-12">
-                                                <div class="card shadow-none mb-2">
-                                                    <div class="card-body p-0">
-                                                        <div class="row p-0 m-0">
-                                                            <div class="col-1 p-3 rounded-start bg-primary text-center">
-                                                                <div class="row d-flex align-items-center h-100">
-                                                                    <div class="col text-center">
-                                                                        <span class="small text-white vertical-text">CREATED</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-11 p-3">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <p class="text-grey mb-2" style="font-size: 10px;">Created At <span>01/01/2023</span></p>
-                                                                        <h4 class="m-0 mb-1"><b>#KODEMATERIAL</b></h4>
-                                                                        <p class="m-0 mb-3" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> 10 Items</p>
-                                                                        <div class="row" style="font-size: 11px;">
-                                                                            <div class="col-auto">
-                                                                                <p class="m-0"><i class="fa fa-check-circle me-2 text-light"></i> Created</p>
-                                                                            </div>
-                                                                            <div class="col-auto">
-                                                                                <p class="m-0"><i class="fa fa-check-circle me-2 text-light"></i> Verified</p>
-                                                                            </div>
-                                                                            <div class="col-auto">
-                                                                                <p class="m-0"><i class="fa fa-check-circle me-2 text-light"></i> Received</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <p class="m-0 mb-2 font-small"><b>Received By :</b></p>
-                                                                        <?php for ($i = 0; $i < 5; $i++) { ?>
-                                                                            <p class="m-0 ms-5 font-small"><i class="fa fa-check-circle me-2 text-light"></i> MK9-A</p>
-                                                                        <?php } ?>
-                                                                    </div>
-                                                                    <div class="col-auto text-center align-self-center">
-                                                                        <button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-                                                                        <div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">
-                                                                            <a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Detail Material</a>
-                                                                            <a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan Checking Material</a>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            <div class="col-12" id="tampilDetailPembayaran">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -457,33 +408,33 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var data_user = ""
-    var data_plan = ""
+    var data_material = ""
 
     $(document).ready(function() {
         $('#layoutSidenav_content').addClass('bg-white')
-        // $.ajax({
-        //     url: "<?= api_url('Api_Warehouse/getUser'); ?>",
-        //     method: "GET",
-        //     dataType: 'JSON',
-        //     data: {
-        //         id: user_id
-        //     },
-        //     error: function(xhr) {
-        //         notFound('#tampilDetailPembayaran')
-        //     },
-        //     beforeSend: function() {
-        //         loadingData('#tampilDetailPembayaran')
-        //     },
-        //     success: function(response) {
-        //         data_user = response['data']
-        //         getData()
-        //     }
-        // })
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getUser'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                id: user_id
+            },
+            error: function(xhr) {
+                notFound('#tampilDetailPembayaran')
+            },
+            beforeSend: function() {
+                loadingData('#tampilDetailPembayaran')
+            },
+            success: function(response) {
+                data_user = response['data']
+                getData()
+            }
+        })
     })
 
     function getData() {
         $.ajax({
-            url: "<?= api_produksi('getProductionPlanSmd'); ?>",
+            url: "<?= api_produksi('getMaterialRequest'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
@@ -496,10 +447,125 @@
                 loadingData('#tampilDetailPembayaran')
             },
             success: function(response) {
-                data_plan = response['data']
-                notFound('#tampilDetailPembayaran')
+                data_material = response['data']
+                console.log(data_material)
+                variableMR()
             }
         })
+    }
+    var data_isi_material = []
+    var detail = []
+
+    function variableMR() {
+        $.each(data_material, function(ke, valu) {
+            detail = []
+            $.each(valu['machine_type'], function(key, value) {
+                if (valu['machine_type'][key] != null) {
+                    // machine type
+                    $.each(value['machine_sub_type'], function(keys, values) {
+                        // machine sub type
+                        $.each(values['detail'], function(keys2, values2) {
+                            // machine
+                            $.each(values2['machine']['material'], function(keys3, values3) {
+                                detail.push({
+                                    'machine_type_id': value['id'],
+                                    'machine_type_name': value['name'],
+                                    'machine_subtype_id': values['id'],
+                                    'machine_subtype_name': values['name'],
+                                    'machine_id': values2['machine']['id'],
+                                    'machine_code': values2['machine']['code'],
+                                    'material_id': values3['material']['id'],
+                                    'material_name': values3['material']['name'],
+                                    'material_code': values3['material']['code'],
+                                    'unit_id': values3['unit']['id'],
+                                    'unit': values3['unit']['name'],
+                                    'qty': values3['qty_request'],
+                                })
+                            })
+                        })
+                    })
+                }
+            })
+            // console.log(detail)
+            data_isi_material.push({
+                id: valu['id'],
+                detail: detail
+            })
+        })
+        console.log(data_isi_material)
+        formMaterialRequest()
+    }
+
+    function formMaterialRequest(jenis = "") {
+        var html = ''
+        var data = data_material
+        if (jenis == 'skt' || jenis == 'skm') {
+            data = data_material.filter((values, keys) => {
+                if (values.production_type['name'].toLowerCase() === jenis.toLowerCase()) return true
+            })
+        }
+        $.each(data, function(keys, values) {
+            var index = data_isi_material.findIndex(x => x.id === values.id);
+            html += '<div class="card shadow-none mb-2">'
+            html += '<div class="card-body p-0">'
+            html += '<div class="row p-0 m-0">'
+            html += '<div class="col-1 p-3 rounded-start bg-' + values.production_type.name.toLowerCase() + ' text-center">'
+            html += '<div class="row d-flex align-items-center h-100">'
+            html += '<div class="col text-center">'
+            html += '<span class="small text-white vertical-text">' + values.production_type.name + '</span>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-11 p-3">'
+            html += '<div class="row">'
+            html += '<div class="col">'
+            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDateIndonesia(values.date) + '</span></p>'
+            html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>#' + values.code + '</b></h4>'
+            html += '<p class="m-0 mb-3" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> ' + data_isi_material[index].detail.length + ' Items</p>'
+            html += '<div class="row" style="font-size: 11px;">'
+            html += '<div class="col-auto">'
+            html += '<p class="m-0"><i class="fa fa-check-circle me-2 text-success"></i> Created</p>'
+            html += '</div>'
+            html += '<div class="col-auto">'
+            var text = 'text-grey'
+            if (values['is_approve'] == 1) {
+                text = 'text-success'
+            }
+            html += '<p class="m-0"><i class="fa fa-check-circle me-2 ' + text + '"></i> Verified</p>'
+            html += '</div>'
+            html += '<div class="col-auto">'
+            text = 'text-grey'
+            if (values['is_process'] == 1) {
+                text = 'text-success'
+            }
+            html += '<p class="m-0"><i class="fa fa-check-circle me-2 ' + text + '"></i> Processed</p>'
+            html += '</div>'
+            html += '<div class="col-auto">'
+            text = 'text-grey'
+            if (values['is_receive'] == 1) {
+                text = 'text-success'
+            }
+            html += '<p class="m-0"><i class="fa fa-check-circle me-2 ' + text + '"></i> Received</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-auto text-center align-self-center">'
+            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+            html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
+            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan Checking Material</a>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#tampilDetailPembayaran').html(html)
+        if (data.length <= 0) {
+            notFound('#tampilDetailPembayaran')
+        }
     }
 
     function changeFilter(jenis) {
@@ -516,85 +582,16 @@
             $('#successSkm').addClass('d-none')
             $('#successSkt').removeClass('d-none')
         }
-        listPlan(jenis)
-    }
-
-    function listPlan(jenis = "") {
-        var data = data_plan
-        if (jenis == 'skt' || jenis == 'skm') {
-            data = data_plan.filter((values, keys) => {
-                if (values.production_type['name'].toLowerCase() === jenis.toLowerCase()) return true
-            })
-        }
-        var html = ""
-        $.each(data, function(keys, values) {
-            html += '<div class="row">'
-            html += '<div class="col-12">'
-            html += '<div class="card shadow-none mb-2">'
-            html += '<div class="card-body p-0">'
-            html += '<div class="row p-0 m-0">'
-            html += '<div class="col-1 p-3 rounded-start bg-' + values['production_type']['name'].toLowerCase() + ' text-center">'
-            html += '<div class="row d-flex align-items-center h-100">'
-            html += '<div class="col text-center">'
-            html += '<span class="small text-white vertical-text">' + values['production_type']['name'] + '</span>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '<div class="col-11 p-3">'
-            html += '<div class="row">'
-            html += '<div class="col">'
-            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
-            html += '<p class="m-0" style="font-size: 14px;">#' + values['code'] + '</p>'
-            html += '<h6 class="m-0 mb-3"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
-            html += '<div class="row" style="font-size: 11px;">'
-            html += '<div class="col-auto">'
-            var text = 'text-grey'
-            if (values['is_created'] == 1) {
-                text = 'text-success'
-            }
-            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Created</p>'
-            html += '</div>'
-            html += '<div class="col-auto">'
-            text = 'text-grey'
-            if (values['is_processed'] == 1) {
-                text = 'text-success'
-            }
-            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Drafted</p>'
-            html += '</div>'
-            html += '<div class="col-auto">'
-            text = 'text-grey'
-            if (values['is_done'] == 1) {
-                text = 'text-success'
-            }
-            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Done</p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '<div class="col-auto text-center align-self-center">'
-            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
-            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        })
-        $('#tampilDetailPembayaran').html(html)
-        if (data.length <= 0) {
-            notFound('#tampilDetailPembayaran')
-        }
+        formMaterialRequest(jenis)
     }
 
     function openNewMaterialRequest() {
         var url = '<?= base_url() ?>production/createMaterialRequest'
+        window.open(url, '_blank')
+    }
+
+    function linkToDetail(id) {
+        var url = '<?= base_url() ?>production/approvalMaterialRequest/' + id
         window.open(url, '_blank')
     }
 </script>
