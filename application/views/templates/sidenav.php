@@ -104,6 +104,7 @@
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
                         <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
                         <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
@@ -112,20 +113,17 @@
                     Warehouse
                     <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
                 </a>
-                <?php if (is_logistik()) { ?>
-                    <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
-                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                            <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
+                <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
                         <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
-                            <?php if (is_logistik()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
-                            <?php } ?>
-                            <?php if (is_logistik()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
-                            <?php } ?>
-                        </nav>
-                    </div>
-                <?php } ?>
+                        <a class="nav-link" href="<?= base_url(); ?>production/managementWarehouse">Manage Warehouse</a>
+                        <?php if (is_logistik()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
+                            <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
+                        <?php } ?>
+                    </nav>
+                </div>
                 <!-- Sidenav Accordion Order-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards2" aria-expanded="true" aria-controls="collapseDashboards2">
                     <div class="nav-link-icon"><i class="fa fa-truck"></i></div>
