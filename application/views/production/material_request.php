@@ -555,6 +555,9 @@
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
+            if (values['is_approve'] != 1) {
+                html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
+            }
             html += '</div>'
             html += '</div>'
             html += '</div>'

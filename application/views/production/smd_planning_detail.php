@@ -313,6 +313,7 @@
                 rgba(34, 124, 112, 0.8) 100%) !important;
     }
 </style>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark bg-gradient-production pb-10">
@@ -352,11 +353,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12 col-md-12 align-self-center" id="listParent">
-
                             </div>
                             <div class="col-12">
                                 <div class="row pt-4" id="listDetail">
-
                                 </div>
                             </div>
                         </div>
@@ -480,10 +479,10 @@
                 id: user_id
             },
             error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
+                $('#listDetail').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
-                loadingData('#tampilDetailPembayaran')
+                $('#listDetail').html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
             },
             success: function(response) {
                 data_user = response['data']
@@ -494,22 +493,28 @@
 
 
     function getData() {
-        $.ajax({
-            url: "<?= api_produksi('getProductionPlanSmdDetail'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                id: '<?= $id ?>'
-            },
-            error: function(xhr) {
-                notFound('#tampilDetailPembayaran')
-            },
-            beforeSend: function() {},
-            success: function(response) {
-                data_plan = response['data']
-                calculateTotal()
-            }
-        })
+        if ('<?= $id ?>' != '') {
+            $.ajax({
+                url: "<?= api_produksi('getProductionPlanSmdDetail'); ?>",
+                method: "GET",
+                dataType: 'JSON',
+                data: {
+                    id: '<?= $id ?>'
+                },
+                error: function(xhr) {
+                    $('#listDetail').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+                },
+                beforeSend: function() {
+                    $('#listDetail').html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
+                },
+                success: function(response) {
+                    data_plan = response['data']
+                    calculateTotal()
+                }
+            })
+        } else {
+            $('#listDetail').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+        }
     }
 
     function groupAndSum(arr, groupKeys, sumKeys) {

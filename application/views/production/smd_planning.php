@@ -521,7 +521,7 @@
             html += '<div class="col">'
             html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
             html += '<p class="m-0" style="font-size: 14px;">#' + values['code'] + '</p>'
-            html += '<h6 class="m-0 mb-3" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
+            html += '<h6 class="m-0" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
