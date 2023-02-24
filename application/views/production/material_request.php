@@ -255,7 +255,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama">
+                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
                                         <span class="input-group-text">
                                             <i class="fa fa-search"></i>
                                         </span>
@@ -506,7 +506,7 @@
         }
         $.each(data, function(keys, values) {
             var index = data_isi_material.findIndex(x => x.id === values.id);
-            html += '<div class="card shadow-none mb-2">'
+            html += '<div class="card card-hoper shadow-none mb-2">'
             html += '<div class="card-body p-0">'
             html += '<div class="row p-0 m-0">'
             html += '<div class="col-1 p-3 rounded-start bg-' + values.production_type.name.toLowerCase() + ' text-center">'
@@ -516,12 +516,14 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-11 p-3">'
+            html += '<div class="col p-3">'
             html += '<div class="row">'
             html += '<div class="col">'
             html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDateIndonesia(values.date) + '</span></p>'
             html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>#' + values.code + '</b></h4>'
-            html += '<p class="m-0 mb-3" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> ' + data_isi_material[index].detail.length + ' Items</p>'
+            html += '<p class="m-0" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> ' + data_isi_material[index].detail.length + ' Items</p>'
+            html += '</div>'
+            html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
             html += '<div class="col-auto">'
             html += '<p class="m-0"><i class="fa fa-check-circle me-2 text-success"></i> Created</p>'
@@ -553,7 +555,6 @@
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan Checking Material</a>'
             html += '</div>'
             html += '</div>'
             html += '</div>'

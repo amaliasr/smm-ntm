@@ -365,7 +365,7 @@
 
         <div class="row justify-content-center">
             <div class="col-12 pb-2">
-                <h1 class="text-white"><b><i class="fa fa-envelope-o me-2"></i>Material Request</b></h1>
+                <h1 class="text-dark"><b>Detail Material Request</b></h1>
             </div>
         </div>
         <div class="row justify-content-center" id="fieldIsi">
@@ -470,7 +470,7 @@
     var stage = 0
 
     $(document).ready(function() {
-        $('#layoutSidenav_content').addClass('bg-lembut')
+        // $('#layoutSidenav_content').addClass('bg-lembut')
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",

@@ -516,12 +516,14 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-11 p-3">'
+            html += '<div class="col p-3">'
             html += '<div class="row">'
             html += '<div class="col">'
             html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
             html += '<p class="m-0" style="font-size: 14px;">#' + values['code'] + '</p>'
-            html += '<h6 class="m-0 mb-3"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
+            html += '<h6 class="m-0 mb-3" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
+            html += '</div>'
+            html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
             html += '<div class="col-auto">'
             var text = 'text-grey'
@@ -549,7 +551,7 @@
             html += '<div class="col-auto text-center align-self-center">'
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
+            html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
             html += '<a class="dropdown-item"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
             html += '<a class="dropdown-item"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
             html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
@@ -641,5 +643,10 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+
+    function linkToDetail(id) {
+        var url = '<?= base_url() ?>production/detailPlanning/smd/' + id
+        window.open(url, '_blank')
     }
 </script>
