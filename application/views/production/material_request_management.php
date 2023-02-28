@@ -883,19 +883,21 @@
     function headerMaterialRequest() {
         var html = ""
         html += '<div class="col-12">'
-        html += '<div class="row justify-content-between">'
+        html += '<div class="row">'
         html += '<div class="col-1 text-center align-self-center">'
         html += '<img src="<?= base_url() ?>assets/image/svg/detail.svg" class="img-responsive" alt="Image" style="width:100%">'
         html += '</div>'
-        html += '<div class="col-auto align-self-center">'
+        html += '<div class="col align-self-center">'
         html += '<h3 class="m-0"><b>' + data_materialrequest['code'] + '</b></h3>'
         html += '<p class="m-0 small-text"><i class="fa fa-calendar me-2"></i>' + formatDateIndonesia(data_materialrequest['date']) + '</p>'
         html += '</div>'
-        html += '<div class="col-auto">'
+        html += '<div class="col-auto text-end">'
         html += '<div class="float-end" id="listBtnDetail">'
         html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
         html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle me-1" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
-        html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
+        if (data_materialrequest.is_approve == 1) {
+            html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
+        }
         html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">'
         html += '<li>'
         html += '<h6 class="dropdown-header">Show By</h6>'
