@@ -371,8 +371,7 @@
         <div class="row justify-content-center" id="fieldIsi">
         </div>
         <div class="row">
-            <div class="col-12 text-end">
-                <button type="button" class="btn btn-success d-none btnApprove" onclick="approvalForm()">Selesaikan Persetujuan</button>
+            <div class="col-12 text-end" id="fieldBtnApproval">
             </div>
         </div>
 </main>
@@ -392,7 +391,21 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal2" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document" id="modalDialog2">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader2">
 
+            </div>
+            <div class="modal-body" id="modalBody2">
+
+            </div>
+            <div class="modal-footer" id="modalFooter2">
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
@@ -518,7 +531,6 @@
     function stages() {
         $('#fieldIsi').html('')
         if (data_material['materialRequest'].length > 0) {
-            $('.btnApprove').removeClass('d-none')
             infoMaterialRequest()
             detailMaterialRequest()
             sizing()
@@ -698,6 +710,9 @@
         html += '</div>'
         html += '</div>'
         $('#fieldIsi').append(html)
+        if (data_material.materialRequest[0].is_approve == null) {
+            fieldBtnApproval()
+        }
     }
 
     function resultMaterialRequest(location) {
@@ -736,6 +751,12 @@
         // html += '</div>'
         $(location).append(html)
         formatCard('cardboard')
+    }
+
+    function fieldBtnApproval() {
+        var html = ''
+        html += '<button type="button" class="btn btn-success" onclick="approvalForm()">Selesaikan Persetujuan</button>'
+        $('#fieldBtnApproval').html(html)
     }
 
     function formatCard(status) {
@@ -846,14 +867,14 @@
     function formAccReject() {
         var html_body = ""
         html_body += '<div class="col-12 col-md-6 mb-2">'
-        html_body += '<div class="card shadow-none btn-approval" id="btn_reject" data-status="reject">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_reject" data-status="0">'
         html_body += '<div class="card-body text-center">'
         html_body += '<span><i class="fa fa-times text-danger" id="icon_reject"></i> Reject</span>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-12 col-md-6">'
-        html_body += '<div class="card shadow-none btn-approval" id="btn_accept" data-status="accept">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_accept" data-status="1">'
         html_body += '<div class="card-body text-center">'
         html_body += '<span><i class="fa fa-check text-success" id="icon_accept"></i> Accept</span>'
         html_body += '</div>'
@@ -875,12 +896,12 @@
             $('#btnApprove').attr('disabled', true)
         }
     })
-    var approval_status = ""
+    var approval_status = 0
     $(document).on('click', '.btn-approval', function(e) {
         $('#btnApprove').removeAttr('disabled', true)
         var status = $(this).data('status')
         approval_status = status
-        if (status == 'accept') {
+        if (status == 1) {
             $('#btn_accept').addClass('text-white bg-success')
             $('#btn_reject').removeClass('text-white bg-danger')
             $('#icon_accept').addClass('text-white').removeClass('text-success')
@@ -894,4 +915,77 @@
             $('#textareaReject').removeClass('d-none')
         }
     })
+
+    function kirimApproval() {
+        Swal.fire({
+            text: 'Anda akan melakukan approval, apakah anda ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var data = {
+                    employeeId: user_id,
+                    referenceTable: 'material_request',
+                    referenceId: id_material,
+                    isApprove: approval_status,
+                    note: $('#textReject').val(),
+                    index: 1
+                }
+                var button = '#btnApprove'
+                var url = '<?php echo api_produksi('setApproval'); ?>'
+                sendData(data, type, url, button)
+            }
+        })
+    }
+
+    function sendData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+                    $('#modal').modal('hide')
+                    $('#modal2').modal('hide')
+                    getData()
+                });
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
+    }
 </script>

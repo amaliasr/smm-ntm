@@ -1455,7 +1455,7 @@
                     if (stok_by_id_berjalan[values.material_id] == undefined) {
                         stok_by_id_berjalan[values.material_id] = stok_by_id[values.material_id]
                     }
-                    html_body += '<div class="card shadow-none mb-2">'
+                    html_body += '<div class="card shadow-none mb-2" id="cardItem' + key + keys + '">'
                     html_body += '<div class="card-body p-2">'
                     html_body += '<div class="row">'
                     html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><br>' + values['material_name'] + '</div>'
@@ -1469,8 +1469,8 @@
                     html_body += '</div>'
                     html_body += '<div class="col">' + number_format(stok_by_id_berjalan[values.material_id]) + '</div>'
                     html_body += '<div class="col">' + values['unit'] + '</div>'
-                    html_body += '<div class="col-1 text-center align-self-center p-3">'
-                    html_body += '<i class="fa fa-check fa-2x text-light"></i>'
+                    html_body += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
+                    html_body += '<i class="fa fa-check fa-2x text-light" id="checkCardItem' + key + keys + '"></i>'
                     html_body += '</div>'
                     html_body += '</div>'
                     html_body += '</div>'
@@ -1491,6 +1491,21 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval()">Selesaikan dan Kirim ke Foreman</button>'
         $('#modalFooter').html(html_footer);
+    }
+
+    function chooseCardItem(id) {
+        var data = $('#cardItem' + id).hasClass('active')
+        if (data == true) {
+            // remove
+            $('#cardItem' + id).removeClass('active bg-light')
+            $('#checkCardItem' + id).addClass('text-light')
+            $('#checkCardItem' + id).removeClass('text-success')
+        } else {
+            // insert
+            $('#cardItem' + id).addClass('active bg-light')
+            $('#checkCardItem' + id).removeClass('text-light')
+            $('#checkCardItem' + id).addClass('text-success')
+        }
     }
 
     $(document).on('keyup', '.inputBaru', function(e) {
