@@ -663,7 +663,21 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal2" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document" id="modalDialog2">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader2">
 
+            </div>
+            <div class="modal-body" id="modalBody2">
+
+            </div>
+            <div class="modal-footer" id="modalFooter2">
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
@@ -848,6 +862,7 @@
                             'machine_id': values2['machine']['id'],
                             'machine_code': values2['machine']['code'],
                             'material_id': values3['material']['id'],
+                            'material_request_item_id': values3['material']['material_request_item_id'],
                             'material_name': values3['material']['name'],
                             'material_code': values3['material']['code'],
                             'unit_id': values3['unit']['id'],
@@ -895,7 +910,7 @@
         html += '<div class="float-end" id="listBtnDetail">'
         html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
         html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle me-1" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
-        if (data_materialrequest.is_approve == 1) {
+        if (data_materialrequest.is_approve == 1 && data_materialrequest.is_process == null) {
             html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
         }
         html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">'
@@ -1457,7 +1472,7 @@
                     if (stok_by_id_berjalan[values.material_id] == undefined) {
                         stok_by_id_berjalan[values.material_id] = stok_by_id[values.material_id]
                     }
-                    html_body += '<div class="card shadow-none mb-2" id="cardItem' + key + keys + '">'
+                    html_body += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '">'
                     html_body += '<div class="card-body p-2">'
                     html_body += '<div class="row">'
                     html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><br>' + values['material_name'] + '</div>'
@@ -1491,22 +1506,156 @@
 
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval()">Selesaikan dan Kirim ke Foreman</button>'
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ')">Selesaikan dan Kirim ke Foreman</button>'
         $('#modalFooter').html(html_footer);
     }
 
+    function kirimApproval(id) {
+        var materailId = $('.cardItem').map(function() {
+            return $(this).data('id');
+        }).get();
+        var materailQty = $('.cardItem').map(function() {
+            return $(this).data('qty');
+        }).get();
+        var materialQtyNewValue = $('.inputBaru').map(function() {
+            return $(this).val();
+        }).get();
+        var detail = []
+        for (let i = 0; i < materailId.length; i++) {
+            if (materialQtyNewValue[i] != '') {
+                var qty = materialQtyNewValue[i]
+            } else {
+                var qty = materailQty[i]
+            }
+            detail.push({
+                material_request_item_id: materailId[i],
+                qty_approve: qty,
+            })
+        }
+        var type = 'POST'
+        var data = {
+            material_request_id: id,
+            is_proses: 1,
+            employee_id: user_id,
+            data: detail,
+        }
+        var button = '#btnApprove'
+        var url = '<?php echo api_produksi('setMaterialRequestProcess'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Disimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        $(button).prop("disabled", false);
+                        getData()
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        })
+    }
+
+    function shareWhatsapp(data, id_plannning, tanggal) {
+        $.ajax({
+            url: "<?= base_url('api/sendPlanForeman') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: '081944946015',
+                link: '<?= base_url() ?>production/detailPlanning/smd/' + id_plannning,
+                nama: data.full_name,
+                tanggal: tanggal,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                $('#modal2').modal('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {});
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
+    }
+
     function chooseCardItem(id) {
-        var data = $('#cardItem' + id).hasClass('active')
+        var data = $('#cardItem' + id).hasClass('activeItem')
         if (data == true) {
             // remove
-            $('#cardItem' + id).removeClass('active bg-light')
+            $('#cardItem' + id).removeClass('activeItem bg-light')
             $('#checkCardItem' + id).addClass('text-light')
             $('#checkCardItem' + id).removeClass('text-success')
         } else {
             // insert
-            $('#cardItem' + id).addClass('active bg-light')
+            $('#cardItem' + id).addClass('activeItem bg-light')
             $('#checkCardItem' + id).removeClass('text-light')
             $('#checkCardItem' + id).addClass('text-success')
+        }
+        countItemCheck()
+    }
+
+    function countItemCheck() {
+        var jumlahCard = $('.cardItem').length
+        var jumlahCardSelected = $('.activeItem').length
+        if (jumlahCard == jumlahCardSelected) {
+            $('#btnApprove').removeAttr('disabled', true)
+        } else {
+            $('#btnApprove').attr('disabled', true)
         }
     }
 
