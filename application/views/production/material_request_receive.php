@@ -736,7 +736,7 @@
                 var type = 'POST'
                 var data = {
                     material_request_id: '<?= $id ?>',
-                    is_proses: 1,
+                    is_receive: 1,
                     employee_id: user_id,
                     material_request_item_id: materailId,
                 }

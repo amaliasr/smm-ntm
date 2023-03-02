@@ -558,6 +558,9 @@
             if (values['is_approve'] != 1) {
                 html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
             }
+            if (values['is_processed'] == 1 && values['is_receive'] == null) {
+                html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
+            }
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -596,6 +599,11 @@
 
     function linkToDetail(id) {
         var url = '<?= base_url() ?>production/approvalMaterialRequest/' + id
+        window.open(url, '_blank')
+    }
+
+    function linkToReceive(id) {
+        var url = '<?= base_url() ?>production/receiveMaterialRequest/' + id
         window.open(url, '_blank')
     }
 </script>
