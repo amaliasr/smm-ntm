@@ -836,6 +836,11 @@
         })
         $('#listMaterialRequest').html(html)
         dataStats()
+        if (id_material != '') {
+            // console.log(data_request_manage)
+            var index = data_request_manage.materialRequest.findIndex(x => x.id == id_material);
+            detailMaterialRequest(index)
+        }
     }
 
     var data_isi_material = []
@@ -893,6 +898,9 @@
         // btnMaterialRequest()
         contentMaterialRequest()
         infoMaterialRequest()
+        if (id_material != '' && data_materialrequest.id == id_material) {
+            prosesLogistik()
+        }
     }
 
     function headerMaterialRequest() {
