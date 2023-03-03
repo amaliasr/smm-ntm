@@ -743,7 +743,7 @@
                 id: user_id
             },
             error: function(xhr) {
-
+                $('#listMaterialRequest').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
                 $('#listMaterialRequest').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
@@ -765,7 +765,7 @@
                 employeeId: user_id,
             },
             error: function(xhr) {
-
+                $('#listMaterialRequest').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
                 $('#listMaterialRequest').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
@@ -786,7 +786,7 @@
             method: "GET",
             dataType: 'JSON',
             error: function(xhr) {
-
+                $('#listMaterialRequest').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
                 $('#listMaterialRequest').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_zadfo6lc.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
@@ -839,7 +839,15 @@
         if (id_material != '') {
             // console.log(data_request_manage)
             var index = data_request_manage.materialRequest.findIndex(x => x.id == id_material);
-            detailMaterialRequest(index)
+            if (index != -1) {
+                detailMaterialRequest(index)
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tidak Ditemukan',
+                    text: 'ID yang diberikan tidak ada pada daftar Material Request yang ada. Silahkan cek ulang'
+                });
+            }
         }
     }
 
@@ -898,7 +906,7 @@
         // btnMaterialRequest()
         contentMaterialRequest()
         infoMaterialRequest()
-        if (id_material != '' && data_materialrequest.id == id_material) {
+        if (id_material != '' && data_materialrequest.id == id_material && data_materialrequest.is_process == null) {
             prosesLogistik()
         }
     }
@@ -1514,11 +1522,11 @@
 
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ')">Selesaikan dan Kirim ke Foreman</button>'
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')">Selesaikan dan Kirim ke Foreman</button>'
         $('#modalFooter').html(html_footer);
     }
 
-    function kirimApproval(id) {
+    function kirimApproval(id, code) {
         var materailId = $('.cardItem').map(function() {
             return $(this).data('id');
         }).get();
@@ -1540,20 +1548,32 @@
                 qty_approve: qty,
             })
         }
-        var type = 'POST'
-        var data = {
-            material_request_id: id,
-            is_proses: 1,
-            employee_id: user_id,
-            data: detail,
-        }
-        var button = '#btnApprove'
-        var url = '<?php echo api_produksi('setMaterialRequestProcess'); ?>'
-        kelolaData(data, type, url, button)
+        Swal.fire({
+            text: 'Material akan diberikan kepada Foreman, apakah anda ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var data = {
+                    material_request_id: id,
+                    is_proses: 1,
+                    employee_id: user_id,
+                    data: detail,
+                }
+                var button = '#btnApprove'
+                var url = '<?php echo api_produksi('setMaterialRequestProcess'); ?>'
+                kelolaData(data, type, url, button, id, code)
+            }
+        })
+
     }
 
 
-    function kelolaData(data, type, url, button) {
+    function kelolaData(data, type, url, button, id, code) {
         $.ajax({
             url: url,
             type: type,
@@ -1577,7 +1597,16 @@
                         icon: 'success',
                     }).then((responses) => {
                         $(button).prop("disabled", false);
-                        getData()
+                        $('#modal').modal('hide')
+                        var data_notif = response.data.sendNotif.penerima
+                        var no_telp = []
+                        var nama = []
+                        $.each(data_notif, function(key, value) {
+                            no_telp.push('081944946015')
+                            // no_telp.push(value.phone)
+                            nama.push(value.full_name)
+                        })
+                        shareWhatsapp(no_telp, nama, id, code)
                     });
                 } else {
                     Swal.fire({
@@ -1591,16 +1620,16 @@
         })
     }
 
-    function shareWhatsapp(data, id_plannning, tanggal) {
+    function shareWhatsapp(no_telp, nama, id, code) {
         $.ajax({
-            url: "<?= base_url('api/sendPlanForeman') ?>",
+            url: "<?= base_url('api/sendPenerimaanToForeman') ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                no_telp: '081944946015',
-                link: '<?= base_url() ?>production/detailPlanning/smd/' + id_plannning,
-                nama: data.full_name,
-                tanggal: tanggal,
+                no_telp: no_telp,
+                link: '<?= base_url() ?>production/receiveMaterialRequest/' + id,
+                nama: nama,
+                kode: code,
             },
             error: function(xhr) {
                 Swal.fire({
@@ -1611,15 +1640,19 @@
                 $('#modal2').modal('hide')
             },
             beforeSend: function() {
-                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Pemberitahuan kepada yang Bersangkutan'), 500)
             },
             success: function(response) {
-                $('#modal2').modal('hide')
                 Swal.fire({
                     title: 'Success!',
                     text: 'Berhasil Mengirimkan Approval',
                     icon: 'success',
-                }).then((responses) => {});
+                }).then((responses) => {
+                    $('#modal2').modal('hide')
+                    $('#graphStats').html('')
+                    $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
+                    getData()
+                });
             }
         })
     }

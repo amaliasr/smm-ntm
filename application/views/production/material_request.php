@@ -555,6 +555,7 @@
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
+            html += '<a class="dropdown-item" onclick="linkToProcessed(' + values.id + ')"><i class="fa fa-tasks me-2"></i> Linked into Management</a>'
             if (values['is_approve'] != 1) {
                 html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
             }
@@ -604,6 +605,11 @@
 
     function linkToReceive(id) {
         var url = '<?= base_url() ?>production/receiveMaterialRequest/' + id
+        window.open(url, '_blank')
+    }
+
+    function linkToProcessed(id) {
+        var url = '<?= base_url() ?>production/managementMaterialRequest/' + id
         window.open(url, '_blank')
     }
 

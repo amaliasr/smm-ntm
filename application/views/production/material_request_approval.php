@@ -959,21 +959,15 @@
                 preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
             },
             success: function(response) {
+                $('#modal').modal('hide')
                 var data_notif = response.data.sendNotif.logistik
                 var no_telp = []
                 var nama = []
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Berhasil Mengirimkan Approval',
-                    icon: 'success',
-                }).then((responses) => {
-                    $('#modal').modal('hide')
-                    $.each(data_notif, function(key, value) {
-                        no_telp.push('081944946015')
-                        nama.push(value.full_name)
-                    })
-                    shareWhatsapp(no_telp, nama, response.data.materialRequest[0].code, response.data.materialRequest[0].date, response.data.materialRequest[0].production_type_name, response.data.materialRequest[0].id)
-                });
+                $.each(data_notif, function(key, value) {
+                    no_telp.push('081944946015')
+                    nama.push(value.full_name)
+                })
+                shareWhatsapp(no_telp, nama, response.data.materialRequest[0].code, response.data.materialRequest[0].date, response.data.materialRequest[0].production_type_name, response.data.materialRequest[0].id)
             }
         })
     }

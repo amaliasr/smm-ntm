@@ -183,4 +183,33 @@ Silahkan klik link dibawah ini untuk melakukan proses Material *" . $type_name .
             echo $result;
         }
     }
+    public function sendPenerimaanToForeman()
+    {
+        $no_telp = $this->input->get('no_telp');
+        $link = $this->input->get('link');
+        $nama = $this->input->get('nama');
+        $kode = $this->input->get('kode');
+        for ($i = 0; $i < count($no_telp); $i++) {
+            $message = "*📦 MATERIAL REQUEST ANDA TELAH DIPROSES LOGISTIK 📦*
+
+Teruntuk Bpk/Ibu *" . $nama[$i] . "* , Material Request *" . $kode . "* telah diproses oleh Logistik.
+Silahkan klik link dibawah ini untuk melakukan penerimaan Material
+
+
+" . $link . "";
+            $url = 'https://app.whacenter.com/api/send';
+            $ch = curl_init($url);
+            $data = array(
+                'device_id' => '0e49bcaebc1c3b47199003bc2cf07441',
+                'number' => $no_telp[$i],
+                'message' => $message,
+            );
+            $payload = $data;
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($ch);
+            curl_close($ch);
+            echo $result;
+        }
+    }
 }
