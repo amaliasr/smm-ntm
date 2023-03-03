@@ -124,4 +124,63 @@ Silahkan klik link dibawah ini untuk melihat detail Planning Produksi mingguan
         curl_close($ch);
         echo $result;
     }
+    public function sendApprovalToSMD()
+    {
+        $no_telp = $this->input->get('no_telp');
+        $link = $this->input->get('link');
+        $nama = $this->input->get('nama');
+        $nama_pembuat = $this->input->get('nama_pembuat');
+        $tanggal = $this->input->get('tanggal');
+        $kode = $this->input->get('kode');
+        $message = "*📄 Approval MATERIAL REQUEST 📄*
+
+Teruntuk Bpk/Ibu *" . $nama . "* , anda mendapatkan pesan untuk persetujuan Material Request dari " . $nama_pembuat . ", kode Material *" . $kode . "*
+Silahkan klik link dibawah ini untuk melakukan persetujuan
+
+
+" . $link . "";
+        $url = 'https://app.whacenter.com/api/send';
+        $ch = curl_init($url);
+        $data = array(
+            'device_id' => '0e49bcaebc1c3b47199003bc2cf07441',
+            'number' => $no_telp,
+            'message' => $message,
+        );
+        $payload = $data;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        echo $result;
+    }
+    public function sendMaterialToLogistik()
+    {
+        $no_telp = $this->input->get('no_telp');
+        $link = $this->input->get('link');
+        $nama = $this->input->get('nama');
+        $kode = $this->input->get('kode');
+        $type_name = $this->input->get('type_name');
+        for ($i = 0; $i < count($no_telp); $i++) {
+            $message = "*📄 MATERIAL REQUEST 📄*
+
+Teruntuk Bpk/Ibu *" . $nama[$i] . "* , anda mendapatkan pesan untuk proses Material Request *" . $kode . "*
+Silahkan klik link dibawah ini untuk melakukan proses Material *" . $type_name . "*
+
+
+" . $link . "";
+            $url = 'https://app.whacenter.com/api/send';
+            $ch = curl_init($url);
+            $data = array(
+                'device_id' => '0e49bcaebc1c3b47199003bc2cf07441',
+                'number' => $no_telp[$i],
+                'message' => $message,
+            );
+            $payload = $data;
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($ch);
+            curl_close($ch);
+            echo $result;
+        }
+    }
 }

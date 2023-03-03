@@ -959,12 +959,55 @@
                 preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
             },
             success: function(response) {
+                var data_notif = response.data.sendNotif.logistik
+                var no_telp = []
+                var nama = []
                 Swal.fire({
                     title: 'Success!',
                     text: 'Berhasil Mengirimkan Approval',
                     icon: 'success',
                 }).then((responses) => {
                     $('#modal').modal('hide')
+                    $.each(data_notif, function(key, value) {
+                        no_telp.push('081944946015')
+                        nama.push(value.full_name)
+                    })
+                    shareWhatsapp(no_telp, nama, response.data.materialRequest[0].code, response.data.materialRequest[0].date, response.data.materialRequest[0].production_type_name, response.data.materialRequest[0].id)
+                });
+            }
+        })
+    }
+
+    function shareWhatsapp(no_telp, nama, code, date, type_name, id) {
+        $.ajax({
+            url: "<?= base_url('api/sendMaterialToLogistik') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                link: '<?= base_url() ?>production/managementMaterialRequest/' + id,
+                nama: nama,
+                kode: code,
+                tanggal: date,
+                type_name: type_name
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
                     $('#modal2').modal('hide')
                     getData()
                 });

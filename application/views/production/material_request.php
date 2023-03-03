@@ -556,7 +556,7 @@
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
             if (values['is_approve'] != 1) {
-                html += '<a class="dropdown-item"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
+                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
             }
             if (values['is_processed'] == 1 && values['is_receive'] == null) {
                 html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
@@ -605,5 +605,75 @@
     function linkToReceive(id) {
         var url = '<?= base_url() ?>production/receiveMaterialRequest/' + id
         window.open(url, '_blank')
+    }
+
+    function beforeShareWhatsapp(id) {
+        let obj = data_material.find((value, key) => {
+            if (value.id === id) return true
+        });
+        Swal.fire({
+            text: 'Membagikan Approval ' + obj.code + ' akan langsung masuk ke Whatsapp SPV SMD, apakah anda ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsapp(obj)
+            }
+        })
+    }
+
+    function shareWhatsapp(data) {
+        $.ajax({
+            url: "<?= base_url('api/sendApprovalToSMD') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: '081944946015',
+                link: '<?= base_url() ?>production/approvalMaterialRequest/' + data.id,
+                nama: 'Febrianti',
+                nama_pembuat: data.created_employee.name,
+                kode: data.code,
+                tanggal: data.date,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                $('#modal2').modal('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {});
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 </script>
