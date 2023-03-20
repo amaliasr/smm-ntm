@@ -810,7 +810,7 @@
                 jum = value['material'][0].length
             }
             html += '<div class="col-12" id="card_search' + key + '">'
-            html += '<div class="card shadow-none card-hoper mb-2" onclick="detailMaterialRequest(' + key + ')">'
+            html += '<div class="card shadow-none card-hoper mb-2 cardMaterial" onclick="detailMaterialRequest(' + key + ',' + value.id + ')" id="cardMaterial' + value.id + '">'
             html += '<div class="card-body p-0">'
             html += '<div class="row p-0 m-0">'
             html += '<div class="col-1 p-1 rounded-start bg-' + value['production_type']['name'].toLowerCase() + ' text-center">'
@@ -840,7 +840,7 @@
             // console.log(data_request_manage)
             var index = data_request_manage.materialRequest.findIndex(x => x.id == id_material);
             if (index != -1) {
-                detailMaterialRequest(index)
+                detailMaterialRequest(index, id_material)
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -856,7 +856,7 @@
     var data_isi_machine_group = []
     var data_materialrequest = ''
 
-    function detailMaterialRequest(id) {
+    function detailMaterialRequest(id, id_materials = '') {
         reset()
         // pembentukan variable
         data_materialrequest = data_request_manage['materialRequest'][id]
@@ -890,6 +890,14 @@
         data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty'])
         // console.log(data_isi_machine_group)
         formDetailMaterialRequest()
+        if (id_materials != '') {
+            clickedMaterial(id_materials)
+        }
+    }
+
+    function clickedMaterial(id) {
+        $('.cardMaterial').removeClass('bg-light')
+        $('#cardMaterial' + id).addClass('bg-light')
     }
 
     function reset() {

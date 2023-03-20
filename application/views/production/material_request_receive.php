@@ -504,6 +504,7 @@
 
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var full_name = '<?= $this->session->userdata('full_name') ?>'
     var id_material = '<?= $id ?>'
     var data_user = ""
     var data_material = ""
@@ -764,24 +765,73 @@
                 $(button).prop("disabled", true);
             },
             success: function(response) {
-                if (response.success == true) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Data Berhasil Disimpan',
-                        icon: 'success',
-                    }).then((responses) => {
-                        $(button).prop("disabled", false);
-                        getData()
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Gagal Tersimpan'
-                    });
-                    $(button).prop("disabled", false);
-                }
+                console.log(response)
+                var data_notif = response.data.sendNotif.logistik
+                var data_notif2 = response.data.sendNotif.spvSmd
+                var no_telp = []
+                var nama = []
+                $.each(data_notif, function(key, value) {
+                    no_telp.push('081944946015')
+                    nama.push(value.full_name)
+                })
+                $.each(data_notif2, function(key, value) {
+                    no_telp.push('081944946015')
+                    nama.push(value.full_name)
+                })
+                shareWhatsapp(no_telp, nama, data.material_request_id)
             }
         })
+    }
+
+    function shareWhatsapp(no_telp, nama, code) {
+        $.ajax({
+            url: "<?= base_url('api/sendNotifAfterReceiveMaterial') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                nama: nama,
+                kode: code,
+                owner: full_name
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+                    $('#modal2').modal('hide')
+                    getData()
+                });
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 </script>

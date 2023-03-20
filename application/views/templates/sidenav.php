@@ -189,6 +189,7 @@
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                         <?php } ?>
+                        <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
                     </nav>
                 </div>
                 <!-- <a class="nav-link" href="<?= base_url(); ?>report">

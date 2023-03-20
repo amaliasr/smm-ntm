@@ -55,6 +55,19 @@ function formatTime(orginaldate) {
     var date = jam + ":" + menit + ":" + detik;
     return date;
 }
+function formatJamMenit(orginaldate) {
+    var date = new Date(orginaldate);
+    var jam = date.getHours();
+    var menit = date.getMinutes();
+    if (menit < 10) {
+        menit = "0" + menit;
+    }
+    if (jam < 10) {
+        jam = "0" + jam;
+    }
+    var date = jam + "." + menit;
+    return date;
+}
 function formatDateIndonesia(orginaldate) {
     var date = new Date(orginaldate);
     var tahun = date.getFullYear();

@@ -212,4 +212,9 @@ class Report extends CI_Controller
 
         $writer->save('php://output');
     }
+    public function reportMachine()
+    {
+        $data['title'] = 'Report Machine';
+        $this->template->views('report/reportMachine', $data);
+    }
 }

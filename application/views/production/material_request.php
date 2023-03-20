@@ -559,7 +559,7 @@
             if (values['is_approve'] != 1) {
                 html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
             }
-            if (values['is_processed'] == 1 && values['is_receive'] == null) {
+            if (values['is_process'] == 1 && values['is_receive'] == null) {
                 html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
             }
             html += '</div>'
