@@ -553,7 +553,7 @@
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
             html += '<a class="dropdown-item"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
+            html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
             html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
             html += '</div>'
             html += '</div>'
@@ -647,6 +647,11 @@
 
     function linkToDetail(id) {
         var url = '<?= base_url() ?>production/detailPlanning/smd/' + id
+        window.open(url, '_blank')
+    }
+
+    function linkToDraftForeman(id) {
+        var url = '<?= base_url() ?>production/draftMaterial/' + id
         window.open(url, '_blank')
     }
 </script>

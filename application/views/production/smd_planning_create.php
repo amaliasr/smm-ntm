@@ -364,9 +364,14 @@
                                                             <div class="card shadow-none mb-4 small position-relative">
                                                                 <h3><span class="position-absolute top-0 start-10 translate-middle badge  bg-primary">Daily Planning</span></h3>
                                                                 <div class="card-body">
-                                                                    <div>
-                                                                        <h5 class="mt-3" id="conveying-meaning-to-assistive-technologies">Create Daily of Plan Production</h5>
-                                                                        <p class="mb-3" style="font-size: 11px;">Setelah mengisi Date Range pada Main Planning, maka akan otomatis membuat tabel Planning per hari nya. Target Produksi dapat anda isi jika terdapat target untuk memudahkan pengisian target produksi ditiap harinya. Anda dapat melihat Target nya pada panel sebelah kanan</p>
+                                                                    <div class="row">
+                                                                        <div class="col-12 col-md-9 mb-2">
+                                                                            <h5 class="mt-3" id="conveying-meaning-to-assistive-technologies">Create Daily of Plan Production</h5>
+                                                                            <p class="mb-3" style="font-size: 11px;">Setelah mengisi Date Range pada Main Planning, maka akan otomatis membuat tabel Planning per hari nya. Target Produksi dapat anda isi jika terdapat target untuk memudahkan pengisian target produksi ditiap harinya. Anda dapat melihat Target nya pada panel sebelah kanan</p>
+                                                                        </div>
+                                                                        <div class="col-12 col-md-3 mb-2 text-center align-self-center">
+                                                                            <button type="button" class="btn btn-sm btn-primary h-100" onclick="automaticPlan()"><i class="fa fa-refresh me-2"></i>Automatic Plan</button>
+                                                                        </div>
                                                                     </div>
                                                                     <div id="dataDailyPlanning">
                                                                     </div>
@@ -653,6 +658,7 @@
         var html = ""
         var date = getDateFromRange(dateStart, dateEnd)
         var a = 0
+        var c = 0
         date.forEach(function(dates) {
             html += '<div class="card shadow-sm bd-callout-' + a + ' mb-5 small">'
             html += '<div class="card-body">'
@@ -674,7 +680,7 @@
             html += '<div class="row">'
             $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
                 html += '<div class="col-auto">'
-                html += '<div class="card mb-1 shadow-none shiftCard shiftCard' + a + '" data-date="' + dates + '" data-id_date="' + a + '" data-id="' + value.id + '" style="cursor:pointer;" id="shiftCard' + a + key + '" onclick="chooseShift(' + a + ',' + key + ')">'
+                html += '<div class="card mb-1 shadow-none shiftCard shiftCard' + c + '" data-date="' + dates + '" data-id_date="' + c + '" data-id="' + value.id + '" style="cursor:pointer;" id="shiftCard' + c + key + '" onclick="chooseShift(' + c + ',' + key + ')">'
                 html += '<div class="card-body p-2">'
                 html += '<div class="row">'
                 html += '<div class="col-auto align-self-center">'
@@ -760,6 +766,7 @@
             html += '</div>'
             html += '</div>'
             a++
+            c++
             if (a == 7) {
                 a = 0
             }
@@ -774,7 +781,7 @@
         date.forEach(function(dates) {
             $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
                 if (value.is_default == 1) {
-                    chooseShift(b, key)
+                    colorShift(b, key)
                 }
             })
             b++
@@ -788,6 +795,11 @@
     }
 
     function chooseShift(a, id) {
+        colorShift(a, id)
+        simpanJumlahPlanning()
+    }
+
+    function colorShift(a, id) {
         var data = $('#shiftCard' + a + id).hasClass('activeItem')
         if (data == true) {
             // remove
@@ -796,76 +808,19 @@
             // insert
             $('#shiftCard' + a + id).addClass('activeItem bg-secondary text-white')
         }
-        simpanJumlahPlanning()
     }
+
     $(document).on('keyup', '.jumlahPlanning', function(e) {
-        simpanJumlahPlanning()
+        simpanJumlahPlanning('manual')
+
     })
 
-    function simpanJumlahPlanning() {
-        var obj = []
-        var objShift = []
-        var jumlah = $('.jumlahPlanning').map(function() {
-            return $(this).val();
-        }).get();
-        var produk = $('.jumlahPlanning').map(function() {
-            return $(this).data('produk');
-        }).get();
-        var mesin = $('.jumlahPlanning').map(function() {
-            return $(this).data('mesin');
-        }).get();
-        var tanggal = $('.jumlahPlanning').map(function() {
-            return $(this).data('tanggal');
-        }).get();
-        var unit = $('.jumlahPlanning').map(function() {
-            return $(this).data('unit');
-        }).get();
-        // buat shift
-        var shift_date = $('.shiftCard').map(function() {
-            return $(this).data('date');
-        }).get();
-        var shift_id = $('.shiftCard').map(function() {
-            return $(this).data('id');
-        }).get();
-        var shift_date_id = $('.shiftCard').map(function() {
-            return $(this).data('id_date');
-        }).get();
-        var hasClass = $('.shiftCard').map(function() {
-            return $(this).hasClass('activeItem');
-        }).get();
-        for (let i = 0; i < jumlah.length; i++) {
-            if (jumlah[i] != "") {
-                obj.push({
-                    'qty': jumlah[i],
-                    'item_id_product': produk[i],
-                    'machine_id': mesin[i],
-                    'date': tanggal[i],
-                    'unit_id': unit[i],
-                })
-            }
-        }
-        for (let i = 0; i < shift_date.length; i++) {
-            if (hasClass[i] == true) {
-                objShift.push({
-                    'date': shift_date[i],
-                    'id': 1,
-                    // 'id': shift_id[i],
-                    'date_id': shift_date_id[i],
-                    'click': hasClass[i],
-                    'num': 1,
-                })
-            }
-        }
-        // console.log(objShift)
-        if (jenis_produksi == 'skm') {
-            data_skm['productionPlanDetail'] = obj
-            data_skm['shiftDetail'] = objShift
-            getPaneTarget(data_skm)
-        } else {
-            data_skt['productionPlanDetail'] = obj
-            data_skt['shiftDetail'] = objShift
-            getPaneTarget(data_skt)
-        }
+    function automaticPlan() {
+        simpanProdukTarget()
+    }
+
+    function simpanJumlahPlanning(auto = '') {
+        simpanProdukTarget(auto)
     }
 
     var noTarget = 0;
@@ -1125,9 +1080,16 @@
         $('.fieldDPlan' + id).removeClass('bg-light')
     }
 
-    function simpanProdukTarget() {
+    function simpanProdukTarget(auto = '', arranged = '') {
+        if (auto == '') {
+            $('.jumlahPlanning').val('')
+        }
         $('.allfieldDPlan').addClass('bg-light')
         var obj = []
+        var objPlan = []
+        var objShift = []
+
+        // TARGET
         var produk = $('.produkTarget').map(function() {
             return $(this).val();
         }).get();
@@ -1150,6 +1112,59 @@
             return $(this).val();
         }).get();
 
+        // PLAN
+        var jumlahPlan = $('.jumlahPlanning').map(function() {
+            return $(this).val();
+        }).get();
+        var produkPlan = $('.jumlahPlanning').map(function() {
+            return $(this).data('produk');
+        }).get();
+        var mesin = $('.jumlahPlanning').map(function() {
+            return $(this).data('mesin');
+        }).get();
+        var tanggal = $('.jumlahPlanning').map(function() {
+            return $(this).data('tanggal');
+        }).get();
+        var unit = $('.jumlahPlanning').map(function() {
+            return $(this).data('unit');
+        }).get();
+
+        // SHIFT
+        var shift_date = $('.shiftCard').map(function() {
+            return $(this).data('date');
+        }).get();
+        var shift_id = $('.shiftCard').map(function() {
+            return $(this).data('id');
+        }).get();
+        var shift_date_id = $('.shiftCard').map(function() {
+            return $(this).data('id_date');
+        }).get();
+        var hasClass = $('.shiftCard').map(function() {
+            return $(this).hasClass('activeItem');
+        }).get();
+        for (let i = 0; i < jumlahPlan.length; i++) {
+            if (jumlahPlan[i] != "") {
+                objPlan.push({
+                    'qty': jumlahPlan[i],
+                    'item_id_product': produkPlan[i],
+                    'machine_id': mesin[i],
+                    'date': tanggal[i],
+                    'unit_id': unit[i],
+                })
+            }
+        }
+        for (let i = 0; i < shift_date.length; i++) {
+            if (hasClass[i] == true) {
+                objShift.push({
+                    'date': shift_date[i],
+                    'id': 1,
+                    // 'id': shift_id[i],
+                    'date_id': shift_date_id[i],
+                    'click': hasClass[i],
+                    'num': 1,
+                })
+            }
+        }
         for (let i = 0; i < produk.length; i++) {
             changeColorTarget(produk[i])
             if (jumlah[i] != "") {
@@ -1169,15 +1184,19 @@
         if (jenis_produksi == 'skm') {
             data_skm['productionPlanGoal'] = obj
             data_skm['customDate'] = customDate
-            getPaneTarget(data_skm)
+            data_skm['productionPlanDetail'] = objPlan
+            data_skm['shiftDetail'] = objShift
+            getPaneTarget(data_skm, auto, arranged)
         } else {
             data_skt['productionPlanGoal'] = obj
             data_skt['customDate'] = customDate
-            getPaneTarget(data_skt)
+            data_skt['productionPlanDetail'] = objPlan
+            data_skt['shiftDetail'] = objShift
+            getPaneTarget(data_skt, auto, arranged)
         }
     }
 
-    function getPaneTarget(data) {
+    function getPaneTarget(data, auto, arranged) {
         var html = ""
         if (data['productionPlanGoal'] != undefined) {
             if (data['productionPlanGoal'].length > 0) {
@@ -1214,45 +1233,102 @@
         }
         $('#detailTargetPane').html(html)
         if (jenis_produksi == 'skm') {
-            kapasitasMesin(data)
+            if (arranged == 'true') {
+                pembagianPerMesin(data)
+            } else {
+                kapasitasMesin(data, auto)
+            }
         } else {
             pembagianPerMesin(data)
         }
     }
+
     var dataShiftComplete = []
 
-    function kapasitasMesin(data) {
-        // console.log(data)
+    function update(arr, id, updatedData) {
+        return arr.map((item) =>
+            item.machine_id === machine_id ? {
+                ...item,
+                ...updatedData
+            } : item
+        )
+    }
+
+    function kapasitasMesin(data, auto) {
+        // console.log(data.shiftDetail)
         // dicek dulu apakah shift sudah di klik apa belum
         if (data.shiftDetail != undefined) {
             if (data.shiftDetail.length > 0) {
-                var groupShiftDetail = groupAndSum(data.shiftDetail, ['date', 'date_id'], ['num'])
+                var groupShiftDetail = getDateFromRange(dateStart, dateEnd)
+                // var groupShiftDetail = groupAndSum(data.shiftDetail, ['date', 'date_id'], ['num'])
+                // console.log(groupShiftDetail)
                 // pembentukan variable
                 dataShiftComplete = []
-                $.each(groupShiftDetail, function(key, value) {
-                    var detail = []
+                var a = 0
+                groupShiftDetail.forEach(function(dates) {
+                    // $.each(groupShiftDetail, function(key, value) {
+                    var details = []
                     $.each(data.shiftDetail, function(keys, values) {
-                        if (value.date_id == values.date_id) {
+                        if (a == values.date_id) {
                             var index = data_machine_capability.findIndex(x => x.shift_id == values.id);
-                            detail.push({
+                            // const text = data_machine_capability[index].machine
+                            // data_machine_capability[index].machine.forEach(element => {
+
+                            // });
+                            var dataMachine = []
+                            data_machine_capability[index].machine.forEach(mc => {
+                                var dataDetailMachine = []
+                                mc.data.forEach(mcd => {
+                                    var dataDetailMachineHlp = []
+                                    mcd.machine_link.forEach(mcdLink => {
+                                        dataDetailMachineHlp.push({
+                                            'code': mcdLink.code,
+                                            'machine_id': mcdLink.machine_id,
+                                            'max_volume': mcdLink.max_volume,
+                                            'min_volume': mcdLink.min_volume,
+                                            'name': mcdLink.name,
+                                            'position': mcdLink.position,
+                                            'stick': mcdLink.stick,
+                                            'type_id': mcdLink.type_id,
+                                            'unit_id': mcdLink.unit_id,
+                                        })
+                                    });
+                                    dataDetailMachine.push({
+                                        'stick': mcd.stick,
+                                        'machine_link': dataDetailMachineHlp
+                                    })
+                                });
+                                dataMachine.push({
+                                    'machine_code': mc.machine_code,
+                                    'machine_id': mc.machine_id,
+                                    'machine_name': mc.machine_name,
+                                    'machine_position': mc.machine_position,
+                                    'machine_type_id': mc.machine_type_id,
+                                    'max_volume': mc.max_volume,
+                                    'min_volume': mc.min_volume,
+                                    'data': dataDetailMachine
+                                })
+                            });
+                            details.push({
                                 'id_shift': values.id,
-                                'machine': data_machine_capability[index].machine,
+                                'machine': dataMachine,
                             })
                         }
                     })
                     dataShiftComplete.push({
-                        'date_key': value.date_id,
-                        'date': value.date,
-                        'detail': detail,
+                        'date_key': a,
+                        'date': dates.toString(),
+                        'detail': details,
                     })
+                    a++
                 })
+                pembentukanKapasitasHariMesin(data, auto)
             }
         }
-        pembentukanKapasitasHariMesin(data)
     }
 
 
-    function pembentukanKapasitasHariMesin(data) {
+    function pembentukanKapasitasHariMesin(data, auto) {
         // per produk
         // check shift per hari
         $.each(dataShiftComplete, function(keys, values) {
@@ -1293,16 +1369,18 @@
                 })
             })
         })
-        pembentukanConvertMesin(data)
+        // dataShiftComplete[0].detail[0].machine[0].sisa_mesin = 1;
+        if (auto == 'manual') {
+            pembagianPerMesin(data)
+        } else {
+            pembentukanConvertMesin(data)
+        }
     }
 
-    var sisa_mesin = {}
-    var jumlah_maker = 0
-
     function pembentukanConvertMesin(data) {
-        // console.log(data.productionPlanGoal)
+        // console.log(data)
         // console.log(dataShiftComplete)
-        // console.log(anyMachine)
+        // console.log(customDate)
         // check shift per hari
         // per produk
         // total stick adalah sisa
@@ -1313,78 +1391,169 @@
             sisa_stick = value.qty_stick
             sisa = value.qty
             // per harian
+            var tanggalMulaiStatus = ''
+            var tanggalSelesaiStatus = 'mulai'
+            var tanggalCustomDate = 'mulai'
             $.each(dataShiftComplete, function(keys, values) {
-                // detail shift
-                // perulangan shift
-                $.each(values.detail, function(keys2, values2) {
-                    // pemilihan machine yang ga kosong
-                    var pemakaian_stick = ''
-                    var pemakaian = ''
-                    var sisa_mesin_stick = ''
-                    var sisa_mesin = ''
-                    var hasil = values2.machine.find((values3, keys3) => {
-                        if (values3.sisa_mesin > 0) return true
-                    })
-                    if (sisa_stick != 0) {
-                        console.log(sisa_stick)
-                        var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
-                        pemakaian_stick = 0
-                        pemakaian = 0
-                        sisa_mesin_stick = hasil.sisa_mesin_stick
-                        sisa_mesin = hasil.sisa_mesin
-                        if (sisa_stick > hasil.sisa_mesin_stick) {
-                            // jika banyak sisa stik dari pada sisa mesin
-                            pemakaian_stick = sisa_mesin_stick
-                            pemakaian = sisa_mesin
-                            sisa_stick = sisa_stick - pemakaian_stick
-                            sisa = sisa - pemakaian
-                            sisa_mesin_stick = 0
-                            sisa_mesin = 0
-                        } else {
-                            // jika sisa stik lebih sedikit, sisa lebih banyak
-                            pemakaian_stick = sisa_stick
-                            $.each(hasil.unit_detail, function(keyUnit, valuesUnit) {
-                                pemakaian = Math.ceil(eval(pemakaian_stick + valuesUnit.operator + valuesUnit.value))
-                            })
-                            sisa_mesin_stick = sisa_mesin_stick - pemakaian_stick
-                            sisa_mesin = sisa_mesin - pemakaian
-                            sisa_stick = 0
-                            sisa = 0
+                // CHECK IF ANY CUSTOM DATE
+                var checkCustomDate = customDate[customDate.findIndex(x => x.id_item == value.item_id_product)]
+                if (checkCustomDate == undefined) {
+                    // jika ga custom
+                    let nameVariable = makerMachine(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_stick, sisa)
+                    sisa_stick = nameVariable.sisa_stick
+                    sisa = nameVariable.sisa
+                } else {
+                    // TANGGAL MULAI
+                    if (checkCustomDate.tanggal_mulai != '') {
+                        if (formatDate(checkCustomDate.tanggal_mulai) == formatDate(values.date)) {
+                            // jika tanggal mulai diisi
+                            tanggalMulaiStatus = 'mulai'
                         }
-                        // item mesin tanggal
-                        console.log(keys, keys2, index)
-                        $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian)
-                        this.machine[index].sisa_mesin_stick = sisa_mesin_stick
-                        this.machine[index].sisa_mesin = sisa_mesin
+                    } else {
+                        tanggalMulaiStatus = 'mulai'
                     }
-                })
+
+                    // TANGGAL AKHIR
+                    if (checkCustomDate.tanggal_selesai != '') {
+                        if (formatDate(checkCustomDate.tanggal_selesai) == formatDate(values.date)) {
+                            // jika tanggal selesai diisi
+                            tanggalSelesaiStatus = ''
+                        } else {
+                            tanggalSelesaiStatus = 'mulai'
+                        }
+                    } else {
+                        tanggalSelesaiStatus = 'mulai'
+                    }
+
+                    // CUSTOM TANGGAL
+                    if (checkCustomDate.custom_day.length > 0) {
+                        var ada = 'tidak'
+                        for (let i = 0; i < checkCustomDate.custom_day.length; i++) {
+                            if (formatDate(checkCustomDate.custom_day[i]) == formatDate(values.date)) {
+                                // jika tanggal cocok
+                                ada = 'ada'
+                            }
+                        }
+                        if (ada == 'ada') {
+                            tanggalSelesaiStatus = 'mulai'
+                        } else {
+                            tanggalSelesaiStatus = ''
+                        }
+                    } else {
+                        tanggalCustomDate = 'mulai'
+                    }
+
+                    if (tanggalMulaiStatus == 'mulai' && tanggalSelesaiStatus == 'mulai' && tanggalCustomDate == 'mulai') {
+                        let nameVariable = makerMachine(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_stick, sisa)
+                        sisa_stick = nameVariable.sisa_stick
+                        sisa = nameVariable.sisa
+                    }
+                }
             })
-            // console.log(sisa_stick)
         })
-        insertToMachine(data)
+        // pembagianPerMesin(data)
+        simpanProdukTarget('manual', 'true')
     }
 
-    function insertToMachine(data) {
-        console.log(data.productionPlanGoal)
-        console.log(dataShiftComplete)
-        // console.log(dataShiftComplete)
-        // // per produk
-        // $.each(data.productionPlanGoal, function(key, value) {
-        //     // check shift per hari
-        //     $.each(dataShiftComplete, function(keys, values) {
-        //         // detail shift
-        //         $.each(values.detail, function(keys2, values2) {
-        //             // detail machine in shift MAKER
-        //             $.each(values2.machine, function(keys3, values3) {
+    function makerMachine(data, values, keys, value, key, sisa_stick, sisa) {
+        // detail shift
+        // perulangan shift
+        // console.log(values)
+        values.detail.forEach(values2 => {
+            // cari sisa mesin yang tidak kosong
+            var hasil = values2.machine.find((values3, keys3) => {
+                if (values3.sisa_mesin > 0) return true
+            })
+            var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
+            var checkAvailableChild = hasilChild.filter((v, k) => {
+                if (v.sisa_mesin > 0) return true
+            })
+            if (sisa_stick != 0 && checkAvailableChild.length != 0) {
+                var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
 
-        //             })
-        //         })
-        //     })
-        // })
-        pembagianPerMesin(data)
+                var pemakaian_stick = 0
+                var pemakaian = 0
+                var var_sisa_mesin_stick = hasil.sisa_mesin_stick
+                var var_sisa_mesin = hasil.sisa_mesin
+                if (sisa_stick > hasil.sisa_mesin_stick) {
+                    // jika banyak sisa stik dari pada sisa mesin
+                    pemakaian_stick = var_sisa_mesin_stick
+                    pemakaian = var_sisa_mesin
+                    sisa_stick = sisa_stick - pemakaian_stick
+                    sisa = sisa - pemakaian
+                    var_sisa_mesin_stick = 0
+                    var_sisa_mesin = 0
+                } else {
+                    // jika sisa stik lebih sedikit, sisa lebih banyak
+                    pemakaian_stick = sisa_stick
+                    $.each(hasil.unit_detail, function(keyUnit, valuesUnit) {
+                        pemakaian = Math.ceil(eval(pemakaian_stick + valuesUnit.operator + valuesUnit.value))
+                    })
+                    var_sisa_mesin_stick = var_sisa_mesin_stick - pemakaian_stick
+                    var_sisa_mesin = var_sisa_mesin - pemakaian
+                    sisa_stick = 0
+                    sisa = 0
+                }
+                // item mesin tanggal
+                // console.log(keys, keys2, index)
+                $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian)
+                values2.machine[index].sisa_mesin_stick = var_sisa_mesin_stick
+                values2.machine[index].sisa_mesin = var_sisa_mesin
+                let nameVariable = machineChild(data.productionPlanGoal[key], hasil, pemakaian_stick, formatDate(values.date), values2.machine, hasilChild)
+            }
+        })
+        return {
+            'sisa_stick': sisa_stick,
+            'sisa': sisa
+        };
+    }
+
+    function machineChild(data, hasil, sisa_stick, date, machine, hasilChild) {
+        hasilChild.forEach(e => {
+            if (e.sisa_mesin > 0 || sisa_stick > 0) {
+                var pemakaian_stick = 0
+                var pemakaian = 0
+                var var_sisa_mesin_stick = e.sisa_mesin_stick
+                var var_sisa_mesin = e.sisa_mesin
+                if (sisa_stick > e.sisa_mesin_stick) {
+                    // jika banyak sisa stik dari pada sisa mesin
+                    pemakaian_stick = var_sisa_mesin_stick
+                    pemakaian = var_sisa_mesin
+                    sisa_stick = sisa_stick - pemakaian_stick
+                    sisa = sisa - pemakaian
+                    var_sisa_mesin_stick = 0
+                    var_sisa_mesin = 0
+                } else {
+                    // jika sisa stik lebih sedikit, sisa lebih banyak
+                    pemakaian_stick = sisa_stick
+                    $.each(e.unit_detail, function(keyUnit, valuesUnit) {
+                        pemakaian = Math.ceil(eval(pemakaian_stick + valuesUnit.operator + valuesUnit.value))
+                    })
+                    var_sisa_mesin_stick = var_sisa_mesin_stick - pemakaian_stick
+                    var_sisa_mesin = var_sisa_mesin - pemakaian
+                    sisa_stick = 0
+                    sisa = 0
+                }
+                $('#jumlahPlanning' + data.item_id_product + e.machine_id + date).val(pemakaian)
+                e.sisa_mesin_stick = var_sisa_mesin_stick
+                e.sisa_mesin = var_sisa_mesin
+            }
+        });
+        // insert hasil sisa mesin hlp di semua maker
+        machine.forEach(e => {
+            e.data.forEach(element => {
+                if (element.stick == data.num_stick) {
+                    element.machine_link = hasilChild
+                }
+            });
+        });
+        return {
+            'hasilDataChild': hasilChild,
+        };
     }
 
     function pembagianPerMesin(data) {
+        console.log(dataShiftComplete)
         var date = getDateFromRange(dateStart, dateEnd)
         date.forEach(function(dates) {
             $.each(data_master[jenis_produksi]['machine'], function(key, value) {

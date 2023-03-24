@@ -119,8 +119,7 @@
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
 
 <main>
     <!-- Main page content-->
@@ -150,25 +149,16 @@
                             </div>
                             <div class="col">
                                 <label class="small-text"><i class="fa fa-cog me-2"></i>Machine</label>
-                                <select class="selectpicker" multiple data-selected-text-format="count > 3">
-                                    <option value="1" selected>MK9A</option>
-                                    <option value="2" selected>MK9B</option>
-                                    <option value="3" selected>MK9C</option>
-                                    <option value="4" selected>HLP20A</option>
-                                    <option value="5" selected>HLP20B</option>
-                                    <option value="6" selected>HLP12A</option>
-                                    <option value="7" selected>HLP12B</option>
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 3" id="selectMachine">
                                 </select>
                             </div>
                             <div class="col">
                                 <label class="small-text"><i class="fa fa-arrow-up me-2"></i>Status</label>
-                                <select class="selectpicker" multiple data-selected-text-format="count > 4">
-                                    <option value="IN" selected>IN</option>
-                                    <option value="OUT" selected>OUT</option>
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 4" id="selectStatus">
                                 </select>
                             </div>
                             <div class="col-1 align-self-end">
-                                <button type="button" class="btn btn-success btn-sm w-100"><i class="fa fa-search me-1"></i>Find</button>
+                                <button type="button" class="btn btn-success btn-sm w-100" onclick="getData()"><i class="fa fa-search me-1"></i>Find</button>
                             </div>
                         </div>
                     </div>
@@ -180,7 +170,7 @@
                                 <div class="row mb-5">
                                     <div class="col">
                                         <h3 class="m-0 small"><b>History Transaction</b></h3>
-                                        <p class="m-0 small-text">Date : Minggu, 18 Maret 2023</p>
+                                        <p class="m-0 small-text">Date : <span class="dateRangeText">-<span></p>
                                     </div>
                                     <div class="col-auto text-end align-self-center">
                                         <div class="row">
@@ -209,9 +199,9 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="contentTable">
-                                                    <!-- <tr class="align-self-center">
-                                                        <td colspan="6" class="text-center pt-5 pb-5 align-self-center"><i>Anda Belum Melakukan Pencarian</i></td>
-                                                    </tr> -->
+                                                    <tr class="align-self-center">
+                                                        <td colspan="7" class="text-center pt-5 pb-5 align-self-center"><i>Tidak Ada Data Tersedia</i></td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -226,17 +216,15 @@
                                 <div class="row">
                                     <div class="col">
                                         <h3 class="m-0 small"><b>Usage Items</b></h3>
-                                        <p class="m-0 small-text">Date : Minggu, 18 Maret 2023</p>
+                                        <p class="m-0 small-text">Date : <span class="dateRangeText">-</span></p>
                                     </div>
                                     <div class="col-auto text-end align-self-center">
-
-                                        <select name="" id="input" class="form-control form-control-sm" required="required">
-                                            <option value="">MK9-A</option>
+                                        <select name="" id="selectMachineUsage" class="selectpicker form-control form-control-sm" required="required" onchange="usageItem()">
                                         </select>
-
                                     </div>
                                 </div>
-                                <canvas id="myChart" class="pt-5 pb-5" style="width: 300px;"></canvas>
+                                <div id="fieldChart">
+                                </div>
                                 <div class="row">
                                     <div class="col-12">
                                         <b class="small-text">Information :</b>
@@ -308,6 +296,9 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
@@ -318,21 +309,7 @@
         $('#modalBody').html('');
         $('#modalFooter').html('');
     }
-    $('#dateStart').val(currentDate())
-    $('#dateEnd').val(currentDate())
-    new Litepicker({
-        element: document.getElementById('dateStart'),
-        elementEnd: document.getElementById('dateEnd'),
-        singleMode: false,
-        allowRepick: true,
-        firstDay: 0,
-        setup: (picker) => {
-            picker.on('selected', (date1, date2) => {
-                dateStart = formatDate(date1['dateInstance'])
-                dateEnd = formatDate(date2['dateInstance'])
-            });
-        },
-    })
+
 
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
@@ -341,40 +318,87 @@
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
     var data_report = ""
-    var data_item = ""
-    var data_satuan = ""
-    var data_supplier = ""
-    var data_gudang = ""
     var supplier_id = ""
     var date_start = ""
     var date_end = ""
 
     $(document).ready(function() {
+        $('select').selectpicker();
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getUser'); ?>",
+            url: "<?= api_produksi('loadPageMachineReport'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                employeeId: user_id,
+            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
                 data_user = response['data']
-                getData()
+                // getData()
+                $('#dateStart').val(data_user.date.dateStart)
+                $('#dateEnd').val(data_user.date.dateEnd)
+                new Litepicker({
+                    element: document.getElementById('dateStart'),
+                    elementEnd: document.getElementById('dateEnd'),
+                    singleMode: false,
+                    allowRepick: true,
+                    firstDay: 0,
+                    setup: (picker) => {
+                        picker.on('selected', (date1, date2) => {
+                            dateStart = formatDate(date1['dateInstance'])
+                            dateEnd = formatDate(date2['dateInstance'])
+                        });
+                    },
+                })
+                formMachine()
             }
         })
     })
 
+    function formMachine() {
+        var html = ''
+        data_user.machine.forEach(e => {
+            html += '<option value="' + e.id + '" selected>' + e.code + '</option>'
+        });
+        $('#selectMachine').html(html)
+        $('#selectMachine').selectpicker('refresh');
+        formStatus()
+    }
+
+    function formStatus() {
+        var html = ''
+        data_user.status.forEach(e => {
+            html += '<option value="' + e + '" selected>' + e + '</option>'
+        });
+        $('#selectStatus').html(html)
+        $('#selectStatus').selectpicker('refresh');
+        getData()
+    }
+
     function getData() {
+        $('.dateRangeText').html(formatDateIndonesia($('#dateStart').val()) + ' - ' + formatDateIndonesia($('#dateEnd').val()))
+        var machineId = $('#selectMachine').map(function() {
+            return $(this).val();
+        }).get();
+        var status = $('#selectStatus').map(function() {
+            return $(this).val();
+        }).get();
+        // console.log(dateStart, dateEnd, machineId, status)
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            url: "<?= api_produksi('getMachineReport'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                dateStart: $('#dateStart').val(),
+                dateEnd: $('#dateEnd').val(),
+                machineId: machineId,
+                status: status,
+            },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
-                data_item = response['data']['item'];
-                data_satuan = response['data']['itemSatuan'];
-                data_supplier = response['data']['supplier'];
-                data_gudang = response['data']['gudang'];
+                data_report = response['data']
                 contentTable()
             }
         })
@@ -382,17 +406,21 @@
 
     function contentTable() {
         var html = ''
-        for (let i = 0; i < 100; i++) {
+        $.each(data_report.item, function(key, value) {
             html += '<tr>'
-            html += '<td class="p-2 small-text text-center">1</td>'
-            html += '<td class="p-2 small-text">09/03/2023</td>'
-            html += '<td class="p-2 small-text">Cigarette Paper CP45W Black 600201 K MF 25g</td>'
-            html += '<td class="p-2 small-text">MK9-A</td>'
-            html += '<td class="p-2 small-text text-end">100</td>'
-            html += '<td class="p-2 small-text">Tray</td>'
-            html += '<td class="p-2 small-text text-center"><i class="fa fa-arrow-up text-danger"></i></td>'
+            html += '<td class="p-2 small-text text-center">' + (parseInt(key) + 1) + '</td>'
+            html += '<td class="p-2 small-text">' + value.date + '</td>'
+            html += '<td class="p-2 small-text">' + value.item.name + '</td>'
+            html += '<td class="p-2 small-text">' + value.machine.name + '</td>'
+            html += '<td class="p-2 small-text text-end">' + value.qty + '</td>'
+            html += '<td class="p-2 small-text">' + value.unit.name + '</td>'
+            var sign = 'fa-arrow-up text-danger'
+            if (value.status == 'IN') {
+                sign = 'fa-arrow-down text-success'
+            }
+            html += '<td class="p-2 small-text text-center"><i class="fa ' + sign + '"></i></td>'
             html += '</tr>'
-        }
+        })
         $('#contentTable').html(html)
         oTable = $('#myTable').DataTable();
         $('#myInputTextField').keyup(function() {
@@ -402,38 +430,74 @@
         $('.dataTables_filter').addClass('d-none')
         $('.dataTables_length').addClass('small-text d-none')
         $('.dataTables_paginate').addClass('small-text')
+        fillSelectFormUsageItem()
     }
-    let delayed;
-    const ctx = document.getElementById('myChart');
-    new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            datasets: [{
-                    label: 'Used',
-                    data: [12, 19, 3, 5, 2, 3, 11, 12, 23],
-                },
-                {
-                    label: 'Received',
-                    data: [30, 40, 30, 50, 20, 30, 45, 66, 66],
+
+    function fillSelectFormUsageItem() {
+        var html = ''
+        $.each(data_report.machineItem, function(key, value) {
+            html += '<option value="' + key + '">' + value.machine.code + '</option>'
+        });
+        $('#selectMachineUsage').html(html)
+        $('#selectMachineUsage').selectpicker('refresh')
+        usageItem()
+    }
+
+    function usageItem() {
+        var id = $('#selectMachineUsage').val()
+        var data = data_report.machineItem.filter((v, k) => {
+            if (k == id) return true
+        })[0].data
+        var varchart = []
+        var labels = []
+        $.each(data, function(key, value) {
+            var detail = []
+            $.each(value.item, function(keys, values) {
+                if (key == 0) {
+                    labels.push('0' + (parseInt(keys)))
                 }
-            ]
-        },
-        options: {
-            animation: {
-                onComplete: () => {
-                    delayed = true;
-                },
-                delay: (context) => {
-                    let delay = 0;
-                    if (context.type === 'data' && context.mode === 'default' && !delayed) {
-                        delay = context.dataIndex * 300 + context.datasetIndex * 100;
-                    }
-                    return delay;
-                },
+                detail.push(values.qty)
+            })
+            var label = 'Used'
+            if (value.status == 'IN') {
+                label = 'Received'
+            }
+            varchart.push({
+                'label': label,
+                'data': detail,
+            })
+        })
+        chart(varchart, labels)
+    }
+
+    function chart(varchart, labels) {
+        // console.log(varchart, labels)
+        $('#fieldChart').html('')
+        $('#fieldChart').html('<canvas id="myChart" class="pt-5 pb-5" style="width: 300px;"></canvas>')
+        let delayed;
+        const ctx = document.getElementById('myChart');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: varchart
             },
-            responsive: false,
-            maintainAspectRatio: true,
-        }
-    });
+            options: {
+                animation: {
+                    onComplete: () => {
+                        delayed = true;
+                    },
+                    delay: (context) => {
+                        let delay = 0;
+                        if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                            delay = context.dataIndex * 300 + context.datasetIndex * 100;
+                        }
+                        return delay;
+                    },
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+            }
+        });
+    }
 </script>
