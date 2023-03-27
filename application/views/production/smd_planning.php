@@ -534,7 +534,7 @@
             html += '</div>'
             html += '<div class="col-auto">'
             text = 'text-grey'
-            if (values['is_processed'] == 1) {
+            if (values['is_draft'] == 1) {
                 text = 'text-success'
             }
             html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Drafted</p>'

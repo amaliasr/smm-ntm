@@ -502,7 +502,7 @@
         $(location).html(html)
     }
 
-    function startPane(location) {
+    function startPane(location, status) {
         var html = ""
         html += '<div class="card w-100 shadow-none mb-2 p-0">'
         html += '<div class="card-body p-2">'
@@ -517,8 +517,10 @@
         html += '</div>'
         html += '</div>'
         $(location).html(html)
+        if (status == 'auto') {
+            fieldDetailDateAuto()
+        }
     }
-
 
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
@@ -530,6 +532,7 @@
     var data_user = ""
     var data_plan = ""
     var data_table = ""
+    var data_draft = ""
 
     $(document).ready(function() {
         $.ajax({
@@ -553,7 +556,7 @@
     })
     var jenis_produksi = ""
 
-    function getData() {
+    function getData(status = '') {
         $.ajax({
             url: "<?= api_produksi('getMaterialRequestDraft'); ?>",
             method: "GET",
@@ -570,10 +573,14 @@
             success: function(response) {
                 data_plan = response['data']['planDetail']
                 data_table = response['data']['baseDraft']
+                data_draft = response['data']['dataDraft']
                 jenis_produksi = data_plan[0]['production_type']['name'].toLowerCase()
                 calculateTotal()
                 mainDraft('#mainDraftMaterial')
-                startPane('#detailDateForm')
+                startPane('#detailDateForm', status)
+                if (data_draft.length > 0) {
+                    fieldDetailDateAuto()
+                }
             }
         })
     }
@@ -608,6 +615,7 @@
     function calculateTotal() {
         var array_product = []
         var product = []
+        // console.log(data_plan[0]['detail'])
         data_plan[0]['detail'].forEach(a => {
             a['data'].forEach(b => {
                 b['data'].forEach(c => {
@@ -690,13 +698,31 @@
     }
 
     function formDetail(data) {
+        var dataDraftDate = data_draft.filter((value, key) => {
+            if (formatDate(value.date) == formatDate(data.date)) return true
+        })
+        var signDraft = ''
+        var bgDraft = ''
+        var btnMaterialRequest = ''
+        var btnSave = '<button type="button" class="btn btn-outline-success btn-sm mt-2 me-2 btnSimpan" onclick="createMaterialDraft(' + "'" + data['date'] + "'" + ')"><i class="fa fa-save me-2"></i>Simpan</button>'
+        if (dataDraftDate.length > 0) {
+            signDraft = '<span class="badge bg-danger">DRAFTED</span>'
+            btnMaterialRequest = '<button type="button" class="btn btn-dark btn-sm mt-2" onclick="linkToMaterialRequest(' + dataDraftDate[0].id + ')"><i class="fa fa-plus me-2"></i>Buat Material Request</button>'
+            if (dataDraftDate[0].is_request != 0) {
+                bgDraft = 'bg-light'
+                btnMaterialRequest = '<button type="button" class="btn btn-light btn-sm mt-2"><i class="fa fa-check me-2"></i>Material Request Telah Dibuat</button>'
+            }
+        }
+        if (formatDate(data.date) <= currentDate()) {
+            btnSave = '<span class="text-danger me-2 font-small"><i>*) Tidak Dapat Menyimpan, Tanggal Plan Telah Terlewat</i></span>'
+        }
         var html = ""
-        html += '<div class="card shadow-sm bd-callout-' + a + ' mb-3">'
+        html += '<div class="card shadow-sm bd-callout-' + a + ' mb-3 ' + bgDraft + '">'
         html += '<div class="card-body">'
         html += '<div class="row">'
         html += '<div class="col-12 col-md-6">'
         html += '<p class="m-0" style="font-size:11px;">Date</p>'
-        html += '<h4 class="m-0"><b>' + formatDateIndonesia(data['date']) + '</b></h4>'
+        html += '<h4 class="m-0"><b>' + formatDateIndonesia(data['date']) + '</b> ' + signDraft + '</h4>'
         html += '<p class="m-0 mt-3 mb-2" style="font-size:11px;">Additional :</p>'
 
         html += '<div class="row">'
@@ -831,9 +857,9 @@
             })
             html += '</div>'
         })
-        html += '<div class="col-12 text-end">'
-        html += '<button type="button" class="btn btn-outline-success btn-sm mt-2 me-2 btnSimpan" onclick="createMaterialDraft(' + "'" + data['date'] + "'" + ')"><i class="fa fa-save me-2"></i>Simpan</button>'
-        html += '<button type="button" class="btn btn-dark btn-sm mt-2"><i class="fa fa-plus me-2"></i>Buat Material Request</button>'
+        html += '<div class="col-12 text-end align-self-center">'
+        html += btnSave
+        html += btnMaterialRequest
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -951,12 +977,6 @@
         })
         if (check.length == 0) {
             // tidak ada sebelumnya
-            // var dataDetail = []
-            // dataDetail.push({
-            //     'code': value['code'],
-            //     'id_product': value['product'],
-            //     'qty': value['qty']
-            // })
             draftPerBrand.push({
                 'id_brand': value['product_group'],
                 'machine_type': value['machine_type'],
@@ -969,11 +989,6 @@
         } else {
             var objIndex = draftPerBrand.findIndex((obj => obj.id_brand == value['product_group'] && obj.id_machine == value['machine'] && obj.date == value['date']));
             draftPerBrand[objIndex].qty = parseInt(value['qty'])
-            // draftPerBrand[objIndex].detail.push({
-            //     'code': value['code'],
-            //     'id_product': value['product'],
-            //     'qty': value['qty']
-            // })
         }
         return false
     }
@@ -993,6 +1008,31 @@
         $.each(group, function(key, value) {
             $('#totalPerHariPerMesin' + value['date'] + value['id_machine']).html(number_format(value['qty']))
         })
+        generateDraftedVariable(mcn, dt)
+    }
+    var dataDraftMerged = []
+
+    function generateDraftedVariable(mcn = "", dt = "") {
+        dataDraftMerged = []
+        // console.log(data_draft)
+        data_draft.forEach(a => {
+            a.detail.forEach(b => {
+                b.data.forEach(c => {
+                    // machine
+                    if (c.data[0] != null) {
+                        c.data[0].forEach(d => {
+                            // material
+                            dataDraftMerged.push({
+                                'date': a.date,
+                                'machine': c.machine.id,
+                                'item': d.material.id,
+                                'qty': d.qty
+                            })
+                        });
+                    }
+                });
+            });
+        });
         generateConvertToMaterial(mcn, dt)
     }
 
@@ -1002,6 +1042,7 @@
             if (value['akses'] != undefined) {
                 if (mcn == "" && dt == "") {
                     // gnerate all
+                    // console.log(draftPerBrand[key])
                     fillCellMaterial(draftPerBrand[key])
                 } else {
                     // generate per machine
@@ -1022,7 +1063,14 @@
             if (input == "" || input == undefined) {
                 input = 0
             }
-            var total = parseFloat(input) + parseFloat(hitung)
+            var dataDraftDate = dataDraftMerged.filter((v, k) => {
+                if (formatDate(v.date) == formatDate(value.date) && v.machine == value.id_machine && v.item == values.item.id) return true
+            })
+            if (dataDraftDate.length > 0) {
+                var total = dataDraftDate[0].qty
+            } else {
+                var total = parseFloat(input) + parseFloat(hitung)
+            }
             $('#inputData' + value['date'] + value['id_machine'] + 'item' + values['item']['id']).val(total)
         })
     }
@@ -1120,7 +1168,7 @@
                 })
             }
         }
-        console.log(data_mentah)
+        // console.log(data_mentah)
         checkingWasteAndLeftOver()
     }
 
@@ -1377,6 +1425,19 @@
                         icon: 'success',
                     }).then((responses) => {
                         $(button).prop("disabled", false);
+                        getData('auto')
+                        Swal.fire({
+                            text: 'Apakah langsung membuat Material Request?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, Langsung Saja'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                linkToMaterialRequest(response.data.material_draft.id)
+                            }
+                        })
                     });
                 } else {
                     Swal.fire({
@@ -1388,5 +1449,10 @@
                 }
             }
         });
+    }
+
+    function linkToMaterialRequest(id) {
+        var url = '<?= base_url() ?>production/createMaterialRequest/' + id
+        window.open(url, '_blank')
     }
 </script>
