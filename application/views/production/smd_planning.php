@@ -504,7 +504,7 @@
         }
         var html = ""
         $.each(data, function(keys, values) {
-            html += '<div class="row">'
+            html += '<div class="row" id="card_search' + keys + '">'
             html += '<div class="col-12">'
             html += '<div class="card shadow-none mb-2">'
             html += '<div class="card-body p-0">'
@@ -520,8 +520,8 @@
             html += '<div class="row">'
             html += '<div class="col">'
             html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
-            html += '<p class="m-0" style="font-size: 14px;">#' + values['code'] + '</p>'
-            html += '<h6 class="m-0" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
+            html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">#' + values['code'] + '</p>'
+            html += '<h6 class="m-0 text_search" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')" data-id="' + keys + '"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
@@ -658,5 +658,39 @@
     function linkToRevisiPlan(id_plan, type) {
         var url = '<?= base_url() ?>production/createPlanning/smd/' + type + '/' + id_plan
         window.open(url, '_blank')
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        console.log(array_arranged)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

@@ -331,7 +331,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
+                                        <input class="form-control pe-0 shadow-none" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
                                         <span class="input-group-text">
                                             <i class="fa fa-search"></i>
                                         </span>
@@ -555,7 +555,6 @@
         });
         // penjumlahan dan grouping
         grupMachineTypeWithDate = groupAndSum(array_product, ['product', 'machine', 'machine_name', 'code', 'date', 'machine_type', 'unit'], ['qty']);
-        console.log(grupMachineTypeWithDate);
         formDetail()
     }
 
@@ -570,9 +569,9 @@
         $('#listParent').html(html_parent)
         $.each(data_plan['data'][0]['detail'], function(keya, valuea) {
             // console.log(valuea['data'])
-            html += '<div class="col-12">'
+            html += '<div class="col-12" id="card_search' + keya + '">'
             html += '<div class="card shadow-none mb-3 mt-3 small position-relative">'
-            html += '<h3><span class="position-absolute top-0 start-15 translate-middle badge bg-primary">' + formatDateIndonesia(valuea['date']) + '</span></h3>'
+            html += '<h3><span class="position-absolute top-0 start-15 translate-middle badge bg-primary text_search" data-id="' + keya + '">' + formatDateIndonesia(valuea['date']) + '</span></h3>'
             html += '<div class="card-body">'
 
             html += '<div class="table-responsive">'
@@ -658,5 +657,39 @@
                 })
             })
         })
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        console.log(array_arranged)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

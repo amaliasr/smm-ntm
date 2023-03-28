@@ -274,6 +274,14 @@
                     <div class="col-auto mt-4">
                         <div class="float-end">
                             <div class="row">
+                                <div class="col-auto">
+                                    <div class="input-group w-100">
+                                        <input class="form-control pe-0 shadow-none" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
+                                        <span class="input-group-text">
+                                            <i class="fa fa-search"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -690,7 +698,7 @@
         var a = 0
         var c = 0
         date.forEach(function(dates) {
-            html += '<div class="card shadow-sm bd-callout-' + a + ' mb-5 small">'
+            html += '<div class="card shadow-sm bd-callout-' + a + ' mb-5 small" id="card_search' + c + '">'
             html += '<div class="card-body">'
 
             html += '<div class="row pb-2">'
@@ -698,7 +706,7 @@
             html += '<h6><p class="m-0"><b><i class="fa fa-calendar-o "></i></b></p></h6>'
             html += '</div>'
             html += '<div class="col-11 ps-0">'
-            html += '<h6><p class="m-0"><b>' + formatDateIndonesia(dates) + '</b></p></h6>'
+            html += '<h6><p class="m-0"><b class="text_search" data-id="' + c + '">' + formatDateIndonesia(dates) + '</b></p></h6>'
             html += '</div>'
             html += '</div>'
 
@@ -1773,5 +1781,39 @@
                 }
             }
         });
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        console.log(array_arranged)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>
