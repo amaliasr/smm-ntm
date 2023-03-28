@@ -1811,7 +1811,6 @@
             }
         }
         var array_arranged = unique(array)
-        console.log(array_arranged)
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }

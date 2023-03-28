@@ -255,7 +255,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
+                                        <input class="form-control pe-0 shadow-none" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
                                         <span class="input-group-text">
                                             <i class="fa fa-search"></i>
                                         </span>
@@ -506,7 +506,7 @@
         }
         $.each(data, function(keys, values) {
             var index = data_isi_material.findIndex(x => x.id === values.id);
-            html += '<div class="card card-hoper shadow-none mb-2">'
+            html += '<div class="card card-hoper shadow-none mb-2" id="card_search' + keys + '">'
             html += '<div class="card-body p-0">'
             html += '<div class="row p-0 m-0">'
             html += '<div class="col-1 p-3 rounded-start bg-' + values.production_type.name.toLowerCase() + ' text-center">'
@@ -519,8 +519,8 @@
             html += '<div class="col p-3">'
             html += '<div class="row">'
             html += '<div class="col">'
-            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDateIndonesia(values.date) + '</span></p>'
-            html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b>#' + values.code + '</b></h4>'
+            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span class="text_search" data-id="' + keys + '">' + formatDateIndonesia(values.date) + '</span></p>'
+            html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b class="text_search" data-id="' + keys + '">#' + values.code + '</b></h4>'
             html += '<p class="m-0" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> ' + data_isi_material[index].detail.length + ' Items</p>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
@@ -681,5 +681,38 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

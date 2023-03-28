@@ -420,6 +420,11 @@
                                     <div class="card shadow-none mt-2 bd-callout-0">
                                         <div class="card-body p-2">
                                             <div class="row">
+                                                <div class="col-12 text-center">
+                                                    <i class="font-small">Fitur Belum Tersedia</i>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="row">
                                                 <div class="col">
                                                     <b class="small">#MR-1234</b>
                                                     <p class="m-0 font-small">Minggu, 1 Januari 2023</p>
@@ -427,7 +432,7 @@
                                                 <div class="col">
 
                                                 </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -523,7 +528,6 @@
         var formattedDate = day + '-' + month + '-' + year + ' ' + time;
 
         timeDisplay.innerHTML = formattedDate;
-        dateDisplay.innerHTML = formatDateIndonesia(year + '-' + month + '-' + day);
         codeMaterial = 'MR' + codeProd + '-' + year + month + day + time.split(':')[0] + time.split(':')[1]
         kodeMaterial.innerHTML = codeMaterial
     }
@@ -577,6 +581,21 @@
         html += '<div class="row d-flex align-items-center">'
         html += '<div class="col text-center p-5">'
         html += '<i class="small">Tidak Ada Data yang Tersedia</i>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $(location).html(html)
+    }
+
+    function notFoundWithButton(location, link) {
+        var html = ""
+        html += '<div class="card w-100 shadow-none mb-2 p-0" style="border:0px;">'
+        html += '<div class="card-body p-2">'
+        html += '<div class="row d-flex align-items-center">'
+        html += '<div class="col text-center p-5">'
+        html += '<i class="small">Tidak Ada Data yang Tersedia</i>'
+        html += '<button class="btn btn-sm mt-2 btn-success" onclick="linkToLink(' + "'" + link + "'" + ')">Buat Draft Material</button>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -648,11 +667,11 @@
 
     function chooseDate() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Pilih Planning</h5>'
         html_header += '<div class="input-group w-50">'
-        html_header += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_nama">'
+        html_header += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_planning">'
         html_header += '<span class="input-group-text">'
         html_header += '<i class="fa fa-search"></i>'
         html_header += '</span>'
@@ -711,20 +730,20 @@
     function formDataPlanning() {
         var html = ""
         $.each(list_data_plan, function(key, value) {
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')">'
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
             html += '<div class="card-body">'
 
             html += '<div class="row">'
             html += '<div class="col-8 align-self-center">'
-            html += '<p class="m-0">#' + value['code'] + '</p>'
+            html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
             var today = ''
             if (value['date'] == currentDateTime()) {
                 today = '<span class="badge bg-success">Today</span>'
             }
-            html += '<p class="m-0"><b>' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
+            html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
             html += '</div>'
             html += '<div class="col-4 align-self-end">'
-            html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
+            // html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
             html += '</div>'
             html += '</div>'
 
@@ -762,6 +781,7 @@
             success: function(response) {
                 $('#modal').modal('hide')
                 data_plan = response['data']
+                dateDisplay.innerHTML = formatDateIndonesia(data_plan.productionPlan[0].date)
                 codeProd = data_plan['productionPlan'][0]['production_type']['name']
                 $('#prodType').html(codeProd)
                 if (data_plan['materialItem'] == undefined) {
@@ -776,8 +796,7 @@
                 if (data_plan['draft'].length > 0) {
                     dataDraft()
                 } else {
-
-                    notFound('#dataDraft')
+                    notFoundWithButton('#dataDraft', '<?= base_url() ?>/production/draftMaterial/' + data_plan.productionPlan[0].id)
                     notFound('#listMaterialRequest')
                     dataMaterialRequest()
                 }
@@ -1137,4 +1156,42 @@
         $('#iconChevron' + key).addClass('fa-chevron-up')
         $('#iconChevron' + key).removeClass('fa-chevron-down')
     })
+    // search multi
+    $(document).on('keyup', '#search_planning', function(e) {
+        var word = $('#search_planning').val().toLowerCase();
+        searching(word)
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching(word) {
+        var value = word
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function linkToLink(link) {
+        var url = link
+        window.open(url, '_blank')
+    }
 </script>

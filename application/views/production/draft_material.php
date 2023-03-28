@@ -331,7 +331,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama">
+                                        <input class="form-control pe-0 shadow-none" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
                                         <span class="input-group-text">
                                             <i class="fa fa-search"></i>
                                         </span>
@@ -389,7 +389,7 @@
                             <div class="col-12 col-md-10 align-self-center" id="mainDraftMaterial">
                             </div>
                             <div class="col-12 col-md-2">
-                                <button type="button" class="btn btn-teal w-100 btn-sm h-100" onclick="fieldDetailDateAuto()"><i class="fa fa-magic me-2"></i>Auto Generate Material</button>
+                                <button type="button" class="btn btn-teal w-100 btn-sm h-100" onclick="fieldDetailDateAuto()" id="btnAutoGenerate"><i class="fa fa-magic me-2"></i>Auto Generate Material</button>
                             </div>
                         </div>
                     </div>
@@ -579,6 +579,7 @@
                 mainDraft('#mainDraftMaterial')
                 startPane('#detailDateForm', status)
                 if (data_draft.length > 0) {
+                    $('#btnAutoGenerate').remove()
                     fieldDetailDateAuto()
                 }
             }
@@ -587,6 +588,7 @@
 
 
     var a = 0
+    var b = 0
 
     function fieldDetailDateAuto() {
         $('#detailDateForm').html('')
@@ -715,14 +717,15 @@
         }
         if (formatDate(data.date) <= currentDate()) {
             btnSave = '<span class="text-danger me-2 font-small"><i>*) Tidak Dapat Menyimpan, Tanggal Plan Telah Terlewat</i></span>'
+            btnMaterialRequest = ''
         }
         var html = ""
-        html += '<div class="card shadow-sm bd-callout-' + a + ' mb-3 ' + bgDraft + '">'
+        html += '<div class="card shadow-sm bd-callout-' + a + ' mb-3 ' + bgDraft + '" id="card_search' + b + '">'
         html += '<div class="card-body">'
         html += '<div class="row">'
         html += '<div class="col-12 col-md-6">'
         html += '<p class="m-0" style="font-size:11px;">Date</p>'
-        html += '<h4 class="m-0"><b>' + formatDateIndonesia(data['date']) + '</b> ' + signDraft + '</h4>'
+        html += '<h4 class="m-0"><b class="text_search" data-id="' + b + '">' + formatDateIndonesia(data['date']) + '</b> ' + signDraft + '</h4>'
         html += '<p class="m-0 mt-3 mb-2" style="font-size:11px;">Additional :</p>'
 
         html += '<div class="row">'
@@ -873,6 +876,7 @@
         countAllCheckCheckbox(a, 'Waste')
         countAllCheckCheckbox(a, 'LeftOver')
         a++
+        b++
         if (a == 7) {
             a = 0
         }
@@ -1477,5 +1481,38 @@
     function linkToMaterialRequest(id) {
         var url = '<?= base_url() ?>production/createMaterialRequest/' + id
         window.open(url, '_blank')
+    }
+
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>
