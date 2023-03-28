@@ -246,7 +246,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="input-group w-100">
-                                        <input class="form-control pe-0" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama">
+                                        <input class="form-control pe-0 shadow-none" type="text" placeholder="Cari Segala Sesuatu" aria-label="Search" id="search_nama" autocomplete="off">
                                         <span class="input-group-text">
                                             <i class="fa fa-search"></i>
                                         </span>
@@ -552,7 +552,7 @@
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
-            html += '<a class="dropdown-item"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
+            html += '<a class="dropdown-item" onclick="linkToRevisiPlan(' + values.id + ',' + values.production_type.id + ')"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
             html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
             html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
             html += '</div>'
@@ -652,6 +652,11 @@
 
     function linkToDraftForeman(id) {
         var url = '<?= base_url() ?>production/draftMaterial/' + id
+        window.open(url, '_blank')
+    }
+
+    function linkToRevisiPlan(id_plan, type) {
+        var url = '<?= base_url() ?>production/createPlanning/smd/' + type + '/' + id_plan
         window.open(url, '_blank')
     }
 </script>

@@ -268,7 +268,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-industry"></i></div>
-                            Create SMD Planning
+                            <?= $head_title ?>
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
@@ -319,7 +319,7 @@
                                     <div class="col-12" id="tampilDetailPembayaran">
                                         <div class="row">
                                             <div class="col-12">
-                                                <nav>
+                                                <nav class="createPane">
                                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                                         <button style="width: 100px;" class="p-3 nav-link position-relative active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="changeTab('skm')">SKM
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle skmCircleDanger"></span>
@@ -334,7 +334,7 @@
                                                 <div class="tab-content" id="nav-tabContent">
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <div class="card shadow-none mb-4 mt-4 small position-relative">
+                                                            <div class="card shadow-none mb-4 mt-4 small position-relative createPane">
                                                                 <h3><span class="position-absolute top-0 start-10 translate-middle badge  bg-primary">Main Planning </span></h3>
                                                                 <div class="card-body">
                                                                     <div class="row">
@@ -361,10 +361,10 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="card shadow-none mb-4 small position-relative">
+                                                            <div class="card shadow-none mb-4 mt-4 small position-relative">
                                                                 <h3><span class="position-absolute top-0 start-10 translate-middle badge  bg-primary">Daily Planning</span></h3>
                                                                 <div class="card-body">
-                                                                    <div class="row">
+                                                                    <div class="row createPane">
                                                                         <div class="col-12 col-md-9 mb-2">
                                                                             <h5 class="mt-3" id="conveying-meaning-to-assistive-technologies">Create Daily of Plan Production</h5>
                                                                             <p class="mb-3" style="font-size: 11px;">Setelah mengisi Date Range pada Main Planning, maka akan otomatis membuat tabel Planning per hari nya. Target Produksi dapat anda isi jika terdapat target untuk memudahkan pengisian target produksi ditiap harinya. Anda dapat melihat Target nya pada panel sebelah kanan</p>
@@ -377,7 +377,7 @@
                                                                     </div>
 
                                                                     <button type="button" class="btn btn-success float-end btnSimpan" onclick="saveAsIndividual()"><i class="fa fa-save me-2"></i> Simpan SKM</button>
-                                                                    <button type="button" class="btn btn-outline-success float-end me-2 btnSimpan"><i class="fa fa-save me-2"></i> Simpan Semua</button>
+                                                                    <button type="button" class="btn btn-outline-success float-end me-2 btnSimpan createPane"><i class="fa fa-save me-2"></i> Simpan Semua</button>
 
                                                                 </div>
                                                             </div>
@@ -455,8 +455,11 @@
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var id_plan = '<?= $id_plan ?>'
+    var type_plan = '<?= $type ?>'
     var data_user = ""
     var data_master = ""
+    var data_plan = ""
     var data_machine_capability = ""
     var data_skm = {}
     var data_skt = {}
@@ -549,9 +552,31 @@
     });
 
     $(document).ready(function() {
-        clearForm()
-        fadeOfTarget()
-        getDateRange()
+        if (id_plan != '') {
+            $('.createPane').remove()
+            $.ajax({
+                url: "<?= api_produksi('getProductionPlanRevision'); ?>",
+                method: "GET",
+                dataType: 'JSON',
+                data: {
+                    productionPlanId: id_plan,
+                    productionTypeId: type_plan,
+                },
+                error: function(xhr) {},
+                beforeSend: function() {},
+                success: function(response) {
+                    $('.form-control').removeAttr('disabled')
+                    data_plan = response['data']
+                    jenis_produksi = data_plan.production_type.name.toLowerCase()
+                    clearForm()
+                    getData()
+                }
+            })
+        } else {
+            clearForm()
+            fadeOfTarget()
+            getDateRange()
+        }
     })
 
     function clearForm() {
@@ -644,6 +669,11 @@
                     $('.form-control').removeAttr('disabled')
                     data_master = response['data']
                     data_machine_capability = response['machineCapability']
+                    if (id_plan != '') {
+                        dateStart = data_plan.date_start
+                        dateEnd = data_plan.date_end
+                        createDailyPlanning(data_plan.date_start, data_plan.date_end)
+                    }
                 }
             })
         }
@@ -656,7 +686,7 @@
         $('#dataDailyPlanning').empty()
         anyMachine = []
         var html = ""
-        var date = getDateFromRange(dateStart, dateEnd)
+        var date = getDateFromRange(new Date(dateStart), new Date(dateEnd))
         var a = 0
         var c = 0
         date.forEach(function(dates) {
@@ -791,7 +821,11 @@
                 changeColorTarget(value['item_id_product'])
             })
         }
-        simpanProdukTarget()
+        if (id_plan != '') {
+            arrangedVariableEdit()
+        } else {
+            simpanProdukTarget()
+        }
     }
 
     function chooseShift(a, id) {
@@ -860,7 +894,7 @@
     }
 
     function addCustomDate(no) {
-        var date = getDateFromRange(dateStart, dateEnd)
+        var date = getDateFromRange(new Date(dateStart), new Date(dateEnd))
         var data = customDate.find((value, key) => {
             if (value.id == no) return true
         })
@@ -983,7 +1017,7 @@
     function listDateCustom(id) {
         var html = ''
         var a = 0
-        var date = getDateFromRange(dateStart, dateEnd)
+        var date = getDateFromRange(new Date(dateStart), new Date(dateEnd))
         var data = customDate.find((value, key) => {
             if (value.id == id) return true
         })
@@ -1080,11 +1114,32 @@
         $('.fieldDPlan' + id).removeClass('bg-light')
     }
 
+    function arrangedVariableEdit() {
+        var array = []
+        data_plan.data.forEach(b => {
+            // tanggal
+            b.data.forEach(c => {
+                // machine type
+                c.data.forEach(d => {
+                    // machine
+                    d.data.forEach(e => {
+                        // product
+                        changeColorTarget(e.product.id)
+                        $('#jumlahPlanning' + e.product.id + d.machine.id + formatDate(b.date)).val(e.qty)
+                    });
+                });
+            });
+        });
+        simpanProdukTarget()
+    }
+
     function simpanProdukTarget(auto = '', arranged = '') {
-        if (auto == '') {
+        if (auto == '' && id_plan == '') {
             $('.jumlahPlanning').val('')
         }
-        $('.allfieldDPlan').addClass('bg-light')
+        if (id_plan == '') {
+            $('.allfieldDPlan').addClass('bg-light')
+        }
         var obj = []
         var objPlan = []
         var objShift = []
@@ -1186,15 +1241,25 @@
             data_skm['customDate'] = customDate
             data_skm['productionPlanDetail'] = objPlan
             data_skm['shiftDetail'] = objShift
-            getPaneTarget(data_skm, auto, arranged)
+            if (id_plan == '') {
+                getPaneTarget(data_skm, auto, arranged)
+            } else {
+                pembagianPerMesin(data_skm)
+            }
         } else {
             data_skt['productionPlanGoal'] = obj
             data_skt['customDate'] = customDate
             data_skt['productionPlanDetail'] = objPlan
             data_skt['shiftDetail'] = objShift
-            getPaneTarget(data_skt, auto, arranged)
+            if (id_plan == '') {
+                getPaneTarget(data_skt, auto, arranged)
+            } else {
+                pembagianPerMesin(data_skt)
+            }
         }
     }
+
+
 
     function getPaneTarget(data, auto, arranged) {
         var html = ""
@@ -1259,7 +1324,7 @@
         // dicek dulu apakah shift sudah di klik apa belum
         if (data.shiftDetail != undefined) {
             if (data.shiftDetail.length > 0) {
-                var groupShiftDetail = getDateFromRange(dateStart, dateEnd)
+                var groupShiftDetail = getDateFromRange(new Date(dateStart), new Date(dateEnd))
                 // var groupShiftDetail = groupAndSum(data.shiftDetail, ['date', 'date_id'], ['num'])
                 // console.log(groupShiftDetail)
                 // pembentukan variable
@@ -1553,8 +1618,8 @@
     }
 
     function pembagianPerMesin(data) {
-        console.log(dataShiftComplete)
-        var date = getDateFromRange(dateStart, dateEnd)
+        // console.log(data)
+        var date = getDateFromRange(new Date(dateStart), new Date(dateEnd))
         date.forEach(function(dates) {
             $.each(data_master[jenis_produksi]['machine'], function(key, value) {
                 $.each(value['machine'], function(keys, values) {

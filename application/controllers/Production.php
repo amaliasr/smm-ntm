@@ -31,11 +31,18 @@ class Production extends CI_Controller
         }
         $this->template->views('production/' . $name . '_planning', $data);
     }
-    public function createPlanning($name)
+    public function createPlanning($name, $type = '', $id_plan = '')
     {
         if ($name == 'smd') {
             $data['title'] = 'Create SMD Planning';
+            $data['head_title'] = 'Create SMD Planning';
         }
+        if ($id_plan != '') {
+            $data['title'] = 'Edit SMD Planning';
+            $data['head_title'] = 'Edit SMD Planning';
+        }
+        $data['id_plan'] = $id_plan;
+        $data['type'] = $type;
         $this->template->views('production/' . $name . '_planning_create', $data);
     }
     public function detailPlanning($name, $id = "")

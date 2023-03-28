@@ -968,7 +968,7 @@
         $.each(data, function(key, value) {
             checkAvailableBrandVariable(data[key])
         })
-        generateToBrandForm(mcn, dt)
+        generateDraftedVariable(mcn, dt)
     }
 
     function checkAvailableBrandVariable(value) {
@@ -993,6 +993,45 @@
         return false
     }
 
+    var dataDraftMergedMaterial = []
+    var dataDraftMergedProduct = []
+
+    function generateDraftedVariable(mcn = "", dt = "") {
+        dataDraftMergedMaterial = []
+        dataDraftMergedProduct = []
+        // console.log(data_draft)
+        data_draft.forEach(a => {
+            a.detail.forEach(b => {
+                b.data.forEach(c => {
+                    // machine
+                    if (c.material[0] != null) {
+                        c.material[0].forEach(d => {
+                            // material
+                            dataDraftMergedMaterial.push({
+                                'date': a.date,
+                                'machine': c.machine.id,
+                                'item': d.material.id,
+                                'qty': d.qty
+                            })
+                        });
+                    }
+                    if (c.product[0] != null) {
+                        c.product[0].forEach(d => {
+                            // material
+                            dataDraftMergedProduct.push({
+                                'date': a.date,
+                                'machine': c.machine.id,
+                                'brand': d.material.id,
+                                'qty': d.qty
+                            })
+                        });
+                    }
+                });
+            });
+        });
+        generateToBrandForm(mcn, dt)
+    }
+
     function generateToBrandForm(mcn = "", dt = "") {
         // buat ngisi kode akses ke variable
         if (mcn == "") {
@@ -1001,38 +1040,22 @@
             $('.inputDataItem[data-machine="' + mcn + '"][data-date="' + dt + '"]').val('')
         }
         $.each(draftPerBrand, function(key, value) {
-            $('#inputData' + value['date'] + value['id_machine'] + value['id_brand']).val(value['qty'])
+            var dataDraftDate = dataDraftMergedProduct.filter((v, k) => {
+                if (formatDate(v.date) == formatDate(value.date) && v.machine == value.id_machine && v.brand == value.id_brand) return true
+            })
+            if (dataDraftDate.length > 0) {
+                var total = dataDraftDate[0].qty
+            } else {
+                var total = value['qty']
+            }
+            $('#inputData' + value['date'] + value['id_machine'] + value['id_brand']).val(total)
             draftPerBrand[key]['akses'] = $('#inputData' + value['date'] + value['id_machine'] + value['id_brand']).data('akses')
         })
         var group = groupAndSum(draftPerBrand, ['date', 'id_machine'], ['qty']);
         $.each(group, function(key, value) {
             $('#totalPerHariPerMesin' + value['date'] + value['id_machine']).html(number_format(value['qty']))
         })
-        generateDraftedVariable(mcn, dt)
-    }
-    var dataDraftMerged = []
 
-    function generateDraftedVariable(mcn = "", dt = "") {
-        dataDraftMerged = []
-        // console.log(data_draft)
-        data_draft.forEach(a => {
-            a.detail.forEach(b => {
-                b.data.forEach(c => {
-                    // machine
-                    if (c.data[0] != null) {
-                        c.data[0].forEach(d => {
-                            // material
-                            dataDraftMerged.push({
-                                'date': a.date,
-                                'machine': c.machine.id,
-                                'item': d.material.id,
-                                'qty': d.qty
-                            })
-                        });
-                    }
-                });
-            });
-        });
         generateConvertToMaterial(mcn, dt)
     }
 
@@ -1063,7 +1086,7 @@
             if (input == "" || input == undefined) {
                 input = 0
             }
-            var dataDraftDate = dataDraftMerged.filter((v, k) => {
+            var dataDraftDate = dataDraftMergedMaterial.filter((v, k) => {
                 if (formatDate(v.date) == formatDate(value.date) && v.machine == value.id_machine && v.item == values.item.id) return true
             })
             if (dataDraftDate.length > 0) {
