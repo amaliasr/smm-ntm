@@ -737,6 +737,7 @@
     var stage_step = []
     var stage = 0
     var data_stats = ''
+    var data_statistic = ''
 
     $(document).ready(function() {
         $.ajax({
@@ -777,6 +778,7 @@
             success: function(response) {
                 data_request_manage = response['data']
                 data_stats = data_request_manage.stats
+                data_statistic = data_stats.stats[0]
                 getDataCurrentStok()
             }
         })
@@ -1267,6 +1269,7 @@
             },
             success: function(response) {
                 data_stats = response['data']
+                data_statistic = data_stats.stats[0]
                 $('#graphStats').html('')
                 $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
                 if (data_stats.average.length == 0) {
@@ -1310,7 +1313,7 @@
         var html = ""
         html += '<select class="form-select w-100 items" multiple id="items" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="changeItemGraph()">'
         $.each(data_stats.average, function(key, value) {
-            html += '<option value="' + value['id'] + '" selected>' + value['name'] + '</option>'
+            html += '<option value="' + value['name'] + '" selected>' + value['name'] + '</option>'
         })
         html += '</select>'
         $('#listItems').html(html)
@@ -1339,19 +1342,56 @@
         statsGraph()
     }
 
+    function isInArray(value, array) {
+        return array.indexOf(value) > -1;
+    }
+
     function changeItemGraph() {
         var item = $('#items').val()
-        console.log(item)
-        console.log(data_stats)
+        // reset data statistic
+        var a = 0
+        data_statistic = {}
+        var labels = []
+        data_stats.stats[0].labels.forEach(e => {
+            labels.push(e)
+        })
+        var datasets = []
+        $.each(data_stats.stats[0].datasets, function(key, value) {
+            var detail = []
+            value.data.forEach(element => {
+                detail.push(element)
+            });
+            datasets.push({
+                label: value.label,
+                data: detail,
+            })
+        })
+        data_statistic = {
+            labels: labels,
+            datasets: datasets
+        }
+        // cari mana yang tidak ada pada item
+        data_stats.stats[0].labels.forEach(e => {
+            if (isInArray(e, item) == false) {
+                data_statistic.labels.splice(a, 1);
+                data_statistic.datasets.forEach(element => {
+                    element.data.splice(a, 1);
+                });
+            }
+            a++
+        });
+        $('#graphStats').html('')
+        $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
+        statsGraph()
     }
 
     function statsGraph() {
-        var data = data_stats.stats[0].datasets.filter((value, key) => {
+        var data = data_statistic.datasets.filter((value, key) => {
             if (value.data[0] != null) return true
         })
         var labels = []
-        for (let i = 0; i < data_stats.stats[0].labels.length; i++) {
-            labels.push(shortenName(data_stats.stats[0].labels[i], 2))
+        for (let i = 0; i < data_statistic.labels.length; i++) {
+            labels.push(shortenName(data_statistic.labels[i], 2))
         }
         const ctx2 = document.getElementById('myChart2');
         new Chart(ctx2, {
