@@ -562,6 +562,7 @@
             if (values['is_process'] == 1 && values['is_receive'] == null) {
                 html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
             }
+            html += '<a class="dropdown-item" onclick="cetakMaterialRequest(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
             html += '</div>'
             html += '</div>'
             html += '</div>'

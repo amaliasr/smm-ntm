@@ -691,4 +691,9 @@
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
     }
+
+    function linkToDraft(id) {
+        var url = '<?= base_url() ?>production/draftMaterial/' + id
+        window.open(url, '_blank')
+    }
 </script>

@@ -358,11 +358,14 @@
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Customize Machine</b></p>
                                                                             <div class="card shadow-none">
                                                                                 <div class="card-body">
-                                                                                    <!-- <div class="row d-flex align-items-center h-100">
-                                                                                        <div class="col text-center">
-                                                                                            <i class="small">Isi Terlebih Dahulu <b>Main Planning</b> agar dapat membuka Preview</i>
+                                                                                    <div class="row">
+                                                                                        <div class="col-12">
+                                                                                            <b class="small">Sustainable Machine in A Day</b>
+                                                                                            <p class="font-small m-0">Pilih Mesin yang dimana item tersebut dapat lebih dari 1 Mesin dalam 1 Hari</p>
+                                                                                            <div class="small pt-3" id="listMachine">
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div> -->
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -677,6 +680,7 @@
                     $('.form-control').removeAttr('disabled')
                     data_master = response['data']
                     data_machine_capability = response['machineCapability']
+                    listCutomizedMachine()
                     if (id_plan != '') {
                         dateStart = data_plan.date_start
                         dateEnd = data_plan.date_end
@@ -685,6 +689,28 @@
                 }
             })
         }
+    }
+
+    function listCutomizedMachine() {
+        var html = ''
+        $.each(data_master[jenis_produksi]['machine'], function(key, value) {
+            html += '<b>' + value.type_name + '</b>'
+            $.each(value['machine'], function(keys, values) {
+                html += '<div class="form-check">'
+                html += '<input class="form-check-input checkListMachine" type="checkbox" value="' + values.id + '" id="checkMachineCustom' + values.id + '" onchange="checkListMachine()">'
+                html += '<label class="form-check-label" for="checkMachineCustom' + values.id + '">' + values.name + '</label>'
+                html += '</div>'
+            })
+        })
+        $('#listMachine').html(html)
+    }
+
+    var customMachine = ''
+
+    function checkListMachine() {
+        customMachine = $('.checkListMachine:checked').map(function() {
+            return $(this).val();
+        }).get();
     }
 
     var anyMachine = []
@@ -1531,7 +1557,7 @@
     function makerMachine(data, values, keys, value, key, sisa_stick, sisa) {
         // detail shift
         // perulangan shift
-        // console.log(values)
+        console.log(values)
         values.detail.forEach(values2 => {
             // cari sisa mesin yang tidak kosong
             var hasil = values2.machine.find((values3, keys3) => {

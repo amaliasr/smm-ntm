@@ -170,6 +170,10 @@
         background-color: #d64e12;
     }
 
+    .bg-callout-7 {
+        background-color: #245953;
+    }
+
     .text-callout-0 {
         color: #9b5fe0;
     }
@@ -813,6 +817,7 @@
             html += '<div class="card shadow-none card-hoper mb-2 cardMaterial" onclick="detailMaterialRequest(' + key + ',' + value.id + ')" id="cardMaterial' + value.id + '">'
             html += '<div class="card-body p-0">'
             html += '<div class="row p-0 m-0">'
+
             html += '<div class="col-1 p-1 rounded-start bg-' + value['production_type']['name'].toLowerCase() + ' text-center">'
             html += '<div class="row d-flex align-items-center h-100">'
             html += '<div class="col text-center">'
@@ -820,15 +825,25 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-11 p-3">'
+            html += '<div class="col-9 p-3">'
             html += '<div class="row">'
             html += '<div class="col">'
             html += '<b class="m-0 text_search" data-id="' + key + '">' + value['code'] + '</b>'
             html += '<p class="m-0 small-text text-orange fw-bold text_search" data-id="' + key + '">' + value['created_employee']['name'] + '</p>'
-            html += '<p class="m-0 mt-2 super-small-text">Time : ' + formatDateIndonesia(value['date']) + ' <span class="text-light ps-1 pe-1">|</span> Status : <span class="text-success">' + value['status'] + '</span> <span class="text-light ps-1 pe-1">|</span> ' + jum + ' Items</p>'
+            html += '<p class="m-0 mt-2 super-small-text">Time : ' + formatDateIndonesia(value['date']) + ' <span class="text-light ps-1 pe-1">|</span> Status : <span class="text-success text_search fw-bold" data-id="' + key + '">' + value['status'] + '</span> <span class="text-light ps-1 pe-1">|</span> ' + jum + ' Items</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
+            html += '<div class="col-2 text-center align-self-center">'
+            if (value.status == 'RECEIVED') {
+                html += '<i class="fa fa-check text-success fa-2x"></i>'
+            } else if (value.status == 'REQUESTED') {
+                html += '<i class="fa fa-clock-o text-light fa-2x"></i>'
+            } else if (value.status == 'APPROVED') {
+                html += '<i class="fa fa-file-o text-light fa-2x"></i>'
+            }
+            html += '</div>'
+
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -881,13 +896,14 @@
                             'unit_id': values3['unit']['id'],
                             'unit': values3['unit']['name'],
                             'qty': values3['qty_request'],
+                            'qty_approve': values3['qty_approve'],
                         })
                     })
                 })
             })
         })
-        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
-        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty'])
+        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty', 'qty_approve'])
+        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty', 'qty_approve'])
         // console.log(data_isi_machine_group)
         formDetailMaterialRequest()
         if (id_materials != '') {
@@ -977,6 +993,7 @@
         html += '</tr>'
         html += '</thead>'
         html += '<tbody>'
+        var anyChanged = 0
         $.each(data_isi_material_group, function(key, value) {
             html += '<tr>'
             html += '<td>' + value['material_code'] + '</td>'
@@ -984,17 +1001,25 @@
             html += '<td>'
             $.each(data_isi_material, function(keys, values) {
                 if (value['material_id'] == values['material_id']) {
-                    html += '<span class="badge bg-callout-' + keys + ' p-1 me-1">' + values['machine_code'] + '</span>'
+                    html += '<span class="badge bg-callout-' + values.machine_id + ' p-1 me-1">' + values['machine_code'] + '</span>'
                 }
             })
             html += '</td>'
-            html += '<td class="text-end">' + value['qty'] + '</td>'
+            if (value.qty != value.qty_approve && data_materialrequest.is_process != null) {
+                anyChanged++
+                html += '<td class="text-end"><span>' + number_format(value.qty_approve) + '</span><br><span class="text-decoration-line-through text-danger">' + number_format(value.qty) + '<span></td>'
+            } else {
+                html += '<td class="text-end">' + number_format(value.qty) + '</td>'
+            }
             html += '<td>' + value['unit'] + '</td>'
             html += '</tr>'
         })
         html += '</tbody>'
         html += '</table>'
         html += '</div>'
+        if (anyChanged > 0) {
+            html += '<p class="m-0 small-text text-danger">*) Tanda Merah menandakan terjadi perubahan Jumlah Request dengan Jumlah yang Kirim Logistik</p>'
+        }
         html += '</div>'
         html += '<div class="tab-pane fade" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">'
         $.each(data_isi_machine_group, function(key, value) {
@@ -1005,14 +1030,14 @@
             html += '<h3><b class="float-start">' + value['machine_code'] + '</b></h3>'
             html += '</div>'
             html += '<div class="col-6">'
-            html += '<div class="row">'
-            html += '<div class="col small-text">Catcher / Helper</div>'
-            html += '<div class="col small-text text-end"><b>Supri</b></div>'
-            html += '</div>'
-            html += '<div class="row">'
-            html += '<div class="col small-text">Operator</div>'
-            html += '<div class="col small-text text-end"><b>Denny</b></div>'
-            html += '</div>'
+            // html += '<div class="row">'
+            // html += '<div class="col small-text">Catcher / Helper</div>'
+            // html += '<div class="col small-text text-end"><b>Supri</b></div>'
+            // html += '</div>'
+            // html += '<div class="row">'
+            // html += '<div class="col small-text">Operator</div>'
+            // html += '<div class="col small-text text-end"><b>Denny</b></div>'
+            // html += '</div>'
             html += '</div>'
             html += '<div class="col-12">'
             html += '<hr class="mt-2 mb-2">'
@@ -1242,7 +1267,6 @@
             },
             success: function(response) {
                 data_stats = response['data']
-                console.log(data_stats)
                 $('#graphStats').html('')
                 $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
                 if (data_stats.average.length == 0) {
@@ -1284,7 +1308,7 @@
 
     function listItems() {
         var html = ""
-        html += '<select class="form-select w-100 items" multiple id="items" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        html += '<select class="form-select w-100 items" multiple id="items" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="changeItemGraph()">'
         $.each(data_stats.average, function(key, value) {
             html += '<option value="' + value['id'] + '" selected>' + value['name'] + '</option>'
         })
@@ -1313,6 +1337,12 @@
         })
         $('#listAverage').html(html)
         statsGraph()
+    }
+
+    function changeItemGraph() {
+        var item = $('#items').val()
+        console.log(item)
+        console.log(data_stats)
     }
 
     function statsGraph() {
@@ -1464,10 +1494,14 @@
         }
 
     });
+    var jumlahCheckLogistik = 0
+    var jumlahTotalLogistik = 0
 
     function prosesLogistik() {
+        jumlahCheckLogistik = 0
+        jumlahTotalLogistik = 0
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered');
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Proses Logistik ' + data_materialrequest.code + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -1505,18 +1539,19 @@
                     html_body += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + values['qty'] + '</span>'
                     html_body += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
                     html_body += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
-                    html_body += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input class="form-control form-control-sm p-1 inputBaru" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '"></div>'
+                    html_body += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '"></div>'
 
                     html_body += '</div>'
                     html_body += '<div class="col">' + number_format(stok_by_id_berjalan[values.material_id]) + '</div>'
                     html_body += '<div class="col">' + values['unit'] + '</div>'
                     html_body += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
-                    html_body += '<i class="fa fa-check fa-2x text-light" id="checkCardItem' + key + keys + '"></i>'
+                    html_body += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + '"></i>'
                     html_body += '</div>'
                     html_body += '</div>'
                     html_body += '</div>'
                     html_body += '</div>'
                     stok_by_id_berjalan[values.material_id] = parseFloat(stok_by_id_berjalan[values.material_id]) - parseFloat(values['qty'])
+                    jumlahTotalLogistik++
                 }
             })
 
@@ -1527,10 +1562,10 @@
         })
         html_body += '</div>'
         $('#modalBody').html(html_body);
-
+        $('.nominal').number(true);
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')">Selesaikan dan Kirim ke Foreman</button>'
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')"><span id="jumlahCardSelected">&nbsp;0&nbsp;</span> / <span>&nbsp;' + jumlahTotalLogistik + '&nbsp;</span>&nbsp;Item Telah di Check</button>'
         $('#modalFooter').html(html_footer);
     }
 
@@ -1687,12 +1722,12 @@
         if (data == true) {
             // remove
             $('#cardItem' + id).removeClass('activeItem bg-light')
-            $('#checkCardItem' + id).addClass('text-light')
+            $('#checkCardItem' + id).addClass('text-grey')
             $('#checkCardItem' + id).removeClass('text-success')
         } else {
             // insert
             $('#cardItem' + id).addClass('activeItem bg-light')
-            $('#checkCardItem' + id).removeClass('text-light')
+            $('#checkCardItem' + id).removeClass('text-grey')
             $('#checkCardItem' + id).addClass('text-success')
         }
         countItemCheck()
@@ -1703,8 +1738,10 @@
         var jumlahCardSelected = $('.activeItem').length
         if (jumlahCard == jumlahCardSelected) {
             $('#btnApprove').removeAttr('disabled', true)
+            $('#btnApprove').html('Selesaikan dan Kirim ke Foreman')
         } else {
             $('#btnApprove').attr('disabled', true)
+            $('#btnApprove').html('<span id="jumlahCardSelected">&nbsp;' + jumlahCardSelected + '&nbsp;</span> / <span>&nbsp;' + jumlahTotalLogistik + '&nbsp;</span>&nbsp;Item Telah di Check')
         }
     }
 
@@ -1717,9 +1754,10 @@
         if (value == '' || value == 0) {
             resetFormQty(key)
         } else {
-            fillFormQty(key, value)
+            fillFormQty(key, value, stok)
         }
     })
+
     $(document).on('focusout', '.inputBaru', function(e) {
         $('.fieldInputBaru').addClass('d-none')
         $('.showInputBaru').removeClass('active')
@@ -1759,9 +1797,22 @@
         $('#inputBaru' + key).removeClass('d-none')
     }
 
-    function fillFormQty(key, value) {
+    function fillFormQty(key, value, stok) {
         $('#jumlahLama' + key).removeClass('fw-bolder')
         $('#jumlahLama' + key).addClass('text-decoration-line-through')
-        $('#jumlahBaru' + key).html(value)
+        $('#jumlahBaru' + key).html(number_format(value))
+        if (value > stok) {
+            colorizedInputBaru('text-danger', '#jumlahBaru' + key, 'add')
+        } else {
+            colorizedInputBaru('text-danger', '#jumlahBaru' + key, 'remove')
+        }
+    }
+
+    function colorizedInputBaru(color, html, state) {
+        if (state == 'remove') {
+            $(html).removeClass(color)
+        } else {
+            $(html).addClass(color)
+        }
     }
 </script>
