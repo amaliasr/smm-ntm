@@ -95,4 +95,20 @@ class Production extends CI_Controller
         $data['title'] = 'Management Warehouse';
         $this->template->views('production/warehouse_management', $data);
     }
+    public function cetakMaterialRequest()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['qrcode'] = $explodedParams[1];
+        $data['id'] = $explodedParams[2];
+        $data['user_id'] = $explodedParams[3];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getMaterialRequestPrint?id=' . $data['id'] . '&employeeId=' . $data['user_id'])))->data;
+        $html = $this->load->view('production/cetak_material_request', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = 'MATERIAL REQUEST ' . $data['datas']->materialRequest[0]->code . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream($data['datas']->materialRequest[0]->code, array("Attachment" => 0));
+    }
 }

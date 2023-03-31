@@ -596,7 +596,7 @@
                                 <div class="card shadow-none">
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-12 col-md-5">
+                                            <div class="col-12 col-md-5/">
                                                 <p><b class="small">Settings</b></p>
                                                 <div class="row">
                                                     <label class="small-text mt-2 mb-2">Date Range</label>

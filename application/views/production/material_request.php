@@ -308,6 +308,7 @@
                                         </div>
                                     </div>
                                     <div class="col-12 pt-4">
+                                        <div id="qrcode" style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div>
                                         <div class="row">
                                             <div class="col-12" id="tampilDetailPembayaran">
                                             </div>
@@ -492,7 +493,6 @@
                 detail: detail
             })
         })
-        console.log(data_isi_material)
         formMaterialRequest()
     }
 
@@ -575,6 +575,25 @@
         if (data.length <= 0) {
             notFound('#tampilDetailPembayaran')
         }
+    }
+
+    var imgBase64Data
+
+    function cetakMaterialRequest(id) {
+        var urlQR = '<?= base_url() ?>production/material_request_approval/' + id
+        var qrcode = new QRCode("qrcode", {
+            text: urlQR,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        var image = btoa(imgBase64Data)
+        var url = '<?= base_url('production/cetakMaterialRequest') ?>'
+        var params = "*$" + image + "*$" + id + "*$" + user_id
+        window.open(url + '?params=' + (params), '_blank')
     }
 
     function changeFilter(jenis) {
