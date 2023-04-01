@@ -1257,10 +1257,19 @@
         for (let i = 0; i < produk.length; i++) {
             changeColorTarget(produk[i])
             if (jumlah[i] != "") {
+                var propo = ''
+                data_master[jenis_produksi].machineSubtypeProportion.forEach(e => {
+                    if (e.stick == num_stick[i]) {
+                        propo = e.proportion[0]
+                    }
+                });
                 obj.push({
                     'qty': jumlah[i],
+                    'qty_sisa': jumlah[i],
                     'qty_stick': eval(jumlah[i] + operator[i] + stick[i]),
+                    'qty_tray': eval(jumlah[i] + propo.operator + propo.value),
                     'qty_stick_sisa': eval(jumlah[i] + operator[i] + stick[i]),
+                    'qty_tray_sisa': eval(jumlah[i] + propo.operator + propo.value),
                     'item_id_product': produk[i],
                     'kode': kode[i],
                     'stick': stick[i],
@@ -1426,6 +1435,7 @@
         }
     }
 
+    var switchModeMachine = 2
 
     function pembentukanKapasitasHariMesin(data, auto) {
         // per produk
@@ -1472,22 +1482,26 @@
         if (auto == 'manual') {
             pembagianPerMesin(data)
         } else {
+            // if (switchModeMachine == 1) {
             pembentukanConvertMesin(data)
+            // } else {
+            //     pembentukanModePembanding(data)
+            // }
         }
     }
 
     function pembentukanConvertMesin(data) {
-        // console.log(data)
-        // console.log(dataShiftComplete)
-        // console.log(customDate)
+
         // check shift per hari
         // per produk
         // total stick adalah sisa
         var sisa_stick = 0
+        var sisa_tray = 0
         var sisa = 0
 
         $.each(data.productionPlanGoal, function(key, value) {
             sisa_stick = value.qty_stick
+            sisa_tray = value.qty_tray
             sisa = value.qty
             // per harian
             var tanggalMulaiStatus = ''
@@ -1498,9 +1512,15 @@
                 var checkCustomDate = customDate[customDate.findIndex(x => x.id_item == value.item_id_product)]
                 if (checkCustomDate == undefined) {
                     // jika ga custom
-                    let nameVariable = makerMachine(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_stick, sisa)
-                    sisa_stick = nameVariable.sisa_stick
-                    sisa = nameVariable.sisa
+                    if (switchModeMachine == 1) {
+                        let nameVariable = makerMachine(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_stick, sisa)
+                        sisa_stick = nameVariable.sisa_stick
+                        sisa = nameVariable.sisa
+                    } else {
+                        let nameVariable = makerMachinePerbandingan(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_tray, sisa)
+                        sisa_tray = nameVariable.sisa_tray
+                        sisa = nameVariable.sisa
+                    }
                 } else {
                     // TANGGAL MULAI
                     if (checkCustomDate.tanggal_mulai != '') {
@@ -1543,21 +1563,126 @@
                     }
 
                     if (tanggalMulaiStatus == 'mulai' && tanggalSelesaiStatus == 'mulai' && tanggalCustomDate == 'mulai') {
-                        let nameVariable = makerMachine(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_stick, sisa)
-                        sisa_stick = nameVariable.sisa_stick
-                        sisa = nameVariable.sisa
+                        if (switchModeMachine == 1) {
+                            let nameVariable = makerMachine(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_stick, sisa)
+                            sisa_stick = nameVariable.sisa_stick
+                            sisa = nameVariable.sisa
+                        } else {
+                            let nameVariable = makerMachinePerbandingan(data, dataShiftComplete[keys], keys, data.productionPlanGoal[key], key, sisa_tray, sisa)
+                            sisa_tray = nameVariable.sisa_tray
+                            sisa = nameVariable.sisa
+                        }
                     }
                 }
             })
         })
-        // pembagianPerMesin(data)
         simpanProdukTarget('manual', 'true')
+    }
+
+    function makerMachinePerbandingan(data, values, keys, value, key, sisa_tray, sisa) {
+        // MAKER
+        values.detail.forEach(values2 => {
+            // cari sisa mesin yang tidak kosong
+            var hasil = values2.machine.find((values3, keys3) => {
+                if (values3.sisa_mesin > 0) return true
+            })
+            var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
+            var checkAvailableChild = hasilChild.filter((v, k) => {
+                if (v.sisa_mesin > 0) return true
+            })
+            if (sisa_tray != 0 && checkAvailableChild.length != 0) {
+                // index mesin
+                var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
+                var pemakaian_tray = 0
+                // MASUK KE HLP
+                let nameVariable = machineChildPerbandingan(data.productionPlanGoal[key], hasil, formatDate(values.date), values2.machine, hasilChild, values2, index, sisa_tray, sisa, value, values)
+                sisa_tray = nameVariable.sisa_tray
+                sisa = nameVariable.sisa
+            }
+        })
+        return {
+            'sisa_tray': sisa_tray,
+            'sisa': sisa
+        };
+    }
+
+    function machineChildPerbandingan(data, hasil, date, machine, hasilChild, values2, index, sisa_tray, sisa, value, values) {
+        // HLP (SISA box)
+        var totalPemakaian = 0
+        hasilChild.forEach(e => {
+            if (e.sisa_mesin > 0 || sisa > 0) {
+                var pemakaian = 0
+                var var_sisa_mesin = e.sisa_mesin
+                if (data.qty_sisa > e.sisa_mesin) {
+                    // jika banyak sisa box dari pada sisa mesin
+                    pemakaian = var_sisa_mesin
+                    sisa = sisa - pemakaian
+                    var_sisa_mesin = 0
+                } else {
+                    // jika sisa stik lebih sedikit, sisa lebih banyak
+                    pemakaian = sisa
+                    var_sisa_mesin = var_sisa_mesin - pemakaian
+                    sisa = 0
+                }
+                totalPemakaian = totalPemakaian + pemakaian
+                $('#jumlahPlanning' + data.item_id_product + e.machine_id + date).val(pemakaian)
+                e.sisa_mesin = var_sisa_mesin
+                values2.machine[index].sisa_mesin = var_sisa_mesin
+            }
+        });
+        // console.log(hasilChild)
+        // insert hasil sisa mesin hlp di semua maker
+        machine.forEach(e => {
+            e.data.forEach(element => {
+                if (element.stick == data.num_stick) {
+                    element.machine_link = hasilChild
+                }
+            });
+        });
+        // MASUK LAGI KE MAKER
+        if (sisa_tray > 0) {
+            let nameVariable = macihneMakerAgainPerbandingan(hasil, sisa_tray, value, values, values2, index, sisa_tray, sisa, totalPemakaian, data.num_stick)
+            sisa_tray = nameVariable.sisa_tray
+        }
+        return {
+            'sisa_tray': sisa_tray,
+            'sisa': sisa
+        };
+    }
+
+    function macihneMakerAgainPerbandingan(hasil, sisa_tray, value, values, values2, index, sisa_tray, sisa, totalPemakaian, num_stick) {
+        // MAKER (TRAY)
+        var propo = ''
+        data_master[jenis_produksi].machineSubtypeProportion.forEach(e => {
+            if (e.stick == num_stick) {
+                propo = e.proportion[0]
+            }
+        });
+        var var_sisa_mesin_tray = hasil.sisa_mesin
+        pemakaian_tray = eval(totalPemakaian + propo.operator + propo.value)
+        if (sisa_tray > hasil.sisa_mesin) {
+            // jika banyak sisa stik dari pada sisa mesin
+            sisa_tray = sisa_tray - pemakaian_tray
+            var_sisa_mesin_tray = 0
+        } else {
+            // jika sisa stik lebih sedikit, sisa lebih banyak
+            pemakaian_tray = sisa_tray
+            var_sisa_mesin_tray = var_sisa_mesin_tray - pemakaian_tray
+            sisa_tray = 0
+        }
+        // item mesin tanggal
+        // console.log(keys, keys2, index)
+        $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian_tray)
+        // dimasukkan ke array
+        values2.machine[index].sisa_mesin = var_sisa_mesin_tray
+        return {
+            'sisa_tray': sisa_tray,
+        };
     }
 
     function makerMachine(data, values, keys, value, key, sisa_stick, sisa) {
         // detail shift
         // perulangan shift
-        console.log(values)
         values.detail.forEach(values2 => {
             // cari sisa mesin yang tidak kosong
             var hasil = values2.machine.find((values3, keys3) => {
@@ -1606,6 +1731,7 @@
             'sisa': sisa
         };
     }
+
 
     function machineChild(data, hasil, sisa_stick, date, machine, hasilChild) {
         hasilChild.forEach(e => {
