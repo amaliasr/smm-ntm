@@ -359,10 +359,24 @@
                                                                             <div class="card shadow-none">
                                                                                 <div class="card-body">
                                                                                     <div class="row">
-                                                                                        <div class="col-12">
+                                                                                        <div class="col-6">
                                                                                             <b class="small">Sustainable Machine in A Day</b>
                                                                                             <p class="font-small m-0">Pilih Mesin yang dimana item tersebut dapat lebih dari 1 Mesin dalam 1 Hari</p>
                                                                                             <div class="small pt-3" id="listMachine">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="col-6">
+                                                                                            <b class="small">Calculate Method</b>
+                                                                                            <p class="font-small m-0">Pilih Metode Perhitungan Plan Produksi ke Masing - Masing Mesin</p>
+                                                                                            <div class="small pt-3">
+                                                                                                <div class="form-check">
+                                                                                                    <input class="form-check-input radioMethod" type="radio" value="" id="checkMethod1" name="checkMethod" onchange="chooseCalculateMethod('maker')" checked>
+                                                                                                    <label class="form-check-label" for="checkMethod1">Maker Based</label>
+                                                                                                </div>
+                                                                                                <div class="form-check">
+                                                                                                    <input class="form-check-input radioMethod" type="radio" value="" id="checkMethod2" name="checkMethod" onchange="chooseCalculateMethod('ratio')">
+                                                                                                    <label class="form-check-label" for="checkMethod2">Ratio Based (New)</label>
+                                                                                                </div>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -1144,6 +1158,7 @@
         simpanProdukTarget()
     })
 
+
     function changeColorTarget(id) {
         $('.fieldDPlan' + id).removeClass('bg-light')
     }
@@ -1435,7 +1450,16 @@
         }
     }
 
-    var switchModeMachine = 2
+    var switchModeMachine = 1
+
+    function chooseCalculateMethod(status) {
+        if (status == 'maker') {
+            switchModeMachine = 1
+        } else {
+            switchModeMachine = 2
+        }
+        simpanProdukTarget()
+    }
 
     function pembentukanKapasitasHariMesin(data, auto) {
         // per produk
@@ -1575,6 +1599,7 @@
                     }
                 }
             })
+            // console.log(sisa)
         })
         simpanProdukTarget('manual', 'true')
     }
@@ -1595,9 +1620,11 @@
                 var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
                 var pemakaian_tray = 0
                 // MASUK KE HLP
-                let nameVariable = machineChildPerbandingan(data.productionPlanGoal[key], hasil, formatDate(values.date), values2.machine, hasilChild, values2, index, sisa_tray, sisa, value, values)
-                sisa_tray = nameVariable.sisa_tray
-                sisa = nameVariable.sisa
+                if (sisa > 0) {
+                    let nameVariable = machineChildPerbandingan(data.productionPlanGoal[key], hasil, formatDate(values.date), values2.machine, hasilChild, values2, index, sisa_tray, sisa, value, values)
+                    sisa_tray = nameVariable.sisa_tray
+                    sisa = nameVariable.sisa
+                }
             }
         })
         return {
@@ -1613,7 +1640,7 @@
             if (e.sisa_mesin > 0 || sisa > 0) {
                 var pemakaian = 0
                 var var_sisa_mesin = e.sisa_mesin
-                if (data.qty_sisa > e.sisa_mesin) {
+                if (sisa > e.sisa_mesin) {
                     // jika banyak sisa box dari pada sisa mesin
                     pemakaian = var_sisa_mesin
                     sisa = sisa - pemakaian
@@ -1624,7 +1651,7 @@
                     var_sisa_mesin = var_sisa_mesin - pemakaian
                     sisa = 0
                 }
-                totalPemakaian = totalPemakaian + pemakaian
+                totalPemakaian = parseFloat(totalPemakaian) + parseFloat(pemakaian)
                 $('#jumlahPlanning' + data.item_id_product + e.machine_id + date).val(pemakaian)
                 e.sisa_mesin = var_sisa_mesin
                 values2.machine[index].sisa_mesin = var_sisa_mesin
@@ -1670,6 +1697,7 @@
             var_sisa_mesin_tray = var_sisa_mesin_tray - pemakaian_tray
             sisa_tray = 0
         }
+        pemakaian_tray = Math.floor(pemakaian_tray / 10) * 10
         // item mesin tanggal
         // console.log(keys, keys2, index)
         $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian_tray)
