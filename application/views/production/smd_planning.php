@@ -506,70 +506,69 @@
             })
         }
         var html = ""
-        for (let i = 0; i < 100; i++) {
-            $.each(data, function(keys, values) {
-                html += '<div class="row lazy" id="card_search' + keys + '">'
-                html += '<div class="col-12">'
-                html += '<div class="card shadow-none mb-2">'
-                html += '<div class="card-body p-0">'
-                html += '<div class="row p-0 m-0">'
-                html += '<div class="col-1 p-3 rounded-start bg-' + values['production_type']['name'].toLowerCase() + ' text-center">'
-                html += '<div class="row d-flex align-items-center h-100">'
-                html += '<div class="col text-center">'
-                html += '<span class="small text-white vertical-text">' + values['production_type']['name'] + '</span>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '<div class="col p-3">'
-                html += '<div class="row">'
-                html += '<div class="col">'
-                html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
-                html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">#' + values['code'] + '</p>'
-                html += '<h6 class="m-0 text_search" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')" data-id="' + keys + '"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
-                html += '</div>'
-                html += '<div class="col-auto align-self-center">'
-                html += '<div class="row" style="font-size: 11px;">'
-                html += '<div class="col-auto">'
-                var text = 'text-grey'
-                if (values['is_created'] == 1) {
-                    text = 'text-success'
-                }
-                html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Created</p>'
-                html += '</div>'
-                html += '<div class="col-auto">'
-                text = 'text-grey'
-                if (values['is_draft'] == 1) {
-                    text = 'text-success'
-                }
-                html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Drafted</p>'
-                html += '</div>'
-                html += '<div class="col-auto">'
-                text = 'text-grey'
-                if (values['is_done'] == 1) {
-                    text = 'text-success'
-                }
-                html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Done</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '<div class="col-auto text-center align-self-center">'
-                html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
-                html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-                html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
-                html += '<a class="dropdown-item" onclick="linkToRevisiPlan(' + values.id + ',' + values.production_type.id + ')"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
-                html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
-                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            })
-        }
+        $.each(data, function(keys, values) {
+            html += '<div class="row lazy" id="card_search' + keys + '">'
+            html += '<div class="col-12">'
+            html += '<div class="card shadow-none mb-2">'
+            html += '<div class="card-body p-0">'
+            html += '<div class="row p-0 m-0">'
+            html += '<div class="col-1 p-3 rounded-start bg-' + values['production_type']['name'].toLowerCase() + ' text-center">'
+            html += '<div class="row d-flex align-items-center h-100">'
+            html += '<div class="col text-center">'
+            html += '<span class="small text-white vertical-text">' + values['production_type']['name'] + '</span>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col p-3">'
+            html += '<div class="row">'
+            html += '<div class="col">'
+            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
+            html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">#' + values['code'] + '</p>'
+            html += '<h6 class="m-0 text_search" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')" data-id="' + keys + '"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
+            html += '</div>'
+            html += '<div class="col-auto align-self-center">'
+            html += '<div class="row" style="font-size: 11px;">'
+            html += '<div class="col-auto">'
+            var text = 'text-grey'
+            if (values['is_created'] == 1) {
+                text = 'text-success'
+            }
+            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Created</p>'
+            html += '</div>'
+            html += '<div class="col-auto">'
+            text = 'text-grey'
+            if (values['is_draft'] == 1) {
+                text = 'text-success'
+            }
+            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Drafted</p>'
+            html += '</div>'
+            html += '<div class="col-auto">'
+            text = 'text-grey'
+            if (values['is_done'] == 1) {
+                text = 'text-success'
+            }
+            html += '<p class="m-0"><i class="fa fa-check-circle ' + text + ' me-2"></i> Done</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-auto text-center align-self-center">'
+            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+            html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
+            html += '<a class="dropdown-item" onclick="linkToRevisiPlan(' + values.id + ',' + values.production_type.id + ')"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
+            html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
+            html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+
         $('#tampilDetailPembayaran').html(html)
         $('.lazy').Lazy({
             // your configuration goes here

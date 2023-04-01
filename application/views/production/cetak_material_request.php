@@ -73,7 +73,7 @@
         }
 
         body {
-            margin-top: 90px;
+            margin-top: 70px;
             margin-bottom: 100px;
         }
     </style>
@@ -116,7 +116,7 @@
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">Tanggal</td>
                 <td style="width: 2px;">:</td>
-                <td style="word-wrap: break-word;width: 90%;">Jumat, 31 Maret 2023</td>
+                <td style="word-wrap: break-word;width: 90%;"><?= date("d M Y", strtotime($datas->materialRequest[0]->date)); ?></td>
             </tr>
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">Shift</td>
@@ -126,64 +126,48 @@
         </table>
         <!-- MAKER -->
         <?php
-        foreach ($datas->machineMaterialHeader as $v) { ?>
+        foreach ($datas->machineMaterialHeader as $k => $v) { ?>
             <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
                 <tr style="text-align: center">
                     <th class="th_main" style="width: 15%;">ID MATERIAL</th>
                     <th class="th_main" style="width:35%">NAMA BAHAN</th>
                     <th class="th_main" style="width: 15%;">SATUAN</th>
-                    <?php foreach ($v as $value) {
-                        if ($value->detail != null) { ?>
+                    <?php
+                    $sub_type_id = 0;
+                    foreach ($v as $value) {
+                        if ($value->detail != null) {
+                            $sub_type_id = $value->detail->sub_type_id;
+                    ?>
                             <th class="th_main"><?= $value->label ?></th>
                     <?php }
                     } ?>
                 </tr>
-                <tr>
-                    <td class="td_main" style="text-align: center;">RM.02-403</td>
-                    <td class="td_main">Cigarette Paper Verge BMJ (Uk 27,5mm x 6000m) </td>
-                    <td class="td_main" style="text-align:center;">TRAY</td>
-                    <?php foreach ($v as $value) {
-                        if ($value->detail != null) { ?>
-                            <td class="td_main" style="text-align:right;"><?= number_format(500, 2, ',', '.') ?></td>
-                    <?php }
-                    } ?>
-                </tr>
+                <?php foreach ($datas->machineSubtypeMaterial as $materials) {
+                    if ($materials->machine_sub_type == $sub_type_id) {
+                        foreach ($materials->material as $item) {
+                ?>
+                            <tr>
+                                <td class="td_main" style="text-align: center;"><?= $item->code ?></td>
+                                <td class="td_main"><?= $item->name ?></td>
+                                <td class="td_main" style="text-align:center;"><?= $item->unit->name ?></td>
+                                <?php foreach ($v as $value) {
+                                    if ($value->detail != null) { ?>
+                                        <td class="td_main" style="text-align:right;">
+                                            <?php foreach ($datas->materialRequestItem[0]->material[0] as $value2) {
+                                                if ($value2->material->id == $item->id) { ?>
+                                                    <?= number_format($value2->qty_request, 2, ',', '.') ?>
+                                            <?php }
+                                            } ?>
+                                        </td>
+                                <?php
+                                    }
+                                } ?>
+                            </tr>
+                <?php }
+                    }
+                } ?>
             </table>
         <?php } ?>
-        <!-- HLP 12 -->
-        <!-- <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
-            <tr style="text-align: center">
-                <th class="th_main" style="width: 15%;">ID MATERIAL</th>
-                <th class="th_main" style="width:35%">NAMA BAHAN</th>
-                <th class="th_main" style="width: 15%;">SATUAN</th>
-                <th class="th_main">HLP 12-A</th>
-                <th class="th_main">HLP 12-B</th>
-            </tr>
-            <tr>
-                <td class="td_main" style="text-align: center;">RM.02-403</td>
-                <td class="td_main">Cigarette Paper Verge BMJ (Uk 27,5mm x 6000m) </td>
-                <td class="td_main" style="text-align:center;">TRAY</td>
-                <td class="td_main" style="text-align:right;"><?= number_format(500, 2, ',', '.') ?></td>
-                <td class="td_main" style="text-align:right;"><?= number_format(500, 2, ',', '.') ?></td>
-            </tr>
-        </table> -->
-        <!-- HLP 20 -->
-        <!-- <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
-            <tr style="text-align: center">
-                <th class="th_main" style="width: 15%;">ID MATERIAL</th>
-                <th class="th_main" style="width:35%">NAMA BAHAN</th>
-                <th class="th_main" style="width: 15%;">SATUAN</th>
-                <th class="th_main">HLP 20-A</th>
-                <th class="th_main">HLP 20-B</th>
-            </tr>
-            <tr>
-                <td class="td_main" style="text-align: center;">RM.02-403</td>
-                <td class="td_main">Cigarette Paper Verge BMJ (Uk 27,5mm x 6000m) </td>
-                <td class="td_main" style="text-align:center;">TRAY</td>
-                <td class="td_main" style="text-align:right;"><?= number_format(500, 2, ',', '.') ?></td>
-                <td class="td_main" style="text-align:right;"><?= number_format(500, 2, ',', '.') ?></td>
-            </tr>
-        </table> -->
         <table style="width: 100%;">
             <tr style="vertical-align: top;">
                 <td style="width: 50%;">
@@ -203,9 +187,6 @@
         <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
         <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
     </main>
-    <footer>
-        Material Request diatas menggunakan Sistem Resmi PT Sinar Mahkota Mas
-    </footer>
 </body>
 
 </html>

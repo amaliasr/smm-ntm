@@ -522,7 +522,7 @@
             },
             success: function(response) {
                 data_material = response['data']
-                console.log(data_material)
+                // console.log(data_material)
                 stages()
             }
         })
@@ -609,7 +609,7 @@
             })
         })
         data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
-        // console.log(data_isi_material_group)
+        // console.log(data_isi_material)
         formDetailMaterialRequest()
     }
 
@@ -632,6 +632,7 @@
         html += '</div>'
         html += '<div class="col-12 small">'
         html += '<div class="row pt-4">'
+        console.log(data_material['machineMaterialHeader'])
         $.each(data_material['machineMaterialHeader'], function(key, value) {
             var nama = data_material['machineMaterialHeader'][key].filter((values2, keys2) => {
                 if (values2.detail != null) return true
