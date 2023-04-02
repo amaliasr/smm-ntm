@@ -357,6 +357,8 @@
                             <div class="col-12">
                                 <div class="row pt-4" id="listDetail">
                                 </div>
+                                <div class="row pt-3" id="btnProcess">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -637,7 +639,22 @@
             html += '</div>'
         })
         $('#listDetail').html(html)
+        var hasil = data_plan.access_create_material.find((v, k) => {
+            if (v.employee_id == user_id) return true
+        })
+        if (hasil != undefined) {
+            buttonToDraft()
+        }
+        // if(data_plan.access_create_material)
         // hiungTotalMesinPerHari()
+    }
+
+    function buttonToDraft() {
+        var html = ''
+        html += '<div class="col-12 text-end">'
+        html += '<button class="btn btn-primary" onclick="linkToDraft(' + data_plan.data[0].production_plan_id + ')">Make a Draft <i class="fa fa-pencil ms-2"></i></button>'
+        $('#btnProcess').html(html)
+        html += '</div>'
     }
 
     function hiungTotalMesinPerHari() {
