@@ -1126,24 +1126,72 @@
                 $(button).prop("disabled", true);
             },
             success: function(response) {
-                if (response.success == true) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Data Berhasil Disimpan',
-                        icon: 'success',
-                    }).then((responses) => {
-                        $(button).prop("disabled", false);
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Gagal Tersimpan'
-                    });
-                    $(button).prop("disabled", false);
-                }
+                $('#modal').modal('hide')
+                var data_notif = data_plan.sendNotif.spvSmd
+                var no_telp = []
+                var nama = []
+                $.each(data_notif, function(key, value) {
+                    no_telp.push('081944946015')
+                    nama.push(value.full_name)
+                })
+                shareWhatsapp(no_telp, nama, codeMaterial, data.material_request[0].date, data.material_request[0].id)
             }
         });
+    }
+
+    function shareWhatsapp(no_telp, nama, code, date, id) {
+        $.ajax({
+            url: "<?= base_url('api/sendApprovalToSMD') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                link: '<?= base_url() ?>production/approvalMaterialRequest/' + id,
+                nama: nama,
+                nama_pembuat: full_name,
+                kode: code,
+                tanggal: date,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+                    $('#modal2').modal('hide')
+                    linkToLinkLive('<?= base_url() ?>production/materialRequest')
+                    getData()
+                });
+            }
+        })
+    }
+
+    function loading(image, text) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-centered');
+        // var html_header = '';
+        $('#modalHeader2').addClass('d-none');
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row text-center p-5">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/' + image + '" class="w-50  mx-auto d-block"><br>'
+        html_body += '<p class="mt-3">' + text + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter2').addClass('d-none');
     }
 
     $('.head-collapse').on('hide.bs.collapse', function() {
@@ -1193,5 +1241,10 @@
     function linkToLink(link) {
         var url = link
         window.open(url, '_blank')
+    }
+
+    function linkToLinkLive(link) {
+        var url = link
+        window.open(url)
     }
 </script>

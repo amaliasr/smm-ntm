@@ -637,6 +637,12 @@
         let obj = data_material.find((value, key) => {
             if (value.id === id) return true
         });
+        var no_telp = []
+        var nama = []
+        for (let i = 0; i < 1; i++) {
+            nama.push('Febrianti')
+            no_telp.push('081944946015')
+        }
         Swal.fire({
             text: 'Membagikan Approval ' + obj.code + ' akan langsung masuk ke Whatsapp SPV SMD, apakah anda ingin melanjutkan?',
             icon: 'warning',
@@ -646,20 +652,20 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                shareWhatsapp(obj)
+                shareWhatsapp(obj, no_telp, nama)
             }
         })
     }
 
-    function shareWhatsapp(data) {
+    function shareWhatsapp(data, no_telp, nama) {
         $.ajax({
             url: "<?= base_url('api/sendApprovalToSMD') ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                no_telp: '081944946015',
+                no_telp: no_telp,
                 link: '<?= base_url() ?>production/approvalMaterialRequest/' + data.id,
-                nama: 'Febrianti',
+                nama: nama,
                 nama_pembuat: data.created_employee.name,
                 kode: data.code,
                 tanggal: data.date,
