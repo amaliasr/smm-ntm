@@ -632,7 +632,6 @@
         html += '</div>'
         html += '<div class="col-12 small">'
         html += '<div class="row pt-4">'
-        console.log(data_material['machineMaterialHeader'])
         $.each(data_material['machineMaterialHeader'], function(key, value) {
             var nama = data_material['machineMaterialHeader'][key].filter((values2, keys2) => {
                 if (values2.detail != null) return true
@@ -704,6 +703,8 @@
             html += '</div>'
             html += '</div>'
         })
+        html += '<div class="col-12 text-end" id="fieldBtnSelesaikan">'
+        html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -757,7 +758,7 @@
     function fieldBtnApproval() {
         var html = ''
         html += '<button type="button" class="btn btn-success" onclick="approvalForm()">Selesaikan Persetujuan</button>'
-        $('#fieldBtnApproval').html(html)
+        $('#fieldBtnSelesaikan').html(html)
     }
 
     function formatCard(status) {

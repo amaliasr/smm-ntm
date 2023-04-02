@@ -370,12 +370,12 @@
                                                                                             <p class="font-small m-0">Pilih Metode Perhitungan Plan Produksi ke Masing - Masing Mesin</p>
                                                                                             <div class="small pt-3">
                                                                                                 <div class="form-check">
-                                                                                                    <input class="form-check-input radioMethod" type="radio" value="" id="checkMethod1" name="checkMethod" onchange="chooseCalculateMethod('maker')" checked>
+                                                                                                    <input class="form-check-input radioMethod" type="radio" value="" id="checkMethod1" name="checkMethod" onchange="chooseCalculateMethod('maker')">
                                                                                                     <label class="form-check-label" for="checkMethod1">Maker Based</label>
                                                                                                 </div>
                                                                                                 <div class="form-check">
-                                                                                                    <input class="form-check-input radioMethod" type="radio" value="" id="checkMethod2" name="checkMethod" onchange="chooseCalculateMethod('ratio')">
-                                                                                                    <label class="form-check-label" for="checkMethod2">Ratio Based (New)</label>
+                                                                                                    <input class="form-check-input radioMethod" type="radio" value="" id="checkMethod2" name="checkMethod" onchange="chooseCalculateMethod('ratio')" checked>
+                                                                                                    <label class="form-check-label" for="checkMethod2">Ratio Based <i class="ms-2 fa fa-question-circle-o" style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Ratio berdasarkan perbandingan dari kapasitas produksi mesin HLP dengan mesin MAKER." title="Information"></i></label>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -855,15 +855,15 @@
         var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl)
         })
-        var b = 0
-        date.forEach(function(dates) {
-            $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
-                if (value.is_default == 1) {
-                    colorShift(b, key)
-                }
-            })
-            b++
-        })
+        // var b = 0
+        // date.forEach(function(dates) {
+        //     $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
+        //         if (value.is_default == 1) {
+        //             colorShift(b, key)
+        //         }
+        //     })
+        //     b++
+        // })
         if (data['productionPlanGoal'] != undefined) {
             $.each(data['productionPlanGoal'], function(key, value) {
                 changeColorTarget(value['item_id_product'])
@@ -1261,8 +1261,8 @@
             if (hasClass[i] == true) {
                 objShift.push({
                     'date': shift_date[i],
-                    'id': 1,
-                    // 'id': shift_id[i],
+                    // 'id': 1,
+                    'id': shift_id[i],
                     'date_id': shift_date_id[i],
                     'click': hasClass[i],
                     'num': 1,
@@ -1378,26 +1378,20 @@
     }
 
     function kapasitasMesin(data, auto) {
-        // console.log(data.shiftDetail)
         // dicek dulu apakah shift sudah di klik apa belum
         if (data.shiftDetail != undefined) {
             if (data.shiftDetail.length > 0) {
                 var groupShiftDetail = getDateFromRange(new Date(dateStart), new Date(dateEnd))
-                // var groupShiftDetail = groupAndSum(data.shiftDetail, ['date', 'date_id'], ['num'])
-                // console.log(groupShiftDetail)
                 // pembentukan variable
                 dataShiftComplete = []
                 var a = 0
                 groupShiftDetail.forEach(function(dates) {
-                    // $.each(groupShiftDetail, function(key, value) {
                     var details = []
                     $.each(data.shiftDetail, function(keys, values) {
                         if (a == values.date_id) {
                             var index = data_machine_capability.findIndex(x => x.shift_id == values.id);
                             // const text = data_machine_capability[index].machine
-                            // data_machine_capability[index].machine.forEach(element => {
-
-                            // });
+                            // console.log(index)
                             var dataMachine = []
                             data_machine_capability[index].machine.forEach(mc => {
                                 var dataDetailMachine = []
@@ -1450,7 +1444,7 @@
         }
     }
 
-    var switchModeMachine = 1
+    var switchModeMachine = 2
 
     function chooseCalculateMethod(status) {
         if (status == 'maker') {
@@ -1462,9 +1456,20 @@
     }
 
     function pembentukanKapasitasHariMesin(data, auto) {
+        // console.log(dataShiftComplete)
+
         // per produk
         // check shift per hari
         $.each(dataShiftComplete, function(keys, values) {
+            var sisa_mesin = 0
+            var sisa_mesin_stick = 0
+            var max_volume_stick = 0
+            var min_volume_stick = 0
+
+            var sisa_mesin_hlp = 0
+            var sisa_mesin_stick_hlp = 0
+            var max_volume_stick_hlp = 0
+            var min_volume_stick_hlp = 0
             // detail shift
             $.each(values.detail, function(keys2, values2) {
                 // detail machine in shift MAKER
@@ -1472,14 +1477,23 @@
                     // anymachine buat id masukin konversi beserta operation
                     $.each(anyMachine, function(keys4, values4) {
                         if (values3.machine_id == values4.machine_id) {
+                            //
                             values3['unit_detail'] = values4.unit_detail
                             values3['unit_name'] = values4.unit_name
-                            values3['sisa_mesin'] = values3.max_volume
+                            values3['sisa_mesin'] = parseFloat(values3.max_volume) + parseFloat(sisa_mesin)
                             $.each(values4.unit_detail, function(keys5, values5) {
-                                values3['sisa_mesin_stick'] = Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))
-                                values3['max_volume_stick'] = Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))
-                                values3['min_volume_stick'] = Math.ceil(eval(values3.min_volume + values5.operator_reverse + values5.value))
+                                values3['sisa_mesin_stick'] = parseFloat(Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))) + parseFloat(sisa_mesin_stick)
+                                values3['max_volume_stick'] = parseFloat(Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))) + parseFloat(max_volume_stick)
+                                values3['min_volume_stick'] = parseFloat(Math.ceil(eval(values3.min_volume + values5.operator_reverse + values5.value))) + parseFloat(min_volume_stick)
+                                sisa_mesin_stick = values3['sisa_mesin_stick']
+                                max_volume_stick = values3['max_volume_stick']
+                                min_volume_stick = values3['min_volume_stick']
                             })
+                            sisa_mesin = values3['sisa_mesin']
+                            console.log(sisa_mesin)
+                            console.log(sisa_mesin_stick)
+                            console.log(max_volume_stick)
+                            console.log(min_volume_stick)
                         }
                     })
                     // detail hlp nya
@@ -1487,14 +1501,20 @@
                         $.each(values5.machine_link, function(keys6, values6) {
                             $.each(anyMachine, function(keys4, values4) {
                                 if (values6.machine_id == values4.machine_id) {
+                                    //
                                     values6['unit_detail'] = values4.unit_detail
                                     values6['unit_name'] = values4.unit_name
-                                    values6['sisa_mesin'] = values6.max_volume
+                                    values6['sisa_mesin'] = parseFloat(values6.max_volume) + parseFloat(sisa_mesin_hlp)
                                     $.each(values4.unit_detail, function(keys7, values7) {
-                                        values6['sisa_mesin_stick'] = Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))
-                                        values6['max_volume_stick'] = Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))
-                                        values6['min_volume_stick'] = Math.ceil(eval(values6.min_volume + values7.operator_reverse + values7.value))
+                                        values6['sisa_mesin_stick'] = parseFloat(Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))) + parseFloat(sisa_mesin_stick_hlp)
+                                        values6['max_volume_stick'] = parseFloat(Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))) + parseFloat(max_volume_stick_hlp)
+                                        values6['min_volume_stick'] = parseFloat(Math.ceil(eval(values6.min_volume + values7.operator_reverse + values7.value))) + parseFloat(min_volume_stick_hlp)
+                                        sisa_mesin_stick_hlp = values6['sisa_mesin_stick']
+                                        max_volume_stick_hlp = values6['max_volume_stick']
+                                        min_volume_stick_hlp = values6['min_volume_stick']
                                     })
+                                    sisa_mesin_hlp = values6['sisa_mesin']
+
                                 }
                             })
                         })
@@ -1502,6 +1522,7 @@
                 })
             })
         })
+        console.log(dataShiftComplete)
         // dataShiftComplete[0].detail[0].machine[0].sisa_mesin = 1;
         if (auto == 'manual') {
             pembagianPerMesin(data)
@@ -1606,26 +1627,30 @@
 
     function makerMachinePerbandingan(data, values, keys, value, key, sisa_tray, sisa) {
         // MAKER
+        var a = 1;
         values.detail.forEach(values2 => {
-            // cari sisa mesin yang tidak kosong
-            var hasil = values2.machine.find((values3, keys3) => {
-                if (values3.sisa_mesin > 0) return true
-            })
-            var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
-            var checkAvailableChild = hasilChild.filter((v, k) => {
-                if (v.sisa_mesin > 0) return true
-            })
-            if (sisa_tray != 0 && checkAvailableChild.length != 0) {
-                // index mesin
-                var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
-                var pemakaian_tray = 0
-                // MASUK KE HLP
-                if (sisa > 0) {
-                    let nameVariable = machineChildPerbandingan(data.productionPlanGoal[key], hasil, formatDate(values.date), values2.machine, hasilChild, values2, index, sisa_tray, sisa, value, values)
-                    sisa_tray = nameVariable.sisa_tray
-                    sisa = nameVariable.sisa
+            if (a == values.detail.length) {
+                // cari sisa mesin yang tidak kosong
+                var hasil = values2.machine.find((values3, keys3) => {
+                    if (values3.sisa_mesin > 0) return true
+                })
+                var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
+                var checkAvailableChild = hasilChild.filter((v, k) => {
+                    if (v.sisa_mesin > 0) return true
+                })
+                if (sisa_tray != 0 && checkAvailableChild.length != 0) {
+                    // index mesin
+                    var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
+                    var pemakaian_tray = 0
+                    // MASUK KE HLP
+                    if (sisa > 0) {
+                        let nameVariable = machineChildPerbandingan(data.productionPlanGoal[key], hasil, formatDate(values.date), values2.machine, hasilChild, values2, index, sisa_tray, sisa, value, values)
+                        sisa_tray = nameVariable.sisa_tray
+                        sisa = nameVariable.sisa
+                    }
                 }
             }
+            a++
         })
         return {
             'sisa_tray': sisa_tray,
@@ -1711,48 +1736,52 @@
     function makerMachine(data, values, keys, value, key, sisa_stick, sisa) {
         // detail shift
         // perulangan shift
+        var a = 1
         values.detail.forEach(values2 => {
-            // cari sisa mesin yang tidak kosong
-            var hasil = values2.machine.find((values3, keys3) => {
-                if (values3.sisa_mesin > 0) return true
-            })
-            var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
-            var checkAvailableChild = hasilChild.filter((v, k) => {
-                if (v.sisa_mesin > 0) return true
-            })
-            if (sisa_stick != 0 && checkAvailableChild.length != 0) {
-                var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
+            if (a == values.detail.length) {
+                // cari sisa mesin yang tidak kosong
+                var hasil = values2.machine.find((values3, keys3) => {
+                    if (values3.sisa_mesin > 0) return true
+                })
+                var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
+                var checkAvailableChild = hasilChild.filter((v, k) => {
+                    if (v.sisa_mesin > 0) return true
+                })
+                if (sisa_stick != 0 && checkAvailableChild.length != 0) {
+                    var index = values2.machine.findIndex(x => x.machine_id == hasil.machine_id);
 
-                var pemakaian_stick = 0
-                var pemakaian = 0
-                var var_sisa_mesin_stick = hasil.sisa_mesin_stick
-                var var_sisa_mesin = hasil.sisa_mesin
-                if (sisa_stick > hasil.sisa_mesin_stick) {
-                    // jika banyak sisa stik dari pada sisa mesin
-                    pemakaian_stick = var_sisa_mesin_stick
-                    pemakaian = var_sisa_mesin
-                    sisa_stick = sisa_stick - pemakaian_stick
-                    sisa = sisa - pemakaian
-                    var_sisa_mesin_stick = 0
-                    var_sisa_mesin = 0
-                } else {
-                    // jika sisa stik lebih sedikit, sisa lebih banyak
-                    pemakaian_stick = sisa_stick
-                    $.each(hasil.unit_detail, function(keyUnit, valuesUnit) {
-                        pemakaian = Math.ceil(eval(pemakaian_stick + valuesUnit.operator + valuesUnit.value))
-                    })
-                    var_sisa_mesin_stick = var_sisa_mesin_stick - pemakaian_stick
-                    var_sisa_mesin = var_sisa_mesin - pemakaian
-                    sisa_stick = 0
-                    sisa = 0
+                    var pemakaian_stick = 0
+                    var pemakaian = 0
+                    var var_sisa_mesin_stick = hasil.sisa_mesin_stick
+                    var var_sisa_mesin = hasil.sisa_mesin
+                    if (sisa_stick > hasil.sisa_mesin_stick) {
+                        // jika banyak sisa stik dari pada sisa mesin
+                        pemakaian_stick = var_sisa_mesin_stick
+                        pemakaian = var_sisa_mesin
+                        sisa_stick = sisa_stick - pemakaian_stick
+                        sisa = sisa - pemakaian
+                        var_sisa_mesin_stick = 0
+                        var_sisa_mesin = 0
+                    } else {
+                        // jika sisa stik lebih sedikit, sisa lebih banyak
+                        pemakaian_stick = sisa_stick
+                        $.each(hasil.unit_detail, function(keyUnit, valuesUnit) {
+                            pemakaian = Math.ceil(eval(pemakaian_stick + valuesUnit.operator + valuesUnit.value))
+                        })
+                        var_sisa_mesin_stick = var_sisa_mesin_stick - pemakaian_stick
+                        var_sisa_mesin = var_sisa_mesin - pemakaian
+                        sisa_stick = 0
+                        sisa = 0
+                    }
+                    // item mesin tanggal
+                    // console.log(keys, keys2, index)
+                    $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian)
+                    values2.machine[index].sisa_mesin_stick = var_sisa_mesin_stick
+                    values2.machine[index].sisa_mesin = var_sisa_mesin
+                    let nameVariable = machineChild(data.productionPlanGoal[key], hasil, pemakaian_stick, formatDate(values.date), values2.machine, hasilChild)
                 }
-                // item mesin tanggal
-                // console.log(keys, keys2, index)
-                $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian)
-                values2.machine[index].sisa_mesin_stick = var_sisa_mesin_stick
-                values2.machine[index].sisa_mesin = var_sisa_mesin
-                let nameVariable = machineChild(data.productionPlanGoal[key], hasil, pemakaian_stick, formatDate(values.date), values2.machine, hasilChild)
             }
+            a++
         })
         return {
             'sisa_stick': sisa_stick,
@@ -1773,7 +1802,7 @@
                     pemakaian_stick = var_sisa_mesin_stick
                     pemakaian = var_sisa_mesin
                     sisa_stick = sisa_stick - pemakaian_stick
-                    sisa = sisa - pemakaian
+                    // sisa = sisa - pemakaian
                     var_sisa_mesin_stick = 0
                     var_sisa_mesin = 0
                 } else {
@@ -1785,7 +1814,7 @@
                     var_sisa_mesin_stick = var_sisa_mesin_stick - pemakaian_stick
                     var_sisa_mesin = var_sisa_mesin - pemakaian
                     sisa_stick = 0
-                    sisa = 0
+                    // sisa = 0
                 }
                 $('#jumlahPlanning' + data.item_id_product + e.machine_id + date).val(pemakaian)
                 e.sisa_mesin_stick = var_sisa_mesin_stick
@@ -1872,6 +1901,18 @@
                 'is_active': 1,
                 'note': "",
             }
+            var dataShift = []
+            dataShiftComplete.forEach(e => {
+                var id_shift = []
+                e.detail.forEach(e2 => {
+                    id_shift.push(e2.id_shift)
+                });
+                dataShift.push({
+                    'date': e.date,
+                    'shift_id': id_shift
+                })
+            });
+            data_skm['productionPlanShift'] = dataShift
             var save = {
                 'skm': data_skm
             }
