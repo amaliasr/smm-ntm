@@ -95,35 +95,45 @@
                     Beranda
                 </a>
                 <!-- Sidenav Accordion Production-->
-                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
-                    <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
-                    Production
-                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
-                </a>
-                <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
-                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                        <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
-                        <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
-                        <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
-                    </nav>
-                </div>
+                <?php if (job_spv_smd() || job_foreman() || job_spv_smd()) { ?>
+                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
+                        <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
+                        Production
+                        <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            <?php if (job_spv_smd() || job_foreman()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
+                            <?php } ?>
+                            <?php if (job_foreman()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
+                            <?php } ?>
+                            <?php if (job_logistik_warehouse() || job_foreman()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
+                            <?php } ?>
+                        </nav>
+                    </div>
+                <?php } ?>
                 <!-- Sidenav Accordion Warehouse-->
-                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
-                    <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
-                    Warehouse
-                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
-                </a>
-                <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
-                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                        <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
-                        <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
-                        <a class="nav-link" href="<?= base_url(); ?>production/managementWarehouse">Manage Warehouse</a>
-                        <?php if (is_logistik()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
-                            <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
-                        <?php } ?>
-                    </nav>
-                </div>
+                <?php if (is_logistik()) { ?>
+                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
+                        <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
+                        Warehouse
+                        <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>production/managementWarehouse">Manage Warehouse</a> -->
+                            <?php if (is_logistik()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
+                                <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
+                            <?php } ?>
+                        </nav>
+                    </div>
+                <?php } ?>
                 <!-- Sidenav Accordion Order-->
                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards2" aria-expanded="true" aria-controls="collapseDashboards2">
                     <div class="nav-link-icon"><i class="fa fa-truck"></i></div>
@@ -189,7 +199,9 @@
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
+                        <?php if (job_logistik_warehouse() || job_foreman() || job_spv_smd()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
+                        <?php } ?>
                     </nav>
                 </div>
                 <!-- <a class="nav-link" href="<?= base_url(); ?>report">

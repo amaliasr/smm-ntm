@@ -216,6 +216,7 @@
                 $('#alertSalah').addClass('d-none')
             },
             success: function(response) {
+                // console.log(response)
                 $('#alertSalah').addClass('d-none')
                 let data = response['data'];
                 if (response['success'] == true) {
@@ -223,7 +224,7 @@
                     sessions = {
                         token: data['token'],
                         user: data['user'],
-                        department: data['department']
+                        department: data['employee']
                     }
                     $.ajax({
                         type: "POST",

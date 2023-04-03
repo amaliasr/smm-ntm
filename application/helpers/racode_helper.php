@@ -77,3 +77,33 @@ function is_direktur()
         return false;
     }
 }
+function job_spv_smd()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 7) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_foreman()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 84) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_logistik_warehouse()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 111) {
+        return true;
+    } else {
+        return false;
+    }
+}
