@@ -107,3 +107,13 @@ function job_logistik_warehouse()
         return false;
     }
 }
+function job_supply_sparepart()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 113) {
+        return true;
+    } else {
+        return false;
+    }
+}

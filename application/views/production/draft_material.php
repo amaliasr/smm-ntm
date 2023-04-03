@@ -529,6 +529,7 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_title_id = '<?= $this->session->userdata('job_title_id') ?>'
     var data_user = ""
     var data_plan = ""
     var data_table = ""
@@ -717,6 +718,10 @@
         }
         if (formatDate(data.date) <= currentDate()) {
             btnSave = '<span class="text-danger me-2 font-small"><i>*) Tidak Dapat Menyimpan, Tanggal Plan Telah Terlewat</i></span>'
+            btnMaterialRequest = ''
+        }
+        if (job_title_id == 7) {
+            btnSave = ''
             btnMaterialRequest = ''
         }
         var html = ""

@@ -95,7 +95,7 @@
                     Beranda
                 </a>
                 <!-- Sidenav Accordion Production-->
-                <?php if (job_spv_smd() || job_foreman() || job_spv_smd()) { ?>
+                <?php if (job_spv_smd() || job_foreman() || job_logistik_warehouse() || job_supply_sparepart()) { ?>
                     <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
                         <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
                         Production
@@ -103,13 +103,13 @@
                     </a>
                     <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                            <?php if (job_spv_smd() || job_foreman()) { ?>
+                            <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
                             <?php } ?>
-                            <?php if (job_foreman()) { ?>
+                            <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
                             <?php } ?>
-                            <?php if (job_logistik_warehouse() || job_foreman()) { ?>
+                            <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                             <?php } ?>
                         </nav>
@@ -199,7 +199,7 @@
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                         <?php } ?>
-                        <?php if (job_logistik_warehouse() || job_foreman() || job_spv_smd()) { ?>
+                        <?php if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
                         <?php } ?>
                     </nav>

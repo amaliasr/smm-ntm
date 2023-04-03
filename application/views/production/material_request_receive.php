@@ -602,12 +602,13 @@
                             'unit_id': values3['unit']['id'],
                             'unit': values3['unit']['name'],
                             'qty': values3['qty_request'],
+                            'qty_approve': values3['qty_approve'],
                         })
                     })
                 })
             })
         })
-        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_id', 'machine_code'], ['qty'])
+        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_id', 'machine_code'], ['qty', 'qty_approve'])
         formDetailMaterialRequest()
     }
 
@@ -624,7 +625,11 @@
                     html += '<div class="row">'
                     html += '<div class="col">'
                     html += '<p class="m-0 small"><b>' + values.material_name + '</b></p>'
-                    html += '<p class="m-0 small-text">' + number_format(values.qty) + ' ' + values.unit + '</p>'
+                    if (values.qty != values.qty_approve) {
+                        html += '<p class="m-0 small-text">' + number_format(values.qty) + '<span class="ms-2 me-2 text-decoration-line-through text-danger">' + number_format(values.qty_approve) + '</span> ' + values.unit + '</p>'
+                    } else {
+                        html += '<p class="m-0 small-text">' + number_format(values.qty) + ' ' + values.unit + '</p>'
+                    }
                     html += '</div>'
                     html += '<div class="col-auto align-self-center text-center" style="cursor:pointer;" onclick="checkedList(' + "'" + key + keys + "'" + ')">'
                     html += '<i class="fa fa-check-square text-light fa-2x"  id="checkCardItem' + key + keys + '"></i>'

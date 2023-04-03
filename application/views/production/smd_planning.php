@@ -253,14 +253,16 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="btn-group">
-                                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="ms-2 d-none d-sm-block">Add New</span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
-                                            <li><a class="dropdown-item" href="#" onclick="openNewPlanning()">Create Planning</a></li>
-                                        </ul>
-                                    </div>
+                                    <?php if (job_spv_smd()) { ?>
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="ms-2 d-none d-sm-block">Add New</span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
+                                                <li><a class="dropdown-item" href="#" onclick="openNewPlanning()">Create Planning</a></li>
+                                            </ul>
+                                        </div>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
@@ -433,6 +435,11 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_title_id = '<?= $this->session->userdata('job_title_id') ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var data_user = ""
     var data_plan = ""
     var data_notif = ""
@@ -473,10 +480,13 @@
                 loadingData('#tampilDetailPembayaran')
             },
             success: function(response) {
-                data_plan = response['data']
-                data_notif = response['sendNotif']
-                console.log(data_notif)
-                listPlan()
+                if (response.message == 'Tidak dapat menemukan data') {
+                    notFound('#tampilDetailPembayaran')
+                } else {
+                    data_plan = response['data']
+                    data_notif = response['sendNotif']
+                    listPlan()
+                }
             }
         })
     }
@@ -555,9 +565,15 @@
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
-            html += '<a class="dropdown-item" onclick="linkToRevisiPlan(' + values.id + ',' + values.production_type.id + ')"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
-            html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
-            html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
+            if (job_spv_smd) {
+                html += '<a class="dropdown-item" onclick="linkToRevisiPlan(' + values.id + ',' + values.production_type.id + ')"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
+            }
+            if (job_spv_smd || job_foreman) {
+                html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
+            }
+            if (job_spv_smd) {
+                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
+            }
             html += '</div>'
             html += '</div>'
             html += '</div>'

@@ -394,8 +394,15 @@
                                                                             <h5 class="mt-3" id="conveying-meaning-to-assistive-technologies">Create Daily of Plan Production</h5>
                                                                             <p class="mb-3" style="font-size: 11px;">Setelah mengisi Date Range pada Main Planning, maka akan otomatis membuat tabel Planning per hari nya. Target Produksi dapat anda isi jika terdapat target untuk memudahkan pengisian target produksi ditiap harinya. Anda dapat melihat Target nya pada panel sebelah kanan</p>
                                                                         </div>
-                                                                        <div class="col-12 col-md-3 mb-2 text-center align-self-center">
-                                                                            <button type="button" class="btn btn-sm btn-primary h-100" onclick="automaticPlan()"><i class="fa fa-refresh me-2"></i>Automatic Plan</button>
+                                                                        <div class="col-12 col-md-3 mb-4 text-center align-self-center">
+                                                                            <div class="row">
+                                                                                <div class="col-12 pb-2">
+                                                                                    <button type="button" class="btn btn-sm btn-primary h-100 w-100 mt-2" onclick="automaticPlan()"><i class="fa fa-refresh me-2"></i>Automatic Plan</button>
+                                                                                </div>
+                                                                                <div class="col-12">
+                                                                                    <button type="button" class="btn btn-sm btn-outline-danger h-100 w-100 mt-2" onclick="clearPlan()"><i class="fa fa-rotate-left me-2"></i>Clear All</button>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                     <div id="dataDailyPlanning">
@@ -613,8 +620,13 @@
         $('.totalMesin').empty()
     }
 
+    function clearPlan() {
+        $('.totalMesin').empty()
+        $('.jumlahPlanning').val('')
+    }
     var dateStart = ""
     var dateEnd = ""
+    var dataLockDays = []
 
     function getDateRange() {
         dateStart = ""
@@ -633,6 +645,9 @@
                 createDailyPlanning(dateStart, dateEnd)
             }
         }
+        // console.log(data_master)
+        // var dataDate = data_master[jenis_produksi].dateUsed.join()
+        // console.log(dataDate)
         new Litepicker({
             element: document.getElementById('dateRange'),
             singleMode: false,
@@ -640,6 +655,7 @@
             startDate: dateStart,
             endDate: dateEnd,
             format: "DD MMMM YYYY",
+            lockDays: dataLockDays,
             setup: (picker) => {
                 picker.on('selected', (date1, date2) => {
                     dateStart = date1['dateInstance']
@@ -693,6 +709,7 @@
                 success: function(response) {
                     $('.form-control').removeAttr('disabled')
                     data_master = response['data']
+                    dataLockDays = ['1900-01-01', currentDate()], '2023-04-29', '2023-04-30'
                     data_machine_capability = response['machineCapability']
                     listCutomizedMachine()
                     if (id_plan != '') {
@@ -897,7 +914,10 @@
 
     })
 
+    // var tombolOtomatis = 0
+
     function automaticPlan() {
+        // tombolOtomatis = 1
         simpanProdukTarget()
     }
 
@@ -1294,6 +1314,7 @@
                 })
             }
         }
+        // if (tombolOtomatis == 1) {
         if (jenis_produksi == 'skm') {
             data_skm['productionPlanGoal'] = obj
             data_skm['customDate'] = customDate
@@ -1315,6 +1336,7 @@
                 pembagianPerMesin(data_skt)
             }
         }
+        // }
     }
 
 
@@ -1355,6 +1377,7 @@
             html += '</div>'
         }
         $('#detailTargetPane').html(html)
+
         if (jenis_produksi == 'skm') {
             if (arranged == 'true') {
                 pembagianPerMesin(data)
@@ -1908,11 +1931,25 @@
                     id_shift.push(e2.id_shift)
                 });
                 dataShift.push({
-                    'date': e.date,
+                    'date': formatDate(e.date),
                     'shift_id': id_shift
                 })
             });
             data_skm['productionPlanShift'] = dataShift
+            data_skm['productionPlanGoal'].forEach(function(v) {
+                delete v.kode
+                delete v.num_stick
+                delete v.qty_sisa
+                delete v.qty_stick
+                delete v.qty_tray
+                delete v.qty_stick_sisa
+                delete v.qty_stick_sisa
+                delete v.qty_tray_sisa
+                delete v.stick
+                delete v.stick_unit_id
+                delete v.machine_id
+            });
+            console.log(data_skm['productionPlanGoal'])
             var save = {
                 'skm': data_skm
             }

@@ -262,14 +262,16 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="btn-group">
-                                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="ms-2 d-none d-sm-block">Add New</span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
-                                            <li><a class="dropdown-item" href="#" onclick="openNewMaterialRequest()">Create Material Request</a></li>
-                                        </ul>
-                                    </div>
+                                    <?php if (job_foreman()) { ?>
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="ms-2 d-none d-sm-block">Add New</span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
+                                                <li><a class="dropdown-item" href="#" onclick="openNewMaterialRequest()">Create Material Request</a></li>
+                                            </ul>
+                                        </div>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
@@ -408,6 +410,10 @@
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var data_user = ""
     var data_material = ""
 
@@ -556,11 +562,13 @@
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
             html += '<a class="dropdown-item" onclick="linkToProcessed(' + values.id + ')"><i class="fa fa-tasks me-2"></i> Linked into Management</a>'
-            if (values['is_approve'] != 1) {
-                html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
-            }
-            if (values['is_process'] == 1 && values['is_receive'] == null) {
-                html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
+            if (job_foreman) {
+                if (values['is_approve'] != 1) {
+                    html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
+                }
+                if (values['is_process'] == 1 && values['is_receive'] == null) {
+                    html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
+                }
             }
             html += '<a class="dropdown-item" onclick="cetakMaterialRequest(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
             html += '</div>'

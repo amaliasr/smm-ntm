@@ -538,7 +538,9 @@
                                 <p class="m-0 small-text">Find a new request or latest request, you can manage it after click a list below</p>
                             </div>
                             <div class="col-2 align-self-center">
-                                <button type="button" class="btn btn-outline-dark" onclick="openNewMaterialRequest()"><i class="fa fa-plus"></i></button>
+                                <?php if (job_foreman()) { ?>
+                                    <button type="button" class="btn btn-outline-dark" onclick="openNewMaterialRequest()"><i class="fa fa-plus"></i></button>
+                                <?php } ?>
                             </div>
                         </div>
                         <div class="row">
@@ -599,26 +601,30 @@
                                             <div class="col-12 col-md-5/">
                                                 <p><b class="small">Settings</b></p>
                                                 <div class="row">
-                                                    <label class="small-text mt-2 mb-2">Date Range</label>
-                                                    <div class="col-6">
-                                                        <div class="form-floating">
-                                                            <input type="text" class="form-control form-control-sm" id="dateStart" placeholder="">
-                                                            <label for="dateStart">Date Start</label>
+                                                    <div class="col-8">
+                                                        <div class="row">
+                                                            <label class="small-text mt-2 mb-2">Date Range</label>
+                                                            <div class="col-6">
+                                                                <div class="form-floating">
+                                                                    <input type="text" class="form-control form-control-sm" id="dateStart" placeholder="">
+                                                                    <label for="dateStart">Date Start</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <div class="form-floating">
+                                                                    <input type="text" class="form-control form-control-sm" id="dateEnd" placeholder="">
+                                                                    <label for="dateEnd">Date End</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label class="small-text mt-2 mb-2">Production Type</label>
+                                                                <br>
+                                                                <div id="listProductionType">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-6">
-                                                        <div class="form-floating">
-                                                            <input type="text" class="form-control form-control-sm" id="dateEnd" placeholder="">
-                                                            <label for="dateEnd">Date End</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="small-text mt-2 mb-2">Production Type</label>
-                                                        <br>
-                                                        <div id="listProductionType">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12">
+                                                    <div class="col-4">
                                                         <label class="small-text mt-2 mb-2">Items</label>
                                                         <br>
                                                         <div id="listItems">
@@ -626,7 +632,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-12 col-md-7">
+                                            <div class="col-12 col-md-12">
                                                 <p><b class="small">Data</b></p>
                                                 <div id="graphStats">
                                                     <canvas id="myChart2" width="100%"></canvas>
@@ -732,6 +738,10 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var id_material = '<?= $id ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var data_user = ""
     var data_request_manage = ""
     var stage_step = []
@@ -952,8 +962,10 @@
         html += '<div class="float-end" id="listBtnDetail">'
         html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
         html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle me-1" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
-        if (data_materialrequest.is_approve == 1 && data_materialrequest.is_process == null) {
-            html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
+        if (job_logistik_warehouse) {
+            if (data_materialrequest.is_approve == 1 && data_materialrequest.is_process == null) {
+                html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
+            }
         }
         html += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">'
         html += '<li>'

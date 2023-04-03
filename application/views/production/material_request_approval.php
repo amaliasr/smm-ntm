@@ -476,6 +476,7 @@
 
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_title_id = '<?= $this->session->userdata('job_title_id') ?>'
     var id_material = '<?= $id ?>'
     var data_user = ""
     var data_material = ""
@@ -756,9 +757,11 @@
     }
 
     function fieldBtnApproval() {
-        var html = ''
-        html += '<button type="button" class="btn btn-success" onclick="approvalForm()">Selesaikan Persetujuan</button>'
-        $('#fieldBtnSelesaikan').html(html)
+        if (job_title_id == 7) {
+            var html = ''
+            html += '<button type="button" class="btn btn-success" onclick="approvalForm()">Selesaikan Persetujuan</button>'
+            $('#fieldBtnSelesaikan').html(html)
+        }
     }
 
     function formatCard(status) {
