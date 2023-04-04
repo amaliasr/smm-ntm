@@ -491,8 +491,8 @@
                 <h1 class="text-dark-grey"><b><i class="fa fa-wrench me-3"></i>Management Material</b></h1>
             </div>
             <div class="col pb-4 text-end">
-                <button type="button" class="btn btn-outline-dark btn-sm"><i class="fa fa-industry me-2"></i> Management Machine</button>
-                <button type="button" class="btn btn-outline-dark btn-sm"><i class="fa fa-laptop me-2"></i> Monitoring Warehouse</button>
+                <!-- <button type="button" class="btn btn-outline-dark btn-sm"><i class="fa fa-industry me-2"></i> Management Machine</button>
+                <button type="button" class="btn btn-outline-dark btn-sm"><i class="fa fa-laptop me-2"></i> Monitoring Warehouse</button> -->
             </div>
         </div>
         <!-- <div class="row mb-3" style="height: 100px;">
@@ -581,7 +581,7 @@
                             </div>
                             <div class="col-3">
                                 <div class="float-end">
-                                    <button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>
+                                    <!-- <button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button> -->
                                     <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                         Option
                                     </button>
@@ -657,6 +657,7 @@
         </div>
     </div>
 </main>
+<div id="qrcode" style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div>
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog" role="document" id="modalDialog">
@@ -960,8 +961,9 @@
         html += '</div>'
         html += '<div class="col-auto text-end">'
         html += '<div class="float-end" id="listBtnDetail">'
-        html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
-        html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle me-1" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
+        // html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick=""><span class="fa fa-refresh"></span></button>'
+        html += '<button type="button" class="btn btn-outline-dark btn-sm me-1" onclick="cetakMaterialRequest(' + data_materialrequest.id + ')"><span class="fa fa-print"></span></button>'
+        // html += '<button class="btn btn-outline-dark btn-sm dropdown-toggle me-1" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Option</button>'
         if (job_logistik_warehouse) {
             if (data_materialrequest.is_approve == 1 && data_materialrequest.is_process == null) {
                 html += '<button type="button" class="btn btn-success btn-sm" onclick="prosesLogistik()"><i class="fa fa-truck text-white me-2"></i>Proses Logistik</button>'
@@ -979,6 +981,24 @@
         html += '</div>'
         html += '</div>'
         $('#detailMaterialRequest').append(html)
+    }
+    var imgBase64Data
+
+    function cetakMaterialRequest(id) {
+        var urlQR = '<?= base_url() ?>production/material_request_approval/' + id
+        var qrcode = new QRCode("qrcode", {
+            text: urlQR,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        var image = btoa(imgBase64Data)
+        var url = '<?= base_url('production/cetakMaterialRequest') ?>'
+        var params = "*$" + image + "*$" + id + "*$" + user_id
+        window.open(url + '?params=' + (params), '_blank')
     }
 
     function contentMaterialRequest() {
