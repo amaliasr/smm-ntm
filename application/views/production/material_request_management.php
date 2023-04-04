@@ -551,7 +551,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row overflow-auto" id="listMaterialRequest" style="height:500px;">
+                        <div class="overflow-auto" style="height:500px;">
+                            <div class="row" id="listMaterialRequest">
+
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -943,8 +946,10 @@
         // btnMaterialRequest()
         contentMaterialRequest()
         infoMaterialRequest()
-        if (id_material != '' && data_materialrequest.id == id_material && data_materialrequest.is_process == null) {
-            prosesLogistik()
+        if (job_logistik_warehouse) {
+            if (id_material != '' && data_materialrequest.id == id_material && data_materialrequest.is_process == null && data_materialrequest.is_approve == 1) {
+                prosesLogistik()
+            }
         }
     }
 

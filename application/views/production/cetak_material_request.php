@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <style type="text/css">
         body {
-            font-family: 'Nunito', sans-serif;
-            font-size: 12px;
+            font-family: 'Nunito';
+            font-size: 11px;
         }
 
         .table_main,
@@ -75,6 +75,18 @@
         body {
             margin-top: 70px;
             margin-bottom: 100px;
+        }
+
+        table {
+            page-break-inside: always;
+        }
+
+        table tr {
+            page-break-inside: always;
+        }
+
+        table tr td {
+            page-break-inside: always;
         }
     </style>
 </head>

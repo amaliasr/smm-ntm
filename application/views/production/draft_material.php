@@ -1485,7 +1485,7 @@
 
     function linkToMaterialRequest(id) {
         var url = '<?= base_url() ?>production/createMaterialRequest/' + id
-        window.open(url, '_blank')
+        location.replace(url)
     }
 
     // search multi

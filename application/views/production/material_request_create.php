@@ -588,14 +588,15 @@
         $(location).html(html)
     }
 
-    function notFoundWithButton(location, link) {
+    function notFoundWithButton(location, link, textBtn, textWarning) {
         var html = ""
         html += '<div class="card w-100 shadow-none mb-2 p-0" style="border:0px;">'
         html += '<div class="card-body p-2">'
         html += '<div class="row d-flex align-items-center">'
         html += '<div class="col text-center p-5">'
-        html += '<i class="small">Tidak Ada Data yang Tersedia</i>'
-        html += '<button class="btn btn-sm mt-2 btn-success" onclick="linkToLink(' + "'" + link + "'" + ')">Buat Draft Material</button>'
+        html += '<i class="small">' + textWarning + '</i>'
+        html += '<br>'
+        html += '<button class="btn btn-sm mt-2 btn-success" onclick="linkToLinkLive(' + "'" + link + "'" + ')">' + textBtn + '</button>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -729,28 +730,32 @@
 
     function formDataPlanning() {
         var html = ""
-        $.each(list_data_plan, function(key, value) {
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
-            html += '<div class="card-body">'
+        if (list_data_plan.length != 0) {
+            $.each(list_data_plan, function(key, value) {
+                html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
+                html += '<div class="card-body">'
 
-            html += '<div class="row">'
-            html += '<div class="col-8 align-self-center">'
-            html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
-            var today = ''
-            if (value['date'] == currentDateTime()) {
-                today = '<span class="badge bg-success">Today</span>'
-            }
-            html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
-            html += '</div>'
-            html += '<div class="col-4 align-self-end">'
-            // html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
-            html += '</div>'
-            html += '</div>'
+                html += '<div class="row">'
+                html += '<div class="col-8 align-self-center">'
+                html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
+                var today = ''
+                if (value['date'] == currentDateTime()) {
+                    today = '<span class="badge bg-success">Today</span>'
+                }
+                html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-4 align-self-end">'
+                // html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
+                html += '</div>'
+                html += '</div>'
 
-            html += '</div>'
-            html += '</div>'
-        })
-        $('#listPlanning').html(html)
+                html += '</div>'
+                html += '</div>'
+            })
+            $('#listPlanning').html(html)
+        } else {
+            notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
+        }
     }
 
     function loadDataPlanning(id, date) {
@@ -796,7 +801,7 @@
                 if (data_plan['draft'].length > 0) {
                     dataDraft()
                 } else {
-                    notFoundWithButton('#dataDraft', '<?= base_url() ?>/production/draftMaterial/' + data_plan.productionPlan[0].id)
+                    notFoundWithButton('#dataDraft', '<?= base_url() ?>/production/draftMaterial/' + data_plan.productionPlan[0].id, 'Buat Draft Material', 'Tidak Ada Data yang Tersedia')
                     notFound('#listMaterialRequest')
                     dataMaterialRequest()
                 }
@@ -1245,6 +1250,6 @@
 
     function linkToLinkLive(link) {
         var url = link
-        window.open(url)
+        location.replace(url)
     }
 </script>
