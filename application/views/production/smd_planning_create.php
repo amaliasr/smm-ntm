@@ -1480,7 +1480,6 @@
 
     function pembentukanKapasitasHariMesin(data, auto) {
         // console.log(dataShiftComplete)
-
         // per produk
         // check shift per hari
         $.each(dataShiftComplete, function(keys, values) {
@@ -1493,6 +1492,8 @@
             var sisa_mesin_stick_hlp = 0
             var max_volume_stick_hlp = 0
             var min_volume_stick_hlp = 0
+
+            var detailHLP = {}
             // detail shift
             $.each(values.detail, function(keys2, values2) {
                 // detail machine in shift MAKER
@@ -1513,31 +1514,33 @@
                                 min_volume_stick = values3['min_volume_stick']
                             })
                             sisa_mesin = values3['sisa_mesin']
-                            console.log(sisa_mesin)
-                            console.log(sisa_mesin_stick)
-                            console.log(max_volume_stick)
-                            console.log(min_volume_stick)
                         }
                     })
                     // detail hlp nya
                     $.each(values3.data, function(keys5, values5) {
                         $.each(values5.machine_link, function(keys6, values6) {
+                            if (detailHLP['sisa_mesin_hlp' + values3.machine_id + '' + values6.machine_id] == undefined) {
+                                detailHLP['sisa_mesin_hlp' + values3.machine_id + '' + values6.machine_id] = 0
+                                detailHLP['sisa_mesin_stick_hlp' + values3.machine_id + '' + values6.machine_id] = 0
+                                detailHLP['max_volume_stick_hlp' + values3.machine_id + '' + values6.machine_id] = 0
+                                detailHLP['min_volume_stick_hlp' + values3.machine_id + '' + values6.machine_id] = 0
+                            }
                             $.each(anyMachine, function(keys4, values4) {
                                 if (values6.machine_id == values4.machine_id) {
                                     //
                                     values6['unit_detail'] = values4.unit_detail
                                     values6['unit_name'] = values4.unit_name
-                                    values6['sisa_mesin'] = parseFloat(values6.max_volume) + parseFloat(sisa_mesin_hlp)
+                                    values6['sisa_mesin'] = parseFloat(values6.max_volume) + parseFloat(detailHLP['sisa_mesin_hlp' + values3.machine_id + '' + values6.machine_id])
                                     $.each(values4.unit_detail, function(keys7, values7) {
-                                        values6['sisa_mesin_stick'] = parseFloat(Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))) + parseFloat(sisa_mesin_stick_hlp)
-                                        values6['max_volume_stick'] = parseFloat(Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))) + parseFloat(max_volume_stick_hlp)
-                                        values6['min_volume_stick'] = parseFloat(Math.ceil(eval(values6.min_volume + values7.operator_reverse + values7.value))) + parseFloat(min_volume_stick_hlp)
-                                        sisa_mesin_stick_hlp = values6['sisa_mesin_stick']
-                                        max_volume_stick_hlp = values6['max_volume_stick']
-                                        min_volume_stick_hlp = values6['min_volume_stick']
-                                    })
-                                    sisa_mesin_hlp = values6['sisa_mesin']
+                                        values6['sisa_mesin_stick'] = parseFloat(Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))) + parseFloat(detailHLP['sisa_mesin_stick_hlp' + values3.machine_id + '' + values6.machine_id])
+                                        values6['max_volume_stick'] = parseFloat(Math.ceil(eval(values6.max_volume + values7.operator_reverse + values7.value))) + parseFloat(detailHLP['max_volume_stick_hlp' + values3.machine_id + '' + values6.machine_id])
+                                        values6['min_volume_stick'] = parseFloat(Math.ceil(eval(values6.min_volume + values7.operator_reverse + values7.value))) + parseFloat(detailHLP['min_volume_stick_hlp' + values3.machine_id + '' + values6.machine_id])
 
+                                        detailHLP['sisa_mesin_stick_hlp' + values3.machine_id + '' + values6.machine_id] = values6['sisa_mesin_stick']
+                                        detailHLP['max_volume_stick_hlp' + values3.machine_id + '' + values6.machine_id] = values6['max_volume_stick']
+                                        detailHLP['min_volume_stick_hlp' + values3.machine_id + '' + values6.machine_id] = values6['min_volume_stick']
+                                    })
+                                    detailHLP['sisa_mesin_hlp' + values3.machine_id + '' + values6.machine_id] = values6['sisa_mesin']
                                 }
                             })
                         })
@@ -1545,7 +1548,7 @@
                 })
             })
         })
-        console.log(dataShiftComplete)
+        // console.log(dataShiftComplete)
         // dataShiftComplete[0].detail[0].machine[0].sisa_mesin = 1;
         if (auto == 'manual') {
             pembagianPerMesin(data)
@@ -1658,6 +1661,7 @@
                     if (values3.sisa_mesin > 0) return true
                 })
                 var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
+                // console.log(hasilChild)
                 var checkAvailableChild = hasilChild.filter((v, k) => {
                     if (v.sisa_mesin > 0) return true
                 })

@@ -969,7 +969,7 @@
                 var no_telp = []
                 var nama = []
                 $.each(data_notif, function(key, value) {
-                    no_telp.push('081944946015')
+                    no_telp.push(value.phone)
                     nama.push(value.full_name)
                 })
                 shareWhatsapp(no_telp, nama, response.data.materialRequest[0].code, response.data.materialRequest[0].date, response.data.materialRequest[0].production_type_name, response.data.materialRequest[0].id)

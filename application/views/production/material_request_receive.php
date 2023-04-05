@@ -776,11 +776,11 @@
                 var no_telp = []
                 var nama = []
                 $.each(data_notif, function(key, value) {
-                    no_telp.push('081944946015')
+                    no_telp.push(value.phone)
                     nama.push(value.full_name)
                 })
                 $.each(data_notif2, function(key, value) {
-                    no_telp.push('081944946015')
+                    no_telp.push(value.phone)
                     nama.push(value.full_name)
                 })
                 shareWhatsapp(no_telp, nama, data.material_request_id)

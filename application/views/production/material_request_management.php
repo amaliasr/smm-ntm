@@ -829,6 +829,10 @@
             if (value['material'][0] != null) {
                 jum = value['material'][0].length
             }
+            var textApprove = 'text-success'
+            if (value.status == 'DISAPPROVE') {
+                textApprove = 'text-danger'
+            }
             html += '<div class="col-12" id="card_search' + key + '">'
             html += '<div class="card shadow-none card-hoper mb-2 cardMaterial" onclick="detailMaterialRequest(' + key + ',' + value.id + ')" id="cardMaterial' + value.id + '">'
             html += '<div class="card-body p-0">'
@@ -846,7 +850,7 @@
             html += '<div class="col">'
             html += '<b class="m-0 text_search" data-id="' + key + '">' + value['code'] + '</b>'
             html += '<p class="m-0 small-text text-orange fw-bold text_search" data-id="' + key + '">' + value['created_employee']['name'] + '</p>'
-            html += '<p class="m-0 mt-2 super-small-text">Time : ' + formatDateIndonesia(value['date']) + ' <span class="text-light ps-1 pe-1">|</span> Status : <span class="text-success text_search fw-bold" data-id="' + key + '">' + value['status'] + '</span> <span class="text-light ps-1 pe-1">|</span> ' + jum + ' Items</p>'
+            html += '<p class="m-0 mt-2 super-small-text">Time : ' + formatDateIndonesia(value['date']) + ' <span class="text-light ps-1 pe-1">|</span> Status : <span class="text-success text_search fw-bold ' + textApprove + '" data-id="' + key + '">' + value['status'] + '</span> <span class="text-light ps-1 pe-1">|</span> ' + jum + ' Items</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -857,6 +861,8 @@
                 html += '<i class="fa fa-clock-o text-light fa-2x"></i>'
             } else if (value.status == 'APPROVED') {
                 html += '<i class="fa fa-file-o text-light fa-2x"></i>'
+            } else if (value.status == 'DISAPPROVE') {
+                html += '<i class="fa fa-times text-danger fa-2x"></i>'
             }
             html += '</div>'
 
@@ -1146,6 +1152,7 @@
             date = '<i>(Not Available)</i>'
             check = '<i class="fa fa-check text-light fa-3x"></i>'
         }
+        var user = data_materialrequest.approved_employee.name
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
         html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">' + date + '</div>'
@@ -1155,7 +1162,15 @@
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
         html += '<h6 class="text-dark">Approval SMD SPV</h6>'
-        html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
+        html += '<p>Approving by ' + user + '</p>'
+        if (data_materialrequest.is_approve == 0) {
+            html += '<div class="card shadow-none">'
+            html += '<div class="card-body">'
+            html += '<p class="m-0"><b>Alasan Pembatalan :</b></p>'
+            html += '<p class="m-0">' + data_materialrequest.note + '</p>'
+            html += '</div>'
+            html += '</div>'
+        }
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -1722,8 +1737,8 @@
                         var no_telp = []
                         var nama = []
                         $.each(data_notif, function(key, value) {
-                            no_telp.push('081944946015')
-                            // no_telp.push(value.phone)
+                            // no_telp.push('081944946015')
+                            no_telp.push(value.phone)
                             nama.push(value.full_name)
                         })
                         shareWhatsapp(no_telp, nama, id, code)

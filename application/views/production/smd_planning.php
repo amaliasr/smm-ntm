@@ -607,9 +607,17 @@
         let obj = data_notif.find((value, key) => {
             if (value.production_type.id === id) return true
         });
-        console.log(obj)
+        var notif = obj.employee
+        console.log(notif)
+        var no_telp = []
+        var nama = []
+        $.each(notif, function(key, value) {
+            no_telp.push('081944946015')
+            // no_telp.push(value.phone)
+            nama.push(value.full_name)
+        })
         Swal.fire({
-            text: 'Membagikan Approval akan langsung masuk ke Whatsapp dengan ' + obj.employee[0].full_name + ', apakah anda ingin melanjutkan?',
+            text: 'Membagikan Approval akan langsung masuk ke Whatsapp dengan Foreman ' + obj.production_type.name + ', apakah anda ingin melanjutkan?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -617,20 +625,20 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                shareWhatsapp(obj.employee[0], id_plannning, tanggal)
+                shareWhatsapp(obj.employee[0], id_plannning, tanggal, no_telp, nama)
             }
         })
     }
 
-    function shareWhatsapp(data, id_plannning, tanggal) {
+    function shareWhatsapp(data, id_plannning, tanggal, no_telp, nama) {
         $.ajax({
             url: "<?= base_url('api/sendPlanForeman') ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                no_telp: '081944946015',
+                no_telp: no_telp,
                 link: '<?= base_url() ?>production/detailPlanning/smd/' + id_plannning,
-                nama: data.full_name,
+                nama: nama,
                 tanggal: tanggal,
             },
             error: function(xhr) {

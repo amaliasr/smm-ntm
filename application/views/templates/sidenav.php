@@ -106,7 +106,7 @@
                             <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
                             <?php } ?>
-                            <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
+                            <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
                             <?php } ?>
                             <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>

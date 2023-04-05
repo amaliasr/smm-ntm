@@ -536,10 +536,14 @@
             html += '</div>'
             html += '<div class="col-auto">'
             var text = 'text-grey'
+            var check = 'fa-check-circle'
             if (values['is_approve'] == 1) {
                 text = 'text-success'
+            } else if (values.is_approve == 0) {
+                text = 'text-danger'
+                check = 'fa-times'
             }
-            html += '<p class="m-0"><i class="fa fa-check-circle me-2 ' + text + '"></i> Verified</p>'
+            html += '<p class="m-0"><i class="fa ' + check + ' me-2 ' + text + '"></i> Verified</p>'
             html += '</div>'
             html += '<div class="col-auto">'
             text = 'text-grey'
