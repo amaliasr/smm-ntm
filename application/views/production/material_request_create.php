@@ -711,6 +711,7 @@
             },
             success: function(response) {
                 data_after_click_plan = response['data']
+                console.log(data_after_click_plan['listProductionPlan'])
                 $.each(data_after_click_plan['listProductionPlan'], function(key, value) {
                     // kode smd
                     $.each(value['detail'], function(keys, values) {
@@ -728,33 +729,94 @@
         })
     }
 
+    var html_expired_plan = ''
+    var html_collapse = ""
+    var jumlah_expired_plan = 0
+
     function formDataPlanning() {
+        $('#listPlanning').empty()
         var html = ""
+        html += '<div id="collapseExpired">'
+        html += '</div>'
         if (list_data_plan.length != 0) {
             $.each(list_data_plan, function(key, value) {
-                html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
-                html += '<div class="card-body">'
+                if (formatDate(value.date) < currentDate()) {
+                    jumlah_expired_plan++
+                    html_expired_plan += '<div class="card card-hoper shadow-none mb-2 bg-light" id="card_search' + key + '">'
+                    html_expired_plan += '<div class="card-body">'
 
-                html += '<div class="row">'
-                html += '<div class="col-8 align-self-center">'
-                html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
-                var today = ''
-                if (value['date'] == currentDateTime()) {
-                    today = '<span class="badge bg-success">Today</span>'
+                    html_expired_plan += '<div class="row">'
+                    html_expired_plan += '<div class="col-8 align-self-center">'
+                    html_expired_plan += '<p class="m-0 me-2 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
+                    html_expired_plan += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + '</b></p>'
+                    html_expired_plan += '</div>'
+                    html_expired_plan += '<div class="col-4 align-self-end text-end">'
+                    html_expired_plan += '<p class="m-0 small text-grey"><i>Expired</i></p>'
+                    html_expired_plan += '</div>'
+                    html_expired_plan += '</div>'
+
+                    html_expired_plan += '</div>'
+                    html_expired_plan += '</div>'
+                } else {
+                    html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
+                    html += '<div class="card-body">'
+
+                    html += '<div class="row">'
+                    html += '<div class="col-8 align-self-center">'
+                    html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
+                    var today = ''
+                    if (value['date'] == currentDate()) {
+                        today = '<span class="badge bg-success">Today</span>'
+                    }
+                    html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
+                    html += '</div>'
+                    html += '<div class="col-4 align-self-end">'
+                    // html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
+                    html += '</div>'
+                    html += '</div>'
+
+                    html += '</div>'
+                    html += '</div>'
                 }
-                html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
-                html += '</div>'
-                html += '<div class="col-4 align-self-end">'
-                // html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'
-                html += '</div>'
-                html += '</div>'
-
-                html += '</div>'
-                html += '</div>'
             })
+            html_expired_plan += '<div class="card card-hoper shadow-none mb-2 bg-danger" style="cursor:pointer;" onclick="switchCollapseExpired(0)">'
+            html_expired_plan += '<div class="card-body">'
+
+            html_expired_plan += '<div class="row">'
+            html_expired_plan += '<div class="col-12 align-self-center text-center text-white">'
+            html_expired_plan += 'Tutup Fitur <i class="fa fa-chevron-up ms-2"></i>'
+            html_expired_plan += '</div>'
+            html_expired_plan += '</div>'
+
+            html_expired_plan += '</div>'
+            html_expired_plan += '</div>'
+
+            html_collapse += '<div class="card card-hoper shadow-none mb-2 bg-danger" style="cursor:pointer;" onclick="switchCollapseExpired(1)">'
+            html_collapse += '<div class="card-body">'
+
+            html_collapse += '<div class="row">'
+            html_collapse += '<div class="col-12 align-self-center text-center text-white">'
+            html_collapse += 'Terdapat ' + jumlah_expired_plan + ' Plan yang Telah Terlewat <i class="fa fa-chevron-down ms-2"></i>'
+            html_collapse += '</div>'
+            html_collapse += '</div>'
+
+            html_collapse += '</div>'
+            html_collapse += '</div>'
             $('#listPlanning').html(html)
+            if (jumlah_expired_plan > 0) {
+                switchCollapseExpired(0)
+            }
         } else {
             notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
+        }
+    }
+
+    function switchCollapseExpired(status) {
+        if (status == 0) {
+            // tutup
+            $('#collapseExpired').html(html_collapse)
+        } else {
+            $('#collapseExpired').html(html_expired_plan)
         }
     }
 
@@ -927,6 +989,7 @@
         var data = data_plan['materialItemHeader'].filter((value, key) => {
             if (value['detail'] != null) return true
         })
+        console.log(data_plan['materialItem'])
         var html = ""
         $.each(data, function(key, value) {
             html += '<div class="col-12 pt-2">'
@@ -950,8 +1013,12 @@
             $.each(data_plan['materialItem'], function(keya, valuea) {
                 if (value['detail']['machine_type']['id'] == valuea['machine_type'][0]['machine_type']['id']) {
                     html += '<tr>'
+                    var name = valuea.material_alias
+                    if (name == null) {
+                        name = valuea.material_name
+                    }
                     html += '<td class="p-2 font-small">' + valuea['material_code'] + '</td>'
-                    html += '<td class="p-2 font-small">' + valuea['material_name'] + '</td>'
+                    html += '<td class="p-2 font-small">' + name + '</td>'
                     html += '<td class="p-2 font-small">' + valuea['unit']['name'] + '</td>'
                     $.each(value['detail']['machine'], function(keys, values) {
                         // console.log(values['id'], valuea['material_id'])
@@ -1132,7 +1199,7 @@
             },
             success: function(response) {
                 $('#modal').modal('hide')
-                var data_notif = data_plan.sendNotif.spvSmd
+                var data_notif = data_after_click_plan.sendNotif.spvSmd
                 var no_telp = []
                 var nama = []
                 $.each(data_notif, function(key, value) {

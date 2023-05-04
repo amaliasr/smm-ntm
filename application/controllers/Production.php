@@ -77,6 +77,12 @@ class Production extends CI_Controller
         $data['title'] = 'Approval Material Request';
         $this->template->views('production/material_request_approval', $data);
     }
+    public function editMaterialRequest($id = "")
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Edit Material Request';
+        $this->template->views('production/material_request_edit', $data);
+    }
     public function receiveMaterialRequest($id = "")
     {
         $data['id'] = $id;
@@ -104,12 +110,27 @@ class Production extends CI_Controller
         $data['id'] = $explodedParams[2];
         $data['user_id'] = $explodedParams[3];
         $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getMaterialRequestPrint?id=' . $data['id'] . '&employeeId=' . $data['user_id'])))->data;
-        // $this->template->views('production/cetak_material_request', $data);
         $html = $this->load->view('production/cetak_material_request', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = 'MATERIAL REQUEST ' . $data['datas']->materialRequest[0]->code . ".pdf";
         $this->pdf->loadHtml($html);
         $this->pdf->render();
         $this->pdf->stream($data['datas']->materialRequest[0]->code, array("Attachment" => 0));
+    }
+    public function cetakSMDPlanning()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['qrcode'] = $explodedParams[1];
+        $data['id'] = $explodedParams[2];
+        $data['user_id'] = $explodedParams[3];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getProductionPlanSmdDetail?id=' . $data['id'])))->data;
+        $html = $this->load->view('production/cetak_smd_planning', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = 'SMD PLAN ' . $data['datas']->data[0]->code . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream($data['datas']->data[0]->code, array("Attachment" => 0));
     }
 }

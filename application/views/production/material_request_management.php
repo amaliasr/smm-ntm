@@ -619,30 +619,29 @@
                                                                     <label for="dateEnd">Date End</label>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-12">
-                                                                <label class="small-text mt-2 mb-2">Production Type</label>
-                                                                <br>
-                                                                <div id="listProductionType">
-                                                                </div>
-                                                            </div>
+
                                                         </div>
                                                     </div>
                                                     <div class="col-4">
-                                                        <label class="small-text mt-2 mb-2">Items</label>
+                                                        <label class="small-text mt-2 mb-2">Production Type</label>
                                                         <br>
-                                                        <div id="listItems">
+                                                        <div id="listProductionType">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-12 col-md-12">
+                                            <div class="col-12 col-md-12 pt-5">
                                                 <p><b class="small">Data</b></p>
                                                 <div id="graphStats">
                                                     <canvas id="myChart2" width="100%"></canvas>
                                                 </div>
                                             </div>
+                                            <div class="col-12 pt-3">
+                                                <div id="listItems">
+                                                </div>
+                                            </div>
                                             <div class="col-12 pt-5">
-                                                <p><b class="small">Average Request in A Day</b></p>
+                                                <p><b class="small disable-text">Average Request in A Day</b></p>
                                                 <div class="mt-3">
                                                     <div class="row" id="listAverage">
 
@@ -914,6 +913,7 @@
                             'material_id': values3['material']['id'],
                             'material_request_item_id': values3['material']['material_request_item_id'],
                             'material_name': values3['material']['name'],
+                            'material_alias': values3['material']['alias'],
                             'material_code': values3['material']['code'],
                             'unit_id': values3['unit']['id'],
                             'unit': values3['unit']['name'],
@@ -924,7 +924,7 @@
                 })
             })
         })
-        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty', 'qty_approve'])
+        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_alias', 'material_code', 'unit'], ['qty', 'qty_approve'])
         data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty', 'qty_approve'])
         // console.log(data_isi_machine_group)
         formDetailMaterialRequest()
@@ -1031,6 +1031,7 @@
         html += '<thead>'
         html += '<tr>'
         html += '<th>Kode</th>'
+        html += '<th>Alias</th>'
         html += '<th>Material</th>'
         html += '<th>Mesin</th>'
         html += '<th>QTY</th>'
@@ -1042,6 +1043,7 @@
         $.each(data_isi_material_group, function(key, value) {
             html += '<tr>'
             html += '<td>' + value['material_code'] + '</td>'
+            html += '<td class="bg-light">' + value['material_alias'] + '</td>'
             html += '<td>' + value['material_name'] + '</td>'
             html += '<td>'
             $.each(data_isi_material, function(keys, values) {
@@ -1093,6 +1095,7 @@
             html += '<thead>'
             html += '<tr>'
             html += '<th>Kode</th>'
+            html += '<th>Alias</th>'
             html += '<th>Material</th>'
             html += '<th>QTY</th>'
             html += '<th>Unit</th>'
@@ -1104,6 +1107,7 @@
                 if (value['machine_id'] == values['machine_id']) {
                     html += '<tr>'
                     html += '<td>' + values['material_code'] + '</td>'
+                    html += '<td class="bg-light">' + values['material_alias'] + '</td>'
                     html += '<td>' + values['material_name'] + '</td>'
                     html += '<td class="text-end">' + values['qty'] + '</td>'
                     html += '<td class="text-center">' + values['unit'] + '</td>'
@@ -1280,8 +1284,10 @@
     var productionTypeId = []
 
     function dataStats() {
-        dateStart = data_stats.stats[0].datasets[0].label
-        dateEnd = data_stats.stats[0].datasets[(data_stats.stats[0].datasets.length - 1)].label
+        // dateStart = data_stats.stats[0].datasets[0].label
+        // dateEnd = data_stats.stats[0].datasets[(data_stats.stats[0].datasets.length - 1)].label
+        dateStart = data_request_manage.statsTanggal.date_start
+        dateEnd = data_request_manage.statsTanggal.date_end
         $('#dateStart').val(dateStart)
         $('#dateEnd').val(dateEnd)
         createStats()
@@ -1324,11 +1330,7 @@
                 data_statistic = data_stats.stats[0]
                 $('#graphStats').html('')
                 $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
-                if (data_stats.average.length == 0) {
-                    $('#graphStats').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_rc6CDU.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
-                } else {
-                    listItems()
-                }
+                listItems()
             }
         })
     }
@@ -1362,18 +1364,28 @@
     }
 
     function listItems() {
+        $('.disable-text').removeClass('d-none')
         var html = ""
-        html += '<select class="form-select w-100 items" multiple id="items" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="changeItemGraph()">'
-        $.each(data_stats.average, function(key, value) {
-            html += '<option value="' + value['name'] + '" selected>' + value['name'] + '</option>'
-        })
-        html += '</select>'
-        $('#listItems').html(html)
-        $('#items').select2({
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-            closeOnSelect: false,
-            // dropdownParent: $('#modal'),
-        });
+        if (data_stats.average.length > 0) {
+            html += '<select class="form-select w-100 items" multiple id="items" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="changeItemGraph()">'
+            $.each(data_stats.average, function(key, value) {
+                html += '<option value="' + value['name'] + '" selected>' + value['name'] + '</option>'
+            })
+            html += '</select>'
+            $('#listItems').html(html)
+            $('#items').select2({
+                width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                closeOnSelect: false,
+                // dropdownParent: $('#modal'),
+            });
+        } else {
+            html += '<div class="row">'
+            html += '<div class="col-12 text-center">'
+            html += 'Tidak Ada Data'
+            html += '</div>'
+            html += '</div>'
+            $('#listItems').html(html)
+        }
         averageStats()
     }
 
@@ -1434,79 +1446,89 @@
         });
         $('#graphStats').html('')
         $('#graphStats').html('<canvas id="myChart2" width="100%"></canvas>')
-        statsGraph()
+        listItems()
     }
 
     function statsGraph() {
-        var data = data_statistic.datasets.filter((value, key) => {
-            if (value.data[0] != null) return true
-        })
-        var labels = []
-        for (let i = 0; i < data_statistic.labels.length; i++) {
-            labels.push(shortenName(data_statistic.labels[i], 2))
-        }
-        const ctx2 = document.getElementById('myChart2');
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: data
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
+        if (data_stats.average.length > 0) {
+            var data = data_statistic.datasets.filter((value, key) => {
+                if (value.data[0] != null) return true
+            })
+            var labels = []
+            for (let i = 0; i < data_statistic.labels.length; i++) {
+                labels.push(shortenName(data_statistic.labels[i], 2))
+            }
+            const ctx2 = document.getElementById('myChart2');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: data
                 },
-                stacked: false,
-                plugins: {},
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
                     },
-                }
-            },
-        });
+                    stacked: false,
+                    plugins: {},
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                    }
+                },
+            });
+        } else {
+            $('#graphStats').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_rc6CDU.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            $('.disable-text').addClass('d-none')
+        }
     }
 
     function statsTable() {
         var html = ""
-        html += '<div class="table-responsive">'
-        html += '<table class="table table-bordered table-sm table-hover" style="font-size: 10px;" id="myTable">'
-        html += '<thead>'
-        html += '<tr>'
-        html += '<th rowspan="2" class="small">Tanggal</th>'
-        html += '<th colspan="' + data_stats.stats[0].labels.length + '" class="small">Material</th>'
-        html += '</tr>'
-        html += '<tr>'
-        for (let i = 0; i < data_stats.stats[0].labels.length; i++) {
-            html += '<th style="word-wrap: break-word;min-width: 10%;max-width: 10%;" class="small">' + shortenName(data_stats.stats[0].labels[i], 2) + '</th>'
-        }
-        html += '</tr>'
-        html += '</thead>'
-        html += '<tbody>'
-        $.each(data_stats.stats[0].datasets, function(key, value) {
+        if (data_stats.average.length > 0) {
+            html += '<div class="table-responsive">'
+            html += '<table class="table table-bordered table-sm table-hover" style="font-size: 10px;" id="myTable">'
+            html += '<thead>'
             html += '<tr>'
-            html += '<td>' + value['label'] + '</td>'
-            for (let i = 0; i < value['data'].length; i++) {
-                var nilai = value['data'][i]
-                if (value['data'][i] == null) {
-                    nilai = ''
-                }
-                html += '<td class="text-end">' + number_format(nilai) + '</td>'
+            html += '<th rowspan="2" class="small">Tanggal</th>'
+            html += '<th colspan="' + data_stats.stats[0].labels.length + '" class="small">Material</th>'
+            html += '</tr>'
+            html += '<tr>'
+            for (let i = 0; i < data_stats.stats[0].labels.length; i++) {
+                html += '<th style="word-wrap: break-word;min-width: 10%;max-width: 10%;" class="small">' + shortenName(data_stats.stats[0].labels[i], 2) + '</th>'
             }
             html += '</tr>'
-        })
-        html += '</tbody>'
-        html += '</table>'
-        html += '</div>'
-        $('#graphStats').html(html)
-        $('#myTable').DataTable({
-            responsive: true
-        });
+            html += '</thead>'
+            html += '<tbody>'
+            $.each(data_stats.stats[0].datasets, function(key, value) {
+                html += '<tr>'
+                html += '<td>' + value['label'] + '</td>'
+                for (let i = 0; i < value['data'].length; i++) {
+                    var nilai = value['data'][i]
+                    if (value['data'][i] == null) {
+                        nilai = ''
+                    }
+                    html += '<td class="text-end">' + number_format(nilai) + '</td>'
+                }
+                html += '</tr>'
+            })
+            html += '</tbody>'
+            html += '</table>'
+            html += '</div>'
+            $('#graphStats').html(html)
+            $('#myTable').DataTable({
+                responsive: true
+            });
+        } else {
+            $('#graphStats').html('<lottie-player src="https://assets9.lottiefiles.com/packages/lf20_rc6CDU.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            $('.disable-text').addClass('d-none')
+        }
     }
 
     function changeStatistic(status) {

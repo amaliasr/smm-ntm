@@ -133,7 +133,7 @@
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">Shift</td>
                 <td style="width: 2px;">:</td>
-                <td style="word-wrap: break-word;width: 90%;">1 (07.00 - 15.00)</td>
+                <td style="word-wrap: break-word;width: 90%;"></td>
             </tr>
         </table>
         <!-- MAKER -->

@@ -124,7 +124,7 @@
                     </a>
                     <div class="collapse show" id="collapseDashboards1" data-bs-parent="#accordionSidenav">
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                            <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a>
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a> -->
                             <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
                             <!-- <a class="nav-link" href="<?= base_url(); ?>production/managementWarehouse">Manage Warehouse</a> -->
                             <?php if (is_logistik()) { ?>

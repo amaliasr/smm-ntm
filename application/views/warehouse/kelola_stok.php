@@ -1048,7 +1048,7 @@
 
         var html_gudang = ""
         $.each(data_gudang, function(keys, values) {
-            if (values['name'] != 'Gudang Utama' && values['name'] != 'Gudang Adjustment') {
+            if (values['name'] != 'Gudang Utama' && values['name'] != 'Gudang Adjustment' && values['id'] != 1) {
                 html_gudang += '<div class="col-2 ">'
                 html_gudang += '</div>'
                 html_gudang += '<div class="col-10 mb-2">'

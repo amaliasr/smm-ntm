@@ -408,7 +408,7 @@
             html += '<td class="sticky-col">' + (parseInt(key) + 1) + '</td>'
             html += '<td>' + value['name'] + '</td>'
             html += '<td class="text-center">' + value['satuan_name'] + '</td>'
-            html += '<td class="text-end">' + value['stok_awal'] + '</td>'
+            html += '<td class="text-end">' + number_format(value['stok_awal']) + '</td>'
             var total_in = 0
             var total_inother = 0
             var total_out = 0

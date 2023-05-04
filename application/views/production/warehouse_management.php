@@ -548,7 +548,7 @@
                                             <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                                 Filter Option <span class="text-grey ms-1 me-1">( Detail, Table )</span>
                                             </button>
-                                            <button type="button" class="btn btn-primary btn-sm" onclick=""><span class="fa fa-plus me-2"></span>Add Transaction</button>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="formTransaksiStok()"><span class="fa fa-plus me-2"></span>Add Transaction</button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
                                                 <li>
                                                     <h6 class="dropdown-header">Show By</h6>
@@ -1294,4 +1294,495 @@
         }
 
     });
+
+    function formTransaksiStok() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Transaksi Stok</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 col-md-7 small">'
+        html_body += '<p class="m-0 mb-2"><b>Nomor Dokumen :</b></p>'
+        html_body += '<input type="text" class="form-control form-control-sm p-1" id="nomorDokumen" style="border:none;">'
+        html_body += '<hr class="m-0 mb-3">'
+
+        html_body += '<p class="m-0 mb-2"><b>Choose Item :</b></p>'
+        html_body += '<div id="listFormItem">'
+        html_body += '</div>'
+        html_body += '<button class="btn btn-sm bg-ungu text-white float-end mt-2" onclick="addItem()">Tambah Item<i class="fa fa-plus ms-2"></i></button>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-5 small">'
+
+        html_body += '<p class="m-0 mb-2"><b>Customized :</b></p>'
+        // tanggal
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">1</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Tanggal</b></p>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-2 ">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 mb-2">'
+        html_body += '<input type="text" class="form-control form-control-sm datepicker" id="tanggalStok" style="border:none;" autocomplete="off">'
+        html_body += '<hr class="m-0">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // tanggal
+        // jenis barang
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">2</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Jenis Barang</b></p>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-2 ">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 mb-2">'
+        html_body += '<input type="radio" class="btn-check p-1 text-start radioJenisBarang" name="radioJenisBarang" id="radioJenisBarang1" autocomplete="off" value="IN">'
+        html_body += '<label class="btn btn-sm btn-outline-primary w-100" for="radioJenisBarang1" onclick="tampilKategori(0)">Barang Masuk</label>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-2 ">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 mb-2">'
+        html_body += '<input type="radio" class="btn-check p-1 text-start radioJenisBarang" name="radioJenisBarang" id="radioJenisBarang2" autocomplete="off" value="OUT">'
+        html_body += '<label class="btn btn-sm btn-outline-primary w-100" for="radioJenisBarang2" onclick="tampilKategori(1)">Barang Keluar</label>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // jenis barang
+        // Tag
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">3</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Kategori</b></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+
+        html_body += '<div class="row" id="tampilKategori">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<div class="card shadow-none mt-3">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<p class="m-0 mt-5 mb-5" style="font-size:11px;">Pilih <b>Jenis Barang</b> terlebih dahulu</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // Tag
+        // Gudang
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2" id="tampilGudang">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">4</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b id="textTitleGudang">Gudang</b></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row" id="tampilGudangRow">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<div class="card shadow-none mt-3">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<p class="m-0 mt-5 mb-5" style="font-size:11px;">Pilih <b>Jenis Barang</b> terlebih dahulu</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // Gudang
+        // supplier
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2 d-none" id="tampilSupplier">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">4</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Supplier</b></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<select class="form-select form-select-sm w-100 supplierStok" id="supplierStok">'
+        html_body += '<option value="" selected disabled>Pilih Supplier</option>'
+        $.each(data_supplier, function(keys, values) {
+            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // supplier
+        // Upload Image
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">5</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Upload Dokumen</b></p>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-2 ">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 mb-2">'
+        html_body += '<input class="form-control form-control-sm" type="file" id="formFile" accept="image/*">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // Upload Image
+        // Notes
+        html_body += '<div class="card shadow-none m-0 w-100 mb-2">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row align-self-center">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 align-self-center mb-2">'
+        html_body += '<div id="profileImage" class="bg-ungu">6</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center mb-2">'
+        html_body += '<p class="m-0"><b>Catatan</b></p>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-2 ">'
+        html_body += '</div>'
+        html_body += '<div class="col-10 mb-2">'
+        html_body += '<textarea class="form-control form-control-sm w-100" rows="5" id="catatanStok"></textarea>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // Notes
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true,
+            todayHighlight: true,
+        });
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanStok" onclick="doSimpanStok()">Simpan</button>'
+        $('#modalFooter').html(html_footer);
+        addItem()
+    }
+    $(document).on('change', '.itemStok', function(e) {
+        var key = $(this).data('id')
+        $('#satuanStok' + key).empty()
+        var id = $(this).val()
+        let obj = JSON.parse(data_item.find((value, key) => {
+            if (value.id === id) return true
+        })['data_konversi'])
+        var satuan_tetap = data_item.find((value, key) => {
+            if (value.id === id) return true
+        });
+        var html_body = ""
+        html_body += '<option value="' + satuan_tetap['satuan_id'] + '">' + satuan_tetap['satuan_name'] + '</option>'
+        if (obj != null) {
+            $.each(obj, function(keys, values) {
+                html_body += '<option value="' + values['satuan_id'] + '">' + values['satuan_name'] + '</option>'
+            })
+        }
+        $('#satuanStok' + key).html(html_body)
+    })
+    var numberItem = 0
+
+    function addItem() {
+        var html = ""
+        html += '<div class="card shadow-none m-0 w-100 mb-2" id="fieldItem' + numberItem + '">'
+        html += '<div class="card-body p-3">'
+
+        html += '<div class="row align-self-center mb-2">'
+
+        html += '<div class="col-5">'
+        html += '<select style="border:none"  class="form-select form-select-sm w-100 itemStok" id="itemStok' + numberItem + '" data-id="' + numberItem + '">'
+        html += '<option value="" selected disabled>Pilih Item</option>'
+        $.each(data_item, function(keys, values) {
+            html += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+        })
+        html += '</select>'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-2">'
+        html += '<input onkeypress="return event.charCode >= 48" min="1" style="border:none" type="text" name="" class="form-control form-control-sm p-1 nominal jumlahStok" value="" placeholder="Jumlah Stok" id="jumlahStok' + numberItem + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-3">'
+        html += '<select style="border:none" name="" class="form-control form-control-sm satuanStok" id="satuanStok' + numberItem + '">'
+        html += '</select>'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-1">'
+        html += '<button class="btn btn-sm btn-outline-danger" onclick="removeFieldItem(' + numberItem + ')"><i class="fa fa-trash"></i></button>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        $('#listFormItem').append(html)
+        $('.nominal').number(true);
+        numberItem++
+        return true
+    }
+    $(document).on('change', '.radioTag', function(e) {
+        var value = $('.radioTag:checked').val()
+        $('#tampilGudang').removeClass('d-none')
+        $('#tampilSupplier').addClass('d-none')
+        if (value == 'Terima Supplier' || value == 'Retur Supplier') {
+            $('#tampilGudang').addClass('d-none')
+            $('#tampilSupplier').removeClass('d-none')
+        }
+    })
+
+    function tampilKategori(status) {
+        // 0 = masuk
+        // 1 = keluar
+        var name1 = 'Kembali Pinjam'
+        var name2 = 'Retur Produksi'
+        var name3 = 'Terima Supplier'
+        var name4 = 'Adjustment In'
+        $('#textTitleGudang').html('Gudang Asal')
+        if (status == 1) {
+            $('#textTitleGudang').html('Gudang Tujuan')
+            name1 = 'Peminjaman'
+            name2 = 'Distribusi Produksi'
+            name3 = 'Retur Supplier'
+            name4 = 'Adjustment Out'
+        }
+        var html = ""
+        html += '<div class="col-2 ">'
+        html += '</div>'
+        html += '<div class="col-10 mb-2">'
+        html += '<input type="radio" class="btn-check p-1 text-start radioTag" name="radioTag" id="radioTag1" autocomplete="off" value="' + name1 + '">'
+        html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag1">' + name1 + '</label>'
+        html += '</div>'
+
+        html += '<div class="col-2 ">'
+        html += '</div>'
+        html += '<div class="col-10 mb-2">'
+        html += '<input type="radio" class="btn-check p-1 text-start radioTag" name="radioTag" id="radioTag2" autocomplete="off" value="' + name2 + '">'
+        html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag2">' + name2 + '</label>'
+        html += '</div>'
+
+        html += '<div class="col-2 ">'
+        html += '</div>'
+        html += '<div class="col-10 mb-2">'
+        html += '<input type="radio" class="btn-check p-1 text-start radioTag" name="radioTag" id="radioTag3" autocomplete="off" value="' + name3 + '">'
+        html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag3">' + name3 + '</label>'
+        html += '</div>'
+
+        html += '<div class="col-12">'
+        html += '<hr>'
+        html += '</div>'
+
+        html += '<div class="col-2 ">'
+        html += '</div>'
+        html += '<div class="col-10 mb-2">'
+        html += '<input type="radio" class="btn-check p-1 text-start radioTag" name="radioTag" id="radioTag4" autocomplete="off" value="' + name4 + '">'
+        html += '<label class="btn btn-sm btn-outline-primary w-100" for="radioTag4">' + name4 + '</label>'
+        html += '</div>'
+        $('#tampilKategori').html(html)
+
+        var html_gudang = ""
+        $.each(data_gudang, function(keys, values) {
+            if (values['name'] != 'Gudang Utama' && values['name'] != 'Gudang Adjustment' && values['id'] != 1) {
+                html_gudang += '<div class="col-2 ">'
+                html_gudang += '</div>'
+                html_gudang += '<div class="col-10 mb-2">'
+                html_gudang += '<input type="radio" class="btn-check p-1 text-start radioGudang" name="radioGudang" id="radioGudang' + keys + '" autocomplete="off" value="' + values['id'] + '">'
+                html_gudang += '<label class="btn btn-sm btn-outline-primary w-100" for="radioGudang' + keys + '">' + values['name'] + '</label>'
+                html_gudang += '</div>'
+            }
+        })
+        $('#tampilGudangRow').html(html_gudang)
+        return true
+    }
+
+    function removeFieldItem(num) {
+        $('#fieldItem' + num).remove()
+    }
+
+    function doSimpanStok(images = "") {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menyimpan data Transaksi Stok ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var item = []
+                var id_item = $('.itemStok').map(function() {
+                    return $(this).val();
+                }).get();
+                var qty = $('.jumlahStok').map(function() {
+                    return $(this).val();
+                }).get();
+                var satuan = $('.satuanStok').map(function() {
+                    return $(this).val();
+                }).get();
+                for (let i = 0; i < id_item.length; i++) {
+                    item.push({
+                        'id_item': id_item[i],
+                        'jumlah': qty[i],
+                        'id_satuan': satuan[i],
+                    })
+                }
+                var form_data = new FormData();
+                var tanggal = $('#tanggalStok').val()
+                var no_doc = $('#nomorDokumen').val()
+                var jenis_barang = $('.radioJenisBarang:checked').val()
+                var kategori = $('.radioTag:checked').val()
+                var gudang = $('.radioGudang:checked').val()
+                var image = images
+                var note = $('#catatanStok').val()
+                var supplier = $('#supplierStok').val()
+                var type = 'POST'
+                var form_data = {
+                    'tanggal': tanggal,
+                    'no_doc': no_doc,
+                    'jenis_barang': jenis_barang,
+                    'kategori': kategori,
+                    'gudang': gudang,
+                    'image': image,
+                    'note': note,
+                    'item': item,
+                    'created_by': user_id,
+                    'id_supplier': supplier,
+                }
+                var button = '#btnClosePO'
+                var url = '<?php echo api_url('Api_Warehouse/insertTransaksiStok'); ?>'
+                // console.log(form_data)
+                kelolaData(form_data, type, url, button)
+            }
+        })
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                if (response.success == true) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data Berhasil Tersimpan',
+                        icon: 'success',
+                    }).then((responses) => {
+                        getData()
+                        $('#modal').modal('hide')
+                        $(button).prop("disabled", false);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal Tersimpan'
+                    });
+                    $(button).prop("disabled", false);
+                }
+            }
+        });
+    }
 </script>

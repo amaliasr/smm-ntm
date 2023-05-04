@@ -295,7 +295,7 @@
                                     </div>
                                     <div class="col">
                                         <div class="float-end">
-                                            <button type="button" class="btn btn-primary btn-sm me-2" onclick="getData(),changeFilter('all')"><span class="fa fa-refresh me-2"></span> Refresh</button>
+                                            <button type="button" class="btn btn-primary btn-sm me-2" onclick="getData()"><span class="fa fa-refresh me-2"></span> Refresh</button>
                                             <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                                 Option
                                             </button>
@@ -439,6 +439,8 @@
         })
     })
 
+    var data_notif = ''
+
     function getData() {
         $.ajax({
             url: "<?= api_produksi('getMaterialRequest'); ?>",
@@ -455,7 +457,7 @@
             },
             success: function(response) {
                 data_material = response['data']
-                console.log(data_material)
+                data_notif = response['sendNotif']
                 variableMR()
             }
         })
@@ -564,6 +566,11 @@
             html += '<div class="col-auto text-center align-self-center">'
             html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
+            if (job_foreman) {
+                if (values['is_process'] == null) {
+                    html += '<a class="dropdown-item" onclick="linkToEditMaterial(' + values.id + ')"><i class="fa fa-pencil me-2"></i> Edit</a>'
+                }
+            }
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Material</a>'
             html += '<a class="dropdown-item" onclick="linkToProcessed(' + values.id + ')"><i class="fa fa-tasks me-2"></i> Linked into Management</a>'
             if (job_foreman) {
@@ -645,16 +652,21 @@
         window.open(url, '_blank')
     }
 
+    function linkToEditMaterial(id) {
+        var url = '<?= base_url() ?>production/editMaterialRequest/' + id
+        location.replace(url)
+    }
+
     function beforeShareWhatsapp(id) {
         let obj = data_material.find((value, key) => {
             if (value.id === id) return true
         });
         var no_telp = []
         var nama = []
-        for (let i = 0; i < 1; i++) {
-            nama.push('Febrianti')
-            no_telp.push('081944946015')
-        }
+        data_notif.spvSmd.forEach(e => {
+            nama.push(e.full_name)
+            no_telp.push(e.phone)
+        })
         Swal.fire({
             text: 'Membagikan Approval ' + obj.code + ' akan langsung masuk ke Whatsapp SPV SMD, apakah anda ingin melanjutkan?',
             icon: 'warning',

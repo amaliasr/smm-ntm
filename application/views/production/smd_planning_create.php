@@ -149,74 +149,166 @@
         width: 35% !important;
     }
 
-    .bd-callout-0 {
-        border-left-color: #9b5fe0;
+    /* BORDER SKM */
+
+    .bd-callout-0-skm {
+        border-left-color: #0B2447;
         border-left-width: 10px;
     }
 
-    .bd-callout-1 {
-        border-left-color: #16a4d8;
+    .bd-callout-1-skm {
+        border-left-color: #19376D;
         border-left-width: 10px;
     }
 
-    .bd-callout-2 {
-        border-left-color: #60dbe8;
+    .bd-callout-2-skm {
+        border-left-color: #1A5F7A;
         border-left-width: 10px;
     }
 
-    .bd-callout-3 {
-        border-left-color: #8bd346;
+    .bd-callout-3-skm {
+        border-left-color: #159895;
         border-left-width: 10px;
     }
 
-    .bd-callout-4 {
-        border-left-color: #efdf48;
+    .bd-callout-4-skm {
+        border-left-color: #57C5B6;
         border-left-width: 10px;
     }
 
-    .bd-callout-5 {
-        border-left-color: #f9a52c;
+    .bd-callout-5-skm {
+        border-left-color: #87CBB9;
         border-left-width: 10px;
     }
 
-    .bd-callout-6 {
-        border-left-color: #d64e12;
+    .bd-callout-6-skm {
+        border-left-color: #B9EDDD;
         border-left-width: 10px;
     }
 
-    .bg-callout-0 {
-        background-color: #9b5fe0;
+    /* BACKGROUND SKM */
+
+    .bg-callout-0-skm {
+        background-color: #0B2447;
         opacity: 0.5;
+        color: white;
     }
 
-    .bg-callout-1 {
-        background-color: #16a4d8;
+    .bg-callout-1-skm {
+        background-color: #19376D;
         opacity: 0.5;
+        color: white;
     }
 
-    .bg-callout-2 {
-        background-color: #60dbe8;
+    .bg-callout-2-skm {
+        background-color: #1A5F7A;
         opacity: 0.5;
+        color: white;
     }
 
-    .bg-callout-3 {
-        background-color: #8bd346;
+    .bg-callout-3-skm {
+        background-color: #159895;
         opacity: 0.5;
+        color: white;
     }
 
-    .bg-callout-4 {
-        background-color: #efdf48;
+    .bg-callout-4-skm {
+        background-color: #57C5B6;
         opacity: 0.5;
+        color: white;
     }
 
-    .bg-callout-5 {
-        background-color: #f9a52c;
+    .bg-callout-5-skm {
+        background-color: #87CBB9;
         opacity: 0.5;
+        color: white;
     }
 
-    .bg-callout-6 {
-        background-color: #d64e12;
+    .bg-callout-6-skm {
+        background-color: #B9EDDD;
         opacity: 0.5;
+        color: white;
+    }
+
+    /* BORDER SKT */
+
+    .bd-callout-0-skt {
+        border-left-color: #fff9ae;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-1-skt {
+        border-left-color: #f8ed62;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-2-skt {
+        border-left-color: #e9d700;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-3-skt {
+        border-left-color: #dab600;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-4-skt {
+        border-left-color: #a98600;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-5-skt {
+        border-left-color: #b3910b;
+        border-left-width: 10px;
+    }
+
+    .bd-callout-6-skt {
+        border-left-color: #9f810a;
+        border-left-width: 10px;
+    }
+
+    /* BACKGROUND SKT */
+
+    .bg-callout-0-skt {
+        background-color: #fff9ae;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .bg-callout-1-skt {
+        background-color: #f8ed62;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .bg-callout-2-skt {
+        background-color: #e9d700;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .bg-callout-3-skt {
+        background-color: #dab600;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .bg-callout-4-skt {
+        background-color: #a98600;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .bg-callout-5-skt {
+        background-color: #b3910b;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .bg-callout-6-skt {
+        background-color: #9f810a;
+        opacity: 0.5;
+        color: white;
     }
 
     .table {
@@ -252,16 +344,39 @@
         font-size: 9px;
     }
 
-    .bg-gradient-production {
+    .bg-gradient-production-skm {
         background-color: #1C315E !important;
         background-image: linear-gradient(135deg,
                 #1C315E 0%,
                 rgba(34, 124, 112, 0.8) 100%) !important;
     }
+
+    .bg-gradient-production-skt {
+        background: rgb(150, 96, 14);
+        background: linear-gradient(97deg, rgba(150, 96, 14, 1) 0%, rgba(236, 225, 59, 1) 100%);
+    }
+
+    .popover.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .bg-pita-1 {
+        background-color: #fff16f !important;
+    }
+
+    .bg-pita-2 {
+        background: rgb(251, 180, 25);
+        background: linear-gradient(180deg, rgba(251, 180, 25, 1) 50%, rgba(255, 241, 111, 1) 50%);
+    }
+
+    .popover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
 </style>
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-production pb-10">
+    <header class="page-header page-header-dark bg-gradient-production-skt pb-10">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
@@ -269,6 +384,7 @@
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-industry"></i></div>
                             <?= $head_title ?>
+                            </script>
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
@@ -316,11 +432,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- <div class="card-footer text-center p-2 bg-white">
-
-                                                <button type="button" class="btn btn-success p-2 mb-1 w-100" style="font-size: 11px;"><i class="fa fa-save me-1"></i>Simpan</button>
-
-                                            </div> -->
+                                            <div class="card-footer text-center p-2 bg-white">
+                                                <button type="button" class="btn btn-sm btn-primary h-100 w-100 mt-2 autoButton" onclick="automaticPlan()"><i class="fa fa-magic me-2"></i>AUTO</button>
+                                            </div>
                                         </div>
                                     </div>
                                     <!-- side count -->
@@ -329,11 +443,11 @@
                                             <div class="col-12">
                                                 <nav class="createPane">
                                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                                        <button style="width: 100px;" class="p-3 nav-link position-relative active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="changeTab('skm')">SKM
+                                                        <button style="width: 100px;" class="p-3 nav-link position-relative " id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="changeTab('skm')">SKM
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle skmCircleDanger"></span>
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle skmCircleSuccess d-none"></span>
                                                         </button>
-                                                        <button style="width: 100px;" class="p-3 nav-link position-relative" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="changeTab('skt')">SKT
+                                                        <button style="width: 100px;" class="p-3 nav-link position-relative active" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="changeTab('skt')">SKT
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle sktCircleDanger"></span>
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle sktCircleSuccess d-none"></span>
                                                         </button>
@@ -345,10 +459,10 @@
                                                             <div class="card shadow-none mb-4 mt-4 small position-relative createPane">
                                                                 <h3><span class="position-absolute top-0 start-10 translate-middle badge  bg-primary">Main Planning </span></h3>
                                                                 <div class="card-body">
-                                                                    <div class="row">
+                                                                    <form class="row signupForm" id="signupForm">
                                                                         <div class="col-12 col-md-6">
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Date Range</b></p>
-                                                                            <input type="text" class="form-control form-control-sm litepicker mb-2" required="required" id="dateRange" disabled>
+                                                                            <input type="text" class="form-control form-control-sm litepicker mb-2" required="required" id="dateRange" name="dateRange" disabled>
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Target Produksi</b></p>
                                                                             <div id="createTargetProduksi">
                                                                             </div>
@@ -358,7 +472,7 @@
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Customize Machine</b></p>
                                                                             <div class="card shadow-none">
                                                                                 <div class="card-body">
-                                                                                    <div class="row">
+                                                                                    <div class="row customMachine" id="customMachineskm">
                                                                                         <div class="col-6">
                                                                                             <b class="small">Sustainable Machine in A Day</b>
                                                                                             <p class="font-small m-0">Pilih Mesin yang dimana item tersebut dapat lebih dari 1 Mesin dalam 1 Hari</p>
@@ -380,10 +494,16 @@
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
+                                                                                    <div class="row customMachine d-none" id="customMachineskt">
+                                                                                        <div class="col-12 text-center">
+                                                                                            <i class="small">Fitur untuk SKT Belum Tersedia</i>
+                                                                                        </div>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
+                                                                        <!-- <input class="submit" type="submit" value="submit"> -->
+                                                                    </form>
                                                                 </div>
                                                             </div>
                                                             <div class="card shadow-none mb-4 mt-4 small position-relative">
@@ -397,7 +517,7 @@
                                                                         <div class="col-12 col-md-3 mb-4 text-center align-self-center">
                                                                             <div class="row">
                                                                                 <div class="col-12 pb-2">
-                                                                                    <button type="button" class="btn btn-sm btn-primary h-100 w-100 mt-2" onclick="automaticPlan()"><i class="fa fa-refresh me-2"></i>Automatic Plan</button>
+                                                                                    <button type="button" class="btn btn-sm btn-primary h-100 w-100 mt-2 autoButton" onclick="automaticPlan()"><i class="fa fa-magic me-2"></i>Automatic Plan</button>
                                                                                 </div>
                                                                                 <div class="col-12">
                                                                                     <button type="button" class="btn btn-sm btn-outline-danger h-100 w-100 mt-2" onclick="clearPlan()"><i class="fa fa-rotate-left me-2"></i>Clear All</button>
@@ -408,8 +528,8 @@
                                                                     <div id="dataDailyPlanning">
                                                                     </div>
 
-                                                                    <button type="button" class="btn btn-success float-end btnSimpan" onclick="saveAsIndividual()"><i class="fa fa-save me-2"></i> Simpan SKM</button>
-                                                                    <button type="button" class="btn btn-outline-success float-end me-2 btnSimpan createPane"><i class="fa fa-save me-2"></i> Simpan Semua</button>
+                                                                    <button type="button" class="btn btn-success float-end btnSimpan" onclick="saveAsIndividual()"><i class="fa fa-save me-2"></i> Simpan<span class="ms-1 textJenisProduksi">SKM</span></button>
+                                                                    <!-- <button type="button" class="btn btn-outline-success float-end me-2 btnSimpan createPane"><i class="fa fa-save me-2"></i> Simpan Semua</button> -->
 
                                                                 </div>
                                                             </div>
@@ -428,6 +548,11 @@
         </div>
     </div>
 </main>
+<div hidden>
+    <div data-name="popover-content" id="popover_content">
+
+    </div>
+</div>
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog" role="document" id="modalDialog">
@@ -470,7 +595,7 @@
             <div class="modal-body" id="modalBody3">
 
             </div>
-            <div class="modal-footer" id="modalFooter3">
+            <div class="modal-footer d-none" id="modalFooter3">
 
             </div>
         </div>
@@ -495,8 +620,9 @@
     var data_machine_capability = ""
     var data_skm = {}
     var data_skt = {}
-    var jenis_produksi = "skm"
+    var jenis_produksi = "skt"
     var customDate = []
+    var detailPitaCukai = []
 
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -512,6 +638,15 @@
         $('#modalHeader2').html('');
         $('#modalBody2').html('');
         $('#modalFooter2').html('');
+    }
+
+    function clearModal3() {
+        $('#modalDialog3').removeClass();
+        $('#modalDialog3').removeAttr('style');
+        $('#modalHeader3').html('');
+        $('#modalBody3').html('');
+        $('#modalFooter3').html('');
+        localStorage.setItem('hint', 1)
     }
 
     function getDateFromRange(startDate, endDate) {
@@ -535,6 +670,9 @@
     $('#modal2').on('hidden.bs.modal', function(e) {
         clearModal2();
     })
+    $('#modal3').on('hidden.bs.modal', function(e) {
+        clearModal3();
+    })
     var position = $('#tampilDetailPembayaran').offset().top;
 
     $(document).scroll(function() {
@@ -553,16 +691,15 @@
 
     function changeTab(stat) {
         jenis_produksi = stat
+        customAfterSwitch()
         if (jenis_produksi == "skm") {
-            // if (data_skm['dateStart'] == undefined) {
+            $('.autoButton').removeAttr('disabled', true)
             clearForm()
-            // }
             var data = data_skm
             customDate = data_skm['customDate']
         } else {
-            // if (data_skt['dateStart'] == undefined) {
+            $('.autoButton').attr('disabled', true)
             clearForm()
-            // }
             var data = data_skt
             customDate = data_skt['customDate']
         }
@@ -583,7 +720,25 @@
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
 
+    const validateMe = () => {
+        $(".signupForm").validate({
+            // in 'rules' user have to specify all the constraints for respective fields
+            rules: {
+                dateRange: "required",
+                produkTarget: "required",
+                jumlahTarget: "required",
+            },
+            // in 'messages' user have to specify message as per rules
+            messages: {
+                dateRange: "Harap isi Date Range untuk mengisi Daily Planning",
+            }
+        });
+    }
+
     $(document).ready(function() {
+        showHint()
+        validateMe()
+        customAfterSwitch()
         if (id_plan != '') {
             $('.createPane').remove()
             $.ajax({
@@ -611,6 +766,24 @@
         }
     })
 
+    function customAfterSwitch() {
+        $('.textJenisProduksi').html(jenis_produksi.toUpperCase())
+        $('.customMachine').addClass('d-none')
+        $('#customMachine' + jenis_produksi).removeClass('d-none')
+        if (jenis_produksi == 'skm') {
+            $('.page-header').removeClass('bg-gradient-production-skt')
+        } else {
+            $('.page-header').removeClass('bg-gradient-production-skm')
+        }
+        $('.page-header').addClass('bg-gradient-production-' + jenis_produksi)
+    }
+
+    function showHint() {
+        if (localStorage.getItem('hint') != 1) {
+            hint()
+        }
+    }
+
     function clearForm() {
         $('#dateRange').val('')
         $('#createTargetProduksi').empty()
@@ -618,11 +791,14 @@
         noTarget = 0;
         $('#detailTargetPane').html('<div class="col-12 p-0 border-top text-center pb-2 pt-2"><p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Dibuat</p></div>')
         $('.totalMesin').empty()
+        // detailPitaCukai = []
     }
 
     function clearPlan() {
         $('.totalMesin').empty()
         $('.jumlahPlanning').val('')
+        $('.fillBoxPita').val('')
+        // detailPitaCukai = []
     }
     var dateStart = ""
     var dateEnd = ""
@@ -636,18 +812,15 @@
             if (data_skm['dateEnd'] != undefined && data_skm['dateStart'] != undefined) {
                 dateStart = data_skm['dateStart']
                 dateEnd = data_skm['dateEnd']
-                createDailyPlanning(dateStart, dateEnd)
+                arrangeMachineGroupPlan(dateStart, dateEnd)
             }
         } else {
             if (data_skt['dateEnd'] != undefined && data_skt['dateStart'] != undefined) {
                 dateStart = data_skt['dateStart']
                 dateEnd = data_skt['dateEnd']
-                createDailyPlanning(dateStart, dateEnd)
+                arrangeMachineGroupPlan(dateStart, dateEnd)
             }
         }
-        // console.log(data_master)
-        // var dataDate = data_master[jenis_produksi].dateUsed.join()
-        // console.log(dataDate)
         new Litepicker({
             element: document.getElementById('dateRange'),
             singleMode: false,
@@ -669,8 +842,11 @@
                     }
                     customDate = []
                     createCode(dateStart, dateEnd)
-                    // $('#dateRange').val(formatInternationalDate(dateStart) + ' - ' + formatInternationalDate(dateEnd))
-                    createDailyPlanning(dateStart, dateEnd)
+                    // if (jenis_produksi == 'skm') {
+                    //     createDailyPlanning(dateStart, dateEnd)
+                    // } else {
+                    arrangeMachineGroupPlan(dateStart, dateEnd)
+                    // }
                 });
             },
         })
@@ -715,7 +891,11 @@
                     if (id_plan != '') {
                         dateStart = data_plan.date_start
                         dateEnd = data_plan.date_end
-                        createDailyPlanning(data_plan.date_start, data_plan.date_end)
+                        // if (jenis_produksi == 'skm') {
+                        // createDailyPlanning(data_plan.date_start, data_plan.date_end)
+                        // } else {
+                        arrangeMachineGroupPlan(data_plan.date_start, data_plan.date_end)
+                        // }
                     }
                 }
             })
@@ -745,8 +925,33 @@
     }
 
     var anyMachine = []
+    var machine_group_plan = []
+    var machine_group_plan_group = ''
+
+    function arrangeMachineGroupPlan(dateStart, dateEnd) {
+        machine_group_plan = []
+        data_master[jenis_produksi].machineGroupPlan.forEach(e => {
+            e.machine_group_plan.forEach(e2 => {
+                e2.machine.forEach(e3 => {
+                    machine_group_plan.push({
+                        'group_plan_id': e.id,
+                        'group_plan_name': e.name,
+                        'machine_group_plan_id': e2.id,
+                        'machine_group_plan_name': e2.name,
+                        'machine_group_plan_item': e2.item_id_product,
+                        'machine_id': e3.id,
+                        'machine_name': e3.name,
+                    })
+                });
+            });
+        });
+        machine_group_plan_group = groupAndSum(machine_group_plan, ['group_plan_id', 'group_plan_name'], ['machine_id'])
+        // console.log(machine_group_plan)
+        createDailyPlanning(dateStart, dateEnd)
+    }
 
     function createDailyPlanning(dateStart, dateEnd) {
+        detailPitaCukai = []
         var data = ""
         $('#dataDailyPlanning').empty()
         anyMachine = []
@@ -755,45 +960,56 @@
         var a = 0
         var c = 0
         date.forEach(function(dates) {
-            html += '<div class="card shadow-sm bd-callout-' + a + ' mb-5 small" id="card_search' + c + '">'
+            html += '<div class="card shadow-sm bd-callout-' + a + '-' + jenis_produksi + ' mb-5 small cardDate" data-date="' + formatDate(dates) + '" id="card_search' + c + '">'
             html += '<div class="card-body">'
 
             html += '<div class="row pb-2">'
             html += '<div class="col-1 pe-0">'
             html += '<h6><p class="m-0"><b><i class="fa fa-calendar-o "></i></b></p></h6>'
             html += '</div>'
-            html += '<div class="col-11 ps-0">'
+            html += '<div class="col-10 ps-0">'
             html += '<h6><p class="m-0"><b class="text_search" data-id="' + c + '">' + formatDateIndonesia(dates) + '</b></p></h6>'
             html += '</div>'
             html += '</div>'
 
-            html += '<div class="row pb-2">'
-            html += '<div class="col-1 pe-0">'
-            html += '<h6><p class="m-0"><b><i class="fa fa-clock-o"></i></b></p></h6>'
-            html += '</div>'
-            html += '<div class="col-11 ps-0">'
-            html += '<div class="row">'
-            $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
-                html += '<div class="col-auto">'
-                html += '<div class="card mb-1 shadow-none shiftCard shiftCard' + c + '" data-date="' + dates + '" data-id_date="' + c + '" data-id="' + value.id + '" style="cursor:pointer;" id="shiftCard' + c + key + '" onclick="chooseShift(' + c + ',' + key + ')">'
-                html += '<div class="card-body p-2">'
+            if (jenis_produksi == 'skm') {
+                html += '<div class="row pb-2">'
+                html += '<div class="col-1 pe-0">'
+                html += '<h6><p class="m-0"><b><i class="fa fa-clock-o"></i></b></p></h6>'
+                html += '</div>'
+                html += '<div class="col-11 ps-0">'
                 html += '<div class="row">'
-                html += '<div class="col-auto align-self-center">'
-                html += '<i class="fa fa-check-square text-light"></i>'
+                $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
+                    html += '<div class="col-auto">'
+                    html += '<div class="card mb-1 shadow-none shiftCard shiftCard' + c + '" data-date="' + dates + '" data-id_date="' + c + '" data-id="' + value.id + '" style="cursor:pointer;" id="shiftCard' + c + key + '" onclick="chooseShift(' + c + ',' + key + ')">'
+                    html += '<div class="card-body p-2">'
+                    html += '<div class="row">'
+                    html += '<div class="col-auto align-self-center">'
+                    html += '<i class="fa fa-check-square text-light"></i>'
+                    html += '</div>'
+                    html += '<div class="col ps-0">'
+                    html += '<b class="me-2">' + value.name + '</b>'
+                    html += (value.start_time).substring(0, 5) + ' - ' + (value.end_time).substring(0, 5)
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                })
                 html += '</div>'
-                html += '<div class="col ps-0">'
-                html += '<b class="me-2">' + value.name + '</b>'
-                html += (value.start_time).substring(0, 5) + ' - ' + (value.end_time).substring(0, 5)
                 html += '</div>'
                 html += '</div>'
+            } else {
+                html += '<div class="row pb-2">'
+                html += '<div class="col-1 pe-0">'
+                html += '<h6><p class="m-0"><b><i class="fa fa-ticket"></i></b></p></h6>'
+                html += '</div>'
+                html += '<div class="col-11 ps-0">'
+                html += '<button class="btn btn-sm btn-outline-warning p-1" onclick="addPitaCukai(' + "'" + dates + "'" + ')"><i class="me-2 fa fa-pencil"></i>Custom Pita</button>'
+                html += '<span class="small ms-2 m-0" id="textCustomPita' + formatDate(dates) + '">Belum Ada Custom Pita</span>'
                 html += '</div>'
                 html += '</div>'
-                html += '</div>'
-            })
-
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
+            }
 
             html += '<div class="table-responsive">'
             html += '<table class="table table-bordered table-hover table-sm mt-3">'
@@ -809,8 +1025,9 @@
             html += '</tr>'
             html += '</thead>'
             html += '<tbody>'
+            var detailPita = []
             $.each(data_master[jenis_produksi]['machine'], function(key, value) {
-                html += '<tr class="bg-callout-' + a + ' text-black">'
+                html += '<tr class="bg-callout-' + a + '-' + jenis_produksi + ' text-black">'
                 html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['type_name'] + '</b></td>'
                 html += '</tr>'
                 $.each(value['machine'], function(keys, values) {
@@ -836,9 +1053,7 @@
                             data = data_skt
                         }
                         var obj = ""
-                        // console.log(data['detail'])
                         if (data['productionPlanDetail'] != undefined) {
-                            // console.log(values['id'], formatDate(dates), values2['id'])
                             obj = data['productionPlanDetail'].find((value3, key3) => {
                                 if (value3.machine_id === values['id'] && value3.date === formatDate(dates) && value3.item_id_product === parseInt(values2['id'])) return true
                             })
@@ -848,8 +1063,47 @@
                                 obj = ""
                             }
                         }
-                        // console.log(obj)
-                        html += '<td class="p-0 bg-light font-small allfieldDPlan fieldType' + value['type_name'] + ' fieldDPlan' + values2['id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' + values2['code'] + ' for ' + values['code'] + '" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['unit_id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '"></td>'
+                        // if (jenis_produksi == 'skt') {
+                        // console.log(findGroupPlan)
+                        var findGroupPlanItem = machine_group_plan.find((v, k) => {
+                            if (v.machine_id == values['id']) return true
+                        }).machine_group_plan_item.find((v, k) => {
+                            if (v == values2['id']) return true
+                        })
+                        // } else {
+                        //     var findGroupPlanItem = ''
+                        // }
+                        var formPopover = values2['code'] + ' for ' + values['code']
+                        if (findGroupPlanItem != undefined) {
+                            var findGroupPlan = machine_group_plan.find((v, k) => {
+                                if (v.machine_id == values['id']) return true
+                            })
+                            var form = ''
+                            form += '<input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['unit_id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '" data-formPopover="' + formPopover + '" data-machine_group_plan_id="' + findGroupPlan.machine_group_plan_id + '">'
+                            var bgForm = ''
+                            var data_pita = data_master[jenis_produksi].productPita.filter((v, k) => {
+                                if (v.is_default == 1) return true
+                            })
+                            var pita = []
+                            data_pita.forEach(e => {
+                                pita.push(e.id)
+                            });
+                            detailPita.push({
+                                'mesin_id': values.id,
+                                'mesin_code': values.code,
+                                'produk_id': values2.id,
+                                'produk_code': values2.code,
+                                'machine_group_plan_id': findGroupPlan.machine_group_plan_id,
+                                'machine_group_plan_name': findGroupPlan.machine_group_plan_name,
+                                'data': pita,
+                            })
+                        } else {
+                            var form = ''
+                            var bgForm = 'bg-light'
+                        }
+                        html += '<td class="p-0 ' + bgForm + ' font-small fieldPita' + values.id + values2.id + formatDate(dates) + ' allfieldDPlan fieldType' + value['type_name'] + ' fieldDPlan' + values2['id'] + '">'
+                        html += form
+                        html += '</td>'
                     })
                     html += '<td class="align-self-center totalMesin" style="font-size:14px;font-weight:bold;text-align:right;" id="totalMesin' + values['id'] + formatDate(dates) + '"></td>'
                     html += '</tr>'
@@ -858,8 +1112,20 @@
             html += '</tbody>'
             html += '</table>'
             html += '</div>'
+
+            if (jenis_produksi == 'skt') {
+                html += '<div class="mt-2">'
+                html += '<span class="small"><i class="fa fa-square-o bg-pita-1 me-2"></i>1 Pita Khusus</span>'
+                html += '<span class="small"><i class="fa fa-square-o bg-pita-2 ms-2 me-2"></i>Terdapat 2 Pita atau Lebih</span>'
+                html += '</div>'
+            }
+
             html += '</div>'
             html += '</div>'
+            detailPitaCukai.push({
+                'date': dates,
+                'detail': detailPita,
+            })
             a++
             c++
             if (a == 7) {
@@ -868,23 +1134,12 @@
         })
         $('#dataDailyPlanning').html(html)
         $('.nominal').number(true);
-        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-        var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
-            return new bootstrap.Popover(popoverTriggerEl)
-        })
-        // var b = 0
-        // date.forEach(function(dates) {
-        //     $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
-        //         if (value.is_default == 1) {
-        //             colorShift(b, key)
-        //         }
-        //     })
-        //     b++
-        // })
-        if (data['productionPlanGoal'] != undefined) {
-            $.each(data['productionPlanGoal'], function(key, value) {
-                changeColorTarget(value['item_id_product'])
-            })
+        if (jenis_produksi == 'skm') {
+            if (data['productionPlanGoal'] != undefined) {
+                $.each(data['productionPlanGoal'], function(key, value) {
+                    changeColorTarget(value['item_id_product'])
+                })
+            }
         }
         if (id_plan != '') {
             arrangedVariableEdit()
@@ -902,10 +1157,10 @@
         var data = $('#shiftCard' + a + id).hasClass('activeItem')
         if (data == true) {
             // remove
-            $('#shiftCard' + a + id).removeClass('activeItem bg-secondary text-white')
+            $('#shiftCard' + a + id).removeClass('activeItem activeItem' + a + ' bg-secondary text-white')
         } else {
             // insert
-            $('#shiftCard' + a + id).addClass('activeItem bg-secondary text-white')
+            $('#shiftCard' + a + id).addClass('activeItem activeItem' + a + ' bg-secondary text-white')
         }
     }
 
@@ -914,10 +1169,10 @@
 
     })
 
-    // var tombolOtomatis = 0
+    var tombolOtomatis = 0
 
     function automaticPlan() {
-        // tombolOtomatis = 1
+        tombolOtomatis = 1
         simpanProdukTarget()
     }
 
@@ -931,7 +1186,7 @@
         var html = ""
         html += '<div class="row mb-2" id="fieldTarget' + noTarget + '">'
         html += '<div class="col-4">'
-        html += '<select id="produkTarget' + noTarget + '" class="form-control form-control-sm produkTarget" required="required">'
+        html += '<select id="produkTarget' + noTarget + '" class="form-control form-control-sm produkTarget" name="produkTarget" required="required">'
         html += '<option value="" selected disabled>Pilih Produk</option>'
         $.each(data_master[jenis_produksi]['product'], function(key, value) {
             var select = ""
@@ -944,7 +1199,7 @@
         html += '</select>'
         html += '</div>'
         html += '<div class="col-2 p-0">'
-        html += '<input type="text" id="jumlahTarget' + noTarget + '" class="form-control form-control-sm jumlahTarget" value="' + jumlah + '">'
+        html += '<input type="text" id="jumlahTarget' + noTarget + '" class="form-control form-control-sm jumlahTarget" name="jumlahTarget" value="' + jumlah + '" required="required">'
         html += '</div>'
         html += '<div class="col-2 align-self-center">Box</div>'
         html += '<div class="col-4 text-end">'
@@ -954,6 +1209,12 @@
         html += '</div>'
         $('#createTargetProduksi').append(html)
         noTarget++
+        validateMe()
+        valid()
+    }
+
+    function valid() {
+        return $('.signupForm').valid();
     }
 
     function removeFieldTarget(no) {
@@ -1203,14 +1464,15 @@
     }
 
     function simpanProdukTarget(auto = '', arranged = '') {
-        if (auto == '' && id_plan == '') {
+        if (auto == '' && id_plan == '' && tombolOtomatis == 1) {
             $('.jumlahPlanning').val('')
         }
-        if (id_plan == '') {
+        if (id_plan == '' && jenis_produksi == 'skm') {
             $('.allfieldDPlan').addClass('bg-light')
         }
         var obj = []
         var objPlan = []
+        var objPlanGroup = []
         var objShift = []
 
         // TARGET
@@ -1252,6 +1514,9 @@
         var unit = $('.jumlahPlanning').map(function() {
             return $(this).data('unit');
         }).get();
+        var machine_group_plan_id = $('.jumlahPlanning').map(function() {
+            return $(this).data('machine_group_plan_id');
+        }).get();
 
         // SHIFT
         var shift_date = $('.shiftCard').map(function() {
@@ -1266,15 +1531,43 @@
         var hasClass = $('.shiftCard').map(function() {
             return $(this).hasClass('activeItem');
         }).get();
+        console.log(detailPitaCukai)
         for (let i = 0; i < jumlahPlan.length; i++) {
             if (jumlahPlan[i] != "") {
-                objPlan.push({
-                    'qty': jumlahPlan[i],
-                    'item_id_product': produkPlan[i],
-                    'machine_id': mesin[i],
-                    'date': tanggal[i],
-                    'unit_id': unit[i],
+                var pitaCukai = detailPitaCukai.find((v, k) => {
+                    if (formatDate(v.date) == formatDate(tanggal[i])) return true
+                }).detail.find((v, k) => {
+                    if (v.machine_group_plan_id == machine_group_plan_id[i]) return true
+                }).data
+                for (let j = 0; j < pitaCukai.length; j++) {
+                    objPlanGroup.push({
+                        'qty': jumlahPlan[i],
+                        'item_id_product': produkPlan[i],
+                        'machine_group_plan_id': machine_group_plan_id[i],
+                        'machine_id': mesin[i],
+                        'date': tanggal[i],
+                        'unit_id': unit[i],
+                        'pita_id': pitaCukai[j],
+                    })
+                }
+                var machines = machine_group_plan.filter((v, k) => {
+                    if (v.machine_group_plan_id == machine_group_plan_id[i]) return true
                 })
+                // console.log(machines)
+                // PLAN DETAIL
+                for (let j = 0; j < pitaCukai.length; j++) {
+                    machines.forEach(e => {
+                        objPlan.push({
+                            'qty': jumlahPlan[i],
+                            'item_id_product': produkPlan[i],
+                            // 'machine_id': mesin[i],
+                            'machine_id': e.machine_id,
+                            'date': tanggal[i],
+                            'unit_id': unit[i],
+                            'pita_id': pitaCukai[j],
+                        })
+                    });
+                }
             }
         }
         for (let i = 0; i < shift_date.length; i++) {
@@ -1290,34 +1583,45 @@
             }
         }
         for (let i = 0; i < produk.length; i++) {
-            changeColorTarget(produk[i])
+            if (jenis_produksi == 'skm') {
+                changeColorTarget(produk[i])
+            }
             if (jumlah[i] != "") {
-                var propo = ''
-                data_master[jenis_produksi].machineSubtypeProportion.forEach(e => {
-                    if (e.stick == num_stick[i]) {
-                        propo = e.proportion[0]
-                    }
-                });
-                obj.push({
-                    'qty': jumlah[i],
-                    'qty_sisa': jumlah[i],
-                    'qty_stick': eval(jumlah[i] + operator[i] + stick[i]),
-                    'qty_tray': eval(jumlah[i] + propo.operator + propo.value),
-                    'qty_stick_sisa': eval(jumlah[i] + operator[i] + stick[i]),
-                    'qty_tray_sisa': eval(jumlah[i] + propo.operator + propo.value),
-                    'item_id_product': produk[i],
-                    'kode': kode[i],
-                    'stick': stick[i],
-                    'stick_unit_id': stick_unit_id[i],
-                    'num_stick': num_stick[i],
-                    'unit_id': data_master[jenis_produksi]['goalSatuan']['id'],
-                })
+                if (jenis_produksi == 'skm') {
+                    var propo = ''
+                    data_master[jenis_produksi].machineSubtypeProportion.forEach(e => {
+                        if (e.stick == num_stick[i]) {
+                            propo = e.proportion[0]
+                        }
+                    });
+                    obj.push({
+                        'qty': jumlah[i],
+                        'qty_sisa': jumlah[i],
+                        'qty_stick': eval(jumlah[i] + operator[i] + stick[i]),
+                        'qty_tray': eval(jumlah[i] + propo.operator + propo.value),
+                        'qty_stick_sisa': eval(jumlah[i] + operator[i] + stick[i]),
+                        'qty_tray_sisa': eval(jumlah[i] + propo.operator + propo.value),
+                        'item_id_product': produk[i],
+                        'kode': kode[i],
+                        'stick': stick[i],
+                        'stick_unit_id': stick_unit_id[i],
+                        'num_stick': num_stick[i],
+                        'unit_id': data_master[jenis_produksi]['goalSatuan']['id'],
+                    })
+                } else {
+                    obj.push({
+                        'qty': jumlah[i],
+                        'item_id_product': produk[i],
+                        'kode': kode[i],
+                        'unit_id': data_master[jenis_produksi]['goalSatuan']['id'],
+                    })
+                }
             }
         }
-        // if (tombolOtomatis == 1) {
         if (jenis_produksi == 'skm') {
             data_skm['productionPlanGoal'] = obj
             data_skm['customDate'] = customDate
+            data_skm['productionPlanDetailGroup'] = objPlanGroup
             data_skm['productionPlanDetail'] = objPlan
             data_skm['shiftDetail'] = objShift
             if (id_plan == '') {
@@ -1328,6 +1632,7 @@
         } else {
             data_skt['productionPlanGoal'] = obj
             data_skt['customDate'] = customDate
+            data_skt['productionPlanDetailGroup'] = objPlanGroup
             data_skt['productionPlanDetail'] = objPlan
             data_skt['shiftDetail'] = objShift
             if (id_plan == '') {
@@ -1336,7 +1641,6 @@
                 pembagianPerMesin(data_skt)
             }
         }
-        // }
     }
 
 
@@ -1377,15 +1681,16 @@
             html += '</div>'
         }
         $('#detailTargetPane').html(html)
-
-        if (jenis_produksi == 'skm') {
-            if (arranged == 'true') {
-                pembagianPerMesin(data)
+        if (tombolOtomatis == 1) {
+            if (jenis_produksi == 'skm') {
+                if (arranged == 'true') {
+                    pembagianPerMesin(data)
+                } else {
+                    kapasitasMesin(data, auto)
+                }
             } else {
-                kapasitasMesin(data, auto)
+                pembagianPerMesin(data)
             }
-        } else {
-            pembagianPerMesin(data)
         }
     }
 
@@ -1488,6 +1793,8 @@
             var max_volume_stick = 0
             var min_volume_stick = 0
 
+            var detailMaker = {}
+
             var sisa_mesin_hlp = 0
             var sisa_mesin_stick_hlp = 0
             var max_volume_stick_hlp = 0
@@ -1498,22 +1805,29 @@
             $.each(values.detail, function(keys2, values2) {
                 // detail machine in shift MAKER
                 $.each(values2.machine, function(keys3, values3) {
+                    if (detailMaker['sisa_mesin' + values3.machine_id] == undefined) {
+                        detailMaker['sisa_mesin' + values3.machine_id] = 0
+                        detailMaker['sisa_mesin_stick' + values3.machine_id] = 0
+                        detailMaker['max_volume_stick' + values3.machine_id] = 0
+                        detailMaker['min_volume_stick' + values3.machine_id] = 0
+                    }
                     // anymachine buat id masukin konversi beserta operation
                     $.each(anyMachine, function(keys4, values4) {
                         if (values3.machine_id == values4.machine_id) {
                             //
                             values3['unit_detail'] = values4.unit_detail
                             values3['unit_name'] = values4.unit_name
-                            values3['sisa_mesin'] = parseFloat(values3.max_volume) + parseFloat(sisa_mesin)
+                            values3['sisa_mesin'] = parseFloat(values3.max_volume) + parseFloat(detailMaker['sisa_mesin' + values3.machine_id])
                             $.each(values4.unit_detail, function(keys5, values5) {
-                                values3['sisa_mesin_stick'] = parseFloat(Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))) + parseFloat(sisa_mesin_stick)
-                                values3['max_volume_stick'] = parseFloat(Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))) + parseFloat(max_volume_stick)
-                                values3['min_volume_stick'] = parseFloat(Math.ceil(eval(values3.min_volume + values5.operator_reverse + values5.value))) + parseFloat(min_volume_stick)
-                                sisa_mesin_stick = values3['sisa_mesin_stick']
-                                max_volume_stick = values3['max_volume_stick']
-                                min_volume_stick = values3['min_volume_stick']
+                                values3['sisa_mesin_stick'] = parseFloat(Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))) + parseFloat(detailMaker['sisa_mesin_stick' + values3.machine_id])
+                                values3['max_volume_stick'] = parseFloat(Math.ceil(eval(values3.max_volume + values5.operator_reverse + values5.value))) + parseFloat(detailMaker['max_volume_stick' + values3.machine_id])
+                                values3['min_volume_stick'] = parseFloat(Math.ceil(eval(values3.min_volume + values5.operator_reverse + values5.value))) + parseFloat(detailMaker['min_volume_stick' + values3.machine_id])
+
+                                detailMaker['sisa_mesin_stick' + values3.machine_id] = values3['sisa_mesin_stick']
+                                detailMaker['max_volume_stick' + values3.machine_id] = values3['max_volume_stick']
+                                detailMaker['min_volume_stick' + values3.machine_id] = values3['min_volume_stick']
                             })
-                            sisa_mesin = values3['sisa_mesin']
+                            detailMaker['sisa_mesin' + values3.machine_id] = values3['sisa_mesin']
                         }
                     })
                     // detail hlp nya
@@ -1562,7 +1876,7 @@
     }
 
     function pembentukanConvertMesin(data) {
-
+        // console.log(dataShiftComplete)
         // check shift per hari
         // per produk
         // total stick adalah sisa
@@ -1661,7 +1975,6 @@
                     if (values3.sisa_mesin > 0) return true
                 })
                 var hasilChild = hasil.data[hasil.data.findIndex(x => x.stick == value.num_stick)].machine_link
-                // console.log(hasilChild)
                 var checkAvailableChild = hasilChild.filter((v, k) => {
                     if (v.sisa_mesin > 0) return true
                 })
@@ -1688,6 +2001,7 @@
     function machineChildPerbandingan(data, hasil, date, machine, hasilChild, values2, index, sisa_tray, sisa, value, values) {
         // HLP (SISA box)
         var totalPemakaian = 0
+        // console.log(hasilChild)
         hasilChild.forEach(e => {
             if (e.sisa_mesin > 0 || sisa > 0) {
                 var pemakaian = 0
@@ -1706,7 +2020,7 @@
                 totalPemakaian = parseFloat(totalPemakaian) + parseFloat(pemakaian)
                 $('#jumlahPlanning' + data.item_id_product + e.machine_id + date).val(pemakaian)
                 e.sisa_mesin = var_sisa_mesin
-                values2.machine[index].sisa_mesin = var_sisa_mesin
+                // values2.machine[e].sisa_mesin = var_sisa_mesin
             }
         });
         // console.log(hasilChild)
@@ -1720,16 +2034,17 @@
         });
         // MASUK LAGI KE MAKER
         if (sisa_tray > 0) {
-            let nameVariable = macihneMakerAgainPerbandingan(hasil, sisa_tray, value, values, values2, index, sisa_tray, sisa, totalPemakaian, data.num_stick)
+            let nameVariable = macihneMakerAgainPerbandingan(hasil, sisa_tray, value, values, values2, index, sisa, totalPemakaian, data.num_stick)
             sisa_tray = nameVariable.sisa_tray
         }
+        // console.log(totalPemakaian)
         return {
             'sisa_tray': sisa_tray,
             'sisa': sisa
         };
     }
 
-    function macihneMakerAgainPerbandingan(hasil, sisa_tray, value, values, values2, index, sisa_tray, sisa, totalPemakaian, num_stick) {
+    function macihneMakerAgainPerbandingan(hasil, sisa_tray, value, values, values2, index, sisa, totalPemakaian, num_stick) {
         // MAKER (TRAY)
         var propo = ''
         data_master[jenis_produksi].machineSubtypeProportion.forEach(e => {
@@ -1739,17 +2054,17 @@
         });
         var var_sisa_mesin_tray = hasil.sisa_mesin
         pemakaian_tray = eval(totalPemakaian + propo.operator + propo.value)
+        pemakaian_tray = Math.floor(pemakaian_tray / 10) * 10
         if (sisa_tray > hasil.sisa_mesin) {
             // jika banyak sisa stik dari pada sisa mesin
             sisa_tray = sisa_tray - pemakaian_tray
             var_sisa_mesin_tray = 0
         } else {
             // jika sisa stik lebih sedikit, sisa lebih banyak
-            pemakaian_tray = sisa_tray
+            // pemakaian_tray = sisa_tray
             var_sisa_mesin_tray = var_sisa_mesin_tray - pemakaian_tray
             sisa_tray = 0
         }
-        pemakaian_tray = Math.floor(pemakaian_tray / 10) * 10
         // item mesin tanggal
         // console.log(keys, keys2, index)
         $('#jumlahPlanning' + value.item_id_product + hasil.machine_id + formatDate(values.date)).val(pemakaian_tray)
@@ -1904,6 +2219,7 @@
             $('.' + jenis_produksi + 'CircleDanger').removeClass('d-none')
             $('.' + jenis_produksi + 'CircleSuccess').removeClass('d-none')
         }
+        tombolOtomatis = 0
     }
     var code = ""
 
@@ -1916,8 +2232,10 @@
         code = 'SMD-P' + d.getFullYear().toString().substr(-2) + month + getNumberWeek(dateStart)
         return false
     }
+    var anyBlankShift = 0
 
     function saveAsIndividual() {
+        anyBlankShift = 0
         if (jenis_produksi == 'skm') {
             data_skm['productionPlan'] = {
                 'code': code,
@@ -1929,16 +2247,21 @@
                 'note': "",
             }
             var dataShift = []
-            dataShiftComplete.forEach(e => {
-                var id_shift = []
-                e.detail.forEach(e2 => {
-                    id_shift.push(e2.id_shift)
-                });
+            var date = $('.cardDate').map(function() {
+                return $(this).data('date');
+            }).get();
+            for (let i = 0; i < date.length; i++) {
+                var shift_id = $('.activeItem' + i).map(function() {
+                    return $(this).data('id');
+                }).get();
+                if (shift_id.length == 0) {
+                    anyBlankShift = 1
+                }
                 dataShift.push({
-                    'date': formatDate(e.date),
-                    'shift_id': id_shift
+                    'date': formatDate(date[i]),
+                    'shift_id': shift_id
                 })
-            });
+            }
             data_skm['productionPlanShift'] = dataShift
             data_skm['productionPlanGoal'].forEach(function(v) {
                 delete v.kode
@@ -1953,7 +2276,7 @@
                 delete v.stick_unit_id
                 delete v.machine_id
             });
-            console.log(data_skm['productionPlanGoal'])
+            // console.log(data_skm['productionPlanGoal'])
             var save = {
                 'skm': data_skm
             }
@@ -1971,15 +2294,16 @@
                 'skt': data_skt
             }
         }
-        if (lanjutSave == 'ya') {
-            doSimpan(save)
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Pengisian Belum Lengkap',
-                text: 'Lengkapi Dulu Datanya Yaa :)'
-            });
-        }
+        // if (lanjutSave == 'ya' && anyBlankShift == 0) {
+        // doSimpan(save)
+        console.log(save)
+        // } else {
+        //     Swal.fire({
+        //         icon: 'error',
+        //         title: 'Pengisian Belum Lengkap',
+        //         text: 'Lengkapi Dulu Datanya Yaa :)'
+        //     });
+        // }
     }
 
     function doSimpan(save) {
@@ -2004,6 +2328,7 @@
         }
         var button = '.btnSimpan'
         var url = '<?php echo api_produksi('setProductionPlan'); ?>'
+        // console.log(save)
         kelolaData(data, type, url, button)
     }
 
@@ -2030,8 +2355,9 @@
                         text: 'Data Berhasil Disimpan',
                         icon: 'success',
                     }).then((responses) => {
-                        getDateRange()
+                        // getDateRange()
                         $(button).prop("disabled", false);
+                        linkToSMDPlanning()
                     });
                 } else {
                     Swal.fire({
@@ -2076,5 +2402,231 @@
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
+    }
+
+    function linkToSMDPlanning() {
+        var url = '<?= base_url() ?>production/planning/smd'
+        location.replace(url)
+    }
+
+    function hint() {
+        $('#modal3').modal('show')
+        $('#modalDialog3').addClass('modal-dialog modal-lg modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">New Feature</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader3').html(html_header);
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<img src="<?= base_url() ?>assets/image/gif/hint 1.gif" class="w-100" loading="lazy">'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody3').html(html_body);
+    }
+
+    function addPitaCukai(date) {
+        var data = detailPitaCukai.find((v, k) => {
+            if (formatDate(date) == formatDate(v.date)) return true
+        }).detail
+        var group = groupAndSum(data, ['mesin_id', 'mesin_code'], ['produk_id'])
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Custom Pita Cukai ' + formatDateIndonesia(date) + '</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+
+        group.forEach(e => {
+            html_body += '<div class="col-12 pb-3">'
+            html_body += '<b class="text-grey small mb-2">' + e.mesin_code + '</b>'
+            html_body += '<div class="row">'
+            data.forEach(el => {
+                if (el.mesin_id == e.mesin_id) {
+                    html_body += '<div class="col-12">'
+                    html_body += '<div class="card shadow-none mb-2 card-hoper">'
+                    html_body += '<div class="card-body p-2">'
+
+                    html_body += '<div class="row">'
+                    html_body += '<div class="col-4">'
+                    html_body += '<b class="small">' + el.produk_code + '</b>'
+                    html_body += '</div>'
+                    data_master[jenis_produksi].productPita.forEach(pita => {
+                        var check = ''
+                        if (el.data.length == 0) {
+                            if (pita.is_default == 1) {
+                                check = 'checked'
+                            }
+                        } else {
+                            if (el.data.includes(pita.id)) {
+                                check = 'checked'
+                            }
+                        }
+
+                        html_body += '<div class="col-auto">'
+                        html_body += '<div class="form-check">'
+                        html_body += '<input class="form-check-input checkPita' + e.mesin_id + el.produk_id + '" type="checkbox" value="' + pita.id + '" id="checkPita' + e.mesin_id + el.produk_id + pita.id + '" ' + check + ' onclick="checkingPita(' + "'" + date + "'" + ',' + e.mesin_id + ',' + el.produk_id + ')">'
+                        html_body += '<label class="form-check-label" for="checkPita' + e.mesin_id + el.produk_id + pita.id + '">' + pita.name + '</label>'
+                        html_body += '</div>'
+                        html_body += '</div>'
+                    });
+                    html_body += '</div>'
+
+                    html_body += '</div>'
+                    html_body += '</div>'
+                    html_body += '</div>'
+                }
+            });
+            html_body += '</div>'
+            html_body += '</div>'
+        });
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+    }
+
+    function checkingPita(date, mesin, produk) {
+        var value = $('.checkPita' + mesin + produk + ':checked').map(function() {
+            return $(this).val();
+        }).get();
+        detailPitaCukai.forEach(e => {
+            if (formatDate(date) == formatDate(e.date)) {
+                e.detail.forEach(element => {
+                    if (element.mesin_id == mesin && element.produk_id == produk) {
+                        element.data = value
+                        colorizedPita(value, mesin, produk, formatDate(date))
+                    }
+                });
+            }
+        });
+        countPitaCukai(formatDate(date))
+    }
+
+    function countPitaCukai(date) {
+        var data = detailPitaCukai.find((v, k) => {
+            if (formatDate(date) == formatDate(v.date)) return true
+        }).detail
+        // console.log(data)
+        var data_pita = data_master[jenis_produksi].productPita.filter((v, k) => {
+            if (v.is_default == 1) return true
+        })
+        var id_pita = []
+        data_pita.forEach(e => {
+            const result = data.find(obj => obj.id != e.id);
+            // console.log(result)
+        });
+        $('#textCustomPita' + date)
+    }
+
+    function colorizedPita(value, mesin, produk, date) {
+        $('.fieldPita' + mesin + produk + date).removeClass('bg-pita-1 bg-pita-2')
+        if (value.length >= 2) {
+            $('.fieldPita' + mesin + produk + date).addClass('bg-pita-2')
+            changeTogglePopover(value, mesin, produk, date, 'split')
+        } else {
+            var obj = data_master[jenis_produksi].productPita.find((v, k) => {
+                if (v.id == value[0]) return true
+            }).is_default
+            if (obj == 1) {
+                $('.fieldPita' + mesin + produk + date).removeClass('bg-pita-1 bg-pita-2')
+                changeTogglePopover(value, mesin, produk, date)
+            } else {
+                $('.fieldPita' + mesin + produk + date).addClass('bg-pita-1')
+                changeTogglePopover(value, mesin, produk, date)
+            }
+        }
+
+    }
+
+    function changeTogglePopover(value, mesin, produk, date, status) {
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeClass('split')
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).addClass(status)
+        if (status == 'split') {
+            openFormPopover(value, mesin, produk, date, status)
+        } else {
+            openDefaultPopover(value, mesin, produk, date, status)
+        }
+    }
+
+    function openFormPopover(value, mesin, produk, date, status) {
+        var contents = ""
+        contents += '<div class="row">'
+        for (let i = 0; i < value.length; i++) {
+            var obj = data_master[jenis_produksi].productPita.find((v, k) => {
+                if (v.id == value[i]) return true
+            })
+            contents += '<div class="col-12 pt-2">'
+            contents += '<p class="m-0 small"><b>Pita ' + obj.name + '</b></p>'
+            contents += '<div class="input-group mb-3 align-self-center">'
+            contents += '<input type="text" class="form-control form-control-sm nominal fillBoxPita fillBoxPita' + mesin + status + formatDate(date) + '" value="0" data-variable_box="' + mesin + status + formatDate(date) + '" data-variable_form="' + produk + mesin + formatDate(date) + '">'
+            contents += '<span class=" ms-2 me-5" style="margin: auto;">Box</span>'
+            contents += '</div>'
+            contents += '</div>'
+        }
+        contents += '</div>'
+        $('#popover_content').html(contents)
+        $('.nominal').number(true);
+        var options = {
+            placement: 'bottom',
+            title: "Split Rencana Produksi",
+            trigger: 'click',
+            html: true,
+            content: $('[data-name="popover-content"]')
+        }
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).attr('tabindex', '-1')
+        sendTojumlahPlanning(mesin, produk, date, options)
+    }
+
+    function openDefaultPopover(value, mesin, produk, date, status) {
+        var content = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formPopover')
+        var options = {
+            html: true,
+            trigger: 'hover',
+            content: content
+        }
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeAttr('tabindex', '-1')
+        sendTojumlahPlanning(mesin, produk, date, options)
+    }
+
+    function sendTojumlahPlanning(mesin, produk, date, options) {
+        var id = "jumlahPlanning" + produk + mesin + formatDate(date)
+        togglePopover(id, options)
+    }
+
+    function togglePopover(id, options) {
+        var exampleEl = document.getElementById(id)
+        var popover = new bootstrap.Popover(exampleEl, options)
+    }
+
+    $(document).on('click', '.jumlahPlanning', function(e) {
+
+    })
+    $(document).on('keyup', '.fillBoxPita', function(e) {
+        var variable_box = $(this).data('variable_box')
+        var variable_form = $(this).data('variable_form')
+        fillBoxFunction(variable_box, variable_form)
+    })
+
+    function fillBoxFunction(variable_box, variable_form) {
+        var value = $('.fillBoxPita' + variable_box).map(function() {
+            return $(this).val();
+        }).get();
+        var sum = value.reduce(function(a, b) {
+            if (a == '') {
+                a = 0
+            }
+            if (b == '') {
+                b = 0
+            }
+            return parseFloat(a) + parseFloat(b);
+        }, 0);
+        $('#jumlahPlanning' + variable_form).val(sum)
+        simpanProdukTarget()
     }
 </script>

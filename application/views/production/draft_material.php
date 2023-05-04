@@ -716,7 +716,7 @@
                 btnMaterialRequest = '<button type="button" class="btn btn-light btn-sm mt-2"><i class="fa fa-check me-2"></i>Material Request Telah Dibuat</button>'
             }
         }
-        if (formatDate(data.date) <= currentDate()) {
+        if (formatDate(data.date) < currentDate()) {
             btnSave = '<span class="text-danger me-2 font-small"><i>*) Tidak Dapat Menyimpan, Tanggal Plan Telah Terlewat</i></span>'
             btnMaterialRequest = ''
         }
@@ -817,11 +817,15 @@
                         if (values['group']['name'] == 'Brand') {
                             html += '<th class="p-2 font-small">' + values2['brand']['code'] + '</th>'
                         } else {
-                            var text = values2['item']['name'].split(' ')
-                            if (text[2] == undefined) {
-                                text[2] = ""
+                            if (values2.item.alias == null) {
+                                var text = values2['item']['name'].split(' ')
+                                if (text[2] == undefined) {
+                                    text[2] = ""
+                                }
+                                var text2 = text[0] + ' ' + text[1] + ' ' + text[2]
+                            } else {
+                                var text2 = values2.item.alias
                             }
-                            var text2 = text[0] + ' ' + text[1] + ' ' + text[2]
                             html += '<th class="p-2 font-small">' + text2 + '</th>'
                         }
                     })
@@ -1064,7 +1068,6 @@
         $.each(group, function(key, value) {
             $('#totalPerHariPerMesin' + value['date'] + value['id_machine']).html(number_format(value['qty']))
         })
-
         generateConvertToMaterial(mcn, dt)
     }
 

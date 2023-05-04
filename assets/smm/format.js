@@ -80,7 +80,7 @@ function formatDateIndonesia(orginaldate) {
     case 2: hari = "Selasa"; break;
     case 3: hari = "Rabu"; break;
     case 4: hari = "Kamis"; break;
-    case 5: hari = "Jum'at"; break;
+    case 5: hari = "Jumat"; break;
     case 6: hari = "Sabtu"; break;
     }
     switch(bulan) {

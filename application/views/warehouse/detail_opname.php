@@ -323,6 +323,7 @@
                 html += '<div class="card-body p-3">'
                 html += '<div class="row small">'
                 html += '<div class="col-6 col-md-8 align-self-center">'
+                html += '<p style="font-size: 9px;" class="m-0">' + values['item_code'] + '</p>'
                 html += '<b style="font-size: 11px;">' + values['item_name'] + '</b>'
                 html += '</div>'
                 html += '<div class="col-4 col-md-2 align-self-center">'

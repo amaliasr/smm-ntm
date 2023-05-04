@@ -315,6 +315,7 @@
         </div>
     </div>
 </main>
+<div id="qrcode" style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div>
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog" role="document" id="modalDialog">
@@ -574,6 +575,10 @@
             if (job_spv_smd) {
                 html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
             }
+            html += '<a class="dropdown-item" onclick="cetakSMDPlanning(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
+            if (job_spv_smd) {
+                html += '<a class="dropdown-item"><button class="btn btn-danger w-100 btn-sm btnSimpan" onclick="deleteSMDPlanning(' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-trash me-2"></i> Hapus Data</button></a>'
+            }
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -608,12 +613,11 @@
             if (value.production_type.id === id) return true
         });
         var notif = obj.employee
-        console.log(notif)
         var no_telp = []
         var nama = []
         $.each(notif, function(key, value) {
-            no_telp.push('081944946015')
-            // no_telp.push(value.phone)
+            // no_telp.push('081944946015')
+            no_telp.push(value.phone)
             nama.push(value.full_name)
         })
         Swal.fire({
@@ -726,5 +730,77 @@
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
+    }
+
+    var imgBase64Data
+
+    function cetakSMDPlanning(id) {
+        var urlQR = '<?= base_url() ?>production/smd_planning_approval/' + id
+        var qrcode = new QRCode("qrcode", {
+            text: urlQR,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        var image = btoa(imgBase64Data)
+        var url = '<?= base_url('production/cetakSMDPlanning') ?>'
+        var params = "*$" + image + "*$" + id + "*$" + user_id
+        window.open(url + '?params=' + (params), '_blank')
+    }
+
+    function deleteSMDPlanning(id, date) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus Rencana Produksi tanggal ' + date + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deletePlan(id)
+            }
+        })
+    }
+
+    function deletePlan(id) {
+        var data = {
+            id: id
+        }
+        var type = 'POST'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('deleteProductionPlan'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Terhapus',
+                    icon: 'success',
+                }).then((responses) => {
+                    getData()
+                });
+            }
+        });
     }
 </script>
