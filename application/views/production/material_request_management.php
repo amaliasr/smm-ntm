@@ -174,6 +174,38 @@
         background-color: #245953;
     }
 
+    .bg-callout-8 {
+        background-color: #D25380;
+    }
+
+    .bg-callout-9 {
+        background-color: #E08E6D;
+    }
+
+    .bg-callout-10 {
+        background-color: #537188;
+    }
+
+    .bg-callout-11 {
+        background-color: #CBB279;
+    }
+
+    .bg-callout-12 {
+        background-color: #B04759;
+    }
+
+    .bg-callout-13 {
+        background-color: #4C3D3D;
+    }
+
+    .bg-callout-14 {
+        background-color: #617A55;
+    }
+
+    .bg-callout-15 {
+        background-color: #394867;
+    }
+
     .text-callout-0 {
         color: #9b5fe0;
     }
@@ -926,7 +958,8 @@
         })
         data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_alias', 'material_code', 'unit'], ['qty', 'qty_approve'])
         data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty', 'qty_approve'])
-        // console.log(data_isi_machine_group)
+        // console.log(data_isi_material_group)
+        // console.log(data_isi_material)
         formDetailMaterialRequest()
         if (id_materials != '') {
             clickedMaterial(id_materials)
@@ -1048,6 +1081,7 @@
             html += '<td>'
             $.each(data_isi_material, function(keys, values) {
                 if (value['material_id'] == values['material_id']) {
+                    console.log(values.machine_id)
                     html += '<span class="badge bg-callout-' + values.machine_id + ' p-1 me-1">' + values['machine_code'] + '</span>'
                 }
             })
@@ -1643,6 +1677,9 @@
                 if (value['machine_id'] == values['machine_id']) {
                     if (stok_by_id_berjalan[values.material_id] == undefined) {
                         stok_by_id_berjalan[values.material_id] = stok_by_id[values.material_id]
+                        if (stok_by_id[values.material_id] == undefined) {
+                            stok_by_id_berjalan[values.material_id] = 0
+                        }
                     }
                     html_body += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '">'
                     html_body += '<div class="card-body p-2">'

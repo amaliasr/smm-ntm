@@ -547,8 +547,8 @@
                             qty: d['qty'],
                             machine: c['machine']['id'],
                             machine_name: c['machine']['name'],
-                            machine_type: b['machine_type']['id'],
-                            machine_type_name: b['machine_type']['name'],
+                            production_step: b['production_step']['id'],
+                            production_step_name: b['production_step']['name'],
                             date: a['date'],
                         })
                     })
@@ -556,7 +556,7 @@
             });
         });
         // penjumlahan dan grouping
-        grupMachineTypeWithDate = groupAndSum(array_product, ['product', 'machine', 'machine_name', 'code', 'date', 'machine_type', 'unit'], ['qty']);
+        grupMachineTypeWithDate = groupAndSum(array_product, ['product', 'machine', 'machine_name', 'code', 'date', 'production_step', 'unit'], ['qty']);
         formDetail()
     }
 
@@ -594,18 +594,17 @@
                 html += '<tr class="text-black">'
                 html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['name'] + '</b></td>'
                 html += '</tr>'
-                console.log(value.id)
-                console.log(valuea['data'])
-                var obj_machine_type = valuea['data'].filter((value3, key3) => {
-                    if (value3.machine_type.id === parseInt(value['id'])) return true
+                var obj_production_step = valuea['data'].filter((value3, key3) => {
+                    if (value3.production_step.id === parseInt(value['id'])) return true
                 })[0]['data']
+                console.log(value['machine_group_plan'])
                 $.each(value['machine_group_plan'], function(keys, values) {
-                    var obj_machine = obj_machine_type.filter((value3, key3) => {
+                    var obj_machine = obj_production_step.filter((value3, key3) => {
                         if (value3.machine.id === values['id']) return true
                     })[0]
                     html += '<tr>'
-                    html += '<td class="font-small">' + values['code'] + '</td>'
-                    html += '<td class="font-small">' + values['unit_name'] + '</td>'
+                    html += '<td class="font-small">' + values['name'] + '</td>'
+                    html += '<td class="font-small">' + values['item_unit_name_plan'] + '</td>'
                     $.each(data_plan['loadPage'][jenis_produksi]['product'], function(keys2, values2) {
                         var obj_qty = ""
                         if (obj_machine != undefined) {
