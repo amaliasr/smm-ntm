@@ -443,11 +443,11 @@
                                             <div class="col-12">
                                                 <nav class="createPane">
                                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                                        <button style="width: 100px;" class="p-3 nav-link position-relative active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="changeTab('skm')">SKM
+                                                        <button style="width: 100px;" class="p-3 nav-link position-relative " id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="changeTab('skm')">SKM
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle skmCircleDanger"></span>
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle skmCircleSuccess d-none"></span>
                                                         </button>
-                                                        <button style="width: 100px;" class="p-3 nav-link position-relative " id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="changeTab('skt')">SKT
+                                                        <button style="width: 100px;" class="p-3 nav-link position-relative active" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="changeTab('skt')">SKT
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle sktCircleDanger"></span>
                                                             <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle sktCircleSuccess d-none"></span>
                                                         </button>
@@ -462,13 +462,11 @@
                                                                     <form class="row signupForm" id="signupForm">
                                                                         <div class="col-12 col-md-6">
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Date Range</b></p>
-                                                                            <input type="text" class="form-control form-control-sm litepicker mb-2" required="required" id="dateRange" name="dateRange" autocomplete="off" disabled>
+                                                                            <input type="text" class="form-control form-control-sm litepicker mb-2" required="required" id="dateRange" name="dateRange" disabled>
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Target Produksi</b></p>
                                                                             <div id="createTargetProduksi">
                                                                             </div>
                                                                             <button type="button" class="btn btn-outline-success btn-sm small w-100 p-3" onclick="targetProduksi()"><i class="fa fa-plus me-2"></i> Target Produksi Baru</button>
-                                                                            <p class="m-0 mt-2 mb-2" style="font-size: 12px;"><b>Notes</b></p>
-                                                                            <textarea class="form-control form-control-sm" rows="10" placeholder="Tuliskan catatan anda disini" id="notes"></textarea>
                                                                         </div>
                                                                         <div class="col-12 col-md-6">
                                                                             <p class="m-0 mb-2" style="font-size: 12px;"><b>Customize Machine</b></p>
@@ -550,7 +548,7 @@
         </div>
     </div>
 </main>
-<div id="hidden_content" hidden>
+<div hidden>
     <div data-name="popover-content" id="popover_content">
 
     </div>
@@ -622,7 +620,7 @@
     var data_machine_capability = ""
     var data_skm = {}
     var data_skt = {}
-    var jenis_produksi = "skm"
+    var jenis_produksi = "skt"
     var customDate = []
     var detailPitaCukai = []
     var fillPitaVariable = []
@@ -700,13 +698,11 @@
             clearForm()
             var data = data_skm
             customDate = data_skm['customDate']
-            $('#notes').val(data_skm.notes)
         } else {
             $('.autoButton').attr('disabled', true)
             clearForm()
             var data = data_skt
             customDate = data_skt['customDate']
-            $('#notes').val(data_skt.notes)
         }
         $.each(customDate, function(key, value) {
             changeColorIconCustomDay(value.id)
@@ -797,7 +793,6 @@
         $('#detailTargetPane').html('<div class="col-12 p-0 border-top text-center pb-2 pt-2"><p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Dibuat</p></div>')
         $('.totalMesin').empty()
         // detailPitaCukai = []
-        // fillPitaVariable = []
     }
 
     function clearPlan() {
@@ -810,34 +805,6 @@
     var dateEnd = ""
     var dataLockDays = []
 
-    new Litepicker({
-        element: document.getElementById('dateRange'),
-        singleMode: false,
-        firstDay: 0,
-        startDate: dateStart,
-        endDate: dateEnd,
-        format: "DD MMMM YYYY",
-        autoRefresh: true,
-        lockDays: dataLockDays,
-        setup: (picker) => {
-            picker.on('selected', (date1, date2) => {
-                document.getElementById('dateRange').value = date1.format('DD MM YYYY') + ' - ' + date2.format('DD MM YYYY');
-                dateStart = date1['dateInstance']
-                dateEnd = date2['dateInstance']
-                if (jenis_produksi == 'skm') {
-                    data_skm['dateStart'] = dateStart
-                    data_skm['dateEnd'] = dateEnd
-                } else {
-                    data_skt['dateStart'] = dateStart
-                    data_skt['dateEnd'] = dateEnd
-                }
-                customDate = []
-                createCode(dateStart, dateEnd)
-                arrangeMachineGroupPlan(dateStart, dateEnd)
-            });
-        },
-    })
-
     function getDateRange() {
         dateStart = ""
         dateEnd = ""
@@ -846,19 +813,44 @@
             if (data_skm['dateEnd'] != undefined && data_skm['dateStart'] != undefined) {
                 dateStart = data_skm['dateStart']
                 dateEnd = data_skm['dateEnd']
-                document.getElementById('dateRange').value = formatInternationalDate(dateStart) + ' - ' + formatInternationalDate(dateEnd);
-                createCode(dateStart, dateEnd)
                 arrangeMachineGroupPlan(dateStart, dateEnd)
             }
         } else {
             if (data_skt['dateEnd'] != undefined && data_skt['dateStart'] != undefined) {
                 dateStart = data_skt['dateStart']
                 dateEnd = data_skt['dateEnd']
-                document.getElementById('dateRange').value = formatInternationalDate(dateStart) + ' - ' + formatInternationalDate(dateEnd);
-                createCode(dateStart, dateEnd)
                 arrangeMachineGroupPlan(dateStart, dateEnd)
             }
         }
+        new Litepicker({
+            element: document.getElementById('dateRange'),
+            singleMode: false,
+            firstDay: 0,
+            startDate: dateStart,
+            endDate: dateEnd,
+            format: "DD MMMM YYYY",
+            lockDays: dataLockDays,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    dateStart = date1['dateInstance']
+                    dateEnd = date2['dateInstance']
+                    if (jenis_produksi == 'skm') {
+                        data_skm['dateStart'] = dateStart
+                        data_skm['dateEnd'] = dateEnd
+                    } else {
+                        data_skt['dateStart'] = dateStart
+                        data_skt['dateEnd'] = dateEnd
+                    }
+                    customDate = []
+                    createCode(dateStart, dateEnd)
+                    // if (jenis_produksi == 'skm') {
+                    //     createDailyPlanning(dateStart, dateEnd)
+                    // } else {
+                    arrangeMachineGroupPlan(dateStart, dateEnd)
+                    // }
+                });
+            },
+        })
         getData()
     }
 
@@ -895,7 +887,7 @@
                     $('.form-control').removeAttr('disabled')
                     data_master = response['data']
                     dataLockDays = ['1900-01-01', currentDate()], '2023-04-29', '2023-04-30'
-                    data_machine_capability = response['machineGroupCapability']
+                    data_machine_capability = response['machineCapability']
                     listCutomizedMachine()
                     if (id_plan != '') {
                         dateStart = data_plan.date_start
@@ -1035,30 +1027,26 @@
             html += '</thead>'
             html += '<tbody>'
             var detailPita = []
-            $.each(data_master[jenis_produksi]['machineGroupPlan'], function(key, value) {
+            $.each(data_master[jenis_produksi]['machine'], function(key, value) {
                 html += '<tr class="bg-callout-' + a + '-' + jenis_produksi + ' text-black">'
-                html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['name'] + '</b></td>'
+                html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['type_name'] + '</b></td>'
                 html += '</tr>'
-                $.each(value['machine_group_plan'], function(keys, values) {
+                $.each(value['machine'], function(keys, values) {
                     if (a == 0) {
-                        values.machine.forEach(e => {
-                            anyMachine.push({
-                                'type_id': value.id,
-                                'type_name': value.name,
-                                'machine_group_plan_id': values.id,
-                                'machine_group_plan_name': values.name,
-                                'machine_id': e.id,
-                                'machine_code': e.code,
-                                'machine_name': e.name,
-                                'unit_name': e.unit_name,
-                                'unit_id': e.unit_id,
-                                'unit_detail': e.unit_detail
-                            })
-                        });
+                        anyMachine.push({
+                            'type_id': value.type_id,
+                            'type_name': value.type_name,
+                            'machine_id': values.id,
+                            'machine_code': values.code,
+                            'machine_name': values.name,
+                            'unit_name': values.unit_name,
+                            'unit_id': values.unit_id,
+                            'unit_detail': values.unit_detail
+                        })
                     }
                     html += '<tr>'
-                    html += '<td class="font-small">' + values['name'] + '</td>'
-                    html += '<td class="font-small">' + values['item_unit_name_plan'] + '</td>'
+                    html += '<td class="font-small">' + values['code'] + '</td>'
+                    html += '<td class="font-small">' + values['unit_name'] + '</td>'
                     $.each(data_master[jenis_produksi]['product'], function(keys2, values2) {
                         if (jenis_produksi == 'skm') {
                             data = data_skm
@@ -1066,9 +1054,9 @@
                             data = data_skt
                         }
                         var obj = ""
-                        if (data['productionPlanDetailGroup'] != undefined) {
-                            obj = data['productionPlanDetailGroup'].find((value3, key3) => {
-                                if (value3.machine_group_plan_id === values['machine_group_plan_id'] && value3.date === formatDate(dates) && value3.item_id_product === parseInt(values2['id'])) return true
+                        if (data['productionPlanDetail'] != undefined) {
+                            obj = data['productionPlanDetail'].find((value3, key3) => {
+                                if (value3.machine_id === values['id'] && value3.date === formatDate(dates) && value3.item_id_product === parseInt(values2['id'])) return true
                             })
                             if (obj != undefined) {
                                 obj = obj['qty']
@@ -1079,44 +1067,42 @@
                         // if (jenis_produksi == 'skt') {
                         // console.log(findGroupPlan)
                         var findGroupPlanItem = machine_group_plan.find((v, k) => {
-                            if (v.machine_group_plan_id == values.id) return true
+                            if (v.machine_id == values['id']) return true
                         }).machine_group_plan_item.find((v, k) => {
                             if (v == values2['id']) return true
                         })
                         // } else {
                         //     var findGroupPlanItem = ''
                         // }
-                        var formPopover = values2['code'] + ' for ' + values.name
+                        var formPopover = values2['code'] + ' for ' + values['code']
                         if (findGroupPlanItem != undefined) {
                             var findGroupPlan = machine_group_plan.find((v, k) => {
-                                if (v.machine_group_plan_id == values.id) return true
+                                if (v.machine_id == values['id']) return true
                             })
                             var form = ''
-                            form += '<input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['item_unit_id_plan'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '" data-formpopover="' + formPopover + '" data-machine_group_plan_id="' + values.id + '">'
+                            form += '<input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['unit_id'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '" data-formPopover="' + formPopover + '" data-machine_group_plan_id="' + findGroupPlan.machine_group_plan_id + '">'
                             var bgForm = ''
-                            if (jenis_produksi == 'skt') {
-                                var data_pita = data_master[jenis_produksi].productPita.filter((v, k) => {
-                                    if (v.is_default == 1) return true
-                                })
-                                var pita = []
-                                data_pita.forEach(e => {
-                                    pita.push(e.id)
-                                });
-                                detailPita.push({
-                                    // 'mesin_id': values.id,
-                                    // 'mesin_code': values.code,
-                                    'produk_id': values2.id,
-                                    'produk_code': values2.code,
-                                    'machine_group_plan_id': values.id,
-                                    'machine_group_plan_name': values.name,
-                                    'data': pita,
-                                })
-                            }
+                            var data_pita = data_master[jenis_produksi].productPita.filter((v, k) => {
+                                if (v.is_default == 1) return true
+                            })
+                            var pita = []
+                            data_pita.forEach(e => {
+                                pita.push(e.id)
+                            });
+                            detailPita.push({
+                                'mesin_id': values.id,
+                                'mesin_code': values.code,
+                                'produk_id': values2.id,
+                                'produk_code': values2.code,
+                                'machine_group_plan_id': findGroupPlan.machine_group_plan_id,
+                                'machine_group_plan_name': findGroupPlan.machine_group_plan_name,
+                                'data': pita,
+                            })
                         } else {
                             var form = ''
                             var bgForm = 'bg-light'
                         }
-                        html += '<td class="p-0 ' + bgForm + ' font-small fieldPita' + values.id + values2.id + formatDate(dates) + ' allfieldDPlan fieldType' + value.name + ' fieldDPlan' + values2['id'] + '">'
+                        html += '<td class="p-0 ' + bgForm + ' font-small fieldPita' + values.id + values2.id + formatDate(dates) + ' allfieldDPlan fieldType' + value['type_name'] + ' fieldDPlan' + values2['id'] + '">'
                         html += form
                         html += '</td>'
                     })
@@ -1137,12 +1123,10 @@
 
             html += '</div>'
             html += '</div>'
-            if (jenis_produksi == 'skt') {
-                detailPitaCukai.push({
-                    'date': dates,
-                    'detail': detailPita,
-                })
-            }
+            detailPitaCukai.push({
+                'date': dates,
+                'detail': detailPita,
+            })
             a++
             c++
             if (a == 7) {
@@ -1455,9 +1439,6 @@
     $(document).on('keyup', '.jumlahTarget', function(e) {
         simpanProdukTarget()
     })
-    $(document).on('keyup', '#notes', function(e) {
-        simpanProdukTarget()
-    })
 
 
     function changeColorTarget(id) {
@@ -1551,56 +1532,24 @@
         var hasClass = $('.shiftCard').map(function() {
             return $(this).hasClass('activeItem');
         }).get();
-        // console.log(detailPitaCukai)
+        console.log(detailPitaCukai)
         for (let i = 0; i < jumlahPlan.length; i++) {
             if (jumlahPlan[i] != "") {
-                if (jenis_produksi == 'skt') {
-                    var pitaCukaiCheck = fillPitaVariable.find((v, k) => {
-                        if (formatDate(v.date) == formatDate(tanggal[i]) && v.mesin == machine_group_plan_id[i] && v.produk == produkPlan[i]) return true
-                    })
-                    if (pitaCukaiCheck == undefined) {
-                        var pitaCukai = detailPitaCukai.find((v, k) => {
-                            if (formatDate(v.date) == formatDate(tanggal[i])) return true
-                        }).detail.find((v, k) => {
-                            if (v.machine_group_plan_id == machine_group_plan_id[i]) return true
-                        }).data
-                    } else {
-                        var pitaCukai = []
-                        pitaCukaiCheck.detail.forEach(e => {
-                            pitaCukai.push(e.id)
-                        });
-                    }
-                } else {
-                    var pitaCukai = []
-                    pitaCukai.push('')
-                }
-
+                var pitaCukai = detailPitaCukai.find((v, k) => {
+                    if (formatDate(v.date) == formatDate(tanggal[i])) return true
+                }).detail.find((v, k) => {
+                    if (v.machine_group_plan_id == machine_group_plan_id[i]) return true
+                }).data
                 for (let j = 0; j < pitaCukai.length; j++) {
-                    var jum = jumlahPlan[i]
-                    if (pitaCukaiCheck != undefined) {
-                        // console.log(pitaCukaiCheck.detail)
-                        jum = pitaCukaiCheck.detail[j].value
-                    }
-                    if (jenis_produksi == 'skm') {
-                        objPlanGroup.push({
-                            'qty': jum,
-                            'item_id_product': produkPlan[i],
-                            'machine_group_plan_id': machine_group_plan_id[i],
-                            'machine_id': mesin[i],
-                            'date': tanggal[i],
-                            'unit_id': unit[i],
-                        })
-                    } else {
-                        objPlanGroup.push({
-                            'qty': jum,
-                            'item_id_product': produkPlan[i],
-                            'machine_group_plan_id': machine_group_plan_id[i],
-                            'machine_id': mesin[i],
-                            'date': tanggal[i],
-                            'unit_id': unit[i],
-                            'pita_id': pitaCukai[j],
-                        })
-                    }
+                    objPlanGroup.push({
+                        'qty': jumlahPlan[i],
+                        'item_id_product': produkPlan[i],
+                        'machine_group_plan_id': machine_group_plan_id[i],
+                        'machine_id': mesin[i],
+                        'date': tanggal[i],
+                        'unit_id': unit[i],
+                        'pita_id': pitaCukai[j],
+                    })
                 }
                 var machines = machine_group_plan.filter((v, k) => {
                     if (v.machine_group_plan_id == machine_group_plan_id[i]) return true
@@ -1608,29 +1557,16 @@
                 // console.log(machines)
                 // PLAN DETAIL
                 for (let j = 0; j < pitaCukai.length; j++) {
-                    var jum = jumlahPlan[i]
-                    if (pitaCukaiCheck != undefined) {
-                        jum = pitaCukaiCheck.detail[j].value
-                    }
                     machines.forEach(e => {
-                        if (jenis_produksi == 'skm') {
-                            objPlan.push({
-                                'qty': jum,
-                                'item_id_product': produkPlan[i],
-                                'machine_id': e.machine_id,
-                                'date': tanggal[i],
-                                'unit_id': unit[i],
-                            })
-                        } else {
-                            objPlan.push({
-                                'qty': jum,
-                                'item_id_product': produkPlan[i],
-                                'machine_id': e.machine_id,
-                                'date': tanggal[i],
-                                'unit_id': unit[i],
-                                'pita_id': pitaCukai[j],
-                            })
-                        }
+                        objPlan.push({
+                            'qty': jumlahPlan[i],
+                            'item_id_product': produkPlan[i],
+                            // 'machine_id': mesin[i],
+                            'machine_id': e.machine_id,
+                            'date': tanggal[i],
+                            'unit_id': unit[i],
+                            'pita_id': pitaCukai[j],
+                        })
                     });
                 }
             }
@@ -1689,7 +1625,6 @@
             data_skm['productionPlanDetailGroup'] = objPlanGroup
             data_skm['productionPlanDetail'] = objPlan
             data_skm['shiftDetail'] = objShift
-            data_skm['notes'] = $('#notes').val()
             if (id_plan == '') {
                 getPaneTarget(data_skm, auto, arranged)
             } else {
@@ -1701,7 +1636,6 @@
             data_skt['productionPlanDetailGroup'] = objPlanGroup
             data_skt['productionPlanDetail'] = objPlan
             data_skt['shiftDetail'] = objShift
-            data_skt['notes'] = $('#notes').val()
             if (id_plan == '') {
                 getPaneTarget(data_skt, auto, arranged)
             } else {
@@ -1762,6 +1696,15 @@
     }
 
     var dataShiftComplete = []
+
+    function update(arr, id, updatedData) {
+        return arr.map((item) =>
+            item.machine_id === machine_id ? {
+                ...item,
+                ...updatedData
+            } : item
+        )
+    }
 
     function kapasitasMesin(data, auto) {
         // dicek dulu apakah shift sudah di klik apa belum
@@ -2302,7 +2245,7 @@
                 'created_id': user_id,
                 'status': 'CREATED',
                 'is_active': 1,
-                'note': data_skm.notes,
+                'note': "",
             }
             var dataShift = []
             var date = $('.cardDate').map(function() {
@@ -2346,38 +2289,22 @@
                 'created_id': user_id,
                 'status': 'CREATED',
                 'is_active': 1,
-                'note': data_skt.notes,
+                'note': "",
             }
-            data_skt['productionPlanGoal'].forEach(function(v) {
-                delete v.kode
-                delete v.num_stick
-                delete v.qty_sisa
-                delete v.qty_stick
-                delete v.qty_tray
-                delete v.qty_stick_sisa
-                delete v.qty_stick_sisa
-                delete v.qty_tray_sisa
-                delete v.stick
-                delete v.stick_unit_id
-                delete v.machine_id
-            });
-            data_skt['productionPlanDetailGroup'].forEach(function(v) {
-                delete v.machine_id
-            });
             var save = {
                 'skt': data_skt
             }
         }
-        if (lanjutSave == 'ya' && anyBlankShift == 0) {
-            // console.log(save)
-            doSimpan(save)
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Pengisian Belum Lengkap',
-                text: 'Lengkapi Dulu Datanya Yaa :)'
-            });
-        }
+        // if (lanjutSave == 'ya' && anyBlankShift == 0) {
+        // doSimpan(save)
+        console.log(save)
+        // } else {
+        //     Swal.fire({
+        //         icon: 'error',
+        //         title: 'Pengisian Belum Lengkap',
+        //         text: 'Lengkapi Dulu Datanya Yaa :)'
+        //     });
+        // }
     }
 
     function doSimpan(save) {
@@ -2505,8 +2432,7 @@
         var data = detailPitaCukai.find((v, k) => {
             if (formatDate(date) == formatDate(v.date)) return true
         }).detail
-        // console.log(data)
-        var group = groupAndSum(data, ['machine_group_plan_id', 'machine_group_plan_name'], ['produk_id'])
+        var group = groupAndSum(data, ['mesin_id', 'mesin_code'], ['produk_id'])
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
@@ -2519,10 +2445,10 @@
 
         group.forEach(e => {
             html_body += '<div class="col-12 pb-3">'
-            html_body += '<b class="text-grey small mb-2">' + e.machine_group_plan_name + '</b>'
+            html_body += '<b class="text-grey small mb-2">' + e.mesin_code + '</b>'
             html_body += '<div class="row">'
             data.forEach(el => {
-                if (el.machine_group_plan_id == e.machine_group_plan_id) {
+                if (el.mesin_id == e.mesin_id) {
                     html_body += '<div class="col-12">'
                     html_body += '<div class="card shadow-none mb-2 card-hoper">'
                     html_body += '<div class="card-body p-2">'
@@ -2545,8 +2471,8 @@
 
                         html_body += '<div class="col-auto">'
                         html_body += '<div class="form-check">'
-                        html_body += '<input class="form-check-input checkPita' + e.machine_group_plan_id + el.produk_id + '" type="checkbox" value="' + pita.id + '" id="checkPita' + e.machine_group_plan_id + el.produk_id + pita.id + '" ' + check + ' onclick="checkingPita(' + "'" + date + "'" + ',' + e.machine_group_plan_id + ',' + el.produk_id + ')">'
-                        html_body += '<label class="form-check-label" for="checkPita' + e.machine_group_plan_id + el.produk_id + pita.id + '">' + pita.name + '</label>'
+                        html_body += '<input class="form-check-input checkPita' + e.mesin_id + el.produk_id + '" type="checkbox" value="' + pita.id + '" id="checkPita' + e.mesin_id + el.produk_id + pita.id + '" ' + check + ' onclick="checkingPita(' + "'" + date + "'" + ',' + e.mesin_id + ',' + el.produk_id + ')">'
+                        html_body += '<label class="form-check-label" for="checkPita' + e.mesin_id + el.produk_id + pita.id + '">' + pita.name + '</label>'
                         html_body += '</div>'
                         html_body += '</div>'
                     });
@@ -2573,7 +2499,7 @@
         detailPitaCukai.forEach(e => {
             if (formatDate(date) == formatDate(e.date)) {
                 e.detail.forEach(element => {
-                    if (element.machine_group_plan_id == mesin && element.produk_id == produk) {
+                    if (element.mesin_id == mesin && element.produk_id == produk) {
                         element.data = value
                         colorizedPita(value, mesin, produk, formatDate(date))
                     }
@@ -2630,7 +2556,6 @@
     }
 
     function openFormPopover(value, mesin, produk, date, status) {
-        // console.log(value, mesin, produk, date, status)
         var contents = ""
         contents += '<div class="row">'
         for (let i = 0; i < value.length; i++) {
@@ -2640,7 +2565,7 @@
             contents += '<div class="col-12 pt-2">'
             contents += '<p class="m-0 small"><b>Pita ' + obj.name + '</b></p>'
             contents += '<div class="input-group mb-3 align-self-center">'
-            contents += '<input type="text" class="form-control form-control-sm nominal fillBoxPita fillBoxPita' + produk + mesin + status + formatDate(date) + '" value="0" data-variable_box="' + produk + mesin + status + formatDate(date) + '" data-variable_form="' + produk + mesin + formatDate(date) + '" data-id="' + obj.id + '" data-produk="' + produk + '" data-mesin="' + mesin + '" data-date="' + formatDate(date) + '">'
+            contents += '<input type="text" class="form-control form-control-sm nominal fillBoxPita fillBoxPita' + mesin + status + formatDate(date) + '" value="0" data-variable_box="' + mesin + status + formatDate(date) + '" data-variable_form="' + produk + mesin + formatDate(date) + '">'
             contents += '<span class=" ms-2 me-5" style="margin: auto;">Box</span>'
             contents += '</div>'
             contents += '</div>'
@@ -2653,19 +2578,18 @@
             title: "Split Rencana Produksi",
             trigger: 'click',
             html: true,
-            content: $('#popover_content')
+            content: $('[data-name="popover-content"]')
         }
-        $('#hidden_content').html('<div data-name="popover-content" id="popover_content"></div>')
         $('#jumlahPlanning' + produk + mesin + formatDate(date)).attr('tabindex', '-1')
         sendTojumlahPlanning(mesin, produk, date, options)
     }
 
     function openDefaultPopover(value, mesin, produk, date, status) {
-        var contents = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formpopover')
+        var content = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formPopover')
         var options = {
             html: true,
             trigger: 'hover',
-            content: contents
+            content: content
         }
         $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeAttr('tabindex', '-1')
         sendTojumlahPlanning(mesin, produk, date, options)
@@ -2685,9 +2609,6 @@
         var anySplit = $(this).hasClass('split')
         if (anySplit == true) {
             // jika ada split
-            var variable_box = $(this).data('variable_box')
-            var variable_form = $(this).data('variable_form')
-            // fillBoxFunction(variable_box, variable_form)
         }
     })
     $(document).on('keyup', '.fillBoxPita', function(e) {
@@ -2695,6 +2616,13 @@
         var variable_form = $(this).data('variable_form')
         fillBoxFunction(variable_box, variable_form)
     })
+
+    function checkAvailableFillBoxPopover(variable_box, variable_form) {
+        var avail = fillPitaVariable.find((v, k) => {
+            if (v.variable_box == variable_box) return true
+        })
+        if (avail != undefined) {}
+    }
 
     function fillBoxFunction(variable_box, variable_form) {
         var value = $('.fillBoxPita' + variable_box).map(function() {
@@ -2710,49 +2638,6 @@
             return parseFloat(a) + parseFloat(b);
         }, 0);
         $('#jumlahPlanning' + variable_form).val(sum)
-        checkAvailableFillBoxPopover(variable_box, variable_form)
-    }
-
-    function checkAvailableFillBoxPopover(variable_box, variable_form) {
-        var avail = fillPitaVariable.find((v, k) => {
-            if (v.variable_box == variable_box) return true
-        })
-        var value = $('.fillBoxPita' + variable_box).map(function() {
-            return $(this).val();
-        }).get();
-        var id = $('.fillBoxPita' + variable_box).map(function() {
-            return $(this).data('id');
-        }).get();
-        var produk = $('.fillBoxPita' + variable_box).map(function() {
-            return $(this).data('produk');
-        }).get();
-        var mesin = $('.fillBoxPita' + variable_box).map(function() {
-            return $(this).data('mesin');
-        }).get();
-        var date = $('.fillBoxPita' + variable_box).map(function() {
-            return $(this).data('date');
-        }).get();
-        var detail = []
-        for (let i = 0; i < value.length; i++) {
-            detail.push({
-                'id': id[i],
-                'value': value[i],
-            })
-        }
-        if (avail != undefined) {
-            // pernah diisi
-            avail.detail = detail
-        } else {
-            // tidak pernah diisi
-            fillPitaVariable.push({
-                'variable_box': variable_box,
-                'variable_form': variable_form,
-                'produk': produk[0],
-                'mesin': mesin[0],
-                'date': date[0],
-                'detail': detail
-            })
-        }
         simpanProdukTarget()
     }
 </script>

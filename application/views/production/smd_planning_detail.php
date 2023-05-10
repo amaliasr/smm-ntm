@@ -590,14 +590,16 @@
             html += '</tr>'
             html += '</thead>'
             html += '<tbody>'
-            $.each(data_plan['loadPage'][jenis_produksi]['machine'], function(key, value) {
+            $.each(data_plan['loadPage'][jenis_produksi]['machineGroupPlan'], function(key, value) {
                 html += '<tr class="text-black">'
-                html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['type_name'] + '</b></td>'
+                html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['name'] + '</b></td>'
                 html += '</tr>'
+                console.log(value.id)
+                console.log(valuea['data'])
                 var obj_machine_type = valuea['data'].filter((value3, key3) => {
-                    if (value3.machine_type.id === parseInt(value['type_id'])) return true
+                    if (value3.machine_type.id === parseInt(value['id'])) return true
                 })[0]['data']
-                $.each(value['machine'], function(keys, values) {
+                $.each(value['machine_group_plan'], function(keys, values) {
                     var obj_machine = obj_machine_type.filter((value3, key3) => {
                         if (value3.machine.id === values['id']) return true
                     })[0]

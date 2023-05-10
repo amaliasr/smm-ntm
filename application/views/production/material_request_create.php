@@ -824,6 +824,7 @@
         var data = {
             productionPlanId: id,
             date: date,
+            employeeId: user_id,
         }
         var url = "<?= api_produksi('getLoadPageMaterialRequestCreate'); ?>"
         getData(data, url)
