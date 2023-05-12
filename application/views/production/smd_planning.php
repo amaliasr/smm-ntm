@@ -374,6 +374,7 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Readmore.js/2.0.2/readmore.min.js" integrity="sha512-llWtDR3k09pa9nOBfutQnrS2kIEG7M6Zm7RIjVVLNab1wRs8NUmA0OjAE38jKzKeCg+A3rdq8AVW41ZTsfhu5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -536,6 +537,17 @@
             html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
             html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">#' + values['code'] + '</p>'
             html += '<h6 class="m-0 text_search" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')" data-id="' + keys + '"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
+            if (values.note == '') {
+                values.note = '-'
+            }
+            html += '<div class="row">'
+            html += '<div class="col-auto">'
+            html += '<b class="fa fa-sticky-note-o" style="font-size:10px;"></b>'
+            html += '</div>'
+            html += '<div class="col-auto ps-0">'
+            html += '<i class="text-dark-grey artikel text_search" style="font-size:10px;" data-id="' + keys + '">' + removeTags(values.note) + '</i>'
+            html += '</div>'
+            html += '</div>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
@@ -591,6 +603,7 @@
         })
 
         $('#tampilDetailPembayaran').html(html)
+        $('.artikel').readmore();
         $('.lazy').Lazy({
             // your configuration goes here
             scrollDirection: 'vertical',

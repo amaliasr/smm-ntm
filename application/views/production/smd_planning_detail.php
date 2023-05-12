@@ -568,6 +568,17 @@
         jenis_produksi = data_plan['data'][0]['production_type']['name'].toLowerCase()
         html_parent += '<p class="m-0">#' + data_plan['data'][0]['code'] + '</p>'
         html_parent += '<h5 class="m-0"><b>' + formatDateIndonesia(data_plan['data'][0]['date_start']) + ' - ' + formatDateIndonesia(data_plan['data'][0]['date_end']) + '</b></h5>'
+        if (data_plan['data'][0]['note'] == '') {
+            data_plan['data'][0]['note'] = '-'
+        }
+        html_parent += '<div class="row">'
+        html_parent += '<div class="col-auto">'
+        html_parent += '<b class="fa fa-sticky-note-o" style="font-size:10px;"></b>'
+        html_parent += '</div>'
+        html_parent += '<div class="col-auto ps-0">'
+        html_parent += '<i class="text-dark-grey artikel" style="font-size:10px;">' + data_plan['data'][0]['note'] + '</i>'
+        html_parent += '</div>'
+        html_parent += '</div>'
         $('#listParent').html(html_parent)
         $.each(data_plan['data'][0]['detail'], function(keya, valuea) {
             // console.log(valuea['data'])
