@@ -109,6 +109,19 @@ function currentDate() {
         (day < 10 ? '0' : '') + day
     return current_date;
 }
+function currentTime() {
+    var d = new Date();
+    var jam = d.getHours();
+    var menit = d.getMinutes();
+    if (menit < 10) {
+        menit = "0" + menit;
+    }
+    if (jam < 10) {
+        jam = "0" + jam;
+    }
+    var time = jam + "." + menit;
+    return time;
+}
 function toTitleCase(str) {
     var lcStr = str.toLowerCase();
     return lcStr.replace(/(?:^|\s)\w/g, function(match) {

@@ -889,6 +889,9 @@
                 url: "<?= api_produksi('loadPageProductionPlanCreate'); ?>",
                 method: "GET",
                 dataType: 'JSON',
+                data: {
+                    employeeId: user_id,
+                },
                 error: function(xhr) {},
                 beforeSend: function() {},
                 success: function(response) {
@@ -1130,7 +1133,7 @@
 
             if (jenis_produksi == 'skt') {
                 html += '<div class="mt-2">'
-                html += '<span class="small"><i class="fa fa-square-o bg-pita-1 me-2"></i>1 Pita Khusus</span>'
+                html += '<span class="small"><i class="fa fa-square-o bg-pita-1 me-2"></i>Pita 2022</span>'
                 html += '<span class="small"><i class="fa fa-square-o bg-pita-2 ms-2 me-2"></i>Terdapat 2 Pita atau Lebih</span>'
                 html += '</div>'
             }
@@ -2335,6 +2338,9 @@
                 delete v.machine_id
             });
             // console.log(data_skm['productionPlanGoal'])
+            data_skm['productionPlanDetailGroup'].forEach(function(v) {
+                delete v.machine_id
+            });
             var save = {
                 'skm': data_skm
             }

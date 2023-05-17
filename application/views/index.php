@@ -9,51 +9,80 @@
         bottom: 0px;
         right: 0px;
     }
+
+    .bg-morning {
+        background: url('./assets/image/background/morning.jpg') no-repeat center center fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .bg-day {
+        background: url('./assets/image/background/day.jpg') no-repeat center center fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .bg-night {
+        background: url('./assets/image/background/night.jpg') no-repeat center center fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
 </style>
 <main>
-    <header class="page-header page-header-dark pb-5">
+    <!-- <header class="page-header page-header-dark pb-5">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
+            </div>
+        </div>
+    </header> -->
+    <header class="page-header page-header-dark bg-scene bg-morning pb-10">
+        <div class="container-xl px-4">
+            <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-6 mt-4">
+                        <h1 class="text-white m-0" style="font-size: 30px;">Good <span id="salam"></span> !</h1>
+                        <p class="m-0 lh-1" style="font-size: 50px;"><b><span id="full_name" class="text-white"><?= $full_name ?></span></b></p>
+                        <!-- <h5 style="font-size: 20px;margin: auto;width:100%;">
+                            <a class="typewrite text-white" data-period="2000" data-type='[ "“We cannot solve problems with the kind of thinking we employed when we came up with them.” — Albert Einstein", "“When you change your thoughts, remember to also change your world.”—Norman Vincent Peale", "“It is only when we take chances, when our lives improve. The initial and the most difficult risk that we need to take is to become honest. —Walter Anderson"]' style="text-decoration:none">
+                                <span class="wrap"></span>
+                            </a>
+                        </h5> -->
+                    </div>
+                </div>
             </div>
         </div>
     </header>
     <!-- Main page content-->
     <div class="container-xl px-4 mt-n10">
-        <div class="row">
-            <div class="col-12 col-md-6 p-5">
-                <h1 class="text-white m-0 mb-3" style="font-size: 30px;">Welcome Back !</h1>
-                <!-- <p style="font-size: 11px;width:100%;" class="mt-2">
-                    <a class="typewrite text-white" data-period="2000" data-type='[ "“We cannot solve problems with the kind of thinking we employed when we came up with them.” — Albert Einstein", "“When you change your thoughts, remember to also change your world.”—Norman Vincent Peale", "“It is only when we take chances, when our lives improve. The initial and the most difficult risk that we need to take is to become honest. —Walter Anderson"]' style="text-decoration:none">
-                        <span class="wrap"></span>
-                    </a>
-                </p> -->
-                <p class="m-0 lh-1 mb-5" style="font-size: 50px;"><b><span id="full_name" style="color:#F5EDCE"><?= $full_name ?></span></b></p>
-                <h5 style="font-size: 20px;margin: auto;width:100%;">
-                    <a class="typewrite text-white" data-period="2000" data-type='[ "“We cannot solve problems with the kind of thinking we employed when we came up with them.” — Albert Einstein", "“When you change your thoughts, remember to also change your world.”—Norman Vincent Peale", "“It is only when we take chances, when our lives improve. The initial and the most difficult risk that we need to take is to become honest. —Walter Anderson"]' style="text-decoration:none">
-                        <span class="wrap"></span>
-                    </a>
-                </h5>
-                <!-- <div class="row">
-                    <?php for ($i = 0; $i < 3; $i++) { ?>
-                        <div class="col-4">
-                            <div class="card shadow-sm" style="opacity: 0.7; height:200px;">
-                                <div class="card-body">
-                                    <b class="small">Soon</b>
-                                </div>
-                            </div>
-                        </div>
-                    <?php } ?>
-                </div> -->
-
+        <div class="row p-5">
+            <div class="col-12 col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <b class="small">Quick Menu <i class="ms-2 fa fa-flash text-warning"></i></b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <b class="small">Quick Notes <i class="ms-2 fa fa-thumb-tack text-danger"></i></b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <b class="small">Soon</b>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="position-absolute bottom-0 end-0">
-
-        <img src="<?= base_url() ?>assets/image/gif/astronaut-1.svg" style="width: 300px;">
-
+        <!-- <img src="<?= base_url() ?>assets/image/gif/astronaut-1.svg" style="width: 300px;"> -->
     </div>
 </main>
+<script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
     var TxtType = function(el, toRotate, period) {
         this.toRotate = toRotate;
@@ -115,7 +144,23 @@
     };
 </script>
 <script>
+    function updateTime() {
+        const currentTime = new Date();
+        const currentHour = currentTime.getHours();
+        $('.bg-scene').removeClass('bg-morning bg-day bg-night')
+        if (currentHour >= 5 && currentHour < 12) {
+            $('.bg-scene').addClass('bg-morning')
+            $('#salam').html('Morning')
+        } else if (currentHour >= 12 && currentHour < 18) {
+            $('.bg-scene').addClass('bg-day')
+            $('#salam').html('Afternoon')
+        } else {
+            $('.bg-scene').addClass('bg-night')
+            $('#salam').html('Evening')
+        }
+    }
     $(document).ready(function() {
-        $('#layoutSidenav_content').addClass('bg-rainbow')
+        // $('#layoutSidenav_content').addClass('bg-rainbow')
+        setInterval(updateTime, 1000);
     });
 </script>
