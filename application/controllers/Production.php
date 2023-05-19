@@ -125,9 +125,9 @@ class Production extends CI_Controller
         $data['qrcode'] = $explodedParams[1];
         $data['id'] = $explodedParams[2];
         $data['user_id'] = $explodedParams[3];
-        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getProductionPlanSmdDetail?id=' . $data['id'])))->data;
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getProductionPlanSmdDetail?id=' . $data['id'] . '&employeeId=' . $data['user_id'])))->data;
         $html = $this->load->view('production/cetak_smd_planning', $data, true);
-        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->setPaper('A4', 'landscape');
         $this->pdf->filename = 'SMD PLAN ' . $data['datas']->data[0]->code . ".pdf";
         $this->pdf->loadHtml($html);
         $this->pdf->render();

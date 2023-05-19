@@ -56,6 +56,18 @@
             page-break-before: always;
         }
 
+        .bg-skm-0 {
+            background-color: #73A9AD;
+        }
+
+        .bg-skm-1 {
+            background-color: #B3C890;
+        }
+
+        .bg-skm-2 {
+            background-color: #F5F0BB;
+        }
+
         @page {
             margin-top: 90px;
             margin-bottom: 70px;
@@ -145,7 +157,7 @@ function tgl_indo($tanggal)
         <hr style="height:2px;border:none;color:#333;background-color:#333;margin-bottom:20px;" />
     </header>
     <main>
-        <h3>RENCANA PRODUKSI SMD</h3>
+        <h3>RENCANA PRODUKSI SMD - <?= $datas->data[0]->production_type->name ?></h3>
         <h3><?= tgl_indo(date("Y-m-d", strtotime($datas->data[0]->date_start))); ?> - <?= tgl_indo(date("Y-m-d", strtotime($datas->data[0]->date_end))); ?></h3>
         <!-- MAKER -->
         <?php
@@ -164,23 +176,23 @@ function tgl_indo($tanggal)
             <?php
             $jumMachine = 0;
             foreach ($datas->data[0]->detail as $key => $value) {
-                foreach ($datas->loadPage->$jenis_produksi->machine as $kprod => $vprod) {
-                    foreach ($vprod->machine as $kmachine => $vmachine) {
+                foreach ($datas->loadPage->$jenis_produksi->machineGroupPlan as $kprod => $vprod) {
+                    foreach ($vprod->machine_group_plan as $kmachine => $vmachine) {
                         if ($key == 0) {
                             $jumMachine++;
                         }
                     }
                 }
                 $loop = 0;
-                foreach ($datas->loadPage->$jenis_produksi->machine as $kprod => $vprod) {
-                    foreach ($vprod->machine as $kmachine => $vmachine) {
+                foreach ($datas->loadPage->$jenis_produksi->machineGroupPlan as $kprod => $vprod) {
+                    foreach ($vprod->machine_group_plan as $kmachine => $vmachine) {
             ?>
                         <tr>
                             <?php if ($loop == 0) { ?>
                                 <td class="td_main" rowspan="<?= $jumMachine ?>" style="text-align: center;font-size:7px;"><?= $value->date ?></td>
                             <?php } ?>
-                            <td class="td_main" style="text-align: center;font-size:7px;"><?= $vmachine->code ?></td>
-                            <td class="td_main" style="text-align: center;font-size:7px;"><?= $vmachine->unit_name ?></td>
+                            <td class="td_main" style="text-align: center;font-size:7px;"><?= $vmachine->name ?></td>
+                            <td class="td_main" style="text-align: center;font-size:7px;"><?= $vmachine->item_unit_name_plan ?></td>
                             <?php foreach ($datas->loadPage->$jenis_produksi->product as $k => $v) { ?>
                                 <?php
                                 $qty = '';

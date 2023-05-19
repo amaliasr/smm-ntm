@@ -39,12 +39,18 @@ class Report extends CI_Controller
         $params = $this->input->get('params');
         $decodedParams = urldecode($params);
         $explodedParams = explode("*$", $decodedParams);
-        $item_id = var_dump(explode(',', $explodedParams[1]));
+        $item_id = (explode(',', $explodedParams[1]));
         $date_start = date('Y-m-d', strtotime($explodedParams[2]));
+        $textItem = '';
+        // print_r($item_id);
+        foreach ($item_id as $k => $v) {
+            $textItem .= 'item_id%5B%5D=' . $v . '&';
+        }
         $date_end = date('Y-m-d', strtotime($explodedParams[3]));
-        $url = "Api_Warehouse/mutasiStock?item_id=" . $item_id . "&date_start=" . $date_start . "&date_end=" . $date_end . "";
+        $url = "Api_Warehouse/mutasiStock?" . $textItem . "date_start=" . $date_start . "&date_end=" . $date_end . "";
         $main = json_decode(file_get_contents(api_url($url)), true);
         $body = $main['data'];
+        // print_r($body);
         $huruf = range('A', 'Z');
         $extension = 'xlsx';
         $fileName = 'Report Gudang';
@@ -121,14 +127,14 @@ class Report extends CI_Controller
         $date_time = date('Y-m-d H:i:s');
         $epoch = strtotime($date_time);
 
-        // $writer = new Xlsx($spreadsheet);
-        // $filename = 'REPORT GUDANG ' . $epoch;
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'REPORT GUDANG ' . $epoch;
 
-        // header('Content-Type: application/vnd.ms-excel');
-        // header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
-        // header('Cache-Control: max-age=0');
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
 
-        // $writer->save('php://output');
+        $writer->save('php://output');
     }
     public function exportReportPO()
     {

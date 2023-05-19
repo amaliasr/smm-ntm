@@ -545,7 +545,7 @@
     function coloringPita() {
         if (jenis_produksi == 'skt') {
             data_plan.loadPage[jenis_produksi].productPita.forEach(e => {
-                if (e.is_default == 0) {
+                if (e.is_default == 1) {
                     var classes = 'bg-warning text-white'
                 } else {
                     var classes = 'bg-pita-other text-white'
@@ -746,6 +746,14 @@
             html += '</tbody>'
             html += '</table>'
             html += '</div>'
+
+            if (jenis_produksi == 'skt') {
+                html += '<div class="mt-2">'
+                coloriPita.forEach(e => {
+                    html += '<span class="small me-2"><i class="fa fa-square-o ' + e.classes + ' me-2"></i>Pita ' + e.name + '</span>'
+                });
+                html += '</div>'
+            }
 
             html += '</div>'
             html += '</div>'

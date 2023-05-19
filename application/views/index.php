@@ -35,7 +35,7 @@
             </div>
         </div>
     </header> -->
-    <header class="page-header page-header-dark bg-scene bg-morning pb-10">
+    <header class="page-header page-header-dark bg-scene pb-10">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
