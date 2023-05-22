@@ -27,6 +27,11 @@
         background-repeat: no-repeat;
         background-size: cover;
     }
+
+    textarea::-webkit-resizer {
+        display: none;
+        /* Hilangkan handle pengubah ukuran di pojok kanan bawah untuk browser berbasis WebKit */
+    }
 </style>
 <main>
     <!-- <header class="page-header page-header-dark pb-5">
@@ -63,9 +68,19 @@
                 </div>
             </div>
             <div class="col-12 col-md-4">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <b class="small">Quick Notes <i class="ms-2 fa fa-thumb-tack text-danger"></i></b>
+                        <div class="row">
+                            <div class="col">
+                                <b class="small float-start">Quick Notes <i class="ms-2 fa fa-thumb-tack text-danger"></i></b>
+                            </div>
+                            <div class="col">
+                                <i class="fa fa-trash text-light float-end" style="cursor:pointer;" id="btnHapusTextarea"></i>
+                            </div>
+                            <div class="col-12 pt-3">
+                                <textarea class="form-control shadow-none" id="myTextarea" rows="10" style="border: none;outline: none;padding:0px;border-radius:0px;" placeholder="Tuliskan Catatan Penting Anda Disini"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,5 +177,58 @@
     $(document).ready(function() {
         // $('#layoutSidenav_content').addClass('bg-rainbow')
         setInterval(updateTime, 1000);
+        var textarea = document.getElementById("myTextarea");
+        textarea.focus();
+        $('#myTextarea').val(getCookie('myTextarea'))
     });
+
+    $(document).on('keyup', '#myTextarea', function(e) {
+        var text = $('#myTextarea').val()
+        simpanTextarea(text)
+    })
+    $(document).on('click', '#btnHapusTextarea', function(e) {
+        Swal.fire({
+            text: 'Data akan terhapus semua, Apakah anda yakin ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteTextarea()
+            }
+        })
+    })
+
+    function deleteTextarea() {
+        $('#myTextarea').val('')
+        simpanTextarea('')
+    }
+
+    function simpanTextarea(text) {
+        setCookie("myTextarea", text);
+    }
+
+    // Menyimpan data ke dalam cookie dengan masa berlaku yang panjang
+    function setCookie(name, value) {
+        var expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 10); // Masa berlaku 10 tahun
+
+        var cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expirationDate.toUTCString() + "; path=/";
+        document.cookie = cookie;
+    }
+
+    // Mengambil nilai dari cookie
+    function getCookie(name) {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.indexOf(name + "=") === 0) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return null;
+    }
 </script>

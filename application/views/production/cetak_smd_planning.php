@@ -65,7 +65,7 @@
         }
 
         .bg-skm-2 {
-            background-color: #F5F0BB;
+            background-color: #FCFFB2;
         }
 
         @page {
@@ -100,6 +100,18 @@
 
         table tr td {
             page-break-inside: always;
+        }
+
+        .bg-pita-other-0 {
+            background-color: #F2DF3A !important;
+        }
+
+        .bg-pita-other-1 {
+            background-color: #3AB4F2 !important;
+        }
+
+        .bg-pita-other-2 {
+            background-color: #0078AA !important;
         }
     </style>
 </head>
@@ -175,31 +187,63 @@ function tgl_indo($tanggal)
             </tr>
             <?php
             $jumMachine = 0;
+            $rowSplit = [];
             foreach ($datas->data[0]->detail as $key => $value) {
                 foreach ($datas->loadPage->$jenis_produksi->machineGroupPlan as $kprod => $vprod) {
                     foreach ($vprod->machine_group_plan as $kmachine => $vmachine) {
                         if ($key == 0) {
                             $jumMachine++;
                         }
+                        foreach ($value->data as $key2 => $value2) {
+                            foreach ($value2->data as $key3 => $value3) {
+                                foreach ($value3->data as $key4 => $value4) {
+                                    // print_r($value4);
+                                    if ($value4->product->id == $v->id && $vmachine->id == $value3->machine->id) {
+                                        // check pita
+                                        if (count($value4->pita) > 1) {
+                                            // split
+                                            if ($rowSplit[$vmachine->id] == '') {
+                                                $rowSplit[$vmachine->id] = 'rowspan="' . count($value4->pita) . '"';
+                                            }
+                                        } else {
+                                            $rowSplit[$vmachine->id] = '';
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+                // print_r($rowSplit);
                 $loop = 0;
+                $color_skm = -1;
+                $start_id_color_skm = 0;
                 foreach ($datas->loadPage->$jenis_produksi->machineGroupPlan as $kprod => $vprod) {
                     foreach ($vprod->machine_group_plan as $kmachine => $vmachine) {
+                        if ($start_id_color_skm != $vmachine->machine_sub_type_id) {
+                            $start_id_color_skm = $vmachine->machine_sub_type_id;
+                            $color_skm++;
+                        }
+                        // echo $rowSplit[$vmachine->id];
             ?>
                         <tr>
                             <?php if ($loop == 0) { ?>
                                 <td class="td_main" rowspan="<?= $jumMachine ?>" style="text-align: center;font-size:7px;"><?= $value->date ?></td>
                             <?php } ?>
-                            <td class="td_main" style="text-align: center;font-size:7px;"><?= $vmachine->name ?></td>
-                            <td class="td_main" style="text-align: center;font-size:7px;"><?= $vmachine->item_unit_name_plan ?></td>
+                            <td class="td_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align: center;font-size:7px;"><?= $vmachine->name ?></td>
+                            <td class="td_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align: center;font-size:7px;"><?= $vmachine->item_unit_name_plan ?></td>
                             <?php foreach ($datas->loadPage->$jenis_produksi->product as $k => $v) { ?>
                                 <?php
                                 $qty = '';
                                 foreach ($value->data as $key2 => $value2) {
                                     foreach ($value2->data as $key3 => $value3) {
                                         foreach ($value3->data as $key4 => $value4) {
+                                            // print_r($value4);
                                             if ($value4->product->id == $v->id && $vmachine->id == $value3->machine->id) {
+                                                // check pita
+                                                if (count($value4->pita) > 1) {
+                                                    // split
+                                                }
                                                 if ($qty == '') {
                                                     $qty = $value4->qty;
                                                 }
@@ -207,9 +251,9 @@ function tgl_indo($tanggal)
                                         }
                                     }
                                 } ?>
-                                <td class="th_main" style="text-align:center;font-size:7px;"><?= $qty ?></td>
+                                <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align:center;font-size:7px;"><?= $qty ?></td>
                             <?php } ?>
-                            <td class="th_main" style="text-align:center;font-size:7px;"></td>
+                            <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align:center;font-size:7px;"></td>
                         </tr>
             <?php $loop++;
                     }
@@ -217,11 +261,31 @@ function tgl_indo($tanggal)
             } ?>
         </table>
         <table style="width: 100%;">
+            <?php if ($jenis_produksi == 'skt') { ?>
+                <tr style="vertical-align: top;">
+                    <td style="width: 100%;">
+                        <b style="font-size:14px;">Keterangan Pita Khusus</b>
+                        <table>
+                            <?php $a = 0;
+                            foreach ($datas->loadPage->$jenis_produksi->productPita as $k => $v) {
+                                if ($v->is_default == 0) { ?>
+                                    <tr>
+                                        <td class="bg-pita-other-<?= $a++ ?>" style="border: 1px solid;width:10px !important;"></td>
+                                        <td><?= $v->name; ?></td>
+                                    </tr>
+                            <?php }
+                            } ?>
+                        </table>
+
+
+                    </td>
+                </tr>
+            <?php } ?>
             <tr style="vertical-align: top;">
                 <td style="width: 50%;">
                     <div style="text-align: left;">
                         <b style="margin-bottom: 10px;">CATATAN :</b>
-                        <div style="word-wrap: break-word;"></div>
+                        <div style="word-wrap: break-word;"><?= $datas->data[0]->note ?></div>
                     </div>
                 </td>
                 <td style="width: 50%;text-align:center;">
