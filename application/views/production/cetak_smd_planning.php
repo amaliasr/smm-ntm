@@ -174,6 +174,39 @@ function tgl_indo($tanggal)
         <!-- MAKER -->
         <?php
         $jenis_produksi = strtolower($datas->data[0]->production_type->name);
+        $jumMachine = 0;
+        $rowSplit = [];
+        $jumlahRowSplit = [];
+        foreach ($datas->data[0]->detail as $key => $value) {
+            foreach ($datas->loadPage->$jenis_produksi->machineGroupPlan as $kprod => $vprod) {
+                foreach ($vprod->machine_group_plan as $kmachine => $vmachine) {
+                    if ($key == 0) {
+                        $jumMachine++;
+                    }
+                    foreach ($value->data as $key2 => $value2) {
+                        foreach ($value2->data as $key3 => $value3) {
+                            foreach ($value3->data as $key4 => $value4) {
+                                if (!isset($jumlahRowSplit[$value->date])) {
+                                    $jumlahRowSplit[$value->date] = 0;
+                                }
+                                // check pita
+                                if (count($value4->pita) > 1 && $vmachine->id == $value3->machine->id) {
+                                    // split
+                                    if ($rowSplit[$vmachine->id][$value->date] == '') {
+                                        $rowSplit[$vmachine->id][$value->date] = 'rowspan="' . count($value4->pita) . '"';
+                                        $jumlahRowSplit[$value->date] += (int)count($value4->pita) - 1;
+                                    }
+                                } else {
+                                    $rowSplit[$vmachine->id][$value->date] = '';
+                                    $jumlahRowSplit[$value->date] += 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // print_r($datas->loadPage->$jenis_produksi->product);
         ?>
         <table style="width:100%;margin-top:30px;margin-bottom:30px;font-size:7px;" class="table_main">
             <tr style="text-align: center">
@@ -186,34 +219,7 @@ function tgl_indo($tanggal)
                 <th class="th_main" style="text-align:center;">Total</th>
             </tr>
             <?php
-            $jumMachine = 0;
-            $rowSplit = [];
             foreach ($datas->data[0]->detail as $key => $value) {
-                foreach ($datas->loadPage->$jenis_produksi->machineGroupPlan as $kprod => $vprod) {
-                    foreach ($vprod->machine_group_plan as $kmachine => $vmachine) {
-                        if ($key == 0) {
-                            $jumMachine++;
-                        }
-                        foreach ($value->data as $key2 => $value2) {
-                            foreach ($value2->data as $key3 => $value3) {
-                                foreach ($value3->data as $key4 => $value4) {
-                                    // print_r($value4);
-                                    if ($value4->product->id == $v->id && $vmachine->id == $value3->machine->id) {
-                                        // check pita
-                                        if (count($value4->pita) > 1) {
-                                            // split
-                                            if ($rowSplit[$vmachine->id] == '') {
-                                                $rowSplit[$vmachine->id] = 'rowspan="' . count($value4->pita) . '"';
-                                            }
-                                        } else {
-                                            $rowSplit[$vmachine->id] = '';
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
                 // print_r($rowSplit);
                 $loop = 0;
                 $color_skm = -1;
@@ -224,37 +230,74 @@ function tgl_indo($tanggal)
                             $start_id_color_skm = $vmachine->machine_sub_type_id;
                             $color_skm++;
                         }
-                        // echo $rowSplit[$vmachine->id];
+                        $produkPita = [];
+                        $produkPitaId = [];
+                        // $dataSplit = [];
             ?>
                         <tr>
                             <?php if ($loop == 0) { ?>
-                                <td class="td_main" rowspan="<?= $jumMachine ?>" style="text-align: center;font-size:7px;"><?= $value->date ?></td>
+                                <td class="td_main" rowspan="<?= ($jumMachine + $jumlahRowSplit[$value->date]) ?>" style="text-align: center;font-size:7px;"><?= $value->date ?></td>
                             <?php } ?>
-                            <td class="td_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align: center;font-size:7px;"><?= $vmachine->name ?></td>
-                            <td class="td_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align: center;font-size:7px;"><?= $vmachine->item_unit_name_plan ?></td>
+                            <td class="td_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" <?= $rowSplit[$vmachine->id][$value->date] ?> style="text-align: center;font-size:7px;"><?= $vmachine->name ?></td>
+                            <td class="td_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" <?= $rowSplit[$vmachine->id][$value->date] ?> style="text-align: center;font-size:7px;"><?= $vmachine->item_unit_name_plan ?></td>
                             <?php foreach ($datas->loadPage->$jenis_produksi->product as $k => $v) { ?>
                                 <?php
                                 $qty = '';
+                                $warnaPita = '';
+                                $splitProduct = '';
+                                $idProdukSplit = '';
                                 foreach ($value->data as $key2 => $value2) {
                                     foreach ($value2->data as $key3 => $value3) {
                                         foreach ($value3->data as $key4 => $value4) {
                                             // print_r($value4);
                                             if ($value4->product->id == $v->id && $vmachine->id == $value3->machine->id) {
                                                 // check pita
-                                                if (count($value4->pita) > 1) {
-                                                    // split
-                                                }
                                                 if ($qty == '') {
-                                                    $qty = $value4->qty;
+                                                    if (count($value4->pita) > 1) {
+                                                        // split
+                                                        $qty = $value4->pita[0]->qty;
+                                                        $idProdukSplit = $value4->product->id;
+                                                        $produkPita[$value4->product->id] = $value4->pita[1]->qty;
+                                                        $produkPitaId[$value4->product->id] = $value4->pita[1]->id;
+                                                    } else {
+                                                        $qty = $value4->qty;
+                                                    }
+                                                    foreach ($datas->loadPage->$jenis_produksi->productPita as $kpita => $vpita) {
+                                                        if ($vpita->is_default == 0 && $value4->pita[0]->id == $vpita->id) {
+                                                            $warnaPita = 'bg-pita-other-0';
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                } ?>
-                                <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align:center;font-size:7px;"><?= $qty ?></td>
+                                }
+                                if ($idProdukSplit != $v->id) {
+                                    $splitProduct = $rowSplit[$vmachine->id][$value->date];
+                                }
+                                ?>
+                                <td class="th_main <?= $warnaPita ?> bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align:center;font-size:7px;" <?= $splitProduct ?>>
+                                    <?= $qty ?>
+                                </td>
                             <?php } ?>
-                            <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" style="text-align:center;font-size:7px;"></td>
+                            <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" <?= $rowSplit[$vmachine->id][$value->date] ?> style="text-align:center;font-size:7px;"></td>
                         </tr>
+                        <?php if ($rowSplit[$vmachine->id][$value->date] != '') { ?>
+                            <tr>
+                                <?php foreach ($datas->loadPage->$jenis_produksi->product as $k => $v) {
+                                    $bg = '';
+                                    if (isset($produkPita[$v->id])) {
+                                        foreach ($datas->loadPage->$jenis_produksi->productPita as $kpita => $vpita) {
+                                            if ($vpita->is_default == 0 && $vpita->id == $produkPitaId[$v->id]) {
+                                                $bg = 'bg-pita-other-0';
+                                            }
+                                        }
+                                ?>
+                                        <td class="th_main <?= $bg ?>" style="text-align:center;font-size:7px;"><?= $produkPita[$v->id] ?></td>
+                                <?php }
+                                } ?>
+                            </tr>
+                        <?php } ?>
             <?php $loop++;
                     }
                 }
@@ -270,7 +313,7 @@ function tgl_indo($tanggal)
                             foreach ($datas->loadPage->$jenis_produksi->productPita as $k => $v) {
                                 if ($v->is_default == 0) { ?>
                                     <tr>
-                                        <td class="bg-pita-other-<?= $a++ ?>" style="border: 1px solid;width:10px !important;"></td>
+                                        <td class="bg-pita-other-<?= $a++ ?>" style="border: 1px solid;width:10px !important;"> </td>
                                         <td><?= $v->name; ?></td>
                                     </tr>
                             <?php }
