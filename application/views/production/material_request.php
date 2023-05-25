@@ -261,13 +261,21 @@
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
-                    <div class="col-auto mt-4">
-                        <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-industry"></i></div>
-                            Material Request
-                        </h1>
+                    <div class="col mt-4">
+                        <div class="row">
+                            <div class="col-2 align-self-center">
+                                <!-- <div class="page-header-icon"><i class="fa fa-industry"></i></div> -->
+                                <img class="w-100" src="<?= base_url() ?>assets/image/svg/forklift.svg" alt="Icon" />
+                            </div>
+                            <div class="col-auto">
+                                <h1 class="page-header-title text-grey">
+                                    Material Request
+                                </h1>
+                                <p class="m-0 small text-white">Permintaan NTM dari Gudang Warehouse</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-auto mt-4">
+                    <div class="col mt-4">
                         <div class="float-end">
                             <div class="row">
                                 <div class="col-auto">
@@ -278,8 +286,8 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-auto">
-                                    <?php if (job_foreman()) { ?>
+                                <?php if (job_foreman()) { ?>
+                                    <div class="col-auto">
                                         <div class="btn-group">
                                             <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span class="ms-2 d-none d-sm-block">Add New</span>
@@ -288,8 +296,8 @@
                                                 <li><a class="dropdown-item" href="#" onclick="openNewMaterialRequest()">Create Material Request</a></li>
                                             </ul>
                                         </div>
-                                    <?php } ?>
-                                </div>
+                                    </div>
+                                <?php } ?>
                             </div>
                         </div>
                     </div>
@@ -521,17 +529,17 @@
         formMaterialRequest()
     }
 
-    var data_isi_material_filtered = []
+    var data_material_filtered = []
 
     function formMaterialRequest(jenis = "") {
-        data_isi_material_filtered = []
+        data_material_filtered = []
         var data = data_material
         if (jenis == 'skt' || jenis == 'skm') {
             data = data_material.filter((values, keys) => {
                 if (values.production_type['name'].toLowerCase() === jenis.toLowerCase()) return true
             })
         }
-        data_isi_material_filtered = data
+        data_material_filtered = data
         groupingDataMaterial(data)
     }
 
@@ -576,9 +584,9 @@
 
     function statusLine(status) {
         if (status == 'all') {
-            var data = data_isi_material_filtered
+            var data = data_material_filtered
         } else {
-            var data = data_isi_material_filtered.filter((v, k) => {
+            var data = data_material_filtered.filter((v, k) => {
                 if (v.status == status) return true
             })
         }
@@ -625,9 +633,10 @@
             html += '<div class="col p-3 ' + bgReceived + '">'
             html += '<div class="row">'
             html += '<div class="col">'
-            html += '<p class="text-dark-grey m-0" style="font-size: 10px;">Created At <span class="text_search" data-id="' + keys + '">' + formatDateIndonesia(values.date) + '</span></p>'
+            html += '<p class="text-dark-grey m-0" style="font-size: 10px;"><span class="text_search" data-id="' + keys + '">' + formatDateIndonesia(values.date) + '</span><span class="ms-2 me-2">|</span><span>' + values.created_employee.name + '</span></p>'
             html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b class="text_search" data-id="' + keys + '">' + values.code + '</b><span class="ms-3">' + logo + '</span></h4>'
-            // html += '<p class="m-0" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> ' + data_isi_material[index].detail.length + ' Items</p>'
+            // var namaItem = wordLimit(data_isi_material[index].detail)
+            html += '<p class="m-0" style="font-size: 9px;">' + wordLimit(data_isi_material[index].detail) + '</p>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
@@ -692,6 +701,26 @@
         if (data.length <= 0) {
             notFound('#tampilDetailPembayaran')
         }
+    }
+
+    function wordLimit(dataArray) {
+        const data = []
+        dataArray.forEach(e => {
+            data.push(e.material_name)
+        });
+
+        const wordLimit = 20;
+        let concatenatedString = data.join(', ');
+
+        // Menghitung jumlah kata dalam string
+        const wordCount = concatenatedString.split(' ').length;
+
+        // Membatasi jumlah kata jika melebihi batas
+        if (wordCount > wordLimit) {
+            const words = concatenatedString.split(' ').slice(0, wordLimit);
+            concatenatedString = words.join(' ') + '...';
+        }
+        return concatenatedString;
     }
 
     var imgBase64Data
