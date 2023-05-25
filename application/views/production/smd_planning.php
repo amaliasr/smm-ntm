@@ -112,6 +112,16 @@
                 #1C315E 0%,
                 rgba(34, 124, 112, 0.8) 100%) !important;
     }
+
+    .custom-select {
+        background-color: transparent;
+        color: white;
+        border-radius: 50px;
+        border: 1px solid white;
+        padding: 2px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 </style>
 <!-- loading CSS -->
 <style type="text/css">
@@ -235,13 +245,24 @@
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
-                    <div class="col-auto mt-4">
-                        <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-industry"></i></div>
-                            SMD Planning
-                        </h1>
+                    <div class="col mt-4">
+                        <div class="row">
+                            <div class="col-2 align-self-center">
+                                <!-- <div class="page-header-icon"><i class="fa fa-industry"></i></div> -->
+                                <img class="w-100" src="<?= base_url() ?>assets/image/svg/factory.svg" alt="Icon" />
+                            </div>
+                            <div class="col-auto">
+                                <select class="custom-select mb-2">
+                                    <option value="option1">Production</option>
+                                </select>
+                                <h1 class="page-header-title text-grey">
+                                    Production Planning
+                                </h1>
+                                <p class="m-0 small text-white">Perencanaan Produksi Mingguan</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-auto mt-4">
+                    <div class="col mt-4">
                         <div class="float-end">
                             <div class="row">
                                 <div class="col-auto">
@@ -281,12 +302,9 @@
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col">
-                                        <span class="small"><b>List</b></span>
+                                    <div class="col-auto align-self-center" id="statusLine">
                                     </div>
-                                    <div class="col">
-
-
+                                    <div class="col-auto">
                                         <div class="float-end">
                                             <button type="button" class="btn btn-primary btn-sm me-2" onclick="getData()"><span class="fa fa-refresh me-2"></span> Refresh</button>
                                             <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -534,7 +552,7 @@
             html += '<div class="col p-3">'
             html += '<div class="row">'
             html += '<div class="col">'
-            html += '<p class="text-grey mb-2" style="font-size: 10px;">Created At <span>' + formatDate(values['created_at']) + '</span></p>'
+            html += '<p class="text-grey m-0" style="font-size: 10px;">Created At <span>' + formatDateIndonesia(formatDate(values['created_at'])) + '</span></p>'
             html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">#' + values['code'] + '</p>'
             html += '<h6 class="m-0 text_search" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')" data-id="' + keys + '"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
             if (values.note == '') {

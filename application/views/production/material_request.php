@@ -573,8 +573,18 @@
         html += 'Semua <span class="statusLineIcon ms-1 p-1 rounded bg-light-maroon text-white" id="statusLineIconall">' + dataArray.length + '</span>'
         html += '</div>'
         for (const v in groupedMaterialRequest) {
+            var text = ''
+            if (v == 'REQUESTED') {
+                text = 'Verifikasi SPV'
+            } else if (v == 'APPROVED') {
+                text = 'Proses Logistik'
+            } else if (v == 'PROCESSED') {
+                text = 'Penerimaan'
+            } else {
+                text = 'Selesai'
+            }
             html += '<div class="col-auto statusLine text-small pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + v + "'" + ')" id="colStatusLine' + v + '">'
-            html += toTitleCase(v) + ' <span class="statusLineIcon ms-1 p-1 rounded bg-light text-grey" id="statusLineIcon' + v + '">' + groupedMaterialRequest[v].count + '</span>'
+            html += text + ' <span class="statusLineIcon ms-1 p-1 rounded bg-light text-grey" id="statusLineIcon' + v + '">' + groupedMaterialRequest[v].count + '</span>'
             html += '</div>'
         }
         $('#statusLine').html(html)
@@ -671,7 +681,13 @@
             html += '</div>'
             html += '</div>'
             html += '<div class="col-auto text-center align-self-center">'
-            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '<button class="btn btn-sm float-end position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i>'
+            if (job_foreman) {
+                if (values.status == 'PROCESSED') {
+                    html += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">Terima<br>Item</span>'
+                }
+            }
+            html += '</button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             if (job_foreman) {
                 if (values['is_process'] == null) {
@@ -684,8 +700,11 @@
                 if (values['is_approve'] != 1) {
                     html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Approval ke SPV SMD</a>'
                 }
+                if (values.status == 'APPROVED') {
+                    html += '<a class="dropdown-item" onclick="beforeShareWhatsappLogistik(' + values.id + ')"><i class="fa fa-share-alt me-2"></i> Bagikan ke Logistik</a>'
+                }
                 if (values['is_process'] == 1 && values['is_receive'] == null) {
-                    html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material</a>'
+                    html += '<a class="dropdown-item" onclick="linkToReceive(' + values.id + ')"><i class="fa fa-check-square-o me-2"></i> Receive Material <span class="ms-2 fa fa-circle text-danger"></span></a>'
                 }
             }
             html += '<a class="dropdown-item" onclick="cetakMaterialRequest(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
@@ -808,6 +827,30 @@
         })
     }
 
+    function beforeShareWhatsappLogistik(id) {
+        let obj = data_material.find((value, key) => {
+            if (value.id === id) return true
+        });
+        var no_telp = []
+        var nama = []
+        data_notif.logistik.forEach(e => {
+            nama.push(e.full_name)
+            no_telp.push(e.phone)
+        })
+        Swal.fire({
+            text: 'Proses Material ' + obj.code + ' akan langsung masuk ke Whatsapp Logistik, apakah anda ingin melanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsappLogistik(obj, no_telp, nama)
+            }
+        })
+    }
+
     function shareWhatsapp(data, no_telp, nama) {
         $.ajax({
             url: "<?= base_url('api/sendApprovalToSMD') ?>",
@@ -820,6 +863,41 @@
                 nama_pembuat: data.created_employee.name,
                 kode: data.code,
                 tanggal: data.date,
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                preloaderTimeout = setTimeout(loading('message.gif', 'Mengirim Approval kepada yang Bersangkutan'), 500)
+            },
+            success: function(response) {
+                $('#modal2').modal('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {});
+            }
+        })
+    }
+
+    function shareWhatsappLogistik(data, no_telp, nama) {
+        $.ajax({
+            url: "<?= base_url('api/sendMaterialToLogistik') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: no_telp,
+                link: '<?= base_url() ?>production/managementMaterialRequest/' + data.id,
+                nama: nama,
+                kode: data.code,
+                tanggal: data.date,
+                type_name: data.production_type.name
             },
             error: function(xhr) {
                 Swal.fire({
