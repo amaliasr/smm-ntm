@@ -736,7 +736,7 @@
                             let objColor = coloriPita.find((v, k) => {
                                 if (v.id == e.pita[1].id) return true
                             })
-                            console.log(objColor.classes)
+                            // console.log(objColor.classes)
                             html += '<td class="' + objColor.classes + '" style="font-size:9px;font-weight:bold;text-align:right;" >' + obj_qty + '</td>'
                         })
                         html += '</tr>'

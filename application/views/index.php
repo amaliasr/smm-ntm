@@ -61,14 +61,42 @@
     <div class="container-xl px-4 mt-n10">
         <div class="row p-5">
             <div class="col-12 col-md-8">
-                <div class="card shadow-sm mb-4">
+                <div class="card shadow-sm mb-4 h-100">
                     <div class="card-body">
-                        <b class="small">Quick Menu <i class="ms-2 fa fa-flash text-warning"></i></b>
+                        <div class="row">
+                            <div class="col">
+                                <b class="small">Quick Menu <i class="ms-2 fa fa-flash text-warning"></i></b>
+                            </div>
+                            <div class="col">
+                            </div>
+                            <div class="col-12 pt-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <b>
+                                            <h3>Hai Para Pekerja Hebat!</h3>
+                                        </b>
+                                        <p class="small mt-3">Anda telah bekerja keras sepanjang hari, dan sekarang saatnya untuk memberikan diri Anda dengan beristirahat sejenak. Lihatlah kami membuat insight selama anda membuka aplikasi ini. Fitur baru ini akan mulai melihat aktivitas anda pada tanggal <b>24 Mei 2023</b>.</p>
+                                    </div>
+                                    <div class="col align-self-center">
+                                        <div class="row">
+                                            <div class="col-6 text-center border-end">
+                                                <b id="totalPageVisited">0</b>
+                                                <p class="m-0 small">Page Visited</p>
+                                            </div>
+                                            <div class="col-6 text-center">
+                                                <b id="totalMostVisited">-</b>
+                                                <p class="m-0 small">Most Visited</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-4">
-                <div class="card shadow-sm mb-4">
+                <div class="card shadow-sm mb-4 h-100">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
@@ -85,7 +113,7 @@
                 </div>
             </div>
             <div class="col-12 col-md-12">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm mt-4">
                     <div class="card-body">
                         <b class="small">Soon</b>
                     </div>
@@ -99,6 +127,7 @@
 </main>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
+    var akun = '<?= $this->session->userdata('username') ?>'
     var TxtType = function(el, toRotate, period) {
         this.toRotate = toRotate;
         this.el = el;
@@ -180,7 +209,26 @@
         var textarea = document.getElementById("myTextarea");
         textarea.focus();
         $('#myTextarea').val(getCookie('myTextarea'))
+        initialPageVisited()
     });
+
+    function initialPageVisited() {
+        var data = JSON.parse(getCookie('arrayVisited'))
+        var dataFiltered = data.filter((v, k) => {
+            if (v.akun == akun) return true
+        })
+        // Mencari nilai terbesar
+        var maxValue = dataFiltered.reduce(function(prev, current) {
+            return (prev.count > current.count) ? prev : current;
+        })
+        var sum = dataFiltered.reduce(function(acc, current) {
+            return acc + current.count;
+        }, 0);
+
+        $('#totalMostVisited').html(maxValue.name)
+        $('#totalPageVisited').html(sum)
+    }
+
 
     $(document).on('keyup', '#myTextarea', function(e) {
         var text = $('#myTextarea').val()

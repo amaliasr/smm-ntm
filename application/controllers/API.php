@@ -257,4 +257,23 @@ Teruntuk Bpk/Ibu *" . $nama[$i] . "* , Material Request *" . $kode . "* telah di
         curl_close($ch);
         echo $result;
     }
+    public function settingCookie($title)
+    {
+        if (isset($_COOKIE['page_visit'])) {
+            $jsonData = $_COOKIE['page_visit'];
+            $array = json_decode($jsonData, true);
+            if (isset($array[$title])) {
+                // jika ada
+                $array[$title] = $array[$title] + 1;
+            } else {
+                $array[$title] = 1;
+            }
+            $jsonData2 = json_encode($array);
+            setcookie('page_visit', $jsonData2, time() + 3600 * 24 * 365); // Perbarui nilai cookie
+        } else {
+            $array[$title] = 1;
+            $jsonData = json_encode($array);
+            setcookie('page_visit', $jsonData, time() + 3600 * 24 * 365); // Buat cookie baru
+        }
+    }
 }

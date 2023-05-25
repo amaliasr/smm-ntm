@@ -2307,6 +2307,9 @@
                 'is_active': 1,
                 'note': data_skm.notes,
             }
+            if (id_plan != '') {
+                data_skm['productionPlan']['id'] = id_plan
+            }
             var dataShift = []
             var date = $('.cardDate').map(function() {
                 return $(this).data('date');
@@ -2354,6 +2357,9 @@
                 'is_active': 1,
                 'note': data_skt.notes,
             }
+            if (id_plan != '') {
+                data_skt['productionPlan']['id'] = id_plan
+            }
             data_skt['productionPlanGoal'].forEach(function(v) {
                 delete v.kode
                 delete v.num_stick
@@ -2375,8 +2381,8 @@
             }
         }
         if (lanjutSave == 'ya' && anyBlankShift == 0) {
-            // console.log(save)
-            doSimpan(save)
+            console.log(save)
+            // doSimpan(save)
         } else {
             Swal.fire({
                 icon: 'error',

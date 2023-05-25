@@ -1,3 +1,16 @@
+<?php
+// Periksa apakah cookie kunjungan ada
+if (isset($_COOKIE['visiting'])) {
+    $visits = $_COOKIE['visiting'] + 1;
+    setcookie('visiting', $visits, time() + 3600 * 24 * 365); // Perbarui nilai cookie
+} else {
+    $visits = 1;
+    setcookie('visiting', $visits, time() + 3600 * 24 * 365); // Buat cookie baru
+}
+
+
+
+?>
 <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
     <!-- Sidenav Toggle Button-->
     <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle" onclick="toggleNavbarState()"><i data-feather="menu"></i></button>
@@ -5,7 +18,7 @@
     <!-- * * Tip * * You can use text or an image for your navbar brand.-->
     <!-- * * * * * * When using an image, we recommend the SVG format.-->
     <!-- * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px-->
-    <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="index.html">PT. SINAR MAHKOTA MAS</a>
+    <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="index.html">PT. SINAR MAHKOTA MAS <?= $title; ?></a>
     <!-- Navbar Items-->
     <ul class="navbar-nav align-items-center ms-auto">
         <!-- User Dropdown-->
@@ -15,8 +28,8 @@
                 <h6 class="dropdown-header d-flex align-items-center">
                     <img class="dropdown-user-img" src="<?= base_url('assets/img/illustrations/profiles/profile-2.png') ?>" />
                     <div class="dropdown-user-details">
-                        <div class="dropdown-user-details-name" id="name"></div>
-                        <!-- <div class="dropdown-user-details-email"><a href="#!">adam@pt-bks.com</a></div> -->
+                        <div class="dropdown-user-details-name" id="name"><?= $this->session->userdata('full_name') ?></div>
+                        <div class="dropdown-user-details-email"><?= $this->session->userdata('username') ?></div>
                     </div>
                 </h6>
                 <div class="dropdown-divider"></div>
@@ -32,12 +45,79 @@
         </li>
     </ul>
 </nav>
+
 <script>
+    var akun = '<?= $this->session->userdata('username') ?>'
     $(document).ready(function() {
-        $('#name').html(sessionStorage.getItem('full_name'))
+        // $('#name').html(sessionStorage.getItem('full_name'))
+        cookieTitle()
     })
     $(document).on('click', "#logout", function() {
         var url = '<?= base_url('Auth/logout') ?>'
         window.location.href = url
     })
+
+    function cookieTitle() {
+        var titles = '<?= $title ?>'
+        var text = titles
+        var regex = /<title>(.*?)\s\|/;
+        var match = regex.exec(text);
+        var dashboard = match[1];
+        // inisialisasi array
+        if (getCookie('arrayVisited') != 'undefined' && getCookie('arrayVisited') != null) {
+            // jika cookie ada isinya
+            var dataJson = JSON.parse(getCookie('arrayVisited'))
+            var dataFiltered = dataJson.find((v, k) => {
+                if (v.name == dashboard && v.akun == akun) return true
+            })
+            if (dataFiltered == undefined) {
+                // jika tidak ada (create)
+                dataJson.push({
+                    'akun': akun,
+                    'name': dashboard,
+                    'count': 1,
+                    'link': window.location.href
+                })
+            } else {
+                // jika ada (update)
+                var index = dataJson.findIndex(function(obj) {
+                    return obj.name == dashboard && obj.akun == akun;
+                });
+                dataJson[index].count = dataJson[index].count + 1
+            }
+            setCookie('arrayVisited', JSON.stringify(dataJson))
+        } else {
+            // jika cookie kosongan
+            var data = []
+            data.push({
+                'akun': akun,
+                'name': dashboard,
+                'count': 1,
+                'link': window.location.href
+            })
+            var dataJson = JSON.stringify(data)
+            setCookie('arrayVisited', dataJson)
+        }
+        // console.log(JSON.parse(getCookie('arrayVisited')))
+    }
+    // Menyimpan data ke dalam cookie dengan masa berlaku yang panjang
+    function setCookie(name, value) {
+        var expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 10); // Masa berlaku 10 tahun
+
+        var cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expirationDate.toUTCString() + "; path=/";
+        document.cookie = cookie;
+    }
+
+    // Mengambil nilai dari cookie
+    function getCookie(name) {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.indexOf(name + "=") === 0) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return null;
+    }
 </script>

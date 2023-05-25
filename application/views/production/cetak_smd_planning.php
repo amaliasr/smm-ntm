@@ -232,7 +232,7 @@ function tgl_indo($tanggal)
                         }
                         $produkPita = [];
                         $produkPitaId = [];
-                        // $dataSplit = [];
+                        $totalMachine = 0;
             ?>
                         <tr>
                             <?php if ($loop == 0) { ?>
@@ -262,9 +262,12 @@ function tgl_indo($tanggal)
                                                     } else {
                                                         $qty = $value4->qty;
                                                     }
-                                                    foreach ($datas->loadPage->$jenis_produksi->productPita as $kpita => $vpita) {
-                                                        if ($vpita->is_default == 0 && $value4->pita[0]->id == $vpita->id) {
-                                                            $warnaPita = 'bg-pita-other-0';
+                                                    $totalMachine += $value4->qty;
+                                                    if ($jenis_produksi == 'skt') {
+                                                        foreach ($datas->loadPage->$jenis_produksi->productPita as $kpita => $vpita) {
+                                                            if ($vpita->is_default == 0 && $value4->pita[0]->id == $vpita->id) {
+                                                                $warnaPita = 'bg-pita-other-0';
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -280,7 +283,7 @@ function tgl_indo($tanggal)
                                     <?= $qty ?>
                                 </td>
                             <?php } ?>
-                            <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" <?= $rowSplit[$vmachine->id][$value->date] ?> style="text-align:center;font-size:7px;"></td>
+                            <td class="th_main bg-<?= $jenis_produksi ?>-<?= $color_skm ?>" <?= $rowSplit[$vmachine->id][$value->date] ?> style="text-align:center;font-size:7px;"><?= $totalMachine ?></td>
                         </tr>
                         <?php if ($rowSplit[$vmachine->id][$value->date] != '') { ?>
                             <tr>
