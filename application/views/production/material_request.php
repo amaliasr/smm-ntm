@@ -238,6 +238,23 @@
         font-size: 11px;
     }
 </style>
+<style>
+    .bg-sage {
+        background-color: #E5F9DB;
+    }
+
+    .text-small {
+        font-size: 10px;
+    }
+
+    .filter-border {
+        border-bottom: 2px solid #7E1717;
+    }
+
+    .bg-light-maroon {
+        background-color: #cba2a2;
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark bg-gradient-material_request pb-10">
@@ -289,9 +306,8 @@
                     <div class="col-12 mb-4">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <span class="small"><b>List</b></span>
+                                <div class="row align-self-center">
+                                    <div class="col-auto align-self-center" id="statusLine">
                                     </div>
                                     <div class="col">
                                         <div class="float-end">
@@ -416,6 +432,7 @@
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var data_user = ""
     var data_material = ""
+    var groupedMaterialRequest = {}
 
     $(document).ready(function() {
         $('#layoutSidenav_content').addClass('bg-white')
@@ -504,14 +521,89 @@
         formMaterialRequest()
     }
 
+    var data_isi_material_filtered = []
+
     function formMaterialRequest(jenis = "") {
-        var html = ''
+        data_isi_material_filtered = []
         var data = data_material
         if (jenis == 'skt' || jenis == 'skm') {
             data = data_material.filter((values, keys) => {
                 if (values.production_type['name'].toLowerCase() === jenis.toLowerCase()) return true
             })
         }
+        data_isi_material_filtered = data
+        groupingDataMaterial(data)
+    }
+
+    function groupingDataMaterial(dataArray) {
+        // Contoh array objek
+        const data = dataArray
+
+        // Objek untuk menyimpan hasil grouping
+        groupedMaterialRequest = {};
+
+        // Melakukan iterasi pada array data
+        data.forEach(item => {
+            const {
+                status
+            } = item;
+
+            // Mengecek apakah grup sudah ada dalam objek groupedMaterialRequest
+            if (groupedMaterialRequest[status]) {
+                groupedMaterialRequest[status].count += 1; // Menambah jumlah data dalam grup
+                groupedMaterialRequest[status].data.push(item); // Menambahkan item ke grup
+            } else {
+                groupedMaterialRequest[status] = {
+                    count: 1,
+                    data: [item]
+                };
+            }
+        });
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-auto statusLine text-small pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine(' + "'all'" + ')" id="colStatusLineall">'
+        html += 'Semua <span class="statusLineIcon ms-1 p-1 rounded bg-light-maroon text-white" id="statusLineIconall">' + dataArray.length + '</span>'
+        html += '</div>'
+        for (const v in groupedMaterialRequest) {
+            html += '<div class="col-auto statusLine text-small pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + v + "'" + ')" id="colStatusLine' + v + '">'
+            html += toTitleCase(v) + ' <span class="statusLineIcon ms-1 p-1 rounded bg-light text-grey" id="statusLineIcon' + v + '">' + groupedMaterialRequest[v].count + '</span>'
+            html += '</div>'
+        }
+        $('#statusLine').html(html)
+        html += '<div>'
+        manageFormMaterial(dataArray)
+    }
+
+    function statusLine(status) {
+        if (status == 'all') {
+            var data = data_isi_material_filtered
+        } else {
+            var data = data_isi_material_filtered.filter((v, k) => {
+                if (v.status == status) return true
+            })
+        }
+        coloringStatusLine(status)
+        manageFormMaterial(data)
+    }
+
+    function coloringStatusLine(status) {
+        // DEFAULT COLOR
+        $('.statusLine').each(function() {
+            if ($(this).hasClass('fw-bold') && $(this).hasClass('filter-border')) {
+                $(this).removeClass('fw-bold filter-border').addClass('text-grey');
+            }
+        });
+        $('.statusLineIcon').each(function() {
+            if ($(this).hasClass('bg-light-maroon') && $(this).hasClass('text-white')) {
+                $(this).removeClass('bg-light-maroon text-white').addClass('bg-light text-grey');
+            }
+        });
+        $('#colStatusLine' + status).removeClass('text-grey').addClass('fw-bold filter-border')
+        $('#statusLineIcon' + status).removeClass('bg-light text-grey').addClass('bg-light-maroon text-white')
+    }
+
+    function manageFormMaterial(data) {
+        var html = ''
         $.each(data, function(keys, values) {
             var index = data_isi_material.findIndex(x => x.id === values.id);
             html += '<div class="card card-hoper shadow-none mb-2" id="card_search' + keys + '">'
@@ -524,11 +616,17 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col p-3">'
+            var logo = ''
+            var bgReceived = ''
+            if (values['is_receive'] == 1) {
+                logo = '<i class="fa fa-check-circle text-success fa-1x"></i>'
+                bgReceived = 'bg-sage'
+            }
+            html += '<div class="col p-3 ' + bgReceived + '">'
             html += '<div class="row">'
             html += '<div class="col">'
             html += '<p class="text-dark-grey m-0" style="font-size: 10px;">Created At <span class="text_search" data-id="' + keys + '">' + formatDateIndonesia(values.date) + '</span></p>'
-            html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b class="text_search" data-id="' + keys + '">' + values.code + '</b></h4>'
+            html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b class="text_search" data-id="' + keys + '">' + values.code + '</b><span class="ms-3">' + logo + '</span></h4>'
             // html += '<p class="m-0" style="font-size: 14px;"><i class="fa fa-archive me-2"></i> ' + data_isi_material[index].detail.length + ' Items</p>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
