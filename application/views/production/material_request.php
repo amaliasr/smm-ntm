@@ -587,8 +587,8 @@
             html += text + ' <span class="statusLineIcon ms-1 p-1 rounded bg-light text-grey" id="statusLineIcon' + v + '">' + groupedMaterialRequest[v].count + '</span>'
             html += '</div>'
         }
+        html += '</div>'
         $('#statusLine').html(html)
-        html += '<div>'
         manageFormMaterial(dataArray)
     }
 
