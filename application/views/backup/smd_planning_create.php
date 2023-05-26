@@ -2542,7 +2542,6 @@
                 changeTogglePopover(value, mesin, produk, date)
             }
         }
-
     }
 
     function changeTogglePopover(value, mesin, produk, date, status) {
@@ -2573,10 +2572,37 @@
         contents += '</div>'
         $('#popover_content').html(contents)
         $('.nominal').number(true);
+        var titles = ''
+        titles += '<div class="row">'
+        titles += '<div class="col">'
+        titles += '<b>Split Rencana Produksi</b>'
+        titles += '</div>'
+        titles += '<div class="col">'
+        titles += 'X'
+        titles += '</div>'
+        titles += '</div>'
         var options = {
             placement: 'bottom',
-            title: "Split Rencana Produksi",
-            trigger: 'click',
+            // title: function() {
+            //     const popoverTitle = document.createElement('div');
+            //     popoverTitle.classList.add('d-flex', 'justify-content-between');
+
+            //     const titleText = document.createElement('span');
+            //     titleText.textContent = 'Split Rencana Produksi';
+
+            //     const closeButton = document.createElement('button');
+            //     closeButton.classList.add('btn', 'btn-secondary', 'btn-sm');
+            //     closeButton.innerHTML = '<span>&times;</span>';
+            //     closeButton.addEventListener('click', function() {
+            //         myPopover.hide();
+            //     });
+
+            //     popoverTitle.appendChild(titleText);
+            //     popoverTitle.appendChild(closeButton);
+
+            //     return popoverTitle;
+            // },
+            trigger: 'focus',
             html: true,
             content: $('[data-name="popover-content"]')
         }
@@ -2585,13 +2611,13 @@
     }
 
     function openDefaultPopover(value, mesin, produk, date, status) {
-        var content = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formPopover')
-        var options = {
-            html: true,
-            trigger: 'hover',
-            content: content
-        }
-        $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeAttr('tabindex', '-1')
+        // var content = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formPopover')
+        // var options = {
+        //     html: true,
+        //     trigger: 'hover',
+        //     content: content
+        // }
+        // $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeAttr('tabindex', '-1')
         sendTojumlahPlanning(mesin, produk, date, options)
     }
 

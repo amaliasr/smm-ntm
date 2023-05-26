@@ -374,6 +374,13 @@
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
     }
 </style>
+<style>
+    .custom-popover-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark bg-gradient-production-skt pb-10">
@@ -1095,7 +1102,7 @@
                                 if (v.machine_group_plan_id == values.id) return true
                             })
                             var form = ''
-                            form += '<input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['item_unit_id_plan'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '" data-formpopover="' + formPopover + '" data-machine_group_plan_id="' + values.id + '">'
+                            form += '<input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:9px;font-weight:bold;text-align:right;background-color:transparent" data-produk="' + values2['id'] + '" data-mesin="' + values['id'] + '" data-unit="' + values['item_unit_id_plan'] + '" data-tanggal="' + formatDate(dates) + '" id="jumlahPlanning' + values2['id'] + values['id'] + formatDate(dates) + '" value="' + obj + '" data-formpopover="' + formPopover + '" data-machine_group_plan_id="' + values.id + '" autocomplete="off">'
                             var bgForm = ''
                             if (jenis_produksi == 'skt') {
                                 var data_pita = data_master[jenis_produksi].productPita.filter((v, k) => {
@@ -2514,6 +2521,7 @@
     }
 
     function addPitaCukai(date) {
+        closeAllPopover()
         var data = detailPitaCukai.find((v, k) => {
             if (formatDate(date) == formatDate(v.date)) return true
         }).detail
@@ -2632,17 +2640,19 @@
     }
 
     function changeTogglePopover(value, mesin, produk, date, status) {
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).val('')
         $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeClass('split')
         $('#jumlahPlanning' + produk + mesin + formatDate(date)).addClass(status)
+        var id = "jumlahPlanning" + produk + mesin + formatDate(date)
         if (status == 'split') {
-            openFormPopover(value, mesin, produk, date, status)
+            openFormPopover(value, mesin, produk, date, status, id)
         } else {
-            openDefaultPopover(value, mesin, produk, date, status)
+            openDefaultPopover(value, mesin, produk, date, status, id)
         }
     }
 
-    function openFormPopover(value, mesin, produk, date, status) {
-        // console.log(value, mesin, produk, date, status)
+    function openFormPopover(value, mesin, produk, date, status, id) {
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).attr('readonly', true)
         var contents = ""
         contents += '<div class="row">'
         for (let i = 0; i < value.length; i++) {
@@ -2662,35 +2672,54 @@
         $('.nominal').number(true);
         var options = {
             placement: 'bottom',
-            title: "Split Rencana Produksi",
+            // title: "Split Rencana Produksi",
+            title: function() {
+                const popoverTitle = document.createElement('div');
+                popoverTitle.classList.add('custom-popover-title');
+
+                const titleText = document.createElement('span');
+                titleText.textContent = 'Split Rencana Produksi';
+
+                const closeButton = document.createElement('button');
+                closeButton.classList.add('btn-close');
+                closeButton.setAttribute('aria-label', 'Close');
+                closeButton.addEventListener('click', function() {
+                    myPopover[id].hide();
+                });
+
+                popoverTitle.appendChild(titleText);
+                popoverTitle.appendChild(closeButton);
+
+                return popoverTitle;
+            },
             trigger: 'click',
             html: true,
             content: $('#popover_content')
         }
         $('#hidden_content').html('<div data-name="popover-content" id="popover_content"></div>')
         $('#jumlahPlanning' + produk + mesin + formatDate(date)).attr('tabindex', '-1')
-        sendTojumlahPlanning(mesin, produk, date, options)
+        sendTojumlahPlanning(mesin, produk, date, options, id)
     }
 
-    function openDefaultPopover(value, mesin, produk, date, status) {
-        var contents = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formpopover')
+    function openDefaultPopover(value, mesin, produk, date, status, id) {
+        $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeAttr('readonly', true)
+        // var contents = $('#jumlahPlanning' + produk + mesin + formatDate(date)).data('formpopover')
         var options = {
             html: true,
-            trigger: 'hover',
-            content: contents
+            content: ''
         }
         $('#jumlahPlanning' + produk + mesin + formatDate(date)).removeAttr('tabindex', '-1')
-        sendTojumlahPlanning(mesin, produk, date, options)
+        sendTojumlahPlanning(mesin, produk, date, options, id)
     }
 
-    function sendTojumlahPlanning(mesin, produk, date, options) {
-        var id = "jumlahPlanning" + produk + mesin + formatDate(date)
+    function sendTojumlahPlanning(mesin, produk, date, options, id) {
         togglePopover(id, options)
     }
+    var myPopover = []
 
     function togglePopover(id, options) {
         var exampleEl = document.getElementById(id)
-        var popover = new bootstrap.Popover(exampleEl, options)
+        myPopover[id] = new bootstrap.Popover(exampleEl, options)
     }
 
     $(document).on('click', '.jumlahPlanning', function(e) {
@@ -2766,5 +2795,15 @@
             })
         }
         simpanProdukTarget()
+    }
+
+    function closeAllPopover() {
+        const popovers = Array.from(document.querySelectorAll('.jumlahPlanning'));
+        popovers.forEach((popover) => {
+            const popoverInstance = bootstrap.Popover.getInstance(popover);
+            if (popoverInstance) {
+                popoverInstance.hide();
+            }
+        });
     }
 </script>
