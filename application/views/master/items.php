@@ -87,6 +87,7 @@
                                                 <th style="width: 5%;">#</th>
                                                 <th>Kode</th>
                                                 <th>Nama</th>
+                                                <th>Alias</th>
                                                 <th>Satuan</th>
                                                 <th>Konversi</th>
                                                 <th>Tipe</th>
@@ -128,6 +129,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
+    var dataListIdSatuan = [{
+            'nama_id': 'Pembelian',
+            'variable_id': 'satuanPembelian',
+            'db_id': 'unit_id_purchase'
+        },
+        {
+            'nama_id': 'Gudang',
+            'variable_id': 'satuanGudang',
+            'db_id': 'unit_id_warehouse'
+        },
+        {
+            'nama_id': 'Request',
+            'variable_id': 'satuanRequest',
+            'db_id': 'unit_id_machine_request'
+        },
+        {
+            'nama_id': 'Retur Gudang',
+            'variable_id': 'satuanReturGudang',
+            'db_id': 'unit_id_warehouse_return'
+        },
+    ]
+
     function toTitleCase(str) {
         var lcStr = str.toLowerCase();
         return lcStr.replace(/(?:^|\s)\w/g, function(match) {
@@ -195,6 +218,7 @@
     }
     var data_global
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var data_satuan_selected = []
 
     $(document).ready(function() {
         getData()
@@ -234,6 +258,9 @@
                             'data': 'nama'
                         },
                         {
+                            'data': 'alias'
+                        },
+                        {
                             'data': 'satuan'
                         },
                         {
@@ -257,6 +284,9 @@
                         if (values['type_name'] == null) {
                             values['type_name'] = ""
                         }
+                        if (values['item_alias'] == null) {
+                            values['item_alias'] = ''
+                        }
                         var price = ""
                         if (values['item_price'] != null) {
                             $.each(JSON.parse(values['item_price']), function(keys2, values2) {
@@ -275,6 +305,7 @@
                             'id': keys + 1,
                             'kode': values['code'],
                             'nama': values['item_name'],
+                            'alias': values['item_alias'],
                             'satuan': values['satuan_name'],
                             'konversi': satuan,
                             'tipe': values['type_name'],
@@ -303,8 +334,17 @@
             }
         });
     }
+    var getId = ''
 
     function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null) {
+        getId = id
+        var dataFilter = data_global.item.find((v, k) => {
+            if (v.id == id) return true
+        })
+        var alias = ''
+        if (dataFilter != undefined) {
+            alias = dataFilter.item_alias
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
         var html_header = '';
@@ -322,9 +362,12 @@
         html_body += '<div class="col-12 col-md-2">Nama</div>'
         html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="nama" class="form-control form-control-sm p-1" value="' + name + '"></div>'
 
-        html_body += '<div class="col-12 col-md-2">Satuan</div>'
+        html_body += '<div class="col-12 col-md-2">Alias</div>'
+        html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="alias" class="form-control form-control-sm p-1" value="' + alias + '"></div>'
+
+        html_body += '<div class="col-12 col-md-2">Satuan Terkecil</div>'
         html_body += '<div class="col-12 col-md-10 mb-2">'
-        html_body += '<select name="" id="satuan_tetap" class="form-select form-select-sm satuan_tetap" required="required">'
+        html_body += '<select name="" id="satuan_tetap" class="form-select form-select-sm satuan_tetap" required="required" onchange="getArraySatuan()">'
         html_body += '<option value="" selected disabled data-name=" ">Pilih Satuan Tetap</option>'
         $.each(data_global['itemSatuan'], function(keys, values) {
             var select = ""
@@ -352,6 +395,23 @@
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
+
+        // MANAJEMEN SATUAN
+        html_body += '<div class="col-12 bg-light mt-2 mb-2 p-3">'
+        html_body += '<b class="mb-2">Manajemen Satuan</b>'
+        html_body += '<div class="row mt-2">'
+
+        dataListIdSatuan.forEach(list => {
+            html_body += '<div class="col-12 col-md-2">' + list.nama_id + '</div>'
+            html_body += '<div class="col-12 col-md-10 mb-2">'
+            html_body += '<select id="' + list.variable_id + '" class="form-select form-select-sm manajemenSatuan" required="required">'
+            html_body += '</select>'
+            html_body += '</div>'
+        });
+
+        html_body += '</div>'
+        html_body += '</div>'
+        // MANAJEMEN SATUAN
 
         html_body += '<div class="col-12 col-md-2">Tipe</div>'
         html_body += '<div class="col-12 col-md-10 mb-2">'
@@ -411,6 +471,20 @@
             })
         }
     }
+    // const validateMe = () => {
+    //     $(".signupForm").validate({
+    //         // in 'rules' user have to specify all the constraints for respective fields
+    //         rules: {
+    //             dateRange: "required",
+    //             produkTarget: "required",
+    //             jumlahTarget: "required",
+    //         },
+    //         // in 'messages' user have to specify message as per rules
+    //         messages: {
+    //             dateRange: "Harap isi Date Range untuk mengisi Daily Planning",
+    //         }
+    //     });
+    // }
 
     var no_satuan = 1
 
@@ -419,7 +493,7 @@
         html_body += '<div class="row" id="rowKonversi' + no_satuan + '">'
 
         html_body += '<div class="col-4 mb-2">'
-        html_body += '<select name="" id="satuan' + no_satuan + '" class="form-select form-select-sm satuan" required="required">'
+        html_body += '<select name="" id="satuan' + no_satuan + '" class="form-select form-select-sm satuan" required="required" onchange="getArraySatuan()">'
         html_body += '<option value="" selected disabled>Pilih Satuan</option>'
         $.each(data_global['itemSatuan'], function(keys, values) {
             var select = ""
@@ -467,7 +541,131 @@
     function changeName() {
         var nama = $('#satuan_tetap').find(':selected').data('name')
         $('.namaSatuanTetap').html(nama)
+        getArraySatuan()
     }
+
+    function getArraySatuan() {
+        var satuan_tetap = $('#satuan_tetap').val()
+        var id_satuan = $('.satuan').map(function() {
+            return $(this).val();
+        }).get();
+        var hasil = id_satuan.concat(satuan_tetap);
+        getMenejemenSatuan(hasil)
+    }
+
+    var satuan_before = ''
+
+    function getMenejemenSatuan(satuan) {
+        var hasilFilter = data_global['itemSatuan'].filter(function(e) {
+            return satuan.includes(e.id);
+        });
+        var html = ""
+        html += '<option value="" selected disabled>Pilih Satuan</option>'
+        if (satuan[0] != null) {
+            $.each(hasilFilter, function(k, v) {
+                html += '<option value="' + v.id + '" class="select-option">' + v.name + '</option>'
+            })
+        }
+        $('.manajemenSatuan').html(html)
+        returnValueSelect(satuan)
+    }
+
+    function returnValueSelect(satuan) {
+        var alert = 'no'
+        if (satuan_before != '') {
+            if (data_satuan_selected.length > 0) {
+                data_satuan_selected.forEach(e => {
+                    var indexSatuanBefore = satuan_before.indexOf(e.nilai)
+                    if (satuan[indexSatuanBefore] == e.nilai) {
+                        // jika nilai nya masih sama
+                        $('#' + e.id).val(e.nilai)
+                    } else {
+                        // jika nilainya berubah
+                        $('#' + e.id).val('')
+                    }
+                    var available = cekAvailableSelectedOption(e.id, e.nilai)
+                    if (available == 'tidak') {
+                        alert = 'ya'
+                    }
+                });
+            } else {
+                if (getId != '') {
+                    var dataFilter = data_global.item.find((v, k) => {
+                        if (v.id == getId) return true
+                    })
+                    if (dataFilter != undefined) {
+                        dataListIdSatuan.forEach(e => {
+                            $('#' + e.variable_id).val(eval('dataFilter.' + e.db_id))
+                        });
+                    }
+                }
+            }
+        }
+        if (alert == 'ya') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Pilihan Satuan Berubah',
+                text: 'Nilai Satuan yang Terpilih akan ikut berubah sesuai dengan Nilai yang Berubah'
+            });
+        }
+        satuan_before = satuan
+        checkManagemenSatuan(satuan)
+    }
+
+    function cekAvailableSelectedOption(id, value) {
+        var nilaiCari = value; // Nilai yang ingin diperiksa
+        var selectElement = $('#' + id);
+        // Mencari opsi dengan nilai yang sesuai
+        var opsi = selectElement.find('option[value="' + nilaiCari + '"]');
+        if (opsi.length > 0) {
+            // Nilai ditemukan dalam elemen <select>
+            return 'ada'
+        } else {
+            // Nilai tidak ditemukan dalam elemen <select>
+            return 'tidak'
+        }
+    }
+
+    function checkManagemenSatuan(satuan) {
+        var jumlahDipilih = $('.manajemenSatuan option:selected').not(':disabled').length;
+        if (jumlahDipilih > 0) {
+            var arrayNilai = satuan; // Array nilai yang akan dicocokkan
+            // Memeriksa setiap elemen select
+            var semuaTerpilih = true;
+            $('.manajemenSatuan').each(function() {
+                var nilaiTerpilih = $(this).val(); // Nilai terpilih pada elemen select
+                // Memeriksa apakah nilai terpilih ada dalam array nilai
+                if (nilaiTerpilih != null) {
+                    if (arrayNilai.indexOf(nilaiTerpilih) == -1) {
+                        semuaTerpilih = false;
+                        return false; // Hentikan iterasi jika ada nilai yang tidak cocok
+                    }
+                }
+            });
+            // console.log(semuaTerpilih);
+        }
+    }
+
+    $(document).on('change', ".manajemenSatuan", function() {
+        var nilaiTerpilih = $(this).val(); // Nilai terpilih pada elemen select
+        var idElemen = $(this).attr('id'); // ID elemen select
+        var hasilFilter = data_satuan_selected.find(function(e) {
+            return e.id == idElemen;
+        });
+        if (hasilFilter == undefined) {
+            // tidak ada
+            data_satuan_selected.push({
+                'id': idElemen,
+                'nilai': nilaiTerpilih
+            })
+        } else {
+            // ada
+            var indeks = data_satuan_selected.findIndex(function(o) {
+                return o.id == idElemen;
+            });
+            data_satuan_selected[indeks].nilai = nilaiTerpilih
+        }
+    })
 
     function hapusData(id, name) {
         Swal.fire({
@@ -537,6 +735,11 @@
             unit: $('#unit_mesin').val(),
             active: 1,
             user: user_id,
+            alias: $('#alias').val(),
+            unitIdPurchase: $('#satuanPembelian').val(),
+            unitIdWarehouse: $('#satuanGudang').val(),
+            unitIdMachineRequest: $('#satuanRequest').val(),
+            unitIdWarehouseReturn: $('#satuanReturGudang').val(),
         }
         if ($(this).data('id') == null) {
             var url = '<?php echo api_url('MasterNtm/insertItem'); ?>'

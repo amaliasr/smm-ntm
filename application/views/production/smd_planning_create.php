@@ -2388,8 +2388,8 @@
             }
         }
         if (lanjutSave == 'ya' && anyBlankShift == 0) {
-            console.log(save)
-            // doSimpan(save)
+            // console.log(save)
+            doSimpan(save)
         } else {
             Swal.fire({
                 icon: 'error',

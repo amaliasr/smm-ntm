@@ -1498,6 +1498,40 @@
         }
         $('#unit_pr' + key).html(html_body)
     })
+
+    $(document).on('change', '.item_po', function(e) {
+        var key = $(this).data('id')
+        var id = $(this).val()
+        changeItemPO(id, key)
+    })
+
+    function changeItemPO(id_item, id, id_satuan = '') {
+        $('#unit_po' + id).empty()
+        let obj = JSON.parse(data_item.find((value, key) => {
+            if (value.id == id_item) return true
+        })['data_konversi'])
+        var satuan_tetap = data_item.find((value, key) => {
+            if (value.id == id_item) return true
+        });
+        // console.log(satuan_tetap)
+        var html_body = ""
+        html_body += '<option value="" selected disabled></option>'
+        var select = ''
+        if (id_satuan == satuan_tetap.satuan_id) {
+            select = 'selected'
+        }
+        html_body += '<option value="' + satuan_tetap['satuan_id'] + '" ' + select + '>' + satuan_tetap['satuan_name'] + '</option>'
+        if (obj != null) {
+            $.each(obj, function(keys, values) {
+                var select = ''
+                if (values.satuan_id == id_satuan) {
+                    select = 'selected'
+                }
+                html_body += '<option value="' + values['satuan_id'] + '" ' + select + '>' + values['satuan_name'] + '</option>'
+            })
+        }
+        $('#unit_po' + id).html(html_body)
+    }
     $(document).on('click', '#btnNewRowPR', function(e) {
         formRowPR(last_number, "")
         last_number++
@@ -2577,17 +2611,20 @@
         html_body += '<td>'
         html_body += '<select style="border:none" name="" id="unit_po' + i + '" class="form-control form-control-sm select2-single unit_po" data-id="' + i + '">'
         html_body += '<option value="" selected disabled></option>'
-        html_body += '<option value="addNew"><i class="fa fa-plus"></i></option>'
-        $.each(data_satuan, function(keys, values) {
-            var select = ""
-            if (data != "") {
-                if (satuan == values['id']) {
-                    select = 'selected'
-                }
-            }
-            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
-        })
         html_body += '</select>'
+        // html_body += '<select style="border:none" name="" id="unit_po' + i + '" class="form-control form-control-sm select2-single unit_po" data-id="' + i + '">'
+        // html_body += '<option value="" selected disabled></option>'
+        // html_body += '<option value="addNew"><i class="fa fa-plus"></i></option>'
+        // $.each(data_satuan, function(keys, values) {
+        //     var select = ""
+        //     if (data != "") {
+        //         if (satuan == values['id']) {
+        //             select = 'selected'
+        //         }
+        //     }
+        //     html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+        // })
+        // html_body += '</select>'
         html_body += '</td>'
 
         html_body += '<td><input style="border:none" type="text" name="" id="harga_po' + i + '" class="form-control form-control-sm nominal p-1 harga_po" value="' + harga + '" data-id="' + i + '"></td>'
@@ -2624,6 +2661,9 @@
             width: '100%',
         })
         $('.nominal').number(true, 3);
+        if (data != "") {
+            changeItemPO(data['item_id'], i, satuan)
+        }
         return true;
     }
 
