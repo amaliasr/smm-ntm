@@ -101,25 +101,14 @@
                             </div>
                             <form class="m-0 mt-3">
                                 <div class="mb-3">
-                                    <!-- <label class="small mb-1" for="inputEmailAddress">Email</label> -->
-                                    <input class="form-control" id="inputEmailAddress" type="email" placeholder="Enter email address" />
+                                    <input class="form-control" id="inputEmailAddress" type="email" tabindex="1" placeholder="Enter email address" />
                                 </div>
                                 <div class="mb-3">
-                                    <!-- <label class="small mb-1" for="inputPassword">Password</label> -->
-                                    <input class="form-control" id="inputPassword" type="password" placeholder="Enter password" />
+                                    <input class="form-control" id="inputPassword" type="password" tabindex="2" placeholder="Enter password" />
                                 </div>
-                                <!-- <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" id="rememberPasswordCheck" type="checkbox" value="" />
-                                        <label class="form-check-label" for="rememberPasswordCheck">Remember password</label>
-                                    </div>
-                                </div> -->
                                 <div class="mt-4 mb-0">
-                                    <a class="btn btn-dark float-end" style="cursor: pointer" id="btnLogin">Login</a>
+                                    <button class="btn btn-dark float-end" style="cursor: pointer" type="submit" id="btnLogin" tabindex="3">Login</button>
                                 </div>
-                                <!-- <div class="alert alert-danger" role="alert">
-                                    A simple danger alert—check it out!
-                                </div> -->
                             </form>
                         </div>
                     </div>
@@ -192,10 +181,20 @@
     })
     var email, password;
     $(document).on('click', '#btnLogin', function(e) {
+        login()
+    })
+
+    function login() {
         email = $('#inputEmailAddress').val()
         password = $('#inputPassword').val()
         auth(email, password);
-    })
+    }
+    $('#inputPassword').on('keypress', function(event) {
+        if (event.which === 13) { // Tombol Enter ditekan
+            event.preventDefault();
+            login();
+        }
+    });
 
     const auth = (email, password) => {
         var restURL = "<?= api_url('Auth/login'); ?>"

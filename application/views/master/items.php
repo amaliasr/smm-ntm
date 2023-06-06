@@ -14,6 +14,23 @@
         display: none;
     }
 </style>
+<style>
+    .text-small {
+        font-size: 10px;
+    }
+
+    .filter-border {
+        border-bottom: 2px solid #40128B;
+    }
+
+    .bg-light-maroon {
+        background-color: #9336B4;
+    }
+
+    .archive-row {
+        background-color: #F8F6F4;
+    }
+</style>
 <main id="tableData">
     <!-- Main page content-->
     <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
@@ -78,9 +95,12 @@
                     </div>
                     <div class="card-body">
                         <div class="container">
+                            <div class="row pb-3">
+                                <div class="col-auto align-self-center" id="statusLine">
+                                </div>
+                            </div>
                             <div class="row">
-                                <div class="table-responsive">
-
+                                <div class="table-responsive p-0">
                                     <table class="table table-bordered table-hover table-sm small" id="example">
                                         <thead class="bg-light">
                                             <tr style="height: 50px;vertical-align: middle;">
@@ -93,7 +113,7 @@
                                                 <th>Tipe</th>
                                                 <th>Unit</th>
                                                 <th>Price</th>
-                                                <th></th>
+                                                <th><i class="fa fa-gear"></i></th>
                                             </tr>
                                         </thead>
 
@@ -129,6 +149,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
+    var groupedDataItem = []
     var dataListIdSatuan = [{
             'nama_id': 'Pembelian',
             'variable_id': 'satuanPembelian',
@@ -223,12 +244,17 @@
     $(document).ready(function() {
         getData()
     })
+    var all_data_item = []
 
     function getData() {
+        var isActive = [1, 0]
         $.ajax({
             url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                isActive: isActive
+            },
             error: function(xhr) {
                 removeLoadingTable()
                 Swal.fire({
@@ -243,97 +269,182 @@
             success: function(response) {
                 $('#textSetoranRange').html("")
                 data_global = response['data']
-                var data = response['data']['item'];
-                // console.log(data)
-                var header = []
-                var body = []
-                if (data != null || data != undefined) {
-                    header = [{
-                            'data': 'id'
-                        },
-                        {
-                            'data': 'kode'
-                        },
-                        {
-                            'data': 'nama'
-                        },
-                        {
-                            'data': 'alias'
-                        },
-                        {
-                            'data': 'satuan'
-                        },
-                        {
-                            'data': 'konversi'
-                        },
-                        {
-                            'data': 'tipe'
-                        },
-                        {
-                            'data': 'unit'
-                        },
-                        {
-                            'data': 'price'
-                        },
-                        {
-                            'data': 'action'
-                        }
-                    ]
-                    var array = {}
-                    $.each(data, function(keys, values) {
-                        if (values['type_name'] == null) {
-                            values['type_name'] = ""
-                        }
-                        if (values['item_alias'] == null) {
-                            values['item_alias'] = ''
-                        }
-                        var price = ""
-                        if (values['item_price'] != null) {
-                            $.each(JSON.parse(values['item_price']), function(keys2, values2) {
-                                if (values2['is_active'] = 1) {
-                                    price = number_format(values2['price'])
-                                }
-                            })
-                        }
-                        var satuan = ""
-                        if (values['data_konversi'] != null) {
-                            $.each(JSON.parse(values['data_konversi']), function(keys2, values2) {
-                                satuan += '<span class="small">1 ' + values2['satuan_name'] + ' = <span class="text-success">' + values2['jumlah_konversi'] + '</span> ' + values['satuan_name'] + '</span><br>'
-                            })
-                        }
-                        array = {
-                            'id': keys + 1,
-                            'kode': values['code'],
-                            'nama': values['item_name'],
-                            'alias': values['item_alias'],
-                            'satuan': values['satuan_name'],
-                            'konversi': satuan,
-                            'tipe': values['type_name'],
-                            'unit': values['unit_name'],
-                            'price': price,
-                            'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['item_name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ')" style="cursor:pointer;"></i>'
-                        }
-                        body.push(array)
-                    })
-                    $('#example').DataTable().destroy();
-                    $('#example').DataTable({
-                        fixedHeader: true,
-                        "data": body,
-                        responsive: true,
-                        pageLength: 10,
-                        lengthMenu: [
-                            [10, 20],
-                            [10, 20]
-                        ],
-                        "columns": header,
-                    })
-                } else {
-                    $('#textSetoranRange').html('<div class="container d-flex h-100 text-center d-none"><div class="row justify-content-center align-items-center align-self-center text-center mx-auto "><i class="">Tidak Ada Data yang Tersedia</i></div></div>');
-                }
-                removeLoadingTable()
+                all_data_item = response['data']['item'];
+                groupingDataMaterial(all_data_item)
             }
         });
     }
+
+    function groupingDataMaterial(dataArray) {
+        const data = dataArray
+        groupedDataItem = Object.values(data.reduce((result, item) => {
+            const {
+                is_active
+            } = item;
+
+            if (result[is_active]) {
+                result[is_active].count += 1;
+                result[is_active].data.push(item);
+                result[is_active].is_active = is_active;
+            } else {
+                result[is_active] = {
+                    count: 1,
+                    data: [item],
+                    is_active: is_active
+                };
+            }
+
+            return result;
+        }, {}));
+        groupedDataItem.sort(function(a, b) {
+            var indexA = groupedDataItem.indexOf(a);
+            var indexB = groupedDataItem.indexOf(b);
+            return indexB - indexA;
+        });
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-auto statusLine text-small pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine(' + "'all'" + ')" id="colStatusLineall">'
+        html += 'Semua <span class="statusLineIcon ms-1 p-1 rounded bg-light-maroon text-white" id="statusLineIconall">' + dataArray.length + '</span>'
+        html += '</div>'
+        groupedDataItem.forEach(e => {
+            var text = ''
+            if (e.is_active == 1) {
+                text = 'Active Item'
+            } else {
+                text = 'Archived'
+            }
+            html += '<div class="col-auto statusLine text-small pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + e.is_active + "'" + ')" id="colStatusLine' + e.is_active + '">'
+            html += text + ' <span class="statusLineIcon ms-1 p-1 rounded bg-light text-grey" id="statusLineIcon' + e.is_active + '">' + e.data.length + '</span>'
+            html += '</div>'
+        })
+        html += '</div>'
+        $('#statusLine').html(html)
+        statusLine(1)
+    }
+
+    function statusLine(status) {
+        if (status == 'all') {
+            var data = all_data_item
+        } else {
+            var data = all_data_item.filter((v, k) => {
+                if (v.is_active == status) return true
+            })
+        }
+        coloringStatusLine(status)
+        showData(data)
+    }
+
+    function coloringStatusLine(status) {
+        // DEFAULT COLOR
+        $('.statusLine').each(function() {
+            if ($(this).hasClass('fw-bold') && $(this).hasClass('filter-border')) {
+                $(this).removeClass('fw-bold filter-border').addClass('text-grey');
+            }
+        });
+        $('.statusLineIcon').each(function() {
+            if ($(this).hasClass('bg-light-maroon') && $(this).hasClass('text-white')) {
+                $(this).removeClass('bg-light-maroon text-white').addClass('bg-light text-grey');
+            }
+        });
+        $('#colStatusLine' + status).removeClass('text-grey').addClass('fw-bold filter-border')
+        $('#statusLineIcon' + status).removeClass('bg-light text-grey').addClass('bg-light-maroon text-white')
+    }
+
+    function showData(data) {
+        var header = []
+        var body = []
+        if (data != null || data != undefined) {
+            header = [{
+                    'data': 'id'
+                },
+                {
+                    'data': 'kode'
+                },
+                {
+                    'data': 'nama'
+                },
+                {
+                    'data': 'alias'
+                },
+                {
+                    'data': 'satuan'
+                },
+                {
+                    'data': 'konversi'
+                },
+                {
+                    'data': 'tipe'
+                },
+                {
+                    'data': 'unit'
+                },
+                {
+                    'data': 'price'
+                },
+                {
+                    'data': 'action'
+                }
+            ]
+            var array = {}
+            $.each(data, function(keys, values) {
+                if (values['type_name'] == null) {
+                    values['type_name'] = ""
+                }
+                if (values['item_alias'] == null) {
+                    values['item_alias'] = ''
+                }
+                var price = ""
+                if (values['item_price'] != null) {
+                    $.each(JSON.parse(values['item_price']), function(keys2, values2) {
+                        if (values2['is_active'] = 1) {
+                            price = number_format(values2['price'])
+                        }
+                    })
+                }
+                var satuan = ""
+                if (values['data_konversi'] != null) {
+                    $.each(JSON.parse(values['data_konversi']), function(keys2, values2) {
+                        satuan += '<span class="small">1 ' + values2['satuan_name'] + ' = <span class="text-success">' + values2['jumlah_konversi'] + '</span> ' + values['satuan_name'] + '</span><br>'
+                    })
+                }
+                array = {
+                    'id': keys + 1,
+                    'kode': values['code'],
+                    'nama': values['item_name'],
+                    'alias': values['item_alias'],
+                    'satuan': values['satuan_name'],
+                    'konversi': satuan,
+                    'tipe': values['type_name'],
+                    'unit': values['unit_name'],
+                    'price': price,
+                    'is_active': values.is_active,
+                    'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['item_name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ')" style="cursor:pointer;"></i>'
+                }
+                body.push(array)
+            })
+            $('#example').DataTable().destroy();
+            $('#example').DataTable({
+                fixedHeader: true,
+                "data": body,
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [
+                    [10, 20],
+                    [10, 20]
+                ],
+                "columns": header,
+                rowCallback: function(row, body) {
+                    if (body.is_active == 0) { // Misalnya, jika statusnya adalah "Completed"
+                        $(row).addClass('archive-row'); // Tambahkan kelas CSS "completed-row" ke baris
+                    }
+                },
+            })
+        } else {
+            $('#textSetoranRange').html('<div class="container d-flex h-100 text-center d-none"><div class="row justify-content-center align-items-center align-self-center text-center mx-auto "><i class="">Tidak Ada Data yang Tersedia</i></div></div>');
+        }
+        removeLoadingTable()
+    }
+
     var getId = ''
 
     function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null) {
@@ -449,7 +560,11 @@
         html_body += '</div>'
 
         if (id != null) {
-            html_body += '<div class="col-12"><button type="button" class="btn btn-danger btn-sm w-100 mt-5" onclick="hapusData(' + id + ',' + "'" + name + "'" + ')">Hapus Data</button></div>'
+            if (dataFilter.is_active == 1 || dataFilter.is_active == null) {
+                html_body += '<div class="col-12"><button type="button" class="btn btn-outline-danger btn-sm w-100 mt-5 pt-3 pb-3" onclick="hapusData(' + id + ',' + "'" + name + "'" + ')"><i class="fa fa-archive me-2"></i>Arsip Data</button></div>'
+            } else {
+                html_body += '<div class="col-12"><button type="button" class="btn btn-outline-success btn-sm w-100 mt-5 pt-3 pb-3" onclick="hapusData(' + id + ',' + "'" + name + "'" + ',1)"><i class="fa fa-undo me-2"></i>Aktifkan Kembali Data</button></div>'
+            }
         }
         html_body += '</div>'
         html_body += '</div>'
@@ -667,33 +782,40 @@
         }
     })
 
-    function hapusData(id, name) {
+    function hapusData(id, name, isActive = 0) {
+        if (isActive == 1) {
+            var text = 'Apakah anda yakin ingin mengaktifkan kembali data ' + name + '?'
+        } else {
+            var text = 'Apakah anda yakin ingin mengarsipkan ' + name + '?'
+        }
         Swal.fire({
-            text: 'Apakah anda yakin ingin menghapus ' + name + '?',
+            text: text,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Hapus'
+            cancelButtonText: 'Tidak',
+            confirmButtonText: 'Ya',
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: '<?php echo api_url('MasterNtm/deleteItem'); ?>',
                     type: 'POST',
                     data: {
-                        id: id
+                        id: id,
+                        isActive: isActive,
                     },
                     success: function(response) {
                         if (response['delete'] == 'tertaut') {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal Hapus',
+                                title: 'Gagal Menyimpan Data',
                                 text: 'Refresh Lagi Halaman Ini'
                             });
                         } else {
                             Swal.fire(
-                                'Terhapus!',
-                                'Data Terhapus',
+                                'Tersimpan!',
+                                'Data Berhasil Tersimpan',
                                 'success'
                             )
                             $('#modal').modal('hide')

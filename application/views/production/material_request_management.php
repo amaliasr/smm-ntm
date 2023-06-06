@@ -830,6 +830,7 @@
     }
     var data_all_stok = ''
     var stok_by_id = {}
+    var satuan_by_name = {}
 
     function getDataCurrentStok() {
         $.ajax({
@@ -846,6 +847,7 @@
                 data_all_stok = response['data']
                 $.each(data_all_stok, function(key, value) {
                     stok_by_id[value.item_id] = value.jumlah
+                    satuan_by_name[value.item_id] = value.satuan_name
                 })
                 listMaterialRequest()
             }
@@ -949,6 +951,7 @@
                             'material_code': values3['material']['code'],
                             'unit_id': values3['unit']['id'],
                             'unit': values3['unit']['name'],
+                            'unit_option': values3['unit_option'],
                             'qty': values3['qty_request'],
                             'qty_approve': values3['qty_approve'],
                         })
@@ -1081,7 +1084,7 @@
             html += '<td>'
             $.each(data_isi_material, function(keys, values) {
                 if (value['material_id'] == values['material_id']) {
-                    console.log(values.machine_id)
+                    // console.log(values.machine_id)
                     html += '<span class="badge bg-callout-' + values.machine_id + ' p-1 me-1">' + values['machine_code'] + '</span>'
                 }
             })
@@ -1646,6 +1649,7 @@
     var jumlahTotalLogistik = 0
 
     function prosesLogistik() {
+        // console.log(stok_by_id)
         jumlahCheckLogistik = 0
         jumlahTotalLogistik = 0
         $('#modal').modal('show')
@@ -1669,8 +1673,8 @@
             html_body += '<div class="row">'
             html_body += '<div class="col-4"><b>Material</b></div>'
             html_body += '<div class="col"><b>QTY</b></div>'
-            html_body += '<div class="col"><b>Stok Gudang</b></div>'
             html_body += '<div class="col"><b>Unit</b></div>'
+            html_body += '<div class="col"><b>Stok Gudang</b></div>'
             html_body += '<div class="col-1"><b></b></div>'
             html_body += '</div>'
             $.each(data_isi_material, function(keys, values) {
@@ -1681,20 +1685,39 @@
                             stok_by_id_berjalan[values.material_id] = 0
                         }
                     }
-                    html_body += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '">'
+                    html_body += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '" data-unit="' + values.unit_id + '">'
                     html_body += '<div class="card-body p-2">'
                     html_body += '<div class="row">'
                     html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><br>' + values['material_name'] + '</div>'
                     html_body += '<div class="col">'
-
-                    html_body += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + values['qty'] + '</span>'
+                    // JUMLAH
+                    html_body += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + number_format(values['qty']) + '</span>'
                     html_body += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
                     html_body += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
                     html_body += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '"></div>'
+                    // JUMLAH
+                    html_body += '</div>'
+                    html_body += '<div class="col">'
+                    // UNIT
+                    html_body += '<span class="m-0 fw-bolder" id="unitLama' + key + keys + '">' + values['unit'] + '</span>'
+                    html_body += '<span class="m-0 ms-1 fw-bolder" id="unitBaru' + key + keys + '"></span>'
+                    html_body += '<i class="fa fa-pencil text-primary ms-2 showUnitBaru" id="showUnitBaru' + key + keys + '" style="cursor:pointer;" onclick="showUnitBaru(' + key + ',' + keys + ')"></i><br>'
+                    html_body += '<div class="d-none fieldUnitBaru" id="inputUnitBaru' + key + keys + '"><b class="super-small-text">Unit Baru</b>'
+
+                    html_body += '<select name="" id="input" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + '" data-key="' + key + keys + '" data-unit="' + values.unit_id + '">'
+                    values.unit_option.forEach(e => {
+                        var select = ""
+                        if (e.id == values.unit_id) {
+                            select = 'selected'
+                        }
+                        html_body += '<option value="' + e.id + '" ' + select + ' data-name="' + e.name + '">' + e.name + '</option>'
+                    });
+                    html_body += '</select>'
 
                     html_body += '</div>'
-                    html_body += '<div class="col">' + number_format(stok_by_id_berjalan[values.material_id]) + '</div>'
-                    html_body += '<div class="col">' + values['unit'] + '</div>'
+                    // UNIT
+                    html_body += '</div>'
+                    html_body += '<div class="col text-end">' + number_format(stok_by_id_berjalan[values.material_id]) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[values.material_id] + '</p></div>'
                     html_body += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
                     html_body += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + '"></i>'
                     html_body += '</div>'
@@ -1730,6 +1753,9 @@
         var materialQtyNewValue = $('.inputBaru').map(function() {
             return $(this).val();
         }).get();
+        var materialUnitNewValue = $('.inputUnitBaru').map(function() {
+            return $(this).val();
+        }).get();
         var detail = []
         for (let i = 0; i < materailId.length; i++) {
             if (materialQtyNewValue[i] != '') {
@@ -1740,6 +1766,7 @@
             detail.push({
                 material_request_item_id: materailId[i],
                 qty_approve: qty,
+                unit_id_approve: materialUnitNewValue[i],
             })
         }
         Swal.fire({
@@ -1763,9 +1790,7 @@
                 kelolaData(data, type, url, button, id, code)
             }
         })
-
     }
-
 
     function kelolaData(data, type, url, button, id, code) {
         $.ajax({
@@ -1896,6 +1921,8 @@
         }
     }
 
+    // UBAH JUMLAH QTY
+
     $(document).on('keyup', '.inputBaru', function(e) {
         var key = $(this).data('key')
         var qty = $(this).data('qty')
@@ -1951,7 +1978,7 @@
     function fillFormQty(key, value, stok) {
         $('#jumlahLama' + key).removeClass('fw-bolder')
         $('#jumlahLama' + key).addClass('text-decoration-line-through')
-        $('#jumlahBaru' + key).html(number_format(value))
+        $('#jumlahBaru' + key).html('<br>' + number_format(value))
         if (value > stok) {
             colorizedInputBaru('text-danger', '#jumlahBaru' + key, 'add')
         } else {
@@ -1965,5 +1992,64 @@
         } else {
             $(html).addClass(color)
         }
+    }
+
+    // UBAH UNIT
+    $(document).on('change', '.inputUnitBaru', function(e) {
+        var key = $(this).data('key')
+        var unit = $(this).data('unit')
+        var value = $(this).val()
+        var text = $(this).find("option:selected").data('name')
+        whileOverThisUnit(key)
+        if (value == '' || value == 0) {
+            resetFormUnit(key)
+        } else {
+            fillFormUnit(key, value, unit, text)
+        }
+    })
+
+    $(document).on('focusout', '.inputUnitBaru', function(e) {
+        $('.fieldUnitBaru').addClass('d-none')
+        $('.showUnitBaru').removeClass('active')
+    })
+
+    function showUnitBaru(key, keys) {
+        whileOverThisUnit('' + key + keys + '')
+        var data = $('#showUnitBaru' + key + keys).hasClass('active')
+        if (data == true) {
+            // remove
+            closeFormUnit('' + key + keys + '')
+        } else {
+            // insert
+            openFormUnit('' + key + keys + '')
+        }
+    }
+
+    function whileOverThisUnit(key) {
+        // ketika diluar form
+        $('.fieldUnitBaru').addClass('d-none')
+        $('#inputUnitBaru' + key).removeClass('d-none')
+    }
+
+    function resetFormUnit(key) {
+        $('#unitLama' + key).addClass('fw-bolder')
+        $('#unitLama' + key).removeClass('text-decoration-line-through')
+        $('#unitBaru' + key).html('')
+    }
+
+    function closeFormUnit(key) {
+        $('#showUnitBaru' + key).removeClass('active')
+        $('#inputUnitBaru' + key).addClass('d-none')
+    }
+
+    function openFormUnit(key) {
+        $('#showUnitBaru' + key).addClass('active')
+        $('#inputUnitBaru' + key).removeClass('d-none')
+    }
+
+    function fillFormUnit(key, value, stok, name) {
+        $('#unitLama' + key).removeClass('fw-bolder')
+        $('#unitLama' + key).addClass('text-decoration-line-through')
+        $('#unitBaru' + key).html('<br>' + name)
     }
 </script>
