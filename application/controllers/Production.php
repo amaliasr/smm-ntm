@@ -133,4 +133,10 @@ class Production extends CI_Controller
         $this->pdf->render();
         $this->pdf->stream($data['datas']->data[0]->code, array("Attachment" => 0));
     }
+    public function managementTSG($id = "")
+    {
+        $data['id'] = $id;
+        $data['title'] = 'Management TSG';
+        $this->template->views('production/tsg_management', $data);
+    }
 }

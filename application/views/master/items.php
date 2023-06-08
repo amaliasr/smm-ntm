@@ -16,7 +16,7 @@
 </style>
 <style>
     .text-small {
-        font-size: 10px;
+        font-size: 11px;
     }
 
     .filter-border {
@@ -467,17 +467,21 @@
         html_body += '<div class="container small">'
         html_body += '<div class="row">'
 
-        html_body += '<div class="col-12 col-md-2">Kode</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="code" class="form-control form-control-sm p-1" value="' + code + '"></div>'
+        // BASIC
+        html_body += '<div class="col-12 mb-2 p-3">'
+        html_body += '<b class="mb-2">Informasi Dasar</b>'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 col-md-4 text-end">Kode</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="code" class="form-control form-control-sm p-1" value="' + code + '"></div>'
 
-        html_body += '<div class="col-12 col-md-2">Nama</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="nama" class="form-control form-control-sm p-1" value="' + name + '"></div>'
+        html_body += '<div class="col-12 col-md-4 text-end">Nama</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="nama" class="form-control form-control-sm p-1" value="' + name + '"></div>'
 
-        html_body += '<div class="col-12 col-md-2">Alias</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2"><input type="text" id="alias" class="form-control form-control-sm p-1" value="' + alias + '"></div>'
+        html_body += '<div class="col-12 col-md-4 text-end">Alias</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="alias" class="form-control form-control-sm p-1" value="' + alias + '"></div>'
 
-        html_body += '<div class="col-12 col-md-2">Satuan Terkecil</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2">'
+        html_body += '<div class="col-12 col-md-4 text-end">Satuan Terkecil</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
         html_body += '<select name="" id="satuan_tetap" class="form-select form-select-sm satuan_tetap" required="required" onchange="getArraySatuan()">'
         html_body += '<option value="" selected disabled data-name=" ">Pilih Satuan Tetap</option>'
         $.each(data_global['itemSatuan'], function(keys, values) {
@@ -492,9 +496,8 @@
         html_body += '</select>'
         html_body += '</div>'
 
-        html_body += '<div class="col-12 col-md-2">Konversi</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2">'
-
+        html_body += '<div class="col-12 col-md-4 text-end">Konversi</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
         html_body += '<div id="formSatuan">'
         html_body += '</div>'
         html_body += '<div class="row">'
@@ -506,15 +509,17 @@
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
-
+        html_body += '</div>'
+        html_body += '</div>'
+        // BASIC
         // MANAJEMEN SATUAN
         html_body += '<div class="col-12 bg-light mt-2 mb-2 p-3">'
         html_body += '<b class="mb-2">Manajemen Satuan</b>'
         html_body += '<div class="row mt-2">'
 
         dataListIdSatuan.forEach(list => {
-            html_body += '<div class="col-12 col-md-2">' + list.nama_id + '</div>'
-            html_body += '<div class="col-12 col-md-10 mb-2">'
+            html_body += '<div class="col-12 col-md-4 text-end">' + list.nama_id + '</div>'
+            html_body += '<div class="col-12 col-md-8 mb-2">'
             html_body += '<select id="' + list.variable_id + '" class="form-select form-select-sm manajemenSatuan" required="required">'
             html_body += '</select>'
             html_body += '</div>'
@@ -524,10 +529,13 @@
         html_body += '</div>'
         // MANAJEMEN SATUAN
 
-        html_body += '<div class="col-12 col-md-2">Tipe</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2">'
+        // MESIN
+        html_body += '<div class="col-12 mt-2 mb-2 p-3">'
+        html_body += '<b class="mb-2">Informasi Mesin</b>'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 col-md-4 text-end">Tipe</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
         html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required" onchange="changeName()">'
-        // console.log(type)
         if (type == null) {
             html_body += '<option value="" selected>Tanpa Tipe</option>'
         }
@@ -541,8 +549,8 @@
         html_body += '</select>'
         html_body += '</div>'
 
-        html_body += '<div class="col-12 col-md-2">Unit Mesin</div>'
-        html_body += '<div class="col-12 col-md-10 mb-2">'
+        html_body += '<div class="col-12 col-md-4 text-end">Unit Mesin</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
         html_body += '<select name="" id="unit_mesin" class="form-select form-select-sm" required="required">'
         if (unit == null) {
             html_body += '<option value="null" selected>Tanpa Unit Mesin</option>'
@@ -558,6 +566,9 @@
         })
         html_body += '</select>'
         html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // MESIN
 
         if (id != null) {
             if (dataFilter.is_active == 1 || dataFilter.is_active == null) {
@@ -585,6 +596,7 @@
                 tambahFormSatuan(data_satuan[keys])
             })
         }
+        changeName()
     }
     // const validateMe = () => {
     //     $(".signupForm").validate({

@@ -255,6 +255,10 @@
     .bg-light-blue {
         background-color: #9DB2BF;
     }
+
+    a {
+        cursor: pointer;
+    }
 </style>
 <main>
     <!-- Main page content-->

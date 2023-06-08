@@ -103,6 +103,9 @@
                     </a>
                     <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            <?php if (true) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>production/managementTSG">TSG Management</a>
+                            <?php } ?>
                             <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
                             <?php } ?>
@@ -228,6 +231,16 @@
 </div>
 
 <script type="text/javascript">
+    $(document).ready(function() {
+        var targetURL = window.location.href
+        $("#layoutSidenav_nav .nav-link").removeClass("active");
+        $("#layoutSidenav_nav .nav-link").each(function() {
+            var href = $(this).attr("href");
+            if (href === targetURL) {
+                $(this).addClass("active");
+            }
+        });
+    });
     // $(document).ready(loadMenu);
 
     // function loadActiveMenu() {

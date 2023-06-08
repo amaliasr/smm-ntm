@@ -254,6 +254,10 @@
     .bg-light-maroon {
         background-color: #cba2a2;
     }
+
+    a {
+        cursor: pointer;
+    }
 </style>
 <main>
     <!-- Main page content-->
