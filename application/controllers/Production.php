@@ -149,4 +149,9 @@ class Production extends CI_Controller
         $data['title'] = 'Management Production';
         $this->template->views('production/management_production', $data);
     }
+    public function workPlan()
+    {
+        $data['title'] = 'Work Plan';
+        $this->template->views('production/work_plan', $data);
+    }
 }
