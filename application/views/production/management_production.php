@@ -466,6 +466,7 @@
         cursor: pointer;
     }
 </style>
+<!-- EVENT CALENDAR -->
 <style>
     .md-meal-type {
         font-size: 14px;
@@ -567,7 +568,7 @@
                                     <p class="m-0 small-text">25 Juni 2023 - 30 Juni 2023</p>
                                 </div>
                                 <div class="col text-end">
-                                    <a href="<?= base_url() ?>production/"><button type="button" class="btn btn-primary btn-sm">Work Plan</button></a>
+                                    <a href="<?= base_url() ?>production/workPlan"><button type="button" class="btn btn-primary btn-sm">Work Plan</button></a>
                                 </div>
                                 <div class="col-12 pt-3">
                                     <div mbsc-page class="demo-meal-planner">
