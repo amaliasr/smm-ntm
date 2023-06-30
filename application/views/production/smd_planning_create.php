@@ -1000,7 +1000,7 @@
                 html += '<div class="row">'
                 $.each(data_master[jenis_produksi].shift[0].shift_list, function(key, value) {
                     html += '<div class="col-auto">'
-                    html += '<div class="card mb-1 shadow-none shiftCard shiftCard' + c + '" data-date="' + dates + '" data-id_date="' + c + '" data-id="' + value.id + '" style="cursor:pointer;" id="shiftCard' + c + key + '" onclick="chooseShift(' + c + ',' + key + ')">'
+                    html += '<div class="card mb-1 shadow-none shiftCard shiftCard' + c + '" data-date="' + dates + '" data-id_date="' + c + '" data-id="' + value.id + '" style="cursor:pointer;" id="shiftCard' + c + value.id + '" onclick="chooseShift(' + c + ',' + value.id + ')">'
                     html += '<div class="card-body p-2">'
                     html += '<div class="row">'
                     html += '<div class="col-auto align-self-center">'
@@ -1474,21 +1474,57 @@
         $('.fieldDPlan' + id).removeClass('bg-light')
     }
 
+    var dataIdPlanDetail = []
+    var dataIdPlanGroup = []
+
     function arrangedVariableEdit() {
         var array = []
+        var a = 0
         data_plan.data.forEach(b => {
             // tanggal
+            if (b.shift != null) {
+                b.shift.forEach(element => {
+                    chooseShift(a, element.id)
+                });
+            }
             b.data.forEach(c => {
                 // machine type
-                c.data.forEach(d => {
-                    // machine
-                    d.data.forEach(e => {
-                        // product
-                        changeColorTarget(e.product.id)
-                        $('#jumlahPlanning' + e.product.id + d.machine.id + formatDate(b.date)).val(e.qty)
-                    });
+                c.forEach(c2 => {
+                    if (c2.data_group != null) {
+                        c2.data_group.forEach(d => {
+                            // machine
+                            d.data.forEach(e => {
+                                // product
+                                changeColorTarget(e.product.id)
+                                $('#jumlahPlanning' + e.product.id + d.machine.id + formatDate(b.date)).val(e.qty)
+                                // pita
+                                e.pita.forEach(p => {
+                                    dataIdPlanGroup.push({
+                                        'machine_id': d.machine.id,
+                                        'pita_id': p.id,
+                                        'production_plan_detail_group_id': p.production_plan_detail_group_id
+                                    })
+                                });
+                            });
+                        });
+                    }
+                    if (c2.data_detail != null) {
+                        c2.data_detail.forEach(d => {
+                            d.data.forEach(e => {
+                                // pita
+                                e.pita.forEach(p => {
+                                    dataIdPlanDetail.push({
+                                        'machine_id': d.machine.id,
+                                        'pita_id': p.id,
+                                        'production_plan_detail_id': p.production_plan_detail_id
+                                    })
+                                })
+                            })
+                        })
+                    }
                 });
             });
+            a++
         });
         simpanProdukTarget()
     }
@@ -1561,7 +1597,8 @@
         var hasClass = $('.shiftCard').map(function() {
             return $(this).hasClass('activeItem');
         }).get();
-        // console.log(detailPitaCukai)
+        var indexDetail = 0
+        var indexGroup = 0
         for (let i = 0; i < jumlahPlan.length; i++) {
             if (jumlahPlan[i] != "") {
                 if (jenis_produksi == 'skt') {
@@ -1588,7 +1625,6 @@
                 for (let j = 0; j < pitaCukai.length; j++) {
                     var jum = jumlahPlan[i]
                     if (pitaCukaiCheck != undefined) {
-                        // console.log(pitaCukaiCheck.detail)
                         jum = pitaCukaiCheck.detail[j].value
                     }
                     if (jenis_produksi == 'skm') {
@@ -1600,6 +1636,9 @@
                             'date': tanggal[i],
                             'unit_id': unit[i],
                         })
+                        var production_plan_group = dataIdPlanGroup.find((v, k) => {
+                            if (v.machine_id == mesin[i]) return true
+                        })
                     } else {
                         objPlanGroup.push({
                             'qty': jum,
@@ -1610,12 +1649,18 @@
                             'unit_id': unit[i],
                             'pita_id': pitaCukai[j],
                         })
+                        var production_plan_group = dataIdPlanGroup.find((v, k) => {
+                            if (v.machine_id == mesin[i] && v.pita_id == pitaCukai[j]) return true
+                        })
                     }
+                    if (id_plan != '') {
+                        objPlanGroup[indexGroup]['id'] = production_plan_group.production_plan_detail_group_id
+                    }
+                    indexGroup++
                 }
                 var machines = machine_group_plan.filter((v, k) => {
                     if (v.machine_group_plan_id == machine_group_plan_id[i]) return true
                 })
-                // console.log(machines)
                 // PLAN DETAIL
                 for (let j = 0; j < pitaCukai.length; j++) {
                     var jum = jumlahPlan[i]
@@ -1631,6 +1676,9 @@
                                 'date': tanggal[i],
                                 'unit_id': unit[i],
                             })
+                            var production_plan_detail = dataIdPlanDetail.find((v, k) => {
+                                if (v.machine_id == e.machine_id) return true
+                            })
                         } else {
                             objPlan.push({
                                 'qty': jum,
@@ -1640,7 +1688,14 @@
                                 'unit_id': unit[i],
                                 'pita_id': pitaCukai[j],
                             })
+                            var production_plan_detail = dataIdPlanDetail.find((v, k) => {
+                                if (v.machine_id == e.machine_id && v.pita_id == pitaCukai[j]) return true
+                            })
                         }
+                        if (id_plan != '') {
+                            objPlan[indexDetail]['id'] = production_plan_detail.production_plan_detail_id
+                        }
+                        indexDetail++
                     });
                 }
             }
@@ -1649,7 +1704,6 @@
             if (hasClass[i] == true) {
                 objShift.push({
                     'date': shift_date[i],
-                    // 'id': 1,
                     'id': shift_id[i],
                     'date_id': shift_date_id[i],
                     'click': hasClass[i],
@@ -2305,17 +2359,24 @@
     function saveAsIndividual() {
         anyBlankShift = 0
         if (jenis_produksi == 'skm') {
-            data_skm['productionPlan'] = {
-                'code': code,
-                'date_start': formatDate(dateStart),
-                'date_end': formatDate(dateEnd),
-                'created_id': user_id,
-                'status': 'CREATED',
-                'is_active': 1,
-                'note': data_skm.notes,
-            }
+            data_skm['productionPlan'] = {}
+            // data_skm['productionPlan'] = {
+            //     'created_id': user_id,
+            //     'status': 'CREATED',
+            //     'is_active': 1,
+            //     // 'note': data_skm.notes,
+            // }
             if (id_plan != '') {
                 data_skm['productionPlan']['id'] = id_plan
+                data_skm['productionPlan']['code'] = data_plan.code
+            } else {
+                data_skm['productionPlan']['note'] = data_skm.notes
+                data_skm['productionPlan']['code'] = code
+                data_skm['productionPlan']['date_start'] = formatDate(dateStart)
+                data_skm['productionPlan']['date_end'] = formatDate(dateEnd)
+                data_skm['productionPlan']['created_id'] = user_id
+                data_skm['productionPlan']['status'] = 'CREATED'
+                data_skm['productionPlan']['is_active'] = 1
             }
             var dataShift = []
             var date = $('.cardDate').map(function() {
@@ -2355,17 +2416,27 @@
                 'skm': data_skm
             }
         } else {
-            data_skt['productionPlan'] = {
-                'code': code,
-                'date_start': formatDate(dateStart),
-                'date_end': formatDate(dateEnd),
-                'created_id': user_id,
-                'status': 'CREATED',
-                'is_active': 1,
-                'note': data_skt.notes,
-            }
+            data_skt['productionPlan'] = {}
+            // data_skt['productionPlan'] = {
+            //     'code': code,
+            //     'date_start': formatDate(dateStart),
+            //     'date_end': formatDate(dateEnd),
+            //     'created_id': user_id,
+            //     'status': 'CREATED',
+            //     'is_active': 1,
+            //     // 'note': data_skt.notes,
+            // }
             if (id_plan != '') {
                 data_skt['productionPlan']['id'] = id_plan
+                data_skt['productionPlan']['code'] = data_plan.code
+            } else {
+                data_skt['productionPlan']['note'] = data_skt.notes
+                data_skt['productionPlan']['code'] = code
+                data_skt['productionPlan']['date_start'] = formatDate(dateStart)
+                data_skt['productionPlan']['date_end'] = formatDate(dateEnd)
+                data_skt['productionPlan']['created_id'] = user_id
+                data_skt['productionPlan']['status'] = 'CREATED'
+                data_skt['productionPlan']['is_active'] = 1
             }
             data_skt['productionPlanGoal'].forEach(function(v) {
                 delete v.kode
@@ -2450,7 +2521,9 @@
                     }).then((responses) => {
                         // getDateRange()
                         $(button).prop("disabled", false);
-                        linkToSMDPlanning()
+                        if (id_plan == '') {
+                            linkToSMDPlanning()
+                        }
                     });
                 } else {
                     Swal.fire({

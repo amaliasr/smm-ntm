@@ -98,6 +98,12 @@
     .container__months {
         width: 280px !important;
     }
+
+    .wrap-text {
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+</style>
 </style>
 <main>
     <!-- Main page content-->
@@ -134,7 +140,7 @@
                                     </div>
                                     <div class="col-12 mb-3" id="tampilReport">
                                         <div class="table-responsive">
-                                            <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;white-space:nowrap;">
+                                            <table class="table table-bordered table-hover table-sm small tableReport" id="example" style="width: 100%;white-space:nowrap;cursor: grab;overflow:auto;">
                                                 <thead class="align-items-center">
                                                     <tr class="align-items-center" id="headerTable">
                                                     </tr>
@@ -190,7 +196,6 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
-
 <script>
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -214,7 +219,7 @@
     var item_id = ""
     var date_start = ""
     var date_end = ""
-
+    var is_mutation_only = 0
 
     $(document).ready(function() {
         // tampilFilter()
@@ -264,11 +269,11 @@
         html_body += '<div class="row">'
         html_body += '<b class="small">Tanggal</b>'
         html_body += '<div class="col pe-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_start + '">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_start + '" autocomplete="off">'
         html_body += '</div>'
         html_body += '<div class="col-auto align-self-center">-</div>'
         html_body += '<div class="col ps-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '">'
+        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '" autocomplete="off">'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -316,9 +321,31 @@
         })
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-outline-success btn-sm" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
+        html_footer += '<div class="row align-items-center">';
+        html_footer += '<div class="col-auto text-start">';
+        html_footer += '<div class="form-check float-start">';
+        var select = ''
+        if (is_mutation_only == 1) {
+            select = 'checked'
+        }
+        html_footer += '<input class="form-check-input" type="checkbox" value="1" id="checkMutasiCutoff" ' + select + '>';
+        html_footer += '<label class="form-check-label" for="checkMutasiCutoff">Hanya Mutasi</label>';
+        html_footer += '</div>';
+        html_footer += '</div>';
+        html_footer += '<div class="col text-end">';
+        html_footer += '<button type="button" class="btn btn-primary btn-sm float-end" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
+        html_footer += '<button type="button" class="btn btn-outline-success btn-sm float-end ms-1 me-1" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
+        html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm float-end ms-1 me-1" data-bs-dismiss="modal">Tutup</button>'
+        html_footer += '</div>';
+        html_footer += '</div>';
+
+        // html_footer += '<div class="form-check float-start">'
+        // html_footer += '<input class="form-check-input" type="checkbox" value="" id="checkMutasiCutoff">'
+        // html_footer += '<label class="form-check-label" for="checkMutasiCutoff">Hanya Mutasi</label>'
+        // html_footer += '</div>'
+        // html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm float-end" data-bs-dismiss="modal">Tutup</button>'
+        // html_footer += '<button type="button" class="btn btn-outline-success btn-sm float-end" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
+        // html_footer += '<button type="button" class="btn btn-primary btn-sm float-end" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
         $('#modalFooter').html(html_footer);
     }
 
@@ -344,6 +371,12 @@
         item_id = $('.itemStok').map(function() {
             return $(this).val();
         }).get();
+        var mutasi = $('#checkMutasiCutoff:checked').val()
+        if (mutasi == undefined) {
+            is_mutation_only = 0
+        } else {
+            is_mutation_only = mutasi
+        }
         $.ajax({
             url: "<?= api_url('Api_Warehouse/mutasiStock'); ?>",
             method: "GET",
@@ -352,6 +385,7 @@
                 item_id: item_id,
                 date_start: date_start,
                 date_end: date_end,
+                is_mutation_only: is_mutation_only,
             },
             error: function(xhr) {
                 $('#btnFilter').removeAttr('disabled', true)
@@ -380,7 +414,7 @@
         var html_date = ""
         var html_ket = ""
         html_header += '<th class="text-center sticky-col" rowspan="3" style="vertical-align: middle;">No</th>'
-        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Nama Item</th>'
+        html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;width: 100px;">Nama Item</th>'
         html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Satuan</th>'
         html_header += '<th class="text-center" rowspan="3" style="vertical-align: middle;">Stock<br>Awal</th>'
         $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
@@ -406,7 +440,7 @@
         $.each(data_report, function(key, value) {
             html += '<tr>'
             html += '<td class="sticky-col">' + (parseInt(key) + 1) + '</td>'
-            html += '<td>' + value['name'] + '</td>'
+            html += '<td class="wrap-text" style="width: 100px;"><div class="d-inline-block">' + value['name'] + '</div></td>'
             html += '<td class="text-center">' + value['satuan_name'] + '</td>'
             html += '<td class="text-end">' + number_format(value['stok_awal']) + '</td>'
             var total_in = 0
@@ -433,7 +467,45 @@
             html += '</tr>'
         })
         $('#contentTable').html(html)
+        table_scroll('tableReport')
     }
+
+    function table_scroll(className) {
+        const slider = document.querySelector("." + className);
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener("mousedown", (e) => {
+            document.querySelector("." + className).style.cursor = "grabbing";
+            isDown = true;
+            slider.classList.add("active");
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener("mouseleave", () => {
+            isDown = false;
+            document.querySelector("." + className).style.cursor = "grab";
+            slider.classList.remove("active");
+        });
+
+        slider.addEventListener("mouseup", () => {
+            isDown = false;
+            document.querySelector("." + className).style.cursor = "grab";
+            slider.classList.remove("active");
+        });
+
+        slider.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            document.querySelector("." + className).style.cursor = "grabbing";
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 3; // scroll-fast
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    }
+
 
     function exportExcel() {
         date_start = $('#dateStart').val()

@@ -16,6 +16,7 @@ function api_produksi($param)
     $url = 'https://rest.pt-smm.com/api.ntm/' . $param;
     return $url;
 }
+
 function is_login()
 {
     $ci = get_instance();
@@ -112,6 +113,16 @@ function job_supply_sparepart()
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
     if ($job_title_id == 113) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_admin_ntm()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 13) {
         return true;
     } else {
         return false;

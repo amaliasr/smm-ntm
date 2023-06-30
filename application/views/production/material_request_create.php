@@ -1066,7 +1066,7 @@
                     html += '<td class="p-2 font-small">' + name + '</td>'
                     // html += '<td class="p-2 font-small">' + valuea['unit']['name'] + '</td>'
                     html += '<td class="p-2 font-small">'
-                    html += '<select class="form-select trans-select font-small shadow-none" id="unitSelect' + valuea.material_id + '" style="padding:5px !important" data-item_id="' + valuea.material_id + '">'
+                    html += '<select class="form-select trans-select font-small shadow-none" id="unitSelect' + valuea.material_id + '" style="cursor:pointer;padding:5px !important" data-item_id="' + valuea.material_id + '">'
                     valuea.unit_option.forEach(e => {
                         var select = ''
                         if (e.id == valuea.unit.id) {
@@ -1100,10 +1100,14 @@
             })
             html += '</tbody>'
             html += '</table>'
+            html += '</div>'
 
             html += '</div>'
-            html += '</div>'
         })
+        html += '<div class="col-12 pt-2">'
+        html += '<h3 class="m-0 mb-2 mt-2"><b>Catatan</b></h3>'
+        html += '<textarea class="form-control" rows="5" id="catatan"></textarea>'
+        html += '</div>'
         $('#listMaterialRequest').html(html)
         $('.nominal').number(true);
         collectDataInput()
@@ -1181,7 +1185,8 @@
             'code': codeMaterial,
             'created_at': currentDateTime(),
             'updated_at': currentDateTime(),
-            'created_id': user_id
+            'created_id': user_id,
+            'note': $('#catatan').val(),
         })
         if (data_plan['draft'].length > 0) {
             material_request[0]['material_draft_id'] = data_plan['draft'][0]['id']
@@ -1201,6 +1206,7 @@
                         'material_request_machine_id': mcn_id,
                         'item_id': values['material_id'],
                         'unit_id': $('#unitSelect' + values.material_id).val(),
+                        'unit_id_request': $('#unitSelect' + values.material_id).val(),
                         'qty_request': values['qty']
                     })
                 }

@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <link href="<?= base_url(); ?>assets/vendor/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
     <style type="text/css">
         body {
             font-family: 'Nunito';
@@ -88,6 +89,24 @@
         table tr td {
             page-break-inside: always;
         }
+
+        .check-icon {
+            font-family: 'FontAwesome';
+            font-size: 20px;
+            color: green;
+        }
+
+        .times-icon {
+            font-family: 'FontAwesome';
+            font-size: 20px;
+            color: red;
+        }
+
+        .clock-icon {
+            font-family: 'FontAwesome';
+            font-size: 20px;
+            color: grey;
+        }
     </style>
 </head>
 
@@ -124,6 +143,7 @@
     </header>
     <main>
         <h3>PERMINTAAN NTM MAKER DAN PACKER/HLP</h3>
+        <!-- <?php print_r($datas); ?> -->
         <table style="width: 100%;padding:0px;margin-bottom:30px;margin-top:30px;">
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">Tanggal</td>
@@ -160,7 +180,10 @@
                 ?>
                             <tr>
                                 <td class="td_main" style="text-align: center;"><?= $item->code ?></td>
-                                <td class="td_main"><?= $item->name ?></td>
+                                <td class="td_main">
+                                    <p style="font-size: 8px;color:#434242;margin:0px;"><?= $item->alias ?></p>
+                                    <?= $item->name ?>
+                                </td>
                                 <td class="td_main" style="text-align:center;"><?= $item->unit->name ?></td>
                                 <?php foreach ($v as $value) {
                                     if ($value->detail != null) { ?>
@@ -185,7 +208,67 @@
                 <td style="width: 50%;">
                     <div style="text-align: left;">
                         <b style="margin-bottom: 10px;">CATATAN :</b>
-                        <div style="word-wrap: break-word;"></div>
+                        <div style="word-wrap: break-word;">
+                            <?php if ($datas->materialRequest[0]->note != '') { ?>
+                                <?= $datas->materialRequest[0]->note ?>
+                            <?php } else { ?>
+                                -
+                            <?php } ?>
+                        </div>
+                        <br>
+                        <b style="margin-bottom: 10px;">PERSETUJUAN :</b>
+                        <table style="width: 100%;margin-top:10px;">
+                            <?php foreach ($datas->processLine as $key => $value) { ?>
+                                <tr style="vertical-align: middle;">
+                                    <td rowspan="2" style="width:40px;text-align:center;padding:0px;margin:0px;">
+                                        <?php if ($value->is_complete == '1') {
+                                            $images = base_url() . 'assets/image/logo/check.png';
+                                        ?>
+                                            <!-- <span class="check-icon">&#xf00c;</span> -->
+
+                                        <?php } else if ($value->is_complete == '0') {
+                                            $images = base_url() . 'assets/image/logo/times.png';
+                                        ?>
+                                            <!-- <span class="times-icon">&#xf00d;</span> -->
+                                        <?php } else {
+                                            $images = base_url() . 'assets/image/logo/clock.png';
+                                        ?>
+                                            <!-- <span class="clock-icon">&#xf017;</span> -->
+                                        <?php } ?>
+                                        <?php
+
+                                        // Read image path, convert to base64 encoding
+                                        $imageDatas = base64_encode(file_get_contents($images));
+
+                                        // Format the image SRC:  data:{mime};base64,{data};
+                                        $srcs = 'data:image/png;base64,' . $imageDatas;
+                                        ?>
+                                        <img src="<?= $srcs ?>" style="width:50%;">
+                                    </td>
+                                    <td style="padding:0px;margin:0px;">
+                                        <b><?= implode(" ", array_map('ucwords', explode("_", $key))) ?></b>
+                                    </td>
+                                </tr>
+                                <tr style="vertical-align: middle;">
+                                    <td style="padding:0px;margin:0px;">
+                                        <?php if ($value->is_complete == '1' || $value->is_complete == '0') { ?>
+                                            <?= $value->employee->name ?>
+                                            <br>
+                                            <p style="margin: 0px;padding:0px;font-size:8px;"><?= date('d-m-Y H:i', strtotime($value->complete_at)) ?></p>
+                                        <?php } else { ?>
+                                            <i style="font-size:10px;color:grey;">Belum Ada</i>
+                                        <?php } ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <br>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </table>
+
+
                     </div>
                 </td>
                 <td style="width: 50%;text-align:center;">

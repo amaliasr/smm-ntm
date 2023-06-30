@@ -685,7 +685,7 @@
             html += '</div>'
             html += '</div>'
             html += '<div class="col-auto text-center align-self-center">'
-            html += '<button class="btn btn-sm float-end position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i>'
+            html += '<button class="btn btn-sm float-end shadow-none position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i>'
             if (job_foreman) {
                 if (values.status == 'PROCESSED') {
                     html += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">Terima<br>Item</span>'
@@ -749,7 +749,7 @@
     var imgBase64Data
 
     function cetakMaterialRequest(id) {
-        var urlQR = '<?= base_url() ?>production/material_request_approval/' + id
+        var urlQR = '<?= base_url() ?>production/materialRequestApprovalLine/' + id
         var qrcode = new QRCode("qrcode", {
             text: urlQR,
             width: 100,

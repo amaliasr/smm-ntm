@@ -139,4 +139,14 @@ class Production extends CI_Controller
         $data['title'] = 'Management TSG';
         $this->template->views('production/tsg_management', $data);
     }
+    public function workforceProductivity()
+    {
+        $data['title'] = 'Workforce Productivity';
+        $this->template->views('production/workforce_productivity', $data);
+    }
+    public function managementProduction()
+    {
+        $data['title'] = 'Management Production';
+        $this->template->views('production/management_production', $data);
+    }
 }

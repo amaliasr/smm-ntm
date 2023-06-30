@@ -320,6 +320,16 @@
     .select2-container--default .select2-selection--multiple {
         font-size: 11px;
     }
+
+    input[class="inputBaru"]::-webkit-outer-spin-button,
+    input[class="inputBaru"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[class="inputBaru"] {
+        -moz-appearance: textfield;
+    }
 </style>
 <!-- loading CSS -->
 <style type="text/css">
@@ -1647,15 +1657,16 @@
     });
     var jumlahCheckLogistik = 0
     var jumlahTotalLogistik = 0
+    var statusAlias = 0
 
     function prosesLogistik() {
-        // console.log(stok_by_id)
         jumlahCheckLogistik = 0
         jumlahTotalLogistik = 0
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Proses Logistik ' + data_materialrequest.code + '</h5>';
+        html_header += '<button type="button" class="btn btn-sm btn-outline-dark float-end ms-5 shadow-none" id="btnAlias" onclick="triggerAlias()"><i class="fa fa-eye-slash me-2"></i> Show Alias</button>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
 
@@ -1672,6 +1683,7 @@
             html_body += '<div class="col-12 pt-3">'
             html_body += '<div class="row">'
             html_body += '<div class="col-4"><b>Material</b></div>'
+            // html_body += '<div class="col"><b>Alias</b></div>'
             html_body += '<div class="col"><b>QTY</b></div>'
             html_body += '<div class="col"><b>Unit</b></div>'
             html_body += '<div class="col"><b>Stok Gudang</b></div>'
@@ -1688,13 +1700,14 @@
                     html_body += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '" data-unit="' + values.unit_id + '">'
                     html_body += '<div class="card-body p-2">'
                     html_body += '<div class="row">'
-                    html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><br>' + values['material_name'] + '</div>'
+                    html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><span class="aliasName small-text text-grey"><br>' + values['material_alias'] + '</span><br>' + values['material_name'] + '</div>'
+                    // html_body += '<div class="col small">' + values['material_alias'] + '</div>'
                     html_body += '<div class="col">'
                     // JUMLAH
                     html_body += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + number_format(values['qty']) + '</span>'
                     html_body += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
                     html_body += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
-                    html_body += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '"></div>'
+                    html_body += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" autocomplete="off" oninput="validateNumber(this)"></div>'
                     // JUMLAH
                     html_body += '</div>'
                     html_body += '<div class="col">'
@@ -1736,11 +1749,36 @@
         })
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        $('.nominal').number(true);
+        // $('.nominal').number(true);
 
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')"><span id="jumlahCardSelected">&nbsp;0&nbsp;</span> / <span>&nbsp;' + jumlahTotalLogistik + '&nbsp;</span>&nbsp;Item Telah di Check</button>'
         $('#modalFooter').html(html_footer);
+        $('.aliasName').hide()
+    }
+
+    function validateNumber(input) {
+        var inputValue = input.value;
+        var sanitizedValue = inputValue.replace(/[^0-9]/g, ''); // Hapus karakter selain angka
+        // Hapus angka 0 di depan jika diikuti oleh angka lain
+        sanitizedValue = sanitizedValue.replace(/^0(\d+)/, '$1');
+
+        input.value = sanitizedValue;
+    }
+
+
+    function triggerAlias() {
+        if (statusAlias == 0) {
+            // tutup alias
+            $('.aliasName').show()
+            $('#btnAlias').html('<i class="fa fa-eye me-2"></i> Hide Alias')
+            statusAlias = 1
+        } else {
+            // buka alias
+            $('.aliasName').hide()
+            $('#btnAlias').html('<i class="fa fa-eye-slash me-2"></i> Show Alias')
+            statusAlias = 0
+        }
     }
 
     function kirimApproval(id, code) {
@@ -1929,7 +1967,7 @@
         var stok = $(this).data('stok')
         var value = $(this).val()
         whileOverThis(key)
-        if (value == '' || value == 0) {
+        if (value == '') {
             resetFormQty(key)
         } else {
             fillFormQty(key, value, stok)

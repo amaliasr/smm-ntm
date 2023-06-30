@@ -103,9 +103,9 @@
                     </a>
                     <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                            <?php if (true) { ?>
+                            <!-- <?php if (true) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/managementTSG">TSG Management</a>
-                            <?php } ?>
+                                <?php } ?> -->
                             <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
                             <?php } ?>
@@ -114,6 +114,9 @@
                             <?php } ?>
                             <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
+                            <?php } ?>
+                            <?php if (job_foreman()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>production/managementProduction">Management Production</a>
                             <?php } ?>
                         </nav>
                     </div>
@@ -196,7 +199,7 @@
                         <?php if (is_accounting() || is_direktur() || is_purchasing()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportPO">Report PO</a>
                         <?php } ?>
-                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
+                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
                         <?php } ?>
                         <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>

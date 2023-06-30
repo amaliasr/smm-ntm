@@ -714,7 +714,7 @@
             html += '</div>'
             html += '</div>'
             html += '<div class="col-auto text-center align-self-center">'
-            html += '<button class="btn btn-sm float-end" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '<button class="btn btn-sm float-end shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
             if (job_spv_smd) {
@@ -729,6 +729,10 @@
             html += '<a class="dropdown-item" onclick="cetakSMDPlanning(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
             if (job_spv_smd) {
                 html += '<a class="dropdown-item"><button class="btn btn-danger w-100 btn-sm btnSimpan" onclick="deleteSMDPlanning(' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-trash me-2"></i> Hapus Data</button></a>'
+            }
+            if (job_foreman) {
+                html += '<hr>'
+                html += '<a class="dropdown-item" onclick="createWorkPlanWeekly(' + values.id + ')"><i class="fa fa-file-text-o me-2"></i> Work Plan Weekly</a>'
             }
             html += '</div>'
             html += '</div>'
