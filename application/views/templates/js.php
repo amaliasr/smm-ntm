@@ -14,6 +14,12 @@
 
 <!-- Litepicker Mobile Friendly -->
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/mobilefriendly.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+<script>
+    function showOverlay(e) {
+        $.LoadingOverlay(e);
+    }
+</script>
 
 <!-- Litepicker Script JS -->
 <script src="<?= base_url(); ?>assets/vendor/litepicker/litepicker.js"></script>

@@ -616,7 +616,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-12 pe-4">
-                                    <div class="form-check d-flex align-items-center float-end">
+                                    <div class="form-check align-items-center float-end">
                                         <input class="form-check-input" type="checkbox" value="" id="flexCheckMachine" style="width: 13px;height:13px;">
                                         <label class="form-check-label small-text ms-1" for="flexCheckMachine">
                                             Per Machine
@@ -695,9 +695,6 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
-    $(document).ready(function() {
-
-    })
     mobiscroll.setOptions({
         locale: mobiscroll.localeEn, // Specify language like: locale: mobiscroll.localePl or omit setting to use default
         theme: 'ios', // Specify theme like: theme: 'ios' or omit setting to use default
@@ -912,6 +909,8 @@
         $(location).html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
     }
 
+
+
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
         $(this).css('z-index', zIndex);
@@ -924,4 +923,185 @@
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
+
+    $(document).ready(function() {
+        chooseDate()
+    })
+
+    function chooseDate() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pilih Planning</h5>'
+        html_header += '<div class="input-group w-50">'
+        html_header += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_planning">'
+        html_header += '<span class="input-group-text">'
+        html_header += '<i class="fa fa-search"></i>'
+        html_header += '</span>'
+        html_header += '</div>'
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12" id="listPlanning">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        $('#modalFooter').addClass('d-none');
+        getDataPlanning()
+    }
+    var data_all_plan = ""
+
+    function getDataPlanning() {
+        $.ajax({
+            url: "<?= api_produksi('loadPageWorkPlanPortal'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                employeeId: user_id,
+            },
+            error: function(xhr) {
+                notFound('#listPlanning')
+            },
+            beforeSend: function() {
+                loadingData('#listPlanning')
+            },
+            success: function(response) {
+                data_all_plan = response['data']['listProductionPlan']
+                formDataPlanning()
+            }
+        })
+    }
+    var html_expired_plan = ''
+    var html_collapse = ""
+    var jumlah_expired_plan = 0
+
+    function formDataPlanning() {
+        $('#listPlanning').empty()
+        var html = ""
+        if (data_all_plan.length != 0) {
+            $.each(data_all_plan, function(key, value) {
+                html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ')" id="card_search' + key + '">'
+                html += '<div class="row g-0">'
+                html += '<div class="col-md-2 bg-' + value.production_type.name.toLowerCase() + '">'
+                html += '<div class="row d-flex align-items-center h-100">'
+                html += '<div class="col text-center">'
+                html += '<span class="text-white">' + value.production_type.name + '</span>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '<div class="col-md-10">'
+                html += '<div class="card-body">'
+
+                html += '<div class="row">'
+                html += '<div class="col-12 align-self-center">'
+                html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
+                var today = ''
+                if (value.date_start <= currentDate() && value.date_end >= currentDate()) {
+                    today = '<span class="badge bg-success">Today in This Plan</span>'
+                }
+                html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date_start']) + ' - ' + formatDateIndonesia(value['date_end']) + ' ' + today + '</b></p>'
+                html += '</div>'
+                html += '</div>'
+
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            })
+            $('#listPlanning').html(html)
+        } else {
+            notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
+        }
+    }
+
+    function loadDataPlanning(id) {
+        var data = {
+            productionPlanId: id,
+        }
+        var url = "<?= api_produksi('getWorkPlan'); ?>"
+        getData(data, url, id)
+    }
+    var data_work = ''
+    var id_production_plan_clicked = ''
+
+    function getData(data, url, id) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                $('#modal').modal('hide')
+                data_work = response['data']
+                id_production_plan_clicked = id
+                arrangeVariable()
+            }
+        })
+    }
+    var data_detail_plan_clicked = []
+    var data_target_production = []
+    var data_target_production_per_machine = []
+
+    function arrangeVariable() {
+        var data_clicked_plan = data_all_plan.filter((v, k) => {
+            if (v.id == id_production_plan_clicked) return true
+        })
+        data_clicked_plan[0].detail.forEach(a => {
+            // date
+            a.data.forEach(b => {
+                // production_step (MAKER/HLP)
+                b.data.forEach(c => {
+                    // machine
+                    c.data.forEach(d => {
+                        // product
+                        data_detail_plan_clicked.push({
+                            'product_id': d.product.id,
+                            'product_code': d.product.code,
+                            'qty': d.qty,
+                            'unit_id': d.unit.id,
+                            'unit_name': d.unit.name,
+                            'product_group_id': d.product.product_group.id,
+                            'product_group_code': d.product.product_group.code,
+                            'product_group_name': d.product.product_group.name,
+                            'machine_id': c.machine.id,
+                            'machine_name': c.machine.name,
+                            'production_step_id': b.production_step.id,
+                            'production_step_name': b.production_step.name,
+                            'date': a.date,
+                        })
+                    })
+                });
+
+            });
+        });
+        data_target_production = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'production_step_id', 'production_step_name'], ['qty']);
+        data_target_production = data_target_production.map(objek => ({
+            ...objek,
+            qty_realisasi: 0
+        }));
+        data_target_production_per_machine = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'machine_id', 'machine_name'], ['qty']);
+        data_target_production_per_machine = data_target_production_per_machine.map(objek => ({
+            ...objek,
+            qty_realisasi: 0
+        }));
+        console.log(data_target_production)
+        console.log(data_target_production_per_machine)
+    }
 </script>

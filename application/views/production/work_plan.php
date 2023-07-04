@@ -32,7 +32,7 @@
     }
 
     .bg-light-grey {
-        background-color: #FAF7F0;
+        background-color: #fafafa;
     }
 
     .text-random {
@@ -636,6 +636,7 @@
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
 <script src="<?= base_url() ?>assets/js/mobiscroll.jquery.min.js"></script>
+<script src="https://use.fontawesome.com/d80f210d12.js"></script>
 <main>
     <div class="row">
         <!-- LEFT PANEL -->
@@ -758,28 +759,39 @@
         </div>
         <!-- RIGHT PANEL -->
         <div class="col-9 bg-white p-4">
-            <div mbsc-page class="demo-meal-planner">
-                <div style="height:100%">
-                    <div id="demo-meal-planner" class="md-meal-planner-calendar"></div>
+            <div class="row">
+                <div class="col">
+                    <button type="button" class="btn btn-outline-dark btn-sm shadow-none" onclick="managementManPower()"><i class="fa fa-user-plus me-2"></i>Management Man Power</button>
+                </div>
+                <div class="col text-end">
+                    <button type="button" class="btn btn-outline-dark btn-sm shadow-none"><i class="fa fa-list me-2"></i>See Detail</button>
+                    <button type="button" class="btn btn-danger btn-sm shadow-none"><i class="fa fa-download me-2"></i>PDF</button>
+                </div>
+                <div class="col-12 pt-3">
+                    <div mbsc-page class="demo-meal-planner">
+                        <div style="height:100%">
+                            <div id="demo-meal-planner" class="md-meal-planner-calendar"></div>
 
-                    <div id="meal-planner-popup" class="md-meal-planner-popup">
-                        <div id="meal-type-segmented" class="mbsc-form-group"></div>
-                        <div class="mbsc-form-group">
-                            <label>
-                                Name
-                                <input mbsc-input id="meal-name-input" />
-                            </label>
-                            <label>
-                                Calories
-                                <input mbsc-input id="meal-calories-input" type="number" />
-                            </label>
-                            <label>
-                                Notes
-                                <textarea mbsc-textarea id="meal-notes-textarea"></textarea>
-                            </label>
-                        </div>
-                        <div class="mbsc-button-group">
-                            <button class="mbsc-button-block" id="meal-delete" mbsc-button data-color="danger" data-variant="outline">Delete meal</button>
+                            <div id="meal-planner-popup" class="md-meal-planner-popup">
+                                <div id="meal-type-segmented" class="mbsc-form-group"></div>
+                                <div class="mbsc-form-group">
+                                    <label>
+                                        Name
+                                        <input mbsc-input id="meal-name-input" />
+                                    </label>
+                                    <label>
+                                        Calories
+                                        <input mbsc-input id="meal-calories-input" type="number" />
+                                    </label>
+                                    <label>
+                                        Notes
+                                        <textarea mbsc-textarea id="meal-notes-textarea"></textarea>
+                                    </label>
+                                </div>
+                                <div class="mbsc-button-group">
+                                    <button class="mbsc-button-block" id="meal-delete" mbsc-button data-color="danger" data-variant="outline">Delete meal</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -850,34 +862,39 @@
 
         var types = [{
             id: 1,
-            name: 'Breakfast',
-            color: '#e20f0f',
-            kcal: '300 - 400 kcal',
-            icon: '&#x1f373'
+            name: 'MK9 A',
+            color: '#435B66',
+            // kcal: '300 - 400 kcal',
         }, {
             id: 2,
-            name: 'Elevenses',
-            color: '#157d13',
-            kcal: '100 - 200 kcal',
-            icon: '&#x1f34c'
+            name: 'MK9 B',
+            color: '#435B66',
+            // kcal: '100 - 200 kcal',
         }, {
             id: 3,
-            name: 'Lunch',
-            color: '#32a6de',
-            kcal: '500 - 700 kcal',
-            icon: '&#x1f35c'
+            name: 'MK9 C',
+            color: '#435B66',
+            // kcal: '500 - 700 kcal',
         }, {
             id: 4,
-            name: 'Dinner',
-            color: '#e29d1d',
-            kcal: '400 - 600 kcal',
-            icon: '&#x1f959'
+            name: 'HLP 12 A',
+            color: '#A76F6F',
+            // kcal: '400 - 600 kcal',
         }, {
             id: 5,
-            name: 'Snack',
-            color: '#68169c',
-            kcal: '100 - 200 kcal',
-            icon: '&#x1f968'
+            name: 'HLP 12 B',
+            color: '#A76F6F',
+            // kcal: '100 - 200 kcal',
+        }, {
+            id: 6,
+            name: 'HLP 20 B',
+            color: '#A76F6F',
+            // kcal: '100 - 200 kcal',
+        }, {
+            id: 7,
+            name: 'HLP 20 B',
+            color: '#A76F6F',
+            // kcal: '100 - 200 kcal',
         }];
 
         function addMealPopup() {
@@ -1007,22 +1024,66 @@
             },
             renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
                 return '<div class="md-meal-planner-cont">' +
-                    '<div class="md-meal-planner-title" style="color:' + resource.color + '">' +
-                    '<span class="md-meal-planner-icon">' + resource.icon + '</span>' + resource.name + '</div>' +
-                    '<div class="md-meal-planner-kcal">' + resource.kcal + '</div>' +
+                    '<div class="" style="color:' + resource.color + ';font-size:12px !important;">' + resource.name + '</div>' +
+                    // '<div class="md-meal-planner-kcal">' + resource.kcal + '</div>' +
                     '</div>';
             },
             renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
                 var event = args.original;
                 return '<div class="md-meal-planner-event">' +
-                    '<div class="md-meal-planner-event-title">' + event.title + '</div>' +
-                    (event.calories ? '<div class="md-meal-planner-event-desc">Calories: ' + event.calories + ' kcal</div>' : '') +
+                    '<div class="">' + event.title + '</div>' +
+                    (event.calories ? '<div class="md-meal-planner-event-desc">' + event.calories + ' </div>' : '') +
                     '</div>';
             },
         }).mobiscroll('getInst');
 
         $.getJSON('https://trial.mobiscroll.com/meal-planner/?callback=?', function(events) {
-            calendar.setEvents(events);
+            var array = [{
+                "start": "2023-06-30",
+                "end": "2023-06-30",
+                "title": "Shift 7 - 15",
+                "resource": 1,
+                "calories": 'ABLF12, ABOF20',
+                "allDay": true
+            }, {
+                "start": "2023-06-30",
+                "end": "2023-06-30",
+                "title": "Shift 7 - 15",
+                "resource": 2,
+                "calories": 'ABLF12, ABOF20',
+                "allDay": true
+            }]
+            calendar.setEvents(array);
+            $('.mbsc-calendar-wrapper').attr('hidden', true)
+            // Ambil semua elemen dengan kelas "mbsc-timeline-header-date-text mbsc-ios"
+            var elements = document.querySelectorAll('.mbsc-timeline-header-date-text.mbsc-ios');
+
+            // Loop melalui setiap elemen
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+
+                // Periksa apakah elemen memiliki teks di dalamnya
+                if (element.textContent.trim().length > 0) {
+                    // Buat elemen <br> baru
+                    var lineBreak = document.createElement('br');
+
+                    // Buat elemen <a> baru
+                    var link = document.createElement('a');
+                    link.href = "..."; // Ganti dengan URL yang diinginkan
+
+                    // Buat elemen <i> dengan kelas "fa fa-user" (font awesome)
+                    var icon = document.createElement('i');
+                    icon.className = 'fa fa-user';
+
+                    // Tambahkan elemen <i> ke dalam elemen <a>
+                    link.appendChild(icon);
+
+                    // Tambahkan elemen <br> dan elemen <a> setelah elemen saat ini
+                    element.appendChild(lineBreak);
+                    element.appendChild(link);
+                }
+            }
+
         }, 'jsonp');
 
         var popup = $('#meal-planner-popup').mobiscroll().popup({
@@ -1145,8 +1206,6 @@
         }
     }
 
-
-
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -1190,4 +1249,333 @@
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
+
+    $(document).ready(function() {
+        changePlan()
+    })
+
+    function managementManPower() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Management Man Power</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row p-0 m-0">'
+
+        html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-auto align-self-center">'
+        html_body += '<p class="small-text"><b>Quality Control</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col text-end align-self-center">'
+        html_body += '<p class="super-small-text">4 Person Left</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<div class="form-group has-search">'
+        html_body += '<span class="fa fa-search form-control-feedback"></span>'
+        html_body += '<input type="text" class="form-control" placeholder="Search" id="search_nama">'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 pt-4">'
+
+        html_body += '<div style="max-height: 300px;overflow-x: hidden;overflow-y: auto;">'
+        for (let i = 0; i < 10; i++) {
+            html_body += '<div class="row pt-2 pb-2">'
+            html_body += '<div class="col-9 align-self-center">'
+            html_body += '<p class="m-0 small-text"><b>Amalia Safira Rhamadany</b></p>'
+            html_body += '<p class="m-0 super-small-text text-grey"><b>amalia.safira@pt-bks.com</b></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-3 align-self-center">'
+            html_body += '<i class="fa fa-user-plus"></i>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-8 p-4">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-8">'
+        // UTAMA
+        html_body += '<h4 class="m-0"><b>03 Juli 2023</b></h4>'
+        html_body += '<p class="super-small-text text-grey m-0">Available 1 Shift</p>'
+
+        html_body += '<div class="row p-3 pt-4">'
+        html_body += '<div class="col-auto statusLine super-small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLineall">07.00 - 15.00</div>'
+        html_body += '<div class="col-auto statusLine super-small-text pb-2 align-self-center fw-bold text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLineall">15.00 - 19.00</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<p class="m-0 super-small-text"><b>Position</b></p>'
+        html_body += '<div class="row ps-2 pe-2 mb-3">'
+        for (let i = 0; i < 5; i++) {
+            html_body += '<div class="col p-1">'
+            html_body += '<div class="card shadow-none">'
+            html_body += '<div class="card-body p-2 text-center text-wrap">'
+            html_body += '<p class="m-0 super-small-text">Catcher</p>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+
+        html_body += '<p class="m-0 super-small-text"><b>Machine/Section</b></p>'
+        html_body += '<div class="row ps-2 pe-2 mb-3">'
+        for (let i = 0; i < 7; i++) {
+            html_body += '<div class="col p-1">'
+            html_body += '<div class="card shadow-none">'
+            html_body += '<div class="card-body p-2 text-center text-wrap">'
+            html_body += '<p class="m-0 super-small-text">HLP 20 A</p>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+
+        html_body += '<p class="m-0 super-small-text"><b>Man Power</b></p>'
+        html_body += '<div class="row ps-2 pe-2 mb-3">'
+        for (let i = 0; i < 2; i++) {
+            html_body += '<div class="col-12 p-1">'
+            html_body += '<div class="card shadow-none">'
+            html_body += '<div class="card-body p-2">'
+
+            html_body += '<div class="row">'
+            html_body += '<div class="col-11">'
+            html_body += '<p class="m-0 small-text"><b>Moch. Sochron</b></p>'
+            html_body += '<p class="m-0 super-small-text">2 Position in this Date</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-1 align-self-center">'
+            html_body += '<i class="fa fa-times text-danger"></i>'
+            html_body += '</div>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        // UTAMA
+        html_body += '</div>'
+        html_body += '<div class="col-4">'
+        // TANGGAL
+        html_body += '<div class="card shadow-none h-100">'
+        html_body += '<div class="card-body">'
+        html_body += '<p class="super-small-text text-grey m-0 mb-4">More Date</p>'
+        for (let i = 0; i < 5; i++) {
+            html_body += '<div class="row">'
+            if (i == 0) {
+                html_body += '<div class="col-2 align-self-center">'
+                html_body += '<i class="fa fa-chevron-left"></i>'
+                html_body += '</div>'
+            }
+            html_body += '<div class="col-10 align-self-center">'
+            html_body += '<p class="m-0 small"><b>03 June 2023</b></p>'
+            html_body += '<p class="m-0 super-small-text">0 Position Added</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-12">'
+            html_body += '<hr>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+        html_body += '</div>'
+        // TANGGAL
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0');
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
+        $('#modalFooter').html(html_footer);
+    }
+
+    function changePlan() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Change Plan</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row p-0 m-0">'
+
+        html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col">'
+        html_body += '<p class="m-0 super-small-text text-grey">Date</p>'
+        html_body += '<h4 class="text-dark-grey m-0"><b>03 July 2023</b></h4>'
+        html_body += '</div>'
+        html_body += '<div class="col">'
+        html_body += '<p class="m-0 super-small-text text-grey">Machine</p>'
+        html_body += '<h4 class="text-dark-grey m-0"><b>MK9-A</b></h4>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row mt-3">'
+        html_body += '<div class="col-12">'
+        html_body += '<p class="m-0 super-small-text mb-2"><b>Machine This Day</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        // card maker
+        for (let j = 0; j < 2; j++) {
+            html_body += '<div class="card shadow-none mb-2">'
+            html_body += '<div class="card-body p-3">'
+            html_body += '<p class="m-0 mb-2"><b>MAKER</b></p>'
+            // list maker
+            for (let i = 0; i < 2; i++) {
+                html_body += '<div class="row">'
+                html_body += '<div class="col-12">'
+                html_body += '<div class="card shadow-none mb-2">'
+                html_body += '<div class="card-body p-2">'
+                html_body += '<div class="row">'
+                html_body += '<div class="col-10 align-self-center">'
+                html_body += '<p class="m-0 small"><b>MK9-A</b></p>'
+                html_body += '<p class="m-0 super-small-text">ABLF20 (100), ABOF20(100)</p>'
+                html_body += '</div>'
+                html_body += '<div class="col-2 align-self-center text-end">'
+                html_body += '<i class="fa fa-envelope text-grey"></i>'
+                html_body += '</div>'
+                html_body += '</div>'
+                html_body += '</div>'
+                html_body += '</div>'
+                html_body += '</div>'
+                html_body += '</div>'
+            }
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12 text-end">'
+            html_body += '<a href="" class="small-text">Add Mekanik (0)</a></i>'
+            html_body += '</div>'
+            html_body += '</div>'
+            // list maker
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        // end card maker
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-8 p-4">'
+        // header
+        html_body += '<div class="row">'
+        for (let i = 0; i < 2; i++) {
+            html_body += '<div class="col-auto p-1">'
+            html_body += '<div class="card shadow-none">'
+            html_body += '<div class="card-body p-2">'
+            html_body += '<p class="super-small-text m-0"><b>Pendek</b> 07.00 - 15.00 <i class="fa fa-envelope text-grey ms-2"></i></p>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '<div class="col-auto p-1">'
+        html_body += '<div class="card shadow-none">'
+        html_body += '<div class="card-body p-2">'
+        html_body += '<p class="super-small-text m-0"><i class="fa fa-plus text-grey"></i></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // header
+        // body
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 p-1">'
+        html_body += '<div class="card shadow-none">'
+        html_body += '<div class="card-body h-100">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col">'
+        html_body += '<p class="m-0 super-small-text mb-2"><b>Brand & Total Production</b></p>'
+        // total
+        for (let i = 0; i < 2; i++) {
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12">'
+            html_body += '<div class="card shadow-none mb-2">'
+            html_body += '<div class="card-body p-3">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col align-self-center"><b class="m-0">ABLF 20</b></div>'
+            html_body += '<div class="col-3"><input class="form-control form-control-sm shadow-none" type="text" style="border:0px;"><hr class="m-0"></div>'
+            html_body += '<div class="col-2 align-self-center p-0"><b class="m-0">Tray</b></div>'
+            html_body += '<div class="col-1 align-self-center p-0"><i class="fa fa-envelope text-grey"></i></div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<div class="card shadow-none mb-2" style="border:1px dashed #D9D9D9;">'
+        html_body += '<div class="card-body p-3 text-center">'
+        html_body += '<p class="m-0 small-text"><i class="me-2 fa fa-plus"></i>Add New</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // total
+        html_body += '</div>'
+        html_body += '<div class="col">'
+        html_body += '<p class="m-0 super-small-text mb-2"><b>Man Power</b></p>'
+        // man power
+        for (let i = 0; i < 2; i++) {
+            html_body += '<div class="row pb-2">'
+            html_body += '<div class="col-4 align-self-center">'
+            html_body += '<p class="m-0 small-text">Helper (<span>0</span>)</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-8">'
+            html_body += '<select class="form-select form-select-lg w-100" multiple id="identity' + i + '" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+            html_body += '<option value="1">Amalia Safira</option>'
+            html_body += '<option value="2">Moch. Sochron</option>'
+            html_body += '</select>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        // man power
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<p class="m-0 super-small-text mb-2"><b>Notes</b></p>'
+        // man power
+        html_body += '<textarea class="form-control" rows="10"></textarea>'
+        // man power
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // body
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0');
+        for (let i = 0; i < 2; i++) {
+            $('#identity' + i).select2({
+                width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                closeOnSelect: false,
+                dropdownParent: $('#modal'),
+                maximumInputLength: 1,
+            });
+        }
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
+        $('#modalFooter').html(html_footer);
+    }
 </script>

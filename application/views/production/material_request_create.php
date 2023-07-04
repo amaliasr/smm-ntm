@@ -881,16 +881,24 @@
             dataType: 'JSON',
             data: data,
             error: function(xhr) {
+                showOverlay('hide')
                 notFound('#dataPlanning')
                 notFound('#dataDraft')
                 notFound('#listMaterialRequest')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
             },
             beforeSend: function() {
+                showOverlay('show')
                 loadingData('#dataPlanning')
                 loadingData('#dataDraft')
                 loadingData('#listMaterialRequest')
             },
             success: function(response) {
+                showOverlay('hide')
                 $('#modal').modal('hide')
                 data_plan = response['data']
                 dateDisplay.innerHTML = formatDateIndonesia(data_plan.productionPlan[0].date)
