@@ -968,88 +968,258 @@
     }
 
     function createPlanner() {
-        var types = []
-        data_work.machine.forEach(e => {
-            types.push({
-                id: e.id,
-                name: e.name,
-                color: colorEvent(e.machine_type_id),
-            })
-        });
+        var types = [{
+            id: 'contractors',
+            name: 'Contractors',
+            collapsed: true,
+            eventCreation: false,
+            children: [{
+                id: 'builders',
+                name: 'Builders',
+                eventCreation: false,
+                children: [{
+                    id: 'b1',
+                    name: 'Jude Chester'
+                }, {
+                    id: 'b2',
+                    name: 'Willis Kane'
+                }]
+            }, {
+                id: 'carpenters',
+                name: 'Carpenters',
+                eventCreation: false,
+                children: [{
+                    id: 'c1',
+                    name: 'Derek Austyn'
+                }, {
+                    id: 'c2',
+                    name: 'Merv Kenny'
+                }]
+            }]
+        }, {
+            id: 'employees',
+            name: 'Employees',
+            eventCreation: false,
+            children: [{
+                id: 'cement_masons',
+                name: 'Cement masons',
+                eventCreation: false,
+                children: [{
+                    id: 'ce1',
+                    name: 'Ford Kaiden'
+                }, {
+                    id: 'ce2',
+                    name: 'Jewell Ryder'
+                }]
+            }, {
+                id: 'divers',
+                name: 'Drivers',
+                eventCreation: false,
+                children: [{
+                    id: 'd1',
+                    name: 'Fred Valdez'
+                }, {
+                    id: 'd2',
+                    name: 'Jon Drake',
+                }, {
+                    id: 'd3',
+                    name: 'Lou Andie'
+                }, {
+                    id: 'd4',
+                    name: 'Leon Porter'
+                }]
+            }]
+        }, {
+            id: 'equipment',
+            name: 'Equipment',
+            collapsed: true,
+            eventCreation: false,
+            children: [{
+                id: 'concrete_mixers',
+                name: 'Concrete mixers',
+                eventCreation: false,
+                children: [{
+                    id: 'cm1',
+                    name: 'AL 45 RFT'
+                }, {
+                    id: 'cm2',
+                    name: 'KQ 62 PVZ'
+                }, {
+                    id: 'cm3',
+                    name: 'RG 91 ZAL'
+                }, {
+                    id: 'cm4',
+                    name: 'XF 83 GFM'
+                }]
+            }, {
+                id: 'concrete_pumps',
+                name: 'Concrete pumps',
+                eventCreation: false,
+                children: [{
+                    id: 'cp1',
+                    name: 'GF 61 BVM'
+                }, {
+                    id: 'cp2',
+                    name: 'YC 55 ECT'
+                }]
+            }]
+        }];
+        var data = [{
+                start: '2023-07-01T06:00',
+                end: '2023-07-01T14:00',
+                title: 'Farmhouse TPH',
+                location: '3339 Spruce Drive',
+                resource: ['d2', 'cm2', 'd4', 'cp1', 'cm2', 'ce2', 'b1'],
+                color: '#12ca6c',
+                cost: 48000
+            }, {
+                start: '2023-07-02T08:00',
+                end: '2023-07-02T18:00',
+                title: 'Block of flats KXT',
+                location: '4698 Mercer Street',
+                resource: ['d1', 'cm1', 'd3', 'cp1', 'cm3', 'ce2', 'b2'],
+                color: '#c170c3',
+                cost: 36000
+            }, {
+                start: '2023-07-03T12:00',
+                end: '2023-07-03T20:00',
+                title: 'Apartment house UGL',
+                location: '3647 Tavern Place',
+                resource: ['d3', 'cm2', 'd4', 'cp2', 'cm3', 'ce1', 'b2'],
+                color: '#03c9d2',
+                cost: 50000
+            }, {
+                start: '2023-07-04T11:00',
+                end: '2023-07-04T19:00',
+                title: 'Detached house WKB',
+                location: '956 Dovetail Estates',
+                resource: ['d1', 'cm3', 'd4', 'cp3', 'cm4', 'c2', 'b1', 'ce2'],
+                color: '#ff1515',
+                cost: 55000
+            }, {
+                start: '2023-07-05T10:00',
+                end: '2023-07-05T18:00',
+                title: 'Apartment house XAZ',
+                location: '4919 Jett Lane, Inglewood',
+                resource: ['d1', 'cm4', 'd4', 'cp1', 'cm2', 'c2', 'b2'],
+                color: '#12ca6c',
+                cost: 62000
+            }, {
+                start: '2023-07-05T08:00',
+                end: '2023-07-05T16:00',
+                title: 'Block of flats DRG',
+                location: '486 Sycamore Fork Road',
+                resource: ['d2', 'cm1', 'd3', 'cp2', 'ce2', 'c1', 'b1'],
+                color: '#efd414',
+                cost: 39000
+            }, {
+                start: '2023-07-06T09:00',
+                end: '2023-07-06T17:00',
+                title: 'Farmhouse YQK',
+                location: '1563 Retreat Avenue',
+                resource: ['d2', 'cm4', 'd4', 'cm2', 'cp1', 'c2', 'b2'],
+                color: '#cf49d8',
+                cost: 45000
+            }, {
+                start: '2023-07-07T07:00',
+                end: '2023-07-07T15:00',
+                title: 'Apartment house SWP',
+                location: '628 Daylene Drive',
+                resource: ['d2', 'cm3', 'd3', 'cm1', 'cp2', 'c1', 'b1'],
+                color: '#c170c3',
+                cost: 53000
+            }, {
+                start: '2023-07-08T10:00',
+                end: '2023-07-08T18:00',
+                title: 'Detached house OZL',
+                location: '1830 Rinehart Road',
+                resource: ['d3', 'cm2', 'd4', 'cp2', 'cm3', 'ce1', 'b2'],
+                color: '#ff1515',
+                cost: 47000
+            }, {
+                start: '2023-07-09T11:00',
+                end: '2023-07-09T19:00',
+                title: 'Farmhouse PSZ',
+                location: '2410 Union Street',
+                resource: ['d1', 'cm3', 'd4', 'cp3', 'cm4', 'c2', 'b1', 'ce2'],
+                color: '#ff1515',
+                cost: 64000
+            }],
 
-        calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
-            view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
-                timeline: {
-                    type: 'week',
-                    eventList: true,
+            calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
+                view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
+                    timeline: {
+                        type: 'month',
+                        eventList: true,
+                    }
+                },
+                min: new Date(data_clicked_plan[0].date_start),
+                max: new Date(data_clicked_plan[0].date_end),
+                resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
+                data: data,
+                dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
+                dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
+                dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
+                clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
+                resizeEvent: true,
+                todayText: 'Today',
+                extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
+                    return {
+                        title: 'New meal',
+                        allDay: true
+                    };
+                },
+                onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
+                    // store temporary event
+                    tempMeal = args.event;
+                    setTimeout(function() {
+                        // addMealPopup();
+                    }, 100);
+                },
+                onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
+                    oldMeal = $.extend({}, args.event);
+                    tempMeal = args.event;
+
+                    // if (!popup.isVisible()) {
+                    // editMealPopup(args);
+                    // }
+                },
+
+                renderResourceHeader: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
+                    // LIST MESINNYA
+                    return '<div class="cell-content"><p class="m-0">Machine | Date<p></div>';
+                },
+                renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
+                    // LIST MESINNYA
+                    return '<div class="cell-content">' +
+                        '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
+                        '</div>';
+                },
+                renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
+                    var event = args.original;
+                    return '<div class="md-meal-planner-event">' +
+                        '<div class="">' + event.nama_shift + '</div>' +
+                        (event.produk ? '<div class="md-meal-planner-event-desc">' + event.produk + ' </div>' : '') +
+                        '</div>';
+                },
+                renderDay: function(day) {
+                    var date = day.date;
+                    var formatDate = mobiscroll.util.datetime.formatDate;
+                    var formattedDate = formatDate('DD MMMM YYYY', date);
+
+                    // Check if the current day is today's date
+                    var today = new Date();
+                    var isToday = date.toDateString() === today.toDateString();
+
+                    // Apply a CSS class or add a marker for today's date
+                    var marker = isToday ? '<span class="today-marker"></span>' : '';
+
+                    return '<div class="cell-content">' +
+                        '<p class="small">' + formattedDate + '</p>' +
+                        marker +
+                        '</div>';
                 }
-            },
-            min: new Date(data_clicked_plan[0].date_start),
-            max: new Date(data_clicked_plan[0].date_end),
-            resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
-            dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
-            dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
-            dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
-            clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
-            resizeEvent: true,
-            todayText: 'Today',
-            extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
-                return {
-                    title: 'New meal',
-                    allDay: true
-                };
-            },
-            onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
-                // store temporary event
-                tempMeal = args.event;
-                setTimeout(function() {
-                    // addMealPopup();
-                }, 100);
-            },
-            onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
-                oldMeal = $.extend({}, args.event);
-                tempMeal = args.event;
-
-                // if (!popup.isVisible()) {
-                // editMealPopup(args);
-                // }
-            },
-
-            renderResourceHeader: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                // LIST MESINNYA
-                return '<div class="cell-content"><p class="m-0">Machine | Date<p></div>';
-            },
-            renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                // LIST MESINNYA
-                return '<div class="cell-content">' +
-                    '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
-                    '</div>';
-            },
-            renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
-                var event = args.original;
-                return '<div class="md-meal-planner-event">' +
-                    '<div class="">' + event.nama_shift + '</div>' +
-                    (event.produk ? '<div class="md-meal-planner-event-desc">' + event.produk + ' </div>' : '') +
-                    '</div>';
-            },
-            renderDay: function(day) {
-                var date = day.date;
-                var formatDate = mobiscroll.util.datetime.formatDate;
-                var formattedDate = formatDate('DD MMMM YYYY', date);
-
-                // Check if the current day is today's date
-                var today = new Date();
-                var isToday = date.toDateString() === today.toDateString();
-
-                // Apply a CSS class or add a marker for today's date
-                var marker = isToday ? '<span class="today-marker"></span>' : '';
-
-                return '<div class="cell-content">' +
-                    '<p class="small">' + formattedDate + '</p>' +
-                    marker +
-                    '</div>';
-            }
-        }).mobiscroll('getInst');
+            }).mobiscroll('getInst');
         createDataPlanner()
 
     }
