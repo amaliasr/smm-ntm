@@ -626,37 +626,18 @@
                                         </div>
                                     </div> -->
                                     <div class="h-100">
-
                                         <table class="table table-bordered">
                                             <thead>
-                                                <tr>
-                                                    <th><b>Machine | Date</b></th>
-                                                    <?php for ($i = 0; $i < 6; $i++) { ?>
-                                                        <th>02 July 2023</th>
-                                                    <?php } ?>
+                                                <tr id="date_list">
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <?php for ($i = 0; $i < 6; $i++) { ?>
-                                                    <tr>
-                                                        <td>MK9A</td>
-                                                        <?php for ($j = 0; $j < 6; $j++) { ?>
-                                                            <td class="p-0">
-                                                                <div class="card shadow-none">
-                                                                    <div class="card-body">
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                        <?php } ?>
-                                                    </tr>
-                                                <?php } ?>
+                                            <tbody id="body_list">
                                             </tbody>
                                         </table>
 
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -773,6 +754,53 @@
         clearModal2();
     })
 
+    function convertTimeFormat(timeString) {
+        // Memisahkan jam, menit, dan detik dari string waktu
+        var timeParts = timeString.split(":");
+        var hour = timeParts[0];
+        var minute = timeParts[1];
+
+        // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
+        var formattedTime = hour + "." + minute;
+
+        return formattedTime;
+    }
+
+    function transformData(inputData) {
+        // Objek hasil yang akan diisi dengan data yang diolah
+        var outputData = [];
+
+        // Mengelompokkan data berdasarkan shift, mesin, dan tanggal
+        var groups = {};
+        for (var i = 0; i < inputData.length; i++) {
+            var key = inputData[i].shift_name + "_" + inputData[i].machine_id + "_" + inputData[i].date;
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(inputData[i]);
+        }
+
+        // Mengolah setiap kelompok data
+        for (var key in groups) {
+            var group = groups[key];
+            var produk = [];
+            for (var i = 0; i < group.length; i++) {
+                produk.push(group[i].product_alias);
+            }
+            var obj = {
+                start: group[0].date,
+                end: group[0].date,
+                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                resource: group[0].machine_id,
+                produk: produk.join(", "),
+                allDay: true,
+            };
+            outputData.push(obj);
+        }
+        return outputData;
+    }
+
     function loadingData(location) {
         $(location).html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
     }
@@ -798,7 +826,8 @@
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
 
     $(document).ready(function() {
-        // chooseDate()
+        chooseDate()
+        // createHeaderPlanner()
     })
 
     function chooseDate() {
@@ -1037,55 +1066,49 @@
             }
         });
         data_work_plan_group = transformData(data_work_plan);
+        // console.log(data_work_plan_group)
+        createHeaderPlanner()
+    }
+
+    function createHeaderPlanner() {
+        var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
+        var html = ''
+        html += '<th><b>Machine | Date</b></th>'
+        for (let i = 0; i < dateList.length; i++) {
+            html += '<th class="small-text">' + formatInternationalDate(dateList[i]) + '</th>'
+        }
+        $('#date_list').html(html)
+        createBodyPlanner()
+    }
+
+    function createBodyPlanner() {
         console.log(data_work_plan_group)
-        createPlanner()
-    }
-
-    function convertTimeFormat(timeString) {
-        // Memisahkan jam, menit, dan detik dari string waktu
-        var timeParts = timeString.split(":");
-        var hour = timeParts[0];
-        var minute = timeParts[1];
-
-        // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
-        var formattedTime = hour + "." + minute;
-
-        return formattedTime;
-    }
-
-    function transformData(inputData) {
-        // Objek hasil yang akan diisi dengan data yang diolah
-        var outputData = [];
-
-        // Mengelompokkan data berdasarkan shift, mesin, dan tanggal
-        var groups = {};
-        for (var i = 0; i < inputData.length; i++) {
-            var key = inputData[i].shift_name + "_" + inputData[i].machine_id + "_" + inputData[i].date;
-            if (!groups[key]) {
-                groups[key] = [];
+        var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
+        var html = ''
+        data_work.machine.forEach(e => {
+            html += '<tr>'
+            html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
+            // loop date
+            for (let i = 0; i < dateList.length; i++) {
+                html += '<td class="p-1">'
+                var data = data_work_plan_group.filter((v, k) => {
+                    if (v.resource == e.id && v.start == dateList[i]) return true
+                })
+                data.forEach(el => {
+                    html += '<div class="card shadow-none rounded-3" style="cursor:pointer;">'
+                    html += '<div class="card-body bg-grey p-2">'
+                    html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
+                    html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                });
+                html += '</td>'
             }
-            groups[key].push(inputData[i]);
-        }
-
-        // Mengolah setiap kelompok data
-        for (var key in groups) {
-            var group = groups[key];
-            var produk = [];
-            for (var i = 0; i < group.length; i++) {
-                produk.push(group[i].product_alias);
-            }
-            var obj = {
-                start: group[0].date,
-                end: group[0].date,
-                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
-                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
-                resource: group[0].machine_id,
-                produk: produk.join(", "),
-                allDay: true,
-            };
-            outputData.push(obj);
-        }
-        return outputData;
+            // loop date
+            html += '</tr>'
+        })
+        $('#body_list').html(html)
+        createTargetProduction()
     }
 
     function createPlanner() {

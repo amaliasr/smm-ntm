@@ -557,7 +557,6 @@
         height: 100%;
         vertical-align: middle;
         align-items: center;
-        width: 100px;
     }
 
     .color-cell-1 {
@@ -590,19 +589,6 @@
 
     .color-cell-8 {
         color: #17594A;
-    }
-
-    .md-work-order-price-tag {
-        display: inline-block;
-        font-size: 11px;
-        line-height: 16px;
-        vertical-align: middle;
-        border: 1px solid #959595;
-        color: #959595;
-        border-radius: 5px;
-        margin: 0 10px;
-        padding: 0px 5px;
-        /* width: 200px; */
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -640,11 +626,18 @@
                                         </div>
                                     </div> -->
                                     <div class="h-100">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr id="date_list">
+                                                </tr>
+                                            </thead>
+                                            <tbody id="body_list">
+                                            </tbody>
+                                        </table>
 
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -761,6 +754,53 @@
         clearModal2();
     })
 
+    function convertTimeFormat(timeString) {
+        // Memisahkan jam, menit, dan detik dari string waktu
+        var timeParts = timeString.split(":");
+        var hour = timeParts[0];
+        var minute = timeParts[1];
+
+        // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
+        var formattedTime = hour + "." + minute;
+
+        return formattedTime;
+    }
+
+    function transformData(inputData) {
+        // Objek hasil yang akan diisi dengan data yang diolah
+        var outputData = [];
+
+        // Mengelompokkan data berdasarkan shift, mesin, dan tanggal
+        var groups = {};
+        for (var i = 0; i < inputData.length; i++) {
+            var key = inputData[i].shift_name + "_" + inputData[i].machine_id + "_" + inputData[i].date;
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(inputData[i]);
+        }
+
+        // Mengolah setiap kelompok data
+        for (var key in groups) {
+            var group = groups[key];
+            var produk = [];
+            for (var i = 0; i < group.length; i++) {
+                produk.push(group[i].product_alias);
+            }
+            var obj = {
+                start: group[0].date,
+                end: group[0].date,
+                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                resource: group[0].machine_id,
+                produk: produk.join(", "),
+                allDay: true,
+            };
+            outputData.push(obj);
+        }
+        return outputData;
+    }
+
     function loadingData(location) {
         $(location).html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
     }
@@ -786,10 +826,8 @@
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
 
     $(document).ready(function() {
-        // chooseDate()
-        createPlanner()
+        createHeaderPlanner()
     })
-
 
     function loadDataPlanning(id) {
         var data = {
@@ -934,298 +972,135 @@
             }
         });
         data_work_plan_group = transformData(data_work_plan);
+        // console.log(data_work_plan_group)
+        createHeaderPlanner()
+    }
+
+    function createHeaderPlanner() {
+        var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
+        var html = ''
+        html += '<th><b>Machine | Date</b></th>'
+        for (let i = 0; i < dateList.length; i++) {
+            html += '<th class="small-text">' + formatInternationalDate(dateList[i]) + '</th>'
+        }
+        $('#date_list').html(html)
+        createBodyPlanner()
+    }
+
+    function createBodyPlanner() {
         console.log(data_work_plan_group)
-        createPlanner()
-    }
-
-    function convertTimeFormat(timeString) {
-        // Memisahkan jam, menit, dan detik dari string waktu
-        var timeParts = timeString.split(":");
-        var hour = timeParts[0];
-        var minute = timeParts[1];
-
-        // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
-        var formattedTime = hour + "." + minute;
-
-        return formattedTime;
-    }
-
-    function transformData(inputData) {
-        // Objek hasil yang akan diisi dengan data yang diolah
-        var outputData = [];
-
-        // Mengelompokkan data berdasarkan shift, mesin, dan tanggal
-        var groups = {};
-        for (var i = 0; i < inputData.length; i++) {
-            var key = inputData[i].shift_name + "_" + inputData[i].machine_id + "_" + inputData[i].date;
-            if (!groups[key]) {
-                groups[key] = [];
+        var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
+        var html = ''
+        data_work.machine.forEach(e => {
+            html += '<tr>'
+            html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
+            // loop date
+            for (let i = 0; i < dateList.length; i++) {
+                html += '<td class="p-1">'
+                var data = data_work_plan_group.filter((v, k) => {
+                    if (v.resource == e.id && v.start == dateList[i]) return true
+                })
+                data.forEach(el => {
+                    html += '<div class="card shadow-none rounded-3" style="cursor:pointer;">'
+                    html += '<div class="card-body bg-grey p-2">'
+                    html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
+                    html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                });
+                html += '</td>'
             }
-            groups[key].push(inputData[i]);
-        }
-
-        // Mengolah setiap kelompok data
-        for (var key in groups) {
-            var group = groups[key];
-            var produk = [];
-            for (var i = 0; i < group.length; i++) {
-                produk.push(group[i].product_alias);
-            }
-            var obj = {
-                start: group[0].date,
-                end: group[0].date,
-                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
-                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
-                resource: group[0].machine_id,
-                produk: produk.join(", "),
-                allDay: true,
-            };
-            outputData.push(obj);
-        }
-        return outputData;
+            // loop date
+            html += '</tr>'
+        })
+        $('#body_list').html(html)
+        createTargetProduction()
     }
 
     function createPlanner() {
-        var types = [{
-            id: 'contractors',
-            name: 'Contractors',
-            collapsed: true,
-            eventCreation: false,
-            children: [{
-                id: 'builders',
-                name: 'Builders',
-                eventCreation: false,
-                children: [{
-                    id: 'b1',
-                    name: 'Jude Chester'
-                }, {
-                    id: 'b2',
-                    name: 'Willis Kane'
-                }]
-            }, {
-                id: 'carpenters',
-                name: 'Carpenters',
-                eventCreation: false,
-                children: [{
-                    id: 'c1',
-                    name: 'Derek Austyn'
-                }, {
-                    id: 'c2',
-                    name: 'Merv Kenny'
-                }]
-            }]
-        }, {
-            id: 'employees',
-            name: 'Employees',
-            eventCreation: false,
-            children: [{
-                id: 'cement_masons',
-                name: 'Cement masons',
-                eventCreation: false,
-                children: [{
-                    id: 'ce1',
-                    name: 'Ford Kaiden'
-                }, {
-                    id: 'ce2',
-                    name: 'Jewell Ryder'
-                }]
-            }, {
-                id: 'divers',
-                name: 'Drivers',
-                eventCreation: false,
-                children: [{
-                    id: 'd1',
-                    name: 'Fred Valdez'
-                }, {
-                    id: 'd2',
-                    name: 'Jon Drake',
-                }, {
-                    id: 'd3',
-                    name: 'Lou Andie'
-                }, {
-                    id: 'd4',
-                    name: 'Leon Porter'
-                }]
-            }]
-        }, {
-            id: 'equipment',
-            name: 'Equipment',
-            collapsed: true,
-            eventCreation: false,
-            children: [{
-                id: 'concrete_mixers',
-                name: 'Concrete mixers',
-                eventCreation: false,
-                children: [{
-                    id: 'cm1',
-                    name: 'AL 45 RFT'
-                }, {
-                    id: 'cm2',
-                    name: 'KQ 62 PVZ'
-                }, {
-                    id: 'cm3',
-                    name: 'RG 91 ZAL'
-                }, {
-                    id: 'cm4',
-                    name: 'XF 83 GFM'
-                }]
-            }, {
-                id: 'concrete_pumps',
-                name: 'Concrete pumps',
-                eventCreation: false,
-                children: [{
-                    id: 'cp1',
-                    name: 'GF 61 BVM'
-                }, {
-                    id: 'cp2',
-                    name: 'YC 55 ECT'
-                }]
-            }]
-        }];
-        var data = [{
-                start: '2023-07-01',
-                end: '2023-07-01',
-                title: 'Farmhouse TPH',
-                location: '3339 Spruce Drive',
-                resource: ['d2', 'cm2', 'd4', 'cp1', 'cm2', 'ce2', 'b1'],
-                color: '#12ca6c',
-                cost: 48000
-            }, {
-                start: '2023-07-02',
-                end: '2023-07-02',
-                title: 'Block of flats KXT',
-                location: '4698 Mercer Street',
-                resource: ['d1', 'cm1', 'd3', 'cp1', 'cm3', 'ce2', 'b2'],
-                color: '#c170c3',
-                cost: 36000
-            }, {
-                start: '2023-07-03',
-                end: '2023-07-03',
-                title: 'Apartment house UGL',
-                location: '3647 Tavern Place',
-                resource: ['d3', 'cm2', 'd4', 'cp2', 'cm3', 'ce1', 'b2'],
-                color: '#03c9d2',
-                cost: 50000
-            }, {
-                start: '2023-07-04',
-                end: '2023-07-04',
-                title: 'Detached house WKB',
-                location: '956 Dovetail Estates',
-                resource: ['d1', 'cm3', 'd4', 'cp3', 'cm4', 'c2', 'b1', 'ce2'],
-                color: '#ff1515',
-                cost: 55000
-            }, {
-                start: '2023-07-05',
-                end: '2023-07-05',
-                title: 'Apartment house XAZ',
-                location: '4919 Jett Lane, Inglewood',
-                resource: ['d1', 'cm4', 'd4', 'cp1', 'cm2', 'c2', 'b2'],
-                color: '#12ca6c',
-                cost: 62000
-            }, {
-                start: '2023-07-05',
-                end: '2023-07-05',
-                title: 'Block of flats DRG',
-                location: '486 Sycamore Fork Road',
-                resource: ['d2', 'cm1', 'd3', 'cp2', 'ce2', 'c1', 'b1'],
-                color: '#efd414',
-                cost: 39000
-            }, {
-                start: '2023-07-06',
-                end: '2023-07-06',
-                title: 'Farmhouse YQK',
-                location: '1563 Retreat Avenue',
-                resource: ['d2', 'cm4', 'd4', 'cm2', 'cp1', 'c2', 'b2'],
-                color: '#cf49d8',
-                cost: 45000
-            }, {
-                start: '2023-07-07',
-                end: '2023-07-07',
-                title: 'Apartment house SWP',
-                location: '628 Daylene Drive',
-                resource: ['d2', 'cm3', 'd3', 'cm1', 'cp2', 'c1', 'b1'],
-                color: '#c170c3',
-                cost: 53000
-            }, {
-                start: '2023-07-08',
-                end: '2023-07-08',
-                title: 'Detached house OZL',
-                location: '1830 Rinehart Road',
-                resource: ['d3', 'cm2', 'd4', 'cp2', 'cm3', 'ce1', 'b2'],
-                color: '#ff1515',
-                cost: 47000
-            }, {
-                start: '2023-07-09',
-                end: '2023-07-09',
-                title: 'Farmhouse PSZ',
-                location: '2410 Union Street',
-                resource: ['d1', 'cm3', 'd4', 'cp3', 'cm4', 'c2', 'b1', 'ce2'],
-                color: '#ff1515',
-                cost: 64000
-            }],
+        var types = []
+        data_work.machine.forEach(e => {
+            types.push({
+                id: e.id,
+                name: e.name,
+                color: colorEvent(e.machine_type_id),
+            })
+        });
 
-            calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
-                view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
-                    timeline: {
-                        type: 'month',
-                        eventList: true,
-                    }
-                },
-                min: new Date('2023-07-02'),
-                max: new Date('2023-07-08'),
-                resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
-                data: data,
-                dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
-                dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
-                dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
-                clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
-                resizeEvent: true,
-                todayText: 'Today',
-                extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
-                    return {
-                        title: 'New meal',
-                        allDay: true
-                    };
-                },
-                onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
-                    // store temporary event
-                    tempMeal = args.event;
-                    setTimeout(function() {
-                        // addMealPopup();
-                    }, 100);
-                },
-                onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
-                    oldMeal = $.extend({}, args.event);
-                    tempMeal = args.event;
-
-                    // if (!popup.isVisible()) {
-                    // editMealPopup(args);
-                    // }
-                },
-
-                renderResourceHeader: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                    // LIST MESINNYA
-                    return '<div class="cell-content"><p class="m-0">Machine | Date<p></div>';
-                },
-                renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                    // LIST MESINNYA
-                    return '<div class="cell-content">' +
-                        '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
-                        '</div>';
-                },
-                renderScheduleEventContent: function(event) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
-                    return '<div>' + event.title + '<span class="md-work-order-price-tag">$' + (event.original.cost) + '</span></div>';
-                },
-                renderDay: function(day) {
-                    var date = day.date;
-                    var formatDate = mobiscroll.util.datetime.formatDate;
-                    var formattedDate = formatDate('DD MMMM YYYY', date);
-
-                    return '<div class="cell-content">' +
-                        '<p class="small">' + formattedDate + '</p></div>';
+        calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
+            view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
+                timeline: {
+                    type: 'week',
+                    eventList: true,
                 }
-            }).mobiscroll('getInst');
-        // createDataPlanner()
+            },
+            min: new Date(data_clicked_plan[0].date_start),
+            max: new Date(data_clicked_plan[0].date_end),
+            resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
+            dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
+            dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
+            dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
+            clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
+            resizeEvent: true,
+            todayText: 'Today',
+            extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
+                return {
+                    title: 'New meal',
+                    allDay: true
+                };
+            },
+            onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
+                // store temporary event
+                tempMeal = args.event;
+                setTimeout(function() {
+                    // addMealPopup();
+                }, 100);
+            },
+            onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
+                oldMeal = $.extend({}, args.event);
+                tempMeal = args.event;
+
+                // if (!popup.isVisible()) {
+                // editMealPopup(args);
+                // }
+            },
+
+            renderResourceHeader: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
+                // LIST MESINNYA
+                return '<div class="cell-content"><p class="m-0">Machine | Date<p></div>';
+            },
+            renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
+                // LIST MESINNYA
+                return '<div class="cell-content">' +
+                    '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
+                    '</div>';
+            },
+            renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
+                var event = args.original;
+                return '<div class="md-meal-planner-event">' +
+                    '<div class="">' + event.nama_shift + '</div>' +
+                    (event.produk ? '<div class="md-meal-planner-event-desc">' + event.produk + ' </div>' : '') +
+                    '</div>';
+            },
+            renderDay: function(day) {
+                var date = day.date;
+                var formatDate = mobiscroll.util.datetime.formatDate;
+                var formattedDate = formatDate('DD MMMM YYYY', date);
+
+                // Check if the current day is today's date
+                var today = new Date();
+                var isToday = date.toDateString() === today.toDateString();
+
+                // Apply a CSS class or add a marker for today's date
+                var marker = isToday ? '<span class="today-marker"></span>' : '';
+
+                return '<div class="cell-content">' +
+                    '<p class="small">' + formattedDate + '</p>' +
+                    marker +
+                    '</div>';
+            }
+        }).mobiscroll('getInst');
+        createDataPlanner()
 
     }
 
