@@ -128,3 +128,13 @@ function job_admin_ntm()
         return false;
     }
 }
+function job_mekanik_packer()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 88) {
+        return true;
+    } else {
+        return false;
+    }
+}

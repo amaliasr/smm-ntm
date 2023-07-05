@@ -144,10 +144,14 @@ class Production extends CI_Controller
         $data['title'] = 'Workforce Productivity';
         $this->template->views('production/workforce_productivity', $data);
     }
-    public function managementProduction()
+    public function productionPortals()
     {
-        $data['title'] = 'Management Production';
-        $this->template->views('production/management_production', $data);
+        $data['title'] = 'Production Portals';
+        if (job_foreman()) {
+            $this->template->views('production/production_portals', $data);
+        } else {
+            $this->template->views('production/production_portals_manpower', $data);
+        }
     }
     public function workPlan()
     {

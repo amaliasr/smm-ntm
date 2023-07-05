@@ -183,6 +183,32 @@ function currentDateTime() {
     var date = year + "-" + month + "-" + day+' '+jam + ":" + menit + ":" + detik;
     return date;
 }
+function currentDateTimeNoSeconds() {
+    var date = new Date();
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var jam = date.getHours();
+    var menit = date.getMinutes();
+    var detik = date.getSeconds();
+    if (detik < 10) {
+        detik = "0" + detik;
+    }
+    if (menit < 10) {
+        menit = "0" + menit;
+    }
+    if (jam < 10) {
+        jam = "0" + jam;
+    }
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = day + "/" + month + "/" + year+' '+jam + ":" + menit 
+    return date;
+}
 function getDateTime(orginaldate) {
     var date = new Date(orginaldate);
     var day = date.getDate();
@@ -242,6 +268,18 @@ function dateRange(startDate, endDate, steps = 1) {
     }
   
     return dateArray;
+  }
+  function dateRangeComplete(startDate, endDate) {
+    const dateStart = new Date(startDate);
+    const dateEnd = new Date(endDate);
+    const dates = [];
+
+    // Mengiterasi setiap hari antara dateStart dan dateEnd
+    for (let date = new Date(dateStart); date <= dateEnd; date.setDate(date.getDate() + 1)) {
+    const formattedDate = date.toISOString().split("T")[0];
+    dates.push(formattedDate);
+    }
+    return dates
   }
   function removeTags(str) {
     if ((str===null) || (str===''))

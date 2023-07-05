@@ -275,6 +275,10 @@
         color: #434242 !important;
     }
 
+    .text-orange {
+        color: #FF8551;
+    }
+
     .shadow-good {
         -webkit-box-shadow: 2px 1px 23.5px -4px #dddddd !important;
         -moz-box-shadow: 2px 1px 23.5px -4px #dddddd !important;
@@ -480,9 +484,13 @@
     }
 
     .md-meal-planner-cont {
-        position: relative;
-        padding-left: 10px;
-        text-align: left;
+        /* position: relative; */
+        /* padding-left: 10px; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        vertical-align: middle;
     }
 
     .md-meal-planner-title {
@@ -541,6 +549,47 @@
     .md-meal-planner-popup .mbsc-segmented-item:last-child .mbsc-segmented-selectbox-inner {
         background: #b48bce;
     }
+
+    .cell-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        vertical-align: middle;
+        align-items: center;
+    }
+
+    .color-cell-1 {
+        color: #4A55A2;
+    }
+
+    .color-cell-2 {
+        color: #FF9B9B;
+    }
+
+    .color-cell-3 {
+        color: #898121;
+    }
+
+    .color-cell-4 {
+        color: #A76F6F;
+    }
+
+    .color-cell-5 {
+        color: #F86F03;
+    }
+
+    .color-cell-6 {
+        color: #F1C27B;
+    }
+
+    .color-cell-7 {
+        color: #E966A0;
+    }
+
+    .color-cell-8 {
+        color: #17594A;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -554,13 +603,13 @@
                     <img class="w-100" src="<?= base_url() ?>assets/image/svg/planner.svg" alt="Icon" />
                 </div>
                 <div class="col-auto align-self-center">
-                    <h1 class="m-0"><b>Management Production</b></h1>
-                    <p class="m-0 small-text">Panel kegiatan produksi</p>
+                    <h1 class="m-0"><b>Production Portals</b></h1>
+                    <p class="m-0 small-text">Portal kegiatan produksi</p>
                 </div>
             </div>
             <div class="row pt-3">
-                <div class="col-8">
-                    <div class="card shadow-none" style="border-radius: 0px;">
+                <div class="col-12">
+                    <div class="card shadow-none mb-2" style="border-radius: 0px;">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
@@ -582,7 +631,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12">
                     <div class="card shadow-none h-100" style="border-radius: 0px;">
                         <div class="card-body p-0">
                             <div class="row p-4 pb-0">
@@ -592,10 +641,10 @@
                                 <div class="col text-end">
                                     <div class="row float-end align-self-center">
                                         <div class="col-auto text-end">
-                                            <p class="m-0 super-small-text text-grey"><i>Updated<br>30/06/2023 10:19</i></p>
+                                            <p class="m-0 super-small-text text-grey"><i>Updated<br><span id="time">-</span></i></p>
                                         </div>
                                         <div class="col-auto text-end ps-0">
-                                            <button type="button" class="btn btn-sm btn-outline-dark shadow-none"><i class="fa fa-refresh text-grey"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="refresh()"><i class="fa fa-refresh text-grey"></i></button>
                                         </div>
                                     </div>
                                     <p class="m-0 small-text text-end"></p>
@@ -614,37 +663,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-12 pe-4">
-                                    <div class="form-check align-items-center float-end">
-                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckMachine" style="width: 13px;height:13px;">
-                                        <label class="form-check-label small-text ms-1" for="flexCheckMachine">
-                                            Per Machine
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <?php for ($i = 0; $i < 5; $i++) { ?>
-                                        <div class="card shadow-none" style="border-radius:0px;border-right: none;border-left: none;">
-                                            <div class="card-body pt-3 pb-3">
-                                                <p class="m-0"><b>ABLF 20</b></p>
-                                                <div class="progress" style="height: 10px;border-radius:0px;">
-                                                    <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                                <div class="row pt-2">
-                                                    <div class="col">
-                                                        <p class="m-0 super-small-text">Realization</p>
-                                                        <p class="m-0 small-text"><b><span class="text-primary">10</span> Tray</b></p>
-                                                    </div>
-                                                    <div class="col text-end">
-                                                        <p class="m-0 super-small-text">Target Planning</p>
-                                                        <p class="m-0 small-text"><b>160 Tray</b></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-                                </div>
+                            <div class="row" id="formTargetProduction">
                             </div>
                         </div>
                     </div>
@@ -697,184 +716,8 @@
 <script>
     mobiscroll.setOptions({
         locale: mobiscroll.localeEn, // Specify language like: locale: mobiscroll.localePl or omit setting to use default
-        theme: 'ios', // Specify theme like: theme: 'ios' or omit setting to use default
+        theme: 'material', // Specify theme like: theme: 'ios' or omit setting to use default
         themeVariant: 'light' // More info about themeVariant: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-themeVariant
-    });
-
-    $(function() {
-        var calendar;
-        var popup;
-        var oldMeal;
-        var tempMeal;
-        var deleteMeal;
-        var formatDate = mobiscroll.util.datetime.formatDate;
-        var $name = $('#meal-name-input');
-        var $calories = $('#meal-calories-input');
-        var $notes = $('#meal-notes-textarea');
-        var $deleteButton = $('#meal-delete');
-        var $types = $('#meal-type-segmented');
-
-        var types = [{
-            id: 1,
-            name: 'MK9 A',
-            color: '#435B66',
-            // kcal: '300 - 400 kcal',
-        }, {
-            id: 2,
-            name: 'MK9 B',
-            color: '#435B66',
-            // kcal: '100 - 200 kcal',
-        }, {
-            id: 3,
-            name: 'MK9 C',
-            color: '#435B66',
-            // kcal: '500 - 700 kcal',
-        }, {
-            id: 4,
-            name: 'HLP 12 A',
-            color: '#A76F6F',
-            // kcal: '400 - 600 kcal',
-        }, {
-            id: 5,
-            name: 'HLP 12 B',
-            color: '#A76F6F',
-            // kcal: '100 - 200 kcal',
-        }, {
-            id: 6,
-            name: 'HLP 20 B',
-            color: '#A76F6F',
-            // kcal: '100 - 200 kcal',
-        }, {
-            id: 7,
-            name: 'HLP 20 B',
-            color: '#A76F6F',
-            // kcal: '100 - 200 kcal',
-        }];
-
-        var calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
-            view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
-                timeline: {
-                    type: 'week',
-                    eventList: true
-                }
-            },
-            resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
-            dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
-            dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
-            dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
-            clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
-            resizeEvent: true,
-            eventBorder: true,
-            eventBorderColor: '#000000', // Warna border luar
-            extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
-                return {
-                    title: 'New meal',
-                    allDay: true
-                };
-            },
-            onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
-                // store temporary event
-                tempMeal = args.event;
-                setTimeout(function() {
-                    // addMealPopup();
-                }, 100);
-            },
-            onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
-                oldMeal = $.extend({}, args.event);
-                tempMeal = args.event;
-
-                // if (!popup.isVisible()) {
-                // editMealPopup(args);
-                // }
-            },
-            renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                return '<div class="md-meal-planner-cont">' +
-                    '<div class="" style="color:' + resource.color + ';font-size:12px !important;">' + resource.name + '</div>' +
-                    // '<div class="md-meal-planner-kcal">' + resource.kcal + '</div>' +
-                    '</div>';
-            },
-            renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
-                var event = args.original;
-                return '<div class="md-meal-planner-event">' +
-                    '<div class="">' + event.title + '</div>' +
-                    (event.calories ? '<div class="md-meal-planner-event-desc">' + event.calories + ' </div>' : '') +
-                    '</div>';
-            },
-
-        }).mobiscroll('getInst');
-
-        $.getJSON('https://trial.mobiscroll.com/meal-planner/?callback=?', function(events) {
-            // console.log(events)
-            var array = [{
-                "start": "2023-06-30",
-                "end": "2023-06-30",
-                "title": "Shift 7 - 15",
-                "resource": 1,
-                "calories": 'ABLF12, ABOF20',
-                "allDay": true
-            }, {
-                "start": "2023-06-30",
-                "end": "2023-06-30",
-                "title": "Shift 7 - 15",
-                "resource": 2,
-                "calories": 'ABLF12, ABOF20',
-                "allDay": true
-            }]
-            calendar.setEvents(array);
-            $('.mbsc-calendar-wrapper').attr('hidden', true)
-        }, 'jsonp');
-
-        var popup = $('#meal-planner-popup').mobiscroll().popup({
-            display: 'bottom', // Specify display mode like: display: 'bottom' or omit setting to use default
-            contentPadding: false,
-            fullScreen: true,
-            onClose: function() { // More info about onClose: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onClose
-                if (deleteMeal) {
-                    calendar.removeEvent(tempMeal);
-                } else if (restoreMeal) {
-                    calendar.updateEvent(oldMeal);
-                }
-            },
-            responsive: { // More info about responsive: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-responsive
-                medium: {
-                    display: 'center', // Specify display mode like: display: 'bottom' or omit setting to use default
-                    width: 400, // More info about width: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-width
-                    fullScreen: false,
-                    touchUi: false,
-                    showOverlay: false
-                }
-            }
-        }).mobiscroll('getInst');
-
-        function getTypes() {
-            var data = [];
-
-            for (var i = 0; i < types.length; ++i) {
-                var type = types[i];
-                data.push({
-                    text: type.name,
-                    value: type.id
-                })
-            }
-            return data;
-        }
-
-        function appendTypes() {
-            var segmented = '<div mbsc-segmented-group>';
-
-            for (var i = 0; i < types.length; ++i) {
-                var type = types[i];
-                segmented += '<label>' + type.name + '<input type="radio" mbsc-segmented name="meal-planner-type" value="' +
-                    type.id + '" class="meal-planner-type" ' + '/></label>';
-            }
-
-            segmented += '</div>';
-            $types.append(segmented);
-            mobiscroll.enhance($types[0]);
-        }
-
-        appendTypes();
-
     });
 </script>
 <script>
@@ -909,8 +752,9 @@
         $(location).html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
     }
 
-
-
+    function empty(location, text) {
+        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><p class="small"><i>' + text + '</i></p><lottie-player style="margin:auto;width: 200px; height: 100%;" src="https://assets8.lottiefiles.com/packages/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player></div></div>')
+    }
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
         $(this).css('z-index', zIndex);
@@ -925,99 +769,9 @@
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
 
     $(document).ready(function() {
-        chooseDate()
+        // chooseDate()
     })
 
-    function chooseDate() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Pilih Planning</h5>'
-        html_header += '<div class="input-group w-50">'
-        html_header += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_planning">'
-        html_header += '<span class="input-group-text">'
-        html_header += '<i class="fa fa-search"></i>'
-        html_header += '</span>'
-        html_header += '</div>'
-        $('#modalHeader').html(html_header);
-
-        var html_body = '';
-        html_body += '<div class="container small">'
-        html_body += '<div class="row">'
-
-        html_body += '<div class="col-12" id="listPlanning">'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body);
-        $('#modalFooter').addClass('d-none');
-        getDataPlanning()
-    }
-    var data_all_plan = ""
-
-    function getDataPlanning() {
-        $.ajax({
-            url: "<?= api_produksi('loadPageWorkPlanPortal'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                employeeId: user_id,
-            },
-            error: function(xhr) {
-                notFound('#listPlanning')
-            },
-            beforeSend: function() {
-                loadingData('#listPlanning')
-            },
-            success: function(response) {
-                data_all_plan = response['data']['listProductionPlan']
-                formDataPlanning()
-            }
-        })
-    }
-    var html_expired_plan = ''
-    var html_collapse = ""
-    var jumlah_expired_plan = 0
-
-    function formDataPlanning() {
-        $('#listPlanning').empty()
-        var html = ""
-        if (data_all_plan.length != 0) {
-            $.each(data_all_plan, function(key, value) {
-                html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ')" id="card_search' + key + '">'
-                html += '<div class="row g-0">'
-                html += '<div class="col-md-2 bg-' + value.production_type.name.toLowerCase() + '">'
-                html += '<div class="row d-flex align-items-center h-100">'
-                html += '<div class="col text-center">'
-                html += '<span class="text-white">' + value.production_type.name + '</span>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '<div class="col-md-10">'
-                html += '<div class="card-body">'
-
-                html += '<div class="row">'
-                html += '<div class="col-12 align-self-center">'
-                html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
-                var today = ''
-                if (value.date_start <= currentDate() && value.date_end >= currentDate()) {
-                    today = '<span class="badge bg-success">Today in This Plan</span>'
-                }
-                html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date_start']) + ' - ' + formatDateIndonesia(value['date_end']) + ' ' + today + '</b></p>'
-                html += '</div>'
-                html += '</div>'
-
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            })
-            $('#listPlanning').html(html)
-        } else {
-            notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
-        }
-    }
 
     function loadDataPlanning(id) {
         var data = {
@@ -1026,6 +780,7 @@
         var url = "<?= api_produksi('getWorkPlan'); ?>"
         getData(data, url, id)
     }
+
     var data_work = ''
     var id_production_plan_clicked = ''
 
@@ -1049,18 +804,31 @@
             success: function(response) {
                 showOverlay('hide')
                 $('#modal').modal('hide')
+                $('#time').html(currentDateTimeNoSeconds())
                 data_work = response['data']
                 id_production_plan_clicked = id
                 arrangeVariable()
             }
         })
     }
+
+    var calendar;
+    var popup;
+    var oldMeal;
+    var tempMeal;
+    var deleteMeal;
     var data_detail_plan_clicked = []
-    var data_target_production = []
-    var data_target_production_per_machine = []
+    var target_per_production_type = []
+    var target_per_machine = []
+    var target_production = {}
+    var data_clicked_plan = ''
+    var data_work_plan = []
+    var data_work_plan_group = ''
 
     function arrangeVariable() {
-        var data_clicked_plan = data_all_plan.filter((v, k) => {
+        // VARIABLE PLANNING
+
+        data_clicked_plan = data_all_plan.filter((v, k) => {
             if (v.id == id_production_plan_clicked) return true
         })
         data_clicked_plan[0].detail.forEach(a => {
@@ -1091,17 +859,293 @@
 
             });
         });
-        data_target_production = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'production_step_id', 'production_step_name'], ['qty']);
-        data_target_production = data_target_production.map(objek => ({
+        target_per_production_type = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'production_step_id', 'production_step_name'], ['qty']);
+        target_per_production_type = target_per_production_type.map(objek => ({
+            ...objek,
+            qty_realisasi: 20
+        }));
+        target_per_machine = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'machine_id', 'machine_name'], ['qty']);
+        target_per_machine = target_per_machine.map(objek => ({
             ...objek,
             qty_realisasi: 0
         }));
-        data_target_production_per_machine = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'machine_id', 'machine_name'], ['qty']);
-        data_target_production_per_machine = data_target_production_per_machine.map(objek => ({
-            ...objek,
-            qty_realisasi: 0
-        }));
-        console.log(data_target_production)
-        console.log(data_target_production_per_machine)
+        target_production = {
+            'target_per_production_type': target_per_production_type,
+            'target_per_machine': target_per_machine,
+        }
+
+        // VARIABLE WORK PLAN
+        data_work.workPlan.forEach(a => {
+            // date
+            if (a.work_plan.id == null) {
+                // jika null, maka pakai production_plan
+                a.production_plan.shift.forEach(b => {
+                    // shift
+                    a.production_plan.machine_type.forEach(c => {
+                        // machine_type
+                        c.machine.forEach(d => {
+                            // machine
+                            d.product.forEach(e => {
+                                // product
+                                data_work_plan.push({
+                                    'id': a.id,
+                                    'date': a.date,
+                                    'note': a.note,
+                                    'shift_id': b.id,
+                                    'shift_name': b.name,
+                                    'shift_end': b.end,
+                                    'shift_start': b.start,
+                                    'machine_type_id': c.id,
+                                    'machine_type_name': c.name,
+                                    'machine_id': d.id,
+                                    'machine_name': d.name,
+                                    'product_id': e.product.id,
+                                    'product_code': e.product.code,
+                                    'product_name': e.product.name,
+                                    'product_alias': e.product.alias,
+                                    'product_qty': e.product.qty,
+                                    'unit_id': e.product.unit.id,
+                                    'unit_name': e.product.unit.name,
+                                })
+                            });
+                        });
+                    });
+                });
+            } else {
+                // jika work plan id tidak null, pakai yg workplan
+            }
+        });
+        data_work_plan_group = transformData(data_work_plan);
+        console.log(data_work_plan_group)
+        createPlanner()
+    }
+
+    function convertTimeFormat(timeString) {
+        // Memisahkan jam, menit, dan detik dari string waktu
+        var timeParts = timeString.split(":");
+        var hour = timeParts[0];
+        var minute = timeParts[1];
+
+        // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
+        var formattedTime = hour + "." + minute;
+
+        return formattedTime;
+    }
+
+    function transformData(inputData) {
+        // Objek hasil yang akan diisi dengan data yang diolah
+        var outputData = [];
+
+        // Mengelompokkan data berdasarkan shift, mesin, dan tanggal
+        var groups = {};
+        for (var i = 0; i < inputData.length; i++) {
+            var key = inputData[i].shift_name + "_" + inputData[i].machine_id + "_" + inputData[i].date;
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(inputData[i]);
+        }
+
+        // Mengolah setiap kelompok data
+        for (var key in groups) {
+            var group = groups[key];
+            var produk = [];
+            for (var i = 0; i < group.length; i++) {
+                produk.push(group[i].product_alias);
+            }
+            var obj = {
+                start: group[0].date,
+                end: group[0].date,
+                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                resource: group[0].machine_id,
+                produk: produk.join(", "),
+                allDay: true,
+            };
+            outputData.push(obj);
+        }
+        return outputData;
+    }
+
+    function createPlanner() {
+        var types = []
+        data_work.machine.forEach(e => {
+            types.push({
+                id: e.id,
+                name: e.name,
+                color: colorEvent(e.machine_type_id),
+            })
+        });
+
+        calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
+            view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
+                timeline: {
+                    type: 'week',
+                    eventList: true,
+                }
+            },
+            min: new Date(data_clicked_plan[0].date_start),
+            max: new Date(data_clicked_plan[0].date_end),
+            resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
+            dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
+            dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
+            dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
+            clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
+            resizeEvent: true,
+            todayText: 'Today',
+            extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
+                return {
+                    title: 'New meal',
+                    allDay: true
+                };
+            },
+            onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
+                // store temporary event
+                tempMeal = args.event;
+                setTimeout(function() {
+                    // addMealPopup();
+                }, 100);
+            },
+            onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
+                oldMeal = $.extend({}, args.event);
+                tempMeal = args.event;
+
+                // if (!popup.isVisible()) {
+                // editMealPopup(args);
+                // }
+            },
+
+            renderResourceHeader: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
+                // LIST MESINNYA
+                return '<div class="cell-content"><p class="m-0">Machine | Date<p></div>';
+            },
+            renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
+                // LIST MESINNYA
+                return '<div class="cell-content">' +
+                    '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
+                    '</div>';
+            },
+            renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
+                var event = args.original;
+                return '<div class="md-meal-planner-event">' +
+                    '<div class="">' + event.nama_shift + '</div>' +
+                    (event.produk ? '<div class="md-meal-planner-event-desc">' + event.produk + ' </div>' : '') +
+                    '</div>';
+            },
+            renderDay: function(day) {
+                var date = day.date;
+                var formatDate = mobiscroll.util.datetime.formatDate;
+                var formattedDate = formatDate('DD MMMM YYYY', date);
+
+                // Check if the current day is today's date
+                var today = new Date();
+                var isToday = date.toDateString() === today.toDateString();
+
+                // Apply a CSS class or add a marker for today's date
+                var marker = isToday ? '<span class="today-marker"></span>' : '';
+
+                return '<div class="cell-content">' +
+                    '<p class="small">' + formattedDate + '</p>' +
+                    marker +
+                    '</div>';
+            }
+        }).mobiscroll('getInst');
+        createDataPlanner()
+
+    }
+
+    function createDataPlanner() {
+        var array = data_work_plan_group
+        calendar.setEvents(array);
+        // $('.mbsc-calendar-wrapper').attr('hidden', true)
+        createTargetProduction()
+    }
+
+    function createTargetProduction() {
+        var html = ''
+        html += '<div class="col-12 pe-4">'
+        html += '<div class="form-check d-flex align-items-center float-end">'
+        html += '<input class="form-check-input mb-2" type="checkbox" value="" id="flexCheckMachine" onchange="changeTargetMachine()" style="width: 13px;height:13px;">'
+        html += '<label class="form-check-label small-text ms-1" for="flexCheckMachine">Per Machine</label>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12" id="listTargetProduction"></div>'
+        $('#formTargetProduction').html(html)
+        changeTargetMachine()
+    }
+
+    function targetProduction(name) {
+        var html = ''
+        target_production[name].forEach(e => {
+            html += '<div class="card shadow-none" style="border-radius:0px;border-right: none;border-left: none;">'
+            html += '<div class="card-body pt-3 pb-3">'
+            if (name == 'target_per_production_type') {
+                html += '<p class="m-0 super-small-text text-orange">' + e.production_step_name + '</p>'
+            } else {
+                html += '<p class="m-0 super-small-text text-orange">' + e.machine_name + '</p>'
+            }
+            html += '<p class="m-0"><b>' + e.product_code + '</b></p>'
+            html += '<div class="progress" style="height: 10px;border-radius:0px;">'
+            var percent = (e.qty_realisasi / e.qty) * 100
+            html += '<div class="progress-bar" role="progressbar" style="width: ' + percent + '%" aria-valuenow="' + e.qty_realisasi + '" aria-valuemin="0" aria-valuemax="' + e.qty + '"></div>'
+            html += '</div>'
+            html += '<div class="row pt-2">'
+            html += '<div class="col">'
+            html += '<p class="m-0 super-small-text">Realization</p>'
+            html += '<p class="m-0 small-text"><b><span class="text-primary">' + number_format(e.qty_realisasi) + '</span> ' + e.unit_name + '</b></p>'
+            html += '</div>'
+            html += '<div class="col text-end">'
+            html += '<p class="m-0 super-small-text">Target Planning</p>'
+            html += '<p class="m-0 small-text"><b>' + number_format(e.qty) + ' ' + e.unit_name + '</b></p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listTargetProduction').html(html)
+    }
+
+    function changeTargetMachine() {
+        if ($('#flexCheckMachine').is(':checked')) {
+            targetProduction('target_per_machine')
+        } else {
+            targetProduction('target_per_production_type')
+        }
+    }
+
+    function refresh() {
+        loadDataPlanning(id_production_plan_clicked)
+    }
+
+    function colorEvent(id) {
+        switch (id) {
+            // case 1:
+            //     return '#4A55A2'
+            //     break;
+            // case 2:
+            //     return '#FF9B9B'
+            //     break;
+            // case 3:
+            //     return '#898121'
+            //     break;
+            // case 4:
+            //     return '#A76F6F'
+            //     break;
+            // case 5:
+            //     return '#F86F03'
+            //     break;
+            // case 6:
+            //     return '#F1C27B'
+            //     break;
+            // case 7:
+            //     return '#E966A0'
+            //     break;
+            // case 8:
+            //     return '#17594A'
+            //     break;
+            default:
+                return '#EAEAEA'
+                break;
+        }
     }
 </script>

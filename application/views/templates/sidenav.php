@@ -95,7 +95,7 @@
                     Beranda
                 </a>
                 <!-- Sidenav Accordion Production-->
-                <?php if (job_spv_smd() || job_foreman() || job_logistik_warehouse() || job_supply_sparepart()) { ?>
+                <?php if (job_spv_smd() || job_foreman() || job_logistik_warehouse() || job_supply_sparepart() || job_mekanik_packer()) { ?>
                     <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
                         <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
                         Production
@@ -115,8 +115,8 @@
                             <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                             <?php } ?>
-                            <?php if (job_foreman()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>production/managementProduction">Management Production</a>
+                            <?php if (job_foreman() || job_mekanik_packer()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
                             <?php } ?>
                         </nav>
                     </div>
