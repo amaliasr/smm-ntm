@@ -557,6 +557,7 @@
         height: 100%;
         vertical-align: middle;
         align-items: center;
+        width: 100px;
     }
 
     .color-cell-1 {
@@ -590,6 +591,19 @@
     .color-cell-8 {
         color: #17594A;
     }
+
+    .md-work-order-price-tag {
+        display: inline-block;
+        font-size: 11px;
+        line-height: 16px;
+        vertical-align: middle;
+        border: 1px solid #959595;
+        color: #959595;
+        border-radius: 5px;
+        margin: 0 10px;
+        padding: 0px 5px;
+        /* width: 200px; */
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -620,10 +634,13 @@
                                     <a href="<?= base_url() ?>production/workPlan"><button type="button" class="btn btn-primary btn-sm">Work Plan</button></a>
                                 </div>
                                 <div class="col-12 pt-3">
-                                    <div mbsc-page class="demo-meal-planner">
+                                    <!-- <div mbsc-page class="demo-meal-planner">
                                         <div style="height:100%;">
                                             <div id="demo-meal-planner" class="md-meal-planner-calendar"></div>
                                         </div>
+                                    </div> -->
+                                    <div class="h-100">
+
                                     </div>
                                 </div>
                             </div>
@@ -770,6 +787,7 @@
 
     $(document).ready(function() {
         // chooseDate()
+        createPlanner()
     })
 
 
@@ -1065,80 +1083,80 @@
             }]
         }];
         var data = [{
-                start: '2023-07-01T06:00',
-                end: '2023-07-01T14:00',
+                start: '2023-07-01',
+                end: '2023-07-01',
                 title: 'Farmhouse TPH',
                 location: '3339 Spruce Drive',
                 resource: ['d2', 'cm2', 'd4', 'cp1', 'cm2', 'ce2', 'b1'],
                 color: '#12ca6c',
                 cost: 48000
             }, {
-                start: '2023-07-02T08:00',
-                end: '2023-07-02T18:00',
+                start: '2023-07-02',
+                end: '2023-07-02',
                 title: 'Block of flats KXT',
                 location: '4698 Mercer Street',
                 resource: ['d1', 'cm1', 'd3', 'cp1', 'cm3', 'ce2', 'b2'],
                 color: '#c170c3',
                 cost: 36000
             }, {
-                start: '2023-07-03T12:00',
-                end: '2023-07-03T20:00',
+                start: '2023-07-03',
+                end: '2023-07-03',
                 title: 'Apartment house UGL',
                 location: '3647 Tavern Place',
                 resource: ['d3', 'cm2', 'd4', 'cp2', 'cm3', 'ce1', 'b2'],
                 color: '#03c9d2',
                 cost: 50000
             }, {
-                start: '2023-07-04T11:00',
-                end: '2023-07-04T19:00',
+                start: '2023-07-04',
+                end: '2023-07-04',
                 title: 'Detached house WKB',
                 location: '956 Dovetail Estates',
                 resource: ['d1', 'cm3', 'd4', 'cp3', 'cm4', 'c2', 'b1', 'ce2'],
                 color: '#ff1515',
                 cost: 55000
             }, {
-                start: '2023-07-05T10:00',
-                end: '2023-07-05T18:00',
+                start: '2023-07-05',
+                end: '2023-07-05',
                 title: 'Apartment house XAZ',
                 location: '4919 Jett Lane, Inglewood',
                 resource: ['d1', 'cm4', 'd4', 'cp1', 'cm2', 'c2', 'b2'],
                 color: '#12ca6c',
                 cost: 62000
             }, {
-                start: '2023-07-05T08:00',
-                end: '2023-07-05T16:00',
+                start: '2023-07-05',
+                end: '2023-07-05',
                 title: 'Block of flats DRG',
                 location: '486 Sycamore Fork Road',
                 resource: ['d2', 'cm1', 'd3', 'cp2', 'ce2', 'c1', 'b1'],
                 color: '#efd414',
                 cost: 39000
             }, {
-                start: '2023-07-06T09:00',
-                end: '2023-07-06T17:00',
+                start: '2023-07-06',
+                end: '2023-07-06',
                 title: 'Farmhouse YQK',
                 location: '1563 Retreat Avenue',
                 resource: ['d2', 'cm4', 'd4', 'cm2', 'cp1', 'c2', 'b2'],
                 color: '#cf49d8',
                 cost: 45000
             }, {
-                start: '2023-07-07T07:00',
-                end: '2023-07-07T15:00',
+                start: '2023-07-07',
+                end: '2023-07-07',
                 title: 'Apartment house SWP',
                 location: '628 Daylene Drive',
                 resource: ['d2', 'cm3', 'd3', 'cm1', 'cp2', 'c1', 'b1'],
                 color: '#c170c3',
                 cost: 53000
             }, {
-                start: '2023-07-08T10:00',
-                end: '2023-07-08T18:00',
+                start: '2023-07-08',
+                end: '2023-07-08',
                 title: 'Detached house OZL',
                 location: '1830 Rinehart Road',
                 resource: ['d3', 'cm2', 'd4', 'cp2', 'cm3', 'ce1', 'b2'],
                 color: '#ff1515',
                 cost: 47000
             }, {
-                start: '2023-07-09T11:00',
-                end: '2023-07-09T19:00',
+                start: '2023-07-09',
+                end: '2023-07-09',
                 title: 'Farmhouse PSZ',
                 location: '2410 Union Street',
                 resource: ['d1', 'cm3', 'd4', 'cp3', 'cm4', 'c2', 'b1', 'ce2'],
@@ -1153,8 +1171,8 @@
                         eventList: true,
                     }
                 },
-                min: new Date(data_clicked_plan[0].date_start),
-                max: new Date(data_clicked_plan[0].date_end),
+                min: new Date('2023-07-02'),
+                max: new Date('2023-07-08'),
                 resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
                 data: data,
                 dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
@@ -1195,32 +1213,19 @@
                         '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
                         '</div>';
                 },
-                renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
-                    var event = args.original;
-                    return '<div class="md-meal-planner-event">' +
-                        '<div class="">' + event.nama_shift + '</div>' +
-                        (event.produk ? '<div class="md-meal-planner-event-desc">' + event.produk + ' </div>' : '') +
-                        '</div>';
+                renderScheduleEventContent: function(event) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
+                    return '<div>' + event.title + '<span class="md-work-order-price-tag">$' + (event.original.cost) + '</span></div>';
                 },
                 renderDay: function(day) {
                     var date = day.date;
                     var formatDate = mobiscroll.util.datetime.formatDate;
                     var formattedDate = formatDate('DD MMMM YYYY', date);
 
-                    // Check if the current day is today's date
-                    var today = new Date();
-                    var isToday = date.toDateString() === today.toDateString();
-
-                    // Apply a CSS class or add a marker for today's date
-                    var marker = isToday ? '<span class="today-marker"></span>' : '';
-
                     return '<div class="cell-content">' +
-                        '<p class="small">' + formattedDate + '</p>' +
-                        marker +
-                        '</div>';
+                        '<p class="small">' + formattedDate + '</p></div>';
                 }
             }).mobiscroll('getInst');
-        createDataPlanner()
+        // createDataPlanner()
 
     }
 

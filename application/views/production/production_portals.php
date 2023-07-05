@@ -620,9 +620,14 @@
                                     <a href="<?= base_url() ?>production/workPlan"><button type="button" class="btn btn-primary btn-sm">Work Plan</button></a>
                                 </div>
                                 <div class="col-12 pt-3">
-                                    <div mbsc-page class="demo-meal-planner">
+                                    <!-- <div mbsc-page class="demo-meal-planner">
                                         <div style="height:100%;">
                                             <div id="demo-meal-planner" class="md-meal-planner-calendar"></div>
+                                        </div>
+                                    </div> -->
+                                    <div class="h-100">
+                                        <div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -769,7 +774,7 @@
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
 
     $(document).ready(function() {
-        chooseDate()
+        // chooseDate()
     })
 
     function chooseDate() {
