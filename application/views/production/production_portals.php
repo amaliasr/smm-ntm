@@ -626,9 +626,33 @@
                                         </div>
                                     </div> -->
                                     <div class="h-100">
-                                        <div>
 
-                                        </div>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th><b>Machine | Date</b></th>
+                                                    <?php for ($i = 0; $i < 6; $i++) { ?>
+                                                        <th>02 July 2023</th>
+                                                    <?php } ?>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php for ($i = 0; $i < 6; $i++) { ?>
+                                                    <tr>
+                                                        <td>MK9A</td>
+                                                        <?php for ($j = 0; $j < 6; $j++) { ?>
+                                                            <td class="p-0">
+                                                                <div class="card shadow-none">
+                                                                    <div class="card-body">
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        <?php } ?>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+
                                     </div>
                                 </div>
                             </div>
