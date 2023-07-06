@@ -590,6 +590,31 @@
     .color-cell-8 {
         color: #17594A;
     }
+
+    /* .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-inner {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: #f9f9f9;
+        /* Atur warna latar belakang sesuai kebutuhan */
+    /* } */
+
+    th:first-child,
+    td:first-child {
+        position: sticky;
+        left: 0px;
+        background-color: white;
+        z-index: 1;
+        /* border: 1px solid rgba(33, 40, 50, 0.125); */
+        border: 1px solid #ddd;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -608,7 +633,7 @@
                 </div>
             </div>
             <div class="row pt-3">
-                <div class="col-12">
+                <div class="col-12 col-lg-9">
                     <div class="card shadow-none mb-2" style="border-radius: 0px;">
                         <div class="card-body">
                             <div class="row">
@@ -626,22 +651,23 @@
                                         </div>
                                     </div> -->
                                     <div class="h-100">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr id="date_list">
-                                                </tr>
-                                            </thead>
-                                            <tbody id="body_list">
-                                            </tbody>
-                                        </table>
-
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
+                                                <thead>
+                                                    <tr id="date_list">
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="body_list">
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-12">
+                <div class="col-12 col-lg-3">
                     <div class="card shadow-none h-100" style="border-radius: 0px;">
                         <div class="card-body p-0">
                             <div class="row p-4 pb-0">
@@ -1066,14 +1092,13 @@
             }
         });
         data_work_plan_group = transformData(data_work_plan);
-        // console.log(data_work_plan_group)
         createHeaderPlanner()
     }
 
     function createHeaderPlanner() {
         var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
         var html = ''
-        html += '<th><b>Machine | Date</b></th>'
+        html += '<th class=""><b>Machine | Date</b></th>'
         for (let i = 0; i < dateList.length; i++) {
             html += '<th class="small-text">' + formatInternationalDate(dateList[i]) + '</th>'
         }
@@ -1082,7 +1107,6 @@
     }
 
     function createBodyPlanner() {
-        console.log(data_work_plan_group)
         var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
         var html = ''
         data_work.machine.forEach(e => {
