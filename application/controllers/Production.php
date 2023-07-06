@@ -153,9 +153,10 @@ class Production extends CI_Controller
             $this->template->views('production/production_portals_manpower', $data);
         }
     }
-    public function workPlan()
+    public function workPlan($id)
     {
         $data['title'] = 'Work Plan';
+        $data['id'] = $id;
         $this->template->views('production/work_plan', $data);
     }
 }

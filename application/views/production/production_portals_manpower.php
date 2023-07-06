@@ -647,7 +647,7 @@
             </div>
             <div class="row pt-3">
                 <div class="col-12 col-lg-12">
-                    <div class="card shadow-none mb-2" style="border-radius: 0px;">
+                    <div class="card shadow-none mb-4" style="border-radius: 0px;">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
@@ -676,7 +676,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-12">
+                <div class="col-12 col-lg-7">
                     <div class="card shadow-none h-100" style="border-radius: 0px;">
                         <div class="card-body">
                             <div class="row">
@@ -687,8 +687,26 @@
 
                                 </div>
                             </div>
-                            <div class=" pt-3">
+                            <div class="pt-3">
                                 <div class="col-12" id="dailyTask">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-5">
+                    <div class="card shadow-none h-100" style="border-radius: 0px;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-auto">
+                                    <p class="m-0 small-text text-start"><b>Insight</b></p>
+                                </div>
+                                <div class="col text-end">
+
+                                </div>
+                            </div>
+                            <div class="pt-3">
+                                <div class="col-12" id="insight">
                                 </div>
                             </div>
                         </div>
@@ -1201,7 +1219,7 @@
         var html = ''
         html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;">'
         html += '<div class="row g-0">'
-        html += '<div class="col-md-1 bg-primary">'
+        html += '<div class="col-md-2 bg-skm">'
         html += '<div class="row d-flex align-items-center h-100">'
         html += '<div class="col text-center p-3">'
         html += '<h3 class="m-0 text-white"><b>12</b></h3>'
@@ -1209,7 +1227,7 @@
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-md-11">'
+        html += '<div class="col-md-10">'
         html += '<div class="card-body">'
 
         html += '<div class="row">'
@@ -1217,11 +1235,21 @@
         html += '</div>'
         html += '</div>'
 
+        html += '<p class="m-0 small-text text-orange"><b>CATCHER</b></p>'
+        html += '<p class="m-0"><b>Shift 07.00 - 15.00</b> <span class="badge bg-danger ms-1">R</span></p>'
+        html += '<p class="m-0 mb-2"><span class="badge rounded-pill bg-skm me-1">MK9-A</span></p>'
+        html += '<p class="m-0 super-small-text">' + shortenText("Catatan ini bertujuan untuk mencatat aktivitas yang dilakukan selama menjalankan tugas dan juga untuk melacak kemajuan serta mengidentifikasi tantangan atau kendala yang mungkin muncul. Pastikan untuk menyertakan rincian yang relevan dan deskripsi tugas dengan jelas untuk referensi di masa depan.", 200) + '</p>'
+
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         $('#dailyTask').html(html)
+        insight()
+    }
+
+    function insight() {
+
     }
 
     function createTargetProduction() {

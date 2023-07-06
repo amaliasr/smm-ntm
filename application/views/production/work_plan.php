@@ -632,6 +632,20 @@
     .card-list-planning.hidden {
         opacity: 0;
     }
+
+    th[rowspan],
+    td:first-child {
+        position: sticky;
+        left: 0px;
+        background-color: white;
+        z-index: 1;
+        /* border: 1px solid rgba(33, 40, 50, 0.125); */
+        border: 1px solid #ddd;
+    }
+
+    a:hover {
+        text-decoration: none;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -768,30 +782,18 @@
                     <button type="button" class="btn btn-danger btn-sm shadow-none"><i class="fa fa-download me-2"></i>PDF</button>
                 </div>
                 <div class="col-12 pt-3">
-                    <div mbsc-page class="demo-meal-planner">
-                        <div style="height:100%">
-                            <div id="demo-meal-planner" class="md-meal-planner-calendar"></div>
-
-                            <div id="meal-planner-popup" class="md-meal-planner-popup">
-                                <div id="meal-type-segmented" class="mbsc-form-group"></div>
-                                <div class="mbsc-form-group">
-                                    <label>
-                                        Name
-                                        <input mbsc-input id="meal-name-input" />
-                                    </label>
-                                    <label>
-                                        Calories
-                                        <input mbsc-input id="meal-calories-input" type="number" />
-                                    </label>
-                                    <label>
-                                        Notes
-                                        <textarea mbsc-textarea id="meal-notes-textarea"></textarea>
-                                    </label>
-                                </div>
-                                <div class="mbsc-button-group">
-                                    <button class="mbsc-button-block" id="meal-delete" mbsc-button data-color="danger" data-variant="outline">Delete meal</button>
-                                </div>
-                            </div>
+                    <div class="h-100">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
+                                <thead>
+                                    <tr id="date_list">
+                                    </tr>
+                                    <tr id="qc_list">
+                                    </tr>
+                                </thead>
+                                <tbody id="body_list">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -841,347 +843,56 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
-    mobiscroll.setOptions({
-        locale: mobiscroll.localeEn, // Specify language like: locale: mobiscroll.localePl or omit setting to use default
-        theme: 'ios', // Specify theme like: theme: 'ios' or omit setting to use default
-        themeVariant: 'light' // More info about themeVariant: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-themeVariant
-    });
-
-    $(function() {
-        var calendar;
-        var popup;
-        var oldMeal;
-        var tempMeal;
-        var deleteMeal;
-        var formatDate = mobiscroll.util.datetime.formatDate;
-        var $name = $('#meal-name-input');
-        var $calories = $('#meal-calories-input');
-        var $notes = $('#meal-notes-textarea');
-        var $deleteButton = $('#meal-delete');
-        var $types = $('#meal-type-segmented');
-
-        var types = [{
-            id: 1,
-            name: 'MK9 A',
-            color: '#435B66',
-            // kcal: '300 - 400 kcal',
-        }, {
-            id: 2,
-            name: 'MK9 B',
-            color: '#435B66',
-            // kcal: '100 - 200 kcal',
-        }, {
-            id: 3,
-            name: 'MK9 C',
-            color: '#435B66',
-            // kcal: '500 - 700 kcal',
-        }, {
-            id: 4,
-            name: 'HLP 12 A',
-            color: '#A76F6F',
-            // kcal: '400 - 600 kcal',
-        }, {
-            id: 5,
-            name: 'HLP 12 B',
-            color: '#A76F6F',
-            // kcal: '100 - 200 kcal',
-        }, {
-            id: 6,
-            name: 'HLP 20 B',
-            color: '#A76F6F',
-            // kcal: '100 - 200 kcal',
-        }, {
-            id: 7,
-            name: 'HLP 20 B',
-            color: '#A76F6F',
-            // kcal: '100 - 200 kcal',
-        }];
-
-        function addMealPopup() {
-            // hide delete button inside add popup
-            $deleteButton.hide();
-            deleteMeal = true;
-            restoreMeal = false;
-
-            // set popup header text and buttons for adding
-            popup.setOptions({
-                headerText: '<div>New meal</div><div class="md-meal-type">' + // More info about headerText: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-headerText
-                    formatDate('DDDD, DD MMMM YYYY', new Date(tempMeal.start)) + '</div>',
-                buttons: [ // More info about buttons: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-buttons
-                    'cancel',
-                    {
-                        text: 'Add',
-                        keyCode: 'enter',
-                        handler: function() {
-                            calendar.updateEvent(tempMeal);
-
-                            deleteMeal = false;
-                            popup.close();
-                        },
-                        cssClass: 'mbsc-popup-button-primary'
-                    }
-                ]
-            });
-
-            // fill popup with a new event data
-            $name.mobiscroll('getInst').value = tempMeal.title;
-            $calories.mobiscroll('getInst').value = '';
-            $notes.mobiscroll('getInst').value = '';
-
-            $('.meal-planner-type').each(function(i, elm) {
-                $(elm).mobiscroll('getInst').checked = +elm.value == tempMeal.resource;
-            });
-
-            popup.open();
-        }
-
-        function editMealPopup(args) {
-            var ev = args.event;
-            var resource = types.find(function(obj) {
-                return obj.id === ev.resource
-            });
-
-            // show delete button inside edit popup
-            $deleteButton.show();
-
-            deleteMeal = false;
-            restoreMeal = true;
-
-            // // set popup header text and buttons for editing
-            popup.setOptions({
-                headerText: '<div>' + resource.name + '</div><div class="md-meal-type">' + // More info about headerText: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-headerText
-                    formatDate('DDDD, DD MMMM YYYY', new Date(ev.start)) + '</div>',
-                buttons: [ // More info about buttons: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-buttons
-                    'cancel',
-                    {
-                        text: 'Save',
-                        keyCode: 'enter',
-                        handler: function() {
-                            // update event with the new properties on save button click
-                            calendar.updateEvent({
-                                id: ev.id,
-                                title: tempMeal.title,
-                                calories: tempMeal.calories,
-                                notes: tempMeal.notes,
-                                start: ev.start,
-                                end: ev.end,
-                                resource: tempMeal.resource,
-                                allDay: true,
-                            });
-
-                            restoreMeal = false;
-                            popup.close();
-                        },
-                        cssClass: 'mbsc-popup-button-primary'
-                    }
-                ]
-            });
-
-            // fill popup with the selected event data
-            $name.mobiscroll('getInst').value = ev.title || '';
-            $calories.mobiscroll('getInst').value = ev.calories || '';
-            $notes.mobiscroll('getInst').value = ev.notes || '';
-
-            $('.meal-planner-type').each(function(i, elm) {
-                $(elm).mobiscroll('getInst').checked = +elm.value == tempMeal.resource;
-            });
-
-            popup.open();
-        }
-
-        var calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
-            view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
-                timeline: {
-                    type: 'week',
-                    eventList: true
-                }
-            },
-            resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
-            dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
-            dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
-            dragToMove: true, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
-            clickToCreate: true, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
-            extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
-                return {
-                    title: 'New meal',
-                    allDay: true
-                };
-            },
-            onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
-                // store temporary event
-                tempMeal = args.event;
-                setTimeout(function() {
-                    addMealPopup();
-                }, 100);
-            },
-            onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
-                oldMeal = $.extend({}, args.event);
-                tempMeal = args.event;
-
-                if (!popup.isVisible()) {
-                    editMealPopup(args);
-                }
-            },
-            renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                return '<div class="md-meal-planner-cont">' +
-                    '<div class="" style="color:' + resource.color + ';font-size:12px !important;">' + resource.name + '</div>' +
-                    // '<div class="md-meal-planner-kcal">' + resource.kcal + '</div>' +
-                    '</div>';
-            },
-            renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
-                var event = args.original;
-                return '<div class="md-meal-planner-event">' +
-                    '<div class="">' + event.title + '</div>' +
-                    (event.calories ? '<div class="md-meal-planner-event-desc">' + event.calories + ' </div>' : '') +
-                    '</div>';
-            },
-        }).mobiscroll('getInst');
-
-        $.getJSON('https://trial.mobiscroll.com/meal-planner/?callback=?', function(events) {
-            var array = [{
-                "start": "2023-06-30",
-                "end": "2023-06-30",
-                "title": "Shift 7 - 15",
-                "resource": 1,
-                "calories": 'ABLF12, ABOF20',
-                "allDay": true
-            }, {
-                "start": "2023-06-30",
-                "end": "2023-06-30",
-                "title": "Shift 7 - 15",
-                "resource": 2,
-                "calories": 'ABLF12, ABOF20',
-                "allDay": true
-            }]
-            calendar.setEvents(array);
-            $('.mbsc-calendar-wrapper').attr('hidden', true)
-            // Ambil semua elemen dengan kelas "mbsc-timeline-header-date-text mbsc-ios"
-            var elements = document.querySelectorAll('.mbsc-timeline-header-date-text.mbsc-ios');
-
-            // Loop melalui setiap elemen
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
-
-                // Periksa apakah elemen memiliki teks di dalamnya
-                if (element.textContent.trim().length > 0) {
-                    // Buat elemen <br> baru
-                    var lineBreak = document.createElement('br');
-
-                    // Buat elemen <a> baru
-                    var link = document.createElement('a');
-                    link.href = "..."; // Ganti dengan URL yang diinginkan
-
-                    // Buat elemen <i> dengan kelas "fa fa-user" (font awesome)
-                    var icon = document.createElement('i');
-                    icon.className = 'fa fa-user';
-
-                    // Tambahkan elemen <i> ke dalam elemen <a>
-                    link.appendChild(icon);
-
-                    // Tambahkan elemen <br> dan elemen <a> setelah elemen saat ini
-                    element.appendChild(lineBreak);
-                    element.appendChild(link);
-                }
-            }
-
-        }, 'jsonp');
-
-        var popup = $('#meal-planner-popup').mobiscroll().popup({
-            display: 'bottom', // Specify display mode like: display: 'bottom' or omit setting to use default
-            contentPadding: false,
-            fullScreen: true,
-            onClose: function() { // More info about onClose: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onClose
-                if (deleteMeal) {
-                    calendar.removeEvent(tempMeal);
-                } else if (restoreMeal) {
-                    calendar.updateEvent(oldMeal);
-                }
-            },
-            responsive: { // More info about responsive: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-responsive
-                medium: {
-
-                    display: 'center', // Specify display mode like: display: 'bottom' or omit setting to use default
-                    width: 400, // More info about width: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-width
-                    fullScreen: false,
-                    touchUi: false,
-                    showOverlay: false
-                }
-            }
-        }).mobiscroll('getInst');
-
-        function getTypes() {
-            var data = [];
-
-            for (var i = 0; i < types.length; ++i) {
-                var type = types[i];
-                data.push({
-                    text: type.name,
-                    value: type.id
-                })
-            }
-            return data;
-        }
-
-        function appendTypes() {
-            var segmented = '<div mbsc-segmented-group>';
-
-            for (var i = 0; i < types.length; ++i) {
-                var type = types[i];
-                segmented += '<label>' + type.name + '<input type="radio" mbsc-segmented name="meal-planner-type" value="' +
-                    type.id + '" class="meal-planner-type" ' + '/></label>';
-            }
-
-            segmented += '</div>';
-            $types.append(segmented);
-            mobiscroll.enhance($types[0]);
-        }
-
-        appendTypes();
-
-        $('.meal-planner-type').on('change', function(ev) {
-            tempMeal.resource = +ev.target.value;
-        });
-
-        $name.on('change', function(ev) {
-            tempMeal.title = ev.target.value;
-        });
-
-        $calories.on('change', function(ev) {
-            tempMeal.calories = ev.target.value;
-        });
-
-        $notes.on('change', function(ev) {
-            tempMeal.notes = ev.target.value;
-        });
-
-        $deleteButton.on('click', function() {
-            // delete current event on button click
-            calendar.removeEvent(tempMeal);
-
-            // save a local reference to the deleted event
-            var deletedMeal = tempMeal;
-
-            popup.close();
-
-            mobiscroll.snackbar({
-
-                button: {
-                    action: function() {
-                        calendar.addEvent(deletedMeal);
-                    },
-                    text: 'Undo'
-                },
-                duration: 10000,
-                message: 'Meal deleted'
-            });
-        });
-
-    });
-</script>
-<script>
     var cards = document.getElementsByClassName('btn-list-planning');
     for (var i = 0; i < cards.length; i++) {
         cards[i].addEventListener('click', toggleCard.bind(null, i));
+    }
+
+    function convertTimeFormat(timeString) {
+        // Memisahkan jam, menit, dan detik dari string waktu
+        var timeParts = timeString.split(":");
+        var hour = timeParts[0];
+        var minute = timeParts[1];
+
+        // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
+        var formattedTime = hour + "." + minute;
+
+        return formattedTime;
+    }
+
+    function transformData(inputData) {
+        // Objek hasil yang akan diisi dengan data yang diolah
+        var outputData = [];
+
+        // Mengelompokkan data berdasarkan shift, mesin, dan tanggal
+        var groups = {};
+        for (var i = 0; i < inputData.length; i++) {
+            var key = inputData[i].shift_name + "_" + inputData[i].machine_id + "_" + inputData[i].date;
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(inputData[i]);
+        }
+
+        // Mengolah setiap kelompok data
+        for (var key in groups) {
+            var group = groups[key];
+            var produk = [];
+            for (var i = 0; i < group.length; i++) {
+                produk.push(group[i].product_alias);
+            }
+            var obj = {
+                start: group[0].date,
+                end: group[0].date,
+                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                resource: group[0].machine_id,
+                produk: produk.join(", "),
+                allDay: true,
+            };
+            outputData.push(obj);
+        }
+        return outputData;
     }
 
     function toggleCard(index) {
@@ -1245,14 +956,146 @@
 
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var plan_id = '<?= $id ?>'
     var job_spv_smd = '<?= job_spv_smd() ?>'
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
 
     $(document).ready(function() {
-        changePlan()
+        loadDataPlanning(plan_id)
     })
+
+    function loadDataPlanning(id) {
+        var data = {
+            productionPlanId: id,
+        }
+        var url = "<?= api_produksi('loadPageWorkPlanManage'); ?>"
+        getData(data, url, id)
+    }
+
+    var data_work
+
+    function getData(data, url, id) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                $('#modal').modal('hide')
+                data_work = response.data
+                console.log(data_work)
+                arrangeVariable()
+            }
+        })
+    }
+    var data_work_plan = []
+    var data_work_plan_group = ''
+
+    function arrangeVariable() {
+        // VARIABLE WORK PLAN
+        data_work.workPlan.forEach(a => {
+            // date
+            if (a.work_plan.id == null) {
+                // jika null, maka pakai production_plan
+                a.production_plan.shift.forEach(b => {
+                    // shift
+                    a.production_plan.machine_type.forEach(c => {
+                        // machine_type
+                        c.machine.forEach(d => {
+                            // machine
+                            d.product.forEach(e => {
+                                // product
+                                data_work_plan.push({
+                                    'id': a.id,
+                                    'date': a.date,
+                                    'note': a.note,
+                                    'shift_id': b.id,
+                                    'shift_name': b.name,
+                                    'shift_end': b.end,
+                                    'shift_start': b.start,
+                                    'machine_type_id': c.id,
+                                    'machine_type_name': c.name,
+                                    'machine_id': d.id,
+                                    'machine_name': d.name,
+                                    'product_id': e.product.id,
+                                    'product_code': e.product.code,
+                                    'product_name': e.product.name,
+                                    'product_alias': e.product.alias,
+                                    'product_qty': e.product.qty,
+                                    'unit_id': e.product.unit.id,
+                                    'unit_name': e.product.unit.name,
+                                })
+                            });
+                        });
+                    });
+                });
+            } else {
+                // jika work plan id tidak null, pakai yg workplan
+            }
+        });
+        data_work_plan_group = transformData(data_work_plan);
+        createHeaderPlanner()
+    }
+
+    function createHeaderPlanner() {
+        var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
+        var html = ''
+        var html_qc = ''
+        html += '<th class="" rowspan="2" style="vertical-align: middle;"><b>Machine | Date</b></th>'
+        for (let i = 0; i < dateList.length; i++) {
+            html += '<th class="small-text"><div class="row"><div class="col-8 align-self-center p-0 text-end">' + formatInternationalDate(dateList[i]) + '</div><div class="col-4 align-self-center"><span class="fa fa-ellipsis-h" style="cursor:pointer;"></span></div></div></th>'
+            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="directToWorkPlan()"><p class="m-0 small-text text-primary">0 Quality Control</p></a></th>'
+        }
+        $('#date_list').html(html)
+        $('#qc_list').html(html_qc)
+        createBodyPlanner()
+    }
+
+    function name(params) {
+
+    }
+
+    function createBodyPlanner() {
+        var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
+        var html = ''
+        data_work.machine.forEach(e => {
+            html += '<tr>'
+            html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
+            // loop date
+            for (let i = 0; i < dateList.length; i++) {
+                html += '<td class="p-1">'
+                var data = data_work_plan_group.filter((v, k) => {
+                    if (v.resource == e.id && v.start == dateList[i]) return true
+                })
+                data.forEach(el => {
+                    html += '<div class="card shadow-none rounded-3" style="cursor:pointer;">'
+                    html += '<div class="card-body bg-grey p-2">'
+                    html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
+                    html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                });
+                html += '</td>'
+            }
+            // loop date
+            html += '</tr>'
+        })
+        $('#body_list').html(html)
+    }
 
     function managementManPower() {
         $('#modal').modal('show')

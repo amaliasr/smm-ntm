@@ -292,3 +292,11 @@ function dateRange(startDate, endDate, steps = 1) {
     // HTML tag with a null string.
     return str.replace( /(<([^>]+)>)/ig, '');
 }
+function shortenText(text, maxLength) {
+    if (text.length <= maxLength) {
+      return text; // Mengembalikan teks asli jika panjangnya kurang dari atau sama dengan maxLength
+    } else {
+      var shortenedText = text.substring(0, maxLength - 3) + '...'; // Memperpendek teks dan menambahkan tanda titik-titik
+      return shortenedText;
+    }
+  }
