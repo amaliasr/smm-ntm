@@ -887,15 +887,16 @@
             var group = groups[key];
             var produk = [];
             for (var i = 0; i < group.length; i++) {
-                produk.push(group[i].product_alias);
+                produk.push(group[i].product_alias + ' (' + group[i].product_qty + ')');
             }
             var obj = {
                 start: group[0].date,
                 end: group[0].date,
                 shift_id: group[0].shift_id,
                 nama_shift: "" + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
-                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                machine_type_id: group[0].machine_type_id,
                 resource: group[0].machine_id,
+                machine_name: group[0].machine_name,
                 produk: produk.join(", "),
                 allDay: true,
             };
@@ -988,7 +989,6 @@
                 data_work = response.data
                 $('#kodePlan').html('#' + data_work.productionPlan.code)
                 $('#dateRange').html(formatDateIndonesiaTanggalBulan(data_work.productionPlan.date_start) + ' - ' + formatDateIndonesiaTanggalBulan(data_work.productionPlan.date_end))
-                console.log(data_work)
                 arrangeVariable()
             }
         })
@@ -1062,6 +1062,7 @@
                 // jika work plan id tidak null, pakai yg workplan
             }
         });
+        // console.log(data_work_plan)
         groupingData()
     }
 
@@ -1121,7 +1122,7 @@
                     html += '</div>'
                     html += '<div class="col-5 align-self-center text-center">'
                     // man
-                    html += '<div class="avatars"  onclick="managementManPower(event)">'
+                    html += '<div class="avatars" onclick="managementManPower(event)">'
                     // list person max 3
                     html += '<span class="avatar">'
                     html += '<img src="https://picsum.photos/70">'
@@ -1417,10 +1418,19 @@
 
     function changePlan(event, date, machine_id, shift_id = null) {
         // console.log(date, machine_id, shift_id)
-        var dataDetail = data_work_plan.filter((v, k) => {
-            if (v.machine_id == machine_id && v.date == date && v.shift_id == shift_id) return true
+        // detail dari shift tersebut, tapi masih bisa lihat shift yang lain
+        var dataPlanInADate = data_work_plan.filter((v, k) => {
+            if (v.machine_id == machine_id && v.date == date) return true
         })
-        console.log(dataDetail)
+        var currentShift = groupAndSum(dataPlanInADate, ['shift_id', 'shift_name', 'shift_start', 'shift_end'], [])
+        // data semua mesin di tanggal itu
+        var dataMachine = data_work_plan_group.filter((v, k) => {
+            if (v.start == date) return true
+        })
+        // data master mesin ini
+        var masterMachine = data_work.machine.find((v, k) => {
+            if (v.id == machine_id) return true
+        })
         event.stopPropagation();
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
@@ -1440,7 +1450,7 @@
         html_body += '</div>'
         html_body += '<div class="col">'
         html_body += '<p class="m-0 super-small-text text-grey">Machine</p>'
-        html_body += '<h4 class="text-dark-grey m-0"><b>' + dataDetail[0].machine_name + '</b></h4>'
+        html_body += '<h4 class="text-dark-grey m-0"><b>' + masterMachine.name + '</b></h4>'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -1450,20 +1460,27 @@
         html_body += '</div>'
         html_body += '<div class="col-12">'
         // card maker
-        for (let j = 0; j < 2; j++) {
+        data_work.machineType.forEach(e => {
             html_body += '<div class="card shadow-none mb-2">'
             html_body += '<div class="card-body p-3">'
-            html_body += '<p class="m-0 mb-2"><b>MAKER</b></p>'
+            html_body += '<p class="m-0 mb-2"><b>' + e.name + '</b></p>'
             // list maker
-            for (let i = 0; i < 2; i++) {
+            var dataMachineByType = dataMachine.filter((v, k) => {
+                if (v.machine_type_id == e.id) return true
+            })
+            dataMachineByType.forEach(el => {
+                var thisMachine = ''
+                if (el.resource == machine_id) {
+                    thisMachine = 'clicked'
+                }
                 html_body += '<div class="row">'
                 html_body += '<div class="col-12">'
-                html_body += '<div class="card shadow-none mb-2">'
+                html_body += '<div class="card shadow-none mb-2 ' + thisMachine + '">'
                 html_body += '<div class="card-body p-2">'
                 html_body += '<div class="row">'
                 html_body += '<div class="col-10 align-self-center">'
-                html_body += '<p class="m-0 small"><b>MK9-A</b></p>'
-                html_body += '<p class="m-0 super-small-text">ABLF20 (100), ABOF20(100)</p>'
+                html_body += '<p class="m-0 small"><b>' + el.machine_name + '</b></p>'
+                html_body += '<p class="m-0 super-small-text">' + el.produk + '</p>'
                 html_body += '</div>'
                 html_body += '<div class="col-2 align-self-center text-end">'
                 html_body += '<i class="fa fa-comment text-grey"></i>'
@@ -1473,7 +1490,7 @@
                 html_body += '</div>'
                 html_body += '</div>'
                 html_body += '</div>'
-            }
+            });
             html_body += '<div class="row">'
             html_body += '<div class="col-12 text-end">'
             html_body += '<a href="" class="small-text">Add Mekanik (0)</a></i>'
@@ -1482,7 +1499,7 @@
             // list maker
             html_body += '</div>'
             html_body += '</div>'
-        }
+        });
         // end card maker
         html_body += '</div>'
         html_body += '</div>'
@@ -1492,19 +1509,19 @@
         html_body += '<div class="col-12 col-md-8 p-4">'
         // header
         html_body += '<div class="row">'
-        for (let i = 0; i < 2; i++) {
+        currentShift.forEach(e => {
             html_body += '<div class="col-auto p-1">'
             html_body += '<div class="card shadow-none">'
             html_body += '<div class="card-body p-2">'
-            html_body += '<p class="super-small-text m-0"><b>Pendek</b> 07.00 - 15.00 <i class="fa fa-comment text-grey ms-2"></i></p>'
+            html_body += '<p class="super-small-text m-0"><b>' + e.shift_name + '</b> ' + convertTimeFormat(e.shift_start) + ' - ' + convertTimeFormat(e.shift_end) + ' <i class="fa fa-comment text-grey ms-2"></i></p>'
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
-        }
+        });
         html_body += '<div class="col-auto p-1">'
-        html_body += '<div class="card shadow-none">'
+        html_body += '<div class="card shadow-none" style="cursor:pointer">'
         html_body += '<div class="card-body p-2">'
-        html_body += '<p class="super-small-text m-0"><i class="fa fa-plus text-grey"></i></p>'
+        html_body += '<p class="super-small-text m-0"><i class="fa fa-plus text-grey me-2"></i>New Shift</p>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
@@ -1514,65 +1531,7 @@
         html_body += '<div class="row">'
         html_body += '<div class="col-12 p-1">'
         html_body += '<div class="card shadow-none">'
-        html_body += '<div class="card-body h-100">'
-
-        html_body += '<div class="row">'
-        html_body += '<div class="col">'
-        html_body += '<p class="m-0 super-small-text mb-2"><b>Brand & Total Production</b></p>'
-        // total
-        for (let i = 0; i < 2; i++) {
-            html_body += '<div class="row">'
-            html_body += '<div class="col-12">'
-            html_body += '<div class="card shadow-none mb-2">'
-            html_body += '<div class="card-body p-3">'
-            html_body += '<div class="row">'
-            html_body += '<div class="col align-self-center"><b class="m-0">ABLF 20</b></div>'
-            html_body += '<div class="col-3"><input class="form-control form-control-sm shadow-none" type="text" style="border:0px;"><hr class="m-0"></div>'
-            html_body += '<div class="col-2 align-self-center p-0"><b class="m-0">Tray</b></div>'
-            html_body += '<div class="col-1 align-self-center p-0"><i class="fa fa-comment text-grey"></i></div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12">'
-        html_body += '<div class="card shadow-none mb-2" style="border:1px dashed #D9D9D9;">'
-        html_body += '<div class="card-body p-3 text-center">'
-        html_body += '<p class="m-0 small-text"><i class="me-2 fa fa-plus"></i>Add New</p>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        // total
-        html_body += '</div>'
-        html_body += '<div class="col">'
-        html_body += '<p class="m-0 super-small-text mb-2"><b>Man Power</b></p>'
-        // man power
-        for (let i = 0; i < 2; i++) {
-            html_body += '<div class="row pb-2">'
-            html_body += '<div class="col-4 align-self-center">'
-            html_body += '<p class="m-0 small-text">Helper (<span>0</span>)</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-8">'
-            html_body += '<select class="form-select form-select-lg w-100" multiple id="identity' + i + '" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
-            html_body += '<option value="1">Amalia Safira</option>'
-            html_body += '<option value="2">Moch. Sochron</option>'
-            html_body += '</select>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        // man power
-        html_body += '</div>'
-        html_body += '<div class="col-12">'
-        html_body += '<p class="m-0 super-small-text mb-2"><b>Notes</b></p>'
-        // man power
-        html_body += '<textarea class="form-control" rows="10"></textarea>'
-        // man power
-        html_body += '</div>'
-        html_body += '</div>'
-
+        html_body += '<div class="card-body h-100" id="bodyPerShift">'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
@@ -1582,6 +1541,84 @@
 
         html_body += '</div>'
         $('#modalBody').html(html_body).addClass('p-0');
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
+        $('#modalFooter').html(html_footer);
+        if (shift_id != null) {
+            detailPerShift(date, machine_id, shift_id)
+        }
+    }
+
+    function detailPerShift(date, machine_id, shift_id) {
+        // data detail dari shift tersebut
+        var dataDetail = data_work_plan.filter((v, k) => {
+            if (v.machine_id == machine_id && v.date == date && v.shift_id == shift_id) return true
+        })
+        console.log(dataDetail)
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text mb-2"><b>Brand & Total Production</b></p>'
+        // total
+        dataDetail.forEach(e => {
+            html += '<div class="row">'
+            html += '<div class="col-12">'
+            html += '<div class="card shadow-none mb-2">'
+            html += '<div class="card-body p-3">'
+            html += '<div class="row">'
+            html += '<div class="col align-self-center">'
+            html += '<p class="m-0"><b class="m-0">' + e.product_alias + '</b></p>'
+            html += '<p class="m-0 small-text">' + e.product_name + '</p>'
+            html += '</div>'
+            html += '<div class="col-3"><input class="form-control form-control-sm shadow-none nominal p-0 m-0" type="text" style="border:0px;" value="' + e.product_qty + '"><hr class="m-0"></div>'
+            html += '<div class="col-2 align-self-center p-0"><b class="m-0">' + e.unit_name + '</b></div>'
+            html += '<div class="col-1 align-self-center p-0"><i class="fa fa-comment text-grey"></i></div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<div class="card shadow-none mb-2" style="border:1px dashed #D9D9D9;">'
+        html += '<div class="card-body p-3 text-center">'
+        html += '<p class="m-0 small-text"><i class="me-2 fa fa-plus"></i>Add New</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // total
+        html += '</div>'
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text mb-2"><b>Man Power</b></p>'
+        // man power
+        for (let i = 0; i < 2; i++) {
+            html += '<div class="row pb-2">'
+            html += '<div class="col-4 align-self-center">'
+            html += '<p class="m-0 small-text">Helper (<span>0</span>)</p>'
+            html += '</div>'
+            html += '<div class="col-8">'
+            html += '<select class="form-select form-select-lg w-100" multiple id="identity' + i + '" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+            html += '<option value="1">Amalia Safira</option>'
+            html += '<option value="2">Moch. Sochron</option>'
+            html += '</select>'
+            html += '</div>'
+            html += '</div>'
+        }
+        // man power
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += '<p class="m-0 super-small-text mb-2"><b>Notes</b></p>'
+        // man power
+        html += '<textarea class="form-control" rows="10"></textarea>'
+        // man power
+        html += '</div>'
+        html += '</div>'
+        $('#bodyPerShift').html(html)
+        $('.nominal').number(true);
         for (let i = 0; i < 2; i++) {
             $('#identity' + i).select2({
                 width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
@@ -1590,9 +1627,5 @@
                 maximumInputLength: 1,
             });
         }
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
-        $('#modalFooter').html(html_footer);
     }
 </script>

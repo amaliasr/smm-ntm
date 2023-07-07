@@ -324,3 +324,14 @@ function shortenText(text, maxLength) {
       return shortenedText;
     }
   }
+  function convertTimeFormat(timeString) {
+    // Memisahkan jam, menit, dan detik dari string waktu
+    var timeParts = timeString.split(":");
+    var hour = timeParts[0];
+    var minute = timeParts[1];
+
+    // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
+    var formattedTime = hour + "." + minute;
+
+    return formattedTime;
+}
