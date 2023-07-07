@@ -633,6 +633,11 @@
         opacity: 0;
     }
 
+    .card-shift-produksi:hover {
+        background-color: #DDDDDD !important;
+        color: #434242;
+    }
+
     th[rowspan],
     td:first-child {
         position: sticky;
@@ -645,6 +650,69 @@
 
     a:hover {
         text-decoration: none;
+    }
+
+    .avatars {
+        display: inline-flex;
+        flex-direction: row;
+    }
+
+    .avatar {
+        position: relative;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        overflow: hidden;
+        width: 30px;
+        height: 30px;
+        /* Sesuaikan dengan ukuran yang diinginkan */
+    }
+
+    .avatar:not(:last-child) {
+        margin-right: -20px;
+        /* Mengatur jarak antara gambar */
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* Memastikan gambar tetap terlihat utuh dalam lingkaran */
+        display: block;
+    }
+
+    .plus-avatar {
+        background-color: #27374D;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        color: white;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .plus-icon {
+        font-size: 10px;
+        font-weight: bold;
+    }
+
+    .bg-shift-42 {
+        background-color: #9DB2BF;
+        color: white;
+    }
+
+    .bg-shift-39 {
+        background-color: #EA906C;
+        color: white;
+    }
+
+    .bg-shift-44 {
+        background-color: #526D82;
+        color: white;
+    }
+
+    .bg-shift-41 {
+        background-color: #B31312;
+        color: white;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -824,7 +892,8 @@
             var obj = {
                 start: group[0].date,
                 end: group[0].date,
-                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                shift_id: group[0].shift_id,
+                nama_shift: "" + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
                 // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
                 resource: group[0].machine_id,
                 produk: produk.join(", "),
@@ -993,6 +1062,10 @@
                 // jika work plan id tidak null, pakai yg workplan
             }
         });
+        groupingData()
+    }
+
+    function groupingData() {
         data_work_plan_no_shift_group = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name', 'product_id', 'product_name', 'product_alias', 'unit_name'], ['product_qty'])
         data_work_plan_no_shift_machine = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name'], [])
         data_work_plan_group = transformData(data_work_plan);
@@ -1005,11 +1078,18 @@
         var html_qc = ''
         html += '<th class="" rowspan="2" style="vertical-align: middle;"><b>Machine | Date</b></th>'
         for (let i = 0; i < dateList.length; i++) {
-            html += '<th class="small-text"><div class="row"><div class="col-8 align-self-center p-0 text-end">' + formatInternationalDate(dateList[i]) + '</div><div class="col-4 align-self-center"><span class="fa fa-ellipsis-h" style="cursor:pointer;"></span></div></div></th>'
+            html += '<th class="small-text"><div class="row"><div class="col-8 align-self-center p-0 text-end">' + formatInternationalDate(dateList[i]) + '</div><div class="col-4 align-self-center"><div class="dropdown"><span class="fa fa-ellipsis-h dropdown-date" role="button" id="dropdownMenuButtonDate" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;"></span>'
+            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonDate">'
+            html += '<a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Setting Man Power</a>'
+            html += '<a class="dropdown-item"><i class="fa fa-comment me-2"></i> Add Notes</a>'
+            html += '</div>'
+            html += '</div></div></div>'
+            html += '</th>'
             html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="directToWorkPlan()"><p class="m-0 small-text text-primary">0 Quality Control</p></a></th>'
         }
         $('#date_list').html(html)
         $('#qc_list').html(html_qc)
+        $('.dropdown-date').dropdown();
         createBodyPlanner()
     }
 
@@ -1021,15 +1101,47 @@
             html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
             // loop date
             for (let i = 0; i < dateList.length; i++) {
-                html += '<td class="p-1" onclick="changePlan()">'
+                html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
                 var data = data_work_plan_group.filter((v, k) => {
                     if (v.resource == e.id && v.start == dateList[i]) return true
                 })
                 data.forEach(el => {
-                    html += '<div class="card shadow-none rounded-3" style="cursor:pointer;">'
-                    html += '<div class="card-body bg-grey p-2">'
-                    html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
-                    html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
+                    var dataDetail = data_work_plan.filter((v, k) => {
+                        if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
+                    })
+                    html += '<div class="card shadow-none rounded-3 bg-shift-' + el.shift_id + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ')">'
+                    html += '<div class="card-body p-2 ">'
+                    html += '<div class="row">'
+                    html += '<div class="col-7 align-self-center">'
+                    html += '<p class="m-0 small-text text-dark"><b>' + el.nama_shift + '</b></p>'
+                    // data_work_plan
+                    dataDetail.forEach(element => {
+                        html += '<p class="m-0 super-small-text">' + element.product_alias + ' <b class="">( ' + element.product_qty + ' ' + element.unit_name + ')</b></p>'
+                    });
+                    html += '</div>'
+                    html += '<div class="col-5 align-self-center text-center">'
+                    // man
+                    html += '<div class="avatars"  onclick="managementManPower(event)">'
+                    // list person max 3
+                    html += '<span class="avatar">'
+                    html += '<img src="https://picsum.photos/70">'
+                    html += '</span>'
+                    html += '<span class="avatar">'
+                    html += '<img src="https://picsum.photos/80">'
+                    html += '</span>'
+                    html += '<span class="avatar">'
+                    html += '<img src="https://picsum.photos/90">'
+                    html += '</span>'
+                    // list person max 3
+                    html += '<span class="avatar plus-avatar">'
+                    html += '<span class="plus-icon"><i class="fa fa-plus"></i></span>'
+                    html += '</span>'
+                    html += '</div>'
+
+                    html += '<p class="m-0 mt-1" style="font-size:7px;">3 Persons</p>'
+                    // man
+                    html += '</div>'
+                    html += '</div>'
                     html += '</div>'
                     html += '</div>'
                 });
@@ -1073,7 +1185,7 @@
             html += '<div class="col text-end">'
             html += '<p class="m-0 super-small-text text-primary"><b>Check Plan</b></p>'
             html += '</div>'
-            html += '<div class="col-12 pt-2">'
+            html += '<div class="col-12 pt-3 pb-3">'
             // list mesin
             var indexMachine = 1
             var dataMachine = data_work_plan_no_shift_machine.filter((value, key) => {
@@ -1091,13 +1203,13 @@
                 // list produk
                 data.forEach(el => {
                     html += '<div class="row">'
-                    html += '<div class="col ps-0 pe-0">'
+                    html += '<div class="col-4 ps-0 pe-0">'
                     html += '<p class="m-0 super-small-text">' + el.product_alias + '</p>'
                     html += '</div>'
-                    html += '<div class="col text-end pe-0">'
+                    html += '<div class="col-4 text-end pe-0">'
                     html += '<p class="m-0 super-small-text">' + number_format(el.product_qty) + '</p>'
                     html += '</div>'
-                    html += '<div class="col ps-1">'
+                    html += '<div class="col-4 text-end ps-1">'
                     html += '<p class="m-0 super-small-text">' + el.unit_name + '</p>'
                     html += '</div>'
                     html += '</div>'
@@ -1152,7 +1264,8 @@
         }
     }
 
-    function managementManPower() {
+    function managementManPower(event) {
+        event.stopPropagation();
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
         var html_header = '';
@@ -1302,7 +1415,13 @@
         $('#modalFooter').html(html_footer);
     }
 
-    function changePlan() {
+    function changePlan(event, date, machine_id, shift_id = null) {
+        // console.log(date, machine_id, shift_id)
+        var dataDetail = data_work_plan.filter((v, k) => {
+            if (v.machine_id == machine_id && v.date == date && v.shift_id == shift_id) return true
+        })
+        console.log(dataDetail)
+        event.stopPropagation();
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
         var html_header = '';
@@ -1317,11 +1436,11 @@
         html_body += '<div class="row">'
         html_body += '<div class="col">'
         html_body += '<p class="m-0 super-small-text text-grey">Date</p>'
-        html_body += '<h4 class="text-dark-grey m-0"><b>03 July 2023</b></h4>'
+        html_body += '<h4 class="text-dark-grey m-0"><b>' + formatInternationalDate(date) + '</b></h4>'
         html_body += '</div>'
         html_body += '<div class="col">'
         html_body += '<p class="m-0 super-small-text text-grey">Machine</p>'
-        html_body += '<h4 class="text-dark-grey m-0"><b>MK9-A</b></h4>'
+        html_body += '<h4 class="text-dark-grey m-0"><b>' + dataDetail[0].machine_name + '</b></h4>'
         html_body += '</div>'
         html_body += '</div>'
 
@@ -1347,7 +1466,7 @@
                 html_body += '<p class="m-0 super-small-text">ABLF20 (100), ABOF20(100)</p>'
                 html_body += '</div>'
                 html_body += '<div class="col-2 align-self-center text-end">'
-                html_body += '<i class="fa fa-envelope text-grey"></i>'
+                html_body += '<i class="fa fa-comment text-grey"></i>'
                 html_body += '</div>'
                 html_body += '</div>'
                 html_body += '</div>'
@@ -1377,7 +1496,7 @@
             html_body += '<div class="col-auto p-1">'
             html_body += '<div class="card shadow-none">'
             html_body += '<div class="card-body p-2">'
-            html_body += '<p class="super-small-text m-0"><b>Pendek</b> 07.00 - 15.00 <i class="fa fa-envelope text-grey ms-2"></i></p>'
+            html_body += '<p class="super-small-text m-0"><b>Pendek</b> 07.00 - 15.00 <i class="fa fa-comment text-grey ms-2"></i></p>'
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
@@ -1410,7 +1529,7 @@
             html_body += '<div class="col align-self-center"><b class="m-0">ABLF 20</b></div>'
             html_body += '<div class="col-3"><input class="form-control form-control-sm shadow-none" type="text" style="border:0px;"><hr class="m-0"></div>'
             html_body += '<div class="col-2 align-self-center p-0"><b class="m-0">Tray</b></div>'
-            html_body += '<div class="col-1 align-self-center p-0"><i class="fa fa-envelope text-grey"></i></div>'
+            html_body += '<div class="col-1 align-self-center p-0"><i class="fa fa-comment text-grey"></i></div>'
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
