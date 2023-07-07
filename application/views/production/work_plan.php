@@ -679,67 +679,12 @@
                             </div>
                             <div class="row p-3">
                                 <div class="col-12">
-                                    <p class="m-0 small-text text-start text-grey">#SMD-1234567890</p>
-                                    <h5 class="m-0"><b>25 Juni - 30 Juni</b></h5>
+                                    <p class="m-0 small-text text-start text-grey" id="kodePlan">-</p>
+                                    <h5 class="m-0"><b id="dateRange">-</b></h5>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-12">
-                                    <?php for ($i = 0; $i < 5; $i++) { ?>
-                                        <div class="card shadow-none btn-list-planning" style="border-radius:0px;border-right: none;border-left: none;cursor:pointer;" data-index="<?= $i ?>">
-                                            <div class="card-body pt-2 pb-2">
-                                                <div class="row">
-                                                    <div class="col align-self-center">
-                                                        <p class="m-0 small-text"><b>Senin, 25 Juni 2023</b></p>
-                                                    </div>
-                                                    <div class="col-1 align-self-center text-right pe-3">
-                                                        <i class="fa fa-arrow-circle-o-right"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card shadow-none card-list-planning" id="card-list-planning<?= $i ?>" style="border-radius:0px;border-right: none;border-left: none;cursor:pointer;" hidden>
-                                            <div class="card-body pt-2 pb-2">
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <p class="m-0 super-small-text"><b>Detail</b></p>
-                                                    </div>
-                                                    <div class="col text-end">
-                                                        <p class="m-0 super-small-text text-primary"><b>Check Plan</b></p>
-                                                    </div>
-                                                    <div class="col-12 pt-2">
-                                                        <?php for ($j = 1; $j <= 5; $j++) { ?>
-                                                            <div class="row">
-                                                                <div class="col-4 pe-1">
-                                                                    <p class="m-0 super-small-text">HLP20A</p>
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <?php for ($k = 0; $k < 2; $k++) { ?>
-                                                                        <div class="row">
-                                                                            <div class="col ps-0 pe-0">
-                                                                                <p class="m-0 super-small-text">ABLF12</p>
-                                                                            </div>
-                                                                            <div class="col text-end pe-0">
-                                                                                <p class="m-0 super-small-text">100</p>
-                                                                            </div>
-                                                                            <div class="col ps-1">
-                                                                                <p class="m-0 super-small-text">Tray</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    <?php } ?>
-                                                                </div>
-                                                                <?php if ($j < 5) { ?>
-                                                                    <div class="col-12">
-                                                                        <hr class="mt-1 mb-2">
-                                                                    </div>
-                                                                <?php } ?>
-                                                            </div>
-                                                        <?php } ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
+                                <div class="col-12" id="listProdPlanning">
                                 </div>
                             </div>
                         </div>
@@ -843,11 +788,6 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
-    var cards = document.getElementsByClassName('btn-list-planning');
-    for (var i = 0; i < cards.length; i++) {
-        cards[i].addEventListener('click', toggleCard.bind(null, i));
-    }
-
     function convertTimeFormat(timeString) {
         // Memisahkan jam, menit, dan detik dari string waktu
         var timeParts = timeString.split(":");
@@ -895,27 +835,7 @@
         return outputData;
     }
 
-    function toggleCard(index) {
-        var cardId = 'card-list-planning' + index;
-        var card = document.getElementById(cardId);
-        var isHidden = card.hasAttribute('hidden');
 
-        // Mengubah class 'clicked' pada btn-list-planning
-        cards[index].classList.toggle('clicked');
-
-        // Mengubah atribut 'hidden' pada card-list-planning
-        if (isHidden) {
-            card.removeAttribute('hidden');
-            setTimeout(function() {
-                card.style.opacity = 1;
-            }, 300);
-        } else {
-            card.style.opacity = 0;
-            setTimeout(function() {
-                card.setAttribute('hidden', 'true');
-            }, 300);
-        }
-    }
 
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -997,13 +917,18 @@
                 showOverlay('hide')
                 $('#modal').modal('hide')
                 data_work = response.data
+                $('#kodePlan').html('#' + data_work.productionPlan.code)
+                $('#dateRange').html(formatDateIndonesiaTanggalBulan(data_work.productionPlan.date_start) + ' - ' + formatDateIndonesiaTanggalBulan(data_work.productionPlan.date_end))
                 console.log(data_work)
                 arrangeVariable()
             }
         })
     }
     var data_work_plan = []
-    var data_work_plan_group = ''
+    var data_work_plan_no_shift = []
+    var data_work_plan_group
+    var data_work_plan_no_shift_group
+    var data_work_plan_no_shift_machine
 
     function arrangeVariable() {
         // VARIABLE WORK PLAN
@@ -1011,6 +936,7 @@
             // date
             if (a.work_plan.id == null) {
                 // jika null, maka pakai production_plan
+                var indexShift = 0
                 a.production_plan.shift.forEach(b => {
                     // shift
                     a.production_plan.machine_type.forEach(c => {
@@ -1039,14 +965,36 @@
                                     'unit_id': e.product.unit.id,
                                     'unit_name': e.product.unit.name,
                                 })
+                                // buat tanpa shift
+                                if (indexShift == 0) {
+                                    data_work_plan_no_shift.push({
+                                        'id': a.id,
+                                        'date': a.date,
+                                        'note': a.note,
+                                        'machine_type_id': c.id,
+                                        'machine_type_name': c.name,
+                                        'machine_id': d.id,
+                                        'machine_name': d.name,
+                                        'product_id': e.product.id,
+                                        'product_code': e.product.code,
+                                        'product_name': e.product.name,
+                                        'product_alias': e.product.alias,
+                                        'product_qty': e.product.qty,
+                                        'unit_id': e.product.unit.id,
+                                        'unit_name': e.product.unit.name,
+                                    })
+                                }
                             });
                         });
                     });
+                    indexShift++
                 });
             } else {
                 // jika work plan id tidak null, pakai yg workplan
             }
         });
+        data_work_plan_no_shift_group = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name', 'product_id', 'product_name', 'product_alias', 'unit_name'], ['product_qty'])
+        data_work_plan_no_shift_machine = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name'], [])
         data_work_plan_group = transformData(data_work_plan);
         createHeaderPlanner()
     }
@@ -1065,10 +1013,6 @@
         createBodyPlanner()
     }
 
-    function name(params) {
-
-    }
-
     function createBodyPlanner() {
         var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         var html = ''
@@ -1077,7 +1021,7 @@
             html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
             // loop date
             for (let i = 0; i < dateList.length; i++) {
-                html += '<td class="p-1">'
+                html += '<td class="p-1" onclick="changePlan()">'
                 var data = data_work_plan_group.filter((v, k) => {
                     if (v.resource == e.id && v.start == dateList[i]) return true
                 })
@@ -1095,6 +1039,117 @@
             html += '</tr>'
         })
         $('#body_list').html(html)
+        listProdPlanning()
+    }
+    var cards
+    var activeIndex
+
+    function listProdPlanning() {
+        var html = ''
+        $.each(data_work.workPlan, function(k, v) {
+            var today = ''
+            if (v.date == currentDate()) {
+                activeIndex = k
+                today = '<span class="ms-2 badge bg-info text-dark">Today</span>'
+            }
+            html += '<div class="card shadow-none btn-list-planning" style="border-radius:0px;border-right: none;border-left: none;cursor:pointer;" data-index="' + k + '">'
+            html += '<div class="card-body pt-2 pb-2">'
+            html += '<div class="row">'
+            html += '<div class="col align-self-center">'
+            html += '<p class="m-0 small-text"><b>' + formatDateIndonesia(v.date) + '</b>' + today + '</p>'
+            html += '</div>'
+            html += '<div class="col-1 align-self-center text-right pe-3">'
+            html += '<i class="fa fa-arrow-circle-o-right"></i>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="card shadow-none card-list-planning" id="card-list-planning' + k + '" style="border-radius:0px;border-right: none;border-left: none;cursor:pointer;" hidden>'
+            html += '<div class="card-body pt-2 pb-2">'
+            html += '<div class="row">'
+            html += '<div class="col">'
+            html += '<p class="m-0 super-small-text"><b>Detail</b></p>'
+            html += '</div>'
+            html += '<div class="col text-end">'
+            html += '<p class="m-0 super-small-text text-primary"><b>Check Plan</b></p>'
+            html += '</div>'
+            html += '<div class="col-12 pt-2">'
+            // list mesin
+            var indexMachine = 1
+            var dataMachine = data_work_plan_no_shift_machine.filter((value, key) => {
+                if (v.date == value.date) return true
+            })
+            dataMachine.forEach(e => {
+                html += '<div class="row">'
+                html += '<div class="col-4 pe-1">'
+                html += '<p class="m-0 super-small-text">' + e.machine_name + '</p>'
+                html += '</div>'
+                html += '<div class="col-8">'
+                var data = data_work_plan_no_shift_group.filter((value, key) => {
+                    if (v.date == value.date && value.machine_id == e.machine_id) return true
+                })
+                // list produk
+                data.forEach(el => {
+                    html += '<div class="row">'
+                    html += '<div class="col ps-0 pe-0">'
+                    html += '<p class="m-0 super-small-text">' + el.product_alias + '</p>'
+                    html += '</div>'
+                    html += '<div class="col text-end pe-0">'
+                    html += '<p class="m-0 super-small-text">' + number_format(el.product_qty) + '</p>'
+                    html += '</div>'
+                    html += '<div class="col ps-1">'
+                    html += '<p class="m-0 super-small-text">' + el.unit_name + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                })
+                // list produk
+                html += '</div>'
+                // if kurang dari mesin maka nampilkan hr
+                if (indexMachine < dataMachine.length) {
+                    html += '<div class="col-12">'
+                    html += '<hr class="mt-1 mb-2">'
+                    html += '</div>'
+                }
+                // if kurang dari mesin maka nampilkan hr
+                html += '</div>'
+                indexMachine++
+            })
+            // list mesin
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#listProdPlanning').html(html)
+        cards = document.getElementsByClassName('btn-list-planning');
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].addEventListener('click', toggleCard.bind(null, i));
+        }
+        if (activeIndex != undefined) {
+            toggleCard(activeIndex)
+        }
+    }
+
+    function toggleCard(index) {
+        var cardId = 'card-list-planning' + index;
+        var card = document.getElementById(cardId);
+        var isHidden = card.hasAttribute('hidden');
+
+        // Mengubah class 'clicked' pada btn-list-planning
+        cards[index].classList.toggle('clicked');
+
+        // Mengubah atribut 'hidden' pada card-list-planning
+        if (isHidden) {
+            card.removeAttribute('hidden');
+            setTimeout(function() {
+                card.style.opacity = 1;
+            }, 300);
+        } else {
+            card.style.opacity = 0;
+            setTimeout(function() {
+                card.setAttribute('hidden', 'true');
+            }, 300);
+        }
     }
 
     function managementManPower() {
