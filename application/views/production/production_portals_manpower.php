@@ -660,7 +660,7 @@
                                 </div>
                                 <div class="col-12 pt-3">
                                     <div class="h-100">
-                                        <div class="table-responsive">
+                                        <div class="table-responsive" id="table-product-trend-wrapper">
                                             <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
                                                 <thead>
                                                     <tr id="date_list">
@@ -800,6 +800,47 @@
         return formattedTime;
     }
 
+    function convertToDailyTasks(data) {
+        const transformedData = [];
+
+        // Mengelompokkan data berdasarkan tanggal
+        const groupedData = data.reduce((acc, item) => {
+            const date = new Date(item.date);
+            const formattedDate = `${date.getDate()} ${date.toLocaleString('default', { month: 'long' })}`;
+
+            if (!acc[formattedDate]) {
+                acc[formattedDate] = {
+                    date: formattedDate,
+                    posisi: item.posisi,
+                    note: item.note,
+                    shift_id: item.shift_id,
+                    shift_name: item.shift_name,
+                    machine: [],
+                };
+            }
+
+            acc[formattedDate].machine.push({
+                machine_id: item.machine_id,
+                machine_name: item.machine_name,
+            });
+
+            return acc;
+        }, {});
+
+        // Mengubah objek hasil pengelompokkan menjadi array
+        for (const key in groupedData) {
+            transformedData.push(groupedData[key]);
+        }
+        // Mengurutkan data berdasarkan tanggal (urutan tertinggi ke terendah)
+        transformedData.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
+        });
+
+        return transformedData;
+    }
+
     function transformData(inputData) {
         // Objek hasil yang akan diisi dengan data yang diolah
         var outputData = [];
@@ -876,114 +917,29 @@
 
     $(document).ready(function() {
         // chooseDate()
-        createHeaderPlanner()
+        loadDataPlanning()
     })
 
-    function chooseDate() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Pilih Planning</h5>'
-        html_header += '<div class="input-group w-50">'
-        html_header += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Kode Plan / Tanggal" aria-label="Search" id="search_planning">'
-        html_header += '<span class="input-group-text">'
-        html_header += '<i class="fa fa-search"></i>'
-        html_header += '</span>'
-        html_header += '</div>'
-        $('#modalHeader').html(html_header);
-
-        var html_body = '';
-        html_body += '<div class="container small">'
-        html_body += '<div class="row">'
-
-        html_body += '<div class="col-12" id="listPlanning">'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body);
-        $('#modalFooter').addClass('d-none');
-        getDataPlanning()
-    }
-    var data_all_plan = ""
-
-    function getDataPlanning() {
-        $.ajax({
-            url: "<?= api_produksi('loadPageWorkPlanPortal'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                employeeId: user_id,
-            },
-            error: function(xhr) {
-                notFound('#listPlanning')
-                notFound('#formTargetProduction')
-            },
-            beforeSend: function() {
-                loadingData('#listPlanning')
-                empty('#formTargetProduction', 'Data Belum Dipilih')
-            },
-            success: function(response) {
-                data_all_plan = response['data']['listProductionPlan']
-                formDataPlanning()
-            }
-        })
-    }
     var html_expired_plan = ''
     var html_collapse = ""
     var jumlah_expired_plan = 0
 
-    function formDataPlanning() {
-        $('#listPlanning').empty()
-        var html = ""
-        if (data_all_plan.length != 0) {
-            $.each(data_all_plan, function(key, value) {
-                html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ')" id="card_search' + key + '">'
-                html += '<div class="row g-0">'
-                html += '<div class="col-md-2 bg-' + value.production_type.name.toLowerCase() + '">'
-                html += '<div class="row d-flex align-items-center h-100">'
-                html += '<div class="col text-center">'
-                html += '<span class="text-white">' + value.production_type.name + '</span>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '<div class="col-md-10">'
-                html += '<div class="card-body">'
 
-                html += '<div class="row">'
-                html += '<div class="col-12 align-self-center">'
-                html += '<p class="m-0 text_search" data-id="' + key + '">#' + value['code'] + '</p>'
-                var today = ''
-                if (value.date_start <= currentDate() && value.date_end >= currentDate()) {
-                    today = '<span class="badge bg-success">Today in This Plan</span>'
-                }
-                html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date_start']) + ' - ' + formatDateIndonesia(value['date_end']) + ' ' + today + '</b></p>'
-                html += '</div>'
-                html += '</div>'
-
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            })
-            $('#listPlanning').html(html)
-        } else {
-            notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
-        }
-    }
-
-    function loadDataPlanning(id) {
+    function loadDataPlanning() {
         var data = {
-            productionPlanId: id,
+            productionTypeId: 1,
+            employeeId: user_id,
+            dateStart: '2023-06-01',
+            dateEnd: '2023-06-30',
         }
-        var url = "<?= api_produksi('getWorkPlan'); ?>"
-        getData(data, url, id)
+        var url = "<?= api_produksi('loadPageWorkPlanSchedule'); ?>"
+        getData(data, url)
     }
 
     var data_work = ''
     var id_production_plan_clicked = ''
 
-    function getData(data, url, id) {
+    function getData(data, url) {
         $.ajax({
             url: url,
             method: "GET",
@@ -1005,245 +961,171 @@
                 $('#modal').modal('hide')
                 $('#time').html(currentDateTimeNoSeconds())
                 data_work = response['data']
-                id_production_plan_clicked = id
+                // console.log(data_work)
                 arrangeVariable()
             }
         })
     }
 
-    var calendar;
-    var popup;
-    var oldMeal;
-    var tempMeal;
-    var deleteMeal;
-    var data_detail_plan_clicked = []
-    var target_per_production_type = []
-    var target_per_machine = []
-    var target_production = {}
-    var data_clicked_plan = ''
-    var data_work_plan = []
-    var data_work_plan_group = ''
+    var data_shift_person = []
+    var data_shift_person_complete = []
+    var dataDailyTask
 
     function arrangeVariable() {
-        // VARIABLE PLANNING
-
-        data_clicked_plan = data_all_plan.filter((v, k) => {
-            if (v.id == id_production_plan_clicked) return true
-        })
-        data_clicked_plan[0].detail.forEach(a => {
-            // date
-            a.data.forEach(b => {
-                // production_step (MAKER/HLP)
-                b.data.forEach(c => {
-                    // machine
-                    c.data.forEach(d => {
-                        // product
-                        data_detail_plan_clicked.push({
-                            'product_id': d.product.id,
-                            'product_code': d.product.code,
-                            'qty': d.qty,
-                            'unit_id': d.unit.id,
-                            'unit_name': d.unit.name,
-                            'product_group_id': d.product.product_group.id,
-                            'product_group_code': d.product.product_group.code,
-                            'product_group_name': d.product.product_group.name,
-                            'machine_id': c.machine.id,
-                            'machine_name': c.machine.name,
-                            'production_step_id': b.production_step.id,
-                            'production_step_name': b.production_step.name,
-                            'date': a.date,
-                        })
+        data_work.schedule.forEach(a => {
+            // section
+            a.line_shift.forEach(b => {
+                // line
+                b.date_shift.forEach(c => {
+                    // date shift
+                    data_shift_person.push({
+                        'section': a.section,
+                        'line_id': b.line.id,
+                        'line_name': b.line.name,
+                        'date': c.date,
+                        'shift_person': c.shift_person,
                     })
-                });
-
-            });
-        });
-        target_per_production_type = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'production_step_id', 'production_step_name'], ['qty']);
-        target_per_production_type = target_per_production_type.map(objek => ({
-            ...objek,
-            qty_realisasi: 20
-        }));
-        target_per_machine = groupAndSum(data_detail_plan_clicked, ['product_id', 'product_code', 'unit_id', 'unit_name', 'machine_id', 'machine_name'], ['qty']);
-        target_per_machine = target_per_machine.map(objek => ({
-            ...objek,
-            qty_realisasi: 0
-        }));
-        target_production = {
-            'target_per_production_type': target_per_production_type,
-            'target_per_machine': target_per_machine,
-        }
-
-        // VARIABLE WORK PLAN
-        data_work.workPlan.forEach(a => {
-            // date
-            if (a.work_plan.id == null) {
-                // jika null, maka pakai production_plan
-                a.production_plan.shift.forEach(b => {
-                    // shift
-                    a.production_plan.machine_type.forEach(c => {
-                        // machine_type
-                        c.machine.forEach(d => {
-                            // machine
-                            d.product.forEach(e => {
-                                // product
-                                data_work_plan.push({
-                                    'id': a.id,
-                                    'date': a.date,
-                                    'note': a.note,
-                                    'shift_id': b.id,
-                                    'shift_name': b.name,
-                                    'shift_end': b.end,
-                                    'shift_start': b.start,
-                                    'machine_type_id': c.id,
-                                    'machine_type_name': c.name,
-                                    'machine_id': d.id,
-                                    'machine_name': d.name,
-                                    'product_id': e.product.id,
-                                    'product_code': e.product.code,
-                                    'product_name': e.product.name,
-                                    'product_alias': e.product.alias,
-                                    'product_qty': e.product.qty,
-                                    'unit_id': e.product.unit.id,
-                                    'unit_name': e.product.unit.name,
+                    if (c.shift_person != null) {
+                        c.shift_person.forEach(d => {
+                            // shift
+                            d.person.forEach(e => {
+                                // posisi
+                                var dataShift = data_work.shift[0].shift_list.find((v, k) => {
+                                    if (v.id == d.shift) return true
+                                })
+                                data_shift_person_complete.push({
+                                    'machine_id': b.line.id,
+                                    'machine_name': b.line.name,
+                                    'date': c.date,
+                                    'shift_id': d.shift,
+                                    'shift_name': 'Shift ' + convertTimeFormat(dataShift.start_time) + ' - ' + convertTimeFormat(dataShift.end_time),
+                                    'posisi': e.person_label,
+                                    'note': e.note,
                                 })
                             });
                         });
-                    });
+                    }
                 });
-            } else {
-                // jika work plan id tidak null, pakai yg workplan
-            }
+            });
         });
-        data_work_plan_group = transformData(data_work_plan);
+        dataDailyTask = convertToDailyTasks(data_shift_person_complete)
         createHeaderPlanner()
     }
 
     function createHeaderPlanner() {
-        var dateList = generateDateThisMonth()
         var html = ''
         html += '<th class=""><b>Machine | Date</b></th>'
-        for (let i = 0; i < dateList.length; i++) {
+        data_work.schedule[0].line_shift[0].date_shift.forEach(e => {
             var today = ''
-            if (dateList[i] == currentDate()) {
+            if (e.date == currentDate()) {
                 today = 'bg-ijo-polos text-darker-grey'
             }
-            html += '<th class="small-text ' + today + '">' + formatInternationalDate(dateList[i]) + '</th>'
-        }
+            html += '<th class="small-text ' + today + '">' + formatInternationalDate(e.date) + '</th>'
+        });
         $('#date_list').html(html)
         createBodyPlanner()
     }
 
     function createBodyPlanner() {
-        var dateList = generateDateThisMonth()
-        var machine_type = [{
-            id: 1,
-            name: 'Executor',
-            machine: [{
-                id: 1,
-                name: 'MK9-A',
-            }, {
-                id: 1,
-                name: 'MK9-B',
-            }, {
-                id: 1,
-                name: 'MK9-C',
-            }]
-        }, {
-            id: 2,
-            name: 'Mechanic',
-            machine: [{
-                id: 1,
-                name: 'MAKER',
-            }, {
-                id: 1,
-                name: 'HLP / PACKER',
-            }]
-        }, {
-            id: 3,
-            name: 'Quality Control',
-            machine: [{
-                id: 1,
-                name: 'SKM',
-            }, {
-                id: 1,
-                name: 'SKT',
-            }]
-        }]
         var html = ''
-        machine_type.forEach(e => {
+        data_work.sectionLine.forEach(e => {
             html += '<tr>'
-            html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
-            html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;" colspan="' + dateList.length + '"></td>'
+            html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;"><b>' + e.section + '</b></td>'
+            html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;" colspan="' + data_work.schedule[0].line_shift[0].date_shift.length + '"></td>'
             html += '</tr>'
-            e.machine.forEach(el => {
+            e.line.forEach(el => {
                 html += '<tr>'
                 html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + el.name + '</b></td>'
                 // loop date
-                for (let i = 0; i < dateList.length; i++) {
+                data_work.schedule[0].line_shift[0].date_shift.forEach(d => {
                     html += '<td class="p-1">'
+                    var data = data_shift_person.find((v, k) => {
+                        if (v.section == e.section && v.line_id == el.id && v.date == d.date) return true
+                    })
+                    if (data.shift_person != null) {
+                        // console.log(data.shift_person)
+                        data.shift_person.forEach(s => {
+                            var data = data_work.shift[0].shift_list.find((v, k) => {
+                                if (v.id == s.shift) return true
+                            })
+                            var today = 'bg-grey'
+                            if (d.date == currentDate()) {
+                                today = 'bg-ijo-polos'
+                            }
+                            html += '<div class="card shadow-none rounded-3 ' + today + '" style="cursor:pointer;">'
+                            html += '<div class="card-body  p-2">'
 
-                    var today = 'bg-grey'
-                    if (dateList[i] == currentDate()) {
-                        today = 'bg-ijo-polos'
+                            html += '<div class="row">'
+                            html += '<div class="col-auto">'
+                            html += '<p class="m-0 super-small-text text-dark"><b>Shift ' + convertTimeFormat(data.start_time) + ' - ' + convertTimeFormat(data.end_time) + '</b></p>'
+                            html += '</div>'
+                            html += '<div class="col">'
+                            var a = 1
+                            s.person.forEach(p => {
+                                html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + p.person_label + '</span>'
+                                a++
+                            });
+                            html += '</div>'
+                            html += '</div>'
+
+                            html += '</div>'
+                            html += '</div>'
+                        });
                     }
-
-                    html += '<div class="card shadow-none rounded-3 ' + today + '" style="cursor:pointer;">'
-                    html += '<div class="card-body  p-2">'
-
-                    html += '<div class="row">'
-                    html += '<div class="col-auto">'
-                    html += '<p class="m-0 super-small-text text-dark"><b>Shift 07.00 - 15.00</b></p>'
-                    html += '</div>'
-                    html += '<div class="col">'
-                    if (e.id == 1) {
-                        html += '<span class="badge rounded-pill bg-position-1 me-1 super-small-text">Catcher</span>'
-                        html += '<span class="badge rounded-pill bg-position-2 me-1 super-small-text">Helper</span>'
-                    }
-                    html += '</div>'
-                    html += '</div>'
-
-                    html += '</div>'
-                    html += '</div>'
-
                     html += '</td>'
-                }
+                })
                 // loop date
                 html += '</tr>'
             });
         })
         $('#body_list').html(html)
+        draggableTables('table-product-trend-wrapper')
         dailyTask()
     }
 
     function dailyTask() {
         var html = ''
-        html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;">'
-        html += '<div class="row g-0">'
-        html += '<div class="col-md-2 bg-skm">'
-        html += '<div class="row d-flex align-items-center h-100">'
-        html += '<div class="col text-center p-3">'
-        html += '<h3 class="m-0 text-white"><b>12</b></h3>'
-        html += '<p class="m-0 text-white small">June</p>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="col-md-10">'
-        html += '<div class="card-body">'
+        dataDailyTask.forEach(e => {
+            const dateString = e.date;
+            const parts = dateString.split(" ");
+            const day = parseInt(parts[0]);
+            const month = parts[1];
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;">'
+            html += '<div class="row g-0">'
+            html += '<div class="col-md-2 bg-skm">'
+            html += '<div class="row d-flex align-items-center h-100">'
+            html += '<div class="col text-center p-3">'
+            html += '<h3 class="m-0 text-white"><b>' + day + '</b></h3>'
+            html += '<p class="m-0 text-white small">' + month + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-md-10">'
+            html += '<div class="card-body">'
 
-        html += '<div class="row">'
-        html += '<div class="col-12 align-self-center">'
-        html += '</div>'
-        html += '</div>'
+            html += '<div class="row">'
+            html += '<div class="col-12 align-self-center">'
+            html += '</div>'
+            html += '</div>'
+            // <span class="badge bg-danger ms-1">R</span>
+            html += '<p class="m-0 small-text text-orange"><b>' + e.posisi + '</b></p>'
+            html += '<p class="m-0"><b>' + e.shift_name + '</b> <span id="revisionSign"></span></p>'
+            html += '<p class="m-0 mb-2 small-text">'
+            e.machine.forEach(f => {
+                html += '<span class="badge rounded-pill bg-skm me-1">' + f.machine_name + '</span>'
+            });
+            html += '</p>'
+            if (e.note == null) {
+                html += '<p class="m-0 super-small-text">Notes : -</p>'
+            } else {
+                html += '<p class="m-0 super-small-text">Notes : ' + shortenText(e.note, 200) + '</p>'
+            }
 
-        html += '<p class="m-0 small-text text-orange"><b>CATCHER</b></p>'
-        html += '<p class="m-0"><b>Shift 07.00 - 15.00</b> <span class="badge bg-danger ms-1">R</span></p>'
-        html += '<p class="m-0 mb-2"><span class="badge rounded-pill bg-skm me-1">MK9-A</span></p>'
-        html += '<p class="m-0 super-small-text">' + shortenText("Catatan ini bertujuan untuk mencatat aktivitas yang dilakukan selama menjalankan tugas dan juga untuk melacak kemajuan serta mengidentifikasi tantangan atau kendala yang mungkin muncul. Pastikan untuk menyertakan rincian yang relevan dan deskripsi tugas dengan jelas untuk referensi di masa depan.", 200) + '</p>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
         $('#dailyTask').html(html)
         insight()
     }

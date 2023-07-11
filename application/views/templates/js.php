@@ -306,4 +306,43 @@
         }
         return rh(a) + rh(b) + rh(c) + rh(d);
     }
+
+    function draggableTables(params) {
+        const slider = document.querySelector("#" + params);
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        // Menginisialisasi gaya kursor
+        $("#" + params).css("cursor", "grab");
+
+        slider.addEventListener("mousedown", (e) => {
+            $("#" + params).css("cursor", "grabbing");
+            isDown = true;
+            slider.classList.add("active");
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener("mouseleave", () => {
+            isDown = false;
+            $("#" + params).css("cursor", "grab");
+            slider.classList.remove("active");
+        });
+
+        slider.addEventListener("mouseup", () => {
+            isDown = false;
+            $("#" + params).css("cursor", "grab");
+            slider.classList.remove("active");
+        });
+
+        slider.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            $("#" + params).css("cursor", "grabbing");
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 3; // kecepatan scroll
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    }
 </script>

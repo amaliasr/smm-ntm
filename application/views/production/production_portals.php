@@ -651,7 +651,7 @@
                                         </div>
                                     </div> -->
                                     <div class="h-100">
-                                        <div class="table-responsive">
+                                        <div class="table-responsive" id="table-product-trend-wrapper">
                                             <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
                                                 <thead>
                                                     <tr id="date_list">
@@ -1132,6 +1132,7 @@
             html += '</tr>'
         })
         $('#body_list').html(html)
+        draggableTables('table-product-trend-wrapper')
         createTargetProduction()
     }
 

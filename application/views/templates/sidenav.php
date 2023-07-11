@@ -95,32 +95,28 @@
                     Beranda
                 </a>
                 <!-- Sidenav Accordion Production-->
-                <?php if (job_spv_smd() || job_foreman() || job_logistik_warehouse() || job_supply_sparepart() || job_mekanik_packer()) { ?>
-                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
-                        <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
-                        Production
-                        <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
-                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                            <!-- <?php if (true) { ?>
+                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards0" aria-expanded="true" aria-controls="collapseDashboards0">
+                    <div class="nav-link-icon"><i class="fa fa-industry"></i></div>
+                    Production
+                    <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                </a>
+                <div class="collapse show" id="collapseDashboards0" data-bs-parent="#accordionSidenav">
+                    <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                        <!-- <?php if (true) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/managementTSG">TSG Management</a>
                                 <?php } ?> -->
-                            <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
-                            <?php } ?>
-                            <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
-                            <?php } ?>
-                            <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
-                            <?php } ?>
-                            <?php if (job_foreman() || job_mekanik_packer()) { ?>
-                                <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
-                            <?php } ?>
-                        </nav>
-                    </div>
-                <?php } ?>
+                        <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
+                        <?php } ?>
+                        <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
+                        <?php } ?>
+                        <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
+                        <?php } ?>
+                        <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
+                    </nav>
+                </div>
                 <!-- Sidenav Accordion Warehouse-->
                 <?php if (is_logistik()) { ?>
                     <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
