@@ -628,6 +628,15 @@
     .text-darker-grey {
         color: #374259;
     }
+
+    .cursor {
+        cursor: pointer;
+    }
+
+    .modal-backdrop.show {
+        opacity: 0.5;
+        z-index: 1 !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -641,8 +650,8 @@
                     <img class="w-100" src="<?= base_url() ?>assets/image/svg/planner.svg" alt="Icon" />
                 </div>
                 <div class="col-auto align-self-center">
-                    <h1 class="m-0"><b>Production Portals</b></h1>
-                    <p class="m-0 small-text">Portal kegiatan produksi</p>
+                    <h1 class="m-0"><b>Production Schedule</b></h1>
+                    <p class="m-0 small-text">Jadwal kegiatan produksi</p>
                 </div>
             </div>
             <div class="row pt-3">
@@ -652,11 +661,12 @@
                             <div class="row">
                                 <div class="col">
                                     <p class="m-0 small-text text-start"><b>My Working Plan</b></p>
-                                    <p class="m-0 small-text">July 2023</p>
+                                    <p class="m-0 small-text" id="dateRange">-</p>
                                 </div>
                                 <div class="col text-end">
-                                    <span class="badge rounded-pill bg-primary">Weekly</span>
-                                    <span class="badge rounded-pill bg-light text-dark">Monthly</span>
+                                    <span class="badge rounded-pill bg-primary cursor">Weekly</span>
+                                    <span class="badge rounded-pill bg-light text-dark cursor">Monthly</span>
+                                    <span class="badge rounded-pill bg-light text-dark cursor" onclick="filterCanvas()"><i class="fa fa-filter"></i></span>
                                 </div>
                                 <div class="col-12 pt-3">
                                     <div class="h-100">
@@ -748,7 +758,12 @@
         </div>
     </div>
 </div>
-
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" data-bs-backdrop="true">
+    <div class="offcanvas-header p-5" id="canvasHeader">
+    </div>
+    <div class="offcanvas-body p-5" id="canvasBody">
+    </div>
+</div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script> -->
@@ -914,6 +929,10 @@
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
+    // var hariIni = '2023-06-13'
+    var hariIni = currentDate()
+    var dateStart
+    var dateEnd
 
     $(document).ready(function() {
         // chooseDate()
@@ -929,8 +948,10 @@
         var data = {
             productionTypeId: 1,
             employeeId: user_id,
-            dateStart: '2023-06-01',
-            dateEnd: '2023-06-30',
+        }
+        if (dateStart != undefined) {
+            data['dateStart'] = dateStart
+            data['dateEnd'] = dateEnd
         }
         var url = "<?= api_produksi('loadPageWorkPlanSchedule'); ?>"
         getData(data, url)
@@ -961,7 +982,9 @@
                 $('#modal').modal('hide')
                 $('#time').html(currentDateTimeNoSeconds())
                 data_work = response['data']
-                // console.log(data_work)
+                dateStart = data_work.schedule[0].line_shift[0].date_shift[0].date
+                dateEnd = data_work.schedule[0].line_shift[0].date_shift[parseInt(data_work.schedule[0].line_shift[0].date_shift.length) - 1].date
+                $('#dateRange').html(formatInternationalDate(data_work.schedule[0].line_shift[0].date_shift[0].date) + ' - ' + formatInternationalDate(data_work.schedule[0].line_shift[0].date_shift[parseInt(data_work.schedule[0].line_shift[0].date_shift.length) - 1].date))
                 arrangeVariable()
             }
         })
@@ -1017,10 +1040,12 @@
         html += '<th class=""><b>Machine | Date</b></th>'
         data_work.schedule[0].line_shift[0].date_shift.forEach(e => {
             var today = ''
-            if (e.date == currentDate()) {
+            var classToday = ''
+            if (e.date == hariIni) {
                 today = 'bg-ijo-polos text-darker-grey'
+                classToday = 'today'
             }
-            html += '<th class="small-text ' + today + '">' + formatInternationalDate(e.date) + '</th>'
+            html += '<th class="small-text ' + today + ' ' + classToday + '">' + formatInternationalDate(e.date) + '</th>'
         });
         $('#date_list').html(html)
         createBodyPlanner()
@@ -1049,7 +1074,7 @@
                                 if (v.id == s.shift) return true
                             })
                             var today = 'bg-grey'
-                            if (d.date == currentDate()) {
+                            if (d.date == hariIni) {
                                 today = 'bg-ijo-polos'
                             }
                             html += '<div class="card shadow-none rounded-3 ' + today + '" style="cursor:pointer;">'
@@ -1080,7 +1105,18 @@
         })
         $('#body_list').html(html)
         draggableTables('table-product-trend-wrapper')
+        focusDate()
         dailyTask()
+    }
+
+    function focusDate() {
+        var tableContainer = $(".table-responsive");
+        // Cari elemen dengan class "date-20"
+        var targetDate = $(".today");
+        // Hitung posisi horizontal elemen target
+        var scrollLeft = targetDate.position().left - (tableContainer.width() / 2) + (targetDate.width() / 2);
+        // Gerakkan scroll horizontal ke posisi target
+        tableContainer.scrollLeft(scrollLeft);
     }
 
     function dailyTask() {
@@ -1094,7 +1130,7 @@
             html += '<div class="row g-0">'
             html += '<div class="col-md-2 bg-skm">'
             html += '<div class="row d-flex align-items-center h-100">'
-            html += '<div class="col text-center p-3">'
+            html += '<div class="col text-center">'
             html += '<h3 class="m-0 text-white"><b>' + day + '</b></h3>'
             html += '<p class="m-0 text-white small">' + month + '</p>'
             html += '</div>'
@@ -1109,7 +1145,7 @@
             html += '</div>'
             // <span class="badge bg-danger ms-1">R</span>
             html += '<p class="m-0 small-text text-orange"><b>' + e.posisi + '</b></p>'
-            html += '<p class="m-0"><b>' + e.shift_name + '</b> <span id="revisionSign"></span></p>'
+            html += '<p class="m-0 small"><b>' + e.shift_name + '</b> <span id="revisionSign"></span></p>'
             html += '<p class="m-0 mb-2 small-text">'
             e.machine.forEach(f => {
                 html += '<span class="badge rounded-pill bg-skm me-1">' + f.machine_name + '</span>'
@@ -1220,5 +1256,45 @@
                 return '#EAEAEA'
                 break;
         }
+    }
+
+    function filterCanvas() {
+        $('.offcanvas').offcanvas('show')
+        var header = ''
+        header += '<h5 id="offcanvasRightLabel">Filter</h5>'
+        header += '<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>'
+        $('#canvasHeader').html(header)
+        var body = ''
+        body += '<div class="row">'
+        body += '<div class="col-12">'
+        body += '<b class="small">Tanggal Mulai</b>'
+        body += '<input class="form-control datepicker mb-3" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + dateStart + '" onchange="changeFilter()">'
+        body += '</div>'
+        body += '<div class="col-12">'
+        body += '<b class="small">Tanggal Akhir</b>'
+        body += '<input class="form-control datepicker mb-3" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + dateEnd + '" onchange="changeFilter()">'
+        body += '</div>'
+        body += '</div>'
+        $('#canvasBody').html(body)
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+            firstDay: 0,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    dateStart = formatDate(date1['dateInstance'])
+                    dateEnd = formatDate(date2['dateInstance'])
+                    loadDataPlanning()
+                });
+            },
+        })
+    }
+
+    function changeFilter() {
+        // dateStart = $('#dateStart').val()
+        // console.log(dateStart)
+        // dateEnd = $('#dateEnd').val()
     }
 </script>

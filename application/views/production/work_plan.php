@@ -834,7 +834,7 @@
                 </div>
                 <div class="col-12 pt-3">
                     <div class="h-100">
-                        <div class="table-responsive">
+                        <div class="table-responsive" id="table-product-trend-wrapper">
                             <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
                                 <thead>
                                     <tr id="date_list">
@@ -1138,6 +1138,7 @@
         $('#date_list').html(html)
         $('#qc_list').html(html_qc)
         $('.dropdown-date').dropdown();
+        draggableTables('table-product-trend-wrapper')
         createBodyPlanner()
     }
 
