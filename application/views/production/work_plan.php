@@ -1069,13 +1069,13 @@
                                 'machine_type_name': c.name,
                                 'machine_id': d.id,
                                 'machine_name': d.name,
-                                'product_id': e.product.id,
-                                'product_code': e.product.code,
-                                'product_name': e.product.name,
-                                'product_alias': e.product.alias,
-                                'product_qty': e.product.qty,
-                                'unit_id': e.product.unit.id,
-                                'unit_name': e.product.unit.name,
+                                'product_id': e.id,
+                                'product_code': e.code,
+                                'product_name': e.name,
+                                'product_alias': e.alias,
+                                'product_qty': e.qty,
+                                'unit_id': e.unit.id,
+                                'unit_name': e.unit.name,
                             })
                             if (a.work_plan.id != null) {
                                 data_work_plan[numIndex]['work_plan_id'] = a.work_plan.id
@@ -1094,13 +1094,13 @@
                                     'machine_type_name': c.name,
                                     'machine_id': d.id,
                                     'machine_name': d.name,
-                                    'product_id': e.product.id,
-                                    'product_code': e.product.code,
-                                    'product_name': e.product.name,
-                                    'product_alias': e.product.alias,
-                                    'product_qty': e.product.qty,
-                                    'unit_id': e.product.unit.id,
-                                    'unit_name': e.product.unit.name,
+                                    'product_id': e.id,
+                                    'product_code': e.code,
+                                    'product_name': e.name,
+                                    'product_alias': e.alias,
+                                    'product_qty': e.qty,
+                                    'unit_id': e.unit.id,
+                                    'unit_name': e.unit.name,
                                 })
                             }
                         });
