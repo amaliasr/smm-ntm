@@ -690,6 +690,16 @@
         align-items: center;
     }
 
+    .plus-avatar-grey {
+        background-color: #EFF5F5;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        color: grey;
+        justify-content: center;
+        align-items: center;
+    }
+
     .plus-icon {
         font-size: 10px;
         font-weight: bold;
@@ -698,21 +708,49 @@
     .bg-shift-42 {
         background-color: #9DB2BF;
         color: white;
+        border-width: 2px;
+        border-color: #1D5B79;
     }
 
     .bg-shift-39 {
         background-color: #EA906C;
         color: white;
+        border-width: 2px;
+        border-color: #B31312;
     }
 
     .bg-shift-44 {
         background-color: #526D82;
         color: white;
+        border-width: 2px;
+        border-color: #1D5B79;
     }
 
     .bg-shift-41 {
         background-color: #B31312;
         color: white;
+        border-width: 2px;
+        border-color: #470707;
+    }
+
+    .bg-no-workplan {
+        background-color: white;
+        border-width: 2px;
+        border-color: #65647C;
+    }
+
+    .manPower:active,
+    .active {
+        border-width: 3px;
+        border-color: #4A55A2;
+        color: #4A55A2 !important;
+    }
+
+    .machinePower:active,
+    .active {
+        border-width: 3px;
+        border-color: #4A55A2;
+        color: #4A55A2 !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -788,7 +826,7 @@
         <div class="col-9 bg-white p-4">
             <div class="row">
                 <div class="col">
-                    <button type="button" class="btn btn-outline-dark btn-sm shadow-none" onclick="managementManPower()"><i class="fa fa-user-plus me-2"></i>Management Man Power</button>
+                    <button type="button" class="btn btn-outline-dark btn-sm shadow-none" onclick="managementManPower(event)"><i class="fa fa-user-plus me-2"></i>Management Man Power</button>
                 </div>
                 <div class="col text-end">
                     <button type="button" class="btn btn-outline-dark btn-sm shadow-none"><i class="fa fa-list me-2"></i>See Detail</button>
@@ -898,6 +936,7 @@
                 resource: group[0].machine_id,
                 machine_name: group[0].machine_name,
                 produk: produk.join(", "),
+                work_plan_id: group[0].work_plan_id,
                 allDay: true,
             };
             outputData.push(obj);
@@ -936,6 +975,10 @@
 
     function notFound(location) {
         $(location).html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+    }
+
+    function empty(location, text) {
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none"><div class="card-body h-100 p-5 m-5"><p class="small"><i>' + text + '</i></p><lottie-player style="margin:auto;width: 200px; height: 100%;" src="https://assets8.lottiefiles.com/packages/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player></div></div></div></div>')
     }
 
     $(document).on('show.bs.modal', '.modal', function() {
@@ -998,30 +1041,55 @@
     var data_work_plan_group
     var data_work_plan_no_shift_group
     var data_work_plan_no_shift_machine
+    var management_manpower = []
 
     function arrangeVariable() {
+        var numIndex = 0
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
             // date
-            if (a.work_plan.id == null) {
-                // jika null, maka pakai production_plan
-                var indexShift = 0
-                a.production_plan.shift.forEach(b => {
-                    // shift
-                    a.production_plan.machine_type.forEach(c => {
-                        // machine_type
-                        c.machine.forEach(d => {
-                            // machine
-                            d.product.forEach(e => {
-                                // product
-                                data_work_plan.push({
+            var indexShift = 0
+            a.production_plan.shift.forEach(b => {
+                // shift
+                a.production_plan.machine_type.forEach(c => {
+                    // machine_type
+                    c.machine.forEach(d => {
+                        // machine
+                        d.product.forEach(e => {
+                            // product
+                            data_work_plan.push({
+                                'id': a.id,
+                                'date': a.date,
+                                'note': a.note,
+                                'shift_id': b.id,
+                                'shift_name': b.name,
+                                'shift_end': b.end,
+                                'shift_start': b.start,
+                                'machine_type_id': c.id,
+                                'machine_type_name': c.name,
+                                'machine_id': d.id,
+                                'machine_name': d.name,
+                                'product_id': e.product.id,
+                                'product_code': e.product.code,
+                                'product_name': e.product.name,
+                                'product_alias': e.product.alias,
+                                'product_qty': e.product.qty,
+                                'unit_id': e.product.unit.id,
+                                'unit_name': e.product.unit.name,
+                            })
+                            if (a.work_plan.id != null) {
+                                data_work_plan[numIndex]['work_plan_id'] = a.work_plan.id
+                            } else {
+                                data_work_plan[numIndex]['work_plan_id'] = ''
+                            }
+                            numIndex++
+
+                            // buat tanpa shift
+                            if (indexShift == 0) {
+                                data_work_plan_no_shift.push({
                                     'id': a.id,
                                     'date': a.date,
                                     'note': a.note,
-                                    'shift_id': b.id,
-                                    'shift_name': b.name,
-                                    'shift_end': b.end,
-                                    'shift_start': b.start,
                                     'machine_type_id': c.id,
                                     'machine_type_name': c.name,
                                     'machine_id': d.id,
@@ -1034,33 +1102,12 @@
                                     'unit_id': e.product.unit.id,
                                     'unit_name': e.product.unit.name,
                                 })
-                                // buat tanpa shift
-                                if (indexShift == 0) {
-                                    data_work_plan_no_shift.push({
-                                        'id': a.id,
-                                        'date': a.date,
-                                        'note': a.note,
-                                        'machine_type_id': c.id,
-                                        'machine_type_name': c.name,
-                                        'machine_id': d.id,
-                                        'machine_name': d.name,
-                                        'product_id': e.product.id,
-                                        'product_code': e.product.code,
-                                        'product_name': e.product.name,
-                                        'product_alias': e.product.alias,
-                                        'product_qty': e.product.qty,
-                                        'unit_id': e.product.unit.id,
-                                        'unit_name': e.product.unit.name,
-                                    })
-                                }
-                            });
+                            }
                         });
                     });
-                    indexShift++
                 });
-            } else {
-                // jika work plan id tidak null, pakai yg workplan
-            }
+                indexShift++
+            });
         });
         // console.log(data_work_plan)
         groupingData()
@@ -1081,7 +1128,7 @@
         for (let i = 0; i < dateList.length; i++) {
             html += '<th class="small-text"><div class="row"><div class="col-8 align-self-center p-0 text-end">' + formatInternationalDate(dateList[i]) + '</div><div class="col-4 align-self-center"><div class="dropdown"><span class="fa fa-ellipsis-h dropdown-date" role="button" id="dropdownMenuButtonDate" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;"></span>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonDate">'
-            html += '<a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Setting Man Power</a>'
+            html += '<a class="dropdown-item" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ')"><i class="fa fa-file-o me-2"></i> Setting Man Power</a>'
             html += '<a class="dropdown-item"><i class="fa fa-comment me-2"></i> Add Notes</a>'
             html += '</div>'
             html += '</div></div></div>'
@@ -1106,11 +1153,16 @@
                 var data = data_work_plan_group.filter((v, k) => {
                     if (v.resource == e.id && v.start == dateList[i]) return true
                 })
+                // console.log(data)
                 data.forEach(el => {
                     var dataDetail = data_work_plan.filter((v, k) => {
                         if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
                     })
-                    html += '<div class="card shadow-none rounded-3 bg-shift-' + el.shift_id + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ')">'
+                    var bg = 'bg-no-workplan'
+                    if (el.work_plan_id != '') {
+                        bg = 'bg-shift-' + el.shift_id
+                    }
+                    html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ')">'
                     html += '<div class="card-body p-2 ">'
                     html += '<div class="row">'
                     html += '<div class="col-7 align-self-center">'
@@ -1122,24 +1174,35 @@
                     html += '</div>'
                     html += '<div class="col-5 align-self-center text-center">'
                     // man
-                    html += '<div class="avatars" onclick="managementManPower(event)">'
+                    html += '<div class="avatars" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
                     // list person max 3
-                    html += '<span class="avatar">'
-                    html += '<img src="https://picsum.photos/70">'
-                    html += '</span>'
-                    html += '<span class="avatar">'
-                    html += '<img src="https://picsum.photos/80">'
-                    html += '</span>'
-                    html += '<span class="avatar">'
-                    html += '<img src="https://picsum.photos/90">'
-                    html += '</span>'
-                    // list person max 3
-                    html += '<span class="avatar plus-avatar">'
-                    html += '<span class="plus-icon"><i class="fa fa-plus"></i></span>'
-                    html += '</span>'
-                    html += '</div>'
+                    if (el.work_plan_id != '') {
+                        html += '<span class="avatar">'
+                        html += '<img src="https://picsum.photos/70">'
+                        html += '</span>'
+                        html += '<span class="avatar">'
+                        html += '<img src="https://picsum.photos/80">'
+                        html += '</span>'
+                        html += '<span class="avatar">'
+                        html += '<img src="https://picsum.photos/90">'
+                        html += '</span>'
+                        // list person max 3
+                        html += '<span class="avatar plus-avatar">'
+                        html += '<span class="plus-icon"><i class="fa fa-plus"></i></span>'
+                        html += '</span>'
+                        html += '</div>'
+                    } else {
+                        html += '<span class="avatar plus-avatar-grey">'
+                        html += '<span class="plus-icon"><i class="fa fa-user-plus"></i></span>'
+                        html += '</span>'
+                        html += '</div>'
+                    }
 
-                    html += '<p class="m-0 mt-1" style="font-size:7px;">3 Persons</p>'
+                    if (el.work_plan_id != '') {
+                        html += '<p class="m-0 mt-1" style="font-size:7px;">3 Persons</p>'
+                    } else {
+                        html += '<p class="m-0 mt-1" style="font-size:7px;">No Person</p>'
+                    }
                     // man
                     html += '</div>'
                     html += '</div>'
@@ -1265,8 +1328,9 @@
         }
     }
 
-    function managementManPower(event) {
+    function managementManPower(event, date = null, machine_id = null) {
         event.stopPropagation();
+        var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
         var html_header = '';
@@ -1279,10 +1343,10 @@
         html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
         html_body += '<div class="row">'
         html_body += '<div class="col-auto align-self-center">'
-        html_body += '<p class="small-text"><b>Quality Control</b></p>'
+        html_body += '<p class="small-text"><b id="nameManPower">No Man Power</b></p>'
         html_body += '</div>'
         html_body += '<div class="col text-end align-self-center">'
-        html_body += '<p class="super-small-text">4 Person Left</p>'
+        html_body += '<p class="super-small-text"><span id="sisaManPower">0</span> Person Left</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<div class="form-group has-search">'
@@ -1292,18 +1356,7 @@
         html_body += '</div>'
         html_body += '<div class="col-12 pt-4">'
 
-        html_body += '<div style="max-height: 300px;overflow-x: hidden;overflow-y: auto;">'
-        for (let i = 0; i < 10; i++) {
-            html_body += '<div class="row pt-2 pb-2">'
-            html_body += '<div class="col-9 align-self-center">'
-            html_body += '<p class="m-0 small-text"><b>Amalia Safira Rhamadany</b></p>'
-            html_body += '<p class="m-0 super-small-text text-grey"><b>amalia.safira@pt-bks.com</b></p>'
-            html_body += '</div>'
-            html_body += '<div class="col-3 align-self-center">'
-            html_body += '<i class="fa fa-user-plus"></i>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
+        html_body += '<div style="max-height: 300px;overflow-x: hidden;overflow-y: auto;" id="listManPower">'
         html_body += '</div>'
 
         html_body += '</div>'
@@ -1313,70 +1366,8 @@
         html_body += '<div class="col-12 col-md-8 p-4">'
 
         html_body += '<div class="row">'
-        html_body += '<div class="col-8">'
+        html_body += '<div class="col-8" id="bodyManPower">'
         // UTAMA
-        html_body += '<h4 class="m-0"><b>03 Juli 2023</b></h4>'
-        html_body += '<p class="super-small-text text-grey m-0">Available 1 Shift</p>'
-
-        html_body += '<div class="row p-3 pt-4">'
-        html_body += '<div class="col-auto statusLine super-small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLineall">07.00 - 15.00</div>'
-        html_body += '<div class="col-auto statusLine super-small-text pb-2 align-self-center fw-bold text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLineall">15.00 - 19.00</div>'
-        html_body += '</div>'
-
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12">'
-
-        html_body += '<p class="m-0 super-small-text"><b>Position</b></p>'
-        html_body += '<div class="row ps-2 pe-2 mb-3">'
-        for (let i = 0; i < 5; i++) {
-            html_body += '<div class="col p-1">'
-            html_body += '<div class="card shadow-none">'
-            html_body += '<div class="card-body p-2 text-center text-wrap">'
-            html_body += '<p class="m-0 super-small-text">Catcher</p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '</div>'
-
-        html_body += '<p class="m-0 super-small-text"><b>Machine/Section</b></p>'
-        html_body += '<div class="row ps-2 pe-2 mb-3">'
-        for (let i = 0; i < 7; i++) {
-            html_body += '<div class="col p-1">'
-            html_body += '<div class="card shadow-none">'
-            html_body += '<div class="card-body p-2 text-center text-wrap">'
-            html_body += '<p class="m-0 super-small-text">HLP 20 A</p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '</div>'
-
-        html_body += '<p class="m-0 super-small-text"><b>Man Power</b></p>'
-        html_body += '<div class="row ps-2 pe-2 mb-3">'
-        for (let i = 0; i < 2; i++) {
-            html_body += '<div class="col-12 p-1">'
-            html_body += '<div class="card shadow-none">'
-            html_body += '<div class="card-body p-2">'
-
-            html_body += '<div class="row">'
-            html_body += '<div class="col-11">'
-            html_body += '<p class="m-0 small-text"><b>Moch. Sochron</b></p>'
-            html_body += '<p class="m-0 super-small-text">2 Position in this Date</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-1 align-self-center">'
-            html_body += '<i class="fa fa-times text-danger"></i>'
-            html_body += '</div>'
-            html_body += '</div>'
-
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
         // UTAMA
         html_body += '</div>'
         html_body += '<div class="col-4">'
@@ -1384,15 +1375,15 @@
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
         html_body += '<p class="super-small-text text-grey m-0 mb-4">More Date</p>'
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < dateList.length; i++) {
             html_body += '<div class="row">'
-            if (i == 0) {
+            if (dateList[i] == date) {
                 html_body += '<div class="col-2 align-self-center">'
                 html_body += '<i class="fa fa-chevron-left"></i>'
                 html_body += '</div>'
             }
             html_body += '<div class="col-10 align-self-center">'
-            html_body += '<p class="m-0 small"><b>03 June 2023</b></p>'
+            html_body += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
             html_body += '<p class="m-0 super-small-text">0 Position Added</p>'
             html_body += '</div>'
             html_body += '<div class="col-12">'
@@ -1414,10 +1405,137 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
         $('#modalFooter').html(html_footer);
+        bodyManPower(date)
+    }
+
+    function bodyManPower(date) {
+        if (date != null) {
+            var dataMachine = data_work_plan_group.filter((v, k) => {
+                if (v.start == date) return true
+            })
+            var currentShift = groupAndSum(data_work_plan_group, ['shift_id', 'nama_shift'], [])
+            var html = ''
+            html += '<h4 class="m-0"><b>' + formatDateIndonesia(date) + '</b></h4>'
+            html += '<p class="super-small-text text-grey m-0">Available ' + currentShift.length + ' Shift</p>'
+
+            html += '<div class="row p-3 pt-4">'
+            currentShift.forEach(e => {
+                html += '<div class="col-auto statusLine super-small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLineall">' + e.nama_shift + '</div>'
+            });
+            html += '</div>'
+
+            html += '<div class="row">'
+            html += '<div class="col-12">'
+
+            html += '<p class="m-0 super-small-text"><b>Position</b></p>'
+            html += '<div class="row ps-2 pe-2 mb-3">'
+            $.each(data_work.manPower, function(key, value) {
+                html += '<div class="col p-1">'
+                html += '<div class="card shadow-none manPower" id="manPower' + key + '" style="cursor:pointer;" onclick="chooseManPower(' + "'" + key + "'" + ')">'
+                html += '<div class="card-body p-2 text-center text-wrap">'
+                html += '<p class="m-0 super-small-text">' + key.toUpperCase() + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            })
+            html += '</div>'
+
+            html += '<p class="m-0 super-small-text"><b>Machine/Section</b></p>'
+            html += '<div class="row ps-2 pe-2 mb-3" id="listMachineSection">'
+            html += '</div>'
+
+            html += '<p class="m-0 super-small-text"><b>Man Power</b></p>'
+            html += '<div class="row ps-2 pe-2 mb-3">'
+            for (let i = 0; i < 2; i++) {
+                html += '<div class="col-12 p-1">'
+                html += '<div class="card shadow-none">'
+                html += '<div class="card-body p-2">'
+
+                html += '<div class="row">'
+                html += '<div class="col-11">'
+                html += '<p class="m-0 small-text"><b>Moch. Sochron</b></p>'
+                html += '<p class="m-0 super-small-text">2 Position in this Date</p>'
+                html += '</div>'
+                html += '<div class="col-1 align-self-center">'
+                html += '<i class="fa fa-times text-danger"></i>'
+                html += '</div>'
+                html += '</div>'
+
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            }
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+            $('#bodyManPower').html(html)
+        } else {
+            empty('#bodyManPower', 'Silahkan Pilih Tanggal Terlebih Dahulu')
+        }
+    }
+
+    function chooseManPower(key) {
+        $('.manPower').removeClass('active')
+        $('#manPower' + key).addClass('active')
+        listManPower(key)
+    }
+
+    function listManPower(key) {
+        var html = ''
+        $('#nameManPower').html(key.toUpperCase())
+        $('#sisaManPower').html(data_work.manPower[key].length)
+        data_work.manPower[key].forEach(e => {
+            html += '<div class="row pt-2 pb-2">'
+            html += '<div class="col-9 align-self-center">'
+            html += '<p class="m-0 small-text"><b>' + e.full_name + '</b></p>'
+            html += '<p class="m-0 super-small-text text-grey"><b>' + e.email + '</b></p>'
+            html += '</div>'
+            html += '<div class="col-3 align-self-center">'
+            html += '<i class="fa fa-user-plus"></i>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listManPower').html(html)
+        listMachineSection(key)
+    }
+
+    function listMachineSection(key) {
+        var html = ''
+        if (key == 'mechanic') {
+            $.each(data_work.machineType, function(k, v) {
+                html += '<div class="col p-1">'
+                html += '<div class="card shadow-none machinePower" id="machinePower' + k + '" onclick="showManPower(' + k + ')" style="cursor:pointer">'
+                html += '<div class="card-body p-2 text-center text-wrap">'
+                html += '<p class="m-0 super-small-text">' + v.name + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            })
+        } else if (key == 'qc') {
+            html += '<div class="col-12 text-center p-3">'
+            html += '<p class="m-0 small-text"><i>Mesin tidak tersedia untuk Quality Control<i></p>'
+            html += '</div>'
+        } else {
+            $.each(data_work.machine, function(k, v) {
+                html += '<div class="col p-1">'
+                html += '<div class="card shadow-none machinePower" id="machinePower' + k + '" onclick="showManPower(' + k + ')" style="cursor:pointer">'
+                html += '<div class="card-body p-2 text-center text-wrap">'
+                html += '<p class="m-0 super-small-text">' + v.code + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            })
+        }
+        $('#listMachineSection').html(html)
+    }
+
+    function showManPower(key) {
+        $('.machinePower').removeClass('active')
+        $('#machinePower' + key).addClass('active')
     }
 
     function changePlan(event, date, machine_id, shift_id = null) {
-        // console.log(date, machine_id, shift_id)
         // detail dari shift tersebut, tapi masih bisa lihat shift yang lain
         var dataPlanInADate = data_work_plan.filter((v, k) => {
             if (v.machine_id == machine_id && v.date == date) return true
