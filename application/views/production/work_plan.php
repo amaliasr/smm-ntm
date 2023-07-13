@@ -27,7 +27,7 @@
     }
 
     .bg-grey {
-        background-color: #EDEDED;
+        background-color: #EDEDED !important;
         color: #B2B2B2;
     }
 
@@ -754,9 +754,26 @@
     }
 
     .accordion-button:not(.collapsed) {
-        color: #69707a !important;
-        background-color: #fff !important;
-        border: 0 !important;
+        color: #69707a;
+        background-color: #fff;
+        border: 0;
+    }
+
+    .accordion-button.machine:not(.collapsed)::after {
+        background-image: none !important;
+    }
+
+    .accordion-button.machine::after {
+        background-image: none !important;
+    }
+
+    .bg-position {
+        background-color: #DDE6ED;
+        color: grey;
+    }
+
+    .bg-position-filled {
+        background-color: #526D82;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -937,6 +954,7 @@
                 start: group[0].date,
                 end: group[0].date,
                 shift_id: group[0].shift_id,
+                shift_group_id: group[0].shift_group_id,
                 nama_shift: "" + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
                 machine_type_id: group[0].machine_type_id,
                 resource: group[0].machine_id,
@@ -950,7 +968,38 @@
         return outputData;
     }
 
+    function findGroupName(shiftId, data) {
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].shift_id.includes(shiftId)) {
+                return data[i].group_name;
+            }
+        }
+        return null;
+    }
 
+    function findMissingGroups(inputData, data) {
+        const inputShiftIds = inputData.map(item => item.shift_id);
+        const missingGroups = data.filter(item => {
+            for (let i = 0; i < item.shift_id.length; i++) {
+                if (inputShiftIds.includes(item.shift_id[i])) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        return missingGroups;
+    }
+
+    function cardAlert(text, direction) {
+        var html = ''
+        html += '<div class="card" style="background-color:transparent;border: 1px dashed #cfcfcf;">'
+        html += '<div class="card-body p-5 text-center">'
+        html += '<p class="m-0 super-small-text"><i>' + text + '</i></p>'
+        html += '</div>'
+        html += '</div>'
+        $(direction).html(html)
+    }
 
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -1054,48 +1103,26 @@
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
             // date
-            var indexShift = 0
-            a.production_plan.shift.forEach(b => {
-                // shift
-                a.production_plan.machine_type.forEach(c => {
-                    // machine_type
-                    c.machine.forEach(d => {
-                        // machine
-                        d.product.forEach(e => {
-                            // product
-                            data_work_plan.push({
-                                'id': a.id,
-                                'date': a.date,
-                                'note': a.note,
-                                'shift_id': b.id,
-                                'shift_name': b.name,
-                                'shift_end': b.end,
-                                'shift_start': b.start,
-                                'machine_type_id': c.id,
-                                'machine_type_name': c.name,
-                                'machine_id': d.id,
-                                'machine_name': d.name,
-                                'product_id': e.id,
-                                'product_code': e.code,
-                                'product_name': e.name,
-                                'product_alias': e.alias,
-                                'product_qty': e.qty,
-                                'unit_id': e.unit.id,
-                                'unit_name': e.unit.name,
-                            })
-                            if (a.work_plan.id != null) {
-                                data_work_plan[numIndex]['work_plan_id'] = a.work_plan.id
-                            } else {
-                                data_work_plan[numIndex]['work_plan_id'] = ''
-                            }
-                            numIndex++
-
-                            // buat tanpa shift
-                            if (indexShift == 0) {
-                                data_work_plan_no_shift.push({
+            if (a.work_plan.id == null) {
+                // belum ada work plan
+                var indexShift = 0
+                a.production_plan.shift.forEach(b => {
+                    // shift
+                    a.production_plan.machine_type.forEach(c => {
+                        // machine_type
+                        c.machine.forEach(d => {
+                            // machine
+                            d.product.forEach(e => {
+                                // product
+                                data_work_plan.push({
                                     'id': a.id,
                                     'date': a.date,
                                     'note': a.note,
+                                    'shift_id': b.id,
+                                    'shift_name': b.name,
+                                    'shift_end': b.end,
+                                    'shift_start': b.start,
+                                    'shift_group_id': b.group_id,
                                     'machine_type_id': c.id,
                                     'machine_type_name': c.name,
                                     'machine_id': d.id,
@@ -1108,12 +1135,82 @@
                                     'unit_id': e.unit.id,
                                     'unit_name': e.unit.name,
                                 })
-                            }
+                                // buat tanpa shift
+                                if (indexShift == 0) {
+                                    data_work_plan_no_shift.push({
+                                        'id': a.id,
+                                        'date': a.date,
+                                        'note': a.note,
+                                        'machine_type_id': c.id,
+                                        'machine_type_name': c.name,
+                                        'machine_id': d.id,
+                                        'machine_name': d.name,
+                                        'product_id': e.id,
+                                        'product_code': e.code,
+                                        'product_name': e.name,
+                                        'product_alias': e.alias,
+                                        'product_qty': e.qty,
+                                        'unit_id': e.unit.id,
+                                        'unit_name': e.unit.name,
+                                    })
+                                }
+                            });
+                        });
+                    });
+                    indexShift++
+                });
+            } else {
+                // kalau ada work plan
+                a.work_plan.shift_qc.forEach(b => {
+                    // qc
+                    b.shift_mechanic.forEach(c => {
+                        // mechanic
+                        c.shift_machine.forEach(d => {
+                            // machine
+                            d.products.forEach(e => {
+                                // products
+                                data_work_plan.push({
+                                    'id': a.id,
+                                    'date': a.date,
+                                    'note': a.note,
+                                    'work_plan_id': a.work_plan.id,
+                                    'shift_id': b.shift.id,
+                                    'shift_name': b.shift.name,
+                                    'shift_end': b.shift.end,
+                                    'shift_start': b.shift.start,
+                                    'shift_group_id': b.shift.group_id,
+                                    'work_plan_shift_id': b.work_plan_shift_id,
+                                    'employee_qc': b.employee_qc,
+                                    'note_qc': b.note,
+                                    'machine_type_id': c.machine_type.id,
+                                    'machine_type_name': c.machine_type.name,
+                                    'employee_mechanic': c.employee_mechanic,
+                                    'note_mechanic': c.note,
+                                    'work_plan_machine_type_id': c.work_plan_machine_type_id,
+                                    'shift_id_mechanic': c.shift.id,
+                                    'machine_id': d.machine.id,
+                                    'machine_name': d.machine.name,
+                                    'employee_helper': d.employee_helper,
+                                    'employee_catcher': d.employee_catcher,
+                                    'employee_operator': d.employee_operator,
+                                    'note_machine': d.note,
+                                    'work_plan_machine_id': d.work_plan_machine_id,
+                                    'shift_id_machine': d.shift.id,
+                                    'product_id': e.product.id,
+                                    'product_code': e.product.code,
+                                    'product_name': e.product.name,
+                                    'product_alias': e.product.alias,
+                                    'product_qty': e.qty,
+                                    'unit_id': e.unit.id,
+                                    'unit_name': e.unit.name,
+                                    'note_product': e.note,
+                                    'work_plan_product_id': e.work_plan_product_id,
+                                })
+                            });
                         });
                     });
                 });
-                indexShift++
-            });
+            }
         });
         // console.log(data_work_plan)
         groupingData()
@@ -1311,6 +1408,7 @@
         if (activeIndex != undefined) {
             toggleCard(activeIndex)
         }
+        managementManPower(event, '2023-06-12', 3)
     }
 
     function toggleCard(index) {
@@ -1339,7 +1437,7 @@
         event.stopPropagation();
         var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
         var html_header = '';
         html_header += '<h5 class="modal-title">Management Man Power</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -1347,52 +1445,25 @@
         var html_body = '';
         html_body += '<div class="row p-0 m-0">'
 
-        html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-auto align-self-center">'
-        html_body += '<p class="small-text"><b id="nameManPower">No Man Power</b></p>'
-        html_body += '</div>'
-        html_body += '<div class="col text-end align-self-center">'
-        html_body += '<p class="super-small-text"><span id="sisaManPower">0</span> Person Left</p>'
-        html_body += '</div>'
-        html_body += '<div class="col-12">'
-        html_body += '<div class="form-group has-search">'
-        html_body += '<span class="fa fa-search form-control-feedback"></span>'
-        html_body += '<input type="text" class="form-control" placeholder="Search" id="search_nama">'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '<div class="col-12 pt-4">'
-
-        html_body += '<div style="max-height: 300px;overflow-x: hidden;overflow-y: auto;" id="listManPower">'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-
+        // barak main
         html_body += '<div class="col-12 col-md-8 p-4">'
-
         html_body += '<div class="row">'
-        html_body += '<div class="col-8" id="bodyManPower">'
-        // UTAMA
-        // UTAMA
-        html_body += '</div>'
-        html_body += '<div class="col-4">'
         // TANGGAL
+        html_body += '<div class="col-4">'
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
         html_body += '<p class="super-small-text text-grey m-0 mb-4">More Date</p>'
         for (let i = 0; i < dateList.length; i++) {
             html_body += '<div class="row">'
-            if (dateList[i] == date) {
-                html_body += '<div class="col-2 align-self-center">'
-                html_body += '<i class="fa fa-chevron-left"></i>'
-                html_body += '</div>'
-            }
             html_body += '<div class="col-10 align-self-center">'
             html_body += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
             html_body += '<p class="m-0 super-small-text">0 Position Added</p>'
             html_body += '</div>'
+            if (dateList[i] == date) {
+                html_body += '<div class="col-2 align-self-center">'
+                html_body += '<i class="fa fa-chevron-right"></i>'
+                html_body += '</div>'
+            }
             html_body += '<div class="col-12">'
             html_body += '<hr>'
             html_body += '</div>'
@@ -1400,11 +1471,72 @@
         }
         html_body += '</div>'
         html_body += '</div>'
+        html_body += '</div>'
         // TANGGAL
+        // UTAMA
+        html_body += '<div class="col-8" id="bodyManPower">'
+        html_body += '</div>'
+        // UTAMA
         html_body += '</div>'
         html_body += '</div>'
+        // barak main
+
+        // barak man power
+        html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
+        html_body += '<div class="row">'
+        // buat atas
+        html_body += '<div class="col-12">'
+        html_body += '<div class="row">'
+        // header
+        html_body += '<div class="col-auto align-self-center">'
+        html_body += '<p class="small-text"><b id="nameManPower">No Man Power</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col text-end align-self-center">'
+        html_body += '<p class="super-small-text"><span id="sisaManPower">0</span> Person Left</p>'
+        html_body += '</div>'
+        // header
+        // search
+        html_body += '<div class="col-12">'
+        html_body += '<div class="form-group has-search">'
+        html_body += '<span class="fa fa-search form-control-feedback"></span>'
+        html_body += '<input type="text" class="form-control" placeholder="Search" id="search_nama" autocomplete="off">'
+        html_body += '</div>'
+        html_body += '</div>'
+        // search
+        // list hooman
+        html_body += '<div class="col-12 pt-4">'
+        html_body += '<div style="max-height: 200px;overflow-x: hidden;overflow-y: auto;" id="listManPower">'
 
         html_body += '</div>'
+        html_body += '</div>'
+        // list hooman
+        html_body += '</div>'
+        html_body += '</div>'
+        // buat atas
+
+        // buat bawah
+        html_body += '<div class="col-12 mt-4">'
+        html_body += '<div class="row">'
+        // header
+        html_body += '<div class="col-auto align-self-center">'
+        html_body += '<p class="small-text"><b id="nameManPower">Listed Man Power</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col text-end align-self-center">'
+        html_body += '<p class="super-small-text"><span id="sisaManPower">0</span> Person</p>'
+        html_body += '</div>'
+        // header
+        // list hooman
+        html_body += '<div class="col-12">'
+        html_body += '<div style="max-height: 200px;overflow-x: hidden;overflow-y: auto;" id="listAddedManPower">'
+        html_body += '</div>'
+        html_body += '</div>'
+        // list hooman
+        html_body += '</div>'
+        html_body += '</div>'
+        // buat bawah
+        html_body += '</div>'
+        html_body += '</div>'
+        // barak man power
 
         html_body += '</div>'
         $('#modalBody').html(html_body).addClass('p-0');
@@ -1412,6 +1544,8 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
         $('#modalFooter').html(html_footer);
+        cardAlert('Pilih Posisi Terlebih Dahulu', '#listManPower')
+        cardAlert('Pilih Posisi Terlebih Dahulu', '#listAddedManPower')
         bodyManPower(date)
     }
 
@@ -1420,7 +1554,9 @@
             var dataMachine = data_work_plan_group.filter((v, k) => {
                 if (v.start == date) return true
             })
-            var currentShift = groupAndSum(data_work_plan_group, ['shift_id', 'nama_shift'], [])
+            var currentShift = groupAndSum(data_work_plan_group, ['shift_id', 'nama_shift', 'shift_group_id'], [])
+            var currentShiftId = groupAndSum(data_work_plan_group, ['shift_id'], [])
+            var missingGroup = findMissingGroups(currentShiftId, data_work.shift[0].shift_group)
             var html = ''
             html += '<h4 class="m-0"><b>' + formatDateIndonesia(date) + '</b></h4>'
             html += '<p class="super-small-text text-grey m-0">Available ' + currentShift.length + ' Shift</p>'
@@ -1431,46 +1567,148 @@
             // collapse
             html += '<div class="accordion" id="accordionPanelsStayOpenExample">'
             // shift
-
-            $.each(currentShift, function(k, v) {
-                html += '<div class="accordion-item" style="border: none;">'
-                html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
-                html += '<button class="accordion-button p-2 small-text" type="button" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">' + v.nama_shift + '</button>'
-                html += '</h2>'
-                html += '<div id="panelShift' + k + '" class="accordion-collapse collapse show" aria-labelledby="headShift' + k + '">'
-                html += '<div class="accordion-body pt-0 pe-0 pb-0">'
-                // isi 1
-                $.each(data_work.machineType, function(key, value) {
-                    var masterMachine = data_work.machine.filter((v, k) => {
-                        if (value.id == v.machine_type_id) return true
+            $.each(data_work.shift[0].shift_group, function(k, v) {
+                var dataMachine = currentShift.find((va, ke) => {
+                    if (va.shift_group_id == v.group_id) return true
+                })
+                if (dataMachine != undefined) {
+                    var qcEmployee = manPowerFilter({
+                        key: 'date',
+                        value: date
+                    }, {
+                        key: 'shift_group_id',
+                        value: v.group_id
                     })
                     html += '<div class="accordion-item" style="border: none;">'
-                    html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
-                    html += '<button class="accordion-button p-2 small-text" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">' + value.name + '</button>'
+                    html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
+                    html += '<button class="accordion-button p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
+                    html += '<div class="row">'
+                    html += '<div class="col-1 align-self-center">'
+                    html += '<img class="w-100" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
+                    html += '</div>'
+                    html += '<div class="col align-self-center">'
+                    html += '<b>' + dataMachine.nama_shift + '</b>'
+                    html += '</div>'
+                    html += '<div class="col-auto text-end align-self-center pe-5">'
+                    html += '<p class="m-0 fw-bold text-primary">' + qcEmployee['qc'].total + ' Quality Control</p>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</button>'
                     html += '</h2>'
-                    html += '<div id="panelMachineType' + k + key + '" class="accordion-collapse collapse show" aria-labelledby="headMachineType' + k + key + '">'
+                    html += '<div id="panelShift' + k + '" class="accordion-collapse collapse show" aria-labelledby="headShift' + k + '">'
                     html += '<div class="accordion-body pt-0 pe-0 pb-0">'
-                    $.each(masterMachine, function(keys, values) {
+                    // isi 1
+                    $.each(data_work.machineType, function(key, value) {
+                        var masterMachine = data_work.machine.filter((va, ke) => {
+                            if (value.id == va.machine_type_id) return true
+                        })
+                        var mekanikEmployee = manPowerFilter({
+                            key: 'date',
+                            value: date
+                        }, {
+                            key: 'shift_group_id',
+                            value: v.group_id
+                        }, {
+                            key: 'machine_type_id',
+                            value: value.id
+                        })
                         html += '<div class="accordion-item" style="border: none;">'
-                        html += '<h2 class="accordion-header" id="headMachine' + k + key + keys + '" style="border: 1px solid #dedede;">'
-                        html += '<button class="accordion-button p-2 small-text" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachine' + k + key + keys + '" aria-expanded="true" aria-controls="panelMachine' + k + key + keys + '">' + values.name + '</button>'
+                        html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
+                        html += '<button class="accordion-button p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">'
+                        html += '<div class="row w-100">'
+                        html += '<div class="col-8 align-self-center">'
+                        html += '<b>' + value.name + '</b>'
+                        html += '</div>'
+                        html += '<div class="col-4 text-end align-self-center pe-5">'
+                        html += '<p class="m-0 fw-bold text-primary">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</button>'
                         html += '</h2>'
-                        html += '<div id="panelMachine' + k + key + keys + '" class="accordion-collapse collapse show" aria-labelledby="headMachine' + k + key + keys + '">'
+                        html += '<div class="accordion-collapse collapse show">'
+                        html += '<div class="accordion-body pt-0 pe-0 pb-0">'
+                        // summary
+                        html += '<div class="accordion-item" style="border: none;">'
+                        html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
+                        html += '<button class="accordion-button machine p-2 small-text shadow-none bg-grey" type="button"  style="cursor:default">'
+                        html += '<div class="row w-100">'
+                        html += '<div class="col align-self-center">'
+                        html += '<b>Sumary ' + value.name + '</b>'
+                        html += '<p class="m-0 super-small-text">0 Machine Added</p>'
+                        html += '</div>'
+                        html += '<div class="col text-end align-self-center pe-5">'
+                        html += '<span class="badge bg-position-filled me-1" style="border:1px solid grey">1 Cat</span>'
+                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">0 Hel</span>'
+                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">0 Opr</span>'
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</button>'
+                        html += '</h2>'
+                        html += '<div id="panelMachineType' + k + key + '" class="accordion-collapse collapse show" aria-labelledby="headMachineType' + k + key + '">'
                         html += '<div class="accordion-body p-0">'
+                        $.each(masterMachine, function(keys, values) {
+                            var executorEmployee = manPowerFilter({
+                                key: 'date',
+                                value: date
+                            }, {
+                                key: 'shift_group_id',
+                                value: v.group_id
+                            }, {
+                                key: 'machine_type_id',
+                                value: value.id
+                            }, {
+                                key: 'machine_id',
+                                value: values.id
+                            })
+                            html += '<div class="accordion-item" style="border: none;">'
+                            html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
+                            html += '<button class="accordion-button machine p-2 small-text shadow-none" type="button">'
+                            html += '<div class="row w-100">'
+                            html += '<div class="col align-self-center" style="cursor:default">'
+                            html += values.name
+                            html += '</div>'
+                            html += '<div class="col text-end align-self-center pe-5">'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
+                            html += '</div>'
+                            html += '</div>'
+                            html += '</button>'
+                            html += '</h2>'
+                            html += '<div class="accordion-collapse collapse show">'
+                            html += '<div class="accordion-body p-0">'
+
+                            html += '</div>'
+                            html += '</div>'
+                            html += '</div>'
+                        })
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</div>'
+                        // summary
+
 
                         html += '</div>'
                         html += '</div>'
                         html += '</div>'
-                    })
-
+                    });
+                    // isi 1
                     html += '</div>'
                     html += '</div>'
                     html += '</div>'
-                });
-                // isi 1
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
+                } else {
+                    html += '<div class="accordion-item mt-2 mb-2" style="border: none;">'
+                    html += '<h2 class="accordion-header" style="border: 2px dashed #cfcfcf;">'
+                    html += '<button class="accordion-button machine p-2 small-text shadow-none text-center" type="button">'
+                    html += '<div class="row w-100">'
+                    html += '<div class="col-12 text-center">'
+                    html += '<i class="fa fa-plus me-2"></i>Tambah Shift ' + v.group_name
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</button>'
+                    html += '</h2>'
+                    html += '</div>'
+                }
             });
             // shift
             html += '</div>'
@@ -1484,64 +1722,127 @@
         }
     }
 
-    function chooseManPower(key) {
-        $('.manPower').removeClass('active')
-        $('#manPower' + key).addClass('active')
-        listManPower(key)
+    // function manPowerFilter() {
+    //     var dataMachine = data_work_plan.filter((va, ke) => {
+    //         if (va.date == date && va.shift_group_id == shift_group_id && va.machine_type_id == machine_type_id && va.machine_id == machine_id) return true
+    //     })
+    //     var varEmployee = {}
+    //     for (var nama in data_work.manPower) {
+    //         if (dataMachine.length > 0) {
+    //             varEmployee[nama] = {}
+    //             varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length')
+    //             varEmployee[nama]['class'] = 'bg-position-filled'
+    //         } else {
+    //             varEmployee[nama] = {}
+    //             varEmployee[nama]['total'] = 0
+    //             varEmployee[nama]['class'] = 'bg-position'
+
+    //         }
+    //     }
+    //     return varEmployee
+    // }
+    function manPowerFilter(...params) {
+        var dataMachine = data_work_plan.filter((va, ke) => {
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i];
+                if (va[param.key] != param.value) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        var varEmployee = {};
+        for (var nama in data_work.manPower) {
+            if (dataMachine.length > 0) {
+                varEmployee[nama] = {};
+                varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                varEmployee[nama]['class'] = 'bg-position-filled';
+            } else {
+                varEmployee[nama] = {};
+                varEmployee[nama]['total'] = 0;
+                varEmployee[nama]['class'] = 'bg-position';
+            }
+        }
+        return varEmployee;
     }
 
-    function listManPower(key) {
+    function chooseManPower(key, date = null, shift_group_id = null, machine_type_id = null, machine_id = null) {
+        $('.manPower').removeClass('active')
+        $('#manPower' + key).addClass('active')
+        listManPower(key, date, shift_group_id, machine_type_id, machine_id)
+    }
+
+    function listManPower(key, date, shift_group_id, machine_type_id, machine_id) {
         var html = ''
         $('#nameManPower').html(key.toUpperCase())
         $('#sisaManPower').html(data_work.manPower[key].length)
         data_work.manPower[key].forEach(e => {
             html += '<div class="row pt-2 pb-2">'
-            html += '<div class="col-9 align-self-center">'
+            html += '<div class="col-10 align-self-center">'
             html += '<p class="m-0 small-text"><b>' + e.full_name + '</b></p>'
             html += '<p class="m-0 super-small-text text-grey"><b>' + e.email + '</b></p>'
             html += '</div>'
-            html += '<div class="col-3 align-self-center">'
+            html += '<div class="col-2 align-self-center">'
             html += '<i class="fa fa-user-plus"></i>'
             html += '</div>'
             html += '</div>'
         });
         $('#listManPower').html(html)
-        listMachineSection(key)
-    }
-
-    function listMachineSection(key) {
-        var html = ''
-        if (key == 'mechanic') {
-            $.each(data_work.machineType, function(k, v) {
-                html += '<div class="col p-1">'
-                html += '<div class="card shadow-none machinePower" id="machinePower' + k + '" onclick="showManPower(' + k + ')" style="cursor:pointer">'
-                html += '<div class="card-body p-2 text-center text-wrap">'
-                html += '<p class="m-0 super-small-text">' + v.name + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            })
-        } else if (key == 'qc') {
-            html += '<div class="col-12 text-center p-3">'
-            html += '<p class="m-0 small-text"><i>Mesin tidak tersedia untuk Quality Control<i></p>'
-            html += '</div>'
-        } else {
-            $.each(data_work.machine, function(k, v) {
-                html += '<div class="col p-1">'
-                html += '<div class="card shadow-none machinePower" id="machinePower' + k + '" onclick="showManPower(' + k + ')" style="cursor:pointer">'
-                html += '<div class="card-body p-2 text-center text-wrap">'
-                html += '<p class="m-0 super-small-text">' + v.code + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            })
+        var filters = [];
+        if (date !== null || shift_group_id !== null || machine_type_id !== null || machine_id !== null) {
+            if (date !== null) {
+                filters.push({
+                    key: 'date',
+                    value: date
+                });
+            }
+            if (shift_group_id !== null) {
+                filters.push({
+                    key: 'shift_group_id',
+                    value: shift_group_id
+                });
+            }
+            if (machine_type_id !== null) {
+                filters.push({
+                    key: 'machine_type_id',
+                    value: machine_type_id
+                });
+            }
+            if (machine_id !== null) {
+                filters.push({
+                    key: 'machine_id',
+                    value: machine_id
+                });
+            }
         }
-        $('#listMachineSection').html(html)
-    }
+        var data = data_work_plan.filter((va, ke) => {
+            for (var i = 0; i < filters.length; i++) {
+                var param = filters[i];
+                if (va[param.key] != param.value) {
+                    return false;
+                }
+            }
+            return true;
+        })
+        if (data.length > 0) {
+            var employeeManPower = eval('data[0].employee_' + key)
+        } else {
+            var employeeManPower = []
+        }
+        employeeManPower.forEach(e => {
+            html += '<div class="row pt-2 pb-2">'
+            html += '<div class="col-10 align-self-center">'
+            html += '<p class="m-0 small-text"><b>' + e.full_name + '</b></p>'
+            html += '<p class="m-0 super-small-text text-grey"><b>' + e.email + '</b></p>'
+            html += '</div>'
+            html += '<div class="col-2 align-self-center">'
+            html += '<i class="fa fa-user-plus"></i>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listManPower').html(html)
 
-    function showManPower(key) {
-        $('.machinePower').removeClass('active')
-        $('#machinePower' + key).addClass('active')
     }
 
     function changePlan(event, date, machine_id, shift_id = null) {
@@ -1683,7 +1984,6 @@
         var dataDetail = data_work_plan.filter((v, k) => {
             if (v.machine_id == machine_id && v.date == date && v.shift_id == shift_id) return true
         })
-        console.log(dataDetail)
         var html = ''
         html += '<div class="row">'
         html += '<div class="col">'
