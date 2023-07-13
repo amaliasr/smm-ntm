@@ -752,6 +752,12 @@
         border-color: #4A55A2;
         color: #4A55A2 !important;
     }
+
+    .accordion-button:not(.collapsed) {
+        color: #69707a !important;
+        background-color: #fff !important;
+        border: 0 !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -1419,54 +1425,56 @@
             html += '<h4 class="m-0"><b>' + formatDateIndonesia(date) + '</b></h4>'
             html += '<p class="super-small-text text-grey m-0">Available ' + currentShift.length + ' Shift</p>'
 
-            html += '<div class="row p-3 pt-4">'
-            currentShift.forEach(e => {
-                html += '<div class="col-auto statusLine super-small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLineall">' + e.nama_shift + '</div>'
-            });
-            html += '</div>'
-
-            html += '<div class="row">'
+            html += '<div class="row pt-4">'
             html += '<div class="col-12">'
 
-            html += '<p class="m-0 super-small-text"><b>Position</b></p>'
-            html += '<div class="row ps-2 pe-2 mb-3">'
-            $.each(data_work.manPower, function(key, value) {
-                html += '<div class="col p-1">'
-                html += '<div class="card shadow-none manPower" id="manPower' + key + '" style="cursor:pointer;" onclick="chooseManPower(' + "'" + key + "'" + ')">'
-                html += '<div class="card-body p-2 text-center text-wrap">'
-                html += '<p class="m-0 super-small-text">' + key.toUpperCase() + '</p>'
+            // collapse
+            html += '<div class="accordion" id="accordionPanelsStayOpenExample">'
+            // shift
+
+            $.each(currentShift, function(k, v) {
+                html += '<div class="accordion-item" style="border: none;">'
+                html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
+                html += '<button class="accordion-button p-2 small-text" type="button" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">' + v.nama_shift + '</button>'
+                html += '</h2>'
+                html += '<div id="panelShift' + k + '" class="accordion-collapse collapse show" aria-labelledby="headShift' + k + '">'
+                html += '<div class="accordion-body pt-0 pe-0 pb-0">'
+                // isi 1
+                $.each(data_work.machineType, function(key, value) {
+                    var masterMachine = data_work.machine.filter((v, k) => {
+                        if (value.id == v.machine_type_id) return true
+                    })
+                    html += '<div class="accordion-item" style="border: none;">'
+                    html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
+                    html += '<button class="accordion-button p-2 small-text" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">' + value.name + '</button>'
+                    html += '</h2>'
+                    html += '<div id="panelMachineType' + k + key + '" class="accordion-collapse collapse show" aria-labelledby="headMachineType' + k + key + '">'
+                    html += '<div class="accordion-body pt-0 pe-0 pb-0">'
+                    $.each(masterMachine, function(keys, values) {
+                        html += '<div class="accordion-item" style="border: none;">'
+                        html += '<h2 class="accordion-header" id="headMachine' + k + key + keys + '" style="border: 1px solid #dedede;">'
+                        html += '<button class="accordion-button p-2 small-text" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachine' + k + key + keys + '" aria-expanded="true" aria-controls="panelMachine' + k + key + keys + '">' + values.name + '</button>'
+                        html += '</h2>'
+                        html += '<div id="panelMachine' + k + key + keys + '" class="accordion-collapse collapse show" aria-labelledby="headMachine' + k + key + keys + '">'
+                        html += '<div class="accordion-body p-0">'
+
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</div>'
+                    })
+
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                });
+                // isi 1
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
-            })
+            });
+            // shift
             html += '</div>'
-
-            html += '<p class="m-0 super-small-text"><b>Machine/Section</b></p>'
-            html += '<div class="row ps-2 pe-2 mb-3" id="listMachineSection">'
-            html += '</div>'
-
-            html += '<p class="m-0 super-small-text"><b>Man Power</b></p>'
-            html += '<div class="row ps-2 pe-2 mb-3">'
-            for (let i = 0; i < 2; i++) {
-                html += '<div class="col-12 p-1">'
-                html += '<div class="card shadow-none">'
-                html += '<div class="card-body p-2">'
-
-                html += '<div class="row">'
-                html += '<div class="col-11">'
-                html += '<p class="m-0 small-text"><b>Moch. Sochron</b></p>'
-                html += '<p class="m-0 super-small-text">2 Position in this Date</p>'
-                html += '</div>'
-                html += '<div class="col-1 align-self-center">'
-                html += '<i class="fa fa-times text-danger"></i>'
-                html += '</div>'
-                html += '</div>'
-
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            }
-            html += '</div>'
+            // collapse
 
             html += '</div>'
             html += '</div>'

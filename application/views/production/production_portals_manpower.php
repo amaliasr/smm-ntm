@@ -1011,21 +1011,19 @@
                     if (c.shift_person != null) {
                         c.shift_person.forEach(d => {
                             // shift
-                            d.person.forEach(e => {
-                                // posisi
-                                var dataShift = data_work.shift[0].shift_list.find((v, k) => {
-                                    if (v.id == d.shift) return true
-                                })
-                                data_shift_person_complete.push({
-                                    'machine_id': b.line.id,
-                                    'machine_name': b.line.name,
-                                    'date': c.date,
-                                    'shift_id': d.shift,
-                                    'shift_name': 'Shift ' + convertTimeFormat(dataShift.start_time) + ' - ' + convertTimeFormat(dataShift.end_time),
-                                    'posisi': e.person_label,
-                                    'note': e.note,
-                                })
-                            });
+                            // posisi
+                            var dataShift = data_work.shift[0].shift_list.find((v, k) => {
+                                if (v.id == d.shift) return true
+                            })
+                            data_shift_person_complete.push({
+                                'machine_id': b.line.id,
+                                'machine_name': b.line.name,
+                                'date': c.date,
+                                'shift_id': d.shift,
+                                'shift_name': 'Shift ' + convertTimeFormat(dataShift.start_time) + ' - ' + convertTimeFormat(dataShift.end_time),
+                                'posisi': d.person.person_label,
+                                'note': d.person.note,
+                            })
                         });
                     }
                 });
@@ -1069,6 +1067,7 @@
                     })
                     if (data.shift_person != null) {
                         // console.log(data.shift_person)
+                        var a = 1
                         data.shift_person.forEach(s => {
                             var data = data_work.shift[0].shift_list.find((v, k) => {
                                 if (v.id == s.shift) return true
@@ -1085,16 +1084,16 @@
                             html += '<p class="m-0 super-small-text text-dark"><b>Shift ' + convertTimeFormat(data.start_time) + ' - ' + convertTimeFormat(data.end_time) + '</b></p>'
                             html += '</div>'
                             html += '<div class="col">'
-                            var a = 1
-                            s.person.forEach(p => {
-                                html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + p.person_label + '</span>'
-                                a++
-                            });
+
+                            // s.person.forEach(p => {
+                            html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + s.person.person_label + '</span>'
+                            // });
                             html += '</div>'
                             html += '</div>'
 
                             html += '</div>'
                             html += '</div>'
+                            a++
                         });
                     }
                     html += '</td>'

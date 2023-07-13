@@ -819,6 +819,7 @@
                 nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
                 // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
                 resource: group[0].machine_id,
+                work_plan_id: group[0].work_plan_id,
                 produk: produk.join(", "),
                 allDay: true,
             };
@@ -951,7 +952,8 @@
 
     function loadDataPlanning(id) {
         var data = {
-            productionPlanId: id,
+            productionPlanId: 92,
+            // productionPlanId: id,
         }
         var url = "<?= api_produksi('getWorkPlan'); ?>"
         getData(data, url, id)
@@ -1049,49 +1051,52 @@
             'target_per_production_type': target_per_production_type,
             'target_per_machine': target_per_machine,
         }
-
+        var numIndex = 0
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
             // date
-            if (a.work_plan.id == null) {
-                // jika null, maka pakai production_plan
-                a.production_plan.shift.forEach(b => {
-                    // shift
-                    a.production_plan.machine_type.forEach(c => {
-                        // machine_type
-                        c.machine.forEach(d => {
-                            // machine
-                            d.product.forEach(e => {
-                                // product
-                                data_work_plan.push({
-                                    'id': a.id,
-                                    'date': a.date,
-                                    'note': a.note,
-                                    'shift_id': b.id,
-                                    'shift_name': b.name,
-                                    'shift_end': b.end,
-                                    'shift_start': b.start,
-                                    'machine_type_id': c.id,
-                                    'machine_type_name': c.name,
-                                    'machine_id': d.id,
-                                    'machine_name': d.name,
-                                    'product_id': e.product.id,
-                                    'product_code': e.product.code,
-                                    'product_name': e.product.name,
-                                    'product_alias': e.product.alias,
-                                    'product_qty': e.product.qty,
-                                    'unit_id': e.product.unit.id,
-                                    'unit_name': e.product.unit.name,
-                                })
-                            });
+            // jika null, maka pakai production_plan
+            a.production_plan.shift.forEach(b => {
+                // shift
+                a.production_plan.machine_type.forEach(c => {
+                    // machine_type
+                    c.machine.forEach(d => {
+                        // machine
+                        d.product.forEach(e => {
+                            // product
+                            data_work_plan.push({
+                                'id': a.id,
+                                'date': a.date,
+                                'note': a.note,
+                                'shift_id': b.id,
+                                'shift_name': b.name,
+                                'shift_end': b.end,
+                                'shift_start': b.start,
+                                'machine_type_id': c.id,
+                                'machine_type_name': c.name,
+                                'machine_id': d.id,
+                                'machine_name': d.name,
+                                'product_id': e.id,
+                                'product_code': e.code,
+                                'product_name': e.name,
+                                'product_alias': e.alias,
+                                'product_qty': e.qty,
+                                'unit_id': e.unit.id,
+                                'unit_name': e.unit.name,
+                            })
+                            if (a.work_plan.id != null) {
+                                data_work_plan[numIndex]['work_plan_id'] = a.work_plan.id
+                            } else {
+                                data_work_plan[numIndex]['work_plan_id'] = ''
+                            }
+                            numIndex++
                         });
                     });
                 });
-            } else {
-                // jika work plan id tidak null, pakai yg workplan
-            }
+            });
         });
         data_work_plan_group = transformData(data_work_plan);
+        // console.log(data_work_plan_group)
         createHeaderPlanner()
     }
 
