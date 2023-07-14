@@ -775,6 +775,11 @@
     .bg-position-filled {
         background-color: #526D82;
     }
+
+    .form-control:focus {
+        border: 1px solid #c5ccd6;
+        box-shadow: none;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -991,10 +996,69 @@
         return missingGroups;
     }
 
+    function findPositionUser(data, id) {
+        const idCount = data.reduce((count, item) => {
+            const helperCount = item.shift_mechanic.reduce((helperCount, mechanic) => {
+                const employeeHelperCount = mechanic.shift_machine.reduce((helperCount, machine) => {
+                    const employeeCount = machine.employee_helper && machine.employee_helper.filter(employee => employee.id === id).length || 0;
+                    return helperCount + employeeCount;
+                }, 0);
+                return helperCount + employeeHelperCount;
+            }, 0);
+            const catcherCount = item.shift_mechanic.reduce((catcherCount, mechanic) => {
+                const employeeCatcherCount = mechanic.shift_machine.reduce((catcherCount, machine) => {
+                    const employeeCount = machine.employee_catcher && machine.employee_catcher.filter(employee => employee.id === id).length || 0;
+                    return catcherCount + employeeCount;
+                }, 0);
+                return catcherCount + employeeCatcherCount;
+            }, 0);
+            const mechanicCount = item.shift_mechanic.reduce((mechanicCount, mechanic) => {
+                const employeeMechanicCount = mechanic.employee_mechanic && mechanic.employee_mechanic.filter(employee => employee.id === id).length || 0;
+                return mechanicCount + employeeMechanicCount;
+            }, 0);
+            const operatorCount = item.shift_mechanic.reduce((operatorCount, mechanic) => {
+                const employeeOperatorCount = mechanic.shift_machine.reduce((operatorCount, machine) => {
+                    const employeeCount = machine.employee_operator && machine.employee_operator.filter(employee => employee.id === id).length || 0;
+                    return operatorCount + employeeCount;
+                }, 0);
+                return operatorCount + employeeOperatorCount;
+            }, 0);
+            const qcCount = item.employee_qc && item.employee_qc.filter(employee => employee.id === id).length || 0;
+
+            return count + helperCount + catcherCount + mechanicCount + operatorCount + qcCount;
+        }, 0);
+
+        const positions = [];
+        data.forEach(item => {
+            item.shift_mechanic.forEach(mechanic => {
+                if (mechanic.employee_helper && mechanic.employee_helper.some(employee => employee.id === id)) {
+                    positions.push("employee_helper");
+                }
+                if (mechanic.employee_catcher && mechanic.employee_catcher.some(employee => employee.id === id)) {
+                    positions.push("employee_catcher");
+                }
+                if (mechanic.employee_mechanic && mechanic.employee_mechanic.some(employee => employee.id === id)) {
+                    positions.push("employee_mechanic");
+                }
+                if (mechanic.employee_operator && mechanic.employee_operator.some(employee => employee.id === id)) {
+                    positions.push("employee_operator");
+                }
+            });
+        });
+
+        const availablePositions = ["employee_catcher", "employee_helper", "employee_mechanic", "employee_operator", "employee_qc"];
+
+        return {
+            idCount: idCount,
+            positions: positions,
+            availablePositions: availablePositions
+        };
+    }
+
     function cardAlert(text, direction) {
         var html = ''
-        html += '<div class="card" style="background-color:transparent;border: 1px dashed #cfcfcf;">'
-        html += '<div class="card-body p-5 text-center">'
+        html += '<div class="card h-100" style="background-color:transparent;border: 1px dashed #cfcfcf;">'
+        html += '<div class="card-body p-5 text-center d-flex align-items-center justify-content-center">'
         html += '<p class="m-0 super-small-text"><i>' + text + '</i></p>'
         html += '</div>'
         html += '</div>'
@@ -1212,7 +1276,7 @@
                 });
             }
         });
-        // console.log(data_work_plan)
+        console.log(data_work_plan)
         groupingData()
     }
 
@@ -1229,6 +1293,10 @@
         var html_qc = ''
         html += '<th class="" rowspan="2" style="vertical-align: middle;"><b>Machine | Date</b></th>'
         for (let i = 0; i < dateList.length; i++) {
+            var qcEmployee = manPowerFilter({
+                key: 'date',
+                value: dateList[i]
+            })
             html += '<th class="small-text"><div class="row"><div class="col-8 align-self-center p-0 text-end">' + formatInternationalDate(dateList[i]) + '</div><div class="col-4 align-self-center"><div class="dropdown"><span class="fa fa-ellipsis-h dropdown-date" role="button" id="dropdownMenuButtonDate" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;"></span>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonDate">'
             html += '<a class="dropdown-item" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ')"><i class="fa fa-file-o me-2"></i> Setting Man Power</a>'
@@ -1236,7 +1304,7 @@
             html += '</div>'
             html += '</div></div></div>'
             html += '</th>'
-            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="directToWorkPlan()"><p class="m-0 small-text text-primary">0 Quality Control</p></a></th>'
+            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="directToWorkPlan()"><p class="m-0 small-text text-primary">' + qcEmployee['qc'].total + ' Quality Control</p></a></th>'
         }
         $('#date_list').html(html)
         $('#qc_list').html(html_qc)
@@ -1248,75 +1316,97 @@
     function createBodyPlanner() {
         var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         var html = ''
-        data_work.machine.forEach(e => {
+        // console.log(data_work.machine)
+        data_work.machineType.forEach(d => {
             html += '<tr>'
-            html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
-            // loop date
+            html += '<td class="text-center small-text align-selft-center bg-light" style="vertical-align: middle;">'
+            html += '<p class="m-0"><b class="text-dark">' + d.name + '</b></p>'
+            html += '</td>'
             for (let i = 0; i < dateList.length; i++) {
-                html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
-                var data = data_work_plan_group.filter((v, k) => {
-                    if (v.resource == e.id && v.start == dateList[i]) return true
+                var mekanikEmployee = manPowerFilter({
+                    key: 'date',
+                    value: dateList[i]
+                }, {
+                    key: 'machine_type_id',
+                    value: d.id
                 })
-                // console.log(data)
-                data.forEach(el => {
-                    var dataDetail = data_work_plan.filter((v, k) => {
-                        if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
-                    })
-                    var bg = 'bg-no-workplan'
-                    if (el.work_plan_id != '') {
-                        bg = 'bg-shift-' + el.shift_id
-                    }
-                    html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ')">'
-                    html += '<div class="card-body p-2 ">'
-                    html += '<div class="row">'
-                    html += '<div class="col-7 align-self-center">'
-                    html += '<p class="m-0 small-text text-dark"><b>' + el.nama_shift + '</b></p>'
-                    // data_work_plan
-                    dataDetail.forEach(element => {
-                        html += '<p class="m-0 super-small-text">' + element.product_alias + ' <b class="">( ' + element.product_qty + ' ' + element.unit_name + ')</b></p>'
-                    });
-                    html += '</div>'
-                    html += '<div class="col-5 align-self-center text-center">'
-                    // man
-                    html += '<div class="avatars" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
-                    // list person max 3
-                    if (el.work_plan_id != '') {
-                        html += '<span class="avatar">'
-                        html += '<img src="https://picsum.photos/70">'
-                        html += '</span>'
-                        html += '<span class="avatar">'
-                        html += '<img src="https://picsum.photos/80">'
-                        html += '</span>'
-                        html += '<span class="avatar">'
-                        html += '<img src="https://picsum.photos/90">'
-                        html += '</span>'
-                        // list person max 3
-                        html += '<span class="avatar plus-avatar">'
-                        html += '<span class="plus-icon"><i class="fa fa-plus"></i></span>'
-                        html += '</span>'
-                        html += '</div>'
-                    } else {
-                        html += '<span class="avatar plus-avatar-grey">'
-                        html += '<span class="plus-icon"><i class="fa fa-user-plus"></i></span>'
-                        html += '</span>'
-                        html += '</div>'
-                    }
-
-                    if (el.work_plan_id != '') {
-                        html += '<p class="m-0 mt-1" style="font-size:7px;">3 Persons</p>'
-                    } else {
-                        html += '<p class="m-0 mt-1" style="font-size:7px;">No Person</p>'
-                    }
-                    // man
-                    html += '</div>'
-                    html += '</div>'
-                    html += '</div>'
-                    html += '</div>'
-                });
+                html += '<td class="text-center small-text align-selft-center bg-light" style="vertical-align: middle;">'
+                html += '<p class="m-0 text-primary"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
                 html += '</td>'
             }
-            // loop date
             html += '</tr>'
+            data_work.machine.forEach(e => {
+                if (d.id == e.machine_type_id) {
+                    html += '<tr>'
+                    html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
+                    // loop date
+                    for (let i = 0; i < dateList.length; i++) {
+                        html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
+                        var data = data_work_plan_group.filter((v, k) => {
+                            if (v.resource == e.id && v.start == dateList[i]) return true
+                        })
+                        // console.log(data)
+                        data.forEach(el => {
+                            var dataDetail = data_work_plan.filter((v, k) => {
+                                if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
+                            })
+                            var bg = 'bg-no-workplan'
+                            if (el.work_plan_id != '') {
+                                bg = 'bg-shift-' + el.shift_id
+                            }
+                            html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ')">'
+                            html += '<div class="card-body p-2 ">'
+                            html += '<div class="row">'
+                            html += '<div class="col-7 align-self-center">'
+                            html += '<p class="m-0 small-text text-dark"><b>' + el.nama_shift + '</b></p>'
+                            // data_work_plan
+                            dataDetail.forEach(element => {
+                                html += '<p class="m-0 super-small-text">' + element.product_alias + ' <b class="">( ' + element.product_qty + ' ' + element.unit_name + ')</b></p>'
+                            });
+                            html += '</div>'
+                            html += '<div class="col-5 align-self-center text-center">'
+                            // man
+                            html += '<div class="avatars" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
+                            // list person max 3
+                            if (el.work_plan_id != '') {
+                                html += '<span class="avatar">'
+                                html += '<img src="https://picsum.photos/70">'
+                                html += '</span>'
+                                html += '<span class="avatar">'
+                                html += '<img src="https://picsum.photos/80">'
+                                html += '</span>'
+                                html += '<span class="avatar">'
+                                html += '<img src="https://picsum.photos/90">'
+                                html += '</span>'
+                                // list person max 3
+                                html += '<span class="avatar plus-avatar">'
+                                html += '<span class="plus-icon"><i class="fa fa-plus"></i></span>'
+                                html += '</span>'
+                                html += '</div>'
+                            } else {
+                                html += '<span class="avatar plus-avatar-grey">'
+                                html += '<span class="plus-icon"><i class="fa fa-user-plus"></i></span>'
+                                html += '</span>'
+                                html += '</div>'
+                            }
+
+                            if (el.work_plan_id != '') {
+                                html += '<p class="m-0 mt-1" style="font-size:7px;">3 Persons</p>'
+                            } else {
+                                html += '<p class="m-0 mt-1" style="font-size:7px;">No Person</p>'
+                            }
+                            // man
+                            html += '</div>'
+                            html += '</div>'
+                            html += '</div>'
+                            html += '</div>'
+                        });
+                        html += '</td>'
+                    }
+                    // loop date
+                    html += '</tr>'
+                }
+            })
         })
         $('#body_list').html(html)
         listProdPlanning()
@@ -1452,7 +1542,7 @@
         html_body += '<div class="col-4">'
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
-        html_body += '<p class="super-small-text text-grey m-0 mb-4">More Date</p>'
+        html_body += '<p class="super-small-text m-0 mb-4"><b>More Date</b></p>'
         for (let i = 0; i < dateList.length; i++) {
             html_body += '<div class="row">'
             html_body += '<div class="col-10 align-self-center">'
@@ -1497,7 +1587,7 @@
         // header
         // search
         html_body += '<div class="col-12">'
-        html_body += '<div class="form-group has-search">'
+        html_body += '<div class="form-group has-search align-self-center">'
         html_body += '<span class="fa fa-search form-control-feedback"></span>'
         html_body += '<input type="text" class="form-control" placeholder="Search" id="search_nama" autocomplete="off">'
         html_body += '</div>'
@@ -1505,8 +1595,12 @@
         // search
         // list hooman
         html_body += '<div class="col-12 pt-4">'
-        html_body += '<div style="max-height: 200px;overflow-x: hidden;overflow-y: auto;" id="listManPower">'
+        html_body += '<div class="card shadow-none" style="background-color:transparent;">'
+        html_body += '<div class="card-body p-1">'
+        html_body += '<div style="height: 200px;overflow-x: hidden;overflow-y: auto;" id="listManPower">'
 
+        html_body += '</div>'
+        html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         // list hooman
@@ -1522,7 +1616,7 @@
         html_body += '<p class="small-text"><b id="nameManPower">Listed Man Power</b></p>'
         html_body += '</div>'
         html_body += '<div class="col text-end align-self-center">'
-        html_body += '<p class="super-small-text"><span id="sisaManPower">0</span> Person</p>'
+        html_body += '<p class="super-small-text"><span id="sisaAddedManPower">0</span> Person</p>'
         html_body += '</div>'
         // header
         // list hooman
@@ -1722,25 +1816,6 @@
         }
     }
 
-    // function manPowerFilter() {
-    //     var dataMachine = data_work_plan.filter((va, ke) => {
-    //         if (va.date == date && va.shift_group_id == shift_group_id && va.machine_type_id == machine_type_id && va.machine_id == machine_id) return true
-    //     })
-    //     var varEmployee = {}
-    //     for (var nama in data_work.manPower) {
-    //         if (dataMachine.length > 0) {
-    //             varEmployee[nama] = {}
-    //             varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length')
-    //             varEmployee[nama]['class'] = 'bg-position-filled'
-    //         } else {
-    //             varEmployee[nama] = {}
-    //             varEmployee[nama]['total'] = 0
-    //             varEmployee[nama]['class'] = 'bg-position'
-
-    //         }
-    //     }
-    //     return varEmployee
-    // }
     function manPowerFilter(...params) {
         var dataMachine = data_work_plan.filter((va, ke) => {
             for (var i = 0; i < params.length; i++) {
@@ -1774,21 +1849,6 @@
     }
 
     function listManPower(key, date, shift_group_id, machine_type_id, machine_id) {
-        var html = ''
-        $('#nameManPower').html(key.toUpperCase())
-        $('#sisaManPower').html(data_work.manPower[key].length)
-        data_work.manPower[key].forEach(e => {
-            html += '<div class="row pt-2 pb-2">'
-            html += '<div class="col-10 align-self-center">'
-            html += '<p class="m-0 small-text"><b>' + e.full_name + '</b></p>'
-            html += '<p class="m-0 super-small-text text-grey"><b>' + e.email + '</b></p>'
-            html += '</div>'
-            html += '<div class="col-2 align-self-center">'
-            html += '<i class="fa fa-user-plus"></i>'
-            html += '</div>'
-            html += '</div>'
-        });
-        $('#listManPower').html(html)
         var filters = [];
         if (date !== null || shift_group_id !== null || machine_type_id !== null || machine_id !== null) {
             if (date !== null) {
@@ -1830,18 +1890,60 @@
         } else {
             var employeeManPower = []
         }
-        employeeManPower.forEach(e => {
-            html += '<div class="row pt-2 pb-2">'
-            html += '<div class="col-10 align-self-center">'
-            html += '<p class="m-0 small-text"><b>' + e.full_name + '</b></p>'
-            html += '<p class="m-0 super-small-text text-grey"><b>' + e.email + '</b></p>'
+        // employee master
+        var html = ''
+        var a = 0
+        data_work.manPower[key].forEach(e => {
+            var filter = employeeManPower.find((va, ke) => {
+                if (va.id == e.id) return true
+            })
+            if (filter == undefined) {
+                html += '<div class="row pt-2 pb-2" id="card_search' + a + '">'
+            } else {
+                html += '<div class="row pt-2 pb-2 bg-grey" id="card_search' + a + '">'
+            }
+            html += '<div class="col-10 align-self-center ps-4">'
+            html += '<p class="m-0 small-text"><b class="text_search" data-id="' + a + '">' + e.full_name + '</b></p>'
+            html += '<p class="m-0 super-small-text text-grey"><b class="text_search" data-id="' + a + '">' + e.job_title_name + '</b></p>'
             html += '</div>'
             html += '<div class="col-2 align-self-center">'
-            html += '<i class="fa fa-user-plus"></i>'
+            if (filter == undefined) {
+                html += '<i class="fa fa-user-plus"></i>'
+            } else {
+                html += '<i class="fa fa-check text-success"></i>'
+            }
+            html += '</div>'
+            html += '</div>'
+            a++
+        });
+        $('#listManPower').html(html)
+        $('#nameManPower').html(key.toUpperCase())
+        $('#sisaManPower').html(data_work.manPower[key].length)
+        // console.log(employeeManPower)
+        // employee added
+        var html = ''
+        employeeManPower.forEach(e => {
+            var dataPersonalWork = findPositionUser(data_work.workPlan.find((v, k) => {
+                if (v.date == date) return true
+            }).work_plan.shift_qc, e.id)
+            html += '<div class="card shadow-none mb-2 bg-grey">'
+            html += '<div class="card-body p-2">'
+
+            html += '<div class="row">'
+            html += '<div class="col-10 align-self-center">'
+            html += '<p class="m-0 small-text text-dark"><b>' + e.name + '</b></p>'
+            html += '<p class="m-0 super-small-text"><b>Had <span class="text-dark">' + dataPersonalWork.idCount + '</span> Positions in a This Date</b></p>'
+            html += '</div>'
+            html += '<div class="col-2 align-self-center text-end">'
+            html += '<i class="fa fa-times text-danger"></i>'
+            html += '</div>'
+            html += '</div>'
+
             html += '</div>'
             html += '</div>'
         });
-        $('#listManPower').html(html)
+        $('#listAddedManPower').html(html)
+        $('#sisaAddedManPower').html(employeeManPower.length)
 
     }
 
@@ -2053,6 +2155,38 @@
                 dropdownParent: $('#modal'),
                 maximumInputLength: 1,
             });
+        }
+    }
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
     }
 </script>
