@@ -105,20 +105,20 @@
                         <!-- <?php if (true) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>production/managementTSG">TSG Management</a>
                                 <?php } ?> -->
-                        <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart()) { ?>
+                        <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/planning/smd">SMD Planning</a>
                         <?php } ?>
-                        <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse()) { ?>
+                        <?php if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/materialRequest">Material Request</a>
                         <?php } ?>
-                        <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd()) { ?>
+                        <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a> -->
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
-                <?php if (is_logistik()) { ?>
+                <?php if (is_logistik() || job_spv_audit_internal()) { ?>
                     <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards1" aria-expanded="true" aria-controls="collapseDashboards1">
                         <div class="nav-link-icon"><i class="fa fa-cubes"></i></div>
                         Warehouse
@@ -129,7 +129,7 @@
                             <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse">Cek Gudang</a> -->
                             <!-- <a class="nav-link" href="<?= base_url(); ?>warehouse/materialRequest">Material Request</a> -->
                             <!-- <a class="nav-link" href="<?= base_url(); ?>production/managementWarehouse">Manage Warehouse</a> -->
-                            <?php if (is_logistik()) { ?>
+                            <?php if (is_logistik() || job_spv_audit_internal()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>warehouse/kelolaStok">Stok Gudang</a>
                                 <a class="nav-link" href="<?= base_url(); ?>warehouse/opname">Opname</a>
                             <?php } ?>
@@ -145,19 +145,19 @@
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
                         <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
-                        <?php if (is_accounting() || is_fat()) { ?>
+                        <?php if (is_accounting() || is_fat() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
                         <?php } ?>
-                        <?php if (is_purchasing() || is_direktur()) { ?>
+                        <?php if (is_purchasing() || is_direktur() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
                         <?php } ?>
-                        <?php if (is_logistik()) { ?>
+                        <?php if (is_logistik() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
                         <?php } ?>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Master-->
-                <?php if (is_purchasing() || is_direktur()) { ?>
+                <?php if (is_purchasing() || is_direktur() || job_spv_audit_internal()) { ?>
                     <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards3" aria-expanded="true" aria-controls="collapseDashboards3">
                         <div class="nav-link-icon"><i class="fa fa-file"></i></div>
                         Master
@@ -172,7 +172,7 @@
                 <?php } ?>
 
                 <!-- Sidenav Accordion Rekap-->
-                <?php if (is_accounting() || is_direktur() || is_purchasing()) { ?>
+                <?php if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal()) { ?>
                     <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards5" aria-expanded="true" aria-controls="collapseDashboards5">
                         <div class="nav-link-icon"><i class="fa fa-table"></i></div>
                         Rekap
@@ -192,16 +192,16 @@
                 </a>
                 <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
-                        <?php if (is_accounting() || is_direktur() || is_purchasing()) { ?>
+                        <?php if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportPO">Report PO</a>
                         <?php } ?>
-                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm()) { ?>
+                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMutasiGudang">Report Mutasi Gudang</a>
                         <?php } ?>
-                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing()) { ?>
+                        <?php if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                         <?php } ?>
-                        <?php if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart()) { ?>
+                        <?php if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
                         <?php } ?>
                     </nav>

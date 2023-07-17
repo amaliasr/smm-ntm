@@ -138,3 +138,13 @@ function job_mekanik_packer()
         return false;
     }
 }
+function job_spv_audit_internal()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 108) {
+        return true;
+    } else {
+        return false;
+    }
+}

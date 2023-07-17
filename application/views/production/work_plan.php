@@ -753,6 +753,10 @@
         color: #4A55A2 !important;
     }
 
+    .accordion-item:first-of-type .accordion-button {
+        border-radius: 0px;
+    }
+
     .accordion-button:not(.collapsed) {
         color: #69707a;
         background-color: #fff;
@@ -773,7 +777,12 @@
     }
 
     .bg-position-filled {
-        background-color: #526D82;
+        background-color: #526D82 !important;
+        color: white !important;
+    }
+
+    .bg-selected-collapse {
+        background-color: #F3DEBA !important;
     }
 
     .form-control:focus {
@@ -1161,6 +1170,7 @@
     var data_work_plan_no_shift_group
     var data_work_plan_no_shift_machine
     var management_manpower = []
+    var set_work_plan = {}
 
     function arrangeVariable() {
         var numIndex = 0
@@ -1169,6 +1179,13 @@
             // date
             if (a.work_plan.id == null) {
                 // belum ada work plan
+                // SET VARIABLE PRODUCTION PLAN
+                set_work_plan['workPlan'] = {
+                    id: data_work.productionPlan.id,
+                    production_plan_id: a,
+                    date: "2023-04-05",
+                    note: data_work.productionPlan.note
+                }
                 var indexShift = 0
                 a.production_plan.shift.forEach(b => {
                     // shift
@@ -1237,7 +1254,7 @@
                                     'id': a.id,
                                     'date': a.date,
                                     'note': a.note,
-                                    'work_plan_id': a.work_plan.id,
+                                    'work_plan_id': a.work_plan.work_plan_id,
                                     'shift_id': b.shift.id,
                                     'shift_name': b.shift.name,
                                     'shift_end': b.shift.end,
@@ -1304,7 +1321,7 @@
             html += '</div>'
             html += '</div></div></div>'
             html += '</th>'
-            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="directToWorkPlan()"><p class="m-0 small-text text-primary">' + qcEmployee['qc'].total + ' Quality Control</p></a></th>'
+            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ')"><p class="m-0 small-text text-primary">' + qcEmployee['qc'].total + ' Quality Control</p></a></th>'
         }
         $('#date_list').html(html)
         $('#qc_list').html(html_qc)
@@ -1331,7 +1348,7 @@
                     value: d.id
                 })
                 html += '<td class="text-center small-text align-selft-center bg-light" style="vertical-align: middle;">'
-                html += '<p class="m-0 text-primary"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
+                html += '<p class="m-0 text-primary" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + d.id + ')"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
                 html += '</td>'
             }
             html += '</tr>'
@@ -1366,7 +1383,7 @@
                             html += '</div>'
                             html += '<div class="col-5 align-self-center text-center">'
                             // man
-                            html += '<div class="avatars" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
+                            html += '<div class="avatars" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + d.id + ',' + e.id + ')">'
                             // list person max 3
                             if (el.work_plan_id != '') {
                                 html += '<span class="avatar">'
@@ -1498,7 +1515,7 @@
         if (activeIndex != undefined) {
             toggleCard(activeIndex)
         }
-        managementManPower(event, '2023-06-12', 3)
+        // managementManPower(event, '2023-06-12', 3)
     }
 
     function toggleCard(index) {
@@ -1523,9 +1540,8 @@
         }
     }
 
-    function managementManPower(event, date = null, machine_id = null) {
+    function managementManPower(event, date = null, machine_type_id = null, machine_id = null) {
         event.stopPropagation();
-        var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
         var html_header = '';
@@ -1543,22 +1559,9 @@
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
         html_body += '<p class="super-small-text m-0 mb-4"><b>More Date</b></p>'
-        for (let i = 0; i < dateList.length; i++) {
-            html_body += '<div class="row">'
-            html_body += '<div class="col-10 align-self-center">'
-            html_body += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
-            html_body += '<p class="m-0 super-small-text">0 Position Added</p>'
-            html_body += '</div>'
-            if (dateList[i] == date) {
-                html_body += '<div class="col-2 align-self-center">'
-                html_body += '<i class="fa fa-chevron-right"></i>'
-                html_body += '</div>'
-            }
-            html_body += '<div class="col-12">'
-            html_body += '<hr>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
+        html_body += '<div id="listMoreDate">'
+
+        html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
@@ -1640,10 +1643,33 @@
         $('#modalFooter').html(html_footer);
         cardAlert('Pilih Posisi Terlebih Dahulu', '#listManPower')
         cardAlert('Pilih Posisi Terlebih Dahulu', '#listAddedManPower')
-        bodyManPower(date)
+        listMoreDate(date, machine_type_id, machine_id)
     }
 
-    function bodyManPower(date) {
+    function listMoreDate(date, machine_type_id = null, machine_id = null) {
+        var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
+        var html = ''
+        for (let i = 0; i < dateList.length; i++) {
+            html += '<div class="row">'
+            html += '<div class="col-10 align-self-center">'
+            html += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
+            html += '<p class="m-0 super-small-text">0 Position Added</p>'
+            html += '</div>'
+            if (dateList[i] == date) {
+                html += '<div class="col-2 align-self-center">'
+                html += '<i class="fa fa-chevron-right"></i>'
+                html += '</div>'
+            }
+            html += '<div class="col-12">'
+            html += '<hr>'
+            html += '</div>'
+            html += '</div>'
+        }
+        $('#listMoreDate').html(html);
+        bodyManPower(date, machine_type_id, machine_id)
+    }
+
+    function bodyManPower(date, machine_type_id = null, machine_id = null) {
         if (date != null) {
             var dataMachine = data_work_plan_group.filter((v, k) => {
                 if (v.start == date) return true
@@ -1675,21 +1701,21 @@
                     })
                     html += '<div class="accordion-item" style="border: none;">'
                     html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
-                    html += '<button class="accordion-button p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
+                    html += '<button class="accordion-button primary-date date-' + date + ' p-2 small-text shadow-none" type="button">'
                     html += '<div class="row">'
                     html += '<div class="col-1 align-self-center">'
                     html += '<img class="w-100" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
                     html += '</div>'
-                    html += '<div class="col align-self-center">'
+                    html += '<div class="col align-self-center" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
                     html += '<b>' + dataMachine.nama_shift + '</b>'
                     html += '</div>'
                     html += '<div class="col-auto text-end align-self-center pe-5">'
-                    html += '<p class="m-0 fw-bold text-primary">' + qcEmployee['qc'].total + ' Quality Control</p>'
+                    html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control</p>'
                     html += '</div>'
                     html += '</div>'
                     html += '</button>'
                     html += '</h2>'
-                    html += '<div id="panelShift' + k + '" class="accordion-collapse collapse show" aria-labelledby="headShift' + k + '">'
+                    html += '<div id="panelShift' + k + '" class="accordion-collapse primary-date date-' + date + ' collapse show" aria-labelledby="headShift' + k + '">'
                     html += '<div class="accordion-body pt-0 pe-0 pb-0">'
                     // isi 1
                     $.each(data_work.machineType, function(key, value) {
@@ -1708,18 +1734,18 @@
                         })
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
-                        html += '<button class="accordion-button p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">'
+                        html += '<button class="accordion-button primary-machine-type machine-type-' + date + value.id + ' p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">'
                         html += '<div class="row w-100">'
                         html += '<div class="col-8 align-self-center">'
                         html += '<b>' + value.name + '</b>'
                         html += '</div>'
                         html += '<div class="col-4 text-end align-self-center pe-5">'
-                        html += '<p class="m-0 fw-bold text-primary">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
+                        html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
                         html += '</div>'
                         html += '</div>'
                         html += '</button>'
                         html += '</h2>'
-                        html += '<div class="accordion-collapse collapse show">'
+                        html += '<div class="accordion-collapse primary-machine-type machine-type-' + date + value.id + ' collapse show">'
                         html += '<div class="accordion-body pt-0 pe-0 pb-0">'
                         // summary
                         html += '<div class="accordion-item" style="border: none;">'
@@ -1756,7 +1782,7 @@
                             })
                             html += '<div class="accordion-item" style="border: none;">'
                             html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
-                            html += '<button class="accordion-button machine p-2 small-text shadow-none" type="button">'
+                            html += '<button class="accordion-button primary-machine machine-' + date + value.id + values.id + ' machine p-2 small-text shadow-none" type="button">'
                             html += '<div class="row w-100">'
                             html += '<div class="col align-self-center" style="cursor:default">'
                             html += values.name
@@ -1769,7 +1795,7 @@
                             html += '</div>'
                             html += '</button>'
                             html += '</h2>'
-                            html += '<div class="accordion-collapse collapse show">'
+                            html += '<div class="accordion-collapse primary-machine machine-' + date + value.id + values.id + ' collapse show">'
                             html += '<div class="accordion-body p-0">'
 
                             html += '</div>'
@@ -1811,10 +1837,107 @@
             html += '</div>'
             html += '</div>'
             $('#bodyManPower').html(html)
+            triggerCollapse(date, machine_type_id, machine_id)
         } else {
             empty('#bodyManPower', 'Silahkan Pilih Tanggal Terlebih Dahulu')
         }
     }
+
+    function triggerCollapse(date, machine_type_id, machine_id) {
+        var buttons = document.querySelectorAll('.accordion-button');
+        buttons.forEach(function(button) {
+            button.classList.add('collapsed');
+            button.classList.remove('bg-selected-collapse'); // Remove bg-selected-collapse class from all buttons
+            button.setAttribute('aria-expanded', 'false');
+            var collapseTarget = button.getAttribute('data-bs-target');
+            if (collapseTarget) {
+                var collapseElement = document.querySelector(collapseTarget);
+                if (collapseElement) {
+                    collapseElement.classList.remove('show');
+                    triggerNestedCollapse(collapseElement);
+                }
+            }
+        });
+
+        if (date != null) {
+            var dateButtons = document.querySelectorAll('.primary-date');
+            dateButtons.forEach(function(dateButton) {
+                dateButton.classList.add('collapsed');
+                dateButton.classList.remove('bg-selected-collapse'); // Remove bg-selected-collapse class from all date buttons
+                dateButton.setAttribute('aria-expanded', 'false');
+                var dateCollapseTarget = dateButton.getAttribute('data-bs-target');
+                if (dateCollapseTarget) {
+                    var dateCollapseElement = document.querySelector(dateCollapseTarget);
+                    if (dateCollapseElement) {
+                        if (dateButton.classList.contains('date-' + date)) {
+                            dateButton.classList.remove('collapsed');
+                            dateButton.classList.add('bg-selected-collapse'); // Add bg-selected-collapse class to date button
+                            dateButton.setAttribute('aria-expanded', 'true');
+                            dateCollapseElement.classList.add('show');
+                            triggerNestedCollapse(dateCollapseElement);
+                        }
+                    }
+                }
+            });
+        }
+
+        if (date != null && machine_type_id != null) {
+            var machineTypeButtons = document.querySelectorAll('.primary-machine-type');
+            machineTypeButtons.forEach(function(machineTypeButton) {
+                machineTypeButton.classList.add('collapsed');
+                machineTypeButton.classList.remove('bg-selected-collapse'); // Remove bg-selected-collapse class from all machine type buttons
+                machineTypeButton.setAttribute('aria-expanded', 'false');
+                var machineTypeCollapseTarget = machineTypeButton.getAttribute('data-bs-target');
+                if (machineTypeCollapseTarget) {
+                    var machineTypeCollapseElement = document.querySelector(machineTypeCollapseTarget);
+                    if (machineTypeCollapseElement) {
+                        if (machineTypeButton.classList.contains('machine-type-' + date + machine_type_id)) {
+                            machineTypeButton.classList.remove('collapsed');
+                            machineTypeButton.classList.add('bg-selected-collapse'); // Add bg-selected-collapse class to machine type button
+                            machineTypeButton.setAttribute('aria-expanded', 'true');
+                            machineTypeCollapseElement.classList.add('show');
+                            triggerNestedCollapse(machineTypeCollapseElement);
+                        } else {
+                            machineTypeCollapseElement.classList.remove('show');
+                            triggerNestedCollapse(machineTypeCollapseElement);
+                        }
+                    }
+                }
+            });
+        }
+
+        if (date != null && machine_type_id != null && machine_id != null) {
+            var machineButtons = document.querySelectorAll('.primary-machine');
+            machineButtons.forEach(function(machineButton) {
+                machineButton.classList.add('collapsed');
+                machineButton.classList.remove('bg-selected-collapse'); // Remove bg-selected-collapse class from all machine buttons
+                machineButton.setAttribute('aria-expanded', 'false');
+                if (machineButton.classList.contains('machine-' + date + machine_type_id + machine_id)) {
+                    machineButton.classList.remove('collapsed');
+                    machineButton.classList.add('bg-selected-collapse'); // Add bg-selected-collapse class to machine button
+                    machineButton.setAttribute('aria-expanded', 'true');
+                }
+            });
+        }
+    }
+
+    function triggerNestedCollapse(parent) {
+        var buttons = parent.querySelectorAll('.accordion-button');
+        buttons.forEach(function(button) {
+            button.classList.add('collapsed');
+            button.classList.remove('bg-selected-collapse'); // Remove bg-primary class from all buttons in nested elements
+            button.setAttribute('aria-expanded', 'false');
+            var collapseTarget = button.getAttribute('data-bs-target');
+            if (collapseTarget) {
+                var collapseElement = document.querySelector(collapseTarget);
+                if (collapseElement) {
+                    collapseElement.classList.remove('show');
+                    triggerNestedCollapse(collapseElement);
+                }
+            }
+        });
+    }
+
 
     function manPowerFilter(...params) {
         var dataMachine = data_work_plan.filter((va, ke) => {
@@ -1828,6 +1951,7 @@
         });
 
         var varEmployee = {};
+        console.log(data_work.manPower)
         for (var nama in data_work.manPower) {
             if (dataMachine.length > 0) {
                 varEmployee[nama] = {};
@@ -1843,6 +1967,7 @@
     }
 
     function chooseManPower(key, date = null, shift_group_id = null, machine_type_id = null, machine_id = null) {
+        // event.stopPropagation();
         $('.manPower').removeClass('active')
         $('#manPower' + key).addClass('active')
         listManPower(key, date, shift_group_id, machine_type_id, machine_id)

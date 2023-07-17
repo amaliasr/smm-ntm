@@ -447,6 +447,7 @@
         }
         var button = '#btnSelesaiPerhitungan'
         var url = '<?php echo api_url('Api_So/updateHitungSo'); ?>'
+        // console.log(data)
         kelolaData(data, type, url, button)
     }
 
