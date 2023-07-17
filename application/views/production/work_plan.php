@@ -320,6 +320,10 @@
     .select2-container--default .select2-selection--multiple {
         font-size: 11px;
     }
+
+    .cursor-klik {
+        cursor: pointer;
+    }
 </style>
 <!-- loading CSS -->
 <style type="text/css">
@@ -1172,20 +1176,29 @@
     var management_manpower = []
     var set_work_plan = {}
 
+    function reset() {
+        data_work_plan = []
+        data_work_plan_no_shift = []
+        data_work_plan_group
+        data_work_plan_no_shift_group
+        data_work_plan_no_shift_machine
+        management_manpower = []
+        set_work_plan = {}
+    }
+
     function arrangeVariable() {
+        reset()
+        set_work_plan['workPlan'] = []
+        set_work_plan['workPlanShift'] = []
+        set_work_plan['workPlanMachineType'] = []
+        set_work_plan['workPlanMachine'] = []
+        set_work_plan['workPlanProduct'] = []
         var numIndex = 0
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
             // date
-            if (a.work_plan.id == null) {
+            if (a.work_plan.work_plan_id == null) {
                 // belum ada work plan
-                // SET VARIABLE PRODUCTION PLAN
-                set_work_plan['workPlan'] = {
-                    id: data_work.productionPlan.id,
-                    production_plan_id: a,
-                    date: "2023-04-05",
-                    note: data_work.productionPlan.note
-                }
                 var indexShift = 0
                 a.production_plan.shift.forEach(b => {
                     // shift
@@ -1242,13 +1255,60 @@
                 });
             } else {
                 // kalau ada work plan
+                // SET VARIABLE PRODUCTION PLAN
+                set_work_plan['workPlan'].push({
+                    id: a.work_plan.work_plan_id,
+                    production_plan_id: data_work.productionPlan.id,
+                    date: a.date,
+                    note: a.note
+                })
                 a.work_plan.shift_qc.forEach(b => {
                     // qc
+                    set_work_plan['workPlanShift'].push({
+                        id: b.work_plan_shift_id,
+                        work_plan_id: a.work_plan.work_plan_id,
+                        shift_id: b.shift.id,
+                        employee_id_qc: b.employee_qc.map(employee => employee.id),
+                        note: b.note,
+                    })
                     b.shift_mechanic.forEach(c => {
                         // mechanic
+                        set_work_plan['workPlanMachineType'].push({
+                            id: c.work_plan_machine_type_id,
+                            work_plan_shift_id: b.work_plan_shift_id,
+                            work_plan_id: a.work_plan.work_plan_id,
+                            shift_id: c.shift.id,
+                            machine_type_id: c.machine_type.id,
+                            employee_id_mechanic: c.employee_mechanic.map(employee => employee.id),
+                            note: c.note,
+                        })
                         c.shift_machine.forEach(d => {
                             // machine
+                            set_work_plan['workPlanMachine'].push({
+                                id: d.work_plan_machine_id,
+                                work_plan_machine_type_id: c.work_plan_machine_type_id,
+                                work_plan_shift_id: b.work_plan_shift_id,
+                                work_plan_id: a.work_plan.work_plan_id,
+                                shift_id: d.shift.id,
+                                machine_id: d.machine.id,
+                                employee_id_operator: d.employee_operator.map(employee => employee.id),
+                                employee_id_helper: d.employee_helper.map(employee => employee.id),
+                                employee_id_catcher: d.employee_catcher.map(employee => employee.id),
+                                note: d.note,
+                            })
                             d.products.forEach(e => {
+                                set_work_plan['workPlanProduct'].push({
+                                    id: e.work_plan_product_id,
+                                    work_plan_machine_id: d.work_plan_machine_id,
+                                    work_plan_machine_type_id: c.work_plan_machine_type_id,
+                                    work_plan_shift_id: b.work_plan_shift_id,
+                                    work_plan_id: a.work_plan.work_plan_id,
+                                    item_id_product: e.product.id,
+                                    qty: e.qty,
+                                    unit_id: e.unit.id,
+                                    priority: e.priority,
+                                    note: e.note,
+                                })
                                 // products
                                 data_work_plan.push({
                                     'id': a.id,
@@ -1293,9 +1353,12 @@
                 });
             }
         });
-        console.log(data_work_plan)
         groupingData()
     }
+
+    // function save(params) {
+    //     data_work_plan_saved = data_work_plan
+    // }
 
     function groupingData() {
         data_work_plan_no_shift_group = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name', 'product_id', 'product_name', 'product_alias', 'unit_name'], ['product_qty'])
@@ -1516,6 +1579,7 @@
             toggleCard(activeIndex)
         }
         // managementManPower(event, '2023-06-12', 3)
+        // end of PAGE
     }
 
     function toggleCard(index) {
@@ -1624,7 +1688,7 @@
         // header
         // list hooman
         html_body += '<div class="col-12">'
-        html_body += '<div style="max-height: 200px;overflow-x: hidden;overflow-y: auto;" id="listAddedManPower">'
+        html_body += '<div style="max-height: 100px;overflow-x: hidden;overflow-y: auto;" id="listAddedManPower">'
         html_body += '</div>'
         html_body += '</div>'
         // list hooman
@@ -1682,7 +1746,7 @@
             html += '<p class="super-small-text text-grey m-0">Available ' + currentShift.length + ' Shift</p>'
 
             html += '<div class="row pt-4">'
-            html += '<div class="col-12">'
+            html += '<div class="col-12" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
 
             // collapse
             html += '<div class="accordion" id="accordionPanelsStayOpenExample">'
@@ -1951,7 +2015,6 @@
         });
 
         var varEmployee = {};
-        console.log(data_work.manPower)
         for (var nama in data_work.manPower) {
             if (dataMachine.length > 0) {
                 varEmployee[nama] = {};
@@ -1973,7 +2036,7 @@
         listManPower(key, date, shift_group_id, machine_type_id, machine_id)
     }
 
-    function listManPower(key, date, shift_group_id, machine_type_id, machine_id) {
+    function listManPower(keys, date, shift_group_id, machine_type_id, machine_id) {
         var filters = [];
         if (date !== null || shift_group_id !== null || machine_type_id !== null || machine_id !== null) {
             if (date !== null) {
@@ -2010,18 +2073,20 @@
             }
             return true;
         })
+        console.log(data)
         if (data.length > 0) {
-            var employeeManPower = eval('data[0].employee_' + key)
+            var employeeManPower = eval('data[0].employee_' + keys)
         } else {
             var employeeManPower = []
         }
         // employee master
         var html = ''
         var a = 0
-        data_work.manPower[key].forEach(e => {
+        data_work.manPower[keys].forEach(e => {
             var filter = employeeManPower.find((va, ke) => {
                 if (va.id == e.id) return true
             })
+            // console.log(filter)
             if (filter == undefined) {
                 html += '<div class="row pt-2 pb-2" id="card_search' + a + '">'
             } else {
@@ -2033,17 +2098,17 @@
             html += '</div>'
             html += '<div class="col-2 align-self-center">'
             if (filter == undefined) {
-                html += '<i class="fa fa-user-plus"></i>'
+                html += '<i class="fa fa-user-plus cursor-klik" onclick="addManPower(' + "'add'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
             } else {
-                html += '<i class="fa fa-check text-success"></i>'
+                html += '<i class="fa fa-check text-success cursor-klik" onclick="addManPower(' + "'remove'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
             }
             html += '</div>'
             html += '</div>'
             a++
         });
         $('#listManPower').html(html)
-        $('#nameManPower').html(key.toUpperCase())
-        $('#sisaManPower').html(data_work.manPower[key].length)
+        $('#nameManPower').html(keys.toUpperCase())
+        $('#sisaManPower').html(data_work.manPower[keys].length)
         // console.log(employeeManPower)
         // employee added
         var html = ''
@@ -2060,7 +2125,7 @@
             html += '<p class="m-0 super-small-text"><b>Had <span class="text-dark">' + dataPersonalWork.idCount + '</span> Positions in a This Date</b></p>'
             html += '</div>'
             html += '<div class="col-2 align-self-center text-end">'
-            html += '<i class="fa fa-times text-danger"></i>'
+            html += '<i class="fa fa-times text-danger cursor-klik" onclick="addManPower(' + "'remove'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
             html += '</div>'
             html += '</div>'
 
@@ -2070,6 +2135,87 @@
         $('#listAddedManPower').html(html)
         $('#sisaAddedManPower').html(employeeManPower.length)
 
+    }
+
+    function addManPower(action, employee_id, date, group_shift_id, machine_type_id, machine_id, key) {
+        var newEmployee = {}
+        var dataEmployee = data_work.manPower[key].find((v, k) => {
+            if (v.id == employee_id) return true
+        })
+        newEmployee['id'] = dataEmployee.id
+        newEmployee['name'] = dataEmployee.full_name
+        newEmployee['job_title_nameid'] = dataEmployee.job_title_name
+        var data = data_work.workPlan
+        const foundDate = data.find(item => item.date == date);
+        if (foundDate) {
+            if (key == 'qc') {
+                const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
+                if (foundShiftGroup) {
+                    if (action == 'add') {
+                        // tambah
+                        foundShiftGroup.employee_qc.push(newEmployee);
+                    } else {
+                        // hapus
+                        foundShiftGroup.employee_qc = foundShiftGroup.employee_qc.filter(employee => employee.id != employee_id);
+                    }
+                } else {
+                    console.error("Shift group not found!");
+                }
+            } else {
+                const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
+                if (foundShiftGroup) {
+                    const foundMachineType = foundShiftGroup.shift_mechanic.find(type => type.machine_type.id == machine_type_id);
+                    if (foundMachineType) {
+                        // console.log(foundMachineType)
+                        // Cek jika key adalah 'mechanic' untuk menambahkan data pada employee_mechanic
+                        if (key == 'mechanic') {
+                            if (action == 'add') {
+                                foundMachineType.employee_mechanic.push(newEmployee);
+                            } else {
+                                foundMachineType.employee_mechanic = foundMachineType.employee_mechanic.filter(employee => employee.id != employee_id);
+                            }
+                        } else {
+                            const foundMachine = foundMachineType.shift_machine.find(machine => machine.machine.id == machine_id);
+                            if (foundMachine) {
+                                // Tambahkan data baru ke dalam employee_catcher, employee_helper, atau employee_operator
+                                if (key == 'catcher') {
+                                    if (action == 'add') {
+                                        foundMachine.employee_catcher.push(newEmployee);
+                                    } else {
+                                        foundMachine.employee_catcher = foundMachine.employee_catcher.filter(employee => employee.id != employee_id);
+                                    }
+                                } else if (key == 'helper') {
+                                    if (action == 'add') {
+                                        foundMachine.employee_helper.push(newEmployee);
+                                    } else {
+                                        foundMachine.employee_helper = foundMachine.employee_helper.filter(employee => employee.id != employee_id);
+
+                                    }
+                                } else if (key == 'operator') {
+                                    if (action == 'add') {
+                                        foundMachine.employee_operator.push(newEmployee);
+                                    } else {
+                                        foundMachine.employee_operator = foundMachine.employee_operator.filter(employee => employee.id != employee_id);
+                                    }
+                                } else {
+                                    console.error("Invalid key parameter! Use 'catcher', 'helper', 'operator', 'mechanic', or 'qc'.");
+                                }
+                            } else {
+                                console.error("Machine not found!");
+                            }
+                        }
+                    } else {
+                        console.error("Machine type not found!");
+                    }
+                } else {
+                    console.error("Shift group not found!");
+                }
+            }
+        } else {
+            console.error("Date not found!");
+        }
+        arrangeVariable()
+        listManPower(key, date, group_shift_id, machine_type_id, machine_id)
     }
 
     function changePlan(event, date, machine_id, shift_id = null) {
@@ -2246,29 +2392,9 @@
         html += '</div>'
         // total
         html += '</div>'
-        html += '<div class="col">'
-        html += '<p class="m-0 super-small-text mb-2"><b>Man Power</b></p>'
-        // man power
-        for (let i = 0; i < 2; i++) {
-            html += '<div class="row pb-2">'
-            html += '<div class="col-4 align-self-center">'
-            html += '<p class="m-0 small-text">Helper (<span>0</span>)</p>'
-            html += '</div>'
-            html += '<div class="col-8">'
-            html += '<select class="form-select form-select-lg w-100" multiple id="identity' + i + '" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
-            html += '<option value="1">Amalia Safira</option>'
-            html += '<option value="2">Moch. Sochron</option>'
-            html += '</select>'
-            html += '</div>'
-            html += '</div>'
-        }
-        // man power
-        html += '</div>'
         html += '<div class="col-12">'
         html += '<p class="m-0 super-small-text mb-2"><b>Notes</b></p>'
-        // man power
         html += '<textarea class="form-control" rows="10"></textarea>'
-        // man power
         html += '</div>'
         html += '</div>'
         $('#bodyPerShift').html(html)
