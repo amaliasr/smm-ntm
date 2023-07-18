@@ -1199,7 +1199,7 @@
             // date
             if (a.work_plan.work_plan_id == null) {
                 // belum ada work plan
-                var indexShift = 0
+                // var indexShift = 0
                 a.production_plan.shift.forEach(b => {
                     // shift
                     a.production_plan.machine_type.forEach(c => {
@@ -1230,30 +1230,31 @@
                                     'unit_name': e.unit.name,
                                 })
                                 // buat tanpa shift
-                                if (indexShift == 0) {
-                                    data_work_plan_no_shift.push({
-                                        'id': a.id,
-                                        'date': a.date,
-                                        'note': a.note,
-                                        'machine_type_id': c.id,
-                                        'machine_type_name': c.name,
-                                        'machine_id': d.id,
-                                        'machine_name': d.name,
-                                        'product_id': e.id,
-                                        'product_code': e.code,
-                                        'product_name': e.name,
-                                        'product_alias': e.alias,
-                                        'product_qty': e.qty,
-                                        'unit_id': e.unit.id,
-                                        'unit_name': e.unit.name,
-                                    })
-                                }
+                                // if (indexShift == 0) {
+                                //     data_work_plan_no_shift.push({
+                                //         'id': a.id,
+                                //         'date': a.date,
+                                //         'note': a.note,
+                                //         'machine_type_id': c.id,
+                                //         'machine_type_name': c.name,
+                                //         'machine_id': d.id,
+                                //         'machine_name': d.name,
+                                //         'product_id': e.id,
+                                //         'product_code': e.code,
+                                //         'product_name': e.name,
+                                //         'product_alias': e.alias,
+                                //         'product_qty': e.qty,
+                                //         'unit_id': e.unit.id,
+                                //         'unit_name': e.unit.name,
+                                //     })
+                                // }
                             });
                         });
                     });
-                    indexShift++
+                    // indexShift++
                 });
             } else {
+                // var indexShift = 0
                 // kalau ada work plan
                 // SET VARIABLE PRODUCTION PLAN
                 set_work_plan['workPlan'].push({
@@ -1353,6 +1354,7 @@
                 });
             }
         });
+        // console.log(data_work.workPlan)
         groupingData()
     }
 
@@ -1361,8 +1363,9 @@
     // }
 
     function groupingData() {
-        data_work_plan_no_shift_group = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name', 'product_id', 'product_name', 'product_alias', 'unit_name'], ['product_qty'])
-        data_work_plan_no_shift_machine = groupAndSum(data_work_plan_no_shift, ['date', 'machine_id', 'machine_name'], [])
+        // console.log(data_work_plan_no_shift)
+        data_work_plan_no_shift_group = groupAndSum(data_work_plan, ['date', 'machine_id', 'machine_name', 'product_id', 'product_name', 'product_alias', 'unit_name'], ['product_qty'])
+        data_work_plan_no_shift_machine = groupAndSum(data_work_plan, ['date', 'machine_id', 'machine_name'], [])
         data_work_plan_group = transformData(data_work_plan);
         createHeaderPlanner()
     }
@@ -1529,6 +1532,7 @@
             var dataMachine = data_work_plan_no_shift_machine.filter((value, key) => {
                 if (v.date == value.date) return true
             })
+            // console.log(data_work_plan_no_shift_machine)
             dataMachine.forEach(e => {
                 html += '<div class="row">'
                 html += '<div class="col-4 pe-1">'
@@ -1717,7 +1721,8 @@
             html += '<div class="row cursor-klik" onclick="listMoreDate(' + "'" + dateList[i] + "'" + ')">'
             html += '<div class="col-10 align-self-center">'
             html += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
-            html += '<p class="m-0 super-small-text">0 Position Added</p>'
+
+            html += '<p class="m-0 super-small-text">' + countEmployeePositions(date) + ' Position Added</p>'
             html += '</div>'
             if (dateList[i] == date) {
                 html += '<div class="col-2 align-self-center">'
@@ -1731,6 +1736,38 @@
         }
         $('#listMoreDate').html(html);
         bodyManPower(date, machine_type_id, machine_id)
+    }
+
+    function countEmployeePositions(date) {
+        var data = data_work.workPlan.filter((v, k) => {
+            if (v.date == date) return true
+        })
+        let totalEmployeePositions = 0;
+
+        data.forEach(item => {
+            const shift_qc = item.work_plan.shift_qc;
+
+            if (shift_qc) {
+                totalEmployeePositions += shift_qc[0]?.employee_qc?.length || 0;
+            }
+
+            const shift_mechanic = item.work_plan.shift_qc[0]?.shift_mechanic;
+            if (shift_mechanic) {
+                shift_mechanic.forEach(shiftMechanicItem => {
+                    totalEmployeePositions += shiftMechanicItem?.employee_mechanic?.length || 0;
+
+                    const machine_type = shiftMechanicItem.shift_machine;
+                    if (machine_type) {
+                        totalEmployeePositions += machine_type?.employee_catcher?.length || 0;
+                        totalEmployeePositions += machine_type?.employee_helper?.length || 0;
+                        totalEmployeePositions += machine_type?.employee_operator?.length || 0;
+
+                    }
+                });
+            }
+        });
+
+        return totalEmployeePositions;
     }
 
     function bodyManPower(date, machine_type_id = null, machine_id = null) {
@@ -1959,7 +1996,7 @@
             if (key == 'qc') {
                 const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
                 if (foundShiftGroup) {
-                    return 'ada'
+                    return 'ya'
                 } else {
                     return 'tidak'
                 }
@@ -1969,7 +2006,7 @@
                     const foundMachineType = foundShiftGroup.shift_mechanic.find(type => type.machine_type.id == machine_type_id);
                     if (foundMachineType) {
                         if (key == 'mechanic') {
-                            return 'ada'
+                            return 'ya'
                         } else {
                             const foundMachine = foundMachineType.shift_machine.find(machine => machine.machine.id == machine_id);
                             if (foundMachine) {
@@ -2103,10 +2140,16 @@
 
         var varEmployee = {};
         for (var nama in data_work.manPower) {
-            if (dataMachine.length > 0) {
-                varEmployee[nama] = {};
-                varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
-                varEmployee[nama]['class'] = 'bg-position-filled';
+            if (data_work.workPlan[0].work_plan.work_plan_id != null) {
+                if (dataMachine.length > 0) {
+                    varEmployee[nama] = {};
+                    varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                    varEmployee[nama]['class'] = 'bg-position-filled';
+                } else {
+                    varEmployee[nama] = {};
+                    varEmployee[nama]['total'] = 0;
+                    varEmployee[nama]['class'] = 'bg-position';
+                }
             } else {
                 varEmployee[nama] = {};
                 varEmployee[nama]['total'] = 0;
@@ -2255,14 +2298,13 @@
                         foundShiftGroup.employee_qc = foundShiftGroup.employee_qc.filter(employee => employee.id != employee_id);
                     }
                 } else {
-                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
+                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundShiftGroup);
                 }
             } else {
                 const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
                 if (foundShiftGroup) {
                     const foundMachineType = foundShiftGroup.shift_mechanic.find(type => type.machine_type.id == machine_type_id);
                     if (foundMachineType) {
-                        // console.log(foundMachineType)
                         // Cek jika key adalah 'mechanic' untuk menambahkan data pada employee_mechanic
                         if (key == 'mechanic') {
                             if (action == 'add') {
@@ -2297,14 +2339,14 @@
                                     console.error("Invalid key parameter! Use 'catcher', 'helper', 'operator', 'mechanic', or 'qc'.");
                                 }
                             } else {
-                                unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
+                                unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundMachine);
                             }
                         }
                     } else {
-                        unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
+                        unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundMachineType);
                     }
                 } else {
-                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
+                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundShiftGroup);
                 }
             }
         } else {
@@ -2315,7 +2357,7 @@
         listMoreDate(date, machine_type_id, machine_id)
     }
 
-    function unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key) {
+    function unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, variable) {
         Swal.fire({
             text: 'Gagal memilih employee, data ' + key + ' tidak tersedia. Apakah langsung generate data pada Mesin tersebut?',
             icon: 'warning',
@@ -2325,13 +2367,47 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                createNewVariable()
+                createNewVariable(key, variable)
             }
         })
     }
 
-    function createNewVariable() {
+    function arrangeDataTemplate(input) {
+        var data = data_work.workPlanManageDataTemplate
+        const inputData = data[input];
 
+        if (inputData === undefined) {
+            return null;
+        }
+
+        if (Array.isArray(inputData)) {
+            return inputData.map(item => {
+                const newObj = {};
+                newObj[input] = [item];
+                return newObj;
+            });
+        }
+
+        if (typeof inputData === "object" && inputData !== null) {
+            const newObj = {};
+            newObj[input] = inputData;
+            return [newObj];
+        }
+
+        return null;
+    }
+
+    function createNewVariable(key, variable) {
+        var data
+        if (key == 'qc' || key == 'mechanic') {
+            data = arrangeDataTemplate('shift_' + key)[0]['shift_' + key][0]
+            eval('variable.employee_' + key).push(data)
+        } else if (key == 'products') {
+            data = arrangeDataTemplate('products')[0]['products'][0]
+        } else {
+            data = arrangeDataTemplate('shift_machine')[0]['shift_machine'][0]
+            eval('variable.employee_' + key).push(data)
+        }
     }
 
     function changePlan(event, date, machine_id, shift_id = null) {
