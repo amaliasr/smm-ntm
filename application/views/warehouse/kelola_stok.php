@@ -58,6 +58,19 @@
         background: linear-gradient(66deg, rgba(25, 128, 194, 1) 0%, rgba(215, 15, 232, 1) 100%);
     }
 </style>
+<style>
+    .select2-selection {
+        border: 0px white !important;
+    }
+
+    .select2-selection__arrow b {
+        display: none !important;
+    }
+
+    ul.select2-results__options li {
+        font-size: 12px;
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
@@ -954,7 +967,7 @@
         html += '<div class="row align-self-center mb-2">'
 
         html += '<div class="col-5">'
-        html += '<select style="border:none"  class="form-select form-select-sm w-100 itemStok" id="itemStok' + numberItem + '" data-id="' + numberItem + '">'
+        html += '<select style="border:none" class="form-control form-control-sm selectpicker w-100 itemStok" id="itemStok' + numberItem + '" data-id="' + numberItem + '">'
         html += '<option value="" selected disabled>Pilih Item</option>'
         $.each(data_item, function(keys, values) {
             html += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
@@ -984,6 +997,11 @@
         html += '</div>'
         $('#listFormItem').append(html)
         $('.nominal').number(true);
+        $('#itemStok' + numberItem).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
         numberItem++
         return true
     }

@@ -786,7 +786,7 @@
     }
 
     .bg-selected-collapse {
-        background-color: #F3DEBA !important;
+        /* background-color: #F3DEBA !important; */
     }
 
     .form-control:focus {
@@ -1623,7 +1623,7 @@
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
         html_body += '<p class="super-small-text m-0 mb-4"><b>More Date</b></p>'
-        html_body += '<div id="listMoreDate">'
+        html_body += '<div id="listMoreDate" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
 
         html_body += '</div>'
         html_body += '</div>'
@@ -1714,7 +1714,7 @@
         var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         var html = ''
         for (let i = 0; i < dateList.length; i++) {
-            html += '<div class="row">'
+            html += '<div class="row cursor-klik" onclick="listMoreDate(' + "'" + dateList[i] + "'" + ')">'
             html += '<div class="col-10 align-self-center">'
             html += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
             html += '<p class="m-0 super-small-text">0 Position Added</p>'
@@ -1763,6 +1763,11 @@
                         key: 'shift_group_id',
                         value: v.group_id
                     })
+                    var availableData = checkAvailableDataWork('qc', date, v.group_id)
+                    var unavailableData = ''
+                    if (availableData == 'tidak') {
+                        unavailableData = showTextUnavailable()
+                    }
                     html += '<div class="accordion-item" style="border: none;">'
                     html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
                     html += '<button class="accordion-button primary-date date-' + date + ' p-2 small-text shadow-none" type="button">'
@@ -1771,10 +1776,10 @@
                     html += '<img class="w-100" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
                     html += '</div>'
                     html += '<div class="col align-self-center" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
-                    html += '<b>' + dataMachine.nama_shift + '</b>'
+                    html += '<b>' + dataMachine.nama_shift + unavailableData + '</b>'
                     html += '</div>'
                     html += '<div class="col-auto text-end align-self-center pe-5">'
-                    html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control</p>'
+                    html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control</p>'
                     html += '</div>'
                     html += '</div>'
                     html += '</button>'
@@ -1796,21 +1801,27 @@
                             key: 'machine_type_id',
                             value: value.id
                         })
+                        var availableData = checkAvailableDataWork('mechanic', date, v.group_id, value.id)
+                        var unavailableData = ''
+                        if (availableData == 'tidak') {
+                            unavailableData = showTextUnavailable()
+                        }
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
                         html += '<button class="accordion-button primary-machine-type machine-type-' + date + value.id + ' p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">'
                         html += '<div class="row w-100">'
                         html += '<div class="col-8 align-self-center">'
-                        html += '<b>' + value.name + '</b>'
+                        html += '<b>' + value.name + unavailableData + '</b>'
                         html += '</div>'
                         html += '<div class="col-4 text-end align-self-center pe-5">'
-                        html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
+                        html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
                         html += '</div>'
                         html += '</div>'
                         html += '</button>'
                         html += '</h2>'
                         html += '<div class="accordion-collapse primary-machine-type machine-type-' + date + value.id + ' collapse show">'
                         html += '<div class="accordion-body pt-0 pe-0 pb-0">'
+
                         // summary
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
@@ -1818,12 +1829,37 @@
                         html += '<div class="row w-100">'
                         html += '<div class="col align-self-center">'
                         html += '<b>Sumary ' + value.name + '</b>'
-                        html += '<p class="m-0 super-small-text">0 Machine Added</p>'
+                        var totalCat = 0
+                        var totalHel = 0
+                        var totalOper = 0
+                        var jumlahMachine = 0
+                        $.each(masterMachine, function(keys, values) {
+                            var executorEmployee = manPowerFilter({
+                                key: 'date',
+                                value: date
+                            }, {
+                                key: 'shift_group_id',
+                                value: v.group_id
+                            }, {
+                                key: 'machine_type_id',
+                                value: value.id
+                            }, {
+                                key: 'machine_id',
+                                value: values.id
+                            })
+                            totalCat = totalCat + parseInt(executorEmployee['catcher'].total)
+                            totalHel = totalHel + parseInt(executorEmployee['helper'].total)
+                            totalOper = totalOper + parseInt(executorEmployee['operator'].total)
+                            if (totalCat > 0 || totalHel > 0 || totalOper > 0) {
+                                jumlahMachine++
+                            }
+                        })
+                        html += '<p class="m-0 super-small-text">' + jumlahMachine + ' Machine Added</p>'
                         html += '</div>'
                         html += '<div class="col text-end align-self-center pe-5">'
-                        html += '<span class="badge bg-position-filled me-1" style="border:1px solid grey">1 Cat</span>'
-                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">0 Hel</span>'
-                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">0 Opr</span>'
+                        html += '<span class="badge bg-position-filled me-1" style="border:1px solid grey">' + totalCat + ' Cat</span>'
+                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">' + totalHel + ' Hel</span>'
+                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">' + totalOper + ' Opr</span>'
                         html += '</div>'
                         html += '</div>'
                         html += '</button>'
@@ -1844,17 +1880,22 @@
                                 key: 'machine_id',
                                 value: values.id
                             })
+                            var availableData = checkAvailableDataWork('machine', date, v.group_id, value.id, values.id)
+                            var unavailableData = ''
+                            if (availableData == 'tidak') {
+                                unavailableData = showTextUnavailable()
+                            }
                             html += '<div class="accordion-item" style="border: none;">'
                             html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
                             html += '<button class="accordion-button primary-machine machine-' + date + value.id + values.id + ' machine p-2 small-text shadow-none" type="button">'
                             html += '<div class="row w-100">'
                             html += '<div class="col align-self-center" style="cursor:default">'
-                            html += values.name
+                            html += values.name + unavailableData
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
                             html += '</div>'
                             html += '</div>'
                             html += '</button>'
@@ -1904,6 +1945,52 @@
             triggerCollapse(date, machine_type_id, machine_id)
         } else {
             empty('#bodyManPower', 'Silahkan Pilih Tanggal Terlebih Dahulu')
+        }
+    }
+
+    function showTextUnavailable() {
+        return '<i class="text-grey ms-2"><span class="me-2 fa fa-warning text-warning"></span>Unavailable</i>'
+    }
+
+    function checkAvailableDataWork(key, date = null, group_shift_id = null, machine_type_id = null, machine_id = null) {
+        var data = data_work.workPlan
+        const foundDate = data.find(item => item.date == date);
+        if (foundDate) {
+            if (key == 'qc') {
+                const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
+                if (foundShiftGroup) {
+                    return 'ada'
+                } else {
+                    return 'tidak'
+                }
+            } else {
+                const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
+                if (foundShiftGroup) {
+                    const foundMachineType = foundShiftGroup.shift_mechanic.find(type => type.machine_type.id == machine_type_id);
+                    if (foundMachineType) {
+                        if (key == 'mechanic') {
+                            return 'ada'
+                        } else {
+                            const foundMachine = foundMachineType.shift_machine.find(machine => machine.machine.id == machine_id);
+                            if (foundMachine) {
+                                if (key == 'machine') {
+                                    return 'ya'
+                                } else {
+                                    return 'tidak'
+                                }
+                            } else {
+                                return 'tidak'
+                            }
+                        }
+                    } else {
+                        return 'tidak'
+                    }
+                } else {
+                    return 'tidak'
+                }
+            }
+        } else {
+            return 'tidak'
         }
     }
 
@@ -2029,11 +2116,19 @@
         return varEmployee;
     }
 
-    function chooseManPower(key, date = null, shift_group_id = null, machine_type_id = null, machine_id = null) {
-        // event.stopPropagation();
-        $('.manPower').removeClass('active')
-        $('#manPower' + key).addClass('active')
-        listManPower(key, date, shift_group_id, machine_type_id, machine_id)
+    function chooseManPower(available, key, date = null, shift_group_id = null, machine_type_id = null, machine_id = null) {
+        // $('.manPower').removeClass('active')
+        // $('#manPower' + key).addClass('active')
+        $('#nameManPower').html(key.toUpperCase())
+        if (available == 'ya') {
+            listManPower(key, date, shift_group_id, machine_type_id, machine_id)
+        } else {
+            $('#sisaManPower').html(0)
+            $('#sisaAddedManPower').html(0)
+            cardAlert('Tidak Ada Data', '#listAddedManPower')
+            cardAlert('Tidak Ada Data', '#listManPower')
+            unavailablePosition('', date, shift_group_id, machine_type_id, machine_id, key)
+        }
     }
 
     function listManPower(keys, date, shift_group_id, machine_type_id, machine_id) {
@@ -2073,7 +2168,6 @@
             }
             return true;
         })
-        console.log(data)
         if (data.length > 0) {
             var employeeManPower = eval('data[0].employee_' + keys)
         } else {
@@ -2082,11 +2176,11 @@
         // employee master
         var html = ''
         var a = 0
+        var jumlahUnchecked = 0
         data_work.manPower[keys].forEach(e => {
             var filter = employeeManPower.find((va, ke) => {
                 if (va.id == e.id) return true
             })
-            // console.log(filter)
             if (filter == undefined) {
                 html += '<div class="row pt-2 pb-2" id="card_search' + a + '">'
             } else {
@@ -2098,6 +2192,7 @@
             html += '</div>'
             html += '<div class="col-2 align-self-center">'
             if (filter == undefined) {
+                jumlahUnchecked++
                 html += '<i class="fa fa-user-plus cursor-klik" onclick="addManPower(' + "'add'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
             } else {
                 html += '<i class="fa fa-check text-success cursor-klik" onclick="addManPower(' + "'remove'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
@@ -2107,9 +2202,7 @@
             a++
         });
         $('#listManPower').html(html)
-        $('#nameManPower').html(keys.toUpperCase())
-        $('#sisaManPower').html(data_work.manPower[keys].length)
-        // console.log(employeeManPower)
+        $('#sisaManPower').html(jumlahUnchecked)
         // employee added
         var html = ''
         employeeManPower.forEach(e => {
@@ -2133,6 +2226,9 @@
             html += '</div>'
         });
         $('#listAddedManPower').html(html)
+        if (employeeManPower.length == 0) {
+            cardAlert('Tidak Ada Data', '#listAddedManPower')
+        }
         $('#sisaAddedManPower').html(employeeManPower.length)
 
     }
@@ -2159,7 +2255,7 @@
                         foundShiftGroup.employee_qc = foundShiftGroup.employee_qc.filter(employee => employee.id != employee_id);
                     }
                 } else {
-                    console.error("Shift group not found!");
+                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
                 }
             } else {
                 const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
@@ -2201,14 +2297,14 @@
                                     console.error("Invalid key parameter! Use 'catcher', 'helper', 'operator', 'mechanic', or 'qc'.");
                                 }
                             } else {
-                                console.error("Machine not found!");
+                                unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
                             }
                         }
                     } else {
-                        console.error("Machine type not found!");
+                        unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
                     }
                 } else {
-                    console.error("Shift group not found!");
+                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key);
                 }
             }
         } else {
@@ -2216,6 +2312,26 @@
         }
         arrangeVariable()
         listManPower(key, date, group_shift_id, machine_type_id, machine_id)
+        listMoreDate(date, machine_type_id, machine_id)
+    }
+
+    function unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key) {
+        Swal.fire({
+            text: 'Gagal memilih employee, data ' + key + ' tidak tersedia. Apakah langsung generate data pada Mesin tersebut?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                createNewVariable()
+            }
+        })
+    }
+
+    function createNewVariable() {
+
     }
 
     function changePlan(event, date, machine_id, shift_id = null) {
@@ -2236,7 +2352,7 @@
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
         var html_header = '';
-        html_header += '<h5 class="modal-title">Change Plan</h5>';
+        html_header += '<h5 class="modal-title">Change Brand & Production</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
