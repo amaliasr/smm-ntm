@@ -1265,26 +1265,46 @@
                 })
                 a.work_plan.shift_qc.forEach(b => {
                     // qc
+                    var emqc = []
+                    if (b.employee_qc != null) {
+                        emqc = b.employee_qc.map(employee => employee.id)
+                    }
                     set_work_plan['workPlanShift'].push({
                         id: b.work_plan_shift_id,
                         work_plan_id: a.work_plan.work_plan_id,
                         shift_id: b.shift.id,
-                        employee_id_qc: b.employee_qc.map(employee => employee.id),
+                        employee_id_qc: emqc,
                         note: b.note,
                     })
                     b.shift_mechanic.forEach(c => {
                         // mechanic
+                        var emmechanic = []
+                        if (c.employee_mechanic != null) {
+                            emmechanic = c.employee_mechanic.map(employee => employee.id)
+                        }
                         set_work_plan['workPlanMachineType'].push({
                             id: c.work_plan_machine_type_id,
                             work_plan_shift_id: b.work_plan_shift_id,
                             work_plan_id: a.work_plan.work_plan_id,
                             shift_id: c.shift.id,
                             machine_type_id: c.machine_type.id,
-                            employee_id_mechanic: c.employee_mechanic.map(employee => employee.id),
+                            employee_id_mechanic: emmechanic,
                             note: c.note,
                         })
                         c.shift_machine.forEach(d => {
                             // machine
+                            var emoperator = []
+                            var emhelper = []
+                            var emcatcher = []
+                            if (d.employee_operator != null) {
+                                emoperator = d.employee_operator.map(employee => employee.id)
+                            }
+                            if (d.employee_helper != null) {
+                                emhelper = d.employee_helper.map(employee => employee.id)
+                            }
+                            if (d.employee_catcher != null) {
+                                emcatcher = d.employee_catcher.map(employee => employee.id)
+                            }
                             set_work_plan['workPlanMachine'].push({
                                 id: d.work_plan_machine_id,
                                 work_plan_machine_type_id: c.work_plan_machine_type_id,
@@ -1292,9 +1312,9 @@
                                 work_plan_id: a.work_plan.work_plan_id,
                                 shift_id: d.shift.id,
                                 machine_id: d.machine.id,
-                                employee_id_operator: d.employee_operator.map(employee => employee.id),
-                                employee_id_helper: d.employee_helper.map(employee => employee.id),
-                                employee_id_catcher: d.employee_catcher.map(employee => employee.id),
+                                employee_id_operator: emoperator,
+                                employee_id_helper: emhelper,
+                                employee_id_catcher: emcatcher,
                                 note: d.note,
                             })
                             d.products.forEach(e => {
@@ -1917,6 +1937,7 @@
                                 key: 'machine_id',
                                 value: values.id
                             })
+                            // console.log(executorEmployee)
                             var availableData = checkAvailableDataWork('machine', date, v.group_id, value.id, values.id)
                             var unavailableData = ''
                             if (availableData == 'tidak') {
@@ -1931,8 +1952,8 @@
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
                             html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
+                            html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
+                            html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
                             html += '</div>'
                             html += '</div>'
                             html += '</button>'
@@ -2126,7 +2147,6 @@
         });
     }
 
-
     function manPowerFilter(...params) {
         var dataMachine = data_work_plan.filter((va, ke) => {
             for (var i = 0; i < params.length; i++) {
@@ -2137,14 +2157,19 @@
             }
             return true;
         });
-
         var varEmployee = {};
         for (var nama in data_work.manPower) {
             if (data_work.workPlan[0].work_plan.work_plan_id != null) {
                 if (dataMachine.length > 0) {
-                    varEmployee[nama] = {};
-                    varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
-                    varEmployee[nama]['class'] = 'bg-position-filled';
+                    if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
+                        varEmployee[nama] = {};
+                        varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                        varEmployee[nama]['class'] = 'bg-position-filled';
+                    } else {
+                        varEmployee[nama] = {};
+                        varEmployee[nama]['total'] = 0;
+                        varEmployee[nama]['class'] = 'bg-position';
+                    }
                 } else {
                     varEmployee[nama] = {};
                     varEmployee[nama]['total'] = 0;
@@ -2170,7 +2195,7 @@
             $('#sisaAddedManPower').html(0)
             cardAlert('Tidak Ada Data', '#listAddedManPower')
             cardAlert('Tidak Ada Data', '#listManPower')
-            unavailablePosition('', date, shift_group_id, machine_type_id, machine_id, key)
+            insertIntoDataWork('add', date, shift_group_id, machine_type_id, machine_id, key)
         }
     }
 
@@ -2212,10 +2237,15 @@
             return true;
         })
         if (data.length > 0) {
-            var employeeManPower = eval('data[0].employee_' + keys)
+            if (eval('data[0].employee_' + keys) != null) {
+                var employeeManPower = eval('data[0].employee_' + keys)
+            } else {
+                var employeeManPower = []
+            }
         } else {
             var employeeManPower = []
         }
+
         // employee master
         var html = ''
         var a = 0
@@ -2287,7 +2317,7 @@
         insertIntoDataWork(action, date, group_shift_id, machine_type_id, machine_id, key, newEmployee, employee_id)
     }
 
-    function insertIntoDataWork(action, date, group_shift_id, machine_type_id, machine_id, key, newData, employee_id = null) {
+    function insertIntoDataWork(action, date, group_shift_id, machine_type_id, machine_id, key, newData = null, employee_id = null) {
         var data = data_work.workPlan
         const foundDate = data.find(item => item.date == date);
         if (foundDate) {
@@ -2302,7 +2332,7 @@
                         foundShiftGroup.employee_qc = foundShiftGroup.employee_qc.filter(employee => employee.id != employee_id);
                     }
                 } else {
-                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundShiftGroup);
+                    unavailablePosition(date, group_shift_id, machine_type_id, machine_id, key, foundDate.work_plan['shift_qc']);
                 }
             } else {
                 const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
@@ -2344,25 +2374,29 @@
                                     console.error("Invalid key parameter! Use 'catcher', 'helper', 'operator', 'mechanic', or 'qc'.");
                                 }
                             } else {
-                                unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundMachine);
+                                unavailablePosition(date, group_shift_id, machine_type_id, machine_id, key, foundMachineType['shift_machine']);
                             }
                         }
                     } else {
-                        unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundMachineType);
+                        unavailablePosition(date, group_shift_id, machine_type_id, machine_id, key, foundShiftGroup['shift_mechanic']);
                     }
                 } else {
-                    unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, foundShiftGroup);
+                    unavailablePosition(date, group_shift_id, machine_type_id, machine_id, key, foundDate.work_plan['shift_qc']);
                 }
             }
         } else {
             console.error("Date not found!");
         }
+        loadManPower(date, group_shift_id, machine_type_id, machine_id, key)
+    }
+
+    function loadManPower(date, group_shift_id, machine_type_id, machine_id, key) {
         arrangeVariable()
         listManPower(key, date, group_shift_id, machine_type_id, machine_id)
         listMoreDate(date, machine_type_id, machine_id)
     }
 
-    function unavailablePosition(employee_id, date, group_shift_id, machine_type_id, machine_id, key, variable) {
+    function unavailablePosition(date, group_shift_id, machine_type_id, machine_id, key, variable) {
         Swal.fire({
             text: 'Gagal memilih employee, data ' + key + ' tidak tersedia. Apakah langsung generate data pada Mesin tersebut?',
             icon: 'warning',
@@ -2372,47 +2406,74 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                createNewVariable(key, variable)
+                createNewVariable(date, group_shift_id, machine_type_id, machine_id, key, variable)
             }
         })
     }
 
     function arrangeDataTemplate(input) {
-        var data = data_work.workPlanManageDataTemplate
+        function fillData(inputData) {
+            const newObj = {};
+
+            if (inputData === null) {
+                return null;
+            }
+
+            if (Array.isArray(inputData)) {
+                return inputData.map((item) => fillData(item));
+            }
+
+            if (typeof inputData === "object" && inputData !== null) {
+                for (const key in inputData) {
+                    if (key === "products") {
+                        newObj[key] = [data_work.workPlanManageDataTemplate.products[0]];
+                    } else if (key === "shift_mechanic") {
+                        newObj[key] = fillData(data_work.workPlanManageDataTemplate.shift_mechanic);
+                    } else if (key === "shift_qc") {
+                        newObj[key] = fillData(data_work.workPlanManageDataTemplate.shift_qc);
+                    } else if (key === "shift_machine") {
+                        newObj[key] = fillData(data_work.workPlanManageDataTemplate.shift_machine);
+                    } else {
+                        newObj[key] = fillData(inputData[key]);
+                    }
+                }
+                return newObj;
+            }
+
+            return inputData;
+        }
+
+        var data = data_work.workPlanManageDataTemplate;
         const inputData = data[input];
 
         if (inputData === undefined) {
             return null;
         }
 
-        if (Array.isArray(inputData)) {
-            return inputData.map(item => {
-                const newObj = {};
-                newObj[input] = [item];
-                return newObj;
-            });
-        }
-
-        if (typeof inputData === "object" && inputData !== null) {
-            const newObj = {};
-            newObj[input] = inputData;
-            return [newObj];
-        }
-
-        return null;
+        return fillData(inputData);
     }
 
-    function createNewVariable(key, variable) {
+
+    function createNewVariable(date, group_shift_id, machine_type_id, machine_id, key, variable) {
+        // console.log(variable)
         var data
         if (key == 'qc' || key == 'mechanic') {
-            data = arrangeDataTemplate('shift_' + key)[0]['shift_' + key][0]
-            eval('variable.employee_' + key).push(data)
+            data = arrangeDataTemplate('shift_' + key)[0]
+            variable.push(data)
+            // eval('variable.employee_' + key).push(data)
         } else if (key == 'products') {
-            data = arrangeDataTemplate('products')[0]['products'][0]
+            data = arrangeDataTemplate('products')
         } else {
-            data = arrangeDataTemplate('shift_machine')[0]['shift_machine'][0]
-            eval('variable.employee_' + key).push(data)
+            data = arrangeDataTemplate('shift_machine')[0]
+            var dataMachine = data_work.machine.find((v, k) => {
+                if (v.id == machine_id) return true
+            })
+            data.machine['id'] = dataMachine.id
+            data.machine['name'] = dataMachine.name
+            variable.push(data)
         }
+        console.log(variable)
+        loadManPower(date, group_shift_id, machine_type_id, machine_id, key)
     }
 
     function changePlan(event, date, machine_id, shift_id = null) {
