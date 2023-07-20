@@ -2284,6 +2284,10 @@
         newEmployee['id'] = dataEmployee.id
         newEmployee['name'] = dataEmployee.full_name
         newEmployee['job_title_nameid'] = dataEmployee.job_title_name
+        insertIntoDataWork(action, date, group_shift_id, machine_type_id, machine_id, key, newEmployee, employee_id)
+    }
+
+    function insertIntoDataWork(action, date, group_shift_id, machine_type_id, machine_id, key, newData, employee_id = null) {
         var data = data_work.workPlan
         const foundDate = data.find(item => item.date == date);
         if (foundDate) {
@@ -2292,7 +2296,7 @@
                 if (foundShiftGroup) {
                     if (action == 'add') {
                         // tambah
-                        foundShiftGroup.employee_qc.push(newEmployee);
+                        foundShiftGroup.employee_qc.push(newData);
                     } else {
                         // hapus
                         foundShiftGroup.employee_qc = foundShiftGroup.employee_qc.filter(employee => employee.id != employee_id);
@@ -2308,7 +2312,7 @@
                         // Cek jika key adalah 'mechanic' untuk menambahkan data pada employee_mechanic
                         if (key == 'mechanic') {
                             if (action == 'add') {
-                                foundMachineType.employee_mechanic.push(newEmployee);
+                                foundMachineType.employee_mechanic.push(newData);
                             } else {
                                 foundMachineType.employee_mechanic = foundMachineType.employee_mechanic.filter(employee => employee.id != employee_id);
                             }
@@ -2318,20 +2322,21 @@
                                 // Tambahkan data baru ke dalam employee_catcher, employee_helper, atau employee_operator
                                 if (key == 'catcher') {
                                     if (action == 'add') {
-                                        foundMachine.employee_catcher.push(newEmployee);
+                                        foundMachine.employee_catcher.push(newData);
                                     } else {
                                         foundMachine.employee_catcher = foundMachine.employee_catcher.filter(employee => employee.id != employee_id);
+                                        // console.log(foundMachine.employee_catcher)
                                     }
                                 } else if (key == 'helper') {
                                     if (action == 'add') {
-                                        foundMachine.employee_helper.push(newEmployee);
+                                        foundMachine.employee_helper.push(newData);
                                     } else {
                                         foundMachine.employee_helper = foundMachine.employee_helper.filter(employee => employee.id != employee_id);
 
                                     }
                                 } else if (key == 'operator') {
                                     if (action == 'add') {
-                                        foundMachine.employee_operator.push(newEmployee);
+                                        foundMachine.employee_operator.push(newData);
                                     } else {
                                         foundMachine.employee_operator = foundMachine.employee_operator.filter(employee => employee.id != employee_id);
                                     }
