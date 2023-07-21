@@ -1266,7 +1266,7 @@
                 a.work_plan.shift_qc.forEach(b => {
                     // qc
                     var emqc = []
-                    if (b.employee_qc != null) {
+                    if (b.employee_qc.length > 0) {
                         emqc = b.employee_qc.map(employee => employee.id)
                     }
                     set_work_plan['workPlanShift'].push({
@@ -1279,7 +1279,7 @@
                     b.shift_mechanic.forEach(c => {
                         // mechanic
                         var emmechanic = []
-                        if (c.employee_mechanic != null) {
+                        if (c.employee_mechanic.length > 0) {
                             emmechanic = c.employee_mechanic.map(employee => employee.id)
                         }
                         set_work_plan['workPlanMachineType'].push({
@@ -1296,13 +1296,13 @@
                             var emoperator = []
                             var emhelper = []
                             var emcatcher = []
-                            if (d.employee_operator != null) {
+                            if (d.employee_operator.length > 0) {
                                 emoperator = d.employee_operator.map(employee => employee.id)
                             }
-                            if (d.employee_helper != null) {
+                            if (d.employee_helper.length > 0) {
                                 emhelper = d.employee_helper.map(employee => employee.id)
                             }
-                            if (d.employee_catcher != null) {
+                            if (d.employee_catcher.length > 0) {
                                 emcatcher = d.employee_catcher.map(employee => employee.id)
                             }
                             set_work_plan['workPlanMachine'].push({
@@ -1951,9 +1951,11 @@
                             html += values.name + unavailableData
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
+
                             html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
                             html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
                             html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
+
                             html += '</div>'
                             html += '</div>'
                             html += '</button>'

@@ -517,6 +517,18 @@
         top: 0;
         left: 0;
     }
+
+    /* .select2-selection {
+        border: 0px white !important;
+    }
+
+    .select2-selection__arrow b {
+        display: none !important;
+    } */
+
+    ul.select2-results__options li {
+        font-size: 12px;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <main>
@@ -817,13 +829,16 @@
 
 
     function getData() {
+        var data = {}
+        data.employeeId = user_id
+        if (id_material != '') {
+            data.materialRequestId = id_material
+        }
         $.ajax({
             url: "<?= api_produksi('getMaterialRequestManage'); ?>",
             method: "GET",
             dataType: 'JSON',
-            data: {
-                employeeId: user_id,
-            },
+            data: data,
             error: function(xhr) {
                 $('#listMaterialRequest').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
@@ -857,6 +872,7 @@
                 data_all_stok = response['data']
                 $.each(data_all_stok, function(key, value) {
                     stok_by_id[value.item_id] = value.jumlah
+                    satuan_by_name[''] = ''
                     satuan_by_name[value.item_id] = value.satuan_name
                 })
                 listMaterialRequest()
@@ -954,6 +970,7 @@
                             'machine_subtype_name': values['name'],
                             'machine_id': values2['machine']['id'],
                             'machine_code': values2['machine']['code'],
+                            'material_request_machine_id': values2['id'],
                             'material_id': values3['material']['id'],
                             'material_request_item_id': values3['material']['material_request_item_id'],
                             'material_name': values3['material']['name'],
@@ -970,9 +987,7 @@
             })
         })
         data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_alias', 'material_code', 'unit'], ['qty', 'qty_approve'])
-        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id'], ['qty', 'qty_approve'])
-        // console.log(data_isi_material_group)
-        // console.log(data_isi_material)
+        data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id', 'material_request_machine_id'], ['qty', 'qty_approve'])
         formDetailMaterialRequest()
         if (id_materials != '') {
             clickedMaterial(id_materials)
@@ -1298,6 +1313,21 @@
 
     function infoMaterialRequest() {
         var html = ""
+        html += '<div class="col-12 pt-2">'
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-body">'
+        html += '<b>Catatan</b>'
+
+        html += '<div class="row mt-3">'
+        html += '<div class="col-12 pb-3">'
+        html += '<p class="m-0 small-text">' + data_materialrequest.note + '</p>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
         html += '<div class="col-12 pt-2">'
         html += '<div class="card shadow-none">'
         html += '<div class="card-body">'
@@ -1658,10 +1688,13 @@
     var jumlahCheckLogistik = 0
     var jumlahTotalLogistik = 0
     var statusAlias = 0
+    var stok_by_id_berjalan = {}
+    var indexLogistik = {}
 
     function prosesLogistik() {
         jumlahCheckLogistik = 0
         jumlahTotalLogistik = 0
+        stok_by_id_berjalan = {}
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
@@ -1672,11 +1705,13 @@
 
         var html_body = '';
         html_body += '<div class="container small">'
-        var stok_by_id_berjalan = {}
+        html_body += '<div class="row">'
         $.each(data_isi_machine_group, function(key, value) {
+            indexLogistik[key] = 0
             html_body += '<div class="card mt-2 mb-2 shadow-none bd-callout-' + key + '">'
             html_body += '<div class="card-body">'
             html_body += '<div class="row">'
+
             html_body += '<div class="col-6 align-self-center">'
             html_body += '<h3><b class="float-start">' + value['machine_code'] + '</b></h3>'
             html_body += '</div>'
@@ -1691,70 +1726,168 @@
             html_body += '</div>'
             $.each(data_isi_material, function(keys, values) {
                 if (value['machine_id'] == values['machine_id']) {
-                    if (stok_by_id_berjalan[values.material_id] == undefined) {
-                        stok_by_id_berjalan[values.material_id] = stok_by_id[values.material_id]
-                        if (stok_by_id[values.material_id] == undefined) {
-                            stok_by_id_berjalan[values.material_id] = 0
-                        }
-                    }
-                    html_body += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '" data-unit="' + values.unit_id + '">'
-                    html_body += '<div class="card-body p-2">'
-                    html_body += '<div class="row">'
-                    html_body += '<div class="col-4 small"><b class="super-small-text">' + values['material_code'] + '</b><span class="aliasName small-text text-grey"><br>' + values['material_alias'] + '</span><br>' + values['material_name'] + '</div>'
-                    // html_body += '<div class="col small">' + values['material_alias'] + '</div>'
-                    html_body += '<div class="col">'
-                    // JUMLAH
-                    html_body += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + number_format(values['qty']) + '</span>'
-                    html_body += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
-                    html_body += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
-                    html_body += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" autocomplete="off" oninput="validateNumber(this)"></div>'
-                    // JUMLAH
-                    html_body += '</div>'
-                    html_body += '<div class="col">'
-                    // UNIT
-                    html_body += '<span class="m-0 fw-bolder" id="unitLama' + key + keys + '">' + values['unit'] + '</span>'
-                    html_body += '<span class="m-0 ms-1 fw-bolder" id="unitBaru' + key + keys + '"></span>'
-                    html_body += '<i class="fa fa-pencil text-primary ms-2 showUnitBaru" id="showUnitBaru' + key + keys + '" style="cursor:pointer;" onclick="showUnitBaru(' + key + ',' + keys + ')"></i><br>'
-                    html_body += '<div class="d-none fieldUnitBaru" id="inputUnitBaru' + key + keys + '"><b class="super-small-text">Unit Baru</b>'
-
-                    html_body += '<select name="" id="input" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + '" data-key="' + key + keys + '" data-unit="' + values.unit_id + '">'
-                    values.unit_option.forEach(e => {
-                        var select = ""
-                        if (e.id == values.unit_id) {
-                            select = 'selected'
-                        }
-                        html_body += '<option value="' + e.id + '" ' + select + ' data-name="' + e.name + '">' + e.name + '</option>'
-                    });
-                    html_body += '</select>'
-
-                    html_body += '</div>'
-                    // UNIT
-                    html_body += '</div>'
-                    html_body += '<div class="col text-end">' + number_format(stok_by_id_berjalan[values.material_id]) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[values.material_id] + '</p></div>'
-                    html_body += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
-                    html_body += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + '"></i>'
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    html_body += '</div>'
-                    stok_by_id_berjalan[values.material_id] = parseFloat(stok_by_id_berjalan[values.material_id]) - parseFloat(values['qty'])
-                    jumlahTotalLogistik++
+                    html_body += insertCardMaterial(values, key, keys, value.material_request_machine_id).html
+                    indexLogistik[key]++
                 }
             })
 
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12" id="listNewMaterial">'
             html_body += '</div>'
+            html_body += '<div class="col-12 text-end">'
+
+            html_body += '<button class="btn btn-sm btn-primary" onclick="addNewRow(' + key + ',' + value.material_request_machine_id + ')"><i class="fa fa-plus me-2"></i>New Materials ' + value.machine_code + '</button>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
         })
         html_body += '</div>'
+        html_body += '<div class="row mt-3">'
+
+        html_body += '<div class="col text-end align-self-center">Tanggal Ambil</div>'
+        html_body += '<div class="col align-self-center">'
+        html_body += '<input type="text" name="" id="tanggalAmbil" class="form-control form-control-sm p-1 datepicker" value="' + currentDate() + '">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
         $('#modalBody').html(html_body);
-        // $('.nominal').number(true);
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true
+        });
+        for (let i = 0; i < jumlahTotalLogistik; i++) {
+            $('#itemStok' + i).select2({
+                closeOnSelect: true,
+                dropdownParent: $('#modal'),
+                width: '100%',
+            })
+
+        }
 
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')"><span id="jumlahCardSelected">&nbsp;0&nbsp;</span> / <span>&nbsp;' + jumlahTotalLogistik + '&nbsp;</span>&nbsp;Item Telah di Check</button>'
+        html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')"><span id="jumlahCardSelected">&nbsp;0&nbsp;</span> / <span>&nbsp;<span id="jumlahTotalLogistik">' + jumlahTotalLogistik + '</span>&nbsp;</span>&nbsp;Item Telah di Check</button>'
         $('#modalFooter').html(html_footer);
         $('.aliasName').hide()
+    }
+
+    function addNewRow(key, material_request_machine_id) {
+        var values = {}
+        values.material_request_item_id = new Date().getTime()
+        values.qty = 0
+        values.material_code = 'Pilih Material Terlebih Dahulu'
+        values.material_alias = ''
+        values.material_id = ''
+        values.unit = 'None'
+        values.unit_id = ''
+        var htmls = insertCardMaterial(values, key, indexLogistik[key], material_request_machine_id)
+        $('#listNewMaterial').append(htmls.html)
+        $('.aliasName').hide()
+        $('#itemStok' + htmls.jumlah).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        indexLogistik[key]++
+    }
+
+    function insertCardMaterial(values, key, keys, material_request_machine_id) {
+        var dataInsert = {}
+        var html = ''
+        if (stok_by_id_berjalan[values.material_id] == undefined) {
+            stok_by_id_berjalan[values.material_id] = stok_by_id[values.material_id]
+            if (stok_by_id[values.material_id] == undefined) {
+                stok_by_id_berjalan[values.material_id] = 0
+            }
+        }
+        html += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '" data-unit="' + values.unit_id + '" data-material_request_machine_id="' + material_request_machine_id + '">'
+        html += '<div class="card-body p-2">'
+        html += '<div class="row">'
+        html += '<div class="col-4 small"><b class="super-small-text" id="materialCode' + key + keys + '">' + values.material_code + '</b><span class="aliasName small-text text-grey"><br><span id="materialAlias' + key + keys + '">' + values.material_alias + '</span></span><br>'
+        // html += values.material_name
+        html += '<select style="border:none" class="form-control form-control-sm selectpicker w-100 itemStok" id="itemStok' + jumlahTotalLogistik + '" data-id="' + jumlahTotalLogistik + '" onchange="changeItemStok(' + jumlahTotalLogistik + ',' + key + ',' + keys + ')">'
+        html += '<option value="" selected disabled>Pilih Item</option>'
+        $.each(data_all_stok, function(k, v) {
+            var select = ''
+            if (values.material_id == v.item_id) {
+                select = 'selected'
+            }
+            html += '<option value="' + v.item_id + '" ' + select + '>' + v.name + '</option>'
+        })
+        html += '</select>'
+        html += '</div>'
+        html += '<div class="col">'
+        // JUMLAH
+        html += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + number_format(values.qty) + '</span>'
+        html += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
+        html += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
+        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" autocomplete="off" oninput="validateNumber(this)"></div>'
+        // JUMLAH
+        html += '</div>'
+        html += '<div class="col">'
+        // UNIT
+        html += '<span class="m-0 fw-bolder" id="unitLama' + key + keys + '">' + values.unit + '</span>'
+        html += '<span class="m-0 ms-1 fw-bolder" id="unitBaru' + key + keys + '"></span>'
+        html += '<i class="fa fa-pencil text-primary ms-2 showUnitBaru" id="showUnitBaru' + key + keys + '" style="cursor:pointer;" onclick="showUnitBaru(' + key + ',' + keys + ')"></i><br>'
+        html += '<div class="d-none fieldUnitBaru" id="inputUnitBaru' + key + keys + '"><b class="super-small-text">Unit Baru</b>'
+
+        html += '<select name="" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + '" data-key="' + key + keys + '" data-unit="' + values.unit_id + '">'
+        if (values.material_id != '') {
+            values.unit_option.forEach(e => {
+                var select = ""
+                if (e.id == values.unit_id) {
+                    select = 'selected'
+                }
+                html += '<option value="' + e.id + '" ' + select + ' data-name="' + e.name + '">' + e.name + '</option>'
+            });
+        } else {
+            html += '<option value="" selected disabled>Tidak Ada Satuan</option>'
+        }
+        html += '</select>'
+
+        html += '</div>'
+        // UNIT
+        html += '</div>'
+        html += '<div class="col text-end">' + number_format(stok_by_id_berjalan[values.material_id]) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[values.material_id] + '</p></div>'
+        html += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
+        html += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + '"></i>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        stok_by_id_berjalan[values.material_id] = parseFloat(stok_by_id_berjalan[values.material_id]) - parseFloat(values.qty)
+        $('#jumlahTotalLogistik').html(jumlahTotalLogistik)
+        dataInsert.jumlah = jumlahTotalLogistik
+        dataInsert.html = html
+        jumlahTotalLogistik++
+        return dataInsert
+    }
+
+    function changeItemStok(id, key, keys) {
+        var item_id = $('#itemStok' + id).val()
+        var data = data_all_stok.find((v, k) => {
+            if (v.item_id == item_id) return true
+        })
+        $('#materialCode' + key + keys).html(data.code)
+        $('#materialAlias' + key + keys).html(data.alias)
+        unitOption(data, key, keys)
+    }
+
+    function unitOption(data, key, keys) {
+        var html = ''
+        html += '<option value="" selected disabled>Pilih Satuan</option>'
+        data.unit_option.forEach(e => {
+            html += '<option value="' + e.id + '" data-name="' + e.name + '">' + e.name + '</option>'
+        });
+
+        $('#unitLama' + key + keys).html('<span class="fa fa-warning me-2 text-warning"></span>None')
+        $('#inputUnitBaruForm' + key + keys).html(html)
     }
 
     function validateNumber(input) {
@@ -1785,6 +1918,12 @@
         var materailId = $('.cardItem').map(function() {
             return $(this).data('id');
         }).get();
+        var itemId = $('.itemStok').map(function() {
+            return $(this).val();
+        }).get();
+        var materialRequestMachineId = $('.cardItem').map(function() {
+            return $(this).data('material_request_machine_id');
+        }).get();
         var materailQty = $('.cardItem').map(function() {
             return $(this).data('qty');
         }).get();
@@ -1803,6 +1942,8 @@
             }
             detail.push({
                 material_request_item_id: materailId[i],
+                material_request_machine_id: materialRequestMachineId[i],
+                item_id: itemId[i],
                 qty_approve: qty,
                 unit_id_approve: materialUnitNewValue[i],
             })
@@ -1821,10 +1962,12 @@
                     material_request_id: id,
                     is_proses: 1,
                     employee_id: user_id,
+                    take_out_at: $('#tanggalAmbil').val(),
                     data: detail,
                 }
                 var button = '#btnApprove'
                 var url = '<?php echo api_produksi('setMaterialRequestProcess'); ?>'
+                // console.log(data)
                 kelolaData(data, type, url, button, id, code)
             }
         })

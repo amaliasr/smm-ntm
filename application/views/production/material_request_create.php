@@ -1190,6 +1190,7 @@
             'production_plan_id': data_plan['productionPlan'][0]['id'],
             'production_type_id': data_plan['productionPlan'][0]['production_type']['id'],
             'date': formatDate(currentDateTime()),
+            'date_production_plan': data_plan['productionPlan'][0]['date'],
             'code': codeMaterial,
             'created_at': currentDateTime(),
             'updated_at': currentDateTime(),

@@ -571,6 +571,8 @@
         html += '<div class="col-7 pt-1 pb-1 small text-end"><b>#1 (07:00 - 15:00)</b></div>'
         html += '<div class="col-5 pt-1 pb-1 small">Status Material</div>'
         html += '<div class="col-7 pt-1 pb-1 small text-end text-orange"><b>' + data_material['materialRequest'][0]['status'] + '</b></div>'
+        html += '<div class="col-5 pt-1 pb-1 small">Catatan</div>'
+        html += '<div class="col-7 pt-1 pb-1 small text-end" style="font-size:10px;">' + data_material['materialRequest'][0]['note'] + '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'

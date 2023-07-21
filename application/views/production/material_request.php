@@ -651,6 +651,13 @@
             html += '<h4 class="m-0 mb-1" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')"><b class="text_search" data-id="' + keys + '">' + values.code + '</b><span class="ms-3">' + logo + '</span></h4>'
             // var namaItem = wordLimit(data_isi_material[index].detail)
             html += '<p class="m-0" style="font-size: 9px;">' + wordLimit(data_isi_material[index].detail) + '</p>'
+            var note = '-'
+            var span = ''
+            if (values.note != null && values.note != '') {
+                note = shortenText(values.note, 20)
+                span = '<span class="ms-2 text-primary" style="cursor:pointer;" onclick="seeAllNote(' + "'" + values.note + "'" + ')">See All</span>'
+            }
+            html += '<p class="m-0" style="font-size: 9px;">Note : ' + note + span + '</p>'
             html += '</div>'
             html += '<div class="col-auto align-self-center">'
             html += '<div class="row" style="font-size: 11px;">'
@@ -940,6 +947,24 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+
+    function seeAllNote(note) {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-sm modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Note</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        html_body += '<p class="m-0 small-text">' + note + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        // var html_footer = '';
+        $('#modalFooter').addClass('d-none');
     }
 
     // search multi
