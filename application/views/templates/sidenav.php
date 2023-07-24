@@ -114,7 +114,7 @@
                         <?php if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd() || job_spv_audit_internal()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                         <?php } ?>
-                        <!-- <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a> -->
+                        <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->

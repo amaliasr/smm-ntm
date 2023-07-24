@@ -1781,7 +1781,7 @@
         var values = {}
         values.material_request_item_id = new Date().getTime()
         values.qty = 0
-        values.material_code = 'Pilih Material Terlebih Dahulu'
+        values.material_code = '<span class="text-danger">Pilih Material Terlebih Dahulu</span>'
         values.material_alias = ''
         values.material_id = ''
         values.unit = 'None'
@@ -1818,7 +1818,7 @@
             if (values.material_id == v.item_id) {
                 select = 'selected'
             }
-            html += '<option value="' + v.item_id + '" ' + select + '>' + v.name + '</option>'
+            html += '<option value="' + v.item_id + '" ' + select + '>' + v.concated_name + '</option>'
         })
         html += '</select>'
         html += '</div>'
@@ -1827,7 +1827,7 @@
         html += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + number_format(values.qty) + '</span>'
         html += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
         html += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
-        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" autocomplete="off" oninput="validateNumber(this)"></div>'
+        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" data-id="' + jumlahTotalLogistik + '" data-material_id="' + values.material_id + '" autocomplete="off" oninput="validateNumber(this)"></div>'
         // JUMLAH
         html += '</div>'
         html += '<div class="col">'
@@ -1852,21 +1852,33 @@
         html += '</select>'
 
         html += '</div>'
-        // UNIT
+        // STOK GUDANG
         html += '</div>'
-        html += '<div class="col text-end">' + number_format(stok_by_id_berjalan[values.material_id]) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[values.material_id] + '</p></div>'
+        html += '<div class="col text-end" id="stokGudang' + key + keys + '">'
+        html += stokGudang(values.material_id)
+        html += '</div>'
         html += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
         html += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + '"></i>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        stok_by_id_berjalan[values.material_id] = parseFloat(stok_by_id_berjalan[values.material_id]) - parseFloat(values.qty)
-        $('#jumlahTotalLogistik').html(jumlahTotalLogistik)
         dataInsert.jumlah = jumlahTotalLogistik
         dataInsert.html = html
         jumlahTotalLogistik++
+        $('#jumlahTotalLogistik').html(jumlahTotalLogistik)
         return dataInsert
+    }
+
+    function stokGudang(material_id) {
+        var html = ''
+        if (material_id != '') {
+            html += number_format(stok_by_id[material_id]) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[material_id] + '</p>'
+        } else {
+            html += '<i class="super-small-text lh-0 text-danger">Not Available<br><b>Pilih Item Terlebih Dahulu</b></i>'
+        }
+        // stok_by_id_berjalan[material_id] = parseFloat(stok_by_id_berjalan[material_id]) - parseFloat(qty)
+        return html
     }
 
     function changeItemStok(id, key, keys) {
@@ -1876,7 +1888,14 @@
         })
         $('#materialCode' + key + keys).html(data.code)
         $('#materialAlias' + key + keys).html(data.alias)
+        newStokGudang(item_id, key, keys)
         unitOption(data, key, keys)
+    }
+
+    function newStokGudang(item_id, key, keys) {
+        var html = ''
+        html += stokGudang(item_id)
+        $('#stokGudang' + key + keys).html(html)
     }
 
     function unitOption(data, key, keys) {
@@ -2107,7 +2126,12 @@
     $(document).on('keyup', '.inputBaru', function(e) {
         var key = $(this).data('key')
         var qty = $(this).data('qty')
-        var stok = $(this).data('stok')
+        var id = $(this).data('id')
+        // var material_id = $(this).data('material_id')
+        var material_id = $('#itemStok' + id).val()
+        var stok = stok_by_id[material_id]
+        console.log(stok)
+        // var stok = $(this).data('stok')
         var value = $(this).val()
         whileOverThis(key)
         if (value == '') {

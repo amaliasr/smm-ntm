@@ -2552,11 +2552,6 @@
                 html_body += '</div>'
                 html_body += '</div>'
             });
-            html_body += '<div class="row">'
-            html_body += '<div class="col-12 text-end">'
-            html_body += '<a href="" class="small-text">Add Mekanik (0)</a></i>'
-            html_body += '</div>'
-            html_body += '</div>'
             // list maker
             html_body += '</div>'
             html_body += '</div>'
@@ -2579,13 +2574,6 @@
             html_body += '</div>'
             html_body += '</div>'
         });
-        html_body += '<div class="col-auto p-1">'
-        html_body += '<div class="card shadow-none" style="cursor:pointer">'
-        html_body += '<div class="card-body p-2">'
-        html_body += '<p class="super-small-text m-0"><i class="fa fa-plus text-grey me-2"></i>New Shift</p>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
         html_body += '</div>'
         // header
         // body
