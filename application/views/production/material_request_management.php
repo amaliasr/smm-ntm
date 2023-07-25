@@ -1724,15 +1724,17 @@
             html_body += '<div class="col"><b>Stok Gudang</b></div>'
             html_body += '<div class="col-1"><b></b></div>'
             html_body += '</div>'
+            var b = 0
             $.each(data_isi_material, function(keys, values) {
                 if (value['machine_id'] == values['machine_id']) {
-                    html_body += insertCardMaterial(values, key, keys, value.material_request_machine_id).html
+                    html_body += insertCardMaterial(values, key, b, value.material_request_machine_id).html
                     indexLogistik[key]++
+                    b++
                 }
             })
 
             html_body += '<div class="row">'
-            html_body += '<div class="col-12" id="listNewMaterial">'
+            html_body += '<div class="col-12" id="listNewMaterial' + value.material_request_machine_id + '">'
             html_body += '</div>'
             html_body += '<div class="col-12 text-end">'
 
@@ -1787,7 +1789,7 @@
         values.unit = 'None'
         values.unit_id = ''
         var htmls = insertCardMaterial(values, key, indexLogistik[key], material_request_machine_id)
-        $('#listNewMaterial').append(htmls.html)
+        $('#listNewMaterial' + material_request_machine_id).append(htmls.html)
         $('.aliasName').hide()
         $('#itemStok' + htmls.jumlah).select2({
             closeOnSelect: true,
@@ -1798,6 +1800,7 @@
     }
 
     function insertCardMaterial(values, key, keys, material_request_machine_id) {
+        console.log(key, keys, material_request_machine_id)
         var dataInsert = {}
         var html = ''
         if (stok_by_id_berjalan[values.material_id] == undefined) {
@@ -1806,12 +1809,12 @@
                 stok_by_id_berjalan[values.material_id] = 0
             }
         }
-        html += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '" data-unit="' + values.unit_id + '" data-material_request_machine_id="' + material_request_machine_id + '">'
+        html += '<div class="card shadow-none mb-2 cardItem" id="cardItem' + key + keys + material_request_machine_id + '" data-id="' + values.material_request_item_id + '" data-qty="' + values.qty + '" data-unit="' + values.unit_id + '" data-material_request_machine_id="' + material_request_machine_id + '">'
         html += '<div class="card-body p-2">'
         html += '<div class="row">'
-        html += '<div class="col-4 small"><b class="super-small-text" id="materialCode' + key + keys + '">' + values.material_code + '</b><span class="aliasName small-text text-grey"><br><span id="materialAlias' + key + keys + '">' + values.material_alias + '</span></span><br>'
+        html += '<div class="col-4 small"><b class="super-small-text" id="materialCode' + key + keys + material_request_machine_id + '">' + values.material_code + '</b><span class="aliasName small-text text-grey"><br><span id="materialAlias' + key + keys + material_request_machine_id + '">' + values.material_alias + '</span></span><br>'
         // html += values.material_name
-        html += '<select style="border:none" class="form-control form-control-sm selectpicker w-100 itemStok" id="itemStok' + jumlahTotalLogistik + '" data-id="' + jumlahTotalLogistik + '" onchange="changeItemStok(' + jumlahTotalLogistik + ',' + key + ',' + keys + ')">'
+        html += '<select style="border:none" class="form-control form-control-sm selectpicker w-100 itemStok" id="itemStok' + jumlahTotalLogistik + '" data-id="' + jumlahTotalLogistik + '" onchange="changeItemStok(' + jumlahTotalLogistik + ',' + key + ',' + keys + ',' + material_request_machine_id + ')">'
         html += '<option value="" selected disabled>Pilih Item</option>'
         $.each(data_all_stok, function(k, v) {
             var select = ''
@@ -1824,20 +1827,20 @@
         html += '</div>'
         html += '<div class="col">'
         // JUMLAH
-        html += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + '">' + number_format(values.qty) + '</span>'
-        html += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + '"></span>'
-        html += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ')"></i><br>'
-        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + '" data-key="' + key + keys + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" data-id="' + jumlahTotalLogistik + '" data-material_id="' + values.material_id + '" autocomplete="off" oninput="validateNumber(this)"></div>'
+        html += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + material_request_machine_id + '">' + number_format(values.qty) + '</span>'
+        html += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + material_request_machine_id + '"></span>'
+        html += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + material_request_machine_id + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ',' + material_request_machine_id + ')"></i><br>'
+        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + material_request_machine_id + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + material_request_machine_id + '" data-key="' + key + keys + material_request_machine_id + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" data-id="' + jumlahTotalLogistik + '" data-material_id="' + values.material_id + '" autocomplete="off" oninput="validateNumber(this)"></div>'
         // JUMLAH
         html += '</div>'
         html += '<div class="col">'
         // UNIT
-        html += '<span class="m-0 fw-bolder" id="unitLama' + key + keys + '">' + values.unit + '</span>'
-        html += '<span class="m-0 ms-1 fw-bolder" id="unitBaru' + key + keys + '"></span>'
-        html += '<i class="fa fa-pencil text-primary ms-2 showUnitBaru" id="showUnitBaru' + key + keys + '" style="cursor:pointer;" onclick="showUnitBaru(' + key + ',' + keys + ')"></i><br>'
-        html += '<div class="d-none fieldUnitBaru" id="inputUnitBaru' + key + keys + '"><b class="super-small-text">Unit Baru</b>'
+        html += '<span class="m-0 fw-bolder" id="unitLama' + key + keys + material_request_machine_id + '">' + values.unit + '</span>'
+        html += '<span class="m-0 ms-1 fw-bolder" id="unitBaru' + key + keys + material_request_machine_id + '"></span>'
+        html += '<i class="fa fa-pencil text-primary ms-2 showUnitBaru" id="showUnitBaru' + key + keys + material_request_machine_id + '" style="cursor:pointer;" onclick="showUnitBaru(' + key + ',' + keys + ',' + material_request_machine_id + ')"></i><br>'
+        html += '<div class="d-none fieldUnitBaru" id="inputUnitBaru' + key + keys + material_request_machine_id + '"><b class="super-small-text">Unit Baru</b>'
 
-        html += '<select name="" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + '" data-key="' + key + keys + '" data-unit="' + values.unit_id + '">'
+        html += '<select name="" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + material_request_machine_id + '" data-key="' + key + keys + material_request_machine_id + '" data-unit="' + values.unit_id + '">'
         if (values.material_id != '') {
             values.unit_option.forEach(e => {
                 var select = ""
@@ -1854,11 +1857,11 @@
         html += '</div>'
         // STOK GUDANG
         html += '</div>'
-        html += '<div class="col text-end" id="stokGudang' + key + keys + '">'
+        html += '<div class="col text-end" id="stokGudang' + key + keys + material_request_machine_id + '">'
         html += stokGudang(values.material_id)
         html += '</div>'
-        html += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + "'" + ')">'
-        html += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + '"></i>'
+        html += '<div class="col-1 text-center align-self-center p-3" style="cursor:pointer;" onclick="chooseCardItem(' + "'" + key + keys + material_request_machine_id + "'" + ')">'
+        html += '<i class="fa fa-check-square fa-2x text-grey checkCardItem" id="checkCardItem' + key + keys + material_request_machine_id + '"></i>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -1881,32 +1884,32 @@
         return html
     }
 
-    function changeItemStok(id, key, keys) {
+    function changeItemStok(id, key, keys, material_request_machine_id) {
         var item_id = $('#itemStok' + id).val()
         var data = data_all_stok.find((v, k) => {
             if (v.item_id == item_id) return true
         })
-        $('#materialCode' + key + keys).html(data.code)
-        $('#materialAlias' + key + keys).html(data.alias)
-        newStokGudang(item_id, key, keys)
-        unitOption(data, key, keys)
+        $('#materialCode' + key + keys + material_request_machine_id).html(data.code)
+        $('#materialAlias' + key + keys + material_request_machine_id).html(data.alias)
+        newStokGudang(item_id, key, keys, material_request_machine_id)
+        unitOption(data, key, keys, material_request_machine_id)
     }
 
-    function newStokGudang(item_id, key, keys) {
+    function newStokGudang(item_id, key, keys, material_request_machine_id) {
         var html = ''
         html += stokGudang(item_id)
-        $('#stokGudang' + key + keys).html(html)
+        $('#stokGudang' + key + keys + material_request_machine_id).html(html)
     }
 
-    function unitOption(data, key, keys) {
+    function unitOption(data, key, keys, material_request_machine_id) {
         var html = ''
         html += '<option value="" selected disabled>Pilih Satuan</option>'
         data.unit_option.forEach(e => {
             html += '<option value="' + e.id + '" data-name="' + e.name + '">' + e.name + '</option>'
         });
 
-        $('#unitLama' + key + keys).html('<span class="fa fa-warning me-2 text-warning"></span>None')
-        $('#inputUnitBaruForm' + key + keys).html(html)
+        $('#unitLama' + key + keys + material_request_machine_id).html('<span class="fa fa-warning me-2 text-warning"></span>None')
+        $('#inputUnitBaruForm' + key + keys + material_request_machine_id).html(html)
     }
 
     function validateNumber(input) {
@@ -2130,7 +2133,7 @@
         // var material_id = $(this).data('material_id')
         var material_id = $('#itemStok' + id).val()
         var stok = stok_by_id[material_id]
-        console.log(stok)
+        // console.log(stok)
         // var stok = $(this).data('stok')
         var value = $(this).val()
         whileOverThis(key)
@@ -2146,15 +2149,15 @@
         $('.showInputBaru').removeClass('active')
     })
 
-    function showInputBaru(key, keys) {
-        whileOverThis('' + key + keys + '')
-        var data = $('#showInputBaru' + key + keys).hasClass('active')
+    function showInputBaru(key, keys, material_request_machine_id) {
+        whileOverThis('' + key + keys + material_request_machine_id + '')
+        var data = $('#showInputBaru' + key + keys + material_request_machine_id).hasClass('active')
         if (data == true) {
             // remove
-            closeFormQty('' + key + keys + '')
+            closeFormQty('' + key + keys + material_request_machine_id + '')
         } else {
             // insert
-            openFormQty('' + key + keys + '')
+            openFormQty('' + key + keys + material_request_machine_id + '')
         }
     }
 
@@ -2218,15 +2221,15 @@
         $('.showUnitBaru').removeClass('active')
     })
 
-    function showUnitBaru(key, keys) {
-        whileOverThisUnit('' + key + keys + '')
-        var data = $('#showUnitBaru' + key + keys).hasClass('active')
+    function showUnitBaru(key, keys, material_request_machine_id) {
+        whileOverThisUnit('' + key + keys + material_request_machine_id + '')
+        var data = $('#showUnitBaru' + key + keys + material_request_machine_id).hasClass('active')
         if (data == true) {
             // remove
-            closeFormUnit('' + key + keys + '')
+            closeFormUnit('' + key + keys + material_request_machine_id + '')
         } else {
             // insert
-            openFormUnit('' + key + keys + '')
+            openFormUnit('' + key + keys + material_request_machine_id + '')
         }
     }
 

@@ -793,6 +793,12 @@
         border: 1px solid #c5ccd6;
         box-shadow: none;
     }
+
+    .btn-addnew-production:hover {
+        background-color: #27374D !important;
+        color: white;
+        border: 1px solid #27374D !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -916,7 +922,7 @@
             <div class="modal-header" id="modalHeader2">
 
             </div>
-            <div class="modal-body" id="modalBody2">
+            <div class="modal-body" id="modalBody2" style="overflow-x: hidden">
 
             </div>
             <div class="modal-footer" id="modalFooter2">
@@ -935,6 +941,51 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function generateItemProduct() {
+        var data = data_work.productItem
+        const output = [];
+        for (const item of data) {
+            const {
+                id,
+                code,
+                name,
+                alias,
+                machine
+            } = item;
+
+            for (const machineItem of machine) {
+                const {
+                    item_id
+                } = machineItem;
+                const outputItem = {
+                    id: item_id,
+                    code: code,
+                    name: name,
+                    alias: alias
+                };
+                output.push(outputItem);
+            }
+        }
+
+        return output;
+    }
+
+    function findEntitiesByMachineId(data, targetMachineId) {
+        const result = [];
+
+        for (const entity of data) {
+            if (entity.machine_ids.includes(targetMachineId)) {
+                result.push(entity.id);
+            }
+        }
+
+        return result;
+    }
+
     function convertTimeFormat(timeString) {
         // Memisahkan jam, menit, dan detik dari string waktu
         var timeParts = timeString.split(":");
@@ -979,6 +1030,7 @@
                 machine_name: group[0].machine_name,
                 produk: produk.join(", "),
                 work_plan_id: group[0].work_plan_id,
+                work_plan_machine_id: group[0].work_plan_machine_id,
                 allDay: true,
             };
             outputData.push(obj);
@@ -1374,16 +1426,10 @@
                 });
             }
         });
-        // console.log(data_work.workPlan)
         groupingData()
     }
 
-    // function save(params) {
-    //     data_work_plan_saved = data_work_plan
-    // }
-
     function groupingData() {
-        // console.log(data_work_plan_no_shift)
         data_work_plan_no_shift_group = groupAndSum(data_work_plan, ['date', 'machine_id', 'machine_name', 'product_id', 'product_name', 'product_alias', 'unit_name'], ['product_qty'])
         data_work_plan_no_shift_machine = groupAndSum(data_work_plan, ['date', 'machine_id', 'machine_name'], [])
         data_work_plan_group = transformData(data_work_plan);
@@ -1448,7 +1494,6 @@
                         var data = data_work_plan_group.filter((v, k) => {
                             if (v.resource == e.id && v.start == dateList[i]) return true
                         })
-                        // console.log(data)
                         data.forEach(el => {
                             var dataDetail = data_work_plan.filter((v, k) => {
                                 if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
@@ -1457,7 +1502,7 @@
                             if (el.work_plan_id != '') {
                                 bg = 'bg-shift-' + el.shift_id
                             }
-                            html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ')">'
+                            html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ',' + el.shift_group_id + ')">'
                             html += '<div class="card-body p-2 ">'
                             html += '<div class="row">'
                             html += '<div class="col-7 align-self-center">'
@@ -1603,6 +1648,7 @@
             toggleCard(activeIndex)
         }
         // managementManPower(event, '2023-06-12', 3)
+        // changePlan(event, '2023-06-12', 3, 42, 1)
         // end of PAGE
     }
 
@@ -2408,7 +2454,7 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                createNewVariable(date, group_shift_id, machine_type_id, machine_id, key, variable)
+                createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable, 'manpower')
             }
         })
     }
@@ -2455,9 +2501,12 @@
         return fillData(inputData);
     }
 
+    function arrangeDataTemplateReal(input) {
+        var template = data_work.workPlanManageDataTemplate[input][0]
+        return template
+    }
 
-    function createNewVariable(date, group_shift_id, machine_type_id, machine_id, key, variable) {
-        // console.log(variable)
+    function createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable) {
         var data
         if (key == 'qc' || key == 'mechanic') {
             data = arrangeDataTemplate('shift_' + key)[0]
@@ -2473,25 +2522,12 @@
             data.machine['id'] = dataMachine.id
             data.machine['name'] = dataMachine.name
             variable.push(data)
+            console.log(variable)
         }
-        console.log(variable)
         loadManPower(date, group_shift_id, machine_type_id, machine_id, key)
     }
 
-    function changePlan(event, date, machine_id, shift_id = null) {
-        // detail dari shift tersebut, tapi masih bisa lihat shift yang lain
-        var dataPlanInADate = data_work_plan.filter((v, k) => {
-            if (v.machine_id == machine_id && v.date == date) return true
-        })
-        var currentShift = groupAndSum(dataPlanInADate, ['shift_id', 'shift_name', 'shift_start', 'shift_end'], [])
-        // data semua mesin di tanggal itu
-        var dataMachine = data_work_plan_group.filter((v, k) => {
-            if (v.start == date) return true
-        })
-        // data master mesin ini
-        var masterMachine = data_work.machine.find((v, k) => {
-            if (v.id == machine_id) return true
-        })
+    function changePlan(event, date, machine_id, shift_id = null, shift_group_id = null) {
         event.stopPropagation();
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
@@ -2504,58 +2540,17 @@
 
         html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
 
-        html_body += '<div class="row">'
-        html_body += '<div class="col">'
-        html_body += '<p class="m-0 super-small-text text-grey">Date</p>'
-        html_body += '<h4 class="text-dark-grey m-0"><b>' + formatInternationalDate(date) + '</b></h4>'
-        html_body += '</div>'
-        html_body += '<div class="col">'
-        html_body += '<p class="m-0 super-small-text text-grey">Machine</p>'
-        html_body += '<h4 class="text-dark-grey m-0"><b>' + masterMachine.name + '</b></h4>'
-        html_body += '</div>'
+        html_body += '<div class="row" id="headerPlan">'
+        html_body += headerPlan(date, machine_id, shift_id, shift_group_id)
         html_body += '</div>'
 
         html_body += '<div class="row mt-3">'
         html_body += '<div class="col-12">'
         html_body += '<p class="m-0 super-small-text mb-2"><b>Machine This Day</b></p>'
         html_body += '</div>'
-        html_body += '<div class="col-12">'
+        html_body += '<div class="col-12" id="machineThisDay" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
         // card maker
-        data_work.machineType.forEach(e => {
-            html_body += '<div class="card shadow-none mb-2">'
-            html_body += '<div class="card-body p-3">'
-            html_body += '<p class="m-0 mb-2"><b>' + e.name + '</b></p>'
-            // list maker
-            var dataMachineByType = dataMachine.filter((v, k) => {
-                if (v.machine_type_id == e.id) return true
-            })
-            dataMachineByType.forEach(el => {
-                var thisMachine = ''
-                if (el.resource == machine_id) {
-                    thisMachine = 'clicked'
-                }
-                html_body += '<div class="row">'
-                html_body += '<div class="col-12">'
-                html_body += '<div class="card shadow-none mb-2 ' + thisMachine + '">'
-                html_body += '<div class="card-body p-2">'
-                html_body += '<div class="row">'
-                html_body += '<div class="col-10 align-self-center">'
-                html_body += '<p class="m-0 small"><b>' + el.machine_name + '</b></p>'
-                html_body += '<p class="m-0 super-small-text">' + el.produk + '</p>'
-                html_body += '</div>'
-                html_body += '<div class="col-2 align-self-center text-end">'
-                html_body += '<i class="fa fa-comment text-grey"></i>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-            });
-            // list maker
-            html_body += '</div>'
-            html_body += '</div>'
-        });
+        html_body += machineThisDay(date, machine_id, shift_id, shift_group_id)
         // end card maker
         html_body += '</div>'
         html_body += '</div>'
@@ -2564,16 +2559,8 @@
 
         html_body += '<div class="col-12 col-md-8 p-4">'
         // header
-        html_body += '<div class="row">'
-        currentShift.forEach(e => {
-            html_body += '<div class="col-auto p-1">'
-            html_body += '<div class="card shadow-none">'
-            html_body += '<div class="card-body p-2">'
-            html_body += '<p class="super-small-text m-0"><b>' + e.shift_name + '</b> ' + convertTimeFormat(e.shift_start) + ' - ' + convertTimeFormat(e.shift_end) + ' <i class="fa fa-comment text-grey ms-2"></i></p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        });
+        html_body += '<div class="row" id="currentShiftMachine">'
+        html_body += currentShiftMachine(date, machine_id, shift_id, shift_group_id)
         html_body += '</div>'
         // header
         // body
@@ -2596,11 +2583,180 @@
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
         $('#modalFooter').html(html_footer);
         if (shift_id != null) {
-            detailPerShift(date, machine_id, shift_id)
+            detailPerShift(date, machine_id, shift_id, shift_group_id)
         }
     }
 
-    function detailPerShift(date, machine_id, shift_id) {
+    function headerPlan(date, machine_id, shift_id, shift_group_id) {
+        var html = ''
+        // data master mesin ini
+        var masterMachine = data_work.machine.find((v, k) => {
+            if (v.id == machine_id) return true
+        })
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text text-grey">Date</p>'
+        html += '<h4 class="text-dark-grey m-0"><b>' + formatInternationalDate(date) + '</b></h4>'
+        html += '</div>'
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text text-grey">Machine</p>'
+        html += '<h4 class="text-dark-grey m-0"><b>' + masterMachine.name + '</b></h4>'
+        html += '</div>'
+        return html
+    }
+
+    function currentShiftMachine(date, machine_id, shift_id, shift_group_id) {
+        var html = ''
+        // detail dari shift tersebut, tapi masih bisa lihat shift yang lain
+        var dataPlanInADate = data_work_plan.filter((v, k) => {
+            if (v.machine_id == machine_id && v.date == date) return true
+        })
+        var currentShift = groupAndSum(dataPlanInADate, ['shift_id', 'shift_name', 'shift_start', 'shift_end', 'shift_group_id'], [])
+        currentShift.forEach(e => {
+            var thisShift = ''
+            if (shift_id == e.shift_id) {
+                thisShift = 'clicked'
+            }
+            html += '<div class="col-auto p-1">'
+            html += '<div class="card shadow-none ' + thisShift + '" style="cursor:pointer;" onclick="detailPerShift(' + "'" + date + "'" + ',' + machine_id + ', ' + e.shift_id + ',' + e.shift_group_id + ')">'
+            html += '<div class="card-body p-2">'
+            html += '<p class="super-small-text m-0"><b>' + e.shift_name + '</b> ' + convertTimeFormat(e.shift_start) + ' - ' + convertTimeFormat(e.shift_end) + ' <i class="fa fa-comment text-grey ms-2"></i></p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        return html
+    }
+
+    function machineThisDay(date, machine_id, shift_id, shift_group_id) {
+        var html = ''
+        // data semua mesin di tanggal itu
+        var dataMachine = data_work_plan_group.filter((v, k) => {
+            if (v.start == date) return true
+        })
+        data_work.machineType.forEach(e => {
+            html += '<div class="card shadow-none mb-2">'
+            html += '<div class="card-body p-3">'
+            html += '<p class="m-0 mb-2"><b>' + e.name + '</b></p>'
+            // list maker
+            var dataMachineByType = dataMachine.filter((v, k) => {
+                if (v.machine_type_id == e.id) return true
+            })
+            data_work.machine.forEach(el => {
+                if (el.machine_type_id == e.id) {
+                    var dataFindMachine = dataMachineByType.find((v, k) => {
+                        if (v.resource == el.id) return true
+                    })
+                    var thisMachine = ''
+                    if (el.id == machine_id) {
+                        thisMachine = 'clicked'
+                    }
+                    unknown = 'bg-grey'
+                    product = '<p class="m-0 super-small-text text-danger"><i>Machine Not Created</i></p>'
+                    variableInput = 0
+                    if (dataFindMachine != undefined) {
+                        var unknown = ''
+                        var product = '<p class="m-0 super-small-text">' + dataFindMachine.produk + '</p>'
+                        var variableInput = 1
+                    }
+                    html += '<div class="row">'
+                    html += '<div class="col-12">'
+                    html += '<div class="card shadow-none mb-2 ' + unknown + ' ' + thisMachine + ' btn-list-planning" onclick="chooseMachineThisDay(' + variableInput + ',' + "'" + date + "'" + ',' + el.id + ',' + e.id + ')">'
+                    html += '<div class="card-body p-2">'
+                    html += '<div class="row">'
+                    html += '<div class="col-10 align-self-center">'
+                    html += '<p class="m-0 small"><b>' + el.name + '</b></p>'
+                    html += product
+                    html += '</div>'
+                    html += '<div class="col-2 align-self-center text-end">'
+                    html += '<i class="fa fa-comment text-grey"></i>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                }
+            });
+            // list maker
+            html += '</div>'
+            html += '</div>'
+        });
+        return html
+    }
+
+    function chooseMachineThisDay(input, date, machine_id, machine_type_id, shift_id = null, shift_group_id = null) {
+        if (input == 0) {
+            Swal.fire({
+                text: 'Machine belum ter-Create. Apakah ingin membuat ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    chooseShift(date, machine_id, machine_type_id)
+                }
+            })
+        } else {
+            empty('#bodyPerShift', 'Pilih Shift Terlebih Dahulu')
+            getKerangkaProduksi(date, machine_id, shift_id, shift_group_id)
+        }
+    }
+
+    function createNewMachine(date, machine_id, machine_type_id, shift_id, shift_group_id) {
+        var dataMachine = data_work.machine.find((v, k) => {
+            if (v.id == machine_id) return true
+        })
+        var dataShift = data_work.shift[0].shift_list.find((v, k) => {
+            if (v.id == shift_id) return true
+        })
+        var positionOfTemplate = searchDataAll(date, machine_id, shift_id, shift_group_id, 'machine')
+        var template = arrangeDataTemplate('shift_machine')[0]
+        template.machine.id = dataMachine.id
+        template.machine.name = dataMachine.name
+        template.shift.id = dataShift.id
+        template.shift.end = dataShift.end_time
+        template.shift.start = dataShift.start_time
+        template.shift.name = dataShift.name
+        template.shift.group_id = dataShift.group_id
+        positionOfTemplate.push(template)
+        $('#modal2').modal('hide')
+        insertDataAll(date, machine_id, shift_id, shift_group_id, positionOfTemplate, 'shift_machine')
+    }
+
+    function chooseShift(date, machine_id, machine_type_id) {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Choose Shift</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader2').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        var a = 1
+        data_work.shift[0].shift_list.forEach(e => {
+            html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-production pointer" onclick="createNewMachine(' + "'" + date + "'" + ',' + machine_id + ',' + machine_type_id + ',' + e.id + ',' + e.group_id + ')">'
+            html_body += '<p class="m-0 small-text">' + e.name + '</p>'
+            html_body += '<p class="m-0"><b>' + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time) + '</b></p>'
+            html_body += '</div>'
+            if (a < data_work.shift[0].shift_list.length) {
+                html_body += '<div class="col-12"><hr class="m-0"></div>'
+            }
+            a++
+        });
+        html_body += '</div>'
+        $('#modalBody2').html(html_body).addClass('p-0');
+        $('#modalFooter2').addClass('d-none');
+    }
+
+    function getKerangkaProduksi(date, machine_id, shift_id, shift_group_id) {
+        $('#headerPlan').html(headerPlan(date, machine_id, shift_id, shift_group_id))
+        $('#machineThisDay').html(machineThisDay(date, machine_id, shift_id, shift_group_id))
+        $('#currentShiftMachine').html(currentShiftMachine(date, machine_id, shift_id, shift_group_id))
+    }
+
+    function detailPerShift(date, machine_id, shift_id, shift_group_id) {
         // data detail dari shift tersebut
         var dataDetail = data_work_plan.filter((v, k) => {
             if (v.machine_id == machine_id && v.date == date && v.shift_id == shift_id) return true
@@ -2614,13 +2770,15 @@
             html += '<div class="row">'
             html += '<div class="col-12">'
             html += '<div class="card shadow-none mb-2">'
+            html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="deleteDataProduction(' + "'" + date + "'" + ',' + machine_id + ',' + shift_id + ',' + shift_group_id + ',' + e.product_id + ',' + e.work_plan_product_id + ')"><i class="small-text fa fa-times text-light"></i></span>'
+
             html += '<div class="card-body p-3">'
             html += '<div class="row">'
             html += '<div class="col align-self-center">'
             html += '<p class="m-0"><b class="m-0">' + e.product_alias + '</b></p>'
             html += '<p class="m-0 small-text">' + e.product_name + '</p>'
             html += '</div>'
-            html += '<div class="col-3"><input class="form-control form-control-sm shadow-none nominal p-0 m-0" type="text" style="border:0px;" value="' + e.product_qty + '"><hr class="m-0"></div>'
+            html += '<div class="col-3"><input class="form-control form-control-sm shadow-none nominal p-0 m-0" type="text" style="border:0px;" value="' + e.product_qty + '" onkeyup="fillInputProduction(' + "'" + date + "'" + ',' + machine_id + ',' + shift_id + ',' + shift_group_id + ',' + e.product_id + ',' + e.work_plan_product_id + ',event)"><hr class="m-0"></div>'
             html += '<div class="col-2 align-self-center p-0"><b class="m-0">' + e.unit_name + '</b></div>'
             html += '<div class="col-1 align-self-center p-0"><i class="fa fa-comment text-grey"></i></div>'
             html += '</div>'
@@ -2631,7 +2789,7 @@
         });
         html += '<div class="row">'
         html += '<div class="col-12">'
-        html += '<div class="card shadow-none mb-2" style="border:1px dashed #D9D9D9;">'
+        html += '<div class="card shadow-none mb-2 btn-addnew-production" style="border:1px dashed #D9D9D9;cursor:pointer;" onclick="addNewProduction(' + "'" + date + "'" + ',' + machine_id + ',' + shift_id + ',' + shift_group_id + ')">'
         html += '<div class="card-body p-3 text-center">'
         html += '<p class="m-0 small-text"><i class="me-2 fa fa-plus"></i>Add New</p>'
         html += '</div>'
@@ -2646,6 +2804,7 @@
         html += '</div>'
         html += '</div>'
         $('#bodyPerShift').html(html)
+        $('#currentShiftMachine').html(currentShiftMachine(date, machine_id, shift_id, shift_group_id))
         $('.nominal').number(true);
         for (let i = 0; i < 2; i++) {
             $('#identity' + i).select2({
@@ -2656,6 +2815,149 @@
             });
         }
     }
+
+    function getDataByIdArrayItemProduct(inputIds, outputData) {
+        const result = [];
+
+        for (const id of inputIds) {
+            const item = outputData.find((data) => data.id === id);
+            if (item) {
+                result.push(item);
+            }
+        }
+
+        return result;
+    }
+
+    function addNewProduction(date, machine_id, shift_id, group_shift_id) {
+        // var dataProduct = groupAndSum(data_work_plan, ['product_id', 'product_name', 'product_alias'], [])
+        var dataProduct = getDataByIdArrayItemProduct(data_work.machine.find((v, k) => {
+            if (v.id == machine_id) return true
+        }).item_id_product, groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []))
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Choose Brand</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader2').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        var a = 1
+        dataProduct.forEach(e => {
+            html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-production pointer" onclick="addProduction(' + "'" + date + "'" + ',' + machine_id + ',' + shift_id + ',' + group_shift_id + ',' + e.id + ')">'
+            html_body += '<p class="m-0 small-text">' + e.alias + '</p>'
+            html_body += '<p class="m-0"><b>' + e.name + '</b></p>'
+            html_body += '</div>'
+            if (a < dataProduct.length) {
+                html_body += '<div class="col-12"><hr class="m-0"></div>'
+            }
+            a++
+        });
+        html_body += '</div>'
+        $('#modalBody2').html(html_body).addClass('p-0');
+        $('#modalFooter2').addClass('d-none');
+    }
+
+    function addProduction(date, machine_id, shift_id, group_shift_id, product_id) {
+        $('#modal2').modal('hide')
+        addDataProduction(date, machine_id, shift_id, group_shift_id, product_id)
+    }
+
+    function searchDataAll(date, machine_id, shift_id, group_shift_id, target) {
+        // console.log(date, machine_id, shift_id, group_shift_id)
+        var machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
+        var data = data_work.workPlan
+        const foundDate = data.find(item => item.date == date);
+        if (foundDate) {
+            const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
+            if (foundShiftGroup) {
+                const foundMachineType = foundShiftGroup.shift_mechanic.find(type => type.machine_type.id == machine_type_id);
+                if (foundMachineType) {
+                    if (target == 'machine_type') {
+                        return foundMachineType
+                    } else {
+                        if (target == 'machine') {
+                            return foundMachineType.shift_machine
+                        } else {
+                            const foundMachine = foundMachineType.shift_machine.find(machine => machine.machine.id == machine_id);
+                            if (foundMachine) {
+                                return foundMachine;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function insertDataAll(date, machine_id, shift_id, group_shift_id, dataInsert, position = null) {
+        var machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
+        var data = data_work.workPlan
+        const foundDate = data.find(item => item.date == date);
+        if (foundDate) {
+            const foundShiftGroup = foundDate.work_plan.shift_qc.find(shift => shift.shift.group_id == group_shift_id);
+            if (foundShiftGroup) {
+                const foundMachineType = foundShiftGroup.shift_mechanic.find(type => type.machine_type.id == machine_type_id);
+                if (foundMachineType) {
+                    if (position == 'shift_machine') {
+                        foundMachineType.shift_machine = dataInsert
+                    } else {
+                        const foundMachine = foundMachineType.shift_machine.find(machine => machine.machine.id == machine_id);
+                        if (foundMachine) {
+                            foundMachine.products = dataInsert
+                        }
+                    }
+                }
+            }
+        }
+        arrangeVariable()
+        getKerangkaProduksi(date, machine_id, shift_id, group_shift_id)
+        detailPerShift(date, machine_id, shift_id, group_shift_id)
+    }
+
+    function deleteDataProduction(date, machine_id, shift_id, group_shift_id, product_id, work_plan_product_id) {
+        var data = searchDataAll(date, machine_id, shift_id, group_shift_id).products
+        data = data.filter(p => p.work_plan_product_id != work_plan_product_id);
+        insertDataAll(date, machine_id, shift_id, group_shift_id, data)
+    }
+
+    function addDataProduction(date, machine_id, shift_id, group_shift_id, product_id) {
+        var dataProduct = groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []).find((v, k) => {
+            if (v.id == product_id) return true
+        })
+        var dataShift = data_work.item.find((v, k) => {
+            if (v.id == product_id) return true
+        })
+        var data = searchDataAll(date, machine_id, shift_id, group_shift_id).products
+        var work_plan_product_id = new Date().getTime()
+        var template = deepCopy(data_work.workPlanManageDataTemplate.products[0])
+        template.product.id = product_id
+        template.product.name = dataProduct.name
+        template.product.code = dataProduct.code
+        template.product.alias = dataProduct.alias
+        template.work_plan_product_id = work_plan_product_id
+        template.qty = 0
+        data.push(template)
+        insertDataAll(date, machine_id, shift_id, group_shift_id, data)
+    }
+
+    function findIndexByWorkPlanProductId(inputData, workPlanProductId) {
+        for (let i = 0; i < inputData.length; i++) {
+            if (inputData[i].work_plan_product_id === workPlanProductId) {
+                return i;
+            }
+        }
+        return -1; // Return -1 if workPlanProductId is not found in the data
+    }
+
+    function fillInputProduction(date, machine_id, shift_id, group_shift_id, product_id, work_plan_product_id, event) {
+        const inputValue = event.target.value;
+        var data = searchDataAll(date, machine_id, shift_id, group_shift_id).products
+        var index = findIndexByWorkPlanProductId(data, work_plan_product_id)
+        data[index].qty = inputValue
+        insertDataAll(date, machine_id, shift_id, group_shift_id, data)
+    }
+
     // search multi
     $(document).on('keyup', '#search_nama', function(e) {
         searching()
