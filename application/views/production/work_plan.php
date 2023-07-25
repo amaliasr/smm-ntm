@@ -941,6 +941,34 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    function countEmployeesByParameters(data, groupId, machineType, machineId) {
+        let totalCount = 0;
+
+        function countEmployeeType(employeeArray) {
+            if (Array.isArray(employeeArray)) {
+                totalCount += employeeArray.length;
+            }
+        }
+
+        for (const item of data) {
+            if (
+                item.shift.group_id === groupId &&
+                item.shift_mechanic[0].machine_type.id === machineType &&
+                item.shift_mechanic[0].shift_machine.some((shiftMachine) => shiftMachine.machine.id === machineId)
+            ) {
+                countEmployeeType(item.employee_qc);
+                countEmployeeType(item.shift_mechanic[0].employee_helper);
+                countEmployeeType(item.shift_mechanic[0].employee_catcher);
+                countEmployeeType(item.shift_mechanic[0].employee_operator);
+                countEmployeeType(item.shift_mechanic[1].employee_helper);
+                countEmployeeType(item.shift_mechanic[1].employee_catcher);
+                countEmployeeType(item.shift_mechanic[1].employee_operator);
+            }
+        }
+
+        return totalCount;
+    }
+
     function deepCopy(obj) {
         return JSON.parse(JSON.stringify(obj));
     }
@@ -1277,7 +1305,7 @@
                                     'product_code': e.code,
                                     'product_name': e.name,
                                     'product_alias': e.alias,
-                                    'product_qty': e.qty,
+                                    'product_qty': parseFloat(e.qty),
                                     'unit_id': e.unit.id,
                                     'unit_name': e.unit.name,
                                 })
@@ -1414,7 +1442,7 @@
                                     'product_code': e.product.code,
                                     'product_name': e.product.name,
                                     'product_alias': e.product.alias,
-                                    'product_qty': e.qty,
+                                    'product_qty': parseFloat(e.qty),
                                     'unit_id': e.unit.id,
                                     'unit_name': e.unit.name,
                                     'note_product': e.note,
@@ -1539,7 +1567,12 @@
                             }
 
                             if (el.work_plan_id != '') {
-                                html += '<p class="m-0 mt-1" style="font-size:7px;">3 Persons</p>'
+                                var dataMaster = data_work.workPlan.find((v, k) => {
+                                    if (v.work_plan.work_plan_id == el.work_plan_id) return true
+                                }).work_plan.shift_qc
+                                var jumlahPerson = countEmployeesByParameters(dataMaster, el.shift_group_id, d.id, e.id)
+                                console.log(jumlahPerson)
+                                html += '<p class="m-0 mt-1" style="font-size:7px;">' + jumlahPerson + ' Persons</p>'
                             } else {
                                 html += '<p class="m-0 mt-1" style="font-size:7px;">No Person</p>'
                             }
