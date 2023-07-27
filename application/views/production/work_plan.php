@@ -1286,9 +1286,92 @@
             }
         })
     }
+    var data_work_converted = []
 
     function convertToWorkPlan() {
-        showOverlayText('Convert into Work Plan')
+        var template = data_work.workPlanManageDataTemplate
+        var indexDate = 0
+        data_work.workPlan.forEach(a => {
+            data_work_converted.push({
+                date: a.date,
+                id: a.id,
+                note: a.note,
+                production_plan: a.production_plan,
+                work_plan: a.work_plan,
+            })
+            data_work_converted[indexDate].work_plan.work_plan_id = new Date().getTime()
+            data_work_converted[indexDate].work_plan.shift_qc = []
+            // date
+            var indexShift = 0
+            a.production_plan.shift.forEach(b => {
+                // shift
+                var dataShift = deepCopy(template.shift_qc)[0]
+                dataShift.shift.id = b.id
+                dataShift.shift.name = b.name
+                dataShift.shift.start = b.start
+                dataShift.shift.end = b.end
+                dataShift.shift.group_id = b.group_id
+                dataShift.work_plan_shift_id = new Date().getTime() + '' + indexDate
+                dataShift.shift_mechanic = []
+                data_work_converted[indexDate].work_plan.shift_qc.push(dataShift)
+                var indexMachineType = 0
+                a.production_plan.machine_type.forEach(c => {
+                    // machine_type
+                    var dataMachineType = deepCopy(template.shift_mechanic)[0]
+                    dataMachineType.shift.id = b.id
+                    dataMachineType.shift.name = b.name
+                    dataMachineType.shift.start = b.start
+                    dataMachineType.shift.end = b.end
+                    dataMachineType.shift.group_id = b.group_id
+                    dataMachineType.machine_type.id = c.id
+                    dataMachineType.machine_type.name = c.name
+                    dataMachineType.work_plan_machine_type_id = new Date().getTime() + '' + indexDate + '' + indexMachineType
+                    dataMachineType.shift_machine = []
+                    data_work_converted[indexDate].work_plan.shift_qc[indexShift].shift_mechanic.push(dataMachineType)
+                    var indexMachine = 0
+                    c.machine.forEach(d => {
+                        // machine
+                        var dataMachine = deepCopy(template.shift_machine)[0]
+                        dataMachine.shift.id = b.id
+                        dataMachine.shift.name = b.name
+                        dataMachine.shift.start = b.start
+                        dataMachine.shift.end = b.end
+                        dataMachine.shift.group_id = b.group_id
+                        dataMachine.machine.id = d.id
+                        dataMachine.machine.name = d.name
+                        dataMachine.work_plan_machine_id = new Date().getTime() + '' + indexDate + '' + indexMachineType + '' + indexMachine
+                        dataMachine.products = []
+                        data_work_converted[indexDate].work_plan.shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine.push(dataMachine)
+                        var indexProduct = 0
+                        d.product.forEach(e => {
+                            // product
+                            var dataProduct = deepCopy(template.products)[0]
+                            dataProduct.product.id = e.id
+                            dataProduct.product.code = e.code
+                            dataProduct.product.name = e.name
+                            dataProduct.product.alias = e.alias
+                            dataProduct.qty = e.qty
+                            dataProduct.unit.id = e.unit.id
+                            dataProduct.unit.name = e.unit.name
+                            dataProduct.unit.multiplier = e.unit.multiplier
+                            dataProduct.work_plan_product_id = new Date().getTime() + '' + indexDate + '' + indexMachineType + '' + indexMachine + '' + indexProduct
+                            data_work_converted[indexDate].work_plan.shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.push(dataProduct)
+                            indexProduct++
+                        });
+                        indexMachine++
+                    });
+                    indexMachineType++
+                });
+                indexShift++
+            });
+            indexDate++
+        })
+        finishedConvert()
+    }
+
+    function finishedConvert() {
+        data_work.workPlan = data_work_converted
+        arrangeVariable()
     }
 
     var jumlahLoad = 0

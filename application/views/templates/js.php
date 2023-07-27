@@ -33,7 +33,7 @@
                 image: "",
                 custom: customElement
             });
-        }, 100);
+        }, 1000);
         setTimeout(function() {
             $.LoadingOverlay("hide");
         }, 3000);
