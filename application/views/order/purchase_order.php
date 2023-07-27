@@ -109,13 +109,13 @@
                                         <?php } ?>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuClickableOutside">
                                             <li><a class="dropdown-item" href="#" onclick="formPR()">Purchase Requisition (PR)</a></li>
-                                            <?php if ($this->session->userdata('division_id') == 4) { ?>
+                                            <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 35) { ?>
                                                 <li><a class="dropdown-item" href="#" onclick="formPO()">Purchase Order (PO)</a></li>
                                                 <!-- <li><a class="dropdown-item" href="#" onclick="formRetur()">Retur</a></li> -->
                                             <?php } ?>
                                         </ul>
                                     </div>
-                                    <?php if ($this->session->userdata('division_id') == 4) { ?>
+                                    <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 35) { ?>
                                         <button type="button" class="btn btn-outline-light text-white" onclick="formReport()"><i class="fa fa-table"></i></button>
                                     <?php } ?>
                                 </div>
@@ -141,7 +141,7 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" data-status="PR">PR</button>
                                     </li>
-                                    <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 10) { ?>
+                                    <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 35 || $this->session->userdata('division_id') == 10) { ?>
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-status="PO">PO</button>
                                         </li>

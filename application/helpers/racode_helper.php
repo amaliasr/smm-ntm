@@ -92,7 +92,7 @@ function job_foreman()
 {
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 84 || $job_title_id == 87) {
+    if ($job_title_id == 84 || $job_title_id == 87 || $job_title_id == 135) {
         return true;
     } else {
         return false;

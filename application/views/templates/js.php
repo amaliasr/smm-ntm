@@ -19,6 +19,25 @@
     function showOverlay(e) {
         $.LoadingOverlay(e);
     }
+
+    function showOverlayText(text) {
+        setTimeout(function() {
+            var customElement = $("<div>", {
+                "css": {
+                    "font-size": "10px",
+                },
+                "class": "your-custom-class",
+                "text": text
+            });
+            $.LoadingOverlay("show", {
+                image: "",
+                custom: customElement
+            });
+        }, 100);
+        setTimeout(function() {
+            $.LoadingOverlay("hide");
+        }, 3000);
+    }
 </script>
 
 <!-- Litepicker Script JS -->
