@@ -1937,6 +1937,7 @@
     }
 
     function kirimApproval(id, code) {
+        console.log('test')
         var materailId = $('.cardItem').map(function() {
             return $(this).data('id');
         }).get();

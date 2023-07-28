@@ -1275,7 +1275,6 @@
     var set_work_plan = {}
     var data_work_plan_real = []
     var delete_id = {}
-    var data_work_plan_bar = []
 
     function reset() {
         data_work_plan = []
@@ -1285,7 +1284,6 @@
         data_work_plan_no_shift_machine
         management_manpower = []
         set_work_plan = {}
-        data_work_plan_bar = []
     }
 
     function resetDelete() {
@@ -1448,138 +1446,184 @@
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
             // date
-            // kalau ada work plan
-            // SET VARIABLE PRODUCTION PLAN
-            set_work_plan['workPlan'].push({
-                id: a.work_plan.work_plan_id,
-                production_plan_id: data_work.productionPlan.id,
-                date: a.date,
-                note: a.note
-            })
-            a.work_plan.shift_qc.forEach(b => {
-                // qc
-                var emqc = []
-                if (b.employee_qc.length > 0) {
-                    emqc = b.employee_qc.map(employee => employee.id)
-                }
-                set_work_plan['workPlanShift'].push({
-                    id: b.work_plan_shift_id,
-                    work_plan_id: a.work_plan.work_plan_id,
-                    shift_id: b.shift.id,
-                    employee_id_qc: emqc,
-                    note: b.note,
+            if (a.work_plan.work_plan_id == null) {
+                // belum ada work plan
+                // var indexShift = 0
+                a.production_plan.shift.forEach(b => {
+                    // shift
+                    a.production_plan.machine_type.forEach(c => {
+                        // machine_type
+                        c.machine.forEach(d => {
+                            // machine
+                            d.product.forEach(e => {
+                                // product
+                                data_work_plan.push({
+                                    'id': a.id,
+                                    'date': a.date,
+                                    'note': a.note,
+                                    'shift_id': b.id,
+                                    'shift_name': b.name,
+                                    'shift_end': b.end,
+                                    'shift_start': b.start,
+                                    'shift_group_id': b.group_id,
+                                    'machine_type_id': c.id,
+                                    'machine_type_name': c.name,
+                                    'machine_id': d.id,
+                                    'machine_name': d.name,
+                                    'product_id': e.id,
+                                    'product_code': e.code,
+                                    'product_name': e.name,
+                                    'product_alias': e.alias,
+                                    'product_qty': e.qty,
+                                    'unit_id': e.unit.id,
+                                    'unit_name': e.unit.name,
+                                })
+                                // buat tanpa shift
+                                // if (indexShift == 0) {
+                                //     data_work_plan_no_shift.push({
+                                //         'id': a.id,
+                                //         'date': a.date,
+                                //         'note': a.note,
+                                //         'machine_type_id': c.id,
+                                //         'machine_type_name': c.name,
+                                //         'machine_id': d.id,
+                                //         'machine_name': d.name,
+                                //         'product_id': e.id,
+                                //         'product_code': e.code,
+                                //         'product_name': e.name,
+                                //         'product_alias': e.alias,
+                                //         'product_qty': e.qty,
+                                //         'unit_id': e.unit.id,
+                                //         'unit_name': e.unit.name,
+                                //     })
+                                // }
+                            });
+                        });
+                    });
+                    // indexShift++
+                });
+            } else {
+                // var indexShift = 0
+                // kalau ada work plan
+                // SET VARIABLE PRODUCTION PLAN
+                set_work_plan['workPlan'].push({
+                    id: a.work_plan.work_plan_id,
+                    production_plan_id: data_work.productionPlan.id,
+                    date: a.date,
+                    note: a.note
                 })
-                b.shift_mechanic.forEach(c => {
-                    // mechanic
-                    var emmechanic = []
-                    if (c.employee_mechanic.length > 0) {
-                        emmechanic = c.employee_mechanic.map(employee => employee.id)
+                a.work_plan.shift_qc.forEach(b => {
+                    // qc
+                    var emqc = []
+                    if (b.employee_qc.length > 0) {
+                        emqc = b.employee_qc.map(employee => employee.id)
                     }
-                    set_work_plan['workPlanMachineType'].push({
-                        id: c.work_plan_machine_type_id,
-                        work_plan_shift_id: b.work_plan_shift_id,
+                    set_work_plan['workPlanShift'].push({
+                        id: b.work_plan_shift_id,
                         work_plan_id: a.work_plan.work_plan_id,
-                        shift_id: c.shift.id,
-                        machine_type_id: c.machine_type.id,
-                        employee_id_mechanic: emmechanic,
-                        note: c.note,
+                        shift_id: b.shift.id,
+                        employee_id_qc: emqc,
+                        note: b.note,
                     })
-                    c.shift_machine.forEach(d => {
-                        // machine
-                        var emoperator = []
-                        var emhelper = []
-                        var emcatcher = []
-                        if (d.employee_operator.length > 0) {
-                            emoperator = d.employee_operator.map(employee => employee.id)
+                    b.shift_mechanic.forEach(c => {
+                        // mechanic
+                        var emmechanic = []
+                        if (c.employee_mechanic.length > 0) {
+                            emmechanic = c.employee_mechanic.map(employee => employee.id)
                         }
-                        if (d.employee_helper.length > 0) {
-                            emhelper = d.employee_helper.map(employee => employee.id)
-                        }
-                        if (d.employee_catcher.length > 0) {
-                            emcatcher = d.employee_catcher.map(employee => employee.id)
-                        }
-                        set_work_plan['workPlanMachine'].push({
-                            id: d.work_plan_machine_id,
-                            work_plan_machine_type_id: c.work_plan_machine_type_id,
+                        set_work_plan['workPlanMachineType'].push({
+                            id: c.work_plan_machine_type_id,
+                            work_plan_shift_id: b.work_plan_shift_id,
                             work_plan_id: a.work_plan.work_plan_id,
-                            shift_id: d.shift.id,
-                            machine_id: d.machine.id,
-                            employee_id_operator: emoperator,
-                            employee_id_helper: emhelper,
-                            employee_id_catcher: emcatcher,
-                            note: d.note,
+                            shift_id: c.shift.id,
+                            machine_type_id: c.machine_type.id,
+                            employee_id_mechanic: emmechanic,
+                            note: c.note,
                         })
-                        // buat bar work plan
-                        data_work_plan_bar.push({
-                            'work_plan_id': a.work_plan.work_plan_id,
-                            'machine_type_id': c.machine_type.id,
-                            'work_plan_machine_id': d.work_plan_machine_id,
-                            'shift_id': d.shift.id,
-                            'shift_name': d.shift.name,
-                            'nama_shift': "" + convertTimeFormat(d.shift.start) + " - " + convertTimeFormat(d.shift.end),
-                            'shift_group_id': d.shift.group_id,
-                            'resource': d.machine.id,
-                            'start': a.date,
-                        })
-                        // buat bar work plan
-                        d.products.forEach(e => {
-                            set_work_plan['workPlanProduct'].push({
-                                id: e.work_plan_product_id,
-                                work_plan_machine_id: d.work_plan_machine_id,
-                                item_id_product: e.product.id,
-                                qty: e.qty,
-                                unit_id: e.unit.id,
-                                // priority: e.priority,
-                                note: e.note,
+                        c.shift_machine.forEach(d => {
+                            // machine
+                            var emoperator = []
+                            var emhelper = []
+                            var emcatcher = []
+                            if (d.employee_operator.length > 0) {
+                                emoperator = d.employee_operator.map(employee => employee.id)
+                            }
+                            if (d.employee_helper.length > 0) {
+                                emhelper = d.employee_helper.map(employee => employee.id)
+                            }
+                            if (d.employee_catcher.length > 0) {
+                                emcatcher = d.employee_catcher.map(employee => employee.id)
+                            }
+                            set_work_plan['workPlanMachine'].push({
+                                id: d.work_plan_machine_id,
+                                work_plan_machine_type_id: c.work_plan_machine_type_id,
+                                work_plan_id: a.work_plan.work_plan_id,
+                                shift_id: d.shift.id,
+                                machine_id: d.machine.id,
+                                employee_id_operator: emoperator,
+                                employee_id_helper: emhelper,
+                                employee_id_catcher: emcatcher,
+                                note: d.note,
                             })
-                            // products
-                            data_work_plan.push({
-                                'id': a.id,
-                                'date': a.date,
-                                'note': a.note,
-                                'work_plan_id': a.work_plan.work_plan_id,
-                                'shift_id': d.shift.id,
-                                'shift_name': d.shift.name,
-                                'shift_end': d.shift.end,
-                                'shift_start': d.shift.start,
-                                'shift_group_id': d.shift.group_id,
-                                'work_plan_shift_id': b.work_plan_shift_id,
-                                'employee_qc': b.employee_qc,
-                                'note_qc': b.note,
-                                'machine_type_id': c.machine_type.id,
-                                'machine_type_name': c.machine_type.name,
-                                'employee_mechanic': c.employee_mechanic,
-                                'note_mechanic': c.note,
-                                'work_plan_machine_type_id': c.work_plan_machine_type_id,
-                                'shift_id_mechanic': c.shift.id,
-                                'machine_id': d.machine.id,
-                                'machine_name': d.machine.name,
-                                'employee_helper': d.employee_helper,
-                                'employee_catcher': d.employee_catcher,
-                                'employee_operator': d.employee_operator,
-                                'note_machine': d.note,
-                                'work_plan_machine_id': d.work_plan_machine_id,
-                                'shift_id_machine': d.shift.id,
-                                'product_id': e.product.id,
-                                'product_code': e.product.code,
-                                'product_name': e.product.name,
-                                'product_alias': e.product.alias,
-                                'product_qty': e.qty,
-                                'unit_id': e.unit.id,
-                                'unit_name': e.unit.name,
-                                'note_product': e.note,
-                                'work_plan_product_id': e.work_plan_product_id,
-                            })
+                            d.products.forEach(e => {
+                                set_work_plan['workPlanProduct'].push({
+                                    id: e.work_plan_product_id,
+                                    work_plan_machine_id: d.work_plan_machine_id,
+                                    item_id_product: e.product.id,
+                                    qty: e.qty,
+                                    unit_id: e.unit.id,
+                                    // priority: e.priority,
+                                    note: e.note,
+                                })
+                                // products
+                                data_work_plan.push({
+                                    'id': a.id,
+                                    'date': a.date,
+                                    'note': a.note,
+                                    'work_plan_id': a.work_plan.work_plan_id,
+                                    'shift_id': b.shift.id,
+                                    'shift_name': b.shift.name,
+                                    'shift_end': b.shift.end,
+                                    'shift_start': b.shift.start,
+                                    'shift_group_id': b.shift.group_id,
+                                    'work_plan_shift_id': b.work_plan_shift_id,
+                                    'employee_qc': b.employee_qc,
+                                    'note_qc': b.note,
+                                    'machine_type_id': c.machine_type.id,
+                                    'machine_type_name': c.machine_type.name,
+                                    'employee_mechanic': c.employee_mechanic,
+                                    'note_mechanic': c.note,
+                                    'work_plan_machine_type_id': c.work_plan_machine_type_id,
+                                    'shift_id_mechanic': c.shift.id,
+                                    'machine_id': d.machine.id,
+                                    'machine_name': d.machine.name,
+                                    'employee_helper': d.employee_helper,
+                                    'employee_catcher': d.employee_catcher,
+                                    'employee_operator': d.employee_operator,
+                                    'note_machine': d.note,
+                                    'work_plan_machine_id': d.work_plan_machine_id,
+                                    'shift_id_machine': d.shift.id,
+                                    'product_id': e.product.id,
+                                    'product_code': e.product.code,
+                                    'product_name': e.product.name,
+                                    'product_alias': e.product.alias,
+                                    'product_qty': e.qty,
+                                    'unit_id': e.unit.id,
+                                    'unit_name': e.unit.name,
+                                    'note_product': e.note,
+                                    'work_plan_product_id': e.work_plan_product_id,
+                                })
+                            });
                         });
                     });
                 });
-            });
+            }
         });
         // data_work_plan = removeNullProduct(data_work_plan)
         if (jumlahLoad == 0) {
             data_work_plan_real = deepCopy(data_work_plan)
         }
-        console.log(data_work.workPlan)
+        // console.log(data_work_plan_real)
         jumlahLoad++
         groupingData()
     }
@@ -1645,10 +1689,9 @@
                     // loop date
                     for (let i = 0; i < dateList.length; i++) {
                         html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
-                        var data = data_work_plan_bar.filter((v, k) => {
+                        var data = data_work_plan_group.filter((v, k) => {
                             if (v.resource == e.id && v.start == dateList[i]) return true
                         })
-                        // console.log(data)
                         data.forEach(el => {
                             var dataDetail = removeNullProduct(data_work_plan.filter((v, k) => {
                                 if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
@@ -2768,12 +2811,10 @@
     function currentShiftMachine(date, machine_id, shift_id, shift_group_id) {
         var html = ''
         // detail dari shift tersebut, tapi masih bisa lihat shift yang lain
-        var dataPlanInADate = data_work_plan_bar.filter((v, k) => {
-            if (v.resource == machine_id && v.start == date) return true
+        var dataPlanInADate = data_work_plan.filter((v, k) => {
+            if (v.machine_id == machine_id && v.date == date) return true
         })
-        var currentShift = groupAndSum(dataPlanInADate, ['shift_id', 'nama_shift', 'shift_name', 'shift_group_id'], [])
-        // console.log(currentShift)
-        // console.log(machine_id)
+        var currentShift = groupAndSum(dataPlanInADate, ['shift_id', 'shift_name', 'shift_start', 'shift_end', 'shift_group_id'], [])
         currentShift.forEach(e => {
             var thisShift = ''
             if (shift_id == e.shift_id) {
@@ -2782,7 +2823,7 @@
             html += '<div class="col-auto p-1">'
             html += '<div class="card shadow-none ' + thisShift + '" style="cursor:pointer;" onclick="detailPerShift(event,' + "'" + date + "'" + ',' + machine_id + ', ' + e.shift_id + ',' + e.shift_group_id + ')">'
             html += '<div class="card-body p-2">'
-            html += '<p class="super-small-text m-0"><b>' + e.shift_name + '</b> ' + e.nama_shift + ' <i class="fa fa-comment text-grey ms-2" onclick="formAddNotes(event,' + "'shift'" + ",'" + date + "'" + ',' + e.shift_id + ',' + e.shift_group_id + ')"></i></p>'
+            html += '<p class="super-small-text m-0"><b>' + e.shift_name + '</b> ' + convertTimeFormat(e.shift_start) + ' - ' + convertTimeFormat(e.shift_end) + ' <i class="fa fa-comment text-grey ms-2" onclick="formAddNotes(event,' + "'shift'" + ",'" + date + "'" + ',' + e.shift_id + ',' + e.shift_group_id + ')"></i></p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -2793,7 +2834,7 @@
     function machineThisDay(date, machine_id, shift_id, shift_group_id) {
         var html = ''
         // data semua mesin di tanggal itu
-        var dataMachine = data_work_plan_bar.filter((v, k) => {
+        var dataMachine = data_work_plan_group.filter((v, k) => {
             if (v.start == date) return true
         })
         data_work.machineType.forEach(e => {
@@ -2809,9 +2850,6 @@
                     var dataFindMachine = dataMachineByType.find((v, k) => {
                         if (v.resource == el.id) return true
                     })
-                    var dataProdukString = data_work_plan_group.find((v, k) => {
-                        if (v.resource == el.id && v.start == date && v.machine_type_id == e.id) return true
-                    })
                     var thisMachine = ''
                     if (el.id == machine_id) {
                         thisMachine = 'clicked'
@@ -2821,17 +2859,8 @@
                     variableInput = 0
                     if (dataFindMachine != undefined) {
                         var unknown = ''
+                        var product = '<p class="m-0 super-small-text">' + dataFindMachine.produk + '</p>'
                         var variableInput = 1
-                    }
-                    if (dataProdukString != undefined) {
-                        var product = '<p class="m-0 super-small-text">' + dataProdukString.produk + '</p>'
-                        if (dataProdukString.produk == '') {
-                            var product = '<p class="m-0 super-small-text">No Product</p>'
-                        }
-                    } else {
-                        if (dataFindMachine != undefined) {
-                            var product = '<p class="m-0 super-small-text">No Product</p>'
-                        }
                     }
                     html += '<div class="row">'
                     html += '<div class="col-12">'
@@ -3126,9 +3155,6 @@
             if (position != 'edit_product') {
                 detailPerShift(event, date, machine_id, shift_id, group_shift_id)
             }
-            if (position == 'machine') {
-                $('#bodyPerShift').html('')
-            }
         }
     }
 
@@ -3354,8 +3380,8 @@
         set_work_plan.deletedId = delete_id
         var data = set_work_plan
         console.log(data)
-        // console.log(data_work_plan)
-        kelolaData(data, type, url, button)
+        console.log(data_work_plan)
+        // kelolaData(data, type, url, button)
     }
 
     function kelolaData(data, type, url, button) {

@@ -82,7 +82,7 @@ function job_spv_smd()
 {
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 7) {
+    if ($job_title_id == 7 || $job_title_id == 130) {
         return true;
     } else {
         return false;
@@ -92,7 +92,7 @@ function job_foreman()
 {
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 84 || $job_title_id == 87 || $job_title_id == 135) {
+    if ($job_title_id == 84 || $job_title_id == 87 || $job_title_id == 135 || $job_title_id == 129) {
         return true;
     } else {
         return false;

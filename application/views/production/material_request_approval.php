@@ -477,6 +477,10 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var job_title_id = '<?= $this->session->userdata('job_title_id') ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var id_material = '<?= $id ?>'
     var data_user = ""
     var data_material = ""
@@ -759,7 +763,7 @@
     }
 
     function fieldBtnApproval() {
-        if (job_title_id == 7) {
+        if (job_spv_smd) {
             var html = ''
             html += '<button type="button" class="btn btn-success" onclick="approvalForm()">Selesaikan Persetujuan</button>'
             $('#fieldBtnSelesaikan').html(html)

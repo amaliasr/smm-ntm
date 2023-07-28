@@ -965,7 +965,6 @@
             });
         });
         machine_group_plan_group = groupAndSum(machine_group_plan, ['group_plan_id', 'group_plan_name'], ['machine_id'])
-        // console.log(machine_group_plan)
         createDailyPlanning(dateStart, dateEnd)
     }
 
@@ -1075,6 +1074,7 @@
                         } else {
                             data = data_skt
                         }
+                        // console.log(data)
                         var obj = ""
                         if (data['productionPlanDetailGroup'] != undefined) {
                             obj = data['productionPlanDetailGroup'].find((value3, key3) => {
@@ -1087,7 +1087,9 @@
                             }
                         }
                         // if (jenis_produksi == 'skt') {
-                        // console.log(findGroupPlan)
+                        console.log(machine_group_plan.find((v, k) => {
+                            if (v.machine_group_plan_id == values.id) return true
+                        }))
                         var findGroupPlanItem = machine_group_plan.find((v, k) => {
                             if (v.machine_group_plan_id == values.id) return true
                         }).machine_group_plan_item.find((v, k) => {
