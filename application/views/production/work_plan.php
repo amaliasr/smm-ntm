@@ -800,8 +800,35 @@
         border: 1px solid #27374D !important;
     }
 
+    .btn-addnew-shift:hover,
+    .btn-addnew-shift .active {
+        background-color: #27374D !important;
+        color: white;
+        border: 1px solid #27374D !important;
+    }
+
+    .btn-choose-shift:hover {
+        color: #FD8D14 !important;
+    }
+
     textarea {
         resize: none;
+    }
+
+    .accordion-button::after {
+        background: none;
+        flex-shrink: none;
+        width: 0px;
+        height: 0px;
+        margin-left: none;
+    }
+
+    .accordion-button:not(.collapsed)::after {
+        background: none;
+        flex-shrink: none;
+        width: 0px;
+        height: 0px;
+        margin-left: none;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -1275,7 +1302,7 @@
     var set_work_plan = {}
     var data_work_plan_real = []
     var delete_id = {}
-    var data_work_plan_bar = []
+    var data_work_plan_bar = {}
 
     function reset() {
         data_work_plan = []
@@ -1285,7 +1312,15 @@
         data_work_plan_no_shift_machine
         management_manpower = []
         set_work_plan = {}
-        data_work_plan_bar = []
+        data_work_plan_bar = {}
+        set_work_plan['workPlan'] = []
+        set_work_plan['workPlanShift'] = []
+        set_work_plan['workPlanMachineType'] = []
+        set_work_plan['workPlanMachine'] = []
+        set_work_plan['workPlanProduct'] = []
+        data_work_plan_bar['shift'] = []
+        data_work_plan_bar['machineType'] = []
+        data_work_plan_bar['machine'] = []
     }
 
     function resetDelete() {
@@ -1436,14 +1471,14 @@
     }
 
     var jumlahLoad = 0
+    var variableOfShift = {}
 
     function arrangeVariable() {
         reset()
-        set_work_plan['workPlan'] = []
-        set_work_plan['workPlanShift'] = []
-        set_work_plan['workPlanMachineType'] = []
-        set_work_plan['workPlanMachine'] = []
-        set_work_plan['workPlanProduct'] = []
+        // ARRANGE SHIFT
+        data_work.shift[0].shift_list.forEach(e => {
+            variableOfShift[e.id] = "" + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time)
+        });
         var numIndex = 0
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
@@ -1469,6 +1504,17 @@
                     employee_id_qc: emqc,
                     note: b.note,
                 })
+                // buat bar work plan
+                data_work_plan_bar['shift'].push({
+                    'work_plan_id': a.work_plan.work_plan_id,
+                    'work_plan_shift_id': b.work_plan_shift_id,
+                    'shift_id': b.shift.id,
+                    'shift_name': b.shift.name,
+                    'nama_shift': "" + convertTimeFormat(b.shift.start) + " - " + convertTimeFormat(b.shift.end),
+                    'shift_group_id': b.shift.group_id,
+                    'start': a.date,
+                })
+                // buat bar work plan
                 b.shift_mechanic.forEach(c => {
                     // mechanic
                     var emmechanic = []
@@ -1484,6 +1530,18 @@
                         employee_id_mechanic: emmechanic,
                         note: c.note,
                     })
+                    // buat bar work plan
+                    data_work_plan_bar['machineType'].push({
+                        'work_plan_id': a.work_plan.work_plan_id,
+                        'machine_type_id': c.machine_type.id,
+                        'work_plan_machine_type_id': c.work_plan_machine_type_id,
+                        'shift_id': c.shift.id,
+                        'shift_name': c.shift.name,
+                        'nama_shift': "" + convertTimeFormat(c.shift.start) + " - " + convertTimeFormat(c.shift.end),
+                        'shift_group_id': c.shift.group_id,
+                        'start': a.date,
+                    })
+                    // buat bar work plan
                     c.shift_machine.forEach(d => {
                         // machine
                         var emoperator = []
@@ -1510,7 +1568,7 @@
                             note: d.note,
                         })
                         // buat bar work plan
-                        data_work_plan_bar.push({
+                        data_work_plan_bar['machine'].push({
                             'work_plan_id': a.work_plan.work_plan_id,
                             'machine_type_id': c.machine_type.id,
                             'work_plan_machine_id': d.work_plan_machine_id,
@@ -1546,12 +1604,15 @@
                                 'work_plan_shift_id': b.work_plan_shift_id,
                                 'employee_qc': b.employee_qc,
                                 'note_qc': b.note,
+                                'shift_id_qc': b.shift.id,
+                                'shift_group_id_qc': b.shift.group_id,
                                 'machine_type_id': c.machine_type.id,
                                 'machine_type_name': c.machine_type.name,
                                 'employee_mechanic': c.employee_mechanic,
                                 'note_mechanic': c.note,
                                 'work_plan_machine_type_id': c.work_plan_machine_type_id,
                                 'shift_id_mechanic': c.shift.id,
+                                'shift_group_id_mechanic': c.shift.group_id,
                                 'machine_id': d.machine.id,
                                 'machine_name': d.machine.name,
                                 'employee_helper': d.employee_helper,
@@ -1579,7 +1640,8 @@
         if (jumlahLoad == 0) {
             data_work_plan_real = deepCopy(data_work_plan)
         }
-        console.log(data_work.workPlan)
+        console.log(data_work)
+
         jumlahLoad++
         groupingData()
     }
@@ -1645,7 +1707,7 @@
                     // loop date
                     for (let i = 0; i < dateList.length; i++) {
                         html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
-                        var data = data_work_plan_bar.filter((v, k) => {
+                        var data = data_work_plan_bar.machine.filter((v, k) => {
                             if (v.resource == e.id && v.start == dateList[i]) return true
                         })
                         // console.log(data)
@@ -2027,23 +2089,45 @@
                     })
                     var availableData = checkAvailableDataWork('qc', date, v.group_id)
                     var unavailableData = ''
+                    var dataShift = data_work_plan_bar.shift.find((va, ke) => {
+                        if (va.start == date && va.shift_group_id == v.group_id) return true
+                    })
+                    var workPlanShiftId = null
+                    var shiftWorkPlanShift = null
                     if (availableData == 'tidak') {
                         unavailableData = showTextUnavailable()
+                        workPlanShiftId = dataShift.work_plan_shift_id
+                        shiftWorkPlanShift = dataShift.shift_id
                     }
                     html += '<div class="accordion-item" style="border: none;">'
                     html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
                     html += '<button class="accordion-button primary-date date-' + date + ' p-2 small-text shadow-none" type="button">'
-                    html += '<div class="row">'
-                    html += '<div class="col-1 align-self-center">'
+
+                    html += '<div class="row m-0 w-100 justify-content-between">'
+
+                    html += '<div class="col-11">'
+                    html += '<div class="row m-0 w-100">'
+                    html += '<div class="col-1 align-self-center text-center p-2">'
                     html += '<img class="w-100" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
                     html += '</div>'
                     html += '<div class="col align-self-center" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
-                    html += '<b>' + dataMachine.nama_shift + unavailableData + '</b>'
+                    html += '<p class="m-0">SHIFT</p>'
+                    html += '<b class="super-small-text">' + dataMachine.nama_shift + unavailableData + '</b>'
                     html += '</div>'
                     html += '<div class="col-auto text-end align-self-center pe-5">'
                     html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control</p>'
                     html += '</div>'
                     html += '</div>'
+                    html += '</div>'
+
+                    // button shift
+                    html += '<div class="col-1 align-self-center">'
+                    html += '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanShift + ',null,null,' + workPlanShiftId + ')"></i>'
+                    html += '</div>'
+                    // button shift
+
+                    html += '</div>'
+
                     html += '</button>'
                     html += '</h2>'
                     html += '<div id="panelShift' + k + '" class="accordion-collapse primary-date date-' + date + ' collapse show" aria-labelledby="headShift' + k + '">'
@@ -2053,6 +2137,7 @@
                         var masterMachine = data_work.machine.filter((va, ke) => {
                             if (value.id == va.machine_type_id) return true
                         })
+
                         var mekanikEmployee = manPowerFilter({
                             key: 'date',
                             value: date
@@ -2065,20 +2150,44 @@
                         })
                         var availableData = checkAvailableDataWork('mechanic', date, v.group_id, value.id)
                         var unavailableData = ''
+                        var findShift = ''
+                        var dataShift = data_work_plan_bar.machineType.find((va, ke) => {
+                            if (va.start == date && va.shift_group_id == v.group_id && va.machine_type_id == value.id) return true
+                        })
+                        var workPlanMachineTypeId = null
+                        var shiftWorkPlanMachineType = null
                         if (availableData == 'tidak') {
                             unavailableData = showTextUnavailable()
+                        } else {
+                            var findShift = variableOfShift[dataShift.shift_id]
+                            workPlanMachineTypeId = findShift.work_plan_machine_type_id
+                            shiftWorkPlanMachineType = dataShift.shift_id
                         }
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
-                        html += '<button class="accordion-button primary-machine-type machine-type-' + date + value.id + ' p-2 small-text shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">'
-                        html += '<div class="row w-100">'
-                        html += '<div class="col-8 align-self-center">'
-                        html += '<b>' + value.name + unavailableData + '</b>'
+                        html += '<button class="accordion-button primary-machine-type machine-type-' + date + value.id + ' p-2 small-text shadow-none" type="button">'
+
+                        html += '<div class="row m-0 w-100 justify-content-between">'
+
+                        html += '<div class="col-11">'
+                        html += '<div class="row m-0 w-100">'
+                        html += '<div class="col-8 align-self-center" data-bs-toggle="collapse" data-bs-target="#panelMachineType' + k + key + '" aria-expanded="true" aria-controls="panelMachineType' + k + key + '">'
+                        html += '<p class="m-0">' + value.name + '</p>'
+                        html += '<b class="super-small-text">' + findShift + unavailableData + '</b>'
                         html += '</div>'
                         html += '<div class="col-4 text-end align-self-center pe-5">'
                         html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
                         html += '</div>'
                         html += '</div>'
+                        html += '</div>'
+                        // button shift
+                        html += '<div class="col-1 align-self-center">'
+                        html += '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachineType + ',null,' + value.id + ',' + workPlanMachineTypeId + ')"></i>'
+                        html += '</div>'
+                        // button shift
+
+                        html += '</div>'
+
                         html += '</button>'
                         html += '</h2>'
                         html += '<div class="accordion-collapse primary-machine-type machine-type-' + date + value.id + ' collapse show">'
@@ -2088,9 +2197,10 @@
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
                         html += '<button class="accordion-button machine p-2 small-text shadow-none bg-grey" type="button"  style="cursor:default">'
+
                         html += '<div class="row w-100">'
                         html += '<div class="col align-self-center">'
-                        html += '<b>Sumary ' + value.name + '</b>'
+                        html += '<b>Summary ' + value.name + '</b>'
                         var totalCat = 0
                         var totalHel = 0
                         var totalOper = 0
@@ -2119,11 +2229,13 @@
                         html += '<p class="m-0 super-small-text">' + jumlahMachine + ' Machine Added</p>'
                         html += '</div>'
                         html += '<div class="col text-end align-self-center pe-5">'
-                        html += '<span class="badge bg-position-filled me-1" style="border:1px solid grey">' + totalCat + ' Cat</span>'
-                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">' + totalHel + ' Hel</span>'
-                        html += '<span class="badge bg-position me-1" style="border:1px solid grey">' + totalOper + ' Opr</span>'
+                        html += '<span class="me-2 text-dark-grey super-small-text">' + totalCat + ' Cather</span>'
+                        html += '<span class="me-2 text-dark-grey super-small-text">' + totalHel + ' Helper</span>'
+                        html += '<span class="me-2 text-dark-grey super-small-text">' + totalOper + ' Operator</span>'
                         html += '</div>'
                         html += '</div>'
+
+
                         html += '</button>'
                         html += '</h2>'
                         html += '<div id="panelMachineType' + k + key + '" class="accordion-collapse collapse show" aria-labelledby="headMachineType' + k + key + '">'
@@ -2145,15 +2257,31 @@
                             // console.log(executorEmployee)
                             var availableData = checkAvailableDataWork('machine', date, v.group_id, value.id, values.id)
                             var unavailableData = ''
+                            var findShift = ''
+                            var dataShift = data_work_plan_bar.machine.find((va, ke) => {
+                                if (va.start == date && va.shift_group_id == v.group_id && va.machine_type_id == value.id && va.resource == values.id) return true
+                            })
+                            var workPlanMachineId = null
+                            var shiftWorkPlanMachine = null
                             if (availableData == 'tidak') {
                                 unavailableData = showTextUnavailable()
+                            } else {
+                                var findShift = variableOfShift[dataShift.shift_id]
+                                workPlanMachineId = findShift.work_plan_machine_id
+                                shiftWorkPlanMachine = dataShift.shift_id
                             }
                             html += '<div class="accordion-item" style="border: none;">'
                             html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
                             html += '<button class="accordion-button primary-machine machine-' + date + value.id + values.id + ' machine p-2 small-text shadow-none" type="button">'
-                            html += '<div class="row w-100">'
+
+                            html += '<div class="row m-0 w-100 justify-content-between">'
+
+                            html += '<div class="col-11">'
+
+                            html += '<div class="row m-0 w-100">'
                             html += '<div class="col align-self-center" style="cursor:default">'
-                            html += values.name + unavailableData
+                            html += '<p class="m-0">' + values.name + '</p>'
+                            html += '<b class="super-small-text">' + findShift + unavailableData + '</b>'
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
 
@@ -2163,6 +2291,15 @@
 
                             html += '</div>'
                             html += '</div>'
+                            html += '</div>'
+                            // button shift
+                            html += '<div class="col-1 align-self-center">'
+                            html += '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachine + ',' + values.id + ',' + value.id + ',' + workPlanMachineId + ')"></i>'
+                            html += '</div>'
+                            // button shift
+
+                            html += '</div>'
+
                             html += '</button>'
                             html += '</h2>'
                             html += '<div class="accordion-collapse primary-machine machine-' + date + value.id + values.id + ' collapse show">'
@@ -2214,7 +2351,7 @@
     }
 
     function showTextUnavailable() {
-        return '<i class="text-grey ms-2"><span class="me-2 fa fa-warning text-warning"></span>Unavailable</i>'
+        return '<i class="text-grey"><span class="me-2 fa fa-warning text-warning"></span>Unavailable</i>'
     }
 
     function checkAvailableDataWork(key, date = null, group_shift_id = null, machine_type_id = null, machine_id = null) {
@@ -2613,6 +2750,7 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
+                console.log(date, group_shift_id, machine_type_id, machine_id, key, variable, 'manpower')
                 createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable, 'manpower')
             }
         })
@@ -2665,6 +2803,31 @@
         return template
     }
 
+    function editShift(date, machine_id, machine_type_id, shift_id, shift_group_id, work_id) {
+        $('#modal2').modal('hide')
+        var target = ''
+        if (machine_id == null && machine_type_id == null) {
+            target = 'shift'
+            var getData = searchDataAll(date, machine_id, machine_type_id, shift_id, shift_group_id, target)
+        } else if (machine_id == null && machine_type_id != null) {
+            target = 'machine_type'
+            var getData = searchDataAll(date, machine_id, machine_type_id, shift_id, shift_group_id, target)
+        } else {
+            target = 'machine'
+            var getData = searchDataAll(date, machine_id, machine_type_id, shift_id, shift_group_id, target)[0]
+        }
+        var dataShiftMaster = data_work.shift[0].shift_list.find((v, k) => {
+            if (v.id == shift_id) return true
+        })
+        getData.shift.id = dataShiftMaster.id
+        getData.shift.group_id = dataShiftMaster.group_id
+        getData.shift.name = dataShiftMaster.name
+        getData.shift.start = dataShiftMaster.start_time
+        getData.shift.end = dataShiftMaster.end_time
+        arrangeVariable()
+        listMoreDate(date, machine_type_id, machine_id)
+    }
+
     function createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable) {
         var data
         if (key == 'qc' || key == 'mechanic') {
@@ -2680,6 +2843,8 @@
             })
             data.machine['id'] = dataMachine.id
             data.machine['name'] = dataMachine.name
+            // tambahkan data shift
+            console.log(data)
             variable.push(data)
         }
         loadManPower(date, group_shift_id, machine_type_id, machine_id, key)
@@ -2744,7 +2909,7 @@
             detailPerShift(event, date, machine_id, shift_id, shift_group_id)
         } else {
             var machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
-            chooseMachineThisDay(0, date, machine_id, machine_type_id)
+            chooseMachineThisDay(0, date, machine_id, machine_type_id, shift_id, shift_group_id)
         }
     }
 
@@ -2768,7 +2933,7 @@
     function currentShiftMachine(date, machine_id, shift_id, shift_group_id) {
         var html = ''
         // detail dari shift tersebut, tapi masih bisa lihat shift yang lain
-        var dataPlanInADate = data_work_plan_bar.filter((v, k) => {
+        var dataPlanInADate = data_work_plan_bar.machine.filter((v, k) => {
             if (v.resource == machine_id && v.start == date) return true
         })
         var currentShift = groupAndSum(dataPlanInADate, ['shift_id', 'nama_shift', 'shift_name', 'shift_group_id'], [])
@@ -2793,7 +2958,7 @@
     function machineThisDay(date, machine_id, shift_id, shift_group_id) {
         var html = ''
         // data semua mesin di tanggal itu
-        var dataMachine = data_work_plan_bar.filter((v, k) => {
+        var dataMachine = data_work_plan_bar.machine.filter((v, k) => {
             if (v.start == date) return true
         })
         data_work.machineType.forEach(e => {
@@ -2835,7 +3000,7 @@
                     }
                     html += '<div class="row">'
                     html += '<div class="col-12">'
-                    html += '<div class="card shadow-none mb-2 ' + unknown + ' ' + thisMachine + ' btn-list-planning" onclick="chooseMachineThisDay(' + variableInput + ',' + "'" + date + "'" + ',' + el.id + ',' + e.id + ')">'
+                    html += '<div class="card shadow-none mb-2 ' + unknown + ' ' + thisMachine + ' btn-list-planning" onclick="chooseMachineThisDay(' + variableInput + ',' + "'" + date + "'" + ',' + el.id + ',' + e.id + ',' + shift_id + ',' + shift_group_id + ')">'
                     html += '<div class="card-body p-2">'
                     html += '<div class="row">'
                     html += '<div class="col-10 align-self-center">'
@@ -2870,7 +3035,7 @@
                 confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    chooseShift(date, machine_id, machine_type_id)
+                    chooseShift('create', date, shift_group_id, shift_id, machine_id, machine_type_id)
                 }
             })
         } else {
@@ -2886,7 +3051,7 @@
         var dataShift = data_work.shift[0].shift_list.find((v, k) => {
             if (v.id == shift_id) return true
         })
-        var positionOfTemplate = searchDataAll(date, machine_id, shift_id, shift_group_id, 'machine')
+        var positionOfTemplate = searchDataAll(date, machine_id, machine_type_id, shift_id, shift_group_id, 'machine')
         var template = arrangeDataTemplate('shift_machine')[0]
         template.machine.id = dataMachine.id
         template.machine.name = dataMachine.name
@@ -2900,7 +3065,8 @@
         insertDataAll(date, machine_id, shift_id, shift_group_id, positionOfTemplate, 'machine')
     }
 
-    function chooseShift(date, machine_id, machine_type_id) {
+    function chooseShift(action, date, shift_group_id, shift_id = null, machine_id = null, machine_type_id = null, work_id = null) {
+        console.log(action, date, shift_group_id, shift_id, machine_id, machine_type_id, work_id)
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
@@ -2911,14 +3077,24 @@
         html_body += '<div class="row">'
         var a = 1
         data_work.shift[0].shift_list.forEach(e => {
-            html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-production pointer" onclick="createNewMachine(' + "'" + date + "'" + ',' + machine_id + ',' + machine_type_id + ',' + e.id + ',' + e.group_id + ')">'
-            html_body += '<p class="m-0 small-text">' + e.name + '</p>'
-            html_body += '<p class="m-0"><b>' + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time) + '</b></p>'
-            html_body += '</div>'
-            if (a < data_work.shift[0].shift_list.length) {
-                html_body += '<div class="col-12"><hr class="m-0"></div>'
+            if (e.group_id == shift_group_id) {
+                if (action == 'create') {
+                    html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-shift pointer" onclick="createNewMachine(' + "'" + date + "'" + ',' + machine_id + ',' + machine_type_id + ',' + e.id + ',' + e.group_id + ')">'
+                } else if (action == 'edit') {
+                    var act = ''
+                    if (e.id == shift_id) {
+                        act = 'active'
+                    }
+                    html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-shift ' + act + ' pointer" onclick="editShift(' + "'" + date + "'" + ',' + machine_id + ',' + machine_type_id + ',' + e.id + ',' + e.group_id + ',' + work_id + ')">'
+                }
+                html_body += '<p class="m-0 small-text">' + e.name + '</p>'
+                html_body += '<p class="m-0"><b>' + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time) + '</b></p>'
+                html_body += '</div>'
+                if (a < data_work.shift[0].shift_list.length) {
+                    html_body += '<div class="col-12"><hr class="m-0"></div>'
+                }
+                a++
             }
-            a++
         });
         html_body += '</div>'
         $('#modalBody2').html(html_body).addClass('p-0');
@@ -3040,10 +3216,12 @@
         addDataProduction(date, machine_id, shift_id, group_shift_id, product_id)
     }
 
-    function searchDataAll(date, machine_id, shift_id, group_shift_id, target, product_id = null) {
-        // console.log(target)
-        // console.log(date, machine_id, shift_id, group_shift_id)
-        var machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
+    function searchDataAll(date, machine_id, machine_type_id = null, shift_id, group_shift_id, target, product_id = null) {
+        if (machine_type_id == null) {
+            machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
+        } else {
+            machine_type_id = machine_type_id
+        }
         var data = data_work.workPlan
         const foundDate = data.find(item => item.date == date);
         if (foundDate) {
@@ -3133,7 +3311,7 @@
     }
 
     function deleteDataProduction(date, machine_id, shift_id, group_shift_id, product_id, work_plan_product_id) {
-        var data = searchDataAll(date, machine_id, shift_id, group_shift_id).products
+        var data = searchDataAll(date, machine_id, null, shift_id, group_shift_id).products
         data = data.filter(p => p.work_plan_product_id != work_plan_product_id);
         deleteScene('workPlanProduct', work_plan_product_id)
         insertDataAll(date, machine_id, shift_id, group_shift_id, data)
@@ -3154,7 +3332,7 @@
             if (v.id == dataUnitId) return true
         })
         // console.log(dataItem)
-        var data = searchDataAll(date, machine_id, shift_id, group_shift_id).products
+        var data = searchDataAll(date, machine_id, null, shift_id, group_shift_id).products
         var work_plan_product_id = new Date().getTime()
         var template = deepCopy(data_work.workPlanManageDataTemplate.products[0])
         template.product.id = product_id
@@ -3181,14 +3359,14 @@
 
     function fillInputProduction(date, machine_id, shift_id, group_shift_id, product_id, work_plan_product_id, event) {
         const inputValue = event.target.value;
-        var data = searchDataAll(date, machine_id, shift_id, group_shift_id).products
+        var data = searchDataAll(date, machine_id, null, shift_id, group_shift_id).products
         var index = findIndexByWorkPlanProductId(data, work_plan_product_id)
         data[index].qty = inputValue
         insertDataAll(date, machine_id, shift_id, group_shift_id, data, 'edit_product')
     }
 
     function formAddNotes(event, target, date, shift_id = null, group_shift_id = null, machine_type_id = null, machine_id = null, product_id = null) {
-        var positionOfTemplate = searchDataAll(date, machine_id, shift_id, group_shift_id, target, product_id)
+        var positionOfTemplate = searchDataAll(date, machine_id, machine_type_id, shift_id, group_shift_id, target, product_id)
         if (positionOfTemplate.note == null) {
             positionOfTemplate.note = ''
         }
@@ -3210,7 +3388,7 @@
 
     function addNotes(event, target, date, shift_id, group_shift_id, machine_type_id, machine_id, product_id) {
         const inputValue = event.target.value;
-        var positionOfTemplate = searchDataAll(date, machine_id, shift_id, group_shift_id, target, product_id)
+        var positionOfTemplate = searchDataAll(date, machine_id, machine_type_id, shift_id, group_shift_id, target, product_id)
         positionOfTemplate.note = inputValue
         insertDataAll(date, machine_id, shift_id, group_shift_id, positionOfTemplate, target)
     }
@@ -3310,7 +3488,6 @@
         console.log(template)
     }
 
-
     // search multi
     $(document).on('keyup', '#search_nama', function(e) {
         searching()
@@ -3353,7 +3530,7 @@
         var url = '<?php echo api_produksi('setWorkPlan'); ?>'
         set_work_plan.deletedId = delete_id
         var data = set_work_plan
-        console.log(data)
+        // console.log(data)
         // console.log(data_work_plan)
         kelolaData(data, type, url, button)
     }
