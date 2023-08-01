@@ -598,11 +598,14 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12 pt-4 pb-2">
+                            <div class="col-10 pt-4 pb-2">
                                 <div class="form-group has-search">
                                     <span class="fa fa-search form-control-feedback"></span>
                                     <input type="text" class="form-control" placeholder="Search" id="search_nama">
                                 </div>
+                            </div>
+                            <div class="col-2 pt-4 pb-2 align-self-center">
+                                <button type="button" class="ps-3 pe-3 btn btn-outline-dark btn shadow-none" onclick="filterCanvas()"><i class="fa fa-filter"></i></button>
                             </div>
                         </div>
                         <div class="overflow-auto" style="height:500px;">
@@ -806,6 +809,39 @@
     var data_stats = ''
     var data_statistic = ''
 
+    function filterCanvas() {
+        $('.offcanvas').offcanvas('show')
+        var header = ''
+        header += '<h5 id="offcanvasRightLabel">Filter</h5>'
+        header += '<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>'
+        $('#canvasHeader').html(header)
+        var body = ''
+        body += '<div class="row">'
+        body += '<div class="col-12">'
+        body += '<b class="small">Tanggal Mulai</b>'
+        body += '<input class="form-control datepicker mb-3" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + dateStart + '" onchange="changeFilter()">'
+        body += '</div>'
+        body += '<div class="col-12">'
+        body += '<b class="small">Tanggal Akhir</b>'
+        body += '<input class="form-control datepicker mb-3" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + dateEnd + '" onchange="changeFilter()">'
+        body += '</div>'
+        body += '</div>'
+        $('#canvasBody').html(body)
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+            firstDay: 0,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    dateStart = formatDate(date1['dateInstance'])
+                    dateEnd = formatDate(date2['dateInstance'])
+                    getData()
+                });
+            },
+        })
+    }
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
@@ -977,7 +1013,11 @@
                             'material_alias': values3['material']['alias'],
                             'material_code': values3['material']['code'],
                             'unit_id': values3['unit']['id'],
+                            'unit_request_id': values3['unit_request']['id'],
+                            'unit_approve_id': values3['unit_approve']['id'],
                             'unit': values3['unit']['name'],
+                            'unit_request_name': values3['unit_request']['name'],
+                            'unit_approve_name': values3['unit_approve']['name'],
                             'unit_option': values3['unit_option'],
                             'qty': values3['qty_request'],
                             'qty_approve': values3['qty_approve'],
@@ -986,7 +1026,7 @@
                 })
             })
         })
-        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_alias', 'material_code', 'unit'], ['qty', 'qty_approve'])
+        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_alias', 'material_code', 'unit', 'unit_request_name', 'unit_approve_name'], ['qty', 'qty_approve'])
         data_isi_machine_group = groupAndSum(data_isi_material, ['machine_code', 'machine_id', 'material_request_machine_id'], ['qty', 'qty_approve'])
         formDetailMaterialRequest()
         if (id_materials != '') {
@@ -1120,7 +1160,12 @@
             } else {
                 html += '<td class="text-end">' + number_format(value.qty) + '</td>'
             }
-            html += '<td>' + value['unit'] + '</td>'
+            if (value.unit_approve_name == null || value.unit_request_name == value.unit_approve_name) {
+                html += '<td>' + value['unit'] + '</td>'
+            } else {
+                html += '<td class="text-end"><span>' + value.unit_approve_name + '</span><br><span class="text-decoration-line-through text-danger">' + value.unit_request_name + '<span></td>'
+
+            }
             html += '</tr>'
         })
         html += '</tbody>'
@@ -1800,7 +1845,6 @@
     }
 
     function insertCardMaterial(values, key, keys, material_request_machine_id) {
-        console.log(key, keys, material_request_machine_id)
         var dataInsert = {}
         var html = ''
         if (stok_by_id_berjalan[values.material_id] == undefined) {

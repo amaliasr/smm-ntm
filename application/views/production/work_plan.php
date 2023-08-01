@@ -684,6 +684,14 @@
         display: block;
     }
 
+    .avatar canvas {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* Memastikan gambar tetap terlihat utuh dalam lingkaran */
+        display: block;
+    }
+
     .plus-avatar {
         background-color: #27374D;
         width: 30px;
@@ -887,13 +895,13 @@
                     </button>
                 </div>
                 <div class="col-6 pe-0 ps-1">
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm w-100 h-100" style="text-align: left;">
+                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm w-100 h-100" style="text-align: left;" id="btnSimpan">
                         <div class="row">
                             <div class="col-auto p-0 pe-1 align-self-center">
                                 <i class="fa fa-save fa-1x"></i>
                             </div>
                             <div class="col-auto p-0 ps-1 align-self-center">
-                                <p class="m-0 super-small-test" id="btnSimpan">Save Only</p>
+                                <p class="m-0 super-small-test">Save Only</p>
                             </div>
                         </div>
                     </button>
@@ -971,6 +979,43 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
+<!-- AVATAR -->
+<script>
+    function getInitials(name) {
+        const nameArray = name.split(' ');
+        return nameArray.map(word => word[0].toUpperCase()).join('');
+    }
+
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function generateAvatar(initials, date, shift_id, machine_type_id, machine_id) {
+        // Create a new canvas element
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const fontSize = '10'
+        const size = '30'
+
+        // Draw background
+        context.fillStyle = '#000000';
+        context.fillRect(0, 0, size, size);
+
+        // Draw initials
+        context.fillStyle = '#ffffff';
+        context.font = `${fontSize}px Arial`;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(initials, size / 2, size / 2);
+
+        return canvas;
+    }
+</script>
 <script>
     function removeNullProduct(data) {
         var dataFiltered = data.filter((v, k) => {
@@ -981,30 +1026,57 @@
 
     function countEmployeesByParameters(data, groupId, machineType, machineId) {
         let totalCount = 0;
+        let listEmployee = []
 
-        function countEmployeeType(employeeArray) {
+        function countEmployeeType(employeeArray, position) {
             if (Array.isArray(employeeArray)) {
                 totalCount += employeeArray.length;
+                if (employeeArray.length > 0) {
+                    employeeArray.forEach(e => {
+                        var dataEmployee = data_work.manPower[position].find((v, k) => {
+                            if (e.id == v.id) return true
+                        })
+                        if (dataEmployee) {
+                            listEmployee.push({
+                                'full_name': dataEmployee.full_name,
+                                'photo': dataEmployee.photo,
+                            })
+                        }
+                    });
+                }
             }
         }
-
-        for (const item of data) {
-            if (
-                item.shift.group_id === groupId &&
-                item.shift_mechanic[0].machine_type.id === machineType &&
-                item.shift_mechanic[0].shift_machine.some((shiftMachine) => shiftMachine.machine.id === machineId)
-            ) {
-                countEmployeeType(item.employee_qc);
-                countEmployeeType(item.shift_mechanic[0].employee_helper);
-                countEmployeeType(item.shift_mechanic[0].employee_catcher);
-                countEmployeeType(item.shift_mechanic[0].employee_operator);
-                countEmployeeType(item.shift_mechanic[1].employee_helper);
-                countEmployeeType(item.shift_mechanic[1].employee_catcher);
-                countEmployeeType(item.shift_mechanic[1].employee_operator);
+        var dataShift = data.find((v, k) => {
+            if (v.shift.group_id == groupId) return true
+        })
+        if (dataShift) {
+            countEmployeeType(dataShift.employee_qc, 'qc');
+            var dataMachineType = dataShift.shift_mechanic.find((v, k) => {
+                if (v.machine_type.id == machineType) return true
+            })
+            if (dataMachineType) {
+                countEmployeeType(dataMachineType.employee_mechanic, 'mechanic');
+                var dataMachine = dataMachineType.shift_machine.find((v, k) => {
+                    if (v.machine.id == machineId) return true
+                })
+                if (dataMachine) {
+                    countEmployeeType(dataMachine.employee_catcher, 'catcher');
+                    countEmployeeType(dataMachine.employee_helper, 'helper');
+                    countEmployeeType(dataMachine.employee_operator, 'operator');
+                }
             }
         }
+        var returnData = {
+            'totalCount': totalCount,
+            'listEmployee': listEmployee,
+        }
+        return returnData;
+    }
 
-        return totalCount;
+    function findDataByIdFromArrayObject(input, data) {
+        const idSet = new Set(input.map(id => parseInt(id))); // Mengonversi input menjadi set bilangan
+        const foundData = data.filter(item => idSet.has(item.id));
+        return foundData;
     }
 
     function deepCopy(obj) {
@@ -1497,13 +1569,15 @@
                 if (b.employee_qc.length > 0) {
                     emqc = b.employee_qc.map(employee => employee.id)
                 }
-                set_work_plan['workPlanShift'].push({
-                    id: b.work_plan_shift_id,
-                    work_plan_id: a.work_plan.work_plan_id,
-                    shift_id: b.shift.id,
-                    employee_id_qc: emqc,
-                    note: b.note,
-                })
+                if (b.work_plan_shift_id != null) {
+                    set_work_plan['workPlanShift'].push({
+                        id: b.work_plan_shift_id,
+                        work_plan_id: a.work_plan.work_plan_id,
+                        shift_id: b.shift.id,
+                        employee_id_qc: emqc,
+                        note: b.note,
+                    })
+                }
                 // buat bar work plan
                 data_work_plan_bar['shift'].push({
                     'work_plan_id': a.work_plan.work_plan_id,
@@ -1521,15 +1595,17 @@
                     if (c.employee_mechanic.length > 0) {
                         emmechanic = c.employee_mechanic.map(employee => employee.id)
                     }
-                    set_work_plan['workPlanMachineType'].push({
-                        id: c.work_plan_machine_type_id,
-                        work_plan_shift_id: b.work_plan_shift_id,
-                        work_plan_id: a.work_plan.work_plan_id,
-                        shift_id: c.shift.id,
-                        machine_type_id: c.machine_type.id,
-                        employee_id_mechanic: emmechanic,
-                        note: c.note,
-                    })
+                    if (c.work_plan_machine_type_id != null) {
+                        set_work_plan['workPlanMachineType'].push({
+                            id: c.work_plan_machine_type_id,
+                            work_plan_shift_id: b.work_plan_shift_id,
+                            work_plan_id: a.work_plan.work_plan_id,
+                            shift_id: c.shift.id,
+                            machine_type_id: c.machine_type.id,
+                            employee_id_mechanic: emmechanic,
+                            note: c.note,
+                        })
+                    }
                     // buat bar work plan
                     data_work_plan_bar['machineType'].push({
                         'work_plan_id': a.work_plan.work_plan_id,
@@ -1556,17 +1632,19 @@
                         if (d.employee_catcher.length > 0) {
                             emcatcher = d.employee_catcher.map(employee => employee.id)
                         }
-                        set_work_plan['workPlanMachine'].push({
-                            id: d.work_plan_machine_id,
-                            work_plan_machine_type_id: c.work_plan_machine_type_id,
-                            work_plan_id: a.work_plan.work_plan_id,
-                            shift_id: d.shift.id,
-                            machine_id: d.machine.id,
-                            employee_id_operator: emoperator,
-                            employee_id_helper: emhelper,
-                            employee_id_catcher: emcatcher,
-                            note: d.note,
-                        })
+                        if (d.work_plan_machine_id != null) {
+                            set_work_plan['workPlanMachine'].push({
+                                id: d.work_plan_machine_id,
+                                work_plan_machine_type_id: c.work_plan_machine_type_id,
+                                work_plan_id: a.work_plan.work_plan_id,
+                                shift_id: d.shift.id,
+                                machine_id: d.machine.id,
+                                employee_id_operator: emoperator,
+                                employee_id_helper: emhelper,
+                                employee_id_catcher: emcatcher,
+                                note: d.note,
+                            })
+                        }
                         // buat bar work plan
                         data_work_plan_bar['machine'].push({
                             'work_plan_id': a.work_plan.work_plan_id,
@@ -1581,15 +1659,17 @@
                         })
                         // buat bar work plan
                         d.products.forEach(e => {
-                            set_work_plan['workPlanProduct'].push({
-                                id: e.work_plan_product_id,
-                                work_plan_machine_id: d.work_plan_machine_id,
-                                item_id_product: e.product.id,
-                                qty: e.qty,
-                                unit_id: e.unit.id,
-                                // priority: e.priority,
-                                note: e.note,
-                            })
+                            if (e.work_plan_product_id != null) {
+                                set_work_plan['workPlanProduct'].push({
+                                    id: e.work_plan_product_id,
+                                    work_plan_machine_id: d.work_plan_machine_id,
+                                    item_id_product: e.product.id,
+                                    qty: e.qty,
+                                    unit_id: e.unit.id,
+                                    // priority: e.priority,
+                                    note: e.note,
+                                })
+                            }
                             // products
                             data_work_plan.push({
                                 'id': a.id,
@@ -1640,8 +1720,6 @@
         if (jumlahLoad == 0) {
             data_work_plan_real = deepCopy(data_work_plan)
         }
-        console.log(data_work)
-
         jumlahLoad++
         groupingData()
     }
@@ -1735,7 +1813,8 @@
                             var dataMaster = data_work.workPlan.find((v, k) => {
                                 if (v.work_plan.work_plan_id == el.work_plan_id) return true
                             }).work_plan.shift_qc
-                            var jumlahPerson = countEmployeesByParameters(dataMaster, el.shift_group_id, d.id, e.id)
+                            var jumlahPerson = countEmployeesByParameters(dataMaster, el.shift_group_id, d.id, e.id).totalCount
+                            var listPerson = countEmployeesByParameters(dataMaster, el.shift_group_id, d.id, e.id).listEmployee
                             // list person max 3
                             if (el.work_plan_id != '') {
                                 var jumlahAva = jumlahPerson
@@ -1744,7 +1823,11 @@
                                 }
                                 for (let i = 0; i < jumlahAva; i++) {
                                     html += '<span class="avatar">'
-                                    html += '<img src="https://picsum.photos/70">'
+                                    if (listPerson[i].photo) {
+                                        html += '<img src="https://assets-hr.s3.ap-southeast-3.amazonaws.com/employee/photo/' + listPerson[i].photo + '">'
+                                    } else {
+                                        html += generateAvatar(getInitials(listPerson[i].full_name), dateList[i], el.shift_id, d.id, e.id)
+                                    }
                                     html += '</span>'
                                 }
                                 // list person max 3
@@ -2009,7 +2092,7 @@
             html += '<div class="col-10 align-self-center">'
             html += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
 
-            html += '<p class="m-0 super-small-text">' + countEmployeePositions(date) + ' Position Added</p>'
+            html += '<p class="m-0 super-small-text">' + countEmployeePositions(dateList[i]) + ' Position Added</p>'
             html += '</div>'
             if (dateList[i] == date) {
                 html += '<div class="col-2 align-self-center">'
@@ -2739,8 +2822,10 @@
         listManPower(key, date, group_shift_id, machine_type_id, machine_id)
         listMoreDate(date, machine_type_id, machine_id)
     }
+    var variableAdd
 
     function unavailablePosition(date, group_shift_id, machine_type_id, machine_id, key, variable) {
+        variableAdd = variable
         Swal.fire({
             text: 'Gagal memilih employee, data ' + key + ' tidak tersedia. Apakah langsung generate data pada Mesin tersebut?',
             icon: 'warning',
@@ -2750,8 +2835,8 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                console.log(date, group_shift_id, machine_type_id, machine_id, key, variable, 'manpower')
-                createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable, 'manpower')
+                // createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable, 'manpower')
+                chooseShift('add_machine', date, group_shift_id, null, machine_id, machine_type_id, null, key)
             }
         })
     }
@@ -2828,25 +2913,47 @@
         listMoreDate(date, machine_type_id, machine_id)
     }
 
-    function createNewVariableManPower(date, group_shift_id, machine_type_id, machine_id, key, variable) {
+    function createNewVariableManPower(date, group_shift_id, shift_id, machine_type_id, machine_id, key, variable = null) {
+        $('#modal2').modal('hide')
         var data
-        if (key == 'qc' || key == 'mechanic') {
-            data = arrangeDataTemplate('shift_' + key)[0]
-            variable.push(data)
+        var dataShiftMaster = data_work.shift[0].shift_list.find((v, k) => {
+            if (v.id == shift_id) return true
+        })
+        if (key == 'mechanic') {
+            data = deepCopy(arrangeDataTemplate('shift_' + key)[0])
+            var dataMachineType = data_work.machineType.find((v, k) => {
+                if (v.id == machine_type_id) return true
+            })
+            data.machine_type['id'] = dataMachineType.id
+            data.machine_type['name'] = dataMachineType.name
+            data.shift.id = dataShiftMaster.id
+            data.shift.name = dataShiftMaster.name
+            data.shift.start = dataShiftMaster.start_time
+            data.shift.end = dataShiftMaster.end_time
+            data.shift.group_id = dataShiftMaster.group_id
+            data.shift_machine = []
+            data.work_plan_machine_type_id = new Date().getTime()
+            variableAdd.push(data)
             // eval('variable.employee_' + key).push(data)
         } else if (key == 'products') {
-            data = arrangeDataTemplate('products')
+            data = deepCopy(arrangeDataTemplate('products'))
         } else {
-            data = arrangeDataTemplate('shift_machine')[0]
+            data = deepCopy(arrangeDataTemplate('shift_machine')[0])
             var dataMachine = data_work.machine.find((v, k) => {
                 if (v.id == machine_id) return true
             })
             data.machine['id'] = dataMachine.id
             data.machine['name'] = dataMachine.name
+            data.shift.id = dataShiftMaster.id
+            data.shift.name = dataShiftMaster.name
+            data.shift.start = dataShiftMaster.start_time
+            data.shift.end = dataShiftMaster.end_time
+            data.shift.group_id = dataShiftMaster.group_id
+            data.work_plan_machine_id = new Date().getTime()
             // tambahkan data shift
-            console.log(data)
-            variable.push(data)
+            variableAdd.push(data)
         }
+        console.log(variableAdd)
         loadManPower(date, group_shift_id, machine_type_id, machine_id, key)
     }
 
@@ -3045,6 +3152,7 @@
     }
 
     function createNewMachine(date, machine_id, machine_type_id, shift_id, shift_group_id) {
+        $('#modal2').modal('hide')
         var dataMachine = data_work.machine.find((v, k) => {
             if (v.id == machine_id) return true
         })
@@ -3060,13 +3168,13 @@
         template.shift.start = dataShift.start_time
         template.shift.name = dataShift.name
         template.shift.group_id = dataShift.group_id
+        template.work_plan_machine_id = new Date().getTime()
         positionOfTemplate.push(template)
-        $('#modal2').modal('hide')
         insertDataAll(date, machine_id, shift_id, shift_group_id, positionOfTemplate, 'machine')
     }
 
-    function chooseShift(action, date, shift_group_id, shift_id = null, machine_id = null, machine_type_id = null, work_id = null) {
-        console.log(action, date, shift_group_id, shift_id, machine_id, machine_type_id, work_id)
+    function chooseShift(action, date, shift_group_id, shift_id = null, machine_id = null, machine_type_id = null, work_id = null, key = null) {
+        console.log(action, date, shift_group_id, shift_id, machine_id, machine_type_id, work_id, key)
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
@@ -3086,6 +3194,8 @@
                         act = 'active'
                     }
                     html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-shift ' + act + ' pointer" onclick="editShift(' + "'" + date + "'" + ',' + machine_id + ',' + machine_type_id + ',' + e.id + ',' + e.group_id + ',' + work_id + ')">'
+                } else if (action == 'add_machine') {
+                    html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-shift ' + act + ' pointer" onclick="createNewVariableManPower(' + "'" + date + "'" + ',' + e.group_id + ',' + e.id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + key + "'" + ',' + "'manpower'" + ')">'
                 }
                 html_body += '<p class="m-0 small-text">' + e.name + '</p>'
                 html_body += '<p class="m-0"><b>' + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time) + '</b></p>'
@@ -3216,7 +3326,7 @@
         addDataProduction(date, machine_id, shift_id, group_shift_id, product_id)
     }
 
-    function searchDataAll(date, machine_id, machine_type_id = null, shift_id, group_shift_id, target, product_id = null) {
+    function searchDataAll(date, machine_id = null, machine_type_id = null, shift_id = null, group_shift_id = null, target, product_id = null) {
         if (machine_type_id == null) {
             machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
         } else {
@@ -3482,10 +3592,59 @@
         var machineTypeId = $(".checkMachineFromCreateShift:checked").map(function() {
             return $(this).data('machine_type_id');
         }).get();
-        var template = arrangeDataTemplate('shift_qc')
-        console.log(machineId)
-        console.log(machineTypeId)
-        console.log(template)
+        var dataShiftMaster = data_work.shift[0].shift_list.find((v, k) => {
+            if (v.id == shift_id) return true
+        })
+        const machineTypeIdGroup = Array.from(new Set(machineTypeId));
+        var template = deepCopy(arrangeDataTemplateReal('shift_qc'))
+        var positionOfTemplate = searchDataAll(date, null, null, null, null, 'date')
+        template.shift.id = dataShiftMaster.id
+        template.shift.group_id = dataShiftMaster.group_id
+        template.shift.name = dataShiftMaster.name
+        template.shift.start = dataShiftMaster.start_time
+        template.shift.end = dataShiftMaster.end_time
+        template.work_plan_shift_id = new Date().getTime()
+        // MECHANIC
+        template.shift_mechanic = []
+        var dataMachineType = findDataByIdFromArrayObject(machineTypeIdGroup, data_work.machineType)
+        var a = 0
+        dataMachineType.forEach(e => {
+            var templateMachineType = deepCopy(arrangeDataTemplateReal('shift_mechanic'))
+            templateMachineType.machine_type.id = e.id
+            templateMachineType.machine_type.name = e.name
+            templateMachineType.shift.id = dataShiftMaster.id
+            templateMachineType.shift.group_id = dataShiftMaster.group_id
+            templateMachineType.shift.name = dataShiftMaster.name
+            templateMachineType.shift.start = dataShiftMaster.start_time
+            templateMachineType.shift.end = dataShiftMaster.end_time
+            templateMachineType.work_plan_machine_type_id = new Date().getTime() + '' + a
+            // MACHINE
+            templateMachineType.shift_machine = []
+            var dataMachine = findDataByIdFromArrayObject(machineId, data_work.machine)
+            var b = 0
+            dataMachine.forEach(el => {
+                if (e.id == el.machine_type_id) {
+                    var templateMachine = deepCopy(arrangeDataTemplateReal('shift_machine'))
+                    templateMachine.machine.id = el.id
+                    templateMachine.machine.name = el.name
+                    templateMachine.shift.id = dataShiftMaster.id
+                    templateMachine.shift.group_id = dataShiftMaster.group_id
+                    templateMachine.shift.name = dataShiftMaster.name
+                    templateMachine.shift.start = dataShiftMaster.start_time
+                    templateMachine.shift.end = dataShiftMaster.end_time
+                    templateMachine.work_plan_machine_id = new Date().getTime() + '' + a + '' + b
+                    templateMachine.products = []
+                    templateMachine.products.push(deepCopy(arrangeDataTemplateReal('products')))
+                    templateMachineType.shift_machine.push(templateMachine)
+                    b++
+                }
+            });
+            template.shift_mechanic.push(templateMachineType)
+            a++
+        });
+        positionOfTemplate.work_plan.shift_qc.push(template)
+        arrangeVariable()
+        listMoreDate(date)
     }
 
     // search multi
@@ -3531,7 +3690,6 @@
         set_work_plan.deletedId = delete_id
         var data = set_work_plan
         // console.log(data)
-        // console.log(data_work_plan)
         kelolaData(data, type, url, button)
     }
 
@@ -3552,6 +3710,7 @@
                 $(button).prop("disabled", true);
             },
             success: function(response) {
+                $(button).prop("disabled", false);
                 $('#modal').modal('hide')
                 loadDataPlanning(plan_id)
             }
