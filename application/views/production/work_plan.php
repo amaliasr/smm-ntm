@@ -747,8 +747,7 @@
 
     .bg-no-workplan {
         background-color: white;
-        border-width: 2px;
-        border-color: #65647C;
+        border: 2px dashed #65647C;
     }
 
     .manPower:active,
@@ -921,7 +920,7 @@
                 <div class="col-12 pt-3">
                     <div class="h-100">
                         <div class="table-responsive" id="table-product-trend-wrapper">
-                            <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
+                            <table class="table table-hover table-bordered" style="width: 100%;white-space:nowrap;">
                                 <thead>
                                     <tr id="date_list">
                                     </tr>
@@ -1419,6 +1418,7 @@
     }
 
     var data_work
+    var convertedToWorkPlan = 'no'
 
     function getData(data, url, id) {
         $.ajax({
@@ -1448,6 +1448,7 @@
                     convertToWorkPlan()
                 } else {
                     // jika sudah ada workplan
+                    convertedToWorkPlan = 'yes'
                     arrangeVariable()
                 }
             }
@@ -1721,6 +1722,7 @@
             data_work_plan_real = deepCopy(data_work_plan)
         }
         jumlahLoad++
+        // console.log(data_work_plan_bar)
         groupingData()
     }
 
@@ -1795,7 +1797,11 @@
                             }))
                             var bg = 'bg-no-workplan'
                             if (el.work_plan_id != '') {
-                                bg = 'bg-shift-' + el.shift_id
+                                if (convertedToWorkPlan == 'yes') {
+                                    bg = 'bg-shift-' + el.shift_id
+                                } else {
+                                    bg = 'bg-no-workplan'
+                                }
                             }
                             html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ',' + el.shift_group_id + ')">'
                             html += '<div class="card-body p-2 ">'
@@ -1997,7 +2003,7 @@
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
         html_body += '<p class="super-small-text m-0 mb-4"><b>More Date</b></p>'
-        html_body += '<div id="listMoreDate" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        html_body += '<div id="listMoreDate" class="pe-2" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
 
         html_body += '</div>'
         html_body += '</div>'
@@ -2088,20 +2094,27 @@
         var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         var html = ''
         for (let i = 0; i < dateList.length; i++) {
+            var arrow = ''
+            var textColor = ''
+            if (dateList[i] == date) {
+                arrow += '<div class="col-2 align-self-center">'
+                arrow += '<i class="fa fa-chevron-right"></i>'
+                arrow += '</div>'
+                textColor = 'text-primary'
+            }
             html += '<div class="row cursor-klik" onclick="listMoreDate(' + "'" + dateList[i] + "'" + ')">'
             html += '<div class="col-10 align-self-center">'
-            html += '<p class="m-0 small"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
+            html += '<p class="m-0 small-text ' + textColor + '"><b>' + formatDateIndonesia(dateList[i]) + '</b></p>'
 
-            html += '<p class="m-0 super-small-text">' + countEmployeePositions(dateList[i]) + ' Position Added</p>'
+            html += '<p class="m-0 super-small-text ' + textColor + '">' + countEmployeePositions(dateList[i]) + ' Position Added</p>'
             html += '</div>'
-            if (dateList[i] == date) {
-                html += '<div class="col-2 align-self-center">'
-                html += '<i class="fa fa-chevron-right"></i>'
+            html += arrow
+
+            if (i < parseInt(dateList.length) - 1) {
+                html += '<div class="col-12">'
+                html += '<hr>'
                 html += '</div>'
             }
-            html += '<div class="col-12">'
-            html += '<hr>'
-            html += '</div>'
             html += '</div>'
         }
         $('#listMoreDate').html(html);
@@ -2142,11 +2155,13 @@
 
     function bodyManPower(date, machine_type_id = null, machine_id = null) {
         if (date != null) {
-            var dataMachine = data_work_plan_group.filter((v, k) => {
+            var dataFilteredPlanGroup = data_work_plan_group.filter((v, k) => {
                 if (v.start == date) return true
             })
-            var currentShift = groupAndSum(data_work_plan_group, ['shift_id', 'nama_shift', 'shift_group_id'], [])
-            var currentShiftId = groupAndSum(data_work_plan_group, ['shift_id'], [])
+            // console.log(dataFilteredPlanGroup)
+            var currentShift = groupAndSum(dataFilteredPlanGroup, ['shift_id', 'nama_shift', 'shift_group_id'], [])
+            console.log(currentShift)
+            var currentShiftId = groupAndSum(dataFilteredPlanGroup, ['shift_id'], [])
             var missingGroup = findMissingGroups(currentShiftId, data_work.shift[0].shift_group)
             var html = ''
             html += '<h4 class="m-0"><b>' + formatDateIndonesia(date) + '</b></h4>'
@@ -2175,13 +2190,21 @@
                     var dataShift = data_work_plan_bar.shift.find((va, ke) => {
                         if (va.start == date && va.shift_group_id == v.group_id) return true
                     })
+                    // console.log(v.group_id)
                     var workPlanShiftId = null
                     var shiftWorkPlanShift = null
+                    var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanShift + ',null,null,' + workPlanShiftId + ')"></i>'
                     if (availableData == 'tidak') {
                         unavailableData = showTextUnavailable()
                         workPlanShiftId = dataShift.work_plan_shift_id
                         shiftWorkPlanShift = dataShift.shift_id
+                        changeShiftBtn = ''
                     }
+                    var warnEmpty = ''
+                    if (qcEmployee['qc'].total == 0) {
+                        warnEmpty = '<span class="ms-1 fa fa-warning text-warning"></span>'
+                    }
+
                     html += '<div class="accordion-item" style="border: none;">'
                     html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
                     html += '<button class="accordion-button primary-date date-' + date + ' p-2 small-text shadow-none" type="button">'
@@ -2198,14 +2221,14 @@
                     html += '<b class="super-small-text">' + dataMachine.nama_shift + unavailableData + '</b>'
                     html += '</div>'
                     html += '<div class="col-auto text-end align-self-center pe-5">'
-                    html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control</p>'
+                    html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control ' + warnEmpty + '</p>'
                     html += '</div>'
                     html += '</div>'
                     html += '</div>'
 
                     // button shift
                     html += '<div class="col-1 align-self-center">'
-                    html += '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanShift + ',null,null,' + workPlanShiftId + ')"></i>'
+                    html += changeShiftBtn
                     html += '</div>'
                     // button shift
 
@@ -2239,12 +2262,18 @@
                         })
                         var workPlanMachineTypeId = null
                         var shiftWorkPlanMachineType = null
+                        var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachineType + ',null,' + value.id + ',' + workPlanMachineTypeId + ')"></i>'
                         if (availableData == 'tidak') {
                             unavailableData = showTextUnavailable()
+                            changeShiftBtn = ''
                         } else {
                             var findShift = variableOfShift[dataShift.shift_id]
                             workPlanMachineTypeId = findShift.work_plan_machine_type_id
                             shiftWorkPlanMachineType = dataShift.shift_id
+                        }
+                        var warnEmpty = ''
+                        if (mekanikEmployee['mechanic'].total == 0) {
+                            warnEmpty = '<span class="ms-1 fa fa-warning text-warning"></span>'
                         }
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
@@ -2259,13 +2288,13 @@
                         html += '<b class="super-small-text">' + findShift + unavailableData + '</b>'
                         html += '</div>'
                         html += '<div class="col-4 text-end align-self-center pe-5">'
-                        html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik</p>'
+                        html += '<p class="m-0 fw-bold text-primary"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik ' + warnEmpty + '</p>'
                         html += '</div>'
                         html += '</div>'
                         html += '</div>'
                         // button shift
                         html += '<div class="col-1 align-self-center">'
-                        html += '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachineType + ',null,' + value.id + ',' + workPlanMachineTypeId + ')"></i>'
+                        html += changeShiftBtn
                         html += '</div>'
                         // button shift
 
@@ -2346,8 +2375,10 @@
                             })
                             var workPlanMachineId = null
                             var shiftWorkPlanMachine = null
+                            var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachine + ',' + values.id + ',' + value.id + ',' + workPlanMachineId + ')"></i>'
                             if (availableData == 'tidak') {
                                 unavailableData = showTextUnavailable()
+                                changeShiftBtn = ''
                             } else {
                                 var findShift = variableOfShift[dataShift.shift_id]
                                 workPlanMachineId = findShift.work_plan_machine_id
@@ -2377,7 +2408,7 @@
                             html += '</div>'
                             // button shift
                             html += '<div class="col-1 align-self-center">'
-                            html += '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachine + ',' + values.id + ',' + value.id + ',' + workPlanMachineId + ')"></i>'
+                            html += changeShiftBtn
                             html += '</div>'
                             // button shift
 
@@ -3586,6 +3617,7 @@
     }
 
     function createNewDataShift(date, shift_id, shift_group_id) {
+        $('#modal2').modal('hide')
         var machineId = $(".checkMachineFromCreateShift:checked").map(function() {
             return $(this).val();
         }).get();

@@ -158,54 +158,107 @@
         </table>
         <!-- MAKER -->
         <?php
-        foreach ($datas->machineMaterialHeader as $k => $v) { ?>
-            <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
-                <tr style="text-align: center">
-                    <th class="th_main" style="width: 15%;">ID MATERIAL</th>
-                    <th class="th_main" style="width:35%">NAMA BAHAN</th>
-                    <th class="th_main" style="width: 15%;">SATUAN</th>
-                    <?php
-                    $sub_type_id = 0;
-                    foreach ($v as $value) {
-                        if ($value->detail != null) {
-                            $sub_type_id = $value->detail->sub_type_id;
-                    ?>
-                            <th class="th_main"><?= $value->label ?></th>
-                    <?php }
-                    } ?>
-                </tr>
-                <?php foreach ($datas->machineSubtypeMaterial as $materials) {
-                    if ($materials->machine_sub_type == $sub_type_id) {
-                        foreach ($materials->material as $item) {
-                ?>
-                            <tr>
-                                <td class="td_main" style="text-align: center;"><?= $item->code ?></td>
-                                <td class="td_main">
-                                    <p style="font-size: 8px;color:#434242;margin:0px;"><?= $item->alias ?></p>
-                                    <?= $item->name ?>
-                                </td>
-                                <td class="td_main" style="text-align:center;"><?= $item->unit->name ?></td>
-                                <?php foreach ($v as $value) {
-                                    if ($value->detail != null) { ?>
-                                        <td class="td_main" style="text-align:right;">
-                                            <?php foreach ($datas->materialRequestItem[0]->material[0] as $value2) {
-                                                if ($value2->material->id == $item->id) { ?>
-                                                    <?= number_format($value2->qty_request, 2, ',', '.') ?>
-                                            <?php }
-                                            } ?>
-                                        </td>
-                                <?php
+        foreach ($datas->machineMaterialHeader as $k => $v) {
+            $ready = '';
+            // cek ketersediaan
+            foreach ($v as $value) {
+                if ($value->detail != null) {
+                    $machine_id = $value->detail->machine->id;
+                    foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
+                        foreach ($value2->machine_sub_type as $key3 => $value3) {
+                            foreach ($value3->detail as $key4 => $value4) {
+                                if ($machine_id == $value4->machine->id) {
+                                    if (count($value4->machine->material) > 0) {
+                                        $ready = 'yes';
                                     }
-                                } ?>
-                            </tr>
-                <?php }
+                                }
+                            }
+                        }
                     }
-                } ?>
-            </table>
-        <?php } ?>
+                }
+            }
+            if ($ready) {
+        ?>
+                <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
+                    <tr style="text-align: center">
+                        <th class="th_main" style="width: 15%;">ID MATERIAL</th>
+                        <th class="th_main" style="width:35%">NAMA BAHAN</th>
+                        <th class="th_main" style="width: 15%;">SATUAN</th>
+                        <?php
+                        $machine_id = 0;
+                        $sub_type_id = 0;
+                        foreach ($v as $value) {
+                            if ($value->detail != null) {
+                                $machine_id = $value->detail->machine->id;
+                                $sub_type_id = $value->detail->sub_type_id;
+                        ?>
+                                <th class="th_main"><?= $value->label ?></th>
+                        <?php
+                            }
+                        }
+                        ?>
+                    </tr>
+                    <?php
+                    foreach ($datas->machineSubtypeMaterial as $materials) {
+                        if ($materials->machine_sub_type == $sub_type_id) {
+                            foreach ($materials->material as $item) {
+                                // find item
+                                $found = '';
+                                foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
+                                    foreach ($value2->machine_sub_type as $key3 => $value3) {
+                                        foreach ($value3->detail as $key4 => $value4) {
+                                            foreach ($value4->machine->material as $key5 => $value5) {
+                                                if ($item->id == $value5->material->id) {
+                                                    $found = 'yes';
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                // find item
+                                if ($found) {
+                    ?>
+                                    <tr>
+                                        <td class="td_main" style="text-align: center;"><?= $item->code ?></td>
+                                        <td class="td_main">
+                                            <p style="font-size: 8px;color:#434242;margin:0px;"><?= $item->alias ?></p>
+                                            <?= $item->name ?>
+                                        </td>
+                                        <td class="td_main" style="text-align:center;"><?= $item->unit->name ?></td>
+                                        <?php foreach ($v as $value) {
+                                            if ($value->detail != null) { ?>
+                                                <td class="td_main" style="text-align:right;">
+                                                    <?php
+                                                    foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
+                                                        foreach ($value2->machine_sub_type as $key3 => $value3) {
+                                                            foreach ($value3->detail as $key4 => $value4) {
+                                                                foreach ($value4->machine->material as $key5 => $value5) {
+                                                                    if ($item->id == $value5->material->id && $value4->machine->id == $value->detail->machine->id) {
+                                                    ?>
+                                                                        <?= number_format($value5->qty_request, 2, ',', '.') ?>
+                                                    <?php
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    ?>
+                                                </td>
+                                        <?php
+                                            }
+                                        } ?>
+                                    </tr>
+                    <?php
+                                }
+                            }
+                        }
+                    } ?>
+                </table>
+        <?php }
+        } ?>
         <table style="width: 100%;">
             <tr style="vertical-align: top;">
-                <td style="width: 50%;">
+                <td style="width: 70%;">
                     <div style="text-align: left;">
                         <b style="margin-bottom: 10px;">CATATAN :</b>
                         <div style="word-wrap: break-word;">
@@ -218,63 +271,80 @@
                         <br>
                         <b style="margin-bottom: 10px;">PERSETUJUAN :</b>
                         <table style="width: 100%;margin-top:10px;">
-                            <?php foreach ($datas->processLine as $key => $value) { ?>
-                                <tr style="vertical-align: middle;">
-                                    <td rowspan="2" style="width:40px;text-align:center;padding:0px;margin:0px;">
-                                        <?php if ($value->is_complete == '1') {
-                                            $images = base_url() . 'assets/image/logo/check.png';
-                                        ?>
-                                            <!-- <span class="check-icon">&#xf00c;</span> -->
+                            <tr style="vertical-align: top;">
+                                <?php $a = 0;
+                                foreach ($datas->processLine as $key => $value) {
+                                ?>
+                                    <td>
+                                        <table style="width: 100%;margin-top:10px;">
+                                            <tr style="vertical-align: middle;">
+                                                <td rowspan="2" style="width:40px;text-align:center;padding:0px;margin:0px;">
+                                                    <?php if ($value->is_complete == '1') {
+                                                        $images = base_url() . 'assets/image/logo/check.png';
+                                                    ?>
+                                                        <!-- <span class="check-icon">&#xf00c;</span> -->
 
-                                        <?php } else if ($value->is_complete == '0') {
-                                            $images = base_url() . 'assets/image/logo/times.png';
-                                        ?>
-                                            <!-- <span class="times-icon">&#xf00d;</span> -->
-                                        <?php } else {
-                                            $images = base_url() . 'assets/image/logo/clock.png';
-                                        ?>
-                                            <!-- <span class="clock-icon">&#xf017;</span> -->
-                                        <?php } ?>
-                                        <?php
+                                                    <?php } else if ($value->is_complete == '0') {
+                                                        $images = base_url() . 'assets/image/logo/times.png';
+                                                    ?>
+                                                        <!-- <span class="times-icon">&#xf00d;</span> -->
+                                                    <?php } else {
+                                                        $images = base_url() . 'assets/image/logo/clock.png';
+                                                    ?>
+                                                        <!-- <span class="clock-icon">&#xf017;</span> -->
+                                                    <?php } ?>
+                                                    <?php
 
-                                        // Read image path, convert to base64 encoding
-                                        $imageDatas = base64_encode(file_get_contents($images));
+                                                    // Read image path, convert to base64 encoding
+                                                    $imageDatas = base64_encode(file_get_contents($images));
 
-                                        // Format the image SRC:  data:{mime};base64,{data};
-                                        $srcs = 'data:image/png;base64,' . $imageDatas;
-                                        ?>
-                                        <img src="<?= $srcs ?>" style="width:50%;">
+                                                    // Format the image SRC:  data:{mime};base64,{data};
+                                                    $srcs = 'data:image/png;base64,' . $imageDatas;
+                                                    ?>
+                                                    <img src="<?= $srcs ?>" style="width:50%;">
+                                                </td>
+                                                <td style="padding:0px;margin:0px;">
+                                                    <b><?= implode(" ", array_map('ucwords', explode("_", $key))) ?></b>
+                                                </td>
+                                            </tr>
+                                            <tr style="vertical-align: middle;">
+                                                <td style="padding:0px;margin:0px;font-size:8px;">
+                                                    <?php if ($value->is_complete == '1' || $value->is_complete == '0') { ?>
+                                                        <?php
+                                                        $namaArr = explode(' ', $value->employee->name);
+
+                                                        if (count($namaArr) >= 2) {
+                                                            $duaKataDepan = $namaArr[0] . ' ' . $namaArr[1];
+                                                            echo $duaKataDepan;
+                                                        } else {
+                                                            echo $value->employee->name;
+                                                        }
+                                                        ?>
+                                                        <br>
+                                                        <p style="margin: 0px;padding:0px;font-size:6px;"><?= date('d-m-Y H:i', strtotime($value->complete_at)) ?></p>
+                                                    <?php } else { ?>
+                                                        <i style="font-size:10px;color:grey;">Belum Ada</i>
+                                                    <?php } ?>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <br>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
-                                    <td style="padding:0px;margin:0px;">
-                                        <b><?= implode(" ", array_map('ucwords', explode("_", $key))) ?></b>
-                                    </td>
-                                </tr>
-                                <tr style="vertical-align: middle;">
-                                    <td style="padding:0px;margin:0px;">
-                                        <?php if ($value->is_complete == '1' || $value->is_complete == '0') { ?>
-                                            <?= $value->employee->name ?>
-                                            <br>
-                                            <p style="margin: 0px;padding:0px;font-size:8px;"><?= date('d-m-Y H:i', strtotime($value->complete_at)) ?></p>
-                                        <?php } else { ?>
-                                            <i style="font-size:10px;color:grey;">Belum Ada</i>
-                                        <?php } ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <br>
-                                    </td>
-                                </tr>
-                            <?php } ?>
+                                <?php
+                                    $a++;
+                                } ?>
+                            </tr>
                         </table>
-
-
                     </div>
                 </td>
-                <td style="width: 50%;text-align:center;">
+                <td style="width: 30%;text-align:center;">
                     <b style="font-size:14px;">SCAN QRCODE</b>
                     <p style="margin: 0px;margin-bottom:10px;">Scan untuk Melihat Persetujuan</p>
-                    <img src="<?= base64_decode(str_replace(' ', '', $qrcode)) ?>" style="width:100px; height:100px">
+                    <img src="<?= base64_decode(str_replace(' ', '', $qrcode)) ?>" style="width:80px; height:80px">
                     <!-- <div style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div> -->
                 </td>
             </tr>
