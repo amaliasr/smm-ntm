@@ -2160,12 +2160,11 @@
             })
             // console.log(dataFilteredPlanGroup)
             var currentShift = groupAndSum(dataFilteredPlanGroup, ['shift_id', 'nama_shift', 'shift_group_id'], [])
-            console.log(currentShift)
             var currentShiftId = groupAndSum(dataFilteredPlanGroup, ['shift_id'], [])
             var missingGroup = findMissingGroups(currentShiftId, data_work.shift[0].shift_group)
             var html = ''
             html += '<h4 class="m-0"><b>' + formatDateIndonesia(date) + '</b></h4>'
-            html += '<p class="super-small-text text-grey m-0">Available ' + currentShift.length + ' Shift</p>'
+            html += '<p class="super-small-text text-dark-grey m-0">Available ' + currentShift.length + ' Shift</p>'
 
             html += '<div class="row pt-4">'
             html += '<div class="col-12" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
@@ -2984,7 +2983,6 @@
             // tambahkan data shift
             variableAdd.push(data)
         }
-        console.log(variableAdd)
         loadManPower(date, group_shift_id, machine_type_id, machine_id, key)
     }
 
@@ -3112,7 +3110,7 @@
                     var dataFindMachine = dataMachineByType.find((v, k) => {
                         if (v.resource == el.id) return true
                     })
-                    var dataProdukString = data_work_plan_group.find((v, k) => {
+                    var dataProdukString = data_work_plan_group.filter((v, k) => {
                         if (v.resource == el.id && v.start == date && v.machine_type_id == e.id) return true
                     })
                     var thisMachine = ''
@@ -3126,9 +3124,12 @@
                         var unknown = ''
                         var variableInput = 1
                     }
-                    if (dataProdukString != undefined) {
-                        var product = '<p class="m-0 super-small-text">' + dataProdukString.produk + '</p>'
-                        if (dataProdukString.produk == '') {
+                    if (dataProdukString.length > 0) {
+                        var product = ''
+                        dataProdukString.forEach(prod => {
+                            product += '<p class="m-0 super-small-text"><b class="text-primary">' + prod.nama_shift + '</b> : ' + prod.produk + '</p>'
+                        });
+                        if (dataProdukString[0].produk == '') {
                             var product = '<p class="m-0 super-small-text">No Product</p>'
                         }
                     } else {
@@ -3205,7 +3206,6 @@
     }
 
     function chooseShift(action, date, shift_group_id, shift_id = null, machine_id = null, machine_type_id = null, work_id = null, key = null) {
-        console.log(action, date, shift_group_id, shift_id, machine_id, machine_type_id, work_id, key)
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
@@ -3570,7 +3570,6 @@
             if (v.group_id == shift_group_id) return true
         })
         var template = arrangeDataTemplate('shift_qc')
-        console.log(template)
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
