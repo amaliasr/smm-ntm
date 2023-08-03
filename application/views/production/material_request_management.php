@@ -911,6 +911,7 @@
                     satuan_by_name[''] = ''
                     satuan_by_name[value.item_id] = value.satuan_name
                 })
+
                 listMaterialRequest()
             }
         })

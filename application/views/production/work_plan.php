@@ -1804,6 +1804,7 @@
                                 }
                             }
                             html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ',' + el.shift_group_id + ')">'
+                            html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="deleteDataMachine(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + e.machine_type_id + ',' + el.shift_id + ',' + el.shift_group_id + ',' + el.work_plan_machine_id + ')"><i class="small-text fa fa-times text-light"></i></span>'
                             html += '<div class="card-body p-2 ">'
                             html += '<div class="row">'
                             html += '<div class="col-7 align-self-center">'
@@ -2158,7 +2159,6 @@
             var dataFilteredPlanGroup = data_work_plan_group.filter((v, k) => {
                 if (v.start == date) return true
             })
-            // console.log(dataFilteredPlanGroup)
             var currentShift = groupAndSum(dataFilteredPlanGroup, ['shift_id', 'nama_shift', 'shift_group_id'], [])
             var currentShiftId = groupAndSum(dataFilteredPlanGroup, ['shift_id'], [])
             var missingGroup = findMissingGroups(currentShiftId, data_work.shift[0].shift_group)
@@ -3127,7 +3127,7 @@
                     if (dataProdukString.length > 0) {
                         var product = ''
                         dataProdukString.forEach(prod => {
-                            product += '<p class="m-0 super-small-text"><b class="text-primary">' + prod.nama_shift + '</b> : ' + prod.produk + '</p>'
+                            product += '<p class="m-0 super-small-text"><b class="text-info">' + prod.nama_shift + '</b> : ' + prod.produk + '</p>'
                         });
                         if (dataProdukString[0].produk == '') {
                             var product = '<p class="m-0 super-small-text">No Product</p>'
@@ -3206,6 +3206,15 @@
     }
 
     function chooseShift(action, date, shift_group_id, shift_id = null, machine_id = null, machine_type_id = null, work_id = null, key = null) {
+        // console.log(shift_group_id)
+        if (shift_group_id == null) {
+            var dataFilteredPlanGroup = data_work_plan_group.find((v, k) => {
+                if (v.start == date) return true
+            })
+            if (dataFilteredPlanGroup) {
+                shift_group_id = dataFilteredPlanGroup.shift_group_id
+            }
+        }
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
@@ -3456,6 +3465,14 @@
         data = data.filter(p => p.work_plan_product_id != work_plan_product_id);
         deleteScene('workPlanProduct', work_plan_product_id)
         insertDataAll(date, machine_id, shift_id, group_shift_id, data)
+    }
+
+    function deleteDataMachine(event, date, machine_id, machine_type_id, shift_id, group_shift_id, work_plan_machine_id) {
+        event.stopPropagation();
+        var data = searchDataAll(date, machine_id, machine_type_id, shift_id, group_shift_id, 'machine')
+        data = data.filter(p => p.work_plan_machine_id != work_plan_machine_id);
+        deleteScene('workPlanMachine', work_plan_machine_id)
+        insertDataAll(date, machine_id, shift_id, group_shift_id, data, 'machine')
     }
 
     function addDataProduction(date, machine_id, shift_id, group_shift_id, product_id) {
