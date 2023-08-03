@@ -609,6 +609,11 @@
         border-bottom: 2px solid #27374D;
     }
 
+    .bg-dongker {
+        background-color: #27374D !important;
+        color: white;
+    }
+
     .bg-light-blue {
         background-color: #9DB2BF;
     }
@@ -747,7 +752,7 @@
 
     .bg-no-workplan {
         background-color: white;
-        border: 2px dashed #65647C;
+        border: 2px dashed #9BA4B5;
     }
 
     .manPower:active,
@@ -836,6 +841,10 @@
         width: 0px;
         height: 0px;
         margin-left: none;
+    }
+
+    .bg-unavailable {
+        background-color: #f3f3f5 !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -1455,6 +1464,7 @@
         })
     }
     var data_work_converted = []
+    var blankShift = []
 
     function convertToWorkPlan() {
         var template = data_work.workPlanManageDataTemplate
@@ -1482,6 +1492,11 @@
                 dataShift.shift.group_id = b.group_id
                 dataShift.work_plan_shift_id = new Date().getTime() + '' + indexDate + '' + indexShift
                 dataShift.shift_mechanic = []
+                if (b.id == null) {
+                    blankShift.push({
+                        'id': dataShift.work_plan_shift_id,
+                    })
+                }
                 data_work_converted[indexDate].work_plan.shift_qc.push(dataShift)
                 var indexMachineType = 0
                 a.production_plan.machine_type.forEach(c => {
@@ -1496,6 +1511,11 @@
                     dataMachineType.machine_type.name = c.name
                     dataMachineType.work_plan_machine_type_id = new Date().getTime() + '' + +'' + indexShift + '' + indexDate + '' + indexMachineType
                     dataMachineType.shift_machine = []
+                    if (b.id == null) {
+                        blankShift.push({
+                            'id': dataMachineType.work_plan_machine_type_id,
+                        })
+                    }
                     data_work_converted[indexDate].work_plan.shift_qc[indexShift].shift_mechanic.push(dataMachineType)
                     var indexMachine = 0
                     c.machine.forEach(d => {
@@ -1509,6 +1529,9 @@
                         dataMachine.machine.id = d.id
                         dataMachine.machine.name = d.name
                         dataMachine.work_plan_machine_id = new Date().getTime() + '' + +'' + indexShift + '' + indexDate + '' + indexMachineType + '' + indexMachine
+                        blankShift.push({
+                            'id': dataMachine.work_plan_machine_id,
+                        })
                         dataMachine.products = []
                         data_work_converted[indexDate].work_plan.shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine.push(dataMachine)
                         var indexProduct = 0
@@ -1538,9 +1561,78 @@
         finishedConvert()
     }
 
-    function finishedConvert() {
-        data_work.workPlan = data_work_converted
+    function chooseShiftBeforeArrange() {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Choose Main Shift</h5>';
+        $('#modalHeader2').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 p-5 pb-2 pt-3">'
+        html_body += '<p>Sistem Menemukan <b class="text-danger">' + blankShift.length + '</b> Data yang Belum Memiliki Shift, Silahkan Pilih Shift Utama untuk Bagian Shift yang kosong.</p>'
+        html_body += '</div>'
+        var a = 1
+        data_work.shift[0].shift_list.forEach(e => {
+            html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-shift pointer" onclick="createShiftBeforeArrange(' + e.group_id + ',' + e.id + ')">'
+            html_body += '<p class="m-0 small-text">' + e.name + '</p>'
+            html_body += '<p class="m-0"><b>' + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time) + '</b></p>'
+            html_body += '</div>'
+            if (a < data_work.shift[0].shift_list.length) {
+                html_body += '<div class="col-12"><hr class="m-0"></div>'
+            }
+            a++
+        });
+        html_body += '</div>'
+        $('#modalBody2').html(html_body).addClass('p-0');
+        $('#modalFooter2').addClass('d-none');
+    }
+
+    function createShiftBeforeArrange(group_shift_id, shift_id) {
+        var dataShiftMaster = data_work.shift[0].shift_list.find((v, k) => {
+            if (v.id == shift_id) return true
+        })
+        data_work.workPlan.forEach(a => {
+            a.work_plan.shift_qc.forEach(b => {
+                if (b.shift.id == null) {
+                    b.shift.id = dataShiftMaster.id
+                    b.shift.group_id = dataShiftMaster.group_id
+                    b.shift.name = dataShiftMaster.name
+                    b.shift.start = dataShiftMaster.start_time
+                    b.shift.end = dataShiftMaster.end_time
+                }
+                b.shift_mechanic.forEach(c => {
+                    if (c.shift.id == null) {
+                        c.shift.id = dataShiftMaster.id
+                        c.shift.group_id = dataShiftMaster.group_id
+                        c.shift.name = dataShiftMaster.name
+                        c.shift.start = dataShiftMaster.start_time
+                        c.shift.end = dataShiftMaster.end_time
+                    }
+                    c.shift_machine.forEach(d => {
+                        if (d.shift.id == null) {
+                            d.shift.id = dataShiftMaster.id
+                            d.shift.group_id = dataShiftMaster.group_id
+                            d.shift.name = dataShiftMaster.name
+                            d.shift.start = dataShiftMaster.start_time
+                            d.shift.end = dataShiftMaster.end_time
+                        }
+                    })
+                })
+            })
+        });
+        $('#modal2').modal('hide')
         arrangeVariable()
+    }
+
+    function finishedConvert() {
+        console.log(blankShift)
+        data_work.workPlan = data_work_converted
+        if (data_work.workPlan[0].production_plan.shift[0].id) {
+            arrangeVariable()
+        } else {
+            chooseShiftBeforeArrange()
+        }
     }
 
     var jumlahLoad = 0
@@ -2193,11 +2285,13 @@
                     var workPlanShiftId = null
                     var shiftWorkPlanShift = null
                     var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanShift + ',null,null,' + workPlanShiftId + ')"></i>'
+                    var setBgAvailable = ''
                     if (availableData == 'tidak') {
                         unavailableData = showTextUnavailable()
                         workPlanShiftId = dataShift.work_plan_shift_id
                         shiftWorkPlanShift = dataShift.shift_id
                         changeShiftBtn = ''
+                        setBgAvailable = 'bg-unavailable'
                     }
                     var warnEmpty = ''
                     if (qcEmployee['qc'].total == 0) {
@@ -2206,7 +2300,7 @@
 
                     html += '<div class="accordion-item" style="border: none;">'
                     html += '<h2 class="accordion-header" id="headShift' + k + '" style="border: 1px solid #dedede;">'
-                    html += '<button class="accordion-button primary-date date-' + date + ' p-2 small-text shadow-none" type="button">'
+                    html += '<button class="accordionClickable accordion-button primary-date date-' + date + ' p-2 small-text shadow-none ' + setBgAvailable + '" type="button" id="accordionqc' + date + v.group_id + '">'
 
                     html += '<div class="row m-0 w-100 justify-content-between">'
 
@@ -2262,9 +2356,11 @@
                         var workPlanMachineTypeId = null
                         var shiftWorkPlanMachineType = null
                         var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachineType + ',null,' + value.id + ',' + workPlanMachineTypeId + ')"></i>'
+                        var setBgAvailable = ''
                         if (availableData == 'tidak') {
                             unavailableData = showTextUnavailable()
                             changeShiftBtn = ''
+                            setBgAvailable = 'bg-unavailable'
                         } else {
                             var findShift = variableOfShift[dataShift.shift_id]
                             workPlanMachineTypeId = findShift.work_plan_machine_type_id
@@ -2276,7 +2372,7 @@
                         }
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
-                        html += '<button class="accordion-button primary-machine-type machine-type-' + date + value.id + ' p-2 small-text shadow-none" type="button">'
+                        html += '<button class="accordionClickable accordion-button primary-machine-type machine-type-' + date + value.id + ' p-2 small-text shadow-none ' + setBgAvailable + '" type="button" id="accordionmechanic' + date + v.group_id + value.id + '">'
 
                         html += '<div class="row m-0 w-100 justify-content-between">'
 
@@ -2375,9 +2471,11 @@
                             var workPlanMachineId = null
                             var shiftWorkPlanMachine = null
                             var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachine + ',' + values.id + ',' + value.id + ',' + workPlanMachineId + ')"></i>'
+                            var setBgAvailable = ''
                             if (availableData == 'tidak') {
                                 unavailableData = showTextUnavailable()
                                 changeShiftBtn = ''
+                                setBgAvailable = 'bg-unavailable'
                             } else {
                                 var findShift = variableOfShift[dataShift.shift_id]
                                 workPlanMachineId = findShift.work_plan_machine_id
@@ -2385,7 +2483,7 @@
                             }
                             html += '<div class="accordion-item" style="border: none;">'
                             html += '<h2 class="accordion-header" style="border: 1px solid #dedede;">'
-                            html += '<button class="accordion-button primary-machine machine-' + date + value.id + values.id + ' machine p-2 small-text shadow-none" type="button">'
+                            html += '<button class="accordionClickable accordion-button primary-machine machine-' + date + value.id + values.id + ' machine p-2 small-text shadow-none ' + setBgAvailable + '" type="button" id="accordionmachine' + date + v.group_id + value.id + values.id + '">'
 
                             html += '<div class="row m-0 w-100 justify-content-between">'
 
@@ -2760,7 +2858,23 @@
             cardAlert('Tidak Ada Data', '#listAddedManPower')
         }
         $('#sisaAddedManPower').html(employeeManPower.length)
+        coloringAccordionManPower(keys, date, shift_group_id, machine_type_id, machine_id)
+    }
 
+    function coloringAccordionManPower(key, date, shift_group_id, machine_type_id, machine_id) {
+        console.log('test')
+        $('.accordionClickable').removeClass('bg-dongker')
+        var variable
+        if (key == 'qc') {
+            variable = date + '' + shift_group_id
+        } else if (key == 'mechanic') {
+            variable = date + '' + shift_group_id + '' + machine_type_id
+        } else {
+            variable = date + '' + shift_group_id + '' + machine_type_id + '' + machine_id
+            key = 'machine'
+        }
+        console.log('#accordion' + key + variable)
+        $('#accordion' + key + variable).addClass('bg-dongker')
     }
 
     function addManPower(action, employee_id, date, group_shift_id, machine_type_id, machine_id, key) {
