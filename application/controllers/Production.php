@@ -159,10 +159,15 @@ class Production extends CI_Controller
         $data['id'] = $id;
         $this->template->views('production/work_plan', $data);
     }
-    public function productionEntry($link = null)
+    public function productionEntry($linkBefore = null)
     {
         $data['title'] = 'Production Entry';
-        $data['link'] = $link;
+        $data['linkBefore'] = $linkBefore;
+        if ($linkBefore) {
+            $data['link'] = $linkBefore;
+        } else {
+            $data['link'] = 'default';
+        }
         $menu = [
             "catcher" => [
                 [
@@ -228,10 +233,6 @@ class Production extends CI_Controller
             ]
         ];
         $data['menu'] = $menu;
-        if ($link == null) {
-            $this->template->views('production/production_entry', $data);
-        } else {
-            $this->template->views('production/production_entry/' + $link, $data);
-        }
+        $this->template->views('production/template_production_entry', $data);
     }
 }

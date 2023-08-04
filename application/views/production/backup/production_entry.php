@@ -1021,7 +1021,7 @@
         </div>
     </div>
 </main>
-<div id="qrcode" style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div>
+
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog" role="document" id="modalDialog">
