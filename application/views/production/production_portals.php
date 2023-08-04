@@ -1123,6 +1123,7 @@
                 var data = data_work_plan_group.filter((v, k) => {
                     if (v.resource == e.id && v.start == dateList[i]) return true
                 })
+                console.log(data)
                 data.forEach(el => {
                     html += '<div class="card shadow-none rounded-3" style="cursor:pointer;">'
                     html += '<div class="card-body bg-grey p-2">'

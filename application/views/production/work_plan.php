@@ -1814,7 +1814,7 @@
             data_work_plan_real = deepCopy(data_work_plan)
         }
         jumlahLoad++
-        // console.log(data_work_plan_bar)
+        // console.log(data_work.workPlan)
         groupingData()
     }
 
@@ -1882,7 +1882,6 @@
                         var data = data_work_plan_bar.machine.filter((v, k) => {
                             if (v.resource == e.id && v.start == dateList[i]) return true
                         })
-                        // console.log(data)
                         data.forEach(el => {
                             var dataDetail = removeNullProduct(data_work_plan.filter((v, k) => {
                                 if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
@@ -1896,7 +1895,7 @@
                                 }
                             }
                             html += '<div class="card shadow-none rounded-3 ' + bg + ' card-shift-produksi" style="cursor:pointer;width:200px;" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + el.shift_id + ',' + el.shift_group_id + ')">'
-                            html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="deleteDataMachine(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + e.machine_type_id + ',' + el.shift_id + ',' + el.shift_group_id + ',' + el.work_plan_machine_id + ')"><i class="small-text fa fa-times text-light"></i></span>'
+                            html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="deleteDataMachine(event,' + "'" + dateList[i] + "'" + ',' + e.id + ',' + e.machine_type_id + ',' + el.shift_id + ',' + el.shift_group_id + ',' + "'" + el.work_plan_machine_id + "'" + ')"><i class="small-text fa fa-times text-light"></i></span>'
                             html += '<div class="card-body p-2 ">'
                             html += '<div class="row">'
                             html += '<div class="col-7 align-self-center">'
@@ -2862,7 +2861,6 @@
     }
 
     function coloringAccordionManPower(key, date, shift_group_id, machine_type_id, machine_id) {
-        console.log('test')
         $('.accordionClickable').removeClass('bg-dongker')
         var variable
         if (key == 'qc') {
@@ -2873,7 +2871,6 @@
             variable = date + '' + shift_group_id + '' + machine_type_id + '' + machine_id
             key = 'machine'
         }
-        console.log('#accordion' + key + variable)
         $('#accordion' + key + variable).addClass('bg-dongker')
     }
 
@@ -3033,6 +3030,7 @@
     }
 
     function editShift(date, machine_id, machine_type_id, shift_id, shift_group_id, work_id) {
+        // console.log(date, machine_id, machine_type_id, shift_id, shift_group_id, work_id)
         $('#modal2').modal('hide')
         var target = ''
         if (machine_id == null && machine_type_id == null) {
@@ -3048,6 +3046,7 @@
         var dataShiftMaster = data_work.shift[0].shift_list.find((v, k) => {
             if (v.id == shift_id) return true
         })
+        console.log(getData)
         getData.shift.id = dataShiftMaster.id
         getData.shift.group_id = dataShiftMaster.group_id
         getData.shift.name = dataShiftMaster.name
@@ -3320,7 +3319,7 @@
     }
 
     function chooseShift(action, date, shift_group_id, shift_id = null, machine_id = null, machine_type_id = null, work_id = null, key = null) {
-        // console.log(shift_group_id)
+        // console.log(date, shift_group_id, shift_id, machine_id, machine_type_id)
         if (shift_group_id == null) {
             var dataFilteredPlanGroup = data_work_plan_group.find((v, k) => {
                 if (v.start == date) return true

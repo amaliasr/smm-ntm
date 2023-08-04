@@ -159,4 +159,79 @@ class Production extends CI_Controller
         $data['id'] = $id;
         $this->template->views('production/work_plan', $data);
     }
+    public function productionEntry($link = null)
+    {
+        $data['title'] = 'Production Entry';
+        $data['link'] = $link;
+        $menu = [
+            "catcher" => [
+                [
+                    "variable" => "hasilProduksi",
+                    "menuName" => [
+                        "HASIL",
+                        "PRODUKSI"
+                    ],
+                    "icon" => "fa-dropbox",
+                ],
+                [
+                    "variable" => "serahTerimaHasil",
+                    "menuName" => [
+                        "SERAH TERIMA",
+                        "HASIL"
+                    ],
+                    "icon" => "fa-refresh",
+                ]
+            ],
+            "operator" => [
+                [
+                    "variable" => "timelineMachine",
+                    "menuName" => [
+                        "TIMELINE",
+                        "MACHINE"
+                    ],
+                    "icon" => "fa-dropbox",
+                ],
+            ],
+            "mechanic" => [
+                [
+                    "variable" => "maintenance",
+                    "menuName" => [
+                        "MAINTENANCE"
+                    ],
+                    "icon" => "fa-dropbox",
+                ],
+            ],
+            "helper" => [
+                [
+                    "variable" => "pemakaianBahan",
+                    "menuName" => [
+                        "PEMAKAIAN",
+                        "BAHAN"
+                    ],
+                    "icon" => "fa-dropbox",
+                ],
+                [
+                    "variable" => "gudangTSG",
+                    "menuName" => [
+                        "GUDANG",
+                        "TSG"
+                    ],
+                    "icon" => "fa-refresh",
+                ],
+                [
+                    "variable" => "waste",
+                    "menuName" => [
+                        "WASTE"
+                    ],
+                    "icon" => "fa-refresh",
+                ]
+            ]
+        ];
+        $data['menu'] = $menu;
+        if ($link == null) {
+            $this->template->views('production/production_entry', $data);
+        } else {
+            $this->template->views('production/production_entry/' + $link, $data);
+        }
+    }
 }
