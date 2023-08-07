@@ -159,79 +159,18 @@ class Production extends CI_Controller
         $data['id'] = $id;
         $this->template->views('production/work_plan', $data);
     }
-    public function productionEntry($linkBefore = null)
+    public function productionEntry($linkBefore = null, $workPlanMachineId = null)
     {
         $data['title'] = 'Production Entry';
+        $data['workPlanMachineId'] = $workPlanMachineId;
+        $dataAPI = json_decode($this->curl->simple_get(api_produksi('loadPageCatcherEntry?workPlanMachineId=3')))->data;
         $data['linkBefore'] = $linkBefore;
         if ($linkBefore) {
             $data['link'] = $linkBefore;
         } else {
             $data['link'] = 'default';
         }
-        $menu = [
-            "catcher" => [
-                [
-                    "variable" => "hasilProduksi",
-                    "menuName" => [
-                        "HASIL",
-                        "PRODUKSI"
-                    ],
-                    "icon" => "fa-dropbox",
-                ],
-                [
-                    "variable" => "serahTerimaHasil",
-                    "menuName" => [
-                        "SERAH TERIMA",
-                        "HASIL"
-                    ],
-                    "icon" => "fa-refresh",
-                ]
-            ],
-            "operator" => [
-                [
-                    "variable" => "timelineMachine",
-                    "menuName" => [
-                        "TIMELINE",
-                        "MACHINE"
-                    ],
-                    "icon" => "fa-dropbox",
-                ],
-            ],
-            "mechanic" => [
-                [
-                    "variable" => "maintenance",
-                    "menuName" => [
-                        "MAINTENANCE"
-                    ],
-                    "icon" => "fa-dropbox",
-                ],
-            ],
-            "helper" => [
-                [
-                    "variable" => "pemakaianBahan",
-                    "menuName" => [
-                        "PEMAKAIAN",
-                        "BAHAN"
-                    ],
-                    "icon" => "fa-dropbox",
-                ],
-                [
-                    "variable" => "gudangTSG",
-                    "menuName" => [
-                        "GUDANG",
-                        "TSG"
-                    ],
-                    "icon" => "fa-refresh",
-                ],
-                [
-                    "variable" => "waste",
-                    "menuName" => [
-                        "WASTE"
-                    ],
-                    "icon" => "fa-refresh",
-                ]
-            ]
-        ];
+        $menu = $dataAPI->menuAccess;
         $data['menu'] = $menu;
         $this->template->views('production/template_production_entry', $data);
     }
