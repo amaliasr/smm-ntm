@@ -87,6 +87,7 @@
         </div>
     </div>
 </div>
+
 <script>
     function addOneHour(inputTime) {
         var timeArray = inputTime.split(":");

@@ -916,7 +916,7 @@
         <div class="col-9 bg-white p-4">
             <div class="row">
                 <div class="col">
-                    <p class="m-0 super-small-text" id="date"></p>
+                    <p class="m-0 super-small-text" id="date">-</p>
                     <b>Machine <span id="machineName">-</span></b>
                 </div>
                 <div class="col text-end align-self-center">
@@ -978,7 +978,6 @@
 <script>
     var workPlanMachineId = '<?= $workPlanMachineId ?>'
     $(document).ready(function() {
-        $('#date').html(formatDateIndonesia(currentDate()))
         loadDataTemplate()
     })
 
@@ -1010,6 +1009,7 @@
             success: function(response) {
                 showOverlay('hide')
                 var data = response.data
+                $('#date').html(formatDateIndonesia(data.workPlanMachine.date))
                 $('#machineName').html(data.workPlanMachine.machine.name)
                 listWorkPlan(data)
             }

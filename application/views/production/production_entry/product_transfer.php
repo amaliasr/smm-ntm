@@ -169,7 +169,7 @@
                         <p class="m-0 super-small-text"><b>Transaksi</b></p>
                     </div>
                     <div class="col-auto text-end">
-                        <button type="button" class="btn btn-sm btn-outline-dark shadow-none"><i class="fa fa-paper-plane me-2"></i>Transaction</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="formTransaction()"><i class="fa fa-paper-plane me-2"></i>Transaction</button>
                     </div>
                 </div>
                 <div class="row pt-4">
@@ -247,6 +247,12 @@
     </div>
 </div>
 <script>
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var workPlanMachineId = '<?= $workPlanMachineId ?>'
     $(function() {
 
@@ -268,12 +274,66 @@
         })
 
         function percentageToDegrees(percentage) {
-
             return percentage / 100 * 360
-
         }
 
     });
 
-    $(document).ready(function() {})
+    $(document).ready(function() {
+        loadData()
+    })
+
+    function loadData() {
+        var data = {
+            workPlanMachineId: workPlanMachineId,
+        }
+        var url = "<?= api_produksi('loadPageCatcherEntry'); ?>"
+        getData(data, url)
+    }
+
+    function getData(data, url) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                dataEntry = response.data
+                console.log(dataEntry)
+            }
+        })
+    }
+
+    function formTransaction() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Transaction</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="simpanData()">Simpan</button>'
+        $('#modalFooter').html(html_footer);
+    }
 </script>
