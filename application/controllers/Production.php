@@ -172,6 +172,7 @@ class Production extends CI_Controller
         }
         $menu = $dataAPI->menuAccess;
         $data['menu'] = $menu;
+        // $this->template->views('errors/notfound', $data);
         $this->template->views('production/template_production_entry', $data);
     }
 }

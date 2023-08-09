@@ -662,6 +662,7 @@
             html += '<div class="col-12">'
             html += '<div class="card shadow-none mb-2">'
             html += '<div class="card-body p-0">'
+
             html += '<div class="row p-0 m-0">'
             html += '<div class="col-1 p-3 rounded-start bg-' + values['production_type']['name'].toLowerCase() + ' text-center">'
             html += '<div class="row d-flex align-items-center h-100">'

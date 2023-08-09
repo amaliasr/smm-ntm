@@ -233,6 +233,7 @@ function currentDateTimeNoSeconds() {
     var date = day + "/" + month + "/" + year+' '+jam + ":" + menit 
     return date;
 }
+
 function getDateTime(orginaldate) {
     var date = new Date(orginaldate);
     var day = date.getDate();

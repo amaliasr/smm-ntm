@@ -544,6 +544,10 @@
         color: white;
     }
 
+    .border-dongker {
+        border: 1px solid #27374d;
+    }
+
     .bg-light-blue {
         background-color: #9DB2BF;
     }
@@ -813,6 +817,14 @@
     th {
         padding: 20px;
     }
+
+    .bg-light-success {
+        background-color: #e9f4e0;
+    }
+
+    .bg-light-danger {
+        background-color: #e8d6d6;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -967,6 +979,14 @@
 </div>
 <?php $this->load->view('components/modal_static') ?>
 <script>
+    function notFound(location) {
+        $(location).html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+    }
+
+    function empty(location, text) {
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none"><div class="card-body h-100 p-5 m-5"><p class="small"><i>' + text + '</i></p><lottie-player style="margin:auto;width: 200px; height: 100%;" src="https://assets8.lottiefiles.com/packages/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player></div></div></div></div>')
+    }
+
     function formatNames(data) {
         var firstNames = data.map(function(item) {
             var firstName = item.name.split(' ')[0];
