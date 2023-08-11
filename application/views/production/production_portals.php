@@ -639,7 +639,7 @@
                             <div class="row">
                                 <div class="col">
                                     <p class="m-0 small-text text-start"><b>Weekly Work Planner</b></p>
-                                    <p class="m-0 small-text">25 Juni 2023 - 30 Juni 2023</p>
+                                    <p class="m-0 small-text" id="planDate">No Plan Choosen</p>
                                 </div>
                                 <div class="col text-end">
                                     <a href="javascript:void(0)" onclick="directToWorkPlan()"><button type="button" class="btn btn-primary btn-sm">Work Plan</button></a>
@@ -952,7 +952,7 @@
 
     function loadDataPlanning(id) {
         var data = {
-            productionPlanId: 92,
+            productionPlanId: id,
             // productionPlanId: id,
         }
         var url = "<?= api_produksi('getWorkPlan'); ?>"
@@ -985,6 +985,7 @@
                 $('#time').html(currentDateTimeNoSeconds())
                 data_work = response['data']
                 id_production_plan_clicked = id
+                $('#planDate').html(formatDateIndonesia(data_work.productionPlan.date_start) + ' - ' + formatDateIndonesia(data_work.productionPlan.date_end))
                 arrangeVariable()
             }
         })
@@ -1051,52 +1052,66 @@
             'target_per_production_type': target_per_production_type,
             'target_per_machine': target_per_machine,
         }
-        var numIndex = 0
         // VARIABLE WORK PLAN
-        data_work.workPlan.forEach(a => {
-            // date
-            // jika null, maka pakai production_plan
-            a.production_plan.shift.forEach(b => {
-                // shift
-                a.production_plan.machine_type.forEach(c => {
-                    // machine_type
-                    c.machine.forEach(d => {
-                        // machine
-                        d.product.forEach(e => {
-                            // product
-                            data_work_plan.push({
-                                'id': a.id,
-                                'date': a.date,
-                                'note': a.note,
-                                'shift_id': b.id,
-                                'shift_name': b.name,
-                                'shift_end': b.end,
-                                'shift_start': b.start,
-                                'machine_type_id': c.id,
-                                'machine_type_name': c.name,
-                                'machine_id': d.id,
-                                'machine_name': d.name,
-                                'product_id': e.id,
-                                'product_code': e.code,
-                                'product_name': e.name,
-                                'product_alias': e.alias,
-                                'product_qty': e.qty,
-                                'unit_id': e.unit.id,
-                                'unit_name': e.unit.name,
-                            })
-                            if (a.work_plan.id != null) {
-                                data_work_plan[numIndex]['work_plan_id'] = a.work_plan.id
-                            } else {
-                                data_work_plan[numIndex]['work_plan_id'] = ''
-                            }
-                            numIndex++
+        if (data_work.workPlan[0].work_plan.work_plan_id) {
+            data_work.workPlan.forEach(a => {
+                // date
+                // jika null, maka pakai production_plan
+                a.work_plan.shift_qc.forEach(b => {
+                    // shift
+                    b.shift_mechanic.forEach(c => {
+                        // machine_type
+                        c.shift_machine.forEach(d => {
+                            // machine
+                            d.products.forEach(e => {
+                                // product
+                                data_work_plan.push({
+                                    'id': a.id,
+                                    'date': a.date,
+                                    'note': a.note,
+                                    'work_plan_id': a.work_plan.work_plan_id,
+                                    'shift_id': d.shift.id,
+                                    'shift_name': d.shift.name,
+                                    'shift_end': d.shift.end,
+                                    'shift_start': d.shift.start,
+                                    'shift_group_id': d.shift.group_id,
+                                    'work_plan_shift_id': b.work_plan_shift_id,
+                                    'employee_qc': b.employee_qc,
+                                    'note_qc': b.note,
+                                    'shift_id_qc': b.shift.id,
+                                    'shift_group_id_qc': b.shift.group_id,
+                                    'machine_type_id': c.machine_type.id,
+                                    'machine_type_name': c.machine_type.name,
+                                    'employee_mechanic': c.employee_mechanic,
+                                    'note_mechanic': c.note,
+                                    'work_plan_machine_type_id': c.work_plan_machine_type_id,
+                                    'shift_id_mechanic': c.shift.id,
+                                    'shift_group_id_mechanic': c.shift.group_id,
+                                    'machine_id': d.machine.id,
+                                    'machine_name': d.machine.name,
+                                    'employee_helper': d.employee_helper,
+                                    'employee_catcher': d.employee_catcher,
+                                    'employee_operator': d.employee_operator,
+                                    'note_machine': d.note,
+                                    'work_plan_machine_id': d.work_plan_machine_id,
+                                    'shift_id_machine': d.shift.id,
+                                    'product_id': e.product.id,
+                                    'product_code': e.product.code,
+                                    'product_name': e.product.name,
+                                    'product_alias': e.product.alias,
+                                    'product_qty': e.qty,
+                                    'unit_id': e.unit.id,
+                                    'unit_name': e.unit.name,
+                                    'note_product': e.note,
+                                    'work_plan_product_id': e.work_plan_product_id,
+                                })
+                            });
                         });
                     });
                 });
             });
-        });
-        data_work_plan_group = transformData(data_work_plan);
-        // console.log(data_work_plan_group)
+            data_work_plan_group = transformData(data_work_plan);
+        }
         createHeaderPlanner()
     }
 
@@ -1120,18 +1135,20 @@
             // loop date
             for (let i = 0; i < dateList.length; i++) {
                 html += '<td class="p-1">'
-                var data = data_work_plan_group.filter((v, k) => {
-                    if (v.resource == e.id && v.start == dateList[i]) return true
-                })
-                console.log(data)
-                data.forEach(el => {
-                    html += '<div class="card shadow-none rounded-3" style="cursor:pointer;">'
-                    html += '<div class="card-body bg-grey p-2">'
-                    html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
-                    html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
-                    html += '</div>'
-                    html += '</div>'
-                });
+                if (data_work.workPlan[0].work_plan.work_plan_id) {
+                    var data = data_work_plan_group.filter((v, k) => {
+                        if (v.resource == e.id && v.start == dateList[i]) return true
+                    })
+
+                    data.forEach(el => {
+                        html += '<div class="card shadow-none rounded-3 mb-2" style="cursor:pointer;">'
+                        html += '<div class="card-body bg-grey p-2">'
+                        html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
+                        html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
+                        html += '</div>'
+                        html += '</div>'
+                    });
+                }
                 html += '</td>'
             }
             // loop date

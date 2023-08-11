@@ -136,27 +136,7 @@
                     <div class="col-12">
                         <div class="card shadow-none">
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col text-center">
-                                        <p class="m-0 small-text">HLP 12 A</p>
-                                        <h1 class="text-dark-grey"><b>200</b></h1>
-                                    </div>
-                                    <div class="col text-center">
-                                        <p class="m-0 small-text">HLP 12 B</p>
-                                        <h1 class="text-dark-grey"><b>0</b></h1>
-                                    </div>
-                                    <div class="col text-center">
-                                        <p class="m-0 small-text">HLP 20 A</p>
-                                        <h1 class="text-dark-grey"><b>200</b></h1>
-                                    </div>
-                                    <div class="col text-center">
-                                        <p class="m-0 small-text">HLP 20 B</p>
-                                        <h1 class="text-dark-grey"><b>200</b></h1>
-                                    </div>
-                                    <div class="col text-center">
-                                        <p class="m-0 small-text">Satuan</p>
-                                        <h1 class="text-dark-grey"><b>Tray</b></h1>
-                                    </div>
+                                <div class="row justify-content-center" id="transaksiGroup">
                                 </div>
                             </div>
                         </div>
@@ -170,7 +150,9 @@
                                     <thead>
                                         <tr>
                                             <th scope="col" class="p-3">#</th>
-                                            <th scope="col" class="p-3">Brand</th>
+                                            <th scope="col" class="p-3"></th>
+                                            <th scope="col" class="p-3">Time</th>
+                                            <th scope="col" class="p-3">Item / Material</th>
                                             <th scope="col" class="p-3">QTY</th>
                                             <th scope="col" class="p-3">Unit</th>
                                             <th scope="col" class="p-3">Source</th>
@@ -180,22 +162,7 @@
                                             <th scope="col" class="p-3"></th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <?php for ($i = 0; $i < 10; $i++) { ?>
-                                            <tr>
-                                                <th class="p-2 text-center" scope="row">1</th>
-                                                <td class="p-2 text-center">ABLF12</td>
-                                                <td class="p-2 text-center">100</td>
-                                                <td class="p-2 text-center">Tray</td>
-                                                <td class="p-2 text-center">MK9A</td>
-                                                <td class="p-2 text-center">HLP12</td>
-                                                <td class="p-2 text-center">Dera</td>
-                                                <td class="p-2 text-center"><span class="badge rounded-pill bg-success">Telah Diterima</span></td>
-                                                <td class="p-2 text-center">
-                                                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm"><i class="fa fa-eye"></i></button>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
+                                    <tbody id="transaksiDetail">
                                     </tbody>
                                 </table>
                             </div>
@@ -310,15 +277,110 @@
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
-                dataMachineStock()
+                arrangeVariable()
             }
         })
     }
     var stokMachineSort
+    var listMachineTransferDetail = []
+    var groupMachineReference
+
+    function arrangeVariable() {
+        reset()
+        dataEntry.listMachineTransferDetail.forEach(e => {
+            listMachineTransferDetail.push({
+                id: e.id,
+                send_at: e.send_at,
+                item_id: e.item.id,
+                item_name: e.item.name,
+                item_alias: e.item.alias,
+                type: e.type,
+                unit_name: e.unit.name,
+                qty: e.qty,
+                source: e.source.name,
+                destination: e.destination.name,
+                machine_reference: e.machine_reference.name,
+                action: e.action,
+                status: e.status,
+                user: e.send_by.name,
+                note: e.note,
+            })
+        });
+        groupMachineReference = groupAndSum(listMachineTransferDetail, ['machine_reference', 'destination'], ['qty'])
+        dataMachineStock()
+    }
+
+    function reset() {
+        stokMachineSort
+        listMachineTransferDetail = []
+        groupMachineReference
+    }
 
     function dataMachineStock() {
         var productId = extractProductId(dataEntry.workPlanMachine.products)
         stokMachineSort = sortByProductId(dataEntry.machineStock, productId)
+        transaksiGroup()
+    }
+
+    function transaksiGroup() {
+        var html = ''
+        groupMachineReference.forEach(e => {
+            var destination = e.destination
+            if (e.machine_reference) {
+                destination = e.machine_reference
+            }
+            html += '<div class="col-2 text-center">'
+            html += '<p class="m-0 small-text">' + destination + '</p>'
+            html += '<h1 class="text-dark-grey"><b>' + number_format(e.qty) + '</b></h1>'
+            html += '</div>'
+        });
+        html += '<div class="col-2 text-center">'
+        html += '<p class="m-0 small-text">Satuan</p>'
+        html += '<h1 class="text-dark-grey"><b>' + dataEntry.productionOutUnit.name + '</b></h1>'
+        html += '</div>'
+        $('#transaksiGroup').html(html)
+        transaksiDetail()
+    }
+
+    function transaksiDetail() {
+        var html = ''
+        var a = 1
+        listMachineTransferDetail.forEach(e => {
+            var destination = '<span class="text-grey">' + e.destination + '</span>'
+            if (e.machine_reference) {
+                destination = '<b>' + e.machine_reference + '</b>'
+            }
+            var arrow = '<i class="fa fa-arrow-down text-success"></i>'
+            if (e.action == 'OUT') {
+                arrow = '<i class="fa fa-arrow-up text-danger"></i>'
+            }
+            if (e.status == 'WAITING') {
+                var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
+            } else if (e.status == 'RECEIVED') {
+                var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
+            } else if (e.status == 'REJECTED') {
+                var status = '<span class="badge rounded-pill bg-success">Ditolak</span>'
+            } else {
+                var status = ''
+
+            }
+            html += '<tr>'
+            html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
+            html += '<td class="p-2 text-center">' + arrow + '</td>'
+            html += '<td class="p-2 text-center">' + getDateTime(e.send_at) + '</td>'
+            html += '<td class="p-2 text-center">' + e.item_name + '</td>'
+            html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
+            html += '<td class="p-2 text-center">' + e.unit_name + '</td>'
+            html += '<td class="p-2 text-center">' + e.source + '</td>'
+            html += '<td class="p-2 text-center">' + destination + '</td>'
+            html += '<td class="p-2 text-center">' + e.user.split(' ')[0] + '</td>'
+            html += '<td class="p-2 text-center">' + status + '</td>'
+            html += '<td class="p-2 text-center">'
+            html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="viewDetail(' + e.id + ')"><i class="fa fa-eye"></i></button>'
+            html += '</td>'
+            html += '</tr>'
+        });
+        $('#transaksiDetail').html(html)
         carouselMachineStock()
     }
 
@@ -841,5 +903,104 @@
         html += '</div>'
         html += '</div>'
         return html
+    }
+
+    function viewDetail(id) {
+        var data = listMachineTransferDetail.find((v, k) => {
+            if (v.id == id) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Detail Transaksi</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row p-3">'
+        html_body += '<div class="col-4">'
+        html_body += '<p class="m-0 small-text"><b>Tanggal Transaksi</b></p>'
+        html_body += '<p class="m-0 small">' + getDateTime(data.send_at) + '</p>'
+
+        html_body += '</div>'
+        html_body += '<div class="col-4">'
+        html_body += '<p class="m-0 small-text"><b>Item / Material</b></p>'
+        html_body += '<p class="m-0 small">' + data.item_name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4">'
+        html_body += '<p class="m-0 small-text"><b>Type</b></p>'
+        html_body += '<p class="m-0 small">' + data.type + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mt-3">'
+        html_body += '<p class="m-0 small-text"><b>QTY</b></p>'
+        html_body += '<p class="m-0 small">' + number_format(data.qty) + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mt-3">'
+        html_body += '<p class="m-0 small-text"><b>Unit</b></p>'
+        html_body += '<p class="m-0 small">' + data.unit_name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mt-3">'
+        html_body += '<p class="m-0 small-text"><b>Source</b></p>'
+        html_body += '<p class="m-0 small">' + data.source + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mt-3">'
+        html_body += '<p class="m-0 small-text"><b>Destination</b></p>'
+        var destination = '<span class="text-grey">' + data.destination + '</span>'
+        if (data.machine_reference) {
+            destination = data.machine_reference
+        }
+        html_body += '<p class="m-0 small">' + destination + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mt-3">'
+        var arrow = '<i class="ms-2 fa fa-arrow-down text-success"></i>'
+        if (data.action == 'OUT') {
+            arrow = '<i class="ms-2 fa fa-arrow-up text-danger"></i>'
+        }
+        html_body += '<p class="m-0 small-text"><b>Action</b></p>'
+        html_body += '<p class="m-0 small">' + data.action + '' + arrow + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-4 mt-3">'
+        html_body += '<p class="m-0 small-text"><b>Status</b></p>'
+        html_body += '<p class="m-0 small">' + data.status + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mt-3">'
+        html_body += '<p class="m-0 small-text"><b>Note</b></p>'
+        html_body += '<p class="m-0 small">' + data.note + '</p>'
+        html_body += '</div>'
+        if (data.status == 'WAITING') {
+            html_body += '<div class="col-12 mt-5">'
+            html_body += '<button type="button" class="w-100 btn btn-danger" id="btnSimpan" onclick="hapusData(' + id + ')"><i class="fa fa-trash me-2"></i>Hapus Data</button>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer);
+    }
+
+    function hapusData(id) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus data ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var button = '#btnSimpan'
+                var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
+                var data = {
+                    'deletedId': {
+                        materialTransferDetail: [id]
+                    }
+                }
+                kelolaData(data, type, url, button)
+            }
+        })
+
     }
 </script>

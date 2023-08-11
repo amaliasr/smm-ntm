@@ -175,4 +175,9 @@ class Production extends CI_Controller
         // $this->template->views('errors/notfound', $data);
         $this->template->views('production/template_production_entry', $data);
     }
+    public function machineStorage()
+    {
+        $data['title'] = 'Machine Storage';
+        $this->template->views('production/machine_storage', $data);
+    }
 }

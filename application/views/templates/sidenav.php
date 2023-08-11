@@ -115,6 +115,7 @@
                             <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                         <?php } ?>
                         <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/machineStorage">Machine Storage</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->

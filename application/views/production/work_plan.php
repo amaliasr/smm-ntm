@@ -1626,7 +1626,6 @@
     }
 
     function finishedConvert() {
-        console.log(blankShift)
         data_work.workPlan = data_work_converted
         if (data_work.workPlan[0].production_plan.shift[0].id) {
             arrangeVariable()
