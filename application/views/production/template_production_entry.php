@@ -581,16 +581,6 @@
         color: #434242;
     }
 
-    th[rowspan],
-    td:first-child {
-        position: sticky;
-        left: 0px;
-        background-color: white;
-        z-index: 1;
-        /* border: 1px solid rgba(33, 40, 50, 0.125); */
-        border: 1px solid #ddd;
-    }
-
     a:hover {
         text-decoration: none;
     }

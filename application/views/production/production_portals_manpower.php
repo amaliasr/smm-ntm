@@ -1125,7 +1125,7 @@
             const parts = dateString.split(" ");
             const day = parseInt(parts[0]);
             const month = parts[1];
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;">'
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(3)">'
             html += '<div class="row g-0">'
             html += '<div class="col-md-2 bg-skm">'
             html += '<div class="row d-flex align-items-center h-100">'
@@ -1163,6 +1163,11 @@
         });
         $('#dailyTask').html(html)
         insight()
+    }
+
+    function openDailyTask(id) {
+        var url = '<?= base_url() ?>production/productionEntry/default/' + id
+        window.open(url, '_blank')
     }
 
     function insight() {

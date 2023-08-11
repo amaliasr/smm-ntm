@@ -936,7 +936,32 @@
                 </div>
                 <div class="col-6 text-end align-self-center">
                     <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                    <button type="button" class="btn btn-outline-danger shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-bell-o"></i></button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-danger shadow-none dropdown-toggle" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <i class="fa fa-bell-o"></i>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuClickableInside" style="width: 300px;">
+                            <?php for ($i = 0; $i < 10; $i++) { ?>
+                                <li><a class="dropdown-item" href="javascript:void(0)">
+                                        <div class="row">
+                                            <div class="col-3 p-3 bg-dongker text-center">
+                                                <div class="row d-flex align-items-center h-100">
+                                                    <div class="col text-center">
+                                                        <span class="small text-white vertical-text">HLP 20</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-9 align-self-center">
+                                                <p class="m-0 super-small-text text-orange"><b>Bob Deli</b></p>
+                                                <p class="m-0 super-small-text"><b>10 Agustus 2023 16:42</b></p>
+                                                <p class="m-0 small">Armour Red Filter - Stick</p>
+                                            </div>
+                                        </div>
+                                    </a></li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+
                 </div>
                 <div class="col-4 pt-3">
                     <div class="card shadow-none">
@@ -996,7 +1021,6 @@
                                     <?php } ?>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
@@ -1054,4 +1078,10 @@
         });
         return firstNames.join(', ');
     }
+    $(document).ready(function() {
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+        var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl)
+        })
+    })
 </script>

@@ -634,7 +634,7 @@
             </div>
             <div class="row pt-3">
                 <div class="col-12 col-lg-9">
-                    <div class="card shadow-none mb-2" style="border-radius: 0px;">
+                    <div class="card shadow-none mb-2 h-100" style="border-radius: 0px;">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
@@ -642,7 +642,14 @@
                                     <p class="m-0 small-text" id="planDate">No Plan Choosen</p>
                                 </div>
                                 <div class="col text-end">
-                                    <a href="javascript:void(0)" onclick="directToWorkPlan()"><button type="button" class="btn btn-primary btn-sm">Work Plan</button></a>
+
+                                    <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="chooseDate()"><i class="fa fa-calendar-o me-2"></i>Choose Plan</button>
+
+                                    <a href="javascript:void(0)" onclick="directToWorkPlan()"><button type="button" class="btn btn-primary btn-sm shadow-none position-relative">
+                                            <span id="notif">
+                                            </span>
+                                            Work Plan
+                                        </button></a>
                                 </div>
                                 <div class="col-12 pt-3">
                                     <!-- <div mbsc-page class="demo-meal-planner">
@@ -699,7 +706,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" id="formTargetProduction">
+                            <div class="row m-0" style="height: 400px;overflow-x: hidden;overflow-y: auto;" id="formTargetProduction">
                             </div>
                         </div>
                     </div>
@@ -811,16 +818,22 @@
             var group = groups[key];
             var produk = [];
             for (var i = 0; i < group.length; i++) {
-                produk.push(group[i].product_alias);
+                if (group[i].product_id != null) {
+                    produk.push(group[i].product_alias + ' (' + group[i].product_qty + ')');
+                }
             }
             var obj = {
                 start: group[0].date,
                 end: group[0].date,
-                nama_shift: "Shift " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
-                // nama_shift: group[0].shift_name + " " + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                shift_id: group[0].shift_id,
+                shift_group_id: group[0].shift_group_id,
+                nama_shift: "" + convertTimeFormat(group[0].shift_start) + " - " + convertTimeFormat(group[0].shift_end),
+                machine_type_id: group[0].machine_type_id,
                 resource: group[0].machine_id,
-                work_plan_id: group[0].work_plan_id,
+                machine_name: group[0].machine_name,
                 produk: produk.join(", "),
+                work_plan_id: group[0].work_plan_id,
+                work_plan_machine_id: group[0].work_plan_machine_id,
                 allDay: true,
             };
             outputData.push(obj);
@@ -986,6 +999,11 @@
                 data_work = response['data']
                 id_production_plan_clicked = id
                 $('#planDate').html(formatDateIndonesia(data_work.productionPlan.date_start) + ' - ' + formatDateIndonesia(data_work.productionPlan.date_end))
+                if (!data_work.workPlan[0].work_plan.work_plan_id) {
+                    $('#notif').html('<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"></span>')
+                } else {
+                    $('#notif').html('')
+                }
                 arrangeVariable()
             }
         })
@@ -1004,7 +1022,18 @@
     var data_work_plan = []
     var data_work_plan_group = ''
 
+    function reset() {
+        data_detail_plan_clicked = []
+        target_per_production_type = []
+        target_per_machine = []
+        target_production = {}
+        data_clicked_plan = ''
+        data_work_plan = []
+        data_work_plan_group = ''
+    }
+
     function arrangeVariable() {
+        reset()
         // VARIABLE PLANNING
 
         data_clicked_plan = data_all_plan.filter((v, k) => {
@@ -1118,7 +1147,7 @@
     function createHeaderPlanner() {
         var dateList = dateRangeComplete(data_clicked_plan[0].date_start, data_clicked_plan[0].date_end)
         var html = ''
-        html += '<th class=""><b>Machine | Date</b></th>'
+        html += '<th style="width:100px;"><b>Machine | Date</b></th>'
         for (let i = 0; i < dateList.length; i++) {
             html += '<th class="small-text">' + formatInternationalDate(dateList[i]) + '</th>'
         }
@@ -1139,9 +1168,8 @@
                     var data = data_work_plan_group.filter((v, k) => {
                         if (v.resource == e.id && v.start == dateList[i]) return true
                     })
-
                     data.forEach(el => {
-                        html += '<div class="card shadow-none rounded-3 mb-2" style="cursor:pointer;">'
+                        html += '<div class="card shadow-none rounded-3 mb-2" style="cursor:pointer;" onclick="viewDetail(' + el.work_plan_machine_id + ')">'
                         html += '<div class="card-body bg-grey p-2">'
                         html += '<p class="m-0 super-small-text text-dark"><b>' + el.nama_shift + '</b></p>'
                         html += '<p class="m-0 super-small-text">' + el.produk + '</p>'
@@ -1159,111 +1187,18 @@
         createTargetProduction()
     }
 
-    function createPlanner() {
-        var types = []
-        data_work.machine.forEach(e => {
-            types.push({
-                id: e.id,
-                name: e.name,
-                color: colorEvent(e.machine_type_id),
-            })
-        });
-
-        calendar = $('#demo-meal-planner').mobiscroll().eventcalendar({
-            view: { // More info about view: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-view
-                timeline: {
-                    type: 'week',
-                    eventList: true,
-                }
-            },
-            min: new Date(data_clicked_plan[0].date_start),
-            max: new Date(data_clicked_plan[0].date_end),
-            resources: types, // More info about resources: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-resources
-            dragToCreate: false, // More info about dragToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToCreate
-            dragToResize: false, // More info about dragToResize: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToResize
-            dragToMove: false, // More info about dragToMove: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-dragToMove
-            clickToCreate: false, // More info about clickToCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-clickToCreate
-            resizeEvent: true,
-            todayText: 'Today',
-            extendDefaultEvent: function(ev) { // More info about extendDefaultEvent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-extendDefaultEvent
-                return {
-                    title: 'New meal',
-                    allDay: true
-                };
-            },
-            onEventCreate: function(args, inst) { // More info about onEventCreate: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventCreate
-                // store temporary event
-                tempMeal = args.event;
-                setTimeout(function() {
-                    // addMealPopup();
-                }, 100);
-            },
-            onEventClick: function(args, inst) { // More info about onEventClick: https://docs.mobiscroll.com/5-25-1/eventcalendar#event-onEventClick
-                oldMeal = $.extend({}, args.event);
-                tempMeal = args.event;
-
-                // if (!popup.isVisible()) {
-                // editMealPopup(args);
-                // }
-            },
-
-            renderResourceHeader: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                // LIST MESINNYA
-                return '<div class="cell-content"><p class="m-0">Machine | Date<p></div>';
-            },
-            renderResource: function(resource) { // More info about renderResource: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderResource
-                // LIST MESINNYA
-                return '<div class="cell-content">' +
-                    '<p class="m-0 ' + resource.color + '" style="font-size:12px !important;">' + resource.name + '</p>' +
-                    '</div>';
-            },
-            renderScheduleEventContent: function(args) { // More info about renderScheduleEventContent: https://docs.mobiscroll.com/5-25-1/eventcalendar#opt-renderScheduleEventContent
-                var event = args.original;
-                return '<div class="md-meal-planner-event">' +
-                    '<div class="">' + event.nama_shift + '</div>' +
-                    (event.produk ? '<div class="md-meal-planner-event-desc">' + event.produk + ' </div>' : '') +
-                    '</div>';
-            },
-            renderDay: function(day) {
-                var date = day.date;
-                var formatDate = mobiscroll.util.datetime.formatDate;
-                var formattedDate = formatDate('DD MMMM YYYY', date);
-
-                // Check if the current day is today's date
-                var today = new Date();
-                var isToday = date.toDateString() === today.toDateString();
-
-                // Apply a CSS class or add a marker for today's date
-                var marker = isToday ? '<span class="today-marker"></span>' : '';
-
-                return '<div class="cell-content">' +
-                    '<p class="small">' + formattedDate + '</p>' +
-                    marker +
-                    '</div>';
-            }
-        }).mobiscroll('getInst');
-        createDataPlanner()
-
-    }
-
-    function createDataPlanner() {
-        var array = data_work_plan_group
-        calendar.setEvents(array);
-        // $('.mbsc-calendar-wrapper').attr('hidden', true)
-        createTargetProduction()
-    }
-
     function createTargetProduction() {
         var html = ''
-        html += '<div class="col-12 pe-4">'
-        html += '<div class="form-check d-flex align-items-center float-end">'
-        html += '<input class="form-check-input mb-2" type="checkbox" value="" id="flexCheckMachine" onchange="changeTargetMachine()" style="width: 13px;height:13px;">'
-        html += '<label class="form-check-label small-text ms-1" for="flexCheckMachine">Per Machine</label>'
-        html += '</div>'
-        html += '</div>'
+        // html += '<div class="col-12 pe-4">'
+        // html += '<div class="form-check d-flex align-items-center float-end">'
+        // html += '<input class="form-check-input mb-2" type="checkbox" value="" id="flexCheckMachine" onchange="changeTargetMachine()" style="width: 13px;height:13px;">'
+        // html += '<label class="form-check-label small-text ms-1" for="flexCheckMachine">Per Machine</label>'
+        // html += '</div>'
+        // html += '</div>'
         html += '<div class="col-12" id="listTargetProduction"></div>'
         $('#formTargetProduction').html(html)
-        changeTargetMachine()
+        // changeTargetMachine()
+        targetProduction('target_per_machine')
     }
 
     function targetProduction(name) {
@@ -1344,5 +1279,13 @@
     function directToWorkPlan() {
         var url = '<?= base_url() ?>production/workPlan/' + id_production_plan_clicked
         location.replace(url)
+    }
+
+    function viewDetail(work_plan_machine_id) {
+        var data = data_work_plan.filter((v, k) => {
+            if (v.work_plan_machine_id == work_plan_machine_id.toString()) return true
+        })
+        console.log(data)
+
     }
 </script>
