@@ -110,6 +110,7 @@ class Production extends CI_Controller
         $data['id'] = $explodedParams[2];
         $data['user_id'] = $explodedParams[3];
         $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getMaterialRequestPrint?id=' . $data['id'] . '&employeeId=' . $data['user_id'])))->data;
+        // print_r($data['datas']);
         $html = $this->load->view('production/cetak_material_request', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = 'MATERIAL REQUEST ' . $data['datas']->materialRequest[0]->code . ".pdf";

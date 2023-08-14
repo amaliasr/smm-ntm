@@ -940,16 +940,12 @@
                         <button class="btn btn-sm btn-outline-danger shadow-none dropdown-toggle" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <i class="fa fa-bell-o"></i>
                         </button>
-                        <ul class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuClickableInside" style="width: 300px;">
+                        <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" style="width: 300px;height: 400px;overflow-x: hidden;overflow-y: auto;">
                             <?php for ($i = 0; $i < 10; $i++) { ?>
-                                <li><a class="dropdown-item" href="javascript:void(0)">
+                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="viewDetail()">
                                         <div class="row">
                                             <div class="col-3 p-3 bg-dongker text-center">
-                                                <div class="row d-flex align-items-center h-100">
-                                                    <div class="col text-center">
-                                                        <span class="small text-white vertical-text">HLP 20</span>
-                                                    </div>
-                                                </div>
+                                                <p class="m-0 text-wrap small text-white">HLP 20</p>
                                             </div>
                                             <div class="col-9 align-self-center">
                                                 <p class="m-0 super-small-text text-orange"><b>Bob Deli</b></p>
@@ -1084,4 +1080,21 @@
             return new bootstrap.Dropdown(dropdownToggleEl)
         })
     })
+</script>
+<script>
+    function viewDetail() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Machine Stock</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row p-3">'
+        html_body += '</div>'
+        $('#modalBody').html(html_body)
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer);
+    }
 </script>

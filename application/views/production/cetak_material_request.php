@@ -143,7 +143,6 @@
     </header>
     <main>
         <h3>PERMINTAAN NTM MAKER DAN PACKER/HLP</h3>
-        <!-- <?php print_r($datas); ?> -->
         <table style="width: 100%;padding:0px;margin-bottom:30px;margin-top:30px;">
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">Tanggal</td>
@@ -199,60 +198,71 @@
                         ?>
                     </tr>
                     <?php
-                    foreach ($datas->machineSubtypeMaterial as $materials) {
-                        if ($materials->machine_sub_type == $sub_type_id) {
-                            foreach ($materials->material as $item) {
-                                // find item
-                                $found = '';
-                                foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
-                                    foreach ($value2->machine_sub_type as $key3 => $value3) {
+                    $listMaterial = [];
+                    foreach ($v as $value) {
+                        if ($value->detail != null) {
+                            foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
+                                foreach ($value2->machine_sub_type as $key3 => $value3) {
+                                    if ($value->detail->sub_type_id == $value3->id) {
                                         foreach ($value3->detail as $key4 => $value4) {
                                             foreach ($value4->machine->material as $key5 => $value5) {
-                                                if ($item->id == $value5->material->id) {
-                                                    $found = 'yes';
-                                                }
+                                                $data['name'] = $value5->material->name;
+                                                $data['id'] = $value5->material->id;
+                                                $data['alias'] = $value5->material->alias;
+                                                $data['code'] = $value5->material->code;
+                                                $data['unit_name'] = $value5->unit->name;
+                                                $listMaterial[] = $data;
                                             }
                                         }
                                     }
                                 }
-                                // find item
-                                if ($found) {
-                    ?>
-                                    <tr>
-                                        <td class="td_main" style="text-align: center;"><?= $item->code ?></td>
-                                        <td class="td_main">
-                                            <p style="font-size: 8px;color:#434242;margin:0px;"><?= $item->alias ?></p>
-                                            <?= $item->name ?>
-                                        </td>
-                                        <td class="td_main" style="text-align:center;"><?= $item->unit->name ?></td>
-                                        <?php foreach ($v as $value) {
-                                            if ($value->detail != null) { ?>
-                                                <td class="td_main" style="text-align:right;">
-                                                    <?php
-                                                    foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
-                                                        foreach ($value2->machine_sub_type as $key3 => $value3) {
-                                                            foreach ($value3->detail as $key4 => $value4) {
-                                                                foreach ($value4->machine->material as $key5 => $value5) {
-                                                                    if ($item->id == $value5->material->id && $value4->machine->id == $value->detail->machine->id) {
-                                                    ?>
-                                                                        <?= number_format($value5->qty_request, 2, ',', '.') ?>
-                                                    <?php
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    ?>
-                                                </td>
-                                        <?php
-                                            }
-                                        } ?>
-                                    </tr>
-                    <?php
-                                }
                             }
                         }
-                    } ?>
+                    }
+                    $listMaterialUnique = array_reduce($listMaterial, function ($carry, $item) {
+                        $code = $item['code'];
+                        if (!isset($carry[$code])) {
+                            $carry[$code] = $item;
+                        }
+                        return $carry;
+                    }, array());
+
+                    $listMaterialUnique = array_values($listMaterialUnique);
+                    for ($i = 0; $i < count($listMaterialUnique); $i++) {
+                    ?>
+                        <tr>
+                            <td class="td_main" style="text-align: center;"><?= $listMaterialUnique[$i]['code'] ?></td>
+                            <td class="td_main">
+                                <p style="font-size: 8px;color:#434242;margin:0px;"><?= $listMaterialUnique[$i]['alias'] ?></p>
+                                <?= $listMaterialUnique[$i]['name'] ?>
+                            </td>
+                            <td class="td_main" style="text-align:center;"><?= $listMaterialUnique[$i]['unit_name'] ?></td>
+                            <?php foreach ($v as $value) {
+                                if ($value->detail != null) { ?>
+                                    <td class="td_main" style="text-align:right;">
+                                        <?php
+                                        foreach ($datas->materialRequest[0]->machine_type as $key2 => $value2) {
+                                            foreach ($value2->machine_sub_type as $key3 => $value3) {
+                                                foreach ($value3->detail as $key4 => $value4) {
+                                                    foreach ($value4->machine->material as $key5 => $value5) {
+                                                        if ($listMaterialUnique[$i]['id'] == $value5->material->id && $value4->machine->id == $value->detail->machine->id) {
+                                        ?>
+                                                            <?= number_format($value5->qty_request, 2, ',', '.') ?>
+                                        <?php
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </td>
+                            <?php
+                                }
+                            } ?>
+                        </tr>
+                    <?php
+                    }
+                    ?>
                 </table>
         <?php }
         } ?>
