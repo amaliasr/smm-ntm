@@ -554,13 +554,15 @@
         html += '<option value="" disabled selected>Pilih Tujuan</option>'
         dataEntry.machineTransferDestination.forEach(e => {
             html += '<optgroup label="' + e.type + '">'
-            e.data.forEach(el => {
-                var gudang = ''
-                if (el.gudang_id) {
-                    gudang = el.gudang_id
-                }
-                html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '">' + el.name + '</option>'
-            });
+            if (e.data) {
+                e.data.forEach(el => {
+                    var gudang = ''
+                    if (el.gudang_id) {
+                        gudang = el.gudang_id
+                    }
+                    html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '">' + el.name + '</option>'
+                });
+            }
             html += '</optgroup>'
         });
         html += '</select>'
@@ -766,7 +768,6 @@
             action: 'OUT',
             tag: 'TRANSFER',
             note: $('#notes').val(),
-            reference_id: 123,
             work_plan_id: dataEntry.workPlanMachine.work_plan_id,
             shift_id: dataEntry.workPlanMachine.shift.id
         })

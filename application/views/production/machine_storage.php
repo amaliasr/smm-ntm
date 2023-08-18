@@ -885,12 +885,22 @@
         top: 0;
         left: 0;
     }
+
+    .litepicker .container__months .month-item {
+        box-sizing: content-box !important;
+        width: 280px !important;
+    }
+
+    .container__months {
+        width: 280px !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
 <script src="<?= base_url() ?>assets/js/mobiscroll.jquery.min.js"></script>
 <script src="https://use.fontawesome.com/d80f210d12.js"></script>
 <!-- Chart js -->
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -1431,21 +1441,25 @@
             html += '<div class="col-4">'
 
             html += '<div class="card shadow-none">'
-            html += '<div class="card-body p-2">'
-            html += '<p class="small-text"><b>Tujuan Transaksi</b></p>'
+            html += '<div class="card-body">'
+            html += '<p class="small-text"><b>Tanggal Transaksi</b></p>'
+            html += '<input class="form-control datepicker" type="text" id="date" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="">'
+            html += '<p class="small-text mt-3"><b>Tujuan Transaksi</b></p>'
             html += '<select class="form-select" name="state" id="tujuanTransaksi" onchange="eventButton()">'
             html += '<option value="" disabled selected>Pilih Tujuan</option>'
-            // dataEntry.machineTransferDestination.forEach(e => {
-            //     html += '<optgroup label="' + e.type + '">'
-            //     e.data.forEach(el => {
-            //         var gudang = ''
-            //         if (el.gudang_id) {
-            //             gudang = el.gudang_id
-            //         }
-            //         html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '">' + el.name + '</option>'
-            //     });
-            //     html += '</optgroup>'
-            // });
+            dataDetail.warehouseTransferDestination.forEach(e => {
+                html += '<optgroup label="' + e.type + '">'
+                if (e.data) {
+                    e.data.forEach(el => {
+                        var gudang = ''
+                        if (el.gudang_id) {
+                            gudang = el.gudang_id
+                        }
+                        html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '">' + el.name + '</option>'
+                    });
+                }
+                html += '</optgroup>'
+            });
             html += '</select>'
             html += '<p class="small-text mt-3"><b>Notes</b></p>'
             html += '<textarea class="form-control" rows="10" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
@@ -1456,6 +1470,10 @@
 
             html += '</div>'
             $('#listFormTransaction').html(html)
+            $('.datepicker').datepicker({
+                format: "yyyy-mm-dd",
+                orientation: "auto",
+            });
         } else {
             empty('#listFormTransaction', 'Belum Ada Data yang Terpilih', '300px')
         }
@@ -1658,9 +1676,62 @@
                 return 0;
             }
         }
-        if (!$('#tujuanTransaksi').val()) {
+        if (!$('#tujuanTransaksi').val() || !$('#date').val()) {
             return 0
         }
         return 1;
+    }
+
+    function arrangeVariableInsert() {
+        var qty = $(".qty").map(function() {
+            return $(this).val();
+        }).get();
+        var itemId = $(".qty").map(function() {
+            return $(this).data('item');
+        }).get();
+        var unit = $(".qty").map(function() {
+            return $(this).data('unit');
+        }).get();
+        var tujuanTransaksi = $("#tujuanTransaksi").val()
+        var tujuanTransaksiVariable = $("#tujuanTransaksi").find(':selected').data('variable')
+        var tujuanTransaksiGudang = $("#tujuanTransaksi").find(':selected').data('gudang')
+        var data = {}
+        data.machineTransfer = []
+        var id = new Date().getTime()
+        data.machineTransfer.push({
+            id: id,
+            machine_id: tujuanTransaksi,
+            send_at: $('#date').val(),
+            employee_id_sender: user_id,
+            action: 'IN',
+            tag: 'TRANSFER',
+            note: $('#notes').val(),
+            reference_id: 123,
+            work_plan_id: null,
+            shift_id: null,
+            machine_id_reference: null,
+            gudang_id: choosenId
+        })
+        data.machineTransferDetail = []
+        for (let i = 0; i < qty.length; i++) {
+            if (qty[i]) {
+                data.machineTransferDetail.push({
+                    id: id + '' + i,
+                    machine_transfer_id: id,
+                    item_id: itemId[i],
+                    unit_id: unit[i],
+                    qty: qty[i]
+                })
+            }
+        }
+        // console.log(data)
+        simpanData(data)
+    }
+
+    function simpanData(data) {
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
+        kelolaData(data, type, url, button)
     }
 </script>
