@@ -1401,7 +1401,7 @@
             html += '<div class="col-8">'
             itemIdSelected.forEach(e => {
                 // card
-                html += '<div class="card shadow-none mb-2">'
+                html += '<div class="card shadow-none mb-2" id="cardHasil' + e.item.id + '">'
                 html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="chooseItem(' + e.item.id + ')"><i class="small-text fa fa-times text-light"></i></span>'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
@@ -1432,6 +1432,23 @@
 
             html += '<div class="card shadow-none">'
             html += '<div class="card-body p-2">'
+            html += '<p class="small-text"><b>Tujuan Transaksi</b></p>'
+            html += '<select class="form-select" name="state" id="tujuanTransaksi" onchange="eventButton()">'
+            html += '<option value="" disabled selected>Pilih Tujuan</option>'
+            // dataEntry.machineTransferDestination.forEach(e => {
+            //     html += '<optgroup label="' + e.type + '">'
+            //     e.data.forEach(el => {
+            //         var gudang = ''
+            //         if (el.gudang_id) {
+            //             gudang = el.gudang_id
+            //         }
+            //         html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '">' + el.name + '</option>'
+            //     });
+            //     html += '</optgroup>'
+            // });
+            html += '</select>'
+            html += '<p class="small-text mt-3"><b>Notes</b></p>'
+            html += '<textarea class="form-control" rows="10" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
             html += '</div>'
             html += '</div>'
 
@@ -1592,5 +1609,54 @@
                 chooseWarehouse(choosenId)
             }
         });
+    }
+
+    function fillForm(event, id) {
+        const value = event.target.value;
+        const stok = event.target.dataset.stok;
+        colorizedValue(value, stok, id)
+    }
+
+    function colorizedValue(value, stok, id, material_id) {
+        var data = itemIdSelected.find((v, k) => {
+            if (v.item.id == id) return true
+        })
+        data.qty_fill = value
+        if (value) {
+            if (parseFloat(value) <= parseFloat(stok)) {
+                $('#cardHasil' + id).removeClass('bg-light-danger')
+                $('#cardHasil' + id).addClass('bg-light-success')
+            } else if (parseFloat(value) > parseFloat(stok)) {
+                $('#cardHasil' + id).removeClass('bg-light-success')
+                $('#cardHasil' + id).addClass('bg-light-danger')
+            }
+        } else {
+            $('#cardHasil' + id).removeClass('bg-light-success')
+            $('#cardHasil' + id).removeClass('bg-light-danger')
+        }
+        eventButton()
+    }
+
+    function eventButton() {
+        var available = checkDataValidity(itemIdSelected)
+        if (available) {
+            $('#btnSimpan').removeAttr('disabled', true)
+        } else {
+            $('#btnSimpan').attr('disabled', true)
+        }
+    }
+
+    function checkDataValidity(data) {
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+
+            if (parseFloat(item.qty_fill) > parseFloat(item.qty)) {
+                return 0;
+            }
+        }
+        if (!$('#tujuanTransaksi').val()) {
+            return 0
+        }
+        return 1;
     }
 </script>
