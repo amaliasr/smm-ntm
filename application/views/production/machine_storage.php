@@ -900,7 +900,7 @@
 <main>
     <div class="row">
         <!-- LEFT PANEL -->
-        <div class="col-3 bg-left-panel full-height p-5 pt-2 pe-2">
+        <div class="col-2 bg-left-panel full-height p-5 pt-2 pe-2">
             <div class="row p-3">
                 <div class="col align-self-center p-0">
                     <h3 class="text-dark-grey m-0">
@@ -909,118 +909,13 @@
                     <p class="super-small-text m-0 text-light-dark-grey">Pengelolaan Penyimpanan Mesin</p>
                 </div>
 
-                <div class="col-12 p-0 pt-4 pb-2">
-                    <?php for ($i = 0; $i < 5; $i++) { ?>
-                        <div class="card shadow-none mb-2 btn-list-planning">
-                            <div class="card-body pt-3 pb-3">
-                                <div class="row">
-                                    <div class="col-10 align-self-center">
-                                        <b class="small-text">Gudang HLP</b>
-                                    </div>
-                                    <div class="col-2 text-center align-self-center">
-                                        <i class="fa fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php } ?>
+                <div class="col-12 p-0 pt-4 pb-2" id="listGudang">
                 </div>
             </div>
         </div>
         <!-- RIGHT PANEL -->
-        <div class="col-9 bg-white p-4">
-            <div class="row">
-                <div class="col-6">
-                    <p class="m-0 super-small-text" id="date">-</p>
-                    <b>Gudang <span id="machineName">HLP</span></b>
-                </div>
-                <div class="col-6 text-end align-self-center">
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-danger shadow-none dropdown-toggle" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i class="fa fa-bell-o"></i>
-                        </button>
-                        <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" style="width: 300px;height: 400px;overflow-x: hidden;overflow-y: auto;">
-                            <?php for ($i = 0; $i < 10; $i++) { ?>
-                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="viewDetail()">
-                                        <div class="row">
-                                            <div class="col-3 p-3 bg-dongker text-center">
-                                                <p class="m-0 text-wrap small text-white">HLP 20</p>
-                                            </div>
-                                            <div class="col-9 align-self-center">
-                                                <p class="m-0 super-small-text text-orange"><b>Bob Deli</b></p>
-                                                <p class="m-0 super-small-text"><b>10 Agustus 2023 16:42</b></p>
-                                                <p class="m-0 small">Armour Red Filter - Stick</p>
-                                            </div>
-                                        </div>
-                                    </a></li>
-                            <?php } ?>
-                        </ul>
-                    </div>
+        <div class="col-10 bg-white p-4" id="kerangkaGudangDetail">
 
-                </div>
-                <div class="col-4 pt-3">
-                    <div class="card shadow-none">
-                        <div class="card-body p-0 pt-3">
-                            <b class="m-0 ms-3 small-text">Item Stock</b>
-                            <input type="text" class="form-control mt-3" placeholder="Search" id="search_nama" autocomplete="off" style="border-radius:0px;border-bottom:0px;border-left:0px;border-right:0px;">
-                            <div class="row m-0" style="height: 500px;overflow-x: hidden;overflow-y: auto;">
-                                <?php for ($i = 0; $i < 10; $i++) { ?>
-                                    <div class="col-12 border-top border-bottom p-3">
-                                        <div class="row">
-                                            <div class="col">
-                                                <p class="m-0 super-small-text">ARF</p>
-                                                <p class="m-0 small-text"><b>Armour Red Filter - Stick</b></p>
-                                            </div>
-                                            <div class="col-auto text-end">
-                                                <h5 class="m-0 text-orange"><b>2,000</b></h5>
-                                                <p class="m-0 small-text">Stick</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-8 pt-3">
-                    <div class="card shadow-none h-100">
-                        <div class="card-body p-0 pt-3">
-                            <b class="m-0 ms-3 small-text">Detail Transaction</b>
-                            <table class="table table-sm table-hover mt-5">
-                                <thead>
-                                    <tr>
-                                        <th class="small-text text-center">#</th>
-                                        <th class="small-text text-center"></th>
-                                        <th class="small-text text-center">Time</th>
-                                        <th class="small-text text-center">Source</th>
-                                        <th class="small-text text-center">Destination</th>
-                                        <th class="small-text text-center">Items / Materials</th>
-                                        <th class="small-text text-center">Status</th>
-                                        <th class="small-text text-center"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php for ($i = 0; $i < 10; $i++) { ?>
-                                        <tr>
-                                            <td class="small-text align-middle text-center">1</td>
-                                            <td class="small-text align-middle text-center"><i class="fa fa-arrow-up text-danger"></i></td>
-                                            <td class="small-text align-middle text-center">2023-08-10 15:26</td>
-                                            <td class="small-text align-middle text-center">MK9-A</td>
-                                            <td class="small-text align-middle text-center">Gudang HLP</td>
-                                            <td class="small-text align-middle text-center">Armour Red Filter - Stick</td>
-                                            <td class="small-text align-middle text-center"><span class="badge rounded-pill bg-light text-dark-grey">Waiting</span></td>
-                                            <td class="small-text align-middle">
-                                                <button type="button" class="btn btn-outline-dark shadow-none btn-sm"><i class="fa fa-eye"></i></button>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </main>
@@ -1060,11 +955,11 @@
 <?php $this->load->view('components/modal_static') ?>
 <script>
     function notFound(location) {
-        $(location).html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+        $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
     }
 
-    function empty(location, text) {
-        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none"><div class="card-body h-100 p-5 m-5"><p class="small"><i>' + text + '</i></p><lottie-player style="margin:auto;width: 200px; height: 100%;" src="https://assets8.lottiefiles.com/packages/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player></div></div></div></div>')
+    function empty(location, text, height) {
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
     }
 
     function formatNames(data) {
@@ -1074,14 +969,276 @@
         });
         return firstNames.join(', ');
     }
-    $(document).ready(function() {
-        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
-        var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
-            return new bootstrap.Dropdown(dropdownToggleEl)
-        })
-    })
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
 </script>
 <script>
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
+    var dataListWarehouse
+    var dataDetail
+    var itemIdSelected = []
+    var choosenId
+
+    $(document).ready(function() {
+        loadData()
+    })
+
+    function loadData() {
+        var data = {
+            employeeId: user_id,
+        }
+        var url = "<?= api_produksi('loadPageStorageManage'); ?>"
+        getData(data, url)
+    }
+
+    function getData(data, url) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                dataListWarehouse = response.data
+                listGudang()
+            }
+        })
+    }
+
+    function listGudang() {
+        var html = ''
+        dataListWarehouse.warehouse.forEach(e => {
+            html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse' + e.id + '" onclick="chooseWarehouse(' + e.id + ')">'
+            html += '<div class="card-body pt-3 pb-3">'
+            html += '<div class="row">'
+            html += '<div class="col-10 align-self-center">'
+            html += '<b class="small-text">' + e.name + '</b>'
+            html += '</div>'
+            html += '<div class="col-2 text-center align-self-center">'
+            html += '<i class="fa fa-chevron-right"></i>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listGudang').html(html)
+        empty('#kerangkaGudangDetail', 'Pilih Gudang Terlebih Dahulu', '500px')
+    }
+
+    function chooseWarehouse(id) {
+        choosenId = id
+        colorizedMenu(id)
+        var data = {
+            warehouseId: id,
+        }
+        var url = "<?= api_produksi('getWarehouseStockInfo'); ?>"
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                dataDetail = response.data
+                kerangkaGudangDetail(id)
+            }
+        })
+    }
+
+    function colorizedMenu(id) {
+        $('.btn-list-planning').removeClass('clicked')
+        $('#btnWarehouse' + id).addClass('clicked')
+    }
+
+    function kerangkaGudangDetail(id) {
+        var data = dataListWarehouse.warehouse.find((v, k) => {
+            if (v.id == id) return true
+        })
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-6">'
+        html += '<p class="m-0 super-small-text" id="date">-</p>'
+        html += '<b>' + data.name + '</b>'
+        html += '</div>'
+        html += '<div class="col-6 text-end align-self-center">'
+        html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>'
+        html += '<div class="btn-group">'
+        html += '<button class="btn btn-sm btn-outline-danger shadow-none dropdown-toggle" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">'
+        html += '<i class="fa fa-bell-o"></i>'
+        html += '</button>'
+        html += '<ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;" id="notifWaiting">'
+        html += '</ul>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '<div class="col-3 pt-3">'
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-body p-0 pt-3">'
+        html += '<b class="m-0 ms-3 small-text">Item Stock</b>'
+        html += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama" autocomplete="off" style="border-radius:0px;border-bottom:0px;border-left:0px;border-right:0px;">'
+        html += '<div class="m-0" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="listCurrentStock">'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-9 pt-3">'
+        html += '<div class="card shadow-none h-100">'
+        html += '<div class="card-body p-0 pt-3">'
+        html += '<div class="row">'
+
+        html += '<div class="col">'
+        html += '<b class="m-0 ms-3 small-text">Detail Transaction</b>'
+        html += '</div>'
+
+        html += '<div class="col text-end">'
+        html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="formTransaction()"><i class="fa fa-paper-plane-o me-2"></i>Transaction</button>'
+        html += '</div>'
+
+        html += '<div class="col-12">'
+        html += '<table class="table table-sm table-hover mt-5">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th class="small-text text-center">#</th>'
+        html += '<th class="small-text text-center"></th>'
+        html += '<th class="small-text text-center">Time</th>'
+        html += '<th class="small-text text-center">User</th>'
+        html += '<th class="small-text text-center">Source</th>'
+        html += '<th class="small-text text-center">Destination</th>'
+        html += '<th class="small-text text-center">Items / Materials</th>'
+        html += '<th class="small-text text-center">Status</th>'
+        html += '<th class="small-text text-center"></th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody id="tableDetail">'
+        html += '</tbody>'
+        html += '</table>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#kerangkaGudangDetail').html(html)
+        notifWaiting()
+    }
+
+    function notifWaiting() {
+        var html = ''
+        dataDetail.mutationStockWaiting.forEach(e => {
+            html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
+            html += '<div class="row w-100">'
+            html += '<div class="col-3 p-3 bg-dongker text-center">'
+            html += '<p class="m-0 text-wrap small text-white">' + e.reference.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-9 align-self-center">'
+            html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
+            html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
+            e.machine_transfer_detail.forEach(el => {
+                html += '<p class="m-0 small-text">' + el.item.name + '</p>'
+            });
+            html += '</div>'
+            html += '</div>'
+            html += '</a></li>'
+        })
+        $('#notifWaiting').html(html)
+        listCurrentStock()
+    }
+
+    function listCurrentStock() {
+        var html = ''
+        var a = 0
+        dataDetail.currentStock.forEach(e => {
+            html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+            html += '<div class="col">'
+            html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + e.item.code + '</p>'
+            html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + e.item.name + '</b></p>'
+            html += '</div>'
+            html += '<div class="col-auto text-end">'
+            html += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
+            html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            a++
+        })
+        $('#listCurrentStock').html(html)
+        tableDetail()
+    }
+
+    function tableDetail() {
+        var html = ''
+        if (dataDetail.mutationStock.length) {
+            var a = 1
+            dataDetail.mutationStock.forEach(e => {
+                var arrow = '<i class="fa fa-arrow-down text-success"></i>'
+                if (e.action == 'OUT') {
+                    arrow = '<i class="fa fa-arrow-up text-danger"></i>'
+                }
+                if (e.status == 'WAITING') {
+                    var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
+                } else if (e.status == 'RECEIVED') {
+                    var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
+                } else if (e.status == 'REJECTED') {
+                    var status = '<span class="badge rounded-pill bg-success">Ditolak</span>'
+                } else {
+                    var status = ''
+
+                }
+                html += '<tr>'
+                html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
+                html += '<td class="small-text align-middle text-center">' + arrow + '</td>'
+                html += '<td class="small-text align-middle text-center">' + getDateTime(e.time) + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.employee.name.split(' ')[0] + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.reference.name + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.warehouse.name + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.item.name + '</td>'
+                html += '<td class="small-text align-middle text-center">' + status + '</td>'
+                html += '<td class="small-text align-middle">'
+                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm"><i class="fa fa-eye"></i></button>'
+                html += '</td>'
+                html += '</tr>'
+            });
+        } else {
+            html += '<tr>'
+            html += '<td class="text-center p-5" colspan="8"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
+            html += '</tr>'
+        }
+        $('#tableDetail').html(html)
+    }
+
     function viewDetail() {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
@@ -1095,6 +1252,345 @@
         $('#modalBody').html(html_body)
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        $('#modalFooter').html(html_footer);
+        $('#modalFooter').html(html_footer).removeClass('d-none');
+    }
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
+    }
+    // search multi 2
+    $(document).on('keyup', '#search_nama2', function(e) {
+        searching2()
+    })
+
+    function searching2() {
+        var value = $('#search_nama2').val().toLowerCase();
+        var cards = $('.text_search2').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search2').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search2' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search2' + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function formTransaction() {
+        itemIdSelected = []
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Transaction</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-3 border-end ps-0">'
+
+        html_body += '<div class="row p-0">'
+        html_body += '<div class="col-auto align-self-center p-4 pb-0">'
+        html_body += '<p class="small-text"><b>Item Stock</b></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="row">'
+        html_body += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama2" autocomplete="off" style="border-radius:0px;border-bottom:0px;border-left:0px;border-right:0px;">'
+        html_body += '<div class="p-0 m-0" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        var a = 0
+        dataDetail.currentStock.forEach(e => {
+            html_body += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search2' + e.item.id + '" onclick="chooseItem(' + e.item.id + ')">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col">'
+            html_body += '<p class="m-0 super-small-text text_search2" data-id="' + a + '">' + e.item.code + '</p>'
+            html_body += '<p class="m-0 super-small-text"><b class="text_search2" data-id="' + a + '">' + e.item.name + '</b></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-auto text-end">'
+            html_body += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
+            html_body += '<p class="m-0 small-text">' + e.unit.name + '</p>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            a++
+        })
+
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+
+        html_body += '<div class="row p-0">'
+        html_body += '<div class="col-auto align-self-center p-4 pb-0">'
+        html_body += '<p class="small-text"><b>Form Transaction</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12" id="listFormTransaction">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('pt-0 pb-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="arrangeVariableInsert()">Simpan</button>'
+        $('#modalFooter').html(html_footer).removeClass('d-none')
+        empty('#listFormTransaction', 'Belum Ada Data yang Terpilih', '300px')
+    }
+
+    function chooseItem(id) {
+        if ($('#card_search2' + id).hasClass('selected')) {
+            $('#card_search2' + id).removeClass('selected')
+            itemIdSelected = itemIdSelected.filter(e => e.item.id != id);
+        } else {
+            $('#card_search2' + id).addClass('selected')
+            var data = deepCopy(dataDetail.currentStock.find((v, k) => {
+                if (v.item.id == id) return true
+            }))
+            data.qty_fill = 0
+            if (data) {
+                itemIdSelected.push(data)
+            }
+        }
+        listFormTransaction()
+    }
+
+    function listFormTransaction() {
+        var html = ''
+        if (itemIdSelected.length) {
+            html += '<div class="row">'
+            html += '<div class="col-8">'
+            itemIdSelected.forEach(e => {
+                // card
+                html += '<div class="card shadow-none mb-2">'
+                html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="chooseItem(' + e.item.id + ')"><i class="small-text fa fa-times text-light"></i></span>'
+                html += '<div class="card-body">'
+                html += '<div class="row">'
+
+                html += '<div class="row">'
+                html += '<div class="col-6">'
+                html += '<p class="m-0 super-small-text text-orange"><b>' + e.item.code + '</b></p>'
+                html += '<p class="m-0 small-text"><b>' + e.item.name + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-4">'
+                html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty" required="required" onkeyup="fillForm(event,' + e.item.id + ')" autocomplete="off" value="' + e.qty_fill + '" data-item="' + e.item.id + '" data-unit="' + e.unit.id + '" style="background-color:transparent;border:0px;" data-stok="' + e.qty + '">'
+                html += '<hr class="m-0">'
+                html += '<p class="m-0 float-end super-small-text">Sisa Stok : <b class="text-orange">' + e.qty + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-2 align-self-center">'
+                html += '<p class="m-0 small"><b>' + e.unit.name + '</b></p>'
+                html += '</div>'
+                html += '</div>'
+
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                // card
+            });
+            html += '</div>'
+
+            html += '<div class="col-4">'
+
+            html += '<div class="card shadow-none">'
+            html += '<div class="card-body p-2">'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
+
+            html += '</div>'
+            $('#listFormTransaction').html(html)
+        } else {
+            empty('#listFormTransaction', 'Belum Ada Data yang Terpilih', '300px')
+        }
+        $('.nominal').number(true);
+    }
+
+    function detailWaiting(id) {
+        var data = dataDetail.mutationStockWaiting.find((v, k) => {
+            if (v.id == id) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Detail Transaction</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Waktu Transaksi</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + getDateStringWithTime(data.time) + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Dibuat Oleh</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + data.employee.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Mesin Asal</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + data.reference.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Warehouse</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + data.warehouse.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Detail</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        // detail
+        html_body += '<div class="row">'
+        data.machine_transfer_detail.forEach(el => {
+            html_body += '<div class="col">'
+            html_body += '<p class="m-0 small-text">' + el.item.name + '</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-auto text-end">'
+            html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(el.qty) + '</span> <b>' + el.unit.name + '</b></p>'
+            html_body += '</div>'
+        });
+
+        html_body += '</div>'
+        // detail
+        html_body += '</div>'
+
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row pt-5">'
+        html_body += '<div class="col" style="height:50px;">'
+        html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+        html_body += '</div>'
+        html_body += '<div class="col" style="height:50px;">'
+        html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('pt-0 pb-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="">Simpan</button>'
+        $('#modalFooter').html(html_footer).addClass('d-none');
+    }
+
+    function approvalData(id, approval, machine_next) {
+        var isSendNextMachine = 0
+        if (machine_next) {
+            isSendNextMachine = 1
+        }
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menyetujui data tersebut ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var button = '#btnSimpan'
+                var url = '<?php echo api_produksi('setMachineTransferReceive'); ?>'
+                var data = {
+                    id: id,
+                    isReceive: approval,
+                    employeeId: user_id,
+                    isSendNextMachine: isSendNextMachine,
+                }
+                kelolaData(data, type, url, button)
+            }
+        })
+
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                $(button).prop("disabled", false);
+                $('#modal').modal('hide')
+                chooseWarehouse(choosenId)
+            }
+        });
     }
 </script>

@@ -260,6 +260,43 @@ function getDateTime(orginaldate) {
     var date = year + "-" + month + "-" + day+' '+jam + ":" + menit + ":" + detik;
     return date;
 }
+function getDateStringWithTime(orginaldate) {
+    var date = new Date(orginaldate);
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var jam = date.getHours();
+    var menit = date.getMinutes();
+    var detik = date.getSeconds();
+    if (detik < 10) {
+        detik = "0" + detik;
+    }
+    if (menit < 10) {
+        menit = "0" + menit;
+    }
+    if (jam < 10) {
+        jam = "0" + jam;
+    }
+    if (day < 10) {
+        day = "0" + day;
+    }
+    switch(month) {
+        case 0: month = "Januari"; break;
+        case 1: month = "Februari"; break;
+        case 2: month = "Maret"; break;
+        case 3: month = "April"; break;
+        case 4: month = "Mei"; break;
+        case 5: month = "Juni"; break;
+        case 6: month = "Juli"; break;
+        case 7: month = "Agustus"; break;
+        case 8: month = "September"; break;
+        case 9: month = "Oktober"; break;
+        case 10: month = "November"; break;
+        case 11: month = "Desember"; break;
+        }
+    var date = day + " " + month + " " + year+' '+jam + ":" + menit + ":" + detik;
+    return date;
+}
 function groupAndSum(arr, groupKeys, sumKeys) {
     return Object.values(
         arr.reduce((acc, curr) => {

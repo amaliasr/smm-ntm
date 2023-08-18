@@ -497,10 +497,10 @@
                 id: user_id
             },
             error: function(xhr) {
-                $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+                $('#fieldIsi').html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
-                $('#fieldIsi').html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
+                $('#fieldIsi').html('<lottie-player src="<?= base_url() ?>assets/json/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
             },
             success: function(response) {
                 data_user = response['data']
@@ -520,10 +520,10 @@
                 employeeId: user_id,
             },
             error: function(xhr) {
-                $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+                $('#fieldIsi').html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
             },
             beforeSend: function() {
-                $('#fieldIsi').html('<lottie-player src="https://assets1.lottiefiles.com/packages/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
+                $('#fieldIsi').html('<lottie-player src="<?= base_url() ?>assets/json/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
             },
             success: function(response) {
                 data_material = response['data']
@@ -540,7 +540,7 @@
             detailMaterialRequest()
             sizing()
         } else {
-            $('#fieldIsi').html('<lottie-player src="https://assets2.lottiefiles.com/packages/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
+            $('#fieldIsi').html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
         }
     }
 
@@ -597,6 +597,9 @@
                 $.each(values['detail'], function(keys2, values2) {
                     // machine
                     $.each(values2['machine']['material'], function(keys3, values3) {
+                        if (!values3['qty_approve']) {
+                            values3['qty_approve'] = 0
+                        }
                         data_isi_material.push({
                             'machine_type_id': value['id'],
                             'machine_type_name': value['name'],
@@ -610,12 +613,13 @@
                             'unit_id': values3['unit']['id'],
                             'unit': values3['unit']['name'],
                             'qty': values3['qty_request'],
+                            'qty_approve': values3['qty_approve'],
                         })
                     })
                 })
             })
         })
-        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
+        data_isi_material_group = groupAndSum(data_isi_material, ['material_id', 'material_name', 'material_code', 'unit'], ['qty', 'qty_approve'])
         // console.log(data_isi_material)
         formDetailMaterialRequest()
     }
@@ -649,7 +653,7 @@
             var data = data_isi_material.filter((values2, keys2) => {
                 if (values2['machine_type_name'] == nama[0]['label']) return true
             })
-            var data_group = groupAndSum(data, ['material_id', 'material_name', 'material_code', 'unit'], ['qty'])
+            var data_group = groupAndSum(data, ['material_id', 'material_name', 'material_code', 'unit'], ['qty', 'qty_approve'])
             html += '<div class="col-12 pt-2">'
             html += '<h3 class="m-0 mb-2"><b>' + nama[0]['label'] + '</b></h3>'
             html += '<div class="table-responsive">'
@@ -689,7 +693,11 @@
                             var jumlah = ""
                             var bg = ""
                             if (datas != undefined) {
-                                jumlah = datas['qty']
+                                if (datas['qty_approve'] == 0) {
+                                    jumlah = datas['qty']
+                                } else {
+                                    jumlah = datas['qty_approve']
+                                }
                                 bg = 'bg-light'
                             }
                             html += '<td class="p-2 font-small text-end fw-bold ' + bg + '"><b>' + number_format(jumlah) + '</b></td>'
