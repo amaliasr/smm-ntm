@@ -359,7 +359,7 @@
             } else if (e.status == 'RECEIVED') {
                 var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
             } else if (e.status == 'REJECTED') {
-                var status = '<span class="badge rounded-pill bg-success">Ditolak</span>'
+                var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
             } else {
                 var status = ''
 
@@ -675,7 +675,11 @@
     function fillForm(event, id, material_id = '') {
         const value = event.target.value;
         const stok = event.target.dataset.stok;
-        colorizedValue(value, stok, id, material_id)
+        colorizedValue(removeCommas(value), stok, id, material_id)
+    }
+
+    function removeCommas(numberWithCommas) {
+        return numberWithCommas.replace(/,/g, '');
     }
 
     function colorizedValue(value, stok, id, material_id) {
