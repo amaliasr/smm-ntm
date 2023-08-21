@@ -910,6 +910,11 @@
     .highlighted-date {
         background-color: #f0ad4e;
     }
+
+    .bg-dark-grey {
+        color: white;
+        background-color: #5C5470 !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -1426,8 +1431,8 @@
             html_body += '<div class="card-body">'
             html_body += '<div class="row">'
             html_body += '<div class="col">'
-            html_body += '<p class="m-0 super-small-text text_search2" data-id="' + a + '">' + e.item.code + '</p>'
-            html_body += '<p class="m-0 super-small-text"><b class="text_search2" data-id="' + a + '">' + e.item.name + '</b></p>'
+            html_body += '<p class="m-0 super-small-text text_search2" data-id="' + e.item.id + '">' + e.item.code + '</p>'
+            html_body += '<p class="m-0 super-small-text"><b class="text_search2" data-id="' + e.item.id + '">' + e.item.name + '</b></p>'
             html_body += '</div>'
             html_body += '<div class="col-auto text-end">'
             html_body += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
