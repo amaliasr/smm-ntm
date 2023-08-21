@@ -782,15 +782,14 @@
 
     .nav-link {
         color: #61677A;
-        border-color: #E57C23 #E57C23 #E57C23;
-
+        border-color: #27374D #27374D #27374D;
     }
 
     .nav-tabs .nav-link.active,
     .nav-tabs .nav-item.show .nav-link {
         color: white !important;
-        background-color: #E57C23;
-        border-color: #E57C23 #E57C23 #E57C23;
+        background-color: #27374D;
+        border-color: #27374D #27374D #27374D;
     }
 
     .nav-tabs .nav-link {
@@ -798,9 +797,9 @@
         background: none;
         border-top-left-radius: 0.35rem;
         border-top-right-radius: 0.35rem;
-        border-top: 1px solid #e57c23;
-        border-right: 1px solid #e57c23;
-        border-left: 1px solid #e57c23;
+        border-top: 1px solid #27374D;
+        border-right: 1px solid #27374D;
+        border-left: 1px solid #27374D;
         border-bottom: 1px none rgba(229, 124, 35, 0);
     }
 
@@ -886,6 +885,10 @@
         left: 0;
     }
 
+    .litepicker {
+        z-index: 1000000 !important;
+    }
+
     .litepicker .container__months .month-item {
         box-sizing: content-box !important;
         width: 280px !important;
@@ -894,13 +897,25 @@
     .container__months {
         width: 280px !important;
     }
+
+    .offcanvas.show {
+        transform: none;
+        z-index: 100000;
+    }
+
+    .selected {
+        background-color: #F8F0E5;
+    }
+
+    .highlighted-date {
+        background-color: #f0ad4e;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
 <script src="<?= base_url() ?>assets/js/mobiscroll.jquery.min.js"></script>
 <script src="https://use.fontawesome.com/d80f210d12.js"></script>
 <!-- Chart js -->
-<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -929,6 +944,8 @@
         </div>
     </div>
 </main>
+
+
 
 
 <!-- Modal -->
@@ -962,7 +979,14 @@
         </div>
     </div>
 </div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" data-bs-backdrop="true">
+    <div class="offcanvas-header p-5" id="canvasHeader">
+    </div>
+    <div class="offcanvas-body p-5" id="canvasBody">
+    </div>
+</div>
 <?php $this->load->view('components/modal_static') ?>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script>
     function notFound(location) {
         $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
@@ -983,6 +1007,29 @@
     function deepCopy(obj) {
         return JSON.parse(JSON.stringify(obj));
     }
+
+    function clearModal() {
+        $('#modalDialog').removeClass();
+        $('#modalDialog').removeAttr('style');
+        $('#modalHeader').html('');
+        $('#modalBody').html('');
+        $('#modalFooter').html('');
+    }
+
+    function clearModal2() {
+        $('#modalDialog2').removeClass();
+        $('#modalDialog2').removeAttr('style');
+        $('#modalHeader2').html('');
+        $('#modalBody2').html('');
+        $('#modalFooter2').html('');
+    }
+
+    $('#modal').on('hidden.bs.modal', function(e) {
+        clearModal();
+    })
+    $('#modal2').on('hidden.bs.modal', function(e) {
+        clearModal2();
+    })
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -1035,7 +1082,11 @@
 
     function listGudang() {
         var html = ''
+        var a = 0
         dataListWarehouse.warehouse.forEach(e => {
+            if (a == 0) {
+                choosenId = e.id
+            }
             html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse' + e.id + '" onclick="chooseWarehouse(' + e.id + ')">'
             html += '<div class="card-body pt-3 pb-3">'
             html += '<div class="row">'
@@ -1048,16 +1099,22 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
+            a++
         });
         $('#listGudang').html(html)
-        empty('#kerangkaGudangDetail', 'Pilih Gudang Terlebih Dahulu', '500px')
+        // empty('#kerangkaGudangDetail', 'Pilih Gudang Terlebih Dahulu', '500px')
+        chooseWarehouse(choosenId)
     }
 
-    function chooseWarehouse(id) {
+    function chooseWarehouse(id, start = null, end = null) {
         choosenId = id
         colorizedMenu(id)
         var data = {
             warehouseId: id,
+        }
+        if (start || end) {
+            data.dateStart = start
+            data.dateEnd = end
         }
         var url = "<?= api_produksi('getWarehouseStockInfo'); ?>"
         $.ajax({
@@ -1102,10 +1159,11 @@
         html += '<div class="col-6 text-end align-self-center">'
         html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>'
         html += '<div class="btn-group">'
-        html += '<button class="btn btn-sm btn-outline-danger shadow-none dropdown-toggle" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">'
+        html += '<button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">'
+        html += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="jumlahWaiting"></span>'
         html += '<i class="fa fa-bell-o"></i>'
         html += '</button>'
-        html += '<ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;" id="notifWaiting">'
+        html += '<ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" id="notifWaiting">'
         html += '</ul>'
         html += '</div>'
 
@@ -1127,10 +1185,12 @@
 
         html += '<div class="col">'
         html += '<b class="m-0 ms-3 small-text">Detail Transaction</b>'
+        html += '<p class="m-0 ms-3 small-text">' + formatDateIndonesia(dataDetail.dateStart) + ' - ' + formatDateIndonesia(dataDetail.dateEnd) + '</p>'
         html += '</div>'
 
         html += '<div class="col text-end">'
         html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="formTransaction()"><i class="fa fa-paper-plane-o me-2"></i>Transaction</button>'
+        html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none me-2" onclick="filterCanvas()"><i class="fa fa-filter"></i></button>'
         html += '</div>'
 
         html += '<div class="col-12">'
@@ -1159,27 +1219,43 @@
         html += '</div>'
         html += '</div>'
         $('#kerangkaGudangDetail').html(html)
+        if (dataDetail.mutationStockWaiting.length) {
+            $('#jumlahWaiting').removeClass('d-none')
+            if (dataDetail.mutationStockWaiting.length > 100) {
+                $('#jumlahWaiting').html('99+')
+            } else {
+                $('#jumlahWaiting').html(dataDetail.mutationStockWaiting.length)
+            }
+        } else {
+            $('#jumlahWaiting').addClass('d-none')
+        }
         notifWaiting()
     }
 
     function notifWaiting() {
         var html = ''
-        dataDetail.mutationStockWaiting.forEach(e => {
-            html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
-            html += '<div class="row w-100">'
-            html += '<div class="col-3 p-3 bg-dongker text-center">'
-            html += '<p class="m-0 text-wrap small text-white">' + e.reference.name + '</p>'
-            html += '</div>'
-            html += '<div class="col-9 align-self-center">'
-            html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
-            html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
-            e.machine_transfer_detail.forEach(el => {
-                html += '<p class="m-0 small-text">' + el.item.name + '</p>'
-            });
-            html += '</div>'
-            html += '</div>'
-            html += '</a></li>'
-        })
+        html += '<div style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        for (let i = 0; i < 100; i++) {
+            dataDetail.mutationStockWaiting.forEach(e => {
+                html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
+                html += '<div class="row w-100">'
+                html += '<div class="col-3 p-3 bg-dongker text-center">'
+                html += '<p class="m-0 text-wrap small text-white">' + e.reference.name + '</p>'
+                html += '</div>'
+                html += '<div class="col-9 align-self-center">'
+                html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
+                html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
+                e.machine_transfer_detail.forEach(el => {
+                    html += '<p class="m-0 small-text">' + el.item.name + '</p>'
+                });
+                html += '</div>'
+                html += '</div>'
+                html += '</a></li>'
+            })
+        }
+        html += '</div>'
+        html += '<li><hr class="dropdown-divider"></li>'
+        html += '<li class="text-center" onclick="seeAllWaiting()"><p class="m-0 small-text text-primary">See All</p></li>'
         $('#notifWaiting').html(html)
         listCurrentStock()
     }
@@ -1237,7 +1313,7 @@
                 html += '<td class="small-text align-middle text-center">' + e.item.name + '</td>'
                 html += '<td class="small-text align-middle text-center">' + status + '</td>'
                 html += '<td class="small-text align-middle">'
-                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm"><i class="fa fa-eye"></i></button>'
+                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting(' + e.id + ')"><i class="fa fa-eye"></i></button>'
                 html += '</td>'
                 html += '</tr>'
             });
@@ -1264,6 +1340,7 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
     }
+
     // search multi
     $(document).on('keyup', '#search_nama', function(e) {
         searching()
@@ -1442,9 +1519,7 @@
 
             html += '<div class="card shadow-none">'
             html += '<div class="card-body">'
-            html += '<p class="small-text"><b>Tanggal Transaksi</b></p>'
-            html += '<input class="form-control datepicker" type="text" id="date" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="">'
-            html += '<p class="small-text mt-3"><b>Tujuan Transaksi</b></p>'
+            html += '<p class="small-text"><b>Tujuan Transaksi</b></p>'
             html += '<select class="form-select" name="state" id="tujuanTransaksi" onchange="eventButton()">'
             html += '<option value="" disabled selected>Pilih Tujuan</option>'
             dataDetail.warehouseTransferDestination.forEach(e => {
@@ -1461,6 +1536,8 @@
                 html += '</optgroup>'
             });
             html += '</select>'
+            html += '<p class="small-text mt-3"><b>Tanggal Transaksi</b></p>'
+            html += '<input class="form-control datepicker" type="text" id="dateInput" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" onchange="eventButton()">'
             html += '<p class="small-text mt-3"><b>Notes</b></p>'
             html += '<textarea class="form-control" rows="10" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
             html += '</div>'
@@ -1473,6 +1550,18 @@
             $('.datepicker').datepicker({
                 format: "yyyy-mm-dd",
                 orientation: "auto",
+                multidate: true,
+                todayHighlight: true,
+                minDate: 0,
+                beforeShowDay: function(date) {
+                    var hilightedDays = [1, 3, 8, 20, 21, 16, 26, 30];
+                    if (~hilightedDays.indexOf(date.getDate())) {
+                        return {
+                            classes: 'highlight',
+                            tooltip: 'Title'
+                        };
+                    }
+                }
             });
         } else {
             empty('#listFormTransaction', 'Belum Ada Data yang Terpilih', '300px')
@@ -1481,9 +1570,16 @@
     }
 
     function detailWaiting(id) {
+        var jenis = 'parent'
         var data = dataDetail.mutationStockWaiting.find((v, k) => {
             if (v.id == id) return true
         })
+        if (!data) {
+            jenis = 'detail'
+            var data = dataDetail.mutationStock.find((v, k) => {
+                if (v.id == id) return true
+            })
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
@@ -1538,15 +1634,23 @@
         html_body += '<div class="col-9">'
         // detail
         html_body += '<div class="row">'
-        data.machine_transfer_detail.forEach(el => {
+        if (jenis == 'parent') {
+            data.machine_transfer_detail.forEach(el => {
+                html_body += '<div class="col">'
+                html_body += '<p class="m-0 small-text">' + el.item.name + '</p>'
+                html_body += '</div>'
+                html_body += '<div class="col-auto text-end">'
+                html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(el.qty) + '</span> <b>' + el.unit.name + '</b></p>'
+                html_body += '</div>'
+            });
+        } else {
             html_body += '<div class="col">'
-            html_body += '<p class="m-0 small-text">' + el.item.name + '</p>'
+            html_body += '<p class="m-0 small-text">' + data.item.name + '</p>'
             html_body += '</div>'
             html_body += '<div class="col-auto text-end">'
-            html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(el.qty) + '</span> <b>' + el.unit.name + '</b></p>'
+            html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(data.qty) + '</span> <b>' + data.unit.name + '</b></p>'
             html_body += '</div>'
-        });
-
+        }
         html_body += '</div>'
         // detail
         html_body += '</div>'
@@ -1555,16 +1659,16 @@
 
         html_body += '</div>'
         html_body += '<div class="col-12">'
-
-        html_body += '<div class="row pt-5">'
-        html_body += '<div class="col" style="height:50px;">'
-        html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
-        html_body += '</div>'
-        html_body += '<div class="col" style="height:50px;">'
-        html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
-        html_body += '</div>'
-        html_body += '</div>'
-
+        if (data.status == 'WAITING') {
+            html_body += '<div class="row pt-5">'
+            html_body += '<div class="col" style="height:50px;">'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+            html_body += '</div>'
+            html_body += '<div class="col" style="height:50px;">'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body).removeClass('pt-0 pb-0')
@@ -1676,7 +1780,7 @@
                 return 0;
             }
         }
-        if (!$('#tujuanTransaksi').val() || !$('#date').val()) {
+        if (!$('#tujuanTransaksi').val() || !$('#dateInput').val()) {
             return 0
         }
         return 1;
@@ -1701,12 +1805,12 @@
         data.machineTransfer.push({
             id: id,
             machine_id: tujuanTransaksi,
-            send_at: $('#date').val(),
+            send_at: $('#dateInput').val(),
             employee_id_sender: user_id,
             action: 'IN',
             tag: 'TRANSFER',
             note: $('#notes').val(),
-            reference_id: 123,
+            reference_id: null,
             work_plan_id: null,
             shift_id: null,
             machine_id_reference: null,
@@ -1724,8 +1828,8 @@
                 })
             }
         }
-        // console.log(data)
-        simpanData(data)
+        console.log(data)
+        // simpanData(data)
     }
 
     function simpanData(data) {
@@ -1733,5 +1837,67 @@
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
         kelolaData(data, type, url, button)
+    }
+
+    function filterCanvas() {
+        $('.offcanvas').offcanvas('show')
+        var header = ''
+        header += '<h5 id="offcanvasRightLabel">Filter</h5>'
+        header += '<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>'
+        $('#canvasHeader').html(header)
+        var body = ''
+        body += '<div class="row">'
+        body += '<div class="col-12">'
+        body += '<b class="small">Tanggal Mulai</b>'
+        body += '<input class="form-control datepicker mb-3" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + dataDetail.dateStart + '" autocomplete="off">'
+        body += '</div>'
+        body += '<div class="col-12">'
+        body += '<b class="small">Tanggal Akhir</b>'
+        body += '<input class="form-control datepicker mb-3" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + dataDetail.dateEnd + '" autocomplete="off">'
+        body += '</div>'
+        body += '</div>'
+        $('#canvasBody').html(body)
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+            firstDay: 0,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    dateStart = formatDate(date1['dateInstance'])
+                    dateEnd = formatDate(date2['dateInstance'])
+                    chooseWarehouse(choosenId, dateStart, dateEnd)
+                });
+            },
+        })
+    }
+
+    function seeAllWaiting() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Unprocessed Data</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row p-3">'
+
+        html_body += '<nav>'
+        html_body += '<div class="nav nav-tabs" id="nav-tab" role="tablist">'
+        html_body += '<button class="nav-link small-text active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Today</button>'
+        html_body += '<button class="nav-link small-text" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">All Pending</button>'
+        html_body += '</div>'
+        html_body += '</nav>'
+        html_body += '<div class="tab-content" id="nav-tabContent">'
+        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">...</div>'
+        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body)
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer).removeClass('d-none');
     }
 </script>

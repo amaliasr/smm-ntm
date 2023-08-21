@@ -823,6 +823,7 @@
     }
 
     function viewAllMachineStock() {
+        console.log(stokMachineSort)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
         var html_header = '';
@@ -831,11 +832,51 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row p-3">'
+
+        html_body += '<div class="col-12">'
+        html_body += '<table class="table table-bordered table-hover">'
+        html_body += '<tbody>'
         $.each(stokMachineSort, function(k, v) {
-            html_body += '<div class="col-4 p-3">'
-            html_body += showProgressMachineStock(v)
-            html_body += '</div>'
+            html_body += '<tr>'
+            html_body += '<th class="text-start bg-light" colspan="6"><b>' + v.alias + '</b></th>'
+            html_body += '</tr>'
+            html_body += '<tr>'
+            html_body += '<th class="small-text text-start">Item</th>'
+            html_body += '<th class="small-text">Unit</th>'
+            html_body += '<th class="small-text">Stok Awal</th>'
+            html_body += '<th class="small-text">In</th>'
+            html_body += '<th class="small-text">Out</th>'
+            html_body += '<th class="small-text">Stok Akhir</th>'
+            html_body += '</tr>'
+            html_body += '<tr>'
+            html_body += '<th class="small-text text-start">' + v.name + '</th>'
+            html_body += '<th class="small-text">' + v.unit_name + '</th>'
+            html_body += '<th class="small-text">' + v.stok_awal + '</th>'
+            html_body += '<th class="small-text">' + v.in + '</th>'
+            html_body += '<th class="small-text">' + v.out + '</th>'
+            html_body += '<th class="small-text">' + v.stok_akhir + '</th>'
+            html_body += '</tr>'
+            if (v.material_moving) {
+                v.material_moving.forEach(e => {
+                    html_body += '<tr>'
+                    html_body += '<th class="small-text text-start">' + e.name + '</th>'
+                    html_body += '<th class="small-text">' + e.unit_name + '</th>'
+                    html_body += '<th class="small-text">' + e.stok_awal + '</th>'
+                    html_body += '<th class="small-text">' + e.in + '</th>'
+                    html_body += '<th class="small-text">' + e.out + '</th>'
+                    html_body += '<th class="small-text">' + e.stok_akhir + '</th>'
+                    html_body += '</tr>'
+                });
+            }
         })
+        html_body += '</tbody>'
+        html_body += '</table>'
+        html_body += '</div>'
+        // $.each(stokMachineSort, function(k, v) {
+        //     html_body += '<div class="col-4 p-3">'
+        //     html_body += showProgressMachineStock(v)
+        //     html_body += '</div>'
+        // })
         html_body += '</div>'
         $('#modalBody').html(html_body)
         $('.nominal').number(true);
