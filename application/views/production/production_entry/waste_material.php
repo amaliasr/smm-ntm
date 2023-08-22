@@ -54,119 +54,87 @@
         color: white;
         background-color: #61677A !important;
     }
+
+    .card-waste:hover {
+        background-color: #F7F7F7;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="row">
     <div class="col-12">
         <div class="card shadow-none">
-            <div class="card-body p-0">
-                <div class="row justify-content-between p-4 pb-3">
-                    <div class="col-auto">
-                        <p class="m-0 super-small-text"><b>Material</b></p>
-                    </div>
-                    <div class="col-auto text-end">
+            <div class="card-body p-0 pb-5">
+                <div class="row justify-content-between p-5 pb-3" id="menuWaste">
+
+                </div>
+                <div id="lisMaterial">
+                    <div class="card shadow-none rounded-0 border-end-0 border-start-0">
+                        <div class="card-body p-0">
+                            <div class="row m-0">
+                                <div class="col-9">
+                                    <div class="row p-4">
+                                        <div class="col-12">
+                                            <b class="m-0 h1">ABLF12</b>
+                                            <p class="m-0 small-text">Armour Black 12 Filter</p>
+                                        </div>
+                                        <div class="col">
+                                            <div class="row mt-4">
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-4">
+                                                    <div class="card card-waste shadow-none border-2 pointer bg-light-success border-success" onclick="inputWaste()">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-4 text-center">
+                                                                    <p class="m-0 text-success fw-bolder">100</p>
+                                                                    <p class="m-0 fw-bolder small-text">Gram</p>
+                                                                </div>
+                                                                <div class="col-8 align-self-center">
+                                                                    <p class="m-0 text-dark-grey"><b>Batang</b></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php for ($i = 0; $i < 4; $i++) { ?>
+                                                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-4">
+                                                        <div class="card card-waste shadow-none border-2 pointer" onclick="inputWaste()">
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col-4 text-center">
+                                                                        <p class="m-0 text-danger">0</p>
+                                                                        <p class="m-0 fw-bolder super-small-text">Gram</p>
+                                                                    </div>
+                                                                    <div class="col-8 align-self-center">
+                                                                        <p class="m-0 text-dark-grey"><b>Batang</b></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-3 bg-light" id="fillWaste">
+                                    <div class="row p-4">
+                                        <div class="col-12">
+                                            <p class="m-0 super-small-text"><b>Fill Waste</b></p>
+                                            <p class="m-0 h3"><b>Batang</b></p>
+                                            <div class="row mt-3 align-items-center w-100">
+                                                <div class="col-12">
+                                                    <input type="text" id="inputPassword6" class="form-control form-control-lg" aria-describedby="passwordHelpInline">
+                                                </div>
+                                                <div class="col-12 pt-2 text-end">
+                                                    <span id="passwordHelpInline" class="text-dark">Kg</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="align-middle small-text">#</th>
-                            <th class="align-middle small-text" colspan="2">Material</th>
-                            <th class="align-middle small-text">Unit</th>
-                            <th class="align-middle small-text">Stok Awal</th>
-                            <th class="align-middle small-text"><i class="fa fa-arrow-down text-success me-2"></i>In</th>
-                            <th class="align-middle small-text"><i class="fa fa-arrow-up text-danger me-2"></i>Out</th>
-                            <th class="align-middle small-text">Volume<br>Penggunaan</th>
-                            <th class="align-middle small-text">Stok Akhir</th>
-                            <th class="align-middle small-text"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="fw-bolder bg-light">
-                            <td class="align-middle small-text text-center">1</td>
-                            <td class="align-middle small-text text-center">
-                                <i class="fa fa-star text-primary"></i>
-                            </td>
-                            <td class="align-middle small-text">
-                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                Etiket Armour Bold 20 SKM (Barcode Baru)
-                            </td>
-                            <td class="align-middle small-text text-center">Lembar</td>
-                            <td class="align-middle small-text text-center">130</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-self-center small-text text-center">
-
-                            </td>
-                            <td class="align-middle small-text text-center"></td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
-                        </tr>
-                        <tr class="fw-bolder bg-light-success">
-                            <td class="align-middle small-text text-center">1</td>
-                            <td class="align-middle small-text text-center">
-                                <i class="fa fa-star text-primary"></i>
-                            </td>
-                            <td class="align-middle small-text">
-                                <p class="m-0 super-small-text fw-light">IM.04-102</p>
-                                Isolasi Daimaru ( Uk. 48mm x 90y ) - 45 Micron
-                            </td>
-                            <td class="align-middle small-text text-center">Roll</td>
-                            <td class="align-middle small-text text-center">130</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-middle small-text text-center">2</td>
-                            <td class="align-self-center small text-center">
-                                <span class="badge bg-dark-grey">8</span>
-                            </td>
-                            <td class="align-middle small-text text-center">
-                                <p class="m-0 fw-lighter super-small-text"><b>DL : </b>120 cm</p>
-                                <p class="m-0 fw-lighter super-small-text"><b>DD : </b>10 cm</p>
-                            </td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
-                        </tr>
-                        <tr class="bg-light-success">
-                            <td class="align-middle small-text text-center">1</td>
-                            <td class="align-middle small-text text-center">
-                                <i class="fa fa-star-o text-grey"></i>
-                            </td>
-                            <td class="align-middle small-text">
-                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                Etiket Armour Bold 20 SKM (Barcode Baru)
-                            </td>
-                            <td class="align-middle small-text text-center">Lembar</td>
-                            <td class="align-middle small-text text-center">130</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-self-center small text-center">
-                                <span class="badge bg-dark-grey">8</span>
-                            </td>
-                            <td class="align-middle small-text text-center">120</td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
-
-                        </tr>
-                        <?php for ($i = 0; $i < 5; $i++) { ?>
-                            <tr>
-                                <td class="align-middle small-text text-center">1</td>
-                                <td class="align-middle small-text text-center">
-                                    <i class="fa fa-star-o text-grey"></i>
-                                </td>
-                                <td class="align-middle small-text">
-                                    <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                    Etiket Armour Bold 20 SKM (Barcode Baru)
-                                </td>
-                                <td class="align-middle small-text text-center">Lembar</td>
-                                <td class="align-middle small-text text-center">130</td>
-                                <td class="align-middle small-text text-center">0</td>
-                                <td class="align-middle small-text text-center">0</td>
-                                <td class="align-self-center small-text text-center"></td>
-                                <td class="align-middle small-text text-center">-</td>
-                                <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
-
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-
             </div>
         </div>
     </div>
@@ -185,7 +153,9 @@
     var dataProductionOutGroup
 
     $(document).ready(function() {
+        // emptyText('#fillWaste', 'Pilih Card untuk Mengisi Waste')
         loadData()
+        menuWaste()
     })
 
     function loadData() {
@@ -220,26 +190,56 @@
         })
     }
 
+    function menuWaste() {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine(' + "'all'" + ')" id="colStatusLineall">Semua</div>'
+        for (let i = 0; i < 2; i++) {
+            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + i + "'" + ')" id="colStatusLine' + i + '">ABLF12</div>'
+        }
+        html += '</div>'
+        $('#menuWaste').html(html)
+    }
+
+    function statusLine(status) {
+        // if (status == 'all') {
+        //     var data = data_material_filtered
+        // } else {
+        //     var data = data_material_filtered.filter((v, k) => {
+        //         if (v.status == status) return true
+        //     })
+        // }
+        listMaterial(status)
+        coloringStatusLine(status)
+    }
+
+    function coloringStatusLine(status) {
+        // DEFAULT COLOR
+        $('.statusLine').each(function() {
+            if ($(this).hasClass('fw-bold') && $(this).hasClass('filter-border')) {
+                $(this).removeClass('fw-bold filter-border').addClass('text-grey');
+            }
+        });
+        $('.statusLineIcon').each(function() {
+            if ($(this).hasClass('bg-light-maroon') && $(this).hasClass('text-white')) {
+                $(this).removeClass('bg-light-maroon text-white').addClass('bg-light text-grey');
+            }
+        });
+        $('#colStatusLine' + status).removeClass('text-grey').addClass('fw-bold filter-border')
+        $('#statusLineIcon' + status).removeClass('bg-light text-grey').addClass('bg-light-maroon text-white')
+    }
+
+    function listMaterial(status) {
+
+    }
+
     function reset() {
         dataProductionOut = []
         dataProductionOutGroup = []
     }
 
-    function inputSO() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Input Stok Akhir</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12">'
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body)
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="arrangeVariableInsert()">Simpan</button>'
+    function inputWaste() {
+        var html = ''
+        html += ''
     }
 </script>

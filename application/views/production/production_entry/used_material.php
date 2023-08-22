@@ -118,10 +118,7 @@
                             <td class="align-self-center small text-center">
                                 <span class="badge bg-dark-grey">8</span>
                             </td>
-                            <td class="align-middle small-text text-center">
-                                <p class="m-0 fw-lighter super-small-text"><b>DL : </b>120 cm</p>
-                                <p class="m-0 fw-lighter super-small-text"><b>DD : </b>10 cm</p>
-                            </td>
+                            <td class="align-middle small-text text-center">120</td>
                             <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
                         </tr>
                         <tr class="bg-light-success">
@@ -171,7 +168,7 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
@@ -227,7 +224,7 @@
 
     function inputSO() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
         var html_header = '';
         html_header += '<h5 class="modal-title">Input Stok Akhir</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -235,11 +232,59 @@
         var html_body = '';
         html_body += '<div class="row">'
         html_body += '<div class="col-12">'
+        html_body += ''
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="card shadow-none">'
+        html_body += '<div class="card-body">'
+
+        html_body += '<div class="row justify-content-center w-100">'
+        html_body += '<div class="col-auto align-self-center">'
+        html_body += '<select name="" id="input" style="width:100px;padding:0px;display:inline;border:0px;background-position: right 0.9rem center;" class="form-select form-select-sm shadow-none" required="required">'
+        html_body += '<option value="" class="p-4">DIAMETER</option>'
+        html_body += '</select>'
+        html_body += '</div>'
+        html_body += '<div class="col align-self-center border-start">'
+
+        // form
+        for (let index = 0; index < 2; index++) {
+            html_body += '<div class="row g-3 align-items-center small-text w-100">'
+            html_body += '<div class="col-auto">'
+            html_body += '<label for="inputPassword6" class="col-form-label">Diameter Dalam</label>'
+            html_body += '</div>'
+            html_body += '<div class="col-auto">'
+            html_body += '<input type="text" id="inputPassword6" class="form-control form-control-sm" aria-describedby="passwordHelpInline">'
+            html_body += '</div>'
+            html_body += '<div class="col-auto">'
+            html_body += '<span id="passwordHelpInline" class="form-text">CM</span>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        // form
+
+        html_body += '</div>'
+        html_body += '<div class="col-1 align-self-center pointer text-end">'
+        html_body += '<span class="fa fa-plus"></span>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body)
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<div class="row w-100">'
+        html_footer += '<div class="col">'
+        html_footer += '<p class="m-0"><b>Total Stok Akhir : </b><span>100</span> Roll</p>'
+        html_footer += '</div>'
+        html_footer += '<div class="col text-end">'
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="arrangeVariableInsert()">Simpan</button>'
+        html_footer += '</div>'
+        html_footer += '</div>'
+        $('#modalFooter').html(html_footer)
     }
 </script>
