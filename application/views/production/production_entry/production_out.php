@@ -266,9 +266,10 @@
                 item_code: e.item.code,
                 item_alias: e.item.alias,
                 qty: e.qty,
+                priority: e.priority,
             })
         });
-        dataProductionOutGroup = groupAndSum(dataProductionOut, ['item_id'], ['qty'])
+        dataProductionOutGroup = groupAndSum(dataProductionOut, ['item_id', 'priority'], ['qty'])
         listProgressHasil()
     }
 
@@ -276,7 +277,7 @@
         var html = ''
         dataEntry.workPlanMachine.products.forEach(e => {
             var dataGroup = dataProductionOutGroup.find((v, k) => {
-                if (v.item_id == e.product.id) return true
+                if (v.item_id == e.product.id && v.priority == e.priority) return true
             })
             if (dataGroup) {
                 var percentReal = (parseInt(dataGroup.qty) / parseInt(e.qty)) * 100
@@ -316,7 +317,7 @@
         html += '<tr>'
         html += '<th scope="col" class="p-3">#</th>'
         html += '<th scope="col" class="p-3"><i class="fa fa-clock-o"></i></th>'
-        html += '<th scope="col" class="p-3">Brand</th>'
+        html += '<th scope="col" class="p-3">Brand - Batch</th>'
         html += '<th scope="col" class="p-3">QTY</th>'
         html += '<th scope="col" class="p-3">User</th>'
         html += '<th scope="col" class="p-3">Notes</th>'
@@ -338,7 +339,7 @@
                 html += '<tr>'
                 html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
                 html += '<td class="p-2 text-center">' + convertTimeFormat(e.time.start) + ' - ' + convertTimeFormat(e.time.end) + '</td>'
-                html += '<td class="p-2 text-center">ABLF12</td>'
+                html += '<td class="p-2 text-center">' + e.item.alias + ' - BA' + e.priority + '</td>'
                 html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
                 html += '<td class="p-2 text-center">' + e.employee.name.split(' ')[0] + '</td>'
                 if (e.note == null) {
@@ -437,7 +438,7 @@
         html_body += '<select id="selectItem" class="form-select" onchange="formFill(),fillForm()">'
         html_body += '<option value="" selected disabled><i>Pilih Item</i></option>'
         dataEntry.workPlanMachine.products.forEach(e => {
-            html_body += '<option value="' + e.product.id + '">' + e.product.name + '</option>'
+            html_body += '<option value="' + e.product.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '">' + e.product.name + ' - Batch ' + e.priority + '</option>'
         })
         html_body += '</select>'
         html_body += '</div>'
@@ -574,6 +575,7 @@
                 time_start: $('#startTime').val(),
                 time_end: $('#endTime').val(),
                 item_id: $('#selectItem').val(),
+                work_plan_product_id: $('#selectItem').find(':selected').data('work_plan_product_id'),
                 qty: $('#qty').val(),
                 unit_id: dataEntry.productionOutUnit.id,
                 employee_id: user_id,

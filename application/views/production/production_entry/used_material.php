@@ -235,41 +235,37 @@
         html_body += ''
         html_body += '</div>'
         html_body += '<div class="col-12">'
-
-        html_body += '<div class="card shadow-none">'
+        // card
+        html_body += '<div class="card shadow-none mb-2">'
         html_body += '<div class="card-body">'
 
-        html_body += '<div class="row justify-content-center w-100">'
-        html_body += '<div class="col-auto align-self-center">'
-        html_body += '<select name="" id="input" style="width:100px;padding:0px;display:inline;border:0px;background-position: right 0.9rem center;" class="form-select form-select-sm shadow-none" required="required">'
-        html_body += '<option value="" class="p-4">DIAMETER</option>'
-        html_body += '</select>'
+        html_body += '<div class="row w-100">'
+        html_body += '<div class="col-2 align-self-center">'
+        html_body += '<p class="m-0 small-text"><b>ROLL</b></p>'
         html_body += '</div>'
-        html_body += '<div class="col align-self-center border-start">'
-
+        html_body += '<div class="col-9 align-self-center border-start">'
         // form
-        for (let index = 0; index < 2; index++) {
-            html_body += '<div class="row g-3 align-items-center small-text w-100">'
-            html_body += '<div class="col-auto">'
-            html_body += '<label for="inputPassword6" class="col-form-label">Diameter Dalam</label>'
-            html_body += '</div>'
-            html_body += '<div class="col-auto">'
-            html_body += '<input type="text" id="inputPassword6" class="form-control form-control-sm" aria-describedby="passwordHelpInline">'
-            html_body += '</div>'
-            html_body += '<div class="col-auto">'
-            html_body += '<span id="passwordHelpInline" class="form-text">CM</span>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
+        html_body += '<div class="row g-3 align-items-center justify-content-center small-text w-100">'
+        html_body += '<div class="col-3">'
+        html_body += '</div>'
+        html_body += '<div class="col-4">'
+        html_body += '<input type="text" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<span id="passwordHelpInline" class="form-text">Roll</span>'
+        html_body += '</div>'
+        html_body += '</div>'
         // form
-
         html_body += '</div>'
         html_body += '<div class="col-1 align-self-center pointer text-end">'
-        html_body += '<span class="fa fa-plus"></span>'
+        html_body += '<span class="fa fa-check text-grey fa-2x"></span>'
         html_body += '</div>'
         html_body += '</div>'
 
         html_body += '</div>'
+        html_body += '</div>'
+        // card
+        html_body += '<div id="listAdditional">'
         html_body += '</div>'
 
         html_body += '</div>'
@@ -286,5 +282,58 @@
         html_footer += '</div>'
         html_footer += '</div>'
         $('#modalFooter').html(html_footer)
+        emptyListAdditional()
+    }
+
+    function emptyListAdditional() {
+        var html = ''
+        // card
+        html += '<div class="card shadow-none mb-2" style="border: 6px dashed #eeeeee;">'
+        html += '<div class="card-body text-center">'
+        html += '<div class="row">'
+        html += '<div class="col-12 align-self-center">'
+        html += '<p class="m-0 small-text"><i></i></p>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+    }
+
+    function listAdditional() {
+        var html = ''
+        // card
+        html += '<div class="card shadow-none mb-2">'
+        html += '<div class="card-body">'
+
+        html += '<div class="row w-100">'
+        html += '<div class="col-2 align-self-center">'
+        html += '<p class="m-0 small-text"><b>DIAMETER</b></p>'
+        html += '</div>'
+        html += '<div class="col-9 align-self-center border-start">'
+        // form
+        for (let index = 0; index < 2; index++) {
+            html += '<div class="row g-3 align-items-center justify-content-center small-text w-100 mb-2">'
+            html += '<div class="col-3">'
+            html += '<label for="inputPassword6" class="col-form-label">Diameter Dalam</label>'
+            html += '</div>'
+            html += '<div class="col-4">'
+            html += '<input type="text" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">'
+            html += '</div>'
+            html += '<div class="col-3">'
+            html += '<span id="passwordHelpInline" class="form-text">CM</span>'
+            html += '</div>'
+            html += '</div>'
+        }
+        // form
+        html += '</div>'
+        html += '<div class="col-1 align-self-center pointer text-end">'
+        html += '<span class="fa fa-check text-grey fa-2x"></span>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+
+        // card
     }
 </script>
