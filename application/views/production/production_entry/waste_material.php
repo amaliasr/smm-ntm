@@ -116,20 +116,6 @@
                                     </div>
                                 </div>
                                 <div class="col-3 bg-light" id="fillWaste">
-                                    <div class="row p-4">
-                                        <div class="col-12">
-                                            <p class="m-0 super-small-text"><b>Fill Waste</b></p>
-                                            <p class="m-0 h3"><b>Batang</b></p>
-                                            <div class="row mt-3 align-items-center w-100">
-                                                <div class="col-12">
-                                                    <input type="text" id="inputPassword6" class="form-control form-control-lg" aria-describedby="passwordHelpInline">
-                                                </div>
-                                                <div class="col-12 pt-2 text-end">
-                                                    <span id="passwordHelpInline" class="text-dark">Kg</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +139,7 @@
     var dataProductionOutGroup
 
     $(document).ready(function() {
-        // emptyText('#fillWaste', 'Pilih Card untuk Mengisi Waste')
+        emptyText('#fillWaste', 'Pilih Card untuk Mengisi Waste')
         loadData()
         menuWaste()
     })
@@ -240,6 +226,27 @@
 
     function inputWaste() {
         var html = ''
-        html += ''
+        html += '<div class="row p-4 h-100">'
+        html += '<div class="col-12 align-self-center">'
+
+        html += '<div class="card shadow-none" style="border:0px;height:100%;background-color:transparent">'
+        html += '<div class="card-body h-100 p-0">'
+
+
+        html += '<p class="m-0 super-small-text"><b>Fill Waste</b></p>'
+        html += '<p class="m-0 h3"><b>Batang</b></p>'
+        html += '<div class="row mt-3 align-items-center w-100">'
+        html += '<div class="col-12">'
+        html += '<input type="text" id="inputPassword6" class="form-control form-control-lg">'
+        html += '</div>'
+        html += '<div class="col-12 pt-2 text-end">Gram</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        $('#fillWaste').html(html)
     }
 </script>
