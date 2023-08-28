@@ -1098,7 +1098,11 @@
             success: function(response) {
                 showOverlay('hide')
                 dataListWarehouse = response.data
-                listGudang()
+                if (dataListWarehouse.warehouse.length) {
+                    listGudang()
+                } else {
+                    emptyText('#kerangkaGudangDetail', 'Tidak Ada Data Tersedia')
+                }
             }
         })
     }
