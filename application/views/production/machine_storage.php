@@ -1554,7 +1554,7 @@
             html += '<div class="card shadow-none">'
             html += '<div class="card-body">'
             html += '<p class="small-text"><b>Tujuan Transaksi</b></p>'
-            html += '<select class="form-select" name="state" id="tujuanTransaksi" onchange="eventButton()">'
+            html += '<select class="form-select" name="state" id="tujuanTransaksi" onchange="eventButton();findTanggalTransaksi()">'
             html += '<option value="" disabled selected>Pilih Tujuan</option>'
             dataDetail.warehouseTransferDestination.forEach(e => {
                 html += '<optgroup label="' + e.type + '">'
@@ -1571,7 +1571,7 @@
             });
             html += '</select>'
             html += '<p class="small-text mt-3"><b>Tanggal Transaksi</b></p>'
-            html += '<input class="form-control datepicker" type="text" id="dateInput" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" onchange="eventButton()">'
+            html += '<input class="form-control datepicker" type="text" id="dateInput" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" onchange="eventButton()" disabled>'
             html += '<p class="small-text mt-3"><b>Notes</b></p>'
             html += '<textarea class="form-control" rows="10" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
             html += '</div>'
@@ -1804,6 +1804,29 @@
             $('#btnSimpan').removeAttr('disabled', true)
         } else {
             $('#btnSimpan').attr('disabled', true)
+        }
+
+    }
+
+    function findTanggalTransaksi() {
+        if ($('#tujuanTransaksi').val()) {
+            $.ajax({
+                url: '<?php echo api_produksi('setMachineTransferReceive'); ?>',
+                type: 'POST',
+                data: {
+                    machineId: id,
+                    warehouseId: approval,
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error Data'
+                    });
+                },
+                beforeSend: function() {},
+                success: function(response) {}
+            });
         }
     }
 
