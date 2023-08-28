@@ -815,6 +815,10 @@
     .bg-light-danger {
         background-color: #e8d6d6;
     }
+
+    .bg-light-dongker {
+        background-color: #7d8794;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -1041,7 +1045,8 @@
             html += '<div class="card-body p-1 ps-3 pe-3">'
             html += '<div class="row justify-content-between">'
             html += '<div class="col align-self-center">'
-            html += '<b class="small-text">' + e.product.alias + '</b>'
+            html += '<p class="small-text m-0"><b>' + e.product.alias + '</b></p>'
+            html += '<p class="m-0 super-small-text text-grey">Batch ' + e.priority + '</p>'
             html += '</div>'
             html += '<div class="col align-self-center text-end">'
             html += '<p class="m-0 small-text">' + e.qty + ' ' + e.unit.name + '</p>'

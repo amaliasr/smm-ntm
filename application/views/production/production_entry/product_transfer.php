@@ -86,6 +86,16 @@
     .selected {
         background-color: #F8F0E5;
     }
+
+    .circle-shape {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+    }
 </style>
 <div class="row">
     <div class="col-12">
@@ -130,6 +140,14 @@
                     </div>
                     <div class="col-auto text-end">
                         <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="formTransaction()"><i class="fa fa-paper-plane me-2"></i>Transaction</button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="jumlahWaiting"></span>
+                                <i class="fa fa-bell-o"></i>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" id="notifWaiting">
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="row pt-4">
@@ -421,6 +439,176 @@
                 }
             }
         })
+        notifWaiting()
+    }
+
+    function notifWaiting() {
+        var html = ''
+        var count = 0
+        dataEntry.machineTransferWaiting.forEach(e => {
+            if (e.status == 'WAITING' && e.action == 'IN') {
+                html += '<div style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
+                html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
+                html += '<div class="row w-100">'
+                html += '<div class="col-3 text-center">'
+                html += '<div class="circle-shape bg-dongker">'
+                html += '<p class="m-0 text-wrap small-text text-white">' + e.warehouse.name + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '<div class="col-9 align-self-center">'
+                html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
+                html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
+                e.machine_transfer_detail.forEach(el => {
+                    html += '<p class="m-0 small-text">' + el.item.alias + '</p>'
+                });
+                html += '</div>'
+                html += '</div>'
+                html += '</a></li>'
+                html += '</div>'
+                html += '<li><hr class="dropdown-divider"></li>'
+                count++
+            }
+        });
+        if (!count) {
+            html += '<div class="card border-0 shadow-none">'
+            html += '<div class="card-body p-5 text-center">'
+            html += '<p class="m-0 super-small-text"><i>Tidak Notifikasi</i></p>'
+            html += '</div>'
+            html += '</div>'
+        }
+        html += '<li class="text-center" onclick="seeAllWaiting()"><p class="m-0 small-text text-primary">See All</p></li>'
+        $('#notifWaiting').html(html)
+    }
+
+    function seeAllWaiting() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Unprocessed Data</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row p-3">'
+
+        html_body += '<nav>'
+        html_body += '<div class="nav nav-tabs" id="nav-tab" role="tablist">'
+        html_body += '<button class="nav-link small-text active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Today</button>'
+        html_body += '<button class="nav-link small-text" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">All Pending</button>'
+        html_body += '</div>'
+        html_body += '</nav>'
+        html_body += '<div class="tab-content" id="nav-tabContent">'
+        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">...</div>'
+        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body)
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer).removeClass('d-none');
+    }
+
+    function detailWaiting(id) {
+        var data = dataEntry.machineTransferWaiting.find((v, k) => {
+            if (v.id == id) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Detail Transaction</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Waktu Transaksi</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + getDateStringWithTime(data.time) + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Dibuat Oleh</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + data.employee.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Mesin Asal</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + data.reference.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Warehouse</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        html_body += '<p class="m-0 small-text">' + data.warehouse.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Detail</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        // detail
+        html_body += '<div class="row">'
+        if (jenis == 'parent') {
+            data.machine_transfer_detail.forEach(el => {
+                html_body += '<div class="col">'
+                html_body += '<p class="m-0 small-text">' + el.item.name + '</p>'
+                html_body += '</div>'
+                html_body += '<div class="col-auto text-end">'
+                html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(el.qty) + '</span> <b>' + el.unit.name + '</b></p>'
+                html_body += '</div>'
+            });
+        } else {
+            html_body += '<div class="col">'
+            html_body += '<p class="m-0 small-text">' + data.item.name + '</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-auto text-end">'
+            html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(data.qty) + '</span> <b>' + data.unit.name + '</b></p>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+        // detail
+        html_body += '</div>'
+
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        if (data.status == 'WAITING') {
+            html_body += '<div class="row pt-5">'
+            html_body += '<div class="col" style="height:50px;">'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+            html_body += '</div>'
+            html_body += '<div class="col" style="height:50px;">'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('pt-0 pb-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="">Simpan</button>'
+        $('#modalFooter').html(html_footer).addClass('d-none');
     }
 
     function formTransaction() {

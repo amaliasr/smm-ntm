@@ -300,8 +300,8 @@
             html += '<div class="progress-bar ' + bg + '" style="width: ' + percent + '%" role="progressbar" aria-valuenow="' + percent + '" aria-valuemin="0" aria-valuemax="100">' + percent + '%</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-auto">'
-            html += '<h5 class="text-dark-grey m-0"><b>' + e.product.alias + '</b></h5>'
+            html += '<div class="col-2">'
+            html += '<h5 class="text-dark-grey m-0"><b>' + e.product.alias + ' - B' + e.priority + '</b></h5>'
             html += '<p class="m-0 small-text">' + dataGroup.qty + ' / ' + e.qty + ' ' + e.unit.name + '</p>'
             html += '</div>'
             html += '</div>'
@@ -339,7 +339,7 @@
                 html += '<tr>'
                 html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
                 html += '<td class="p-2 text-center">' + convertTimeFormat(e.time.start) + ' - ' + convertTimeFormat(e.time.end) + '</td>'
-                html += '<td class="p-2 text-center">' + e.item.alias + ' - BA' + e.priority + '</td>'
+                html += '<td class="p-2 text-center">' + e.item.alias + ' - B' + e.priority + '</td>'
                 html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
                 html += '<td class="p-2 text-center">' + e.employee.name.split(' ')[0] + '</td>'
                 if (e.note == null) {
@@ -365,11 +365,11 @@
         var timeSlot = generateTimeSlots(dataEntry.workPlanMachine.shift.start, dataEntry.workPlanMachine.shift.end)
         dataEntry.workPlanMachine.products.forEach(e => {
             var data = dataTime.filter((v, k) => {
-                if (v.item.id == e.product.id) return true
+                if (v.item.id == e.product.id && v.priority == e.priority) return true
             })
             var dataConvert = convertFromTimeSlotsToQTY(data, timeSlot)
             dataChart.push({
-                'label': e.product.alias,
+                'label': e.product.alias + ' - B' + e.priority,
                 'data': extractQty(dataConvert)
             })
         });

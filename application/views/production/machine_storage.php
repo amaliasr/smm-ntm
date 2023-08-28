@@ -915,6 +915,20 @@
         color: white;
         background-color: #5C5470 !important;
     }
+
+    .circle-shape {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+    }
+
+    .bg-light-dongker {
+        background-color: #7d8794;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -999,6 +1013,10 @@
 
     function empty(location, text, height) {
         $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+    }
+
+    function emptyText(location, text) {
+        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none border-0" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>')
     }
 
     function formatNames(data) {
@@ -1239,28 +1257,35 @@
 
     function notifWaiting() {
         var html = ''
-        html += '<div style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
-        for (let i = 0; i < 100; i++) {
-            dataDetail.mutationStockWaiting.forEach(e => {
-                html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
-                html += '<div class="row w-100">'
-                html += '<div class="col-3 p-3 bg-dongker text-center">'
-                html += '<p class="m-0 text-wrap small text-white">' + e.reference.name + '</p>'
-                html += '</div>'
-                html += '<div class="col-9 align-self-center">'
-                html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
-                html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
-                e.machine_transfer_detail.forEach(el => {
-                    html += '<p class="m-0 small-text">' + el.item.name + '</p>'
-                });
-                html += '</div>'
-                html += '</div>'
-                html += '</a></li>'
-            })
+        html += '<div class="p-0" style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        dataDetail.mutationStockWaiting.forEach(e => {
+            html += '<li><a class="dropdown-item p-3 border-bottom" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
+            html += '<div class="row w-100">'
+            html += '<div class="col-4 text-center">'
+            html += '<div class="circle-shape bg-light-dongker">'
+            html += '<p class="m-0 text-wrap small-text text-white">' + e.reference.name + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-8 align-self-center">'
+            html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
+            html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
+            e.machine_transfer_detail.forEach(el => {
+                html += '<p class="m-0 small-text">' + el.item.name + '</p>'
+            });
+            html += '</div>'
+            html += '</div>'
+            html += '</a></li>'
+        })
+        if (!dataDetail.mutationStockWaiting.length) {
+            html += '<div class="card border-0 shadow-none">'
+            html += '<div class="card-body p-5 text-center">'
+            html += '<p class="m-0 super-small-text"><i>Tidak Notifikasi</i></p>'
+            html += '</div>'
+            html += '</div>'
         }
         html += '</div>'
-        html += '<li><hr class="dropdown-divider"></li>'
-        html += '<li class="text-center" onclick="seeAllWaiting()"><p class="m-0 small-text text-primary">See All</p></li>'
+        html += '<li><hr class="dropdown-divider mt-0"></li>'
+        html += '<li class="text-center p-1" onclick="seeAllWaiting()"><p class="m-0 small-text text-primary">See All</p></li>'
         $('#notifWaiting').html(html)
         listCurrentStock()
     }
@@ -1300,7 +1325,7 @@
                 }
                 if (e.status == 'WAITING') {
                     var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
-                } else if (e.status == 'RECEIVED') {
+                } else if (e.status == 'RECEIVE') {
                     var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
                 } else if (e.status == 'REJECTED') {
                     var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
@@ -1734,6 +1759,7 @@
                 $(button).prop("disabled", false);
                 $('#modal').modal('hide')
                 chooseWarehouse(choosenId)
+                fillDataWaiting()
             }
         });
     }
@@ -1833,8 +1859,8 @@
                 })
             }
         }
-        console.log(data)
-        // simpanData(data)
+        // console.log(data)
+        simpanData(data)
     }
 
     function simpanData(data) {
@@ -1880,7 +1906,7 @@
 
     function seeAllWaiting() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
         var html_header = '';
         html_header += '<h5 class="modal-title">Unprocessed Data</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -1895,8 +1921,14 @@
         html_body += '</div>'
         html_body += '</nav>'
         html_body += '<div class="tab-content" id="nav-tabContent">'
-        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">...</div>'
-        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>'
+        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">'
+        // today
+        // today
+        html_body += '</div>'
+        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">'
+        // all
+        // all
+        html_body += '</div>'
         html_body += '</div>'
 
         html_body += '</div>'
@@ -1904,5 +1936,75 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
+        fillDataWaiting()
+    }
+
+    function fillDataWaiting() {
+        if (dataDetail.mutationStockWaiting.length) {
+            var data = dataDetail.mutationStockWaiting.filter((v, k) => {
+                if (formatDate(v.time) == currentDate()) return true
+            })
+            var html2 = ''
+            dataDetail.mutationStockWaiting.forEach(e => {
+                html2 += templateWaiting(e)
+            });
+            $('#nav-profile').html(html2)
+            if (data.length) {
+                var html = ''
+                data.forEach(e => {
+                    html += templateWaiting(e)
+                });
+                $('#nav-home').html(html)
+            } else {
+                emptyText('#nav-home', 'Tidak Ada Data Tersedia')
+            }
+        } else {
+            emptyText('#nav-profile', 'Tidak Ada Data Tersedia')
+            emptyText('#nav-home', 'Tidak Ada Data Tersedia')
+        }
+
+
+    }
+
+    function templateWaiting(data) {
+        var html = ''
+        html += '<div class="card rounded-0 border-top-0 border-start-0 border-end-0 shadow-none">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-2 text-center">'
+        html += '<div class="circle-shape bg-light-dongker">'
+        html += '<p class="m-0 text-wrap small-text text-white">' + data.reference.name + '</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col align-self-center">'
+        html += '<p class="m-0 small-text text-orange"><b>' + data.employee.name + '</b></p>'
+        html += '<p class="m-0 small-text text-dark-grey"><b>' + getDateStringWithTime(data.time) + '</b></p>'
+        html += '<p class="m-0 mt-2 small-text text-dark-grey">'
+        var a = 0
+        data.machine_transfer_detail.forEach(e => {
+            html += e.item.name + ' <span class="fw-bolder">(' + e.qty + ')</span>'
+            a++
+            if (a < data.machine_transfer_detail.length) {
+                html += ', '
+            }
+        });
+        html += '</p>'
+        html += '</div>'
+        html += '<div class="col align-self-center text-center">'
+
+        html += '<div class="row">'
+        html += '<div class="col">'
+        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + data.id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+        html += '</div>'
+        html += '<div class="col">'
+        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + data.id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        return html
     }
 </script>

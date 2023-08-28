@@ -40,6 +40,31 @@
         align-items: center;
         min-height: 100vh;
     }
+
+    @-webkit-keyframes color-change-2x {
+        0% {
+            background: #19dcea;
+        }
+
+        100% {
+            background: #b22cff;
+        }
+    }
+
+    @keyframes color-change-2x {
+        0% {
+            background: #19dcea;
+        }
+
+        100% {
+            background: #b22cff;
+        }
+    }
+
+    .color-change-2x {
+        -webkit-animation: color-change-2x 2s linear infinite alternate both;
+        animation: color-change-2x 2s linear infinite alternate both;
+    }
 </style>
 <main class="background">
     <!-- <div class="container-xl px-4">
@@ -75,7 +100,7 @@
         </div>
     </div> -->
     <div class="row h-100">
-        <div class="col-12 col-md-6 bg-rainbow h-100 align-self-center d-none d-md-none d-lg-block d-lg-block">
+        <div class="col-12 col-md-6 color-change-2x h-100 align-self-center d-none d-md-none d-lg-block d-lg-block">
             <div class="centered">
                 <div class="container justify-content-center mt-4 mt-sm-0 text-center">
                     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -88,7 +113,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 bg-white h-100">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-6 bg-white h-100">
             <div class="row h-100 d-flex align-self-center justify-content-center">
                 <div class="col-8 h-100 align-items-center align-content-center flex-wrap">
                     <div class="centered">

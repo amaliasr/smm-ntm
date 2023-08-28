@@ -148,3 +148,141 @@ function job_spv_audit_internal()
         return false;
     }
 }
+// BUAT PER CONTROLLER
+
+function if_smd_planning()
+{
+    if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_create_smd_planning()
+{
+    if (job_spv_smd()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_draft_material()
+{
+    if (job_foreman()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_create_material_request()
+{
+    if (job_foreman()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_material_request()
+{
+    if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_manage_material_request()
+{
+    if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_warehouse()
+{
+    if (is_logistik() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_stok_gudang()
+{
+    if (is_logistik() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_payments()
+{
+    if (is_accounting() || is_fat() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_transaction()
+{
+    if (is_purchasing() || is_direktur() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_logistik()
+{
+    if (is_logistik() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_master()
+{
+    if (is_purchasing() || is_direktur() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_rekap()
+{
+    if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_po()
+{
+    if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_mutasi_gudang()
+{
+    if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_opname()
+{
+    if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_machine()
+{
+    if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}

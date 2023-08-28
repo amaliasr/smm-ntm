@@ -11,6 +11,54 @@ if (isset($_COOKIE['visiting'])) {
 
 
 ?>
+<style>
+    /* @import url("https://fonts.googleapis.com/css2?family=Russo+One&display=swap"); */
+
+    svg {
+        /* font-family: "Russo One", sans-serif; */
+        width: 100%;
+        height: 100%;
+    }
+
+    svg text {
+        animation: stroke 5s 1 alternate;
+        stroke-width: 0;
+        font-size: 1rem;
+    }
+
+    @keyframes stroke {
+        0% {
+            fill: rgba(0, 0, 0, 0);
+            stroke: rgba(0, 0, 0, 1);
+            stroke-dashoffset: 25%;
+            stroke-dasharray: 0 50%;
+            stroke-width: 1;
+        }
+
+        70% {
+            fill: rgba(0, 0, 0, 0);
+            stroke: rgba(0, 0, 0, 1);
+        }
+
+        80% {
+            fill: rgba(0, 0, 0, 0);
+            stroke: rgba(0, 0, 0, 1);
+            stroke-width: 1;
+        }
+
+        100% {
+            fill: rgba(0, 0, 0, 1);
+            stroke: rgba(0, 0, 0, 0);
+            stroke-dashoffset: -25%;
+            stroke-dasharray: 50% 0;
+            stroke-width: 1;
+        }
+    }
+
+    .topnav .navbar-brand {
+        width: 15em;
+    }
+</style>
 <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
     <!-- Sidenav Toggle Button-->
     <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle" onclick="toggleNavbarState()"><i data-feather="menu"></i></button>
@@ -18,7 +66,16 @@ if (isset($_COOKIE['visiting'])) {
     <!-- * * Tip * * You can use text or an image for your navbar brand.-->
     <!-- * * * * * * When using an image, we recommend the SVG format.-->
     <!-- * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px-->
-    <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="index.html">PT. SINAR MAHKOTA MAS <?= $title; ?></a>
+    <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="<?= base_url() ?>dashboard" style="color: #CCA922;">
+        <div class="wrapper">
+            <svg style="height: 3.625rem;">
+                <text x="50%" y="50%" dy=".35em" text-anchor="middle">
+                    PT. SINAR MAHKOTA MAS
+                </text>
+            </svg>
+        </div>
+        <?= $title; ?>
+    </a>
     <!-- Navbar Items-->
     <ul class="navbar-nav align-items-center ms-auto">
         <!-- User Dropdown-->

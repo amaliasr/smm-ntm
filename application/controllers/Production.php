@@ -29,7 +29,11 @@ class Production extends CI_Controller
         if ($name == 'smd') {
             $data['title'] = 'SMD Planning';
         }
-        $this->template->views('production/' . $name . '_planning', $data);
+        if (if_smd_planning()) {
+            $this->template->views('production/' . $name . '_planning', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
     }
     public function createPlanning($name, $type = '', $id_plan = '')
     {
@@ -43,7 +47,11 @@ class Production extends CI_Controller
         }
         $data['id_plan'] = $id_plan;
         $data['type'] = $type;
-        $this->template->views('production/' . $name . '_planning_create', $data);
+        if (if_create_smd_planning()) {
+            $this->template->views('production/' . $name . '_planning_create', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
     }
     public function detailPlanning($name, $id = "")
     {
@@ -57,19 +65,31 @@ class Production extends CI_Controller
     {
         $data['id'] = $id;
         $data['title'] = 'Draft Material';
-        $this->template->views('production/draft_material', $data);
+        if (if_draft_material()) {
+            $this->template->views('production/draft_material', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
     }
     public function materialRequest($id = "")
     {
         $data['id'] = $id;
         $data['title'] = 'Material Request';
-        $this->template->views('production/material_request', $data);
+        if (if_material_request()) {
+            $this->template->views('production/material_request', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
     }
     public function createMaterialRequest($id = "")
     {
         $data['id'] = $id;
         $data['title'] = 'Create Material Request';
-        $this->template->views('production/material_request_create', $data);
+        if (if_create_material_request()) {
+            $this->template->views('production/material_request_create', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
     }
     public function approvalMaterialRequest($id = "")
     {
@@ -93,7 +113,11 @@ class Production extends CI_Controller
     {
         $data['id'] = $id;
         $data['title'] = 'Management Material Request';
-        $this->template->views('production/material_request_management', $data);
+        if (if_manage_material_request()) {
+            $this->template->views('production/material_request_management', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
     }
     public function managementWarehouse($id = "")
     {

@@ -61,10 +61,10 @@
         <div class="card shadow-none">
             <div class="card-body p-0">
                 <div class="row justify-content-between p-4 pb-3">
-                    <div class="col-auto">
-                        <p class="m-0 super-small-text"><b>Material</b></p>
-                    </div>
-                    <div class="col-auto text-end">
+                    <div class="col-12">
+                        <div class="row justify-content-between ps-2 pe-2 pb-3" id="menuMaterial">
+
+                        </div>
                     </div>
                 </div>
                 <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
@@ -100,7 +100,7 @@
 
                             </td>
                             <td class="align-middle small-text text-center"></td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
+                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
                         </tr>
                         <tr class="fw-bolder bg-light-success">
                             <td class="align-middle small-text text-center">1</td>
@@ -119,7 +119,7 @@
                                 <span class="badge bg-dark-grey">8</span>
                             </td>
                             <td class="align-middle small-text text-center">120</td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
+                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
                         </tr>
                         <tr class="bg-light-success">
                             <td class="align-middle small-text text-center">1</td>
@@ -138,7 +138,7 @@
                                 <span class="badge bg-dark-grey">8</span>
                             </td>
                             <td class="align-middle small-text text-center">120</td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
+                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
 
                         </tr>
                         <?php for ($i = 0; $i < 5; $i++) { ?>
@@ -157,7 +157,7 @@
                                 <td class="align-middle small-text text-center">0</td>
                                 <td class="align-self-center small-text text-center"></td>
                                 <td class="align-middle small-text text-center">-</td>
-                                <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-eye"></i></button></td>
+                                <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
 
                             </tr>
                         <?php } ?>
@@ -182,7 +182,13 @@
     var dataProductionOutGroup
 
     $(document).ready(function() {
+        $dd = 13
+        $dl = 50
+        $sisa = 14
+        var text = eval("((22/7)*(Math.pow(($sisa/2),2)-Math.pow(($dd/2),2)))/((22/7)*(Math.pow(($dl/2),2)-Math.pow(($dd/2),2)))")
+        console.log(text)
         loadData()
+        menuMaterial()
     })
 
     function loadData() {
@@ -224,7 +230,7 @@
 
     function inputSO() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
         var html_header = '';
         html_header += '<h5 class="modal-title">Input Stok Akhir</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -249,7 +255,7 @@
         html_body += '<div class="col-3">'
         html_body += '</div>'
         html_body += '<div class="col-4">'
-        html_body += '<input type="text" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">'
+        html_body += '<input type="text" id="inputPassword6" class="form-control nominal" aria-describedby="passwordHelpInline" autocomplete="off">'
         html_body += '</div>'
         html_body += '<div class="col-3">'
         html_body += '<span id="passwordHelpInline" class="form-text">Roll</span>'
@@ -267,6 +273,18 @@
         // card
         html_body += '<div id="listAdditional">'
         html_body += '</div>'
+        // add
+        html_body += '<div class="card shadow-none mb-2 pointer" style="border: 2px dashed #d6d6d6;" onclick="listAdditional()">'
+        html_body += '<div class="card-body text-center">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 align-self-center">'
+        html_body += '<p class="m-0 small-text"><i class="fa fa-plus"></i></p>'
+        html_body += '<p class="m-0 small-text">Tambah Input Stok Lainnya</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // add
 
         html_body += '</div>'
         html_body += '</div>'
@@ -282,27 +300,14 @@
         html_footer += '</div>'
         html_footer += '</div>'
         $('#modalFooter').html(html_footer)
-        emptyListAdditional()
-    }
-
-    function emptyListAdditional() {
-        var html = ''
-        // card
-        html += '<div class="card shadow-none mb-2" style="border: 6px dashed #eeeeee;">'
-        html += '<div class="card-body text-center">'
-        html += '<div class="row">'
-        html += '<div class="col-12 align-self-center">'
-        html += '<p class="m-0 small-text"><i></i></p>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
+        $('.nominal').number(true, 2);
     }
 
     function listAdditional() {
         var html = ''
         // card
         html += '<div class="card shadow-none mb-2">'
+        html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="removeMaterial()"><i class="small-text fa fa-times text-light"></i></span>'
         html += '<div class="card-body">'
 
         html += '<div class="row w-100">'
@@ -317,13 +322,27 @@
             html += '<label for="inputPassword6" class="col-form-label">Diameter Dalam</label>'
             html += '</div>'
             html += '<div class="col-4">'
-            html += '<input type="text" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">'
+            html += '<input type="text" id="inputPassword6" class="form-control nominal" aria-describedby="passwordHelpInline" autocomplete="off">'
             html += '</div>'
             html += '<div class="col-3">'
             html += '<span id="passwordHelpInline" class="form-text">CM</span>'
             html += '</div>'
             html += '</div>'
         }
+        html += '<div class="row pt-0 align-items-center justify-content-center small-text w-100 mb-2">'
+        html += '<div class="col-12">'
+        html += '<hr>'
+        html += '</div>'
+        html += '<div class="col-3">'
+        html += '<label for="inputPassword6" class="col-form-label">Panjang Sisa</label>'
+        html += '</div>'
+        html += '<div class="col-4 text-end">'
+        html += '<b>1,000</b>'
+        html += '</div>'
+        html += '<div class="col-3">'
+        html += '<span class="form-text">CM</span>'
+        html += '</div>'
+        html += '</div>'
         // form
         html += '</div>'
         html += '<div class="col-1 align-self-center pointer text-end">'
@@ -333,7 +352,51 @@
 
         html += '</div>'
         html += '</div>'
-
+        $('#listAdditional').append(html)
+        $('.nominal').number(true, 2);
         // card
+    }
+
+    function menuMaterial() {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine(' + "'all'" + ')" id="colStatusLineall"><b>ARF12</b> Batch 1<span class="ms-2 fa fa-check text-grey"></span></div>'
+        for (let i = 0; i < 2; i++) {
+            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + i + "'" + ')" id="colStatusLine' + i + '"><b>ARF12</b> Batch 2<span class="ms-2 fa fa-check text-grey"></span></div>'
+        }
+        html += '</div>'
+        $('#menuMaterial').html(html)
+    }
+
+    function statusLine(status) {
+        // if (status == 'all') {
+        //     var data = data_material_filtered
+        // } else {
+        //     var data = data_material_filtered.filter((v, k) => {
+        //         if (v.status == status) return true
+        //     })
+        // }
+        listMaterial(status)
+        coloringStatusLine(status)
+    }
+
+    function coloringStatusLine(status) {
+        // DEFAULT COLOR
+        $('.statusLine').each(function() {
+            if ($(this).hasClass('fw-bold') && $(this).hasClass('filter-border')) {
+                $(this).removeClass('fw-bold filter-border').addClass('text-grey');
+            }
+        });
+        $('.statusLineIcon').each(function() {
+            if ($(this).hasClass('bg-light-maroon') && $(this).hasClass('text-white')) {
+                $(this).removeClass('bg-light-maroon text-white').addClass('bg-light text-grey');
+            }
+        });
+        $('#colStatusLine' + status).removeClass('text-grey').addClass('fw-bold filter-border')
+        $('#statusLineIcon' + status).removeClass('bg-light text-grey').addClass('bg-light-maroon text-white')
+    }
+
+    function listMaterial(status) {
+
     }
 </script>
