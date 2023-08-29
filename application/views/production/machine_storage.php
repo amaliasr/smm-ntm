@@ -1355,7 +1355,6 @@
     }
 
     function notifWaiting() {
-        console.log(dataDetail.mutationStockWaiting)
         var html = ''
         html += '<div class="p-0" style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
         dataDetail.mutationStockWaiting.forEach(e => {
@@ -1847,8 +1846,12 @@
         if (machine_next) {
             isSendNextMachine = 1
         }
+        var status = 'menolak'
+        if (approval) {
+            status = 'menyetujui'
+        }
         Swal.fire({
-            text: 'Apakah anda yakin ingin menyetujui data tersebut ?',
+            text: 'Apakah anda yakin ingin ' + status + ' data tersebut ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -2159,13 +2162,16 @@
         html += '</p>'
         html += '</div>'
         html += '<div class="col align-self-center text-center">'
-
+        var next_id = null
+        if (data.machine_next) {
+            next_id = data.machine_next.id
+        }
         html += '<div class="row">'
         html += '<div class="col">'
-        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + data.id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + data.id + ',0,' + next_id + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
         html += '</div>'
         html += '<div class="col">'
-        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + data.id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + data.id + ',1,' + next_id + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
         html += '</div>'
         html += '</div>'
 

@@ -88,8 +88,8 @@
     }
 
     .circle-shape {
-        width: 70px;
-        height: 70px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
@@ -434,62 +434,76 @@
 
     function transaksiGroup() {
         var html = ''
-        groupMachineReference.forEach(e => {
-            var destination = e.destination
-            if (e.machine_reference) {
-                destination = e.machine_reference
-            }
+        if (groupMachineReference.length) {
+            groupMachineReference.forEach(e => {
+                var destination = e.destination
+                if (e.machine_reference) {
+                    destination = e.machine_reference
+                }
+                html += '<div class="col-2 text-center">'
+                html += '<p class="m-0 small-text">' + destination + '</p>'
+                html += '<h1 class="text-dark-grey"><b>' + number_format(e.qty) + '</b></h1>'
+                html += '</div>'
+            });
             html += '<div class="col-2 text-center">'
-            html += '<p class="m-0 small-text">' + destination + '</p>'
-            html += '<h1 class="text-dark-grey"><b>' + number_format(e.qty) + '</b></h1>'
+            html += '<p class="m-0 small-text">Satuan</p>'
+            html += '<h1 class="text-dark-grey"><b>' + dataEntry.productionOutUnit.name + '</b></h1>'
             html += '</div>'
-        });
-        html += '<div class="col-2 text-center">'
-        html += '<p class="m-0 small-text">Satuan</p>'
-        html += '<h1 class="text-dark-grey"><b>' + dataEntry.productionOutUnit.name + '</b></h1>'
-        html += '</div>'
-        $('#transaksiGroup').html(html)
+            $('#transaksiGroup').html(html)
+        } else {
+            html += '<div class="col-12 text-center align-self-center">'
+            html += '<i class="small-text">Tidak Ada Transaksi</i>'
+            html += '</div>'
+            $('#transaksiGroup').html(html)
+
+        }
         transaksiDetail()
     }
 
     function transaksiDetail() {
         var html = ''
-        var a = 1
-        listMachineTransferDetail.forEach(e => {
-            var destination = '<span class="text-grey">' + e.destination + '</span>'
-            if (e.machine_reference) {
-                destination = '<b>' + e.machine_reference + '</b>'
-            }
-            var arrow = '<i class="fa fa-arrow-down text-success"></i>'
-            if (e.action == 'OUT') {
-                arrow = '<i class="fa fa-arrow-up text-danger"></i>'
-            }
-            if (e.status == 'WAITING') {
-                var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
-            } else if (e.status == 'RECEIVED') {
-                var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
-            } else if (e.status == 'REJECTED') {
-                var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
-            } else {
-                var status = ''
+        if (listMachineTransferDetail.length) {
+            var a = 1
+            listMachineTransferDetail.forEach(e => {
+                var destination = '<span class="text-grey">' + e.destination + '</span>'
+                if (e.machine_reference) {
+                    destination = '<b>' + e.machine_reference + '</b>'
+                }
+                var arrow = '<i class="fa fa-arrow-down text-success"></i>'
+                if (e.action == 'OUT') {
+                    arrow = '<i class="fa fa-arrow-up text-danger"></i>'
+                }
+                if (e.status == 'WAITING') {
+                    var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
+                } else if (e.status == 'RECEIVED') {
+                    var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
+                } else if (e.status == 'REJECTED') {
+                    var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
+                } else {
+                    var status = ''
 
-            }
+                }
+                html += '<tr>'
+                html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
+                html += '<td class="p-2 text-center">' + arrow + '</td>'
+                html += '<td class="p-2 text-center">' + getDateTime(e.send_at) + '</td>'
+                html += '<td class="p-2 text-center">' + e.item_name + '</td>'
+                html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
+                html += '<td class="p-2 text-center">' + e.unit_name + '</td>'
+                html += '<td class="p-2 text-center">' + e.source + '</td>'
+                html += '<td class="p-2 text-center">' + destination + '</td>'
+                html += '<td class="p-2 text-center">' + e.user.split(' ')[0] + '</td>'
+                html += '<td class="p-2 text-center">' + status + '</td>'
+                html += '<td class="p-2 text-center">'
+                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="viewDetail(' + e.id + ')"><i class="fa fa-eye"></i></button>'
+                html += '</td>'
+                html += '</tr>'
+            });
+        } else {
             html += '<tr>'
-            html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
-            html += '<td class="p-2 text-center">' + arrow + '</td>'
-            html += '<td class="p-2 text-center">' + getDateTime(e.send_at) + '</td>'
-            html += '<td class="p-2 text-center">' + e.item_name + '</td>'
-            html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
-            html += '<td class="p-2 text-center">' + e.unit_name + '</td>'
-            html += '<td class="p-2 text-center">' + e.source + '</td>'
-            html += '<td class="p-2 text-center">' + destination + '</td>'
-            html += '<td class="p-2 text-center">' + e.user.split(' ')[0] + '</td>'
-            html += '<td class="p-2 text-center">' + status + '</td>'
-            html += '<td class="p-2 text-center">'
-            html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="viewDetail(' + e.id + ')"><i class="fa fa-eye"></i></button>'
-            html += '</td>'
+            html += '<td class="text-center p-5" colspan="11"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
             html += '</tr>'
-        });
+        }
         $('#transaksiDetail').html(html)
         carouselMachineStock()
     }
@@ -541,27 +555,34 @@
             if (e.status == 'WAITING' && e.action == 'IN') {
                 html += '<div style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
                 html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
-                html += '<div class="row w-100">'
+                html += '<div class="row">'
+
                 html += '<div class="col-3 text-center">'
                 html += '<div class="circle-shape bg-dongker">'
                 html += '<p class="m-0 text-wrap small-text text-white">' + e.warehouse.name + '</p>'
                 html += '</div>'
                 html += '</div>'
+
                 html += '<div class="col-9 align-self-center">'
 
                 html += '<div class="row">'
-                html += '<div class="col-6 p-0">'
+
+                html += '<div class="col-6">'
                 html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee.name, 2) + '</b></p>'
                 html += '</div>'
+
                 html += '<div class="col-6 ps-0 text-end">'
                 html += '<p class="m-0 super-small-text text-dark-grey text-wrap">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</p>'
                 html += '</div>'
+
                 html += '<div class="col-12">'
 
                 html += '<p class="m-0 text-wrap small-text">' + shortenText('Anda mendapatkan permintaan persetujuan untuk ' + getAliases(e.machine_transfer_detail), 100) + '</p>'
                 if (e.machine_next) {
                     html += '<p class="m-0 text-wrap super-small-text text-success"><i class="fa fa-paper-plane me-2"></i>Send to ' + e.machine_next.name + '</p>'
                 }
+
+                html += '</div>'
 
                 html += '</div>'
                 html += '</div>'
@@ -583,11 +604,23 @@
         }
         html += '<li class="text-center" onclick="seeAllWaiting()"><p class="m-0 small-text text-primary">See All</p></li>'
         $('#notifWaiting').html(html)
+        $('#dropdownMenuClickableInside').removeClass('shake-bottom')
+        if (dataEntry.machineTransferWaiting.length) {
+            $('#jumlahWaiting').removeClass('d-none')
+            $('#dropdownMenuClickableInside').addClass('shake-bottom')
+            if (dataEntry.machineTransferWaiting.length > 100) {
+                $('#jumlahWaiting').html('<p class="m-0">99+</p>')
+            } else {
+                $('#jumlahWaiting').html('<p class="m-0">' + dataEntry.machineTransferWaiting.length + '</p>')
+            }
+        } else {
+            $('#jumlahWaiting').addClass('d-none')
+        }
     }
 
     function seeAllWaiting() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
         var html_header = '';
         html_header += '<h5 class="modal-title">Unprocessed Data</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -602,8 +635,14 @@
         html_body += '</div>'
         html_body += '</nav>'
         html_body += '<div class="tab-content" id="nav-tabContent">'
-        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">...</div>'
-        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>'
+        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">'
+        // today
+        // today
+        html_body += '</div>'
+        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">'
+        // all
+        // all
+        html_body += '</div>'
         html_body += '</div>'
 
         html_body += '</div>'
@@ -611,12 +650,92 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
+        fillDataWaiting()
+    }
+
+    function fillDataWaiting() {
+        if (dataEntry.machineTransferWaiting.length) {
+            var data = dataEntry.machineTransferWaiting.filter((v, k) => {
+                if (formatDate(v.time) == currentDate()) return true
+            })
+            var html2 = ''
+            dataEntry.machineTransferWaiting.forEach(e => {
+                html2 += templateWaiting(e)
+            });
+            $('#nav-profile').html(html2)
+            if (data.length) {
+                var html = ''
+                data.forEach(e => {
+                    html += templateWaiting(e)
+                });
+                $('#nav-home').html(html)
+            } else {
+                emptyText('#nav-home', 'Tidak Ada Data Tersedia')
+            }
+        } else {
+            emptyText('#nav-profile', 'Tidak Ada Data Tersedia')
+            emptyText('#nav-home', 'Tidak Ada Data Tersedia')
+        }
+
+
+    }
+
+    function templateWaiting(data) {
+        var html = ''
+        html += '<div class="card rounded-0 border-top-0 border-start-0 border-end-0 shadow-none">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+        html += '<div class="col-2 text-center">'
+        html += '<div class="circle-shape bg-light-dongker">'
+        html += '<p class="m-0 text-wrap small-text text-white">' + data.reference.name + '</p>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col align-self-center">'
+        html += '<p class="m-0 small-text text-orange"><b>' + data.employee.name + '</b></p>'
+        html += '<p class="m-0 small-text text-dark-grey"><b>' + getDateStringWithTime(data.time) + '</b></p>'
+        html += '<p class="m-0 mt-2 small-text text-dark-grey">'
+        var a = 0
+        data.machine_transfer_detail.forEach(e => {
+            html += e.item.name + ' <span class="fw-bolder">(' + e.qty + ')</span>'
+            a++
+            if (a < data.machine_transfer_detail.length) {
+                html += ', '
+            }
+        });
+        html += '</p>'
+        html += '</div>'
+        html += '<div class="col align-self-center text-center">'
+        var next_id = null
+        if (data.machine_next) {
+            next_id = data.machine_next.id
+        }
+        html += '<div class="row">'
+        html += '<div class="col">'
+        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + data.id + ',0,' + next_id + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+        html += '</div>'
+        html += '<div class="col">'
+        html += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + data.id + ',1,' + next_id + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        return html
     }
 
     function detailWaiting(id) {
+        var jenis = 'parent'
         var data = dataEntry.machineTransferWaiting.find((v, k) => {
             if (v.id == id) return true
         })
+        if (!data) {
+            jenis = 'detail'
+            var data = dataEntry.listMachineTransferDetail.find((v, k) => {
+                if (v.id == id) return true
+            })
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
@@ -1349,6 +1468,39 @@
                     'deletedId': {
                         materialTransferDetail: [id]
                     }
+                }
+                kelolaData(data, type, url, button)
+            }
+        })
+    }
+
+    function approvalData(id, approval, machine_next) {
+        var isSendNextMachine = 0
+        if (machine_next) {
+            isSendNextMachine = 1
+        }
+        var status = 'menolak'
+        if (approval) {
+            status = 'menyetujui'
+        }
+        Swal.fire({
+            text: 'Apakah anda yakin ingin ' + status + ' data tersebut ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var button = '#btnSimpan'
+                var url = '<?php echo api_produksi('setMachineTransferReceive'); ?>'
+                var data = {
+                    id: id,
+                    isReceive: approval,
+                    employeeId: user_id,
+                    isSendNextMachine: isSendNextMachine,
                 }
                 kelolaData(data, type, url, button)
             }

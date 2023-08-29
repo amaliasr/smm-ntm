@@ -973,6 +973,29 @@
 </div>
 <?php $this->load->view('components/modal_static') ?>
 <script>
+    function clearModal() {
+        $('#modalDialog').removeClass();
+        $('#modalDialog').removeAttr('style');
+        $('#modalHeader').html('');
+        $('#modalBody').html('');
+        $('#modalFooter').html('');
+    }
+
+    function clearModal2() {
+        $('#modalDialog2').removeClass();
+        $('#modalDialog2').removeAttr('style');
+        $('#modalHeader2').html('');
+        $('#modalBody2').html('');
+        $('#modalFooter2').html('');
+    }
+
+    $('#modal').on('hidden.bs.modal', function(e) {
+        clearModal();
+    })
+    $('#modal2').on('hidden.bs.modal', function(e) {
+        clearModal2();
+    })
+
     function notFound(location) {
         $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
     }
