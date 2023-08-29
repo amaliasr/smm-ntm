@@ -990,11 +990,19 @@
 
 
     function formatNames(data) {
-        var firstNames = data.map(function(item) {
-            var firstName = item.name.split(' ')[0];
-            return firstName;
-        });
-        return firstNames.join(', ');
+        if (data.length) {
+            var firstNames = data.map(function(item) {
+                if (item.id) {
+                    var firstName = item.name.split(' ')[0];
+                } else {
+                    var firstName = ''
+                }
+                return firstName;
+            });
+            return firstNames.join(', ');
+        } else {
+            return ''
+        }
     }
 </script>
 <script>

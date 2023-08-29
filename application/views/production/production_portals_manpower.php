@@ -830,6 +830,8 @@
                     note: item.note,
                     shift_id: item.shift_id,
                     shift_name: item.shift_name,
+                    work_plan_table_id: item.work_plan_table_id,
+                    work_plan_table_type: item.work_plan_table_type,
                     machine: [],
                 };
             }
@@ -1022,6 +1024,8 @@
                                 'shift_id': d.shift,
                                 'shift_name': 'Shift ' + convertTimeFormat(dataShift.start_time) + ' - ' + convertTimeFormat(dataShift.end_time),
                                 'posisi': d.person.person_label,
+                                'work_plan_table_id': d.person.work_plan_table.id,
+                                'work_plan_table_type': d.person.work_plan_table.type,
                                 'note': d.person.note,
                             })
                         });
@@ -1125,7 +1129,7 @@
             const parts = dateString.split(" ");
             const day = parseInt(parts[0]);
             const month = parts[1];
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(3)">'
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + e.work_plan_table_id + ')">'
             html += '<div class="row g-0">'
             html += '<div class="col-md-2 bg-skm">'
             html += '<div class="row d-flex align-items-center h-100">'

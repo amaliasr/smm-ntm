@@ -930,6 +930,93 @@
         background-color: #7d8794;
     }
 </style>
+<style>
+    /* ANIMATION */
+    .shake-bottom {
+        -webkit-animation: shake-bottom 1s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
+        animation: shake-bottom 1s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
+    }
+
+    @-webkit-keyframes shake-bottom {
+
+        0%,
+        100% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+            -webkit-transform-origin: 50% 100%;
+            transform-origin: 50% 100%;
+        }
+
+        10% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+
+        20%,
+        40%,
+        60% {
+            -webkit-transform: rotate(-4deg);
+            transform: rotate(-4deg);
+        }
+
+        30%,
+        50%,
+        70% {
+            -webkit-transform: rotate(4deg);
+            transform: rotate(4deg);
+        }
+
+        80% {
+            -webkit-transform: rotate(-2deg);
+            transform: rotate(-2deg);
+        }
+
+        90% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+    }
+
+    @keyframes shake-bottom {
+
+        0%,
+        100% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+            -webkit-transform-origin: 50% 100%;
+            transform-origin: 50% 100%;
+        }
+
+        10% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+
+        20%,
+        40%,
+        60% {
+            -webkit-transform: rotate(-4deg);
+            transform: rotate(-4deg);
+        }
+
+        30%,
+        50%,
+        70% {
+            -webkit-transform: rotate(4deg);
+            transform: rotate(4deg);
+        }
+
+        80% {
+            -webkit-transform: rotate(-2deg);
+            transform: rotate(-2deg);
+        }
+
+        90% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+    }
+</style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
 <script src="<?= base_url() ?>assets/js/mobiscroll.jquery.min.js"></script>
@@ -1007,6 +1094,11 @@
 <?php $this->load->view('components/modal_static') ?>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script>
+    function getAliases(data) {
+        const aliases = data.map(item => item.item.alias);
+        return aliases.join(', ');
+    }
+
     function notFound(location) {
         $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
     }
@@ -1199,7 +1291,7 @@
         html += '<div class="card shadow-none">'
         html += '<div class="card-body p-0 pt-3">'
         html += '<b class="m-0 ms-3 small-text">Item Stock</b>'
-        html += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama" autocomplete="off" style="border-radius:0px;border-bottom:0px;border-left:0px;border-right:0px;">'
+        html += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">'
         html += '<div class="m-0" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="listCurrentStock">'
         html += '</div>'
         html += '</div>'
@@ -1229,7 +1321,8 @@
         html += '<th class="small-text text-center">Time</th>'
         html += '<th class="small-text text-center">User</th>'
         html += '<th class="small-text text-center">Source</th>'
-        html += '<th class="small-text text-center">Destination</th>'
+        html += '<th class="small-text text-center">Warehouse</th>'
+        html += '<th class="small-text text-center text-success"><i class="fa fa-plane me-1"></i>Direct</th>'
         html += '<th class="small-text text-center">Items / Materials</th>'
         html += '<th class="small-text text-center">Status</th>'
         html += '<th class="small-text text-center"></th>'
@@ -1246,12 +1339,14 @@
         html += '</div>'
         html += '</div>'
         $('#kerangkaGudangDetail').html(html)
+        $('#dropdownMenuClickableInside').removeClass('shake-bottom')
         if (dataDetail.mutationStockWaiting.length) {
             $('#jumlahWaiting').removeClass('d-none')
+            $('#dropdownMenuClickableInside').addClass('shake-bottom')
             if (dataDetail.mutationStockWaiting.length > 100) {
-                $('#jumlahWaiting').html('99+')
+                $('#jumlahWaiting').html('<p class="m-0">99+</p>')
             } else {
-                $('#jumlahWaiting').html(dataDetail.mutationStockWaiting.length)
+                $('#jumlahWaiting').html('<p class="m-0">' + dataDetail.mutationStockWaiting.length + '</p>')
             }
         } else {
             $('#jumlahWaiting').addClass('d-none')
@@ -1260,22 +1355,34 @@
     }
 
     function notifWaiting() {
+        console.log(dataDetail.mutationStockWaiting)
         var html = ''
         html += '<div class="p-0" style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
         dataDetail.mutationStockWaiting.forEach(e => {
             html += '<li><a class="dropdown-item p-3 border-bottom" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
-            html += '<div class="row w-100">'
+            html += '<div class="row">'
             html += '<div class="col-4 text-center">'
             html += '<div class="circle-shape bg-light-dongker">'
             html += '<p class="m-0 text-wrap small-text text-white">' + e.reference.name + '</p>'
             html += '</div>'
             html += '</div>'
             html += '<div class="col-8 align-self-center">'
-            html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
-            html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
-            e.machine_transfer_detail.forEach(el => {
-                html += '<p class="m-0 small-text">' + el.item.name + '</p>'
-            });
+
+            html += '<div class="row">'
+            html += '<div class="col-6 p-0">'
+            html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee.name, 2) + '</b></p>'
+            html += '</div>'
+            html += '<div class="col-6 ps-0 text-end">'
+            html += '<p class="m-0 super-small-text text-dark-grey text-wrap">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</p>'
+            html += '</div>'
+            html += '<div class="col-12 p-0 pt-2">'
+            html += '<p class="m-0 text-wrap small-text">' + shortenText('Anda mendapatkan permintaan persetujuan untuk ' + getAliases(e.machine_transfer_detail), 100) + '</p>'
+            if (e.machine_next) {
+                html += '<p class="m-0 text-wrap super-small-text text-success"><i class="fa fa-paper-plane me-2"></i>Send to ' + e.machine_next.name + '</p>'
+            }
+            html += '</div>'
+            html += '</div>'
+
             html += '</div>'
             html += '</div>'
             html += '</a></li>'
@@ -1344,6 +1451,11 @@
                 html += '<td class="small-text align-middle text-center">' + e.employee.name.split(' ')[0] + '</td>'
                 html += '<td class="small-text align-middle text-center">' + e.reference.name + '</td>'
                 html += '<td class="small-text align-middle text-center">' + e.warehouse.name + '</td>'
+                var next = '-'
+                if (e.machine_next) {
+                    next = e.machine_next.name
+                }
+                html += '<td class="small-text align-middle text-center">' + next + '</td>'
                 html += '<td class="small-text align-middle text-center">' + e.item.name + '</td>'
                 html += '<td class="small-text align-middle text-center">' + status + '</td>'
                 html += '<td class="small-text align-middle">'
@@ -1452,7 +1564,7 @@
         html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="row">'
-        html_body += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama2" autocomplete="off" style="border-radius:0px;border-bottom:0px;border-left:0px;border-right:0px;">'
+        html_body += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama2" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">'
         html_body += '<div class="p-0 m-0" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
         var a = 0
         dataDetail.currentStock.forEach(e => {
@@ -1564,7 +1676,7 @@
                         if (el.gudang_id) {
                             gudang = el.gudang_id
                         }
-                        html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '">' + el.name + '</option>'
+                        html += '<option value="' + el.id + '" data-variable="' + el.variable + '" data-gudang="' + gudang + '" data-type="' + e.type + '">' + el.name + '</option>'
                     });
                 }
                 html += '</optgroup>'
@@ -1663,6 +1775,19 @@
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Mesin Tujuan</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        if (data.machine_next) {
+            html_body += '<p class="m-0 small-text fw-bolder">' + data.machine_next.name + '</p>'
+        } else {
+            html_body += '<p class="m-0 small-text">-</p>'
+        }
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
         html_body += '<p class="m-0 small-text"><b>Detail</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
@@ -1694,12 +1819,16 @@
         html_body += '</div>'
         html_body += '<div class="col-12">'
         if (data.status == 'WAITING') {
+            var next_id = null
+            if (data.machine_next) {
+                next_id = data.machine_next.id
+            }
             html_body += '<div class="row pt-5">'
             html_body += '<div class="col" style="height:50px;">'
-            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + data.machine_next + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + next_id + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
             html_body += '</div>'
             html_body += '<div class="col" style="height:50px;">'
-            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + data.machine_next + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + next_id + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
             html_body += '</div>'
             html_body += '</div>'
         }
@@ -1805,27 +1934,39 @@
         } else {
             $('#btnSimpan').attr('disabled', true)
         }
-
     }
 
     function findTanggalTransaksi() {
         if ($('#tujuanTransaksi').val()) {
+            var data = {}
+            var value = $("#tujuanTransaksi").val()
+            var type = $("#tujuanTransaksi").find(':selected').data('type')
+            if (type == 'MACHINE') {
+                data.machineId = value
+            } else {
+                data.warehouseId = value
+            }
             $.ajax({
-                url: '<?php echo api_produksi('setMachineTransferReceive'); ?>',
-                type: 'POST',
-                data: {
-                    machineId: id,
-                    warehouseId: approval,
-                },
+                url: '<?php echo api_produksi('getWorkPlanDate'); ?>',
+                type: 'GET',
+                data: data,
                 error: function(xhr) {
+                    showOverlay('hide')
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Error Data'
                     });
                 },
-                beforeSend: function() {},
-                success: function(response) {}
+                beforeSend: function() {
+                    showOverlay('show')
+                },
+                success: function(response) {
+                    showOverlay('hide')
+                    $('#dateInput').removeAttr('disabled', true)
+                    var dataDate = response.data
+                    console.log(dataDate)
+                }
             });
         }
     }

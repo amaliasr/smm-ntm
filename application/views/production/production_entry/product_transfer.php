@@ -97,6 +97,93 @@
         margin: 0 auto;
     }
 </style>
+<style>
+    /* ANIMATION */
+    .shake-bottom {
+        -webkit-animation: shake-bottom 1s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
+        animation: shake-bottom 1s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
+    }
+
+    @-webkit-keyframes shake-bottom {
+
+        0%,
+        100% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+            -webkit-transform-origin: 50% 100%;
+            transform-origin: 50% 100%;
+        }
+
+        10% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+
+        20%,
+        40%,
+        60% {
+            -webkit-transform: rotate(-4deg);
+            transform: rotate(-4deg);
+        }
+
+        30%,
+        50%,
+        70% {
+            -webkit-transform: rotate(4deg);
+            transform: rotate(4deg);
+        }
+
+        80% {
+            -webkit-transform: rotate(-2deg);
+            transform: rotate(-2deg);
+        }
+
+        90% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+    }
+
+    @keyframes shake-bottom {
+
+        0%,
+        100% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+            -webkit-transform-origin: 50% 100%;
+            transform-origin: 50% 100%;
+        }
+
+        10% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+
+        20%,
+        40%,
+        60% {
+            -webkit-transform: rotate(-4deg);
+            transform: rotate(-4deg);
+        }
+
+        30%,
+        50%,
+        70% {
+            -webkit-transform: rotate(4deg);
+            transform: rotate(4deg);
+        }
+
+        80% {
+            -webkit-transform: rotate(-2deg);
+            transform: rotate(-2deg);
+        }
+
+        90% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+    }
+</style>
 <div class="row">
     <div class="col-12">
         <div class="card shadow-none">
@@ -250,6 +337,11 @@
 
     function percentageToDegrees(percentage) {
         return percentage / 100 * 360
+    }
+
+    function getAliases(data) {
+        const aliases = data.map(item => item.item.alias);
+        return aliases.join(', ');
     }
 </script>
 <script>
@@ -456,11 +548,24 @@
                 html += '</div>'
                 html += '</div>'
                 html += '<div class="col-9 align-self-center">'
-                html += '<p class="m-0 super-small-text text-orange"><b>' + e.employee.name + '</b></p>'
-                html += '<p class="m-0 super-small-text"><b>' + getDateStringWithTime(e.time) + '</b></p>'
-                e.machine_transfer_detail.forEach(el => {
-                    html += '<p class="m-0 small-text">' + el.item.alias + '</p>'
-                });
+
+                html += '<div class="row">'
+                html += '<div class="col-6 p-0">'
+                html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee.name, 2) + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-6 ps-0 text-end">'
+                html += '<p class="m-0 super-small-text text-dark-grey text-wrap">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</p>'
+                html += '</div>'
+                html += '<div class="col-12">'
+
+                html += '<p class="m-0 text-wrap small-text">' + shortenText('Anda mendapatkan permintaan persetujuan untuk ' + getAliases(e.machine_transfer_detail), 100) + '</p>'
+                if (e.machine_next) {
+                    html += '<p class="m-0 text-wrap super-small-text text-success"><i class="fa fa-paper-plane me-2"></i>Send to ' + e.machine_next.name + '</p>'
+                }
+
+                html += '</div>'
+                html += '</div>'
+
                 html += '</div>'
                 html += '</div>'
                 html += '</a></li>'
@@ -556,6 +661,19 @@
         html_body += '</div>'
         html_body += '<div class="col-9">'
         html_body += '<p class="m-0 small-text">' + data.warehouse.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Mesin Tujuan</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+        if (data.machine_next) {
+            html_body += '<p class="m-0 small-text fw-bolder">' + data.machine_next.name + '</p>'
+        } else {
+            html_body += '<p class="m-0 small-text">-</p>'
+        }
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
