@@ -648,7 +648,7 @@
                                     <a href="javascript:void(0)" onclick="directToWorkPlan()"><button type="button" class="btn btn-primary btn-sm shadow-none position-relative">
                                             <span id="notif">
                                             </span>
-                                            Work Plan
+                                            <i class="fa fa-pencil me-2"></i>Work Plan
                                         </button></a>
                                 </div>
                                 <div class="col-12 pt-3">
@@ -659,7 +659,7 @@
                                     </div> -->
                                     <div class="h-100">
                                         <div class="table-responsive" id="table-product-trend-wrapper">
-                                            <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
+                                            <table class="table table-bordered table-hover" style="width: 100%;white-space:nowrap;">
                                                 <thead>
                                                     <tr id="date_list">
                                                     </tr>

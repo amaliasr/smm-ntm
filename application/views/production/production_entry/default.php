@@ -4,17 +4,14 @@
     <div class="row">
         <div class="col-auto">
             <p class="m-0">You work at</p>
-            <h1 class=""><b>Machine MK9-A</b></h1>
+            <h1 class=""><b>Machine <?= $dataAPI->workPlanMachine->machine->name ?></b></h1>
         </div>
         <div class="col-auto">
             <p class="m-0">Position</p>
-            <h1 class=""><b>Catcher</b></h1>
+            <h1 class=""><b><?= $label ?></b></h1>
         </div>
         <div class="col-12 pt-5">
             <button type="button" class="btn btn-primary shadow-none">Start Now</button>
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {})
-</script>

@@ -819,28 +819,30 @@
         const transformedData = [];
 
         // Mengelompokkan data berdasarkan tanggal
+        var a = 0
         const groupedData = data.reduce((acc, item) => {
             const date = new Date(item.date);
             const formattedDate = `${date.getDate()} ${date.toLocaleString('default', { month: 'long' })}`;
 
-            if (!acc[formattedDate]) {
-                acc[formattedDate] = {
-                    date: formattedDate,
-                    posisi: item.posisi,
-                    note: item.note,
-                    shift_id: item.shift_id,
-                    shift_name: item.shift_name,
-                    work_plan_table_id: item.work_plan_table_id,
-                    work_plan_table_type: item.work_plan_table_type,
-                    machine: [],
-                };
-            }
+            // if (!acc[formattedDate]) {
+            acc[a] = {
+                date: formattedDate,
+                posisi: item.posisi,
+                note: item.note,
+                shift_id: item.shift_id,
+                shift_name: item.shift_name,
+                work_plan_table_id: item.work_plan_table_id,
+                work_plan_table_type: item.work_plan_table_type,
+                machine: [],
+            };
+            // }
 
-            acc[formattedDate].machine.push({
+            acc[a].machine.push({
                 machine_id: item.machine_id,
                 machine_name: item.machine_name,
             });
 
+            a++
             return acc;
         }, {});
 
@@ -1080,7 +1082,7 @@
                             if (d.date == hariIni) {
                                 today = 'bg-ijo-polos'
                             }
-                            html += '<div class="card shadow-none rounded-3 ' + today + '" style="cursor:pointer;">'
+                            html += '<div class="card mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + s.person.id + ',' + "'" + s.person.person_label + "'" + ')">'
                             html += '<div class="card-body  p-2">'
 
                             html += '<div class="row">'
@@ -1124,12 +1126,13 @@
 
     function dailyTask() {
         var html = ''
+        // console.log(dataDailyTask)
         dataDailyTask.forEach(e => {
             const dateString = e.date;
             const parts = dateString.split(" ");
             const day = parseInt(parts[0]);
             const month = parts[1];
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + e.work_plan_table_id + ')">'
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + e.work_plan_table_id + ',' + "'" + e.posisi + "'" + ')">'
             html += '<div class="row g-0">'
             html += '<div class="col-md-2 bg-skm">'
             html += '<div class="row d-flex align-items-center h-100">'
@@ -1169,8 +1172,8 @@
         insight()
     }
 
-    function openDailyTask(id) {
-        var url = '<?= base_url() ?>production/productionEntry/default/' + id
+    function openDailyTask(id, label) {
+        var url = '<?= base_url() ?>production/productionEntry/default/' + btoa(id) + '/' + btoa(label)
         window.open(url, '_blank')
     }
 

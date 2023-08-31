@@ -856,7 +856,7 @@
                             $clicked = 'clicked';
                         }
                     ?>
-                        <div class="card shadow-none mb-2 btn-list-planning <?= $clicked ?>" onclick="location='<?= base_url() ?>production/productionEntry/<?= $value->name ?>/<?= $workPlanMachineId ?>'">
+                        <div class="card shadow-none mb-2 btn-list-planning <?= $clicked ?>" onclick="location='<?= base_url() ?>production/productionEntry/<?= $value->name ?>/<?= base64_encode($workPlanMachineId) ?>/<?= base64_encode($label) ?>'">
                             <span class="position-absolute top-50 start-100 translate-middle p-2 bg-light border border-light-dark rounded-circle" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;cursor:pointer;"><i class="fa fa-check text-light-dark"></i></span>
                             <div class="card-body pt-3 pb-3">
                                 <div class="row">
@@ -1036,9 +1036,10 @@
 
     function loadDataTemplate() {
         var data = {
+            personLabel: 'CATCHER',
             workPlanMachineId: workPlanMachineId,
         }
-        var url = "<?= api_produksi('loadPageCatcherEntry'); ?>"
+        var url = "<?= api_produksi('loadPageProductionEntry'); ?>"
         getDataTemplate(data, url)
     }
 

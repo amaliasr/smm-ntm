@@ -96,6 +96,19 @@
         align-items: center;
         margin: 0 auto;
     }
+
+    .vertical-line {
+        border-left: 2px dotted grey;
+        height: 10px;
+        margin: 0 auto;
+    }
+
+    .v-zone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+    }
 </style>
 <style>
     /* ANIMATION */
@@ -253,15 +266,15 @@
                             <div class="card-body">
                                 <table class="table table-sm table-hover small-text">
                                     <thead>
-                                        <tr>
+                                        <tr class="">
                                             <th scope="col" class="p-3">#</th>
                                             <th scope="col" class="p-3"></th>
                                             <th scope="col" class="p-3">Time</th>
                                             <th scope="col" class="p-3">Item / Material</th>
                                             <th scope="col" class="p-3">QTY</th>
                                             <th scope="col" class="p-3">Unit</th>
-                                            <th scope="col" class="p-3">Source</th>
-                                            <th scope="col" class="p-3">Direction</th>
+                                            <th scope="col" class="p-3 bg-light">Source</th>
+                                            <th scope="col" class="p-3 bg-light">Direction</th>
                                             <th scope="col" class="p-3">User</th>
                                             <th scope="col" class="p-3">Status</th>
                                             <th scope="col" class="p-3"></th>
@@ -363,7 +376,7 @@
         var data = {
             workPlanMachineId: workPlanMachineId,
         }
-        var url = "<?= api_produksi('loadPageCatcherEntry'); ?>"
+        var url = "<?= api_produksi('loadPageProductTransferEntry'); ?>"
         getData(data, url)
     }
 
@@ -462,12 +475,15 @@
 
     function transaksiDetail() {
         var html = ''
+        // console.log(listMachineTransferDetail)
         if (listMachineTransferDetail.length) {
             var a = 1
             listMachineTransferDetail.forEach(e => {
-                var destination = '<span class="text-grey">' + e.destination + '</span>'
+                var destination = '<b>' + e.destination + '</b>'
                 if (e.machine_reference) {
-                    destination = '<b>' + e.machine_reference + '</b>'
+                    destination = '<p class="m-0 text-grey">' + e.destination + '</p>'
+                    destination += '<div class="v-zone"><div class="vertical-line mt-1 mb-1"></div></div>'
+                    destination += '<b>' + e.machine_reference + '</b>'
                 }
                 var arrow = '<i class="fa fa-arrow-down text-success"></i>'
                 if (e.action == 'OUT') {
@@ -484,17 +500,20 @@
 
                 }
                 html += '<tr>'
-                html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
-                html += '<td class="p-2 text-center">' + arrow + '</td>'
-                html += '<td class="p-2 text-center">' + getDateTime(e.send_at) + '</td>'
-                html += '<td class="p-2 text-center">' + e.item_name + '</td>'
-                html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
-                html += '<td class="p-2 text-center">' + e.unit_name + '</td>'
-                html += '<td class="p-2 text-center">' + e.source + '</td>'
-                html += '<td class="p-2 text-center">' + destination + '</td>'
-                html += '<td class="p-2 text-center">' + e.user.split(' ')[0] + '</td>'
-                html += '<td class="p-2 text-center">' + status + '</td>'
-                html += '<td class="p-2 text-center">'
+                html += '<th class="p-2  text-center" scope="row">' + a++ + '</th>'
+                html += '<td class="p-2  text-center">' + arrow + '</td>'
+                html += '<td class="p-2  text-center">' + formatDateIndonesiaTanggalBulan(e.send_at) + ' ' + formatJamMenit(e.send_at) + '</td>'
+                html += '<td class="p-2 ">'
+                // html += '<p class="m-0 super-small-text"><b>' + e.item_alias + '</b></p>'
+                html += '<p class="m-0">' + e.item_name + '</p>'
+                html += '</td>'
+                html += '<td class="p-2  text-center fw-bolder text-orange">' + number_format(e.qty) + '</td>'
+                html += '<td class="p-2  text-center text-orange">' + e.unit_name + '</td>'
+                html += '<td class="p-2  text-center bg-light"><b>' + e.source + '</b></td>'
+                html += '<td class="p-2  text-center bg-light">' + destination + '</td>'
+                html += '<td class="p-2  text-center">' + e.user.split(' ')[0] + '</td>'
+                html += '<td class="p-2  text-center">' + status + '</td>'
+                html += '<td class="p-2  text-center">'
                 html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="viewDetail(' + e.id + ')"><i class="fa fa-eye"></i></button>'
                 html += '</td>'
                 html += '</tr>'
@@ -559,7 +578,7 @@
 
                 html += '<div class="col-3 text-center">'
                 html += '<div class="circle-shape bg-dongker">'
-                html += '<p class="m-0 text-wrap small-text text-white">' + e.warehouse.name + '</p>'
+                html += '<p class="m-0 text-wrap small-text text-white">' + e.subject_sender.name + '</p>'
                 html += '</div>'
                 html += '</div>'
 
@@ -568,7 +587,7 @@
                 html += '<div class="row">'
 
                 html += '<div class="col-6">'
-                html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee.name, 2) + '</b></p>'
+                html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee_sender.name, 2) + '</b></p>'
                 html += '</div>'
 
                 html += '<div class="col-6 ps-0 text-end">'
@@ -687,11 +706,11 @@
         html += '<div class="row">'
         html += '<div class="col-2 text-center">'
         html += '<div class="circle-shape bg-light-dongker">'
-        html += '<p class="m-0 text-wrap small-text text-white">' + data.reference.name + '</p>'
+        html += '<p class="m-0 text-wrap small-text text-white">' + data.subject_sender.name + '</p>'
         html += '</div>'
         html += '</div>'
         html += '<div class="col align-self-center">'
-        html += '<p class="m-0 small-text text-orange"><b>' + data.employee.name + '</b></p>'
+        html += '<p class="m-0 small-text text-orange"><b>' + data.employee_sender.name + '</b></p>'
         html += '<p class="m-0 small-text text-dark-grey"><b>' + getDateStringWithTime(data.time) + '</b></p>'
         html += '<p class="m-0 mt-2 small-text text-dark-grey">'
         var a = 0
@@ -761,31 +780,31 @@
         html_body += '<p class="m-0 small-text"><b>Dibuat Oleh</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small-text">' + data.employee.name + '</p>'
+        html_body += '<p class="m-0 small-text">' + data.employee_sender.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
-        html_body += '<p class="m-0 small-text"><b>Mesin Asal</b></p>'
+        html_body += '<p class="m-0 small-text"><b>' + toTitleCase(data.subject_sender.subject) + ' Asal</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small-text">' + data.reference.name + '</p>'
+        html_body += '<p class="m-0 small-text">' + data.subject_sender.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
-        html_body += '<p class="m-0 small-text"><b>Warehouse</b></p>'
+        html_body += '<p class="m-0 small-text"><b>' + toTitleCase(data.subject_receiver.subject) + ' Tujuan</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small-text">' + data.warehouse.name + '</p>'
+        html_body += '<p class="m-0 small-text">' + data.subject_receiver.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
-        html_body += '<p class="m-0 small-text"><b>Mesin Tujuan</b></p>'
+        html_body += '<p class="m-0 small-text text-success"><b><i class="fa fa-plane me-1"></i>Direct</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
         if (data.machine_next) {
@@ -851,7 +870,7 @@
     function formTransaction() {
         itemIdSelected = []
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
         html_header += '<h5 class="modal-title">Transaction</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -865,7 +884,7 @@
         html_body += '<p class="small-text"><b>Machine Stock</b></p>'
         html_body += '</div>'
         html_body += '</div>'
-        html_body += '<div class="row">'
+        html_body += '<div class="row pt-3">'
         html_body += '<div class="p-0 m-0" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
 
         stokMachineSort.forEach(e => {
@@ -939,7 +958,7 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="arrangeVariableInsert()">Simpan</button>'
-        $('#modalFooter').html(html_footer);
+        $('#modalFooter').html(html_footer).removeClass('d-none')
         kerangkaFormTransaction()
     }
 
@@ -968,9 +987,9 @@
     function kerangkaFormTransaction() {
         var html = ''
         html += '<div class="row">'
-        html += '<div class="col-8" id="listFormBrand" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        html += '<div class="col-8 pt-3" id="listFormBrand" style="height: 450px;overflow-x: hidden;overflow-y: auto;">'
         html += '</div>'
-        html += '<div class="col-4">'
+        html += '<div class="col-4 pt-3">'
 
         html += '<div class="card shadow-none">'
         html += '<div class="card-body">'
@@ -991,8 +1010,13 @@
             html += '</optgroup>'
         });
         html += '</select>'
+        html += '<p class="small-text mt-3"><b>Tanggal</b></p>'
+        html += '<input class="form-control datepicker" type="text" id="dateInput" placeholder="Tanggal" value="' + dataEntry.workPlanMachine.date + '" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" disabled>'
+        html += '<p class="small-text mt-3"><b>Waktu (Jam)</b></p>'
+        html += '<input type="time" id="waktu" class="form-control" value="" required="required" oninput="eventButton()">'
         html += '<p class="small-text mt-3"><b>Notes</b></p>'
-        html += '<textarea class="form-control" rows="10" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
+        html += '<textarea class="form-control" rows="8" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
+        html += '</div>'
         html += '</div>'
         html += '</div>'
 
@@ -1022,6 +1046,7 @@
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
+
                 html += '<div class="col p-3">'
                 // form fill
                 html += '<div class="row">'
@@ -1078,6 +1103,7 @@
                     html += '</div>'
                 }
                 // form fill
+                html += '</div>'
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
@@ -1154,7 +1180,7 @@
                 }
             }
         }
-        if (!$('#tujuanTransaksi').val()) {
+        if (!$('#tujuanTransaksi').val() || !$('#waktu').val()) {
             return 0
         }
         return 1;
@@ -1188,7 +1214,7 @@
         data.machineTransfer.push({
             id: id,
             machine_id: dataEntry.workPlanMachine.machine.id,
-            send_at: currentDateTime(),
+            send_at: dataEntry.workPlanMachine.date + ' ' + $('#waktu').val() + ':00',
             employee_id_sender: user_id,
             action: 'OUT',
             tag: 'TRANSFER',
@@ -1248,7 +1274,6 @@
     }
 
     function viewAllMachineStock() {
-        console.log(stokMachineSort)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
         var html_header = '';
@@ -1312,6 +1337,7 @@
     }
 
     function showProgressMachineStock(v) {
+        console.log(v)
         var html = ''
         var data = dataEntry.productionOutItem.filter((va, ke) => {
             if (va.item.id == v.item_id) return true

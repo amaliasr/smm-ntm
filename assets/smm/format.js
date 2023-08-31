@@ -65,7 +65,7 @@ function formatJamMenit(orginaldate) {
     if (jam < 10) {
         jam = "0" + jam;
     }
-    var date = jam + "." + menit;
+    var date = jam + ":" + menit;
     return date;
 }
 function formatDateIndonesia(orginaldate) {
@@ -373,3 +373,15 @@ function shortenText(text, maxLength) {
 
     return formattedTime;
 }
+function convertToLongLink(word) {
+    let longLink = "";
+  
+    for (let i = 0; i < word.length; i++) {
+      longLink += "&#" + word.charCodeAt(i) + ";";
+    }
+  
+    return longLink;
+  }
+  function decodeHtmlEntities(encodedString) {
+    return encodedString.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
+  }

@@ -200,6 +200,21 @@
             return item.jamke;
         });
     }
+
+    function checkTime(inputTime, dataArray) {
+        const inputHour = inputTime.split(':')[0];
+
+        for (const range of dataArray) {
+            const startHour = range.start;
+            const endHour = range.end;
+
+            if (inputHour >= startHour && inputHour < endHour) {
+                return 0; // Jam input berada dalam rentang waktu yang diberikan
+            }
+        }
+
+        return 1; // Jam input tidak termasuk dalam rentang waktu yang diberikan
+    }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -222,7 +237,7 @@
         var data = {
             workPlanMachineId: workPlanMachineId,
         }
-        var url = "<?= api_produksi('loadPageCatcherEntry'); ?>"
+        var url = "<?= api_produksi('loadPageProductionOutEntry'); ?>"
         getData(data, url)
     }
 
@@ -463,7 +478,7 @@
         html += '<div class="col-4 mt-2">'
         html += '<p class="m-0 small-text"><b>Start Time</b></p>'
 
-        html += '<input type="time" id="startTime" class="form-control" value="" required="required" oninput="fillForm(),addToEndTime(event)">'
+        html += '<input type="time" id="startTime" class="form-control" value="" required="required" oninput="fillForm(),addToEndTime(event),checkAvailableHours(event)">'
         html += '<div class="form-check align-self-center">'
         html += '<input class="form-check-input" type="checkbox" value="" id="checkAutoNextHour" onchange="autoNextHour()">'
         html += '<label class="form-check-label" for="checkAutoNextHour">Auto Next Hour</label>'
@@ -476,6 +491,8 @@
         html += '<div class="col-4 mt-2">'
         html += '<p class="m-0 small-text"><b>QTY</b></p>'
         html += '<input type="text" id="qty" class="form-control nominal" value="" required="required" onkeyup="fillForm()" autocomplete="off">'
+        html += '</div>'
+        html += '<div class="col-12 text-danger" id="textWarning">'
         html += '</div>'
         html += '<div class="col-12 mt-2">'
         html += '<p class="m-0 small-text"><b>Note</b></p>'
@@ -561,6 +578,19 @@
     function addToEndTime(event) {
         var value = event.target.value
         $('#endTime').val(addOneHour(value))
+    }
+
+    function checkAvailableHours(event) {
+        var value = event.target.value
+        var dataList = convertDataToListTime(dataEntry.productionOutItem)
+        var check = checkTime(value, dataList)
+        if (check) {
+            $('#textWarning').html('')
+            $('#qty').removeAttr('disabled', true)
+        } else {
+            $('#textWarning').html('<p class="m-0 super-small-text">Jam Tersebut Telah Dipakai, Harap Input Jam yang Masih Tersedia</p>')
+            $('#qty').attr('disabled', true)
+        }
     }
 
     function simpanData() {

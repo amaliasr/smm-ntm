@@ -183,19 +183,21 @@ class Production extends CI_Controller
         $data['id'] = $id;
         $this->template->views('production/work_plan', $data);
     }
-    public function productionEntry($linkBefore = null, $workPlanMachineId = null)
+    public function productionEntry($linkBefore = null, $workPlanMachineId = null, $label = null)
     {
         $data['title'] = 'Production Entry';
-        $data['workPlanMachineId'] = $workPlanMachineId;
-        $dataAPI = json_decode($this->curl->simple_get(api_produksi('loadPageCatcherEntry?workPlanMachineId=3')))->data;
+        $data['workPlanMachineId'] = base64_decode($workPlanMachineId);
+        $data['label'] = base64_decode($label);
+        $dataAPI = json_decode($this->curl->simple_get(api_produksi('loadPageProductionEntry?personLabel=' . base64_decode($label) . '&workPlanMachineId=' . base64_decode($workPlanMachineId))))->data;
         $data['linkBefore'] = $linkBefore;
         if ($linkBefore) {
             $data['link'] = $linkBefore;
         } else {
             $data['link'] = 'default';
         }
-        $menu = $dataAPI->menuAccess;
+        $menu = $dataAPI->ProductionEntryAccess;
         $data['menu'] = $menu;
+        $data['dataAPI'] = $dataAPI;
         // $this->template->views('errors/notfound', $data);
         $this->template->views('production/template_production_entry', $data);
     }

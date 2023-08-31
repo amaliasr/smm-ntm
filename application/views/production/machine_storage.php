@@ -929,6 +929,20 @@
     .bg-light-dongker {
         background-color: #7d8794;
     }
+
+    .bg-light-primary {
+        background-color: #f7f9fc;
+    }
+
+    .day:not(.disabled) {
+        background-color: #84b0e2;
+        border-radius: 0px;
+        color: white;
+    }
+
+    .datepicker table tr td.active {
+        color: white !important;
+    }
 </style>
 <style>
     /* ANIMATION */
@@ -1094,6 +1108,25 @@
 <?php $this->load->view('components/modal_static') ?>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script>
+    function getMissingDates(existingDates) {
+        const startDate = new Date('2023-08-01');
+        const endDate = new Date('2023-08-31');
+
+        const missingDates = [];
+        const currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+            const formattedDate = currentDate.toISOString().split('T')[0];
+            if (!existingDates.includes(formattedDate)) {
+                missingDates.push(formattedDate);
+            }
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return missingDates;
+    }
+
     function getAliases(data) {
         const aliases = data.map(item => item.item.alias);
         return aliases.join(', ');
@@ -1209,10 +1242,10 @@
             html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse' + e.id + '" onclick="chooseWarehouse(' + e.id + ')">'
             html += '<div class="card-body pt-3 pb-3">'
             html += '<div class="row">'
-            html += '<div class="col-10 align-self-center">'
+            html += '<div class="col-lg-10 col-md-9 align-self-center wrap-text">'
             html += '<b class="small-text">' + e.name + '</b>'
             html += '</div>'
-            html += '<div class="col-2 text-center align-self-center">'
+            html += '<div class="col-lg-2 col-md-3 text-center align-self-center">'
             html += '<i class="fa fa-chevron-right"></i>'
             html += '</div>'
             html += '</div>'
@@ -1315,17 +1348,17 @@
         html += '<div class="col-12">'
         html += '<table class="table table-sm table-hover mt-5">'
         html += '<thead>'
-        html += '<tr>'
-        html += '<th class="small-text text-center">#</th>'
-        html += '<th class="small-text text-center"></th>'
-        html += '<th class="small-text text-center">Time</th>'
-        html += '<th class="small-text text-center">User</th>'
-        html += '<th class="small-text text-center">Source</th>'
-        html += '<th class="small-text text-center">Warehouse</th>'
-        html += '<th class="small-text text-center text-success"><i class="fa fa-plane me-1"></i>Direct</th>'
-        html += '<th class="small-text text-center">Items / Materials</th>'
-        html += '<th class="small-text text-center">Status</th>'
-        html += '<th class="small-text text-center"></th>'
+        html += '<tr class="border-top">'
+        html += '<th class="small-text text-center p-3">#</th>'
+        html += '<th class="small-text text-center p-3"></th>'
+        html += '<th class="small-text text-center p-3">Time</th>'
+        html += '<th class="small-text text-center p-3">User</th>'
+        html += '<th class="small-text text-center p-3 bg-light">Warehouse</th>'
+        html += '<th class="small-text text-center p-3 bg-light">Reference</th>'
+        html += '<th class="small-text text-center p-3 text-success"><i class="fa fa-plane me-1"></i>Direct</th>'
+        html += '<th class="small-text text-center p-3">Items / Materials</th>'
+        html += '<th class="small-text text-center p-3">Status</th>'
+        html += '<th class="small-text text-center p-3"></th>'
         html += '</tr>'
         html += '</thead>'
         html += '<tbody id="tableDetail">'
@@ -1362,14 +1395,14 @@
             html += '<div class="row">'
             html += '<div class="col-4 text-center">'
             html += '<div class="circle-shape bg-light-dongker">'
-            html += '<p class="m-0 text-wrap small-text text-white">' + e.reference.name + '</p>'
+            html += '<p class="m-0 text-wrap small-text text-white">' + e.subject_sender.name + '</p>'
             html += '</div>'
             html += '</div>'
             html += '<div class="col-8 align-self-center">'
 
             html += '<div class="row">'
             html += '<div class="col-6 p-0">'
-            html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee.name, 2) + '</b></p>'
+            html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee_sender.name, 2) + '</b></p>'
             html += '</div>'
             html += '<div class="col-6 ps-0 text-end">'
             html += '<p class="m-0 super-small-text text-dark-grey text-wrap">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</p>'
@@ -1377,7 +1410,7 @@
             html += '<div class="col-12 p-0 pt-2">'
             html += '<p class="m-0 text-wrap small-text">' + shortenText('Anda mendapatkan permintaan persetujuan untuk ' + getAliases(e.machine_transfer_detail), 100) + '</p>'
             if (e.machine_next) {
-                html += '<p class="m-0 text-wrap super-small-text text-success"><i class="fa fa-paper-plane me-2"></i>Send to ' + e.machine_next.name + '</p>'
+                html += '<p class="m-0 mt-2 text-wrap super-small-text text-success"><i class="fa fa-paper-plane me-2"></i>Send to ' + e.machine_next.name + '</p>'
             }
             html += '</div>'
             html += '</div>'
@@ -1403,24 +1436,28 @@
     function listCurrentStock() {
         var html = ''
         var a = 0
-        dataDetail.currentStock.forEach(e => {
-            html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
-            html += '<div class="card-body">'
-            html += '<div class="row">'
-            html += '<div class="col">'
-            html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + e.item.code + '</p>'
-            html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + e.item.name + '</b></p>'
-            html += '</div>'
-            html += '<div class="col-auto text-end">'
-            html += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
-            html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            a++
-        })
-        $('#listCurrentStock').html(html)
+        if (dataDetail.currentStock.length) {
+            dataDetail.currentStock.forEach(e => {
+                html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
+                html += '<div class="card-body">'
+                html += '<div class="row">'
+                html += '<div class="col">'
+                html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + e.item.code + '</p>'
+                html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + e.item.name + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-auto text-end">'
+                html += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
+                html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                a++
+            })
+            $('#listCurrentStock').html(html)
+        } else {
+            emptyText('#listCurrentStock', 'Tidak Ada Data yang Tersedia')
+        }
         tableDetail()
     }
 
@@ -1441,15 +1478,29 @@
                     var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
                 } else {
                     var status = ''
-
                 }
-                html += '<tr>'
+                var colorToday = ''
+                if (formatDate(e.time) == currentDate()) {
+                    colorToday = 'bg-light-primary'
+                }
+                var employeeName = '-'
+                if (e.employee) {
+                    employeeName = e.employee.name.split(' ')[0]
+                }
+                var employeeReferenceName = ''
+                if (e.employee_reference) {
+                    employeeReferenceName = e.employee_reference.name.split(' ')[0]
+                }
+                html += '<tr class="' + colorToday + '">'
                 html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
                 html += '<td class="small-text align-middle text-center">' + arrow + '</td>'
-                html += '<td class="small-text align-middle text-center">' + getDateTime(e.time) + '</td>'
-                html += '<td class="small-text align-middle text-center">' + e.employee.name.split(' ')[0] + '</td>'
-                html += '<td class="small-text align-middle text-center">' + e.reference.name + '</td>'
-                html += '<td class="small-text align-middle text-center">' + e.warehouse.name + '</td>'
+                html += '<td class="small-text align-middle text-center">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</td>'
+                html += '<td class="small-text align-middle text-center">' + employeeName + '</td>'
+                html += '<td class="small-text align-middle text-center bg-light">' + e.warehouse.name + '</td>'
+                html += '<td class="small-text align-middle text-center bg-light">'
+                html += '<p class="m-0">' + e.reference.name + '</p>'
+                html += '<p class="m-0 super-small-text fw-bolder">' + employeeReferenceName + '</p>'
+                html += '</td>'
                 var next = '-'
                 if (e.machine_next) {
                     next = e.machine_next.name
@@ -1683,8 +1734,10 @@
             html += '</select>'
             html += '<p class="small-text mt-3"><b>Tanggal Transaksi</b></p>'
             html += '<input class="form-control datepicker" type="text" id="dateInput" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" onchange="eventButton()" disabled>'
+            html += '<p class="small-text mt-3"><b>Waktu (Jam)</b></p>'
+            html += '<input type="time" id="waktu" class="form-control" value="" required="required" oninput="eventButton()" disabled>'
             html += '<p class="small-text mt-3"><b>Notes</b></p>'
-            html += '<textarea class="form-control" rows="10" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
+            html += '<textarea class="form-control" rows="8" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
             html += '</div>'
             html += '</div>'
 
@@ -1692,22 +1745,17 @@
 
             html += '</div>'
             $('#listFormTransaction').html(html)
-            $('.datepicker').datepicker({
-                format: "yyyy-mm-dd",
-                orientation: "auto",
-                multidate: true,
-                todayHighlight: true,
-                minDate: 0,
-                beforeShowDay: function(date) {
-                    var hilightedDays = [1, 3, 8, 20, 21, 16, 26, 30];
-                    if (~hilightedDays.indexOf(date.getDate())) {
-                        return {
-                            classes: 'highlight',
-                            tooltip: 'Title'
-                        };
-                    }
-                }
-            });
+            eventButton()
+            // $('#dateInput').datepicker({
+            //     format: "yyyy-mm-dd",
+            //     orientation: "auto",
+            //     multidate: true,
+            //     startDate: '2023-08-01',
+            //     endDate: '2023-08-31',
+            //     datesDisabled: [],
+            //     todayHighlight: true,
+            //     minDate: 0,
+            // });
         } else {
             empty('#listFormTransaction', 'Belum Ada Data yang Terpilih', '300px')
         }
@@ -1724,6 +1772,17 @@
             var data = dataDetail.mutationStock.find((v, k) => {
                 if (v.id == id) return true
             })
+            var sender = data.employee.name
+            var sender_subject = 'Warehouse'
+            var sender_name = data.warehouse.name
+            var receiver_subject = 'Reference'
+            var receiver_name = data.reference.name
+        } else {
+            var sender = data.employee_sender.name
+            var sender_subject = toTitleCase(data.subject_sender.subject) + ' Asal'
+            var sender_name = data.subject_sender.name
+            var receiver_subject = toTitleCase(data.subject_receiver.subject) + ' Tujuan'
+            var receiver_name = data.subject_receiver.name
         }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
@@ -1750,37 +1809,40 @@
         html_body += '<p class="m-0 small-text"><b>Dibuat Oleh</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small-text">' + data.employee.name + '</p>'
+        html_body += '<p class="m-0 small-text">' + sender + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
-        html_body += '<p class="m-0 small-text"><b>Mesin Asal</b></p>'
+        html_body += '<p class="m-0 small-text"><b>' + sender_subject + '</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small-text">' + data.reference.name + '</p>'
+        html_body += '<p class="m-0 small-text">' + sender_name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
-        html_body += '<p class="m-0 small-text"><b>Warehouse</b></p>'
+        html_body += '<p class="m-0 small-text"><b>' + receiver_subject + '</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small-text">' + data.warehouse.name + '</p>'
+        html_body += '<p class="m-0 small-text">' + receiver_name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
         html_body += '<div class="col-3">'
-        html_body += '<p class="m-0 small-text"><b>Mesin Tujuan</b></p>'
-        html_body += '</div>'
-        html_body += '<div class="col-9">'
         if (data.machine_next) {
-            html_body += '<p class="m-0 small-text fw-bolder">' + data.machine_next.name + '</p>'
+            html_body += '<p class="m-0 small-text text-success"><b><i class="fa fa-plane me-1"></i>Direct</b></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-9">'
+            html_body += '<p class="m-0 small-text text-success fw-bolder">' + data.machine_next.name + '</p>'
         } else {
-            html_body += '<p class="m-0 small-text">-</p>'
+            html_body += '<p class="m-0 small-text"><b><i class="fa fa-plane me-1"></i>Direct</b></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-9">'
+            html_body += '<p class="m-0 small-text">No</p>'
         }
         html_body += '</div>'
         html_body += '<div class="col-12">'
@@ -1937,6 +1999,11 @@
         } else {
             $('#btnSimpan').attr('disabled', true)
         }
+        if ($('#dateInput').val()) {
+            $('#waktu').removeAttr('disabled', true)
+        } else {
+            $('#waktu').attr('disabled', true)
+        }
     }
 
     function findTanggalTransaksi() {
@@ -1967,8 +2034,18 @@
                 success: function(response) {
                     showOverlay('hide')
                     $('#dateInput').removeAttr('disabled', true)
-                    var dataDate = response.data
-                    console.log(dataDate)
+                    var dataDate = getMissingDates(response.data)
+                    // console.log(dataDate)
+                    $('#dateInput').datepicker({
+                        format: "yyyy-mm-dd",
+                        orientation: "auto",
+                        startDate: '2023-08-01',
+                        endDate: '2023-08-31',
+                        datesDisabled: dataDate,
+                        todayHighlight: true,
+                        minDate: 0,
+                        autoclose: true,
+                    });
                 }
             });
         }
@@ -1982,7 +2059,7 @@
                 return 0;
             }
         }
-        if (!$('#tujuanTransaksi').val() || !$('#dateInput').val()) {
+        if (!$('#tujuanTransaksi').val() || !$('#dateInput').val() || !$('#waktu').val()) {
             return 0
         }
         return 1;
@@ -2007,15 +2084,15 @@
         data.machineTransfer.push({
             id: id,
             machine_id: tujuanTransaksi,
-            send_at: $('#dateInput').val(),
+            send_at: $('#dateInput').val() + ' ' + $('#waktu').val() + ':00',
             employee_id_sender: user_id,
             action: 'IN',
             tag: 'TRANSFER',
             note: $('#notes').val(),
-            reference_id: null,
-            work_plan_id: null,
-            shift_id: null,
-            machine_id_reference: null,
+            // reference_id: null,
+            // work_plan_id: null,
+            // shift_id: null,
+            // machine_id_reference: null,
             gudang_id: choosenId
         })
         data.machineTransferDetail = []
@@ -2144,11 +2221,11 @@
         html += '<div class="row">'
         html += '<div class="col-2 text-center">'
         html += '<div class="circle-shape bg-light-dongker">'
-        html += '<p class="m-0 text-wrap small-text text-white">' + data.reference.name + '</p>'
+        html += '<p class="m-0 text-wrap small-text text-white">' + data.subject_sender.name + '</p>'
         html += '</div>'
         html += '</div>'
         html += '<div class="col align-self-center">'
-        html += '<p class="m-0 small-text text-orange"><b>' + data.employee.name + '</b></p>'
+        html += '<p class="m-0 small-text text-orange"><b>' + data.employee_sender.name + '</b></p>'
         html += '<p class="m-0 small-text text-dark-grey"><b>' + getDateStringWithTime(data.time) + '</b></p>'
         html += '<p class="m-0 mt-2 small-text text-dark-grey">'
         var a = 0

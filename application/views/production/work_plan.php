@@ -924,7 +924,8 @@
                 </div>
                 <div class="col text-end">
                     <button type="button" class="btn btn-outline-dark btn-sm shadow-none"><i class="fa fa-list me-2"></i>See Detail</button>
-                    <button type="button" class="btn btn-danger btn-sm shadow-none"><i class="fa fa-download me-2"></i>PDF</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm shadow-none"><i class="fa fa-download me-2"></i>PDF</button>
+                    <button type="button" class="btn btn-primary btn-sm shadow-none" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i>Filter</button>
                 </div>
                 <div class="col-12 pt-3">
                     <div class="h-100">
@@ -978,7 +979,12 @@
         </div>
     </div>
 </div>
-
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" data-bs-backdrop="true" style="z-index: 99999;">
+    <div class="offcanvas-header p-5" id="canvasHeader">
+    </div>
+    <div class="offcanvas-body p-5" id="canvasBody">
+    </div>
+</div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script> -->
@@ -1751,11 +1757,24 @@
                         })
                         // buat bar work plan
                         d.products.forEach(e => {
+                            console.log(e.product.id)
+                            var dataProduct = data_work.productItem.find((v, k) => {
+                                if (v.id == e.product.id) return true
+                            })
+                            if (dataProduct) {
+                                dataProduct = dataProduct.machine.find((v, k) => {
+                                    if (v.id == d.machine.id) return true
+                                }).item_id
+                            } else {
+                                dataProduct = e.product.id
+                            }
+                            // console.log(dataProduct)
                             if (e.work_plan_product_id != null) {
                                 set_work_plan['workPlanProduct'].push({
                                     id: e.work_plan_product_id,
                                     work_plan_machine_id: d.work_plan_machine_id,
-                                    item_id_product: e.product.id,
+                                    item_id_product: dataProduct,
+                                    // item_id_product: dataProduct,
                                     qty: e.qty,
                                     unit_id: e.unit.id,
                                     // priority: e.priority,
@@ -1808,6 +1827,7 @@
                 });
             });
         });
+        console.log('=====================================')
         // data_work_plan = removeNullProduct(data_work_plan)
         if (jumlahLoad == 0) {
             data_work_plan_real = deepCopy(data_work_plan)
@@ -3045,7 +3065,6 @@
         var dataShiftMaster = data_work.shift[0].shift_list.find((v, k) => {
             if (v.id == shift_id) return true
         })
-        console.log(getData)
         getData.shift.id = dataShiftMaster.id
         getData.shift.group_id = dataShiftMaster.group_id
         getData.shift.name = dataShiftMaster.name
@@ -3892,5 +3911,34 @@
                 clearModal();
             }
         })
+    }
+
+    function filterCanvas() {
+        $('.offcanvas').offcanvas('show')
+        var header = ''
+        header += '<h5 id="offcanvasRightLabel">Filter</h5>'
+        header += '<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>'
+        $('#canvasHeader').html(header)
+        var body = ''
+        body += '<div class="row">'
+
+        body += '<div class="col-12">'
+        body += '<b class="small">Machine</b>'
+        body += '</div>'
+
+        body += '<div class="col-12">'
+        body += '<b class="small">Position</b>'
+        body += '</div>'
+
+        body += '<div class="col-12">'
+        body += '<b class="small">Product</b>'
+        body += '</div>'
+
+        body += '<div class="col-12">'
+        body += '<b class="small">Man Power</b>'
+        body += '</div>'
+
+        body += '</div>'
+        $('#canvasBody').html(body)
     }
 </script>
