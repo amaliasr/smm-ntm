@@ -1109,19 +1109,36 @@
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script>
     function getMissingDates(existingDates) {
-        const startDate = new Date('2023-08-01');
-        const endDate = new Date('2023-08-31');
+        if (existingDates.length === 0) {
+            return []; // Tidak ada tanggal yang hilang jika tidak ada tanggal yang ada
+        }
+
+        // Menghitung tanggal minimum dan maksimum dari existingDates
+        const minDate = new Date(Math.min(...existingDates.map(date => new Date(date))));
+        const maxDate = new Date(Math.max(...existingDates.map(date => new Date(date))));
+
+        // Menghitung bulan dan tahun dari minDate dan maxDate
+        const startYear = minDate.getFullYear();
+        const startMonth = minDate.getMonth();
+        const endYear = maxDate.getFullYear();
+        const endMonth = maxDate.getMonth();
 
         const missingDates = [];
-        const currentDate = new Date(startDate);
+        const currentDate = new Date(startYear, startMonth, 1); // Mulai dari tanggal 1 bulan pertama
 
-        while (currentDate <= endDate) {
+        while (currentDate <= maxDate) {
             const formattedDate = currentDate.toISOString().split('T')[0];
             if (!existingDates.includes(formattedDate)) {
                 missingDates.push(formattedDate);
             }
 
             currentDate.setDate(currentDate.getDate() + 1);
+
+            // Jika currentDate telah mencapai akhir bulan, lanjut ke bulan berikutnya
+            if (currentDate.getMonth() > endMonth || currentDate.getFullYear() > endYear) {
+                currentDate.setDate(1); // Reset ke tanggal 1
+                currentDate.setMonth(currentDate.getMonth() + 1); // Pindah ke bulan berikutnya
+            }
         }
 
         return missingDates;
@@ -1131,6 +1148,33 @@
         const aliases = data.map(item => item.item.alias);
         return aliases.join(', ');
     }
+
+    function getStartAndEndDate(data) {
+        if (data.length === 0) {
+            return null; // Handle empty input array
+        }
+
+        const firstDate = new Date(data[0]);
+        const lastDate = new Date(data[data.length - 1]);
+
+        const year = firstDate.getFullYear();
+        const month = firstDate.getMonth() + 1; // Bulan dimulai dari 0 (Januari) hingga 11 (Desember)
+
+        // Tanggal awal bulan
+        const dateStart = `${year}-${month.toString().padStart(2, '0')}-01`;
+
+        // Tanggal akhir bulan
+        const lastDay = new Date(year, month, 0).getDate();
+        const nextMonth = month === 12 ? 1 : month + 1;
+        const nextYear = month === 12 ? year + 1 : year;
+        const dateEnd = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-${lastDay.toString().padStart(2, '0')}`;
+
+        return {
+            dateStart,
+            dateEnd
+        };
+    }
+
 
     function notFound(location) {
         $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
@@ -2035,12 +2079,13 @@
                     showOverlay('hide')
                     $('#dateInput').removeAttr('disabled', true)
                     var dataDate = getMissingDates(response.data)
-                    // console.log(dataDate)
+                    var dateRange = getStartAndEndDate(response.data)
+                    console.log(response.data)
                     $('#dateInput').datepicker({
                         format: "yyyy-mm-dd",
                         orientation: "auto",
-                        startDate: '2023-08-01',
-                        endDate: '2023-08-31',
+                        startDate: dateRange.dateStart,
+                        endDate: dateRange.dateEnd,
                         datesDisabled: dataDate,
                         todayHighlight: true,
                         minDate: 0,

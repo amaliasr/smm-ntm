@@ -1319,6 +1319,81 @@
         return finalData;
     }
 
+    function groupDataByAttributes(inputData, attributes) {
+        const groupedData = {};
+
+        inputData.forEach(item => {
+            const key = attributes.map(attribute => item[attribute]).join("-");
+
+            if (!(key in groupedData)) {
+                groupedData[key] = [];
+            }
+
+            groupedData[key].push(item);
+        });
+
+        const result = [];
+
+        for (const key in groupedData) {
+            const firstItem = groupedData[key][0];
+            const groupedItem = {};
+
+            attributes.forEach(attribute => {
+                groupedItem[attribute] = firstItem[attribute];
+            });
+
+            result.push(groupedItem);
+        }
+
+        return result;
+    }
+
+    function generateEmployeeRolesOutput(data) {
+        const employeeRoles = new Set();
+
+        data.forEach(item => {
+            if (item.employee_catcher.length > 0) {
+                employeeRoles.add('CATCHER');
+            }
+            if (item.employee_helper.length > 0) {
+                employeeRoles.add('HELPER');
+            }
+            if (item.employee_mechanic.length > 0) {
+                employeeRoles.add('MECHANIC');
+            }
+            if (item.employee_operator.length > 0) {
+                employeeRoles.add('OPERATOR');
+            }
+            if (item.employee_qc.length > 0) {
+                employeeRoles.add('QC');
+            }
+        });
+
+        return Array.from(employeeRoles);
+    }
+
+    function groupEmployeesByUnique(data) {
+        const uniqueEmployees = {};
+
+        data.forEach(item => {
+            const employeeCatcher = item.employee_catcher;
+            const employeeHelper = item.employee_helper;
+            const employeeMechanic = item.employee_mechanic;
+            const employeeOperator = item.employee_operator;
+            const employeeQC = item.employee_qc;
+
+            [employeeCatcher, employeeHelper, employeeMechanic, employeeOperator, employeeQC].forEach(employees => {
+                employees.forEach(employee => {
+                    const key = `${employee.id}-${employee.name}`;
+                    if (!(key in uniqueEmployees)) {
+                        uniqueEmployees[key] = employee;
+                    }
+                });
+            });
+        });
+
+        return Object.values(uniqueEmployees);
+    }
 
     function cardAlert(text, direction) {
         var html = ''
@@ -1756,8 +1831,8 @@
                             'start': a.date,
                         })
                         // buat bar work plan
+                        var insertPriority = 1
                         d.products.forEach(e => {
-                            console.log(e.product.id)
                             var dataProduct = data_work.productItem.find((v, k) => {
                                 if (v.id == e.product.id) return true
                             })
@@ -1777,9 +1852,10 @@
                                     // item_id_product: dataProduct,
                                     qty: e.qty,
                                     unit_id: e.unit.id,
-                                    // priority: e.priority,
+                                    priority: insertPriority,
                                     note: e.note,
                                 })
+                                insertPriority++
                             }
                             // products
                             data_work_plan.push({
@@ -1827,13 +1903,12 @@
                 });
             });
         });
-        console.log('=====================================')
         // data_work_plan = removeNullProduct(data_work_plan)
         if (jumlahLoad == 0) {
             data_work_plan_real = deepCopy(data_work_plan)
         }
         jumlahLoad++
-        // console.log(data_work.workPlan)
+        console.log(data_work_plan)
         groupingData()
     }
 
@@ -3914,31 +3989,61 @@
     }
 
     function filterCanvas() {
+        var machine = groupDataByAttributes(data_work_plan, ["machine_id", "machine_name"])
+        var product = groupDataByAttributes(data_work_plan, ["product_id", "product_alias"])
+        var position = generateEmployeeRolesOutput(data_work_plan)
+        var manpower = groupEmployeesByUnique(data_work_plan)
+
         $('.offcanvas').offcanvas('show')
         var header = ''
         header += '<h5 id="offcanvasRightLabel">Filter</h5>'
         header += '<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>'
-        $('#canvasHeader').html(header)
+        $('#canvasHeader').html(header).addClass('pb-0')
         var body = ''
         body += '<div class="row">'
 
-        body += '<div class="col-12">'
+        body += '<div class="col-12 pb-2">'
         body += '<b class="small">Machine</b>'
+        body += '<select class="form-select form-select-lg w-100 filter filterMachine" multiple id="filterMachine" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        machine.forEach(e => {
+            body += '<option value="' + e.machine_id + '" selected>' + e.machine_name + '</option>'
+        });
+        body += '</select>'
         body += '</div>'
 
-        body += '<div class="col-12">'
+        body += '<div class="col-12 pb-2 pt-2">'
         body += '<b class="small">Position</b>'
+        body += '<select class="form-select form-select-lg w-100 filter filterPosition" multiple id="filterPosition" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        for (let i = 0; i < position.length; i++) {
+            body += '<option value="' + position[i] + '" selected>' + position[i] + '</option>'
+        }
+        body += '</select>'
         body += '</div>'
 
-        body += '<div class="col-12">'
+        body += '<div class="col-12 pb-2 pt-2">'
         body += '<b class="small">Product</b>'
+        body += '<select class="form-select form-select-lg w-100 filter filterProduct" multiple id="filterProduct" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        product.forEach(e => {
+            body += '<option value="' + e.product_id + '" selected>' + e.product_alias + '</option>'
+        })
+        body += '</select>'
         body += '</div>'
 
-        body += '<div class="col-12">'
+        body += '<div class="col-12 pb-2 pt-2">'
         body += '<b class="small">Man Power</b>'
+        body += '<select class="form-select form-select-lg w-100 filter filterManpower" multiple id="filterManpower" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        manpower.forEach(e => {
+            body += '<option value="' + e.id + '" selected>' + e.name + '</option>'
+        })
+        body += '</select>'
         body += '</div>'
 
         body += '</div>'
         $('#canvasBody').html(body)
+        $('.filter').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            dropdownParent: $('#offcanvasRight'),
+        });
     }
 </script>

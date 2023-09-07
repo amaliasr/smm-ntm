@@ -106,29 +106,152 @@
         return parts[0];
     }
 
+    // function findMissingHours(shiftStart, shiftEnd, dataList) {
+    //     var missingHours = [];
+
+    //     for (var i = parseInt(shiftStart) + 1; i < parseInt(shiftEnd); i++) {
+    //         var hour = i.toString().padStart(2, "0");
+    //         var found = false;
+    //         for (var j = 0; j < dataList.length; j++) {
+    //             if (dataList[j].start === hour) {
+    //                 found = true;
+    //                 break;
+    //             }
+    //         }
+
+    //         if (!found) {
+    //             missingHours.push(hour);
+    //         }
+    //     }
+
+    //     return missingHours;
+    // }
     function findMissingHours(shiftStart, shiftEnd, dataList) {
         var missingHours = [];
 
-        for (var i = parseInt(shiftStart) + 1; i < parseInt(shiftEnd); i++) {
-            var hour = i.toString().padStart(2, "0");
-            var found = false;
+        var startHour = parseInt(shiftStart);
+        var endHour = parseInt(shiftEnd);
 
-            for (var j = 0; j < dataList.length; j++) {
-                if (dataList[j].start === hour) {
-                    found = true;
-                    break;
+        // Jika dataList kosong, tambahkan jam yang sesuai dengan shiftStart
+        if (!dataList.length) {
+            missingHours.push(shiftStart);
+        } else {
+            // Mengatasi lintas hari
+            if (startHour > endHour) {
+                for (var i = startHour + 1; i < 24; i++) {
+                    var hour = i.toString().padStart(2, "0");
+                    var found = false;
+                    for (var j = 0; j < dataList.length; j++) {
+                        if (dataList[j].start === hour) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        missingHours.push(hour);
+                    }
+                }
+
+                for (var i = 0; i < endHour; i++) {
+                    var hour = i.toString().padStart(2, "0");
+                    var found = false;
+                    for (var j = 0; j < dataList.length; j++) {
+                        if (dataList[j].start === hour) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        missingHours.push(hour);
+                    }
+                }
+            } else {
+                for (var i = startHour + 1; i < endHour; i++) {
+                    var hour = i.toString().padStart(2, "0");
+                    var found = false;
+                    for (var j = 0; j < dataList.length; j++) {
+                        if (dataList[j].start === hour) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        missingHours.push(hour);
+                    }
                 }
             }
 
-            if (!found) {
-                missingHours.push(hour);
-            }
         }
 
         return missingHours;
     }
 
+    function convertToPerHour(input) {
+        const result = [];
+
+        input.forEach(item => {
+            const startTime = parseInt(item.start);
+            const endTime = parseInt(item.end);
+
+            if (endTime >= startTime) {
+                for (let i = startTime; i < endTime; i++) {
+                    const startHour = String(i).padStart(2, '0');
+                    const endHour = String(i + 1).padStart(2, '0');
+
+                    result.push({
+                        start: startHour,
+                        end: endHour
+                    });
+                }
+            } else {
+                // Handle the case where the end time is earlier than the start time
+                for (let i = startTime; i < 24; i++) {
+                    const startHour = String(i).padStart(2, '0');
+                    const endHour = String(i + 1).padStart(2, '0');
+
+                    result.push({
+                        start: startHour,
+                        end: endHour
+                    });
+                }
+
+                for (let i = 0; i < endTime; i++) {
+                    const startHour = String(i).padStart(2, '0');
+                    const endHour = String(i + 1).padStart(2, '0');
+
+                    result.push({
+                        start: startHour,
+                        end: endHour
+                    });
+                }
+            }
+        });
+
+        return result;
+    }
+
     function convertDataToListTime(inputData) {
+        var transformedData = [];
+
+        for (var i = 0; i < inputData.length; i++) {
+            if (inputData[i].time_start) {
+                var startHour = extractHour(inputData[i].time_start);
+                var endHour = extractHour(inputData[i].time_end);
+
+                transformedData.push({
+                    "start": startHour,
+                    "end": endHour
+                });
+            }
+        }
+
+        return transformedData;
+    }
+
+    function convertDataToListTime2(inputData) {
         var transformedData = [];
 
         for (var i = 0; i < inputData.length; i++) {
@@ -201,7 +324,7 @@
         });
     }
 
-    function checkTime(inputTime, dataArray) {
+    function checkTimeStart(inputTime, dataArray) {
         const inputHour = inputTime.split(':')[0];
 
         for (const range of dataArray) {
@@ -214,6 +337,96 @@
         }
 
         return 1; // Jam input tidak termasuk dalam rentang waktu yang diberikan
+    }
+
+    function checkTimeEnd(inputJam, data) {
+        for (let i = 0; i < data.length; i++) {
+            const startTime = parseInt(data[i].start);
+            const endTime = parseInt(data[i].end);
+            const inputTime = parseInt(inputJam);
+
+            if (inputTime == startTime) {
+                return 1;
+            } else if (inputTime > startTime && inputTime < endTime) {
+                return 0;
+            } else if (inputTime == endTime) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+    function conversiToTarget(input, multiplier, satuanBesar, satuanKecil) {
+        const trays = Math.floor(input / multiplier);
+        const remainingStik = input % multiplier;
+
+        var nilai = ''
+        if (remainingStik) {
+            nilai = trays + ' ' + satuanBesar + ' ' + remainingStik + ' ' + satuanKecil
+        } else {
+            nilai = trays + ' ' + satuanBesar
+        }
+        return nilai
+    }
+
+    function cekJadwal(input_work_plan_product_id, input_jam_start, input_jam_end, data) {
+        const matchingData = data.find(item => item.work_plan_product_id === input_work_plan_product_id);
+
+        if (!matchingData) {
+            return {
+                product: '',
+                return: 0
+            }
+        } else {
+            // console.log(data)
+            // const overlappingItems = data.find(item =>
+            //     item.work_plan_product_id != input_work_plan_product_id &&
+            //     item.time_start < input_jam_start + ':00' &&
+            //     item.time_end > input_jam_start + ':00'
+            // );
+
+            const overlappingItems = data.find(item =>
+                item.work_plan_product_id != input_work_plan_product_id &&
+                findDateFromTime(convertTimeFormat(item.time_start), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) < findDateFromTime(input_jam_start, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) &&
+                findDateFromTime(convertTimeFormat(item.time_end), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) > findDateFromTime(input_jam_start, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end)
+            );
+
+            if (overlappingItems) {
+                return {
+                    product: overlappingItems,
+                    return: 1
+                }
+            } else {
+                return {
+                    product: '',
+                    return: 0
+                }
+            }
+        }
+    }
+
+    function findDateFromTime(inputTime, datetimeStart, datetimeEnd) {
+        const inputHourMinute = inputTime.split(":");
+        const inputHour = parseInt(inputHourMinute[0]);
+        const inputMinute = parseInt(inputHourMinute[1]);
+
+        const startDateTime = new Date(datetimeStart);
+        const endDateTime = new Date(datetimeEnd);
+
+        const startDate = startDateTime.getDate();
+        const endDate = endDateTime.getDate();
+
+        if (inputHour >= startDateTime.getHours() && inputHour <= 23) {
+            return `${startDateTime.getFullYear()}-${(startDateTime.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${startDate.toString().padStart(2, "0")}`;
+        } else if (inputHour >= 0 && inputHour <= endDateTime.getHours()) {
+            return `${endDateTime.getFullYear()}-${(endDateTime.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${endDate.toString().padStart(2, "0")}`;
+        } else {
+            return "";
+        }
     }
 </script>
 <script>
@@ -282,9 +495,10 @@
                 item_alias: e.item.alias,
                 qty: e.qty,
                 priority: e.priority,
+                work_plan_product_id: e.work_plan_product_id,
             })
         });
-        dataProductionOutGroup = groupAndSum(dataProductionOut, ['item_id', 'priority'], ['qty'])
+        dataProductionOutGroup = groupAndSum(dataProductionOut, ['item_id', 'priority', 'work_plan_product_id'], ['qty'])
         listProgressHasil()
     }
 
@@ -295,29 +509,40 @@
                 if (v.item_id == e.product.id && v.priority == e.priority) return true
             })
             if (dataGroup) {
-                var percentReal = (parseInt(dataGroup.qty) / parseInt(e.qty)) * 100
+                var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                    if (v.work_plan_product_id == dataGroup.work_plan_product_id) return true
+                })
+                if (dataGroup) {
+                    var percentReal = (parseInt(dataGroup.qty) / parseInt((e.qty * dataProducts.unit_target.multiplier))) * 100
+                } else {
+                    var percentReal = 0
+                    dataGroup = {}
+                    dataGroup.qty = 0
+                }
+                var percent = roundToTwo(percentReal)
+                if (percentReal > 100) {
+                    percent = 100
+                }
+                var bg = ''
+                if (percent == 100) {
+                    bg = 'bg-success'
+                }
+
+                var nilaiConversi = conversiToTarget(dataGroup.qty, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
             } else {
-                var percentReal = 0
-                dataGroup = {}
-                dataGroup.qty = 0
+                var percent = 0
+                var nilaiConversi = 0
             }
-            var percent = roundToTwo(percentReal)
-            if (percentReal > 100) {
-                percent = 100
-            }
-            var bg = ''
-            if (percent == 100) {
-                bg = 'bg-success'
-            }
+            // console.log(nilaiConversi)
             html += '<div class="row">'
             html += '<div class="col align-self-center pb-3">'
             html += '<div class="progress">'
             html += '<div class="progress-bar ' + bg + '" style="width: ' + percent + '%" role="progressbar" aria-valuenow="' + percent + '" aria-valuemin="0" aria-valuemax="100">' + percent + '%</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-2">'
-            html += '<h5 class="text-dark-grey m-0"><b>' + e.product.alias + ' - B' + e.priority + '</b></h5>'
-            html += '<p class="m-0 small-text">' + dataGroup.qty + ' / ' + e.qty + ' ' + e.unit.name + '</p>'
+            html += '<div class="col-3">'
+            html += '<h5 class="text-dark-grey m-0"><b>' + e.product.alias + ' - #' + e.priority + '</b></h5>'
+            html += '<p class="m-0 small-text">' + nilaiConversi + ' / ' + e.qty + ' ' + e.unit_target.name + '</p>'
             html += '</div>'
             html += '</div>'
         })
@@ -334,6 +559,7 @@
         html += '<th scope="col" class="p-3"><i class="fa fa-clock-o"></i></th>'
         html += '<th scope="col" class="p-3">Brand - Batch</th>'
         html += '<th scope="col" class="p-3">QTY</th>'
+        html += '<th scope="col" class="p-3">Unit</th>'
         html += '<th scope="col" class="p-3">User</th>'
         html += '<th scope="col" class="p-3">Notes</th>'
         html += '<th scope="col" class="p-3"></th>'
@@ -351,11 +577,18 @@
         var a = 1
         if (dataEntry.productionOutItem.length > 0) {
             dataEntry.productionOutItem.forEach(e => {
+                var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                    if (v.work_plan_product_id == e.work_plan_product_id) return true
+                })
                 html += '<tr>'
                 html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
                 html += '<td class="p-2 text-center">' + convertTimeFormat(e.time.start) + ' - ' + convertTimeFormat(e.time.end) + '</td>'
                 html += '<td class="p-2 text-center">' + e.item.alias + ' - B' + e.priority + '</td>'
-                html += '<td class="p-2 text-center">' + number_format(e.qty) + '</td>'
+                var nilaiConversi = conversiToTarget(e.qty, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+                html += '<td class="p-2 text-center">' + number_format(e.qty)
+                html += '<p class="m-0 fw-bolder text-primary" style="font-size:7px;">( ' + nilaiConversi + ' )</p>'
+                html += '</td>'
+                html += '<td class="p-2 text-center">' + e.unit.name + '</td>'
                 html += '<td class="p-2 text-center">' + e.employee.name.split(' ')[0] + '</td>'
                 if (e.note == null) {
                     e.note = '-'
@@ -441,7 +674,7 @@
 
     function formProductionOut() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">New Production Out</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -472,33 +705,81 @@
 
     function formFill() {
         var html = ''
+        var id = $('#selectItem').find(':selected').data('work_plan_product_id')
+        var data = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.work_plan_product_id == id) return true
+        })
         html += '<div class="col-12">'
         html += '<div class="line-with-text"><hr><span class="super-small-text ms-2 me-2">Fill the Form</span><hr></div>'
         html += '</div>'
-        html += '<div class="col-4 mt-2">'
+        html += '<div class="col-12 mt-2" id="alertTanggal">'
+        // alert
+
+        // alert
+        html += '</div>'
+        html += '<div class="col-6 mt-2">'
         html += '<p class="m-0 small-text"><b>Start Time</b></p>'
 
-        html += '<input type="time" id="startTime" class="form-control" value="" required="required" oninput="fillForm(),addToEndTime(event),checkAvailableHours(event)">'
+        html += '<input type="time" id="startTime" class="form-control" value="" required="required" oninput="fillForm(),addToEndTime(event),checkAvailableHours()" min="19:00" max="03:00">'
         html += '<div class="form-check align-self-center">'
-        html += '<input class="form-check-input" type="checkbox" value="" id="checkAutoNextHour" onchange="autoNextHour()">'
+        html += '<input class="form-check-input" type="checkbox" value="" id="checkAutoNextHour" onchange="autoNextHour(),checkAvailableHours()">'
         html += '<label class="form-check-label" for="checkAutoNextHour">Auto Next Hour</label>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-4 mt-2">'
+        html += '<div class="col-6 mt-2">'
         html += '<p class="m-0 small-text"><b>End Time</b></p>'
-        html += '<input type="time" id="endTime" class="form-control" value="" required="required" oninput="fillForm()">'
-        html += '</div>'
-        html += '<div class="col-4 mt-2">'
-        html += '<p class="m-0 small-text"><b>QTY</b></p>'
-        html += '<input type="text" id="qty" class="form-control nominal" value="" required="required" onkeyup="fillForm()" autocomplete="off">'
+        html += '<input type="time" id="endTime" class="form-control" value="" required="required" oninput="fillForm(),checkAvailableHours()">'
         html += '</div>'
         html += '<div class="col-12 text-danger" id="textWarning">'
+        html += '</div>'
+        html += '<div class="col-12 mt-2">'
+        // QTY
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body p-3">'
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<p class="m-0 small-text mb-3"><b>QTY</b></p>'
+        html += '</div>'
+
+        html += '<div class="col-6 align-self-center">'
+        // text
+        html += '<p class="m-0 small-text">TOTAL</p>'
+        html += '<p class="m-0 h1"><b id="totalQTY">0</b> ' + dataEntry.productionOutUnit.name + '</p>'
+        // text
+        html += '</div>'
+        html += '<div class="col-6">'
+
+        html += '<div class="row">'
+
+        html += '<div class="col-8 pb-2">'
+        html += '<input type="text" id="qty_target" class="form-control nominal" value="" required="required" onkeyup="fillForm()" autocomplete="off" data-multiplier="' + data.unit_target.multiplier + '">'
+        html += '</div>'
+        html += '<div class="col-4 pb-2 align-self-center">'
+        html += '<b>' + data.unit_target.name + '</b>'
+        html += '</div>'
+
+        html += '<div class="col-8">'
+        html += '<input type="text" id="qty_input" class="form-control nominal" value="" required="required" onkeyup="fillForm()" autocomplete="off" data-multiplier="' + data.unit_input.multiplier + '">'
+        html += '</div>'
+        html += '<div class="col-4 align-self-center">'
+        html += '<b>' + data.unit_input.name + '</b>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // QTY
         html += '</div>'
         html += '<div class="col-12 mt-2">'
         html += '<p class="m-0 small-text"><b>Note</b></p>'
         html += '<textarea id="note" class="form-control" rows="5" placeholder="Tuliskan notes disini" onkeyup="fillForm()"></textarea>'
         html += '</div>'
         $('#formFill').html(html)
+        $('.nominal').number(true);
     }
 
     function detailProductionOut(id) {
@@ -547,11 +828,9 @@
 
     function autoNextHour() {
         if ($('#checkAutoNextHour').is(":checked")) {
-            var itemId = $('#selectItem').val()
-            var data = dataEntry.productionOutItem.filter((v, k) => {
-                if (v.item.id == itemId) return true
-            })
-            var dataList = convertDataToListTime(dataEntry.productionOutItem)
+            var id = $('#selectItem').find(':selected').data('work_plan_product_id')
+            var dataList = convertToPerHour(convertDataToListTime(dataEntry.workPlanMachine.products))
+            console.log(convertDataToListTime(dataEntry.workPlanMachine.products))
             var missingHours = findMissingHours(extractHour(dataEntry.workPlanMachine.shift.start), extractHour(dataEntry.workPlanMachine.shift.end), dataList)[0] + ':00'
             $('#startTime').val(missingHours)
             $('#endTime').val(addOneHour(missingHours))
@@ -566,13 +845,31 @@
         var startTime = $('#startTime').val()
         var endTime = $('#endTime').val()
         var item = $('#selectItem').val()
-        var qty = $('#qty').val()
+        var qty_input = $('#qty_input').val()
+        var qty_target = $('#qty_target').val()
         var note = $('#note').val()
-        if (startTime && endTime && item && qty) {
+        if (startTime && endTime && item && (qty_input || qty_target)) {
             $('#btnSimpan').removeAttr('disabled', true)
         } else {
             $('#btnSimpan').attr('disabled', true)
         }
+        conversi()
+    }
+
+    var totalQTY = 0
+
+    function conversi() {
+        totalQTY = 0
+        var id = $('#selectItem').find(':selected').data('work_plan_product_id')
+        var data = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.work_plan_product_id == id) return true
+        })
+        var qty_input = $('#qty_input').val()
+        var multiplier_input = $('#qty_input').data('multiplier')
+        var qty_target = $('#qty_target').val()
+        var multiplier_target = $('#qty_target').data('multiplier')
+        totalQTY = (qty_input * multiplier_input) + (qty_target * multiplier_target)
+        $('#totalQTY').html(number_format(totalQTY))
     }
 
     function addToEndTime(event) {
@@ -580,17 +877,45 @@
         $('#endTime').val(addOneHour(value))
     }
 
-    function checkAvailableHours(event) {
-        var value = event.target.value
-        var dataList = convertDataToListTime(dataEntry.productionOutItem)
-        var check = checkTime(value, dataList)
-        if (check) {
-            $('#textWarning').html('')
-            $('#qty').removeAttr('disabled', true)
+    function checkAvailableHours() {
+        var startTime = $('#startTime').val()
+        var endTime = $('#endTime').val()
+        var dataList = convertDataToListTime2(dataEntry.productionOutItem)
+        var checkStart = checkTimeStart(startTime, dataList)
+        var checkEnd = checkTimeEnd(endTime, dataList)
+        if (checkStart && checkEnd) {
+            checkAvailableHoursInProducts(startTime, endTime)
         } else {
             $('#textWarning').html('<p class="m-0 super-small-text">Jam Tersebut Telah Dipakai, Harap Input Jam yang Masih Tersedia</p>')
             $('#qty').attr('disabled', true)
         }
+        getDateFromTime(startTime)
+    }
+
+    function checkAvailableHoursInProducts(startTime, endTime) {
+        var id = $('#selectItem').find(':selected').data('work_plan_product_id')
+        var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.work_plan_product_id == id) return true
+        })
+        var check = cekJadwal(id, startTime, endTime, dataEntry.workPlanMachine.products)
+        if (check.return) {
+            $('#textWarning').html('<p class="m-0 super-small-text">Jam Tersebut Telah Dipakai oleh Produksi ' + check.product.product.name + ' Batch ' + check.product.priority + '</p>')
+            $('#qty').attr('disabled', true)
+        } else {
+            $('#textWarning').html('')
+            $('#qty').removeAttr('disabled', true)
+        }
+    }
+
+    function getDateFromTime(value) {
+        var data = findDateFromTime(value, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end)
+        var html = ''
+        if (data) {
+            html += '<div class="alert alert-primary d-flex align-items-center align-self-center small-text p-2" role="alert">'
+            html += '<div class="fa fa-calendar align-middle me-2"></div> <div class="align-middle">' + formatDateIndonesia(data) + '</div>'
+            html += '</div>'
+        }
+        $('#alertTanggal').html(html)
     }
 
     function simpanData() {
@@ -604,14 +929,17 @@
                 machine_id: dataEntry.workPlanMachine.machine.id,
                 time_start: $('#startTime').val(),
                 time_end: $('#endTime').val(),
+                datetime_start: findDateFromTime($('#startTime').val(), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) + ' ' + $('#startTime').val() + ':00',
+                datetime_end: findDateFromTime($('#endTime').val(), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) + ' ' + $('#endTime').val() + ':00',
                 item_id: $('#selectItem').val(),
                 work_plan_product_id: $('#selectItem').find(':selected').data('work_plan_product_id'),
-                qty: $('#qty').val(),
+                qty: totalQTY,
                 unit_id: dataEntry.productionOutUnit.id,
                 employee_id: user_id,
                 note: $('#note').val(),
             }
         }
+        // console.log(data)
         kelolaData(data, type, url, button)
     }
 

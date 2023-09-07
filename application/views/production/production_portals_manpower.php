@@ -999,6 +999,7 @@
     var dataDailyTask
 
     function arrangeVariable() {
+        // console.log(data_work.schedule)
         data_work.schedule.forEach(a => {
             // section
             a.line_shift.forEach(b => {
@@ -1082,7 +1083,7 @@
                             if (d.date == hariIni) {
                                 today = 'bg-ijo-polos'
                             }
-                            html += '<div class="card mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + s.person.id + ',' + "'" + s.person.person_label + "'" + ')">'
+                            html += '<div class="card mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ')">'
                             html += '<div class="card-body  p-2">'
 
                             html += '<div class="row">'
@@ -1132,7 +1133,7 @@
             const parts = dateString.split(" ");
             const day = parseInt(parts[0]);
             const month = parts[1];
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + e.work_plan_table_id + ',' + "'" + e.posisi + "'" + ')">'
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + "'" + e.work_plan_table_id + "'" + ',' + "'" + e.posisi + "'" + ')">'
             html += '<div class="row g-0">'
             html += '<div class="col-md-2 bg-skm">'
             html += '<div class="row d-flex align-items-center h-100">'
@@ -1173,6 +1174,7 @@
     }
 
     function openDailyTask(id, label) {
+        // console.log(id)
         var url = '<?= base_url() ?>production/productionEntry/default/' + btoa(id) + '/' + btoa(label)
         window.open(url, '_blank')
     }

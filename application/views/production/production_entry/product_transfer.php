@@ -356,6 +356,19 @@
         const aliases = data.map(item => item.item.alias);
         return aliases.join(', ');
     }
+
+    function conversiToTarget(input, multiplier, satuanBesar, satuanKecil) {
+        const trays = Math.floor(input / multiplier);
+        const remainingStik = input % multiplier;
+
+        var nilai = ''
+        if (remainingStik) {
+            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span> ' + number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
+        } else {
+            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span>'
+        }
+        return nilai
+    }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -891,6 +904,9 @@
             var data = dataEntry.productionOutItem.filter((v, k) => {
                 if (v.item.id == e.item_id) return true
             })
+            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                if (v.product.id == e.item_id) return true
+            })
             var akumulasiProdOut = sumQtyByItemId(data)
             if (akumulasiProdOut.length) {
                 var jumlahStok = parseFloat(akumulasiProdOut[0].total_qty) + parseFloat(e.stok_awal)
@@ -926,11 +942,21 @@
             html_body += '<div class="progress-bar ' + bg + '" style="width: ' + persen + '%" role="progressbar" aria-valuenow="' + persen + '" aria-valuemin="0" aria-valuemax="100"></div>'
             html_body += '</div>'
             html_body += '</div>'
-            html_body += '<div class="col">'
-            html_body += '<p class="super-small-text m-0">Sisa Stok : <b class="text-orange">' + parseFloat(e.stok_akhir) + '</b></p>'
+            html_body += '<div class="col mt-1">'
+            if (dataProducts) {
+                var nilaiConversi = conversiToTarget(e.stok_akhir, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+            } else {
+                var nilaiConversi = number_format(e.stok_akhir) + ' ' + e.unit_name
+            }
+            html_body += '<p class="super-small-text m-0">Sisa<br><b class="text-orange">' + nilaiConversi + '</b></p>'
             html_body += '</div>'
-            html_body += '<div class="col text-end">'
-            html_body += '<p class="super-small-text m-0">Total Stok : <b class="text-primary">' + jumlahStok + '</b></p>'
+            html_body += '<div class="col mt-1 text-end">'
+            if (dataProducts) {
+                var nilaiConversi = conversiToTarget(jumlahStok, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+            } else {
+                var nilaiConversi = number_format(jumlahStok) + ' ' + e.unit_name
+            }
+            html_body += '<p class="super-small-text m-0">Total<br><b class="text-primary">' + nilaiConversi + '</b></p>'
             html_body += '</div>'
 
             html_body += '</div>'
@@ -1033,9 +1059,17 @@
         var html = ''
         if (itemIdSelected.length) {
             itemIdSelected.forEach(e => {
+                var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                    if (v.product.id == e.item_id) return true
+                })
+                if (dataProducts) {
+                    var nilaiConversi = conversiToTarget(e.stok_akhir, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+                } else {
+                    var nilaiConversi = number_format(e.stok_akhir) + ' ' + e.unit_name
+                }
                 // card
                 html += '<div class="card shadow-none mb-2">'
-                html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="chooseBrand(' + e.item_id + ')"><i class="small-text fa fa-times text-light"></i></span>'
+                html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;z-index:999;" onclick="chooseBrand(' + e.item_id + ')"><i class="small-text fa fa-times text-light"></i></span>'
                 html += '<div class="card-body  p-0">'
                 html += '<div class="row p-0 m-0">'
 
@@ -1047,22 +1081,37 @@
                 html += '</div>'
                 html += '</div>'
 
-                html += '<div class="col p-3">'
+                html += '<div class="col p-0">'
                 // form fill
                 html += '<div class="row">'
                 html += '<div class="col-12">'
-                html += '<p class="m-0 small-text"><b>Hasil</b></p>'
+                // html += '<p class="m-0 small-text"><b>Hasil</b></p>'
 
-                html += '<div class="card shadow-none" id="cardHasil' + e.item_id + '">'
-                html += '<div class="card-body p-2">'
+                html += '<div class="card shadow-none border-0" id="cardHasil' + e.item_id + '">'
+                html += '<div class="card-body">'
+
+                if (dataProducts) {
+                    // console.log(dataProducts)
+                    html += '<div class="row mb-3">'
+                    html += '<div class="col-3">'
+                    html += '</div>'
+                    html += '<div class="col-5">'
+                    html += '<input type="text" id="qty_taget" class="form-control form-control-sm nominal qty qty_item' + e.item_id + '" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + dataProducts.unit_target.id + '" data-jenisunit="unit_target" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
+                    html += '<hr class="m-0">'
+                    html += '</div>'
+                    html += '<div class="col-4 align-self-center">'
+                    html += '<p class="m-0 small"><b>' + dataProducts.unit_target.name + '</b></p>'
+                    html += '</div>'
+                    html += '</div>'
+                }
 
                 html += '<div class="row">'
-                html += '<div class="col-4">'
+                html += '<div class="col-3">'
                 html += '</div>'
-                html += '<div class="col-4">'
-                html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + e.unit_id + '" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
+                html += '<div class="col-5">'
+                html += '<input type="text" id="qty_input" class="form-control form-control-sm nominal qty qty_item' + e.item_id + '" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + e.unit_id + '" data-jenisunit="unit_input" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
                 html += '<hr class="m-0">'
-                html += '<p class="m-0 float-end super-small-text">Sisa Stok : <b class="text-orange">' + e.stok_akhir + '</b></p>'
+                html += '<p class="m-0 mt-2 float-end super-small-text">Sisa Stok <b class="text-orange" id="sisaStokBerjalan' + e.item_id + '">' + nilaiConversi + '</b></p>'
                 html += '</div>'
                 html += '<div class="col-4 align-self-center">'
                 html += '<p class="m-0 small"><b>' + e.unit_name + '</b></p>'
@@ -1088,7 +1137,7 @@
                         html += '<div class="col-4">'
                         html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty" required="required" onkeyup="fillForm(event,' + e.item_id + ',' + el.item_id + ')" autocomplete="off" value="' + el.qty + '" style="background-color:transparent;border:0px;" data-stok="' + el.stok_akhir + '" data-item="' + el.item_id + '" data-unit="' + el.unit_id + '">'
                         html += '<hr class="m-0">'
-                        html += '<p class="m-0 float-end super-small-text">Sisa Stok : <b class="text-orange">' + el.stok_akhir + '</b></p>'
+                        html += '<p class="m-0 float-end super-small-text">Sisa Stok <b class="text-orange" id="sisaStokBerjalan' + e.item_id + '' + el.item_id + '">' + el.stok_akhir + '</b></p>'
                         html += '</div>'
                         html += '<div class="col-4 align-self-center">'
                         html += '<p class="m-0 small"><b>' + el.unit_name + '</b></p>'
@@ -1128,38 +1177,80 @@
     function fillForm(event, id, material_id = '') {
         const value = event.target.value;
         const stok = event.target.dataset.stok;
-        colorizedValue(removeCommas(value), stok, id, material_id)
+        const unit = event.target.dataset.unit
+        colorizedValue(removeCommas(value), stok, id, material_id, unit)
     }
 
     function removeCommas(numberWithCommas) {
         return numberWithCommas.replace(/,/g, '');
     }
 
-    function colorizedValue(value, stok, id, material_id) {
+    function colorizedValue(value, stok, id, material_id, unit) {
         var data = itemIdSelected.find((v, k) => {
             if (v.item_id == id) return true
         })
+        var totalAll = 0
+        var status = 'item'
+        var dataProducts
         if (material_id) {
             var material = data.material_moving.find((v, k) => {
                 if (v.item_id == material_id) return true
             })
-            material.qty = value
+            // material.qty = value
+            totalAll = value
+            status = 'material'
         } else {
-            data.qty = value
+            var valueItem = $('.qty_item' + id).map(function() {
+                return $(this).val();
+            }).get();
+            var unitItem = $('.qty_item' + id).map(function() {
+                return $(this).data('unit');
+            }).get();
+            var jenisUnitItem = $('.qty_item' + id).map(function() {
+                return $(this).data('jenisunit');
+            }).get();
+            dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                if (v.product.id == id) return true
+            })
+            for (let i = 0; i < jenisUnitItem.length; i++) {
+                if (dataProducts) {
+                    if (!valueItem[i]) {
+                        valueItem[i] = 0
+                    }
+                    totalAll = parseFloat(totalAll) + (parseFloat(valueItem[i]) * eval(`dataProducts.${jenisUnitItem[i]}.multiplier`))
+                } else {
+                    totalAll = parseFloat(totalAll) + parseFloat(valueItem[i])
+                }
+            }
+            // data.qty = totalAll
         }
-        if (value) {
-            if (parseFloat(value) <= parseFloat(stok)) {
+        if (totalAll) {
+            if (parseFloat(totalAll) <= parseFloat(stok)) {
                 $('#cardHasil' + id + material_id).removeClass('bg-light-danger')
                 $('#cardHasil' + id + material_id).addClass('bg-light-success')
-            } else if (parseFloat(value) > parseFloat(stok)) {
+                $('#sisaStokBerjalan' + id + material_id).html(conversiSelisih(data, dataProducts, stok, totalAll))
+            } else if (parseFloat(totalAll) > parseFloat(stok)) {
                 $('#cardHasil' + id + material_id).removeClass('bg-light-success')
                 $('#cardHasil' + id + material_id).addClass('bg-light-danger')
+                $('#sisaStokBerjalan' + id + material_id).html('<span class="text-danger">Melebihi Jumlah Stok</span>')
             }
         } else {
             $('#cardHasil' + id + material_id).removeClass('bg-light-success')
             $('#cardHasil' + id + material_id).removeClass('bg-light-danger')
+            $('#sisaStokBerjalan' + id + material_id).html(conversiSelisih(data, dataProducts, stok, totalAll))
         }
         eventButton()
+    }
+
+    function conversiSelisih(data, dataProducts, stok, totalAll) {
+        var nilaiConversi = ''
+        var selisih = parseFloat(stok) - parseFloat(totalAll)
+        if (dataProducts) {
+            nilaiConversi = conversiToTarget(selisih, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+        } else {
+            nilaiConversi = selisih + ' ' + data.unit_name
+        }
+        return nilaiConversi
     }
 
     function checkDataValidity(data) {
@@ -1337,7 +1428,6 @@
     }
 
     function showProgressMachineStock(v) {
-        console.log(v)
         var html = ''
         var data = dataEntry.productionOutItem.filter((va, ke) => {
             if (va.item.id == v.item_id) return true

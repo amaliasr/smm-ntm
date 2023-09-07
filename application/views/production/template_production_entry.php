@@ -921,8 +921,14 @@
         <!-- RIGHT PANEL -->
         <div class="col-9 bg-white p-4">
             <div class="row">
-                <div class="col">
-                    <p class="m-0 super-small-text" id="date">-</p>
+                <div class="col-auto align-self-center text-center" id="iconShift">
+                </div>
+                <div class="col-auto">
+                    <!-- <span class="super-small-text" id="date">-</span>
+                    <span class="super-small-text fw-bold">Shift <span id="shiftName">-</span></span>
+                    <br>
+                    <b>Machine <span id="machineName">-</span></b> -->
+                    <p class="m-0 super-small-text"><span class="fa fa-calendar me-1"></span><span id="date" class="me-3">-</span><span class="fa fa-clock-o me-1"></span><span id="shiftName">-</span></p>
                     <b>Machine <span id="machineName">-</span></b>
                 </div>
                 <div class="col text-end align-self-center">
@@ -1063,8 +1069,15 @@
             success: function(response) {
                 showOverlay('hide')
                 var data = response.data
+                console.log(data)
                 $('#date').html(formatDateIndonesia(data.workPlanMachine.date))
+                $('#shiftName').html(convertTimeFormat(data.workPlanMachine.shift.start) + ' - ' + convertTimeFormat(data.workPlanMachine.shift.end))
                 $('#machineName').html(data.workPlanMachine.machine.name)
+                if (data.workPlanMachine.shift.group_id == 1) {
+                    $('#iconShift').html('<img class="float-center" style="width: 20px;" src="<?= base_url() ?>assets/image/svg/am.svg" alt="Icon" />')
+                } else {
+                    $('#iconShift').html('<img class="float-center" style="width: 20px;" src="<?= base_url() ?>assets/image/svg/pm.svg" alt="Icon" />')
+                }
                 listWorkPlan(data)
             }
         })
@@ -1081,7 +1094,7 @@
             html += '<p class="m-0 super-small-text text-grey">Batch ' + e.priority + '</p>'
             html += '</div>'
             html += '<div class="col align-self-center text-end">'
-            html += '<p class="m-0 small-text">' + e.qty + ' ' + e.unit.name + '</p>'
+            html += '<p class="m-0 small-text">' + e.qty + ' ' + e.unit_target.name + '</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'

@@ -431,8 +431,8 @@
                                                         <p class="m-0 text-orange" style="font-size: 14px;"><b>TARGET</b></p>
                                                     </div>
                                                     <div class="col-12 p-0 text-center">
-                                                        <div class="row p-0" id="detailTargetPane">
-                                                            <div class="col-12 p-0 border-top text-center pb-2 pt-2">
+                                                        <div class="row p-0" id="detailTargetPane" style="max-height: 200px;overflow-x: hidden;overflow-y: auto;">
+                                                            <div class="col-12 p-0 align-self-center border-top text-center pb-2 pt-2">
                                                                 <p class="m-0" style="font-size: 9px;">Tidak Ada Target yang Dibuat</p>
                                                             </div>
                                                         </div>
@@ -1087,9 +1087,9 @@
                             }
                         }
                         // if (jenis_produksi == 'skt') {
-                        console.log(machine_group_plan.find((v, k) => {
-                            if (v.machine_group_plan_id == values.id) return true
-                        }))
+                        // console.log(machine_group_plan.find((v, k) => {
+                        //     if (v.machine_group_plan_id == values.id) return true
+                        // }))
                         var findGroupPlanItem = machine_group_plan.find((v, k) => {
                             if (v.machine_group_plan_id == values.id) return true
                         }).machine_group_plan_item.find((v, k) => {
