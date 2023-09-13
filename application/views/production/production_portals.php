@@ -605,6 +605,22 @@
         background-color: #f9f9f9;
         /* Atur warna latar belakang sesuai kebutuhan */
     /* } */
+    table {
+        border-collapse: initial !important;
+        /* Don't collapse */
+        border-spacing: 0px !important;
+        border: 1px solid #dce0e6 !important;
+    }
+
+    th {
+        border: 1px solid #dce0e6 !important;
+        padding: 10px !important;
+    }
+
+    td {
+        border: 1px solid #dce0e6 !important;
+        padding: 10px !important;
+    }
 
     th:first-child,
     td:first-child {
@@ -613,7 +629,7 @@
         background-color: white;
         z-index: 1;
         /* border: 1px solid rgba(33, 40, 50, 0.125); */
-        border: 1px solid #ddd;
+        border: 1px solid #dce0e6 !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>

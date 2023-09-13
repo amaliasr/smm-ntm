@@ -1,7 +1,7 @@
 <style type="text/css">
     .progress-bulat {
-        width: 90px;
-        height: 90px;
+        width: 80px;
+        height: 80px;
         background: none;
         position: relative;
     }
@@ -904,8 +904,8 @@
             var data = dataEntry.productionOutItem.filter((v, k) => {
                 if (v.item.id == e.item_id) return true
             })
-            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                if (v.product.id == e.item_id) return true
+            var dataProducts = dataEntry.machineStock.find((v, k) => {
+                if (v.item_id == e.item_id) return true
             })
             var akumulasiProdOut = sumQtyByItemId(data)
             if (akumulasiProdOut.length) {
@@ -1059,8 +1059,8 @@
         var html = ''
         if (itemIdSelected.length) {
             itemIdSelected.forEach(e => {
-                var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                    if (v.product.id == e.item_id) return true
+                var dataProducts = dataEntry.machineStock.find((v, k) => {
+                    if (v.item_id == e.item_id) return true
                 })
                 if (dataProducts) {
                     var nilaiConversi = conversiToTarget(e.stok_akhir, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
@@ -1096,7 +1096,7 @@
                     html += '<div class="col-3">'
                     html += '</div>'
                     html += '<div class="col-5">'
-                    html += '<input type="text" id="qty_taget" class="form-control form-control-sm nominal qty qty_item' + e.item_id + '" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + dataProducts.unit_target.id + '" data-jenisunit="unit_target" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
+                    html += '<input type="text" id="qty_target" class="form-control form-control-sm nominal qty qty_item qty_item' + e.item_id + '" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + dataProducts.unit_target.id + '" data-jenisunit="unit_target" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
                     html += '<hr class="m-0">'
                     html += '</div>'
                     html += '<div class="col-4 align-self-center">'
@@ -1109,7 +1109,7 @@
                 html += '<div class="col-3">'
                 html += '</div>'
                 html += '<div class="col-5">'
-                html += '<input type="text" id="qty_input" class="form-control form-control-sm nominal qty qty_item' + e.item_id + '" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + e.unit_id + '" data-jenisunit="unit_input" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
+                html += '<input type="text" id="qty_input" class="form-control form-control-sm nominal qty qty_item qty_item' + e.item_id + '" required="required" onkeyup="fillForm(event,' + e.item_id + ')" autocomplete="off" value="' + e.qty + '" data-item="' + e.item_id + '" data-unit="' + e.unit_id + '" data-jenisunit="unit_input" style="background-color:transparent;border:0px;" data-stok="' + e.stok_akhir + '">'
                 html += '<hr class="m-0">'
                 html += '<p class="m-0 mt-2 float-end super-small-text">Sisa Stok <b class="text-orange" id="sisaStokBerjalan' + e.item_id + '">' + nilaiConversi + '</b></p>'
                 html += '</div>'
@@ -1135,7 +1135,7 @@
                         html += '<b><p class="m-0 small-text">' + el.alias + '</p></b>'
                         html += '</div>'
                         html += '<div class="col-4">'
-                        html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty" required="required" onkeyup="fillForm(event,' + e.item_id + ',' + el.item_id + ')" autocomplete="off" value="' + el.qty + '" style="background-color:transparent;border:0px;" data-stok="' + el.stok_akhir + '" data-item="' + el.item_id + '" data-unit="' + el.unit_id + '">'
+                        html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty qty_material" required="required" onkeyup="fillForm(event,' + e.item_id + ',' + el.item_id + ')" autocomplete="off" value="' + el.qty + '" style="background-color:transparent;border:0px;" data-stok="' + el.stok_akhir + '" data-item="' + el.item_id + '" data-unit="' + el.unit_id + '">'
                         html += '<hr class="m-0">'
                         html += '<p class="m-0 float-end super-small-text">Sisa Stok <b class="text-orange" id="sisaStokBerjalan' + e.item_id + '' + el.item_id + '">' + el.stok_akhir + '</b></p>'
                         html += '</div>'
@@ -1200,28 +1200,8 @@
             totalAll = value
             status = 'material'
         } else {
-            var valueItem = $('.qty_item' + id).map(function() {
-                return $(this).val();
-            }).get();
-            var unitItem = $('.qty_item' + id).map(function() {
-                return $(this).data('unit');
-            }).get();
-            var jenisUnitItem = $('.qty_item' + id).map(function() {
-                return $(this).data('jenisunit');
-            }).get();
-            dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                if (v.product.id == id) return true
-            })
-            for (let i = 0; i < jenisUnitItem.length; i++) {
-                if (dataProducts) {
-                    if (!valueItem[i]) {
-                        valueItem[i] = 0
-                    }
-                    totalAll = parseFloat(totalAll) + (parseFloat(valueItem[i]) * eval(`dataProducts.${jenisUnitItem[i]}.multiplier`))
-                } else {
-                    totalAll = parseFloat(totalAll) + parseFloat(valueItem[i])
-                }
-            }
+            totalAll = calculateConvertedMaterial(id).totalDefault
+            dataProducts = calculateConvertedMaterial(id).dataProductsDefault
             // data.qty = totalAll
         }
         if (totalAll) {
@@ -1232,6 +1212,7 @@
             } else if (parseFloat(totalAll) > parseFloat(stok)) {
                 $('#cardHasil' + id + material_id).removeClass('bg-light-success')
                 $('#cardHasil' + id + material_id).addClass('bg-light-danger')
+
                 $('#sisaStokBerjalan' + id + material_id).html('<span class="text-danger">Melebihi Jumlah Stok</span>')
             }
         } else {
@@ -1286,14 +1267,54 @@
         }
     }
 
-    function arrangeVariableInsert() {
-        var qty = $(".qty").map(function() {
+    function calculateConvertedMaterial(id) {
+        var totalDefault = 0
+        var valueItem = $('.qty_item' + id).map(function() {
             return $(this).val();
         }).get();
-        var itemId = $(".qty").map(function() {
+        var unitItem = $('.qty_item' + id).map(function() {
+            return $(this).data('unit');
+        }).get();
+        var jenisUnitItem = $('.qty_item' + id).map(function() {
+            return $(this).data('jenisunit');
+        }).get();
+        var dataProductsDefault = dataEntry.machineStock.find((v, k) => {
+            if (v.item_id == id) return true
+        })
+        for (let i = 0; i < jenisUnitItem.length; i++) {
+            if (dataProductsDefault) {
+                if (!valueItem[i]) {
+                    valueItem[i] = 0
+                }
+                totalDefault = parseFloat(totalDefault) + (parseFloat(valueItem[i]) * eval(`dataProductsDefault.${jenisUnitItem[i]}.multiplier`))
+            } else {
+                totalDefault = parseFloat(totalDefault) + parseFloat(valueItem[i])
+            }
+        }
+        return {
+            totalDefault: totalDefault,
+            dataProductsDefault: dataProductsDefault,
+        }
+    }
+
+    function arrangeVariableInsert() {
+        var qty = $(".qty_item").map(function() {
+            return $(this).val();
+        }).get();
+        var itemId = $(".qty_item").map(function() {
             return $(this).data('item');
         }).get();
-        var unit = $(".qty").map(function() {
+        var uniqueItemId = [...new Set(itemId)];
+        var unit = $(".qty_item").map(function() {
+            return $(this).data('unit');
+        }).get();
+        var qty_material = $(".qty_material").map(function() {
+            return $(this).val();
+        }).get();
+        var itemId_material = $(".qty_material").map(function() {
+            return $(this).data('item');
+        }).get();
+        var unit_material = $(".qty_material").map(function() {
             return $(this).data('unit');
         }).get();
         var tujuanTransaksi = $("#tujuanTransaksi").val()
@@ -1318,15 +1339,30 @@
             data.machineTransfer[0].gudang_id = tujuanTransaksiGudang
         }
         data.machineTransferDetail = []
-        for (let i = 0; i < qty.length; i++) {
-            if (qty[i]) {
+        var index = 0
+        uniqueItemId.forEach(e => {
+            var total = calculateConvertedMaterial(e).totalDefault
+            if (total) {
                 data.machineTransferDetail.push({
-                    id: id + '' + i,
+                    id: id + '' + index,
                     machine_transfer_id: id,
-                    item_id: itemId[i],
-                    unit_id: unit[i],
-                    qty: qty[i]
+                    item_id: e,
+                    unit_id: dataEntry.productionOutUnit.id,
+                    qty: total
                 })
+                index++
+            }
+        });
+        for (let i = 0; i < qty_material.length; i++) {
+            if (qty_material[i]) {
+                data.machineTransferDetail.push({
+                    id: id + '' + index,
+                    machine_transfer_id: id,
+                    item_id: itemId_material[i],
+                    unit_id: unit_material[i],
+                    qty: qty_material[i]
+                })
+                index++
             }
         }
         // console.log(data)
@@ -1432,6 +1468,9 @@
         var data = dataEntry.productionOutItem.filter((va, ke) => {
             if (va.item.id == v.item_id) return true
         })
+        var dataProducts = dataEntry.machineStock.find((va, ke) => {
+            if (va.item_id == v.item_id) return true
+        })
         var akumulasiProdOut = sumQtyByItemId(data)
         if (akumulasiProdOut.length) {
             var jumlahStok = parseFloat(akumulasiProdOut[0].total_qty) + parseFloat(v.stok_awal)
@@ -1465,11 +1504,18 @@
         html += '<div class="font-weight-bold text-dark">' + persen + '<sup class="small">%</sup></div>'
         html += '</div>'
         html += '</div>'
-        html += '<p class="m-0 mt-2 super-small-text text-dark">' + number_format(v.stok_akhir) + ' / ' + number_format(jumlahStok) + ' ' + v.unit_name + '</p>'
+        if (dataProducts) {
+            var nilaiConversiStokAkhir = conversiToTarget(v.stok_akhir, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+            var nilaiConversiJumlahStok = conversiToTarget(jumlahStok, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+        } else {
+            var nilaiConversiStokAkhir = number_format(v.stok_akhir) + ' ' + v.unit_name
+            var nilaiConversiJumlahStok = number_format(jumlahStok) + ' ' + v.unit_name
+        }
+        html += '<p class="m-0 mt-2 super-small-text text-dark">' + nilaiConversiStokAkhir + ' <br> ' + nilaiConversiJumlahStok + '</p>'
         html += '</div>'
 
         html += '<div class="col align-self-center">'
-        html += '<h1 class="text-dark-grey m-0"><b>' + v.alias + '</b></h1>'
+        html += '<h4 class="text-dark-grey m-0"><b>' + v.alias + '</b></h4>'
 
         html += '<div class="row">'
         html += '<div class="col-auto align-self-center">'
@@ -1582,7 +1628,7 @@
                 var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
                 var data = {
                     'deletedId': {
-                        materialTransferDetail: [id]
+                        machineTransferDetail: [id]
                     }
                 }
                 kelolaData(data, type, url, button)

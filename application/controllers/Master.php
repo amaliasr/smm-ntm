@@ -21,4 +21,19 @@ class Master extends CI_Controller
         $data['title'] = 'Master Supplier';
         $this->template->views('master/supplier', $data);
     }
+    public function machine()
+    {
+        $data['title'] = 'Master Machine';
+        $this->template->views('master/machine', $data);
+    }
+    public function material()
+    {
+        $data['title'] = 'Master Material';
+        $this->template->views('master/material', $data);
+    }
+    public function billOfMaterial()
+    {
+        $data['title'] = 'Master Bill Of Material';
+        $this->template->views('master/billOfMaterial', $data);
+    }
 }

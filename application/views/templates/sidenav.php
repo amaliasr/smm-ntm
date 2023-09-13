@@ -2,6 +2,9 @@
     .nav-link {
         display: block !important;
         line-height: normal;
+        font-size: .90em;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
         /* margin: 0rem !important;
         padding: 0rem !important;
 
@@ -168,6 +171,9 @@
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav3Pages">
                             <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
                             <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
+                            <a class="nav-link" href="<?= base_url(); ?>master/machine">Machine</a>
+                            <a class="nav-link" href="<?= base_url(); ?>master/material">Material</a>
+                            <a class="nav-link" href="<?= base_url(); ?>master/billOfMaterial">Bill of Material</a>
                         </nav>
                     </div>
                 <?php } ?>

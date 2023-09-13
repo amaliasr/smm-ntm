@@ -647,6 +647,23 @@
         color: #434242;
     }
 
+    table {
+        border-collapse: initial !important;
+        /* Don't collapse */
+        border-spacing: 0px !important;
+        border: 1px solid #dce0e6 !important;
+    }
+
+    th {
+        border: 1px solid #dce0e6 !important;
+        padding: 10px !important;
+    }
+
+    td {
+        border: 1px solid #dce0e6 !important;
+        padding: 10px !important;
+    }
+
     th[rowspan],
     td:first-child {
         position: sticky;

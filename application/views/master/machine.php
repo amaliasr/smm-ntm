@@ -782,15 +782,14 @@
 
     .nav-link {
         color: #61677A;
-        border-color: #E57C23 #E57C23 #E57C23;
-
+        border-color: #27374D #27374D #27374D;
     }
 
     .nav-tabs .nav-link.active,
     .nav-tabs .nav-item.show .nav-link {
         color: white !important;
-        background-color: #E57C23;
-        border-color: #E57C23 #E57C23 #E57C23;
+        background-color: #27374D;
+        border-color: #27374D #27374D #27374D;
     }
 
     .nav-tabs .nav-link {
@@ -798,9 +797,9 @@
         background: none;
         border-top-left-radius: 0.35rem;
         border-top-right-radius: 0.35rem;
-        border-top: 1px solid #e57c23;
-        border-right: 1px solid #e57c23;
-        border-left: 1px solid #e57c23;
+        border-top: 1px solid #27374D;
+        border-right: 1px solid #27374D;
+        border-left: 1px solid #27374D;
         border-bottom: 1px none rgba(229, 124, 35, 0);
     }
 
@@ -815,9 +814,260 @@
     .bg-light-danger {
         background-color: #e8d6d6;
     }
+</style>
+<style type="text/css">
+    .progress-bulat {
+        width: 90px;
+        height: 90px;
+        background: none;
+        position: relative;
+    }
+
+    .progress-bulat::after {
+        content: "";
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 10px solid #eee;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progress-bulat>span {
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        z-index: 1;
+    }
+
+    .progress-bulat .progress-left {
+        left: 0;
+    }
+
+    .progress-bulat .progress-bar {
+        width: 100%;
+        height: 100%;
+        background: none;
+        border-width: 10px;
+        border-style: solid;
+        position: absolute;
+        top: 0;
+    }
+
+    .progress-bulat .progress-left .progress-bar {
+        left: 100%;
+        border-top-right-radius: 80px;
+        border-bottom-right-radius: 80px;
+        border-left: 0;
+        -webkit-transform-origin: center left;
+        transform-origin: center left;
+    }
+
+    .progress-bulat .progress-right {
+        right: 0;
+    }
+
+    .progress-bulat .progress-right .progress-bar {
+        left: -100%;
+        border-top-left-radius: 80px;
+        border-bottom-left-radius: 80px;
+        border-right: 0;
+        -webkit-transform-origin: center right;
+        transform-origin: center right;
+    }
+
+    .progress-bulat .progress-value {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .litepicker {
+        z-index: 1000000 !important;
+    }
+
+    .litepicker .container__months .month-item {
+        box-sizing: content-box !important;
+        width: 280px !important;
+    }
+
+    .container__months {
+        width: 280px !important;
+    }
+
+    .offcanvas.show {
+        transform: none;
+        z-index: 100000;
+    }
+
+    .selected {
+        background-color: #F8F0E5;
+    }
+
+    .highlighted-date {
+        background-color: #f0ad4e;
+    }
+
+    .bg-dark-grey {
+        color: white;
+        background-color: #5C5470 !important;
+    }
+
+    .circle-shape {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+    }
 
     .bg-light-dongker {
         background-color: #7d8794;
+    }
+
+    .bg-light-primary {
+        background-color: #f7f9fc;
+    }
+
+    /* .dateInput .day:not(.disabled) {
+        background-color: #84b0e2;
+        border-radius: 0px;
+        color: white;
+    }
+
+    .datepicker table tr td.active {
+        color: white !important;
+    } */
+</style>
+<style>
+    /* ANIMATION */
+    .shake-bottom {
+        -webkit-animation: shake-bottom 1s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
+        animation: shake-bottom 1s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
+    }
+
+    @-webkit-keyframes shake-bottom {
+
+        0%,
+        100% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+            -webkit-transform-origin: 50% 100%;
+            transform-origin: 50% 100%;
+        }
+
+        10% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+
+        20%,
+        40%,
+        60% {
+            -webkit-transform: rotate(-4deg);
+            transform: rotate(-4deg);
+        }
+
+        30%,
+        50%,
+        70% {
+            -webkit-transform: rotate(4deg);
+            transform: rotate(4deg);
+        }
+
+        80% {
+            -webkit-transform: rotate(-2deg);
+            transform: rotate(-2deg);
+        }
+
+        90% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+    }
+
+    @keyframes shake-bottom {
+
+        0%,
+        100% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+            -webkit-transform-origin: 50% 100%;
+            transform-origin: 50% 100%;
+        }
+
+        10% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+
+        20%,
+        40%,
+        60% {
+            -webkit-transform: rotate(-4deg);
+            transform: rotate(-4deg);
+        }
+
+        30%,
+        50%,
+        70% {
+            -webkit-transform: rotate(4deg);
+            transform: rotate(4deg);
+        }
+
+        80% {
+            -webkit-transform: rotate(-2deg);
+            transform: rotate(-2deg);
+        }
+
+        90% {
+            -webkit-transform: rotate(2deg);
+            transform: rotate(2deg);
+        }
+    }
+
+    input[type="time"] {
+        position: relative;
+    }
+
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: block;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        background: transparent;
+    }
+
+    .list-group-item {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .list-group .list-group-item {
+        background-color: transparent !important;
+        font-size: 12px;
+        padding-right: 0px;
+    }
+
+    .list-material-group {
+        padding-left: 16px;
+    }
+
+    .card-material {
+        background-color: transparent !important;
+        cursor: pointer;
+    }
+
+    .card-material:hover {
+        background-color: #9AC5F4 !important;
+        color: white !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -834,116 +1084,108 @@
 <main>
     <div class="row">
         <!-- LEFT PANEL -->
-        <div class="col-3 bg-left-panel full-height p-5 pt-2 pe-2">
-            <div class="row p-3">
-                <div class="col align-self-center p-0">
-                    <h2 class="text-dark-grey m-0">
-                        <b class="small">Production Entry & Control</b>
-                    </h2>
-                    <p class="super-small-text m-0 text-light-dark-grey">Panel Kegiatan Entri Produksi dan Controlling</p>
+        <div class="col-3 bg-left-panel full-height border-end">
+            <div class="row">
+                <div class="col align-self-center p-5">
+                    <h3 class="text-dark-grey m-0">
+                        <b class="small">Machine Settings</b>
+                    </h3>
+                    <p class="super-small-text m-0 text-light-dark-grey">Pengaturan Machine dan Material Didalamnya</p>
                 </div>
-                <div class="col-auto align-self-center">
-                    <button class="btn btn-sm float-end shadow-none position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-h"></i>
-                    </button>
-                    <div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Test</a>
-                    </div>
-                </div>
-                <div class="col-12 p-0 pt-4 pb-2">
-                    <?php foreach ($menu as $key => $value) {
-                        $clicked = '';
-                        if ($value->name == $link) {
-                            $clicked = 'clicked';
-                        }
-                    ?>
-                        <div class="card shadow-none mb-2 btn-list-planning <?= $clicked ?>" onclick="location='<?= base_url() ?>production/productionEntry/<?= $value->name ?>/<?= base64_encode($workPlanMachineId) ?>/<?= base64_encode($label) ?>'">
-                            <span class="position-absolute top-50 start-100 translate-middle p-2 bg-light border border-light-dark rounded-circle" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;cursor:pointer;"><i class="fa fa-check text-light-dark"></i></span>
-                            <div class="card-body pt-3 pb-3">
-                                <div class="row">
-                                    <div class="col-3 align-self-center">
-                                        <i class="fa <?= $value->icon ?> fa-2x"></i>
-                                    </div>
-                                    <div class="col-9 align-self-center">
-                                        <b class="small-text">
-                                            <?php
-                                            $words = preg_split('/_/', $value->name);
-                                            $uppercaseWords = array_map('strtoupper', $words);
-                                            ?>
-                                            <?php for ($i = 0; $i < count($uppercaseWords); $i++) { ?>
-                                                <p class="m-0"><?= $uppercaseWords[$i] ?></p>
-                                            <?php } ?>
-                                        </b>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php } ?>
-                </div>
-                <div class="col-12 p-0 pt-2 pb-2">
-                    <div class="card shadow-none" style="border-radius: 0px;">
-                        <div class="card-body p-0">
-                            <div class="row p-3">
-                                <div class="col-auto align-self-center">
-                                    <i class="fa fa-map-o text-grey"></i>
-                                </div>
-                                <div class="col align-self-center">
-                                    <p class="m-0 super-small-text text-start"><b>Target Production<br>Information</b></p>
-                                </div>
-                            </div>
-                            <div class="row p-3">
-                                <div class="col-12" id="listWorkPlan">
-                                </div>
-                            </div>
+            </div>
+            <div class="row">
+                <div class="col-12 p-0 ps-4 pb-2 pe-4">
+                    <div class="list-material-group">
+                        <div class="form-group has-search">
+                            <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" class="form-control" placeholder="Search Group" id="search_nama">
                         </div>
                     </div>
                 </div>
-                <div class="col-12 p-0 pt-2 pb-2">
-                    <div class="card shadow-none" style="border-radius: 0px;">
-                        <div class="card-body p-0">
-                            <div class="row p-3">
-                                <div class="col-auto align-self-center">
-                                    <i class="fa fa-briefcase text-grey"></i>
-                                </div>
-                                <div class="col align-self-center">
-                                    <p class="m-0 super-small-text text-start"><b>Working<br>Information</b></p>
+                <div class="col-12 p-0 ps-4 pb-2 pe-4" id="listMachine" style="height: 500px;overflow-x: hidden;overflow-y: auto;">
+                    <div class="list-material-group" id="listGroup">
+                        <?php for ($i = 0; $i < 2; $i++) { ?>
+                            <div class="card shadow-none mb-2 card-material small-text">
+                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                                    <p class="m-0">SKM</p>
+                                    <span class="fa fa-chevron-down"></span>
                                 </div>
                             </div>
-                            <div class="row p-3">
-                                <div class="col-12" id="workingInformation">
-
-                                </div>
+                            <div class="list-material-group" id="listGroupJenis">
+                                <?php for ($j = 0; $j < 3; $j++) { ?>
+                                    <div class="card shadow-none mb-2 card-material small-text">
+                                        <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                                            <p class="m-0">MAKER</p>
+                                            <span class="fa fa-chevron-down"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-material-group" id="listGroupJenisDetail">
+                                        <?php for ($k = 0; $k < 3; $k++) { ?>
+                                            <div class="card shadow-none mb-2 card-material small-text">
+                                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                                                    <p class="m-0">MAKER 9 A</p>
+                                                </div>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
                             </div>
-                        </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
         </div>
         <!-- RIGHT PANEL -->
-        <div class="col-9 bg-white p-4">
+        <div class="col-9 bg-white p-0 pt-5" id="kerangkaGudangDetail">
             <div class="row">
-                <div class="col-auto align-self-center text-center" id="iconShift">
-                </div>
-                <div class="col-auto">
-                    <!-- <span class="super-small-text" id="date">-</span>
-                    <span class="super-small-text fw-bold">Shift <span id="shiftName">-</span></span>
-                    <br>
-                    <b>Machine <span id="machineName">-</span></b> -->
-                    <p class="m-0 super-small-text"><span class="fa fa-calendar me-1"></span><span id="date" class="me-3">-</span><span class="fa fa-clock-o me-1"></span><span id="shiftName">-</span></p>
-                    <b>Machine <span id="machineName">-</span></b>
-                </div>
-                <div class="col text-end align-self-center">
-                    <!-- <button type="button" class="btn btn-outline-success shadow-none btn-sm shadow-none"><i class="fa fa-save me-2"></i>Save Draft</button> -->
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                </div>
-                <div class="col-12 pt-3">
-                    <div class="h-100">
-                        <?php $this->load->view('production/production_entry/' . $link) ?>
+                <div class="col-12">
+                    <div class="card shadow-none border-0">
+                        <div class="card-body p-0">
+                            <div class="row justify-content-between p-4 pb-3" style="margin-bottom: 5px;">
+                                <div class="col-12">
+                                    <div class="row ps-2 pe-2 pb-2" id="menuMaterial">
+                                        <div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Material</b><span class="ms-2 badge bg-primary">15</span></div>
+                                        <div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Hasil Produksi</b><span class="ms-2 badge bg-grey">15</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle small-text">#</th>
+                                        <th class="align-middle small-text">Material</th>
+                                        <th class="align-middle small-text">Unit</th>
+                                        <th class="align-middle small-text"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listMaterial">
+                                    <?php for ($i = 0; $i < 5; $i++) { ?>
+                                        <tr>
+                                            <td class="align-middle small-text text-center">1</td>
+                                            <td class="align-middle small-text">
+                                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
+                                                Etiket Armour Bold 20 SKM (Barcode Baru)
+                                            </td>
+                                            <td class="align-middle small-text text-center">Lembar</td>
+                                            <td class="align-middle small-text text-center">
+                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" style="width: 20px;height: 20px;">
+                                            </td>
+
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+
 
 
 <!-- Modal -->
@@ -977,79 +1219,39 @@
         </div>
     </div>
 </div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" data-bs-backdrop="true">
+    <div class="offcanvas-header p-5" id="canvasHeader">
+    </div>
+    <div class="offcanvas-body p-5" id="canvasBody">
+    </div>
+</div>
 <?php $this->load->view('components/modal_static') ?>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script>
-    function clearModal() {
-        $('#modalDialog').removeClass();
-        $('#modalDialog').removeAttr('style');
-        $('#modalHeader').html('');
-        $('#modalBody').html('');
-        $('#modalFooter').html('');
-    }
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var job_spv_smd = '<?= job_spv_smd() ?>'
+    var job_foreman = '<?= job_foreman() ?>'
+    var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
+    var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
+    var dataListWarehouse
+    var dataDetail
+    var itemIdSelected = []
+    var choosenId
 
-    function clearModal2() {
-        $('#modalDialog2').removeClass();
-        $('#modalDialog2').removeAttr('style');
-        $('#modalHeader2').html('');
-        $('#modalBody2').html('');
-        $('#modalFooter2').html('');
-    }
-
-    $('#modal').on('hidden.bs.modal', function(e) {
-        clearModal();
-    })
-    $('#modal2').on('hidden.bs.modal', function(e) {
-        clearModal2();
-    })
-
-    function notFound(location) {
-        $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
-    }
-
-    function empty(location, text, height = null) {
-        if (!height) {
-            height = '100%'
-        }
-        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
-    }
-
-    function emptyText(location, text) {
-        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>')
-    }
-
-
-    function formatNames(data) {
-        if (data.length) {
-            var firstNames = data.map(function(item) {
-                if (item.id) {
-                    var firstName = item.name.split(' ')[0];
-                } else {
-                    var firstName = ''
-                }
-                return firstName;
-            });
-            return firstNames.join(', ');
-        } else {
-            return ''
-        }
-    }
-</script>
-<script>
-    var workPlanMachineId = '<?= $workPlanMachineId ?>'
     $(document).ready(function() {
-        loadDataTemplate()
+        loadData()
     })
 
-    function loadDataTemplate() {
+    function loadData() {
         var data = {
-            personLabel: 'CATCHER',
-            workPlanMachineId: workPlanMachineId,
+            employeeId: user_id,
         }
-        var url = "<?= api_produksi('loadPageProductionEntry'); ?>"
-        getDataTemplate(data, url)
+        var url = "<?= api_produksi('loadPageStorageManage'); ?>"
+        // getData(data, url)
     }
 
-    function getDataTemplate(data, url) {
+    function getData(data, url) {
         $.ajax({
             url: url,
             method: "GET",
@@ -1068,53 +1270,8 @@
             },
             success: function(response) {
                 showOverlay('hide')
-                var data = response.data
-                $('#date').html(formatDateIndonesia(data.workPlanMachine.date))
-                $('#shiftName').html(convertTimeFormat(data.workPlanMachine.shift.start) + ' - ' + convertTimeFormat(data.workPlanMachine.shift.end))
-                $('#machineName').html(data.workPlanMachine.machine.name)
-                if (data.workPlanMachine.shift.group_id == 1) {
-                    $('#iconShift').html('<img class="float-center" style="width: 20px;" src="<?= base_url() ?>assets/image/svg/am.svg" alt="Icon" />')
-                } else {
-                    $('#iconShift').html('<img class="float-center" style="width: 20px;" src="<?= base_url() ?>assets/image/svg/pm.svg" alt="Icon" />')
-                }
-                listWorkPlan(data)
+                dataListWarehouse = response.data
             }
         })
-    }
-
-    function listWorkPlan(data) {
-        var html = ''
-        data.workPlanMachine.products.forEach(e => {
-            html += '<div class="card shadow-none mb-2">'
-            html += '<div class="card-body p-1 ps-3 pe-3">'
-            html += '<div class="row justify-content-between">'
-            html += '<div class="col align-self-center">'
-            html += '<p class="small-text m-0"><b>' + e.product.alias + '</b></p>'
-            html += '<p class="m-0 super-small-text text-grey">Batch ' + e.priority + '</p>'
-            html += '</div>'
-            html += '<div class="col align-self-center text-end">'
-            html += '<p class="m-0 small-text">' + e.qty + ' ' + e.unit_target.name + '</p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        });
-        $('#listWorkPlan').html(html)
-        workingInformation(data)
-    }
-
-    function workingInformation(data) {
-        var html = ''
-        html += '<div class="row small-text">'
-        html += '<div class="col-5 text-grey">Shift</div>'
-        html += '<div class="col-7"><b>' + convertTimeFormat(data.workPlanMachine.shift.start) + ' - ' + convertTimeFormat(data.workPlanMachine.shift.end) + '</b></div>'
-        html += '<div class="col-5 text-grey">Operator</div>'
-        html += '<div class="col-7"><b>' + formatNames(data.workPlanMachine.employee_operator) + '</b></div>'
-        html += '<div class="col-5 text-grey">Helper</div>'
-        html += '<div class="col-7"><b>' + formatNames(data.workPlanMachine.employee_helper) + '</b></div>'
-        html += '<div class="col-5 text-grey">Catcher</div>'
-        html += '<div class="col-7"><b>' + formatNames(data.workPlanMachine.employee_catcher) + '</b></div>'
-        html += '</div>'
-        $('#workingInformation').html(html)
     }
 </script>

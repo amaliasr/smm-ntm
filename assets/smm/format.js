@@ -124,6 +124,30 @@ function formatDateIndonesiaTanggalBulan(orginaldate) {
     var tampilTanggal = tanggal + " " + bulan 
     return tampilTanggal;
 }
+function formatDateIndonesiaTanggalBulanSort(orginaldate) {
+    var date = new Date(orginaldate);
+    var bulan = date.getMonth();
+    var tanggal = date.getDate();
+    if (tanggal < 10) {
+        tanggal = "0" + tanggal;
+    }
+    switch(bulan) {
+    case 0: bulan = "Jan"; break;
+    case 1: bulan = "Feb"; break;
+    case 2: bulan = "Mar"; break;
+    case 3: bulan = "Apr"; break;
+    case 4: bulan = "Mei"; break;
+    case 5: bulan = "Jun"; break;
+    case 6: bulan = "Jul"; break;
+    case 7: bulan = "Agu"; break;
+    case 8: bulan = "Sep"; break;
+    case 9: bulan = "Okt"; break;
+    case 10: bulan = "Nov"; break;
+    case 11: bulan = "Des"; break;
+    }
+    var tampilTanggal = tanggal + " " + bulan 
+    return tampilTanggal;
+}
 function currentDate() {
     var d = new Date();
     var month = d.getMonth() + 1;

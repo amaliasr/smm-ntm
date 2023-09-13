@@ -934,7 +934,7 @@
         background-color: #f7f9fc;
     }
 
-    .day:not(.disabled) {
+    /* .dateInput .day:not(.disabled) {
         background-color: #84b0e2;
         border-radius: 0px;
         color: white;
@@ -942,7 +942,7 @@
 
     .datepicker table tr td.active {
         color: white !important;
-    }
+    } */
 </style>
 <style>
     /* ANIMATION */
@@ -1029,6 +1029,20 @@
             -webkit-transform: rotate(2deg);
             transform: rotate(2deg);
         }
+    }
+
+    input[type="time"] {
+        position: relative;
+    }
+
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: block;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        background: transparent;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -1355,7 +1369,7 @@
         html += '<div class="col-6 text-end align-self-center">'
         html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>'
         html += '<div class="btn-group">'
-        html += '<button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">'
+        html += '<button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false">'
         html += '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="jumlahWaiting"></span>'
         html += '<i class="fa fa-bell-o"></i>'
         html += '</button>'
@@ -1401,6 +1415,7 @@
         html += '<th class="small-text text-center p-3 bg-light">Reference</th>'
         html += '<th class="small-text text-center p-3 text-success"><i class="fa fa-plane me-1"></i>Direct</th>'
         html += '<th class="small-text text-center p-3">Items / Materials</th>'
+        html += '<th class="small-text text-center p-3">QTY</th>'
         html += '<th class="small-text text-center p-3">Status</th>'
         html += '<th class="small-text text-center p-3"></th>'
         html += '</tr>'
@@ -1449,7 +1464,7 @@
             html += '<p class="m-0 super-small-text text-dark"><b>' + shortenName(e.employee_sender.name, 2) + '</b></p>'
             html += '</div>'
             html += '<div class="col-6 ps-0 text-end">'
-            html += '<p class="m-0 super-small-text text-dark-grey text-wrap">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</p>'
+            html += '<p class="m-0 super-small-text text-dark-grey text-wrap">' + formatDateIndonesiaTanggalBulanSort(e.time) + ' ' + formatJamMenit(e.time) + '</p>'
             html += '</div>'
             html += '<div class="col-12 p-0 pt-2">'
             html += '<p class="m-0 text-wrap small-text">' + shortenText('Anda mendapatkan permintaan persetujuan untuk ' + getAliases(e.machine_transfer_detail), 100) + '</p>'
@@ -1550,7 +1565,8 @@
                     next = e.machine_next.name
                 }
                 html += '<td class="small-text align-middle text-center">' + next + '</td>'
-                html += '<td class="small-text align-middle text-center">' + e.item.name + '</td>'
+                html += '<td class="small-text align-middle">' + e.item.name + '</td>'
+                html += '<td class="small-text align-middle text-end">' + e.qty + '</td>'
                 html += '<td class="small-text align-middle text-center">' + status + '</td>'
                 html += '<td class="small-text align-middle">'
                 html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting(' + e.id + ')"><i class="fa fa-eye"></i></button>'
@@ -1559,7 +1575,7 @@
             });
         } else {
             html += '<tr>'
-            html += '<td class="text-center p-5" colspan="8"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
+            html += '<td class="text-center p-5" colspan="11"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
             html += '</tr>'
         }
         $('#tableDetail').html(html)
@@ -1829,7 +1845,7 @@
             var receiver_name = data.subject_receiver.name
         }
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Detail Transaction</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -1880,14 +1896,35 @@
         if (data.machine_next) {
             html_body += '<p class="m-0 small-text text-success"><b><i class="fa fa-plane me-1"></i>Direct</b></p>'
             html_body += '</div>'
-            html_body += '<div class="col-9">'
+            html_body += '<div class="col">'
             html_body += '<p class="m-0 small-text text-success fw-bolder">' + data.machine_next.name + '</p>'
+            html_body += '</div>'
+            html_body += '<div class="col">'
+            html_body += '<p class="m-0" style="font-size:8px;">*) Jika Disetujui maka Item tersebut akan diteruskan ke Direct yang dituju</p>'
         } else {
             html_body += '<p class="m-0 small-text"><b><i class="fa fa-plane me-1"></i>Direct</b></p>'
             html_body += '</div>'
             html_body += '<div class="col-9">'
             html_body += '<p class="m-0 small-text">No</p>'
         }
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<hr>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<p class="m-0 small-text"><b>Waktu Persetujuan</b></p>'
+        html_body += '</div>'
+        html_body += '<div class="col-9">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col">'
+        html_body += '<input class="form-control form-control-sm datepicker" type="text" id="dateTransaction" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatDate(data.time) + '">'
+        html_body += '</div>'
+        html_body += '<div class="col">'
+        html_body += '<input type="time" id="timeTransaction" class="form-control form-control-sm" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatTime(data.time) + '" required="required">'
+        html_body += '</div>'
+        html_body += '</div>'
+
         html_body += '</div>'
         html_body += '<div class="col-12">'
         html_body += '<hr>'
@@ -1941,6 +1978,11 @@
         html_body += '</div>'
         $('#modalBody').html(html_body).removeClass('pt-0 pb-0')
         $('.nominal').number(true);
+        $('#dateTransaction').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            todayHighlight: true,
+        });
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="">Simpan</button>'
@@ -1974,6 +2016,7 @@
                     isReceive: approval,
                     employeeId: user_id,
                     isSendNextMachine: isSendNextMachine,
+                    receivedAt: $('#dateTransaction').val() + ' ' + $('#timeTransaction').val(),
                 }
                 kelolaData(data, type, url, button)
             }
