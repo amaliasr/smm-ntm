@@ -287,7 +287,7 @@
         html_body += '</div>'
         if (material.used_material) {
             html_body += '<div class="col-12 text-end">'
-            html_body += '<p class="m-0 small-text text-primary pointer" onclick="removeAllMaterial(' + "'" + material.used_material.id + "'" + ',' + "'" + material.item.name + "'" + ')">Batalkan Input Stok Akhir Material ini ?</p>'
+            html_body += '<p class="m-0 small-text badge bg-danger pointer" onclick="removeAllMaterial(' + "'" + material.used_material.id + "'" + ',' + "'" + material.item.name + "'" + ')">Batalkan Input Stok Akhir Material ini ?</p>'
             html_body += '</div>'
         }
         html_body += '</div>'

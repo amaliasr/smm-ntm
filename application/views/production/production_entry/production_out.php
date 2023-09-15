@@ -370,8 +370,8 @@
     }
 
     function cekJadwal(input_work_plan_product_id, input_jam_start, input_jam_end, data) {
-        const matchingData = data.find(item => item.work_plan_product_id === input_work_plan_product_id);
-
+        const matchingData = data.find(item => item.work_plan_product_id == input_work_plan_product_id);
+        // console.log(matchingData)
         if (!matchingData) {
             return {
                 product: '',
@@ -384,17 +384,27 @@
             //     item.time_start < input_jam_start + ':00' &&
             //     item.time_end > input_jam_start + ':00'
             // );
+            var check = data.find((v, k) => {
+                if (v.work_plan_product_id != input_work_plan_product_id && v.time_start && v.time_end) return true
+            })
+            if (check) {
+                const overlappingItems = data.find(item =>
+                    item.work_plan_product_id != input_work_plan_product_id &&
+                    findDateFromTime(convertTimeFormat(item.time_start), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) < findDateFromTime(input_jam_start, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) &&
+                    findDateFromTime(convertTimeFormat(item.time_end), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) > findDateFromTime(input_jam_start, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end)
+                );
+                // console.log(overlappingItems)
 
-            const overlappingItems = data.find(item =>
-                item.work_plan_product_id != input_work_plan_product_id &&
-                findDateFromTime(convertTimeFormat(item.time_start), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) < findDateFromTime(input_jam_start, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) &&
-                findDateFromTime(convertTimeFormat(item.time_end), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) > findDateFromTime(input_jam_start, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end)
-            );
-
-            if (overlappingItems) {
-                return {
-                    product: overlappingItems,
-                    return: 1
+                if (overlappingItems) {
+                    return {
+                        product: overlappingItems,
+                        return: 1
+                    }
+                } else {
+                    return {
+                        product: '',
+                        return: 0
+                    }
                 }
             } else {
                 return {
@@ -832,7 +842,6 @@
         if ($('#checkAutoNextHour').is(":checked")) {
             var id = $('#selectItem').find(':selected').data('work_plan_product_id')
             var dataList = convertToPerHour(convertDataToListTime(dataEntry.workPlanMachine.products))
-            console.log(convertDataToListTime(dataEntry.workPlanMachine.products))
             var missingHours = findMissingHours(extractHour(dataEntry.workPlanMachine.shift.start), extractHour(dataEntry.workPlanMachine.shift.end), dataList)[0] + ':00'
             $('#startTime').val(missingHours)
             $('#endTime').val(addOneHour(missingHours))
@@ -886,6 +895,7 @@
         var checkStart = checkTimeStart(startTime, dataList)
         var checkEnd = checkTimeEnd(endTime, dataList)
         if (checkStart && checkEnd) {
+            // console.log(startTime)
             checkAvailableHoursInProducts(startTime, endTime)
         } else {
             $('#textWarning').html('<p class="m-0 super-small-text">Jam Tersebut Telah Dipakai, Harap Input Jam yang Masih Tersedia</p>')
@@ -899,6 +909,7 @@
         var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.work_plan_product_id == id) return true
         })
+        // console.log(id, startTime, endTime, dataEntry.workPlanMachine.products)
         var check = cekJadwal(id, startTime, endTime, dataEntry.workPlanMachine.products)
         if (check.return) {
             $('#textWarning').html('<p class="m-0 super-small-text">Jam Tersebut Telah Dipakai oleh Produksi ' + check.product.product.name + ' Batch ' + check.product.priority + '</p>')
@@ -910,6 +921,7 @@
     }
 
     function getDateFromTime(value) {
+        // console.log(value)
         var data = findDateFromTime(value, dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end)
         var html = ''
         if (data) {

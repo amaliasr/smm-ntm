@@ -592,7 +592,7 @@
         var html = ''
         var count = 0
         dataEntry.machineTransferWaiting.forEach(e => {
-            if (e.status == 'WAITING' && e.action == 'IN') {
+            if (e.status == 'WAITING' && e.action == 'IN' && count < 4) {
                 html += '<div style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
                 html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
                 html += '<div class="row">'

@@ -652,7 +652,15 @@
 
     .modal-backdrop.show {
         opacity: 0.5;
-        z-index: 1 !important;
+        z-index: 9999 !important;
+    }
+
+    .offcanvas {
+        z-index: 99999 !important;
+    }
+
+    .litepicker {
+        z-index: 1000000 !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -681,9 +689,8 @@
                                     <p class="m-0 small-text" id="dateRange">-</p>
                                 </div>
                                 <div class="col text-end">
-                                    <span class="badge rounded-pill bg-primary cursor">Weekly</span>
-                                    <span class="badge rounded-pill bg-light text-dark cursor">Monthly</span>
-                                    <span class="badge rounded-pill bg-light text-dark cursor" onclick="filterCanvas()"><i class="fa fa-filter"></i></span>
+
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i> Filter</button>
                                 </div>
                                 <div class="col-12 pt-3">
                                     <div class="h-100">
