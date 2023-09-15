@@ -26,10 +26,10 @@ class Master extends CI_Controller
         $data['title'] = 'Master Machine';
         $this->template->views('master/machine', $data);
     }
-    public function material()
+    public function groupMaterial()
     {
-        $data['title'] = 'Master Material';
-        $this->template->views('master/material', $data);
+        $data['title'] = 'Master Group Material';
+        $this->template->views('master/group_material', $data);
     }
     public function billOfMaterial()
     {

@@ -263,21 +263,21 @@
                 <div class="row pt-2">
                     <div class="col-12">
                         <div class="card shadow-none">
-                            <div class="card-body">
+                            <div class="card-body pt-0">
                                 <table class="table table-sm table-hover small-text">
                                     <thead>
                                         <tr class="">
-                                            <th scope="col" class="p-3">#</th>
-                                            <th scope="col" class="p-3"></th>
-                                            <th scope="col" class="p-3">Time</th>
-                                            <th scope="col" class="p-3">Item / Material</th>
-                                            <th scope="col" class="p-3">QTY</th>
-                                            <th scope="col" class="p-3">Unit</th>
-                                            <th scope="col" class="p-3 bg-light">Source</th>
-                                            <th scope="col" class="p-3 bg-light">Direction</th>
-                                            <th scope="col" class="p-3">User</th>
-                                            <th scope="col" class="p-3">Status</th>
-                                            <th scope="col" class="p-3"></th>
+                                            <th scope="col" class="p-3 pt-5">#</th>
+                                            <th scope="col" class="p-3 pt-5"></th>
+                                            <th scope="col" class="p-3 pt-5">Time</th>
+                                            <th scope="col" class="p-3 pt-5">Item / Material</th>
+                                            <th scope="col" class="p-3 pt-5">QTY</th>
+                                            <th scope="col" class="p-3 pt-5">Unit</th>
+                                            <th scope="col" class="p-3 pt-5 bg-light">Source</th>
+                                            <th scope="col" class="p-3 pt-5 bg-light">Direction</th>
+                                            <th scope="col" class="p-3 pt-5">User</th>
+                                            <th scope="col" class="p-3 pt-5">Status</th>
+                                            <th scope="col" class="p-3 pt-5"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="transaksiDetail">
@@ -492,6 +492,9 @@
         if (listMachineTransferDetail.length) {
             var a = 1
             listMachineTransferDetail.forEach(e => {
+                var dataProducts = dataEntry.machineStock.find((v, k) => {
+                    if (v.item_id == e.item_id) return true
+                })
                 var destination = '<b>' + e.destination + '</b>'
                 if (e.machine_reference) {
                     destination = '<p class="m-0 text-grey">' + e.destination + '</p>'
@@ -515,12 +518,17 @@
                 html += '<tr>'
                 html += '<th class="p-2  text-center" scope="row">' + a++ + '</th>'
                 html += '<td class="p-2  text-center">' + arrow + '</td>'
-                html += '<td class="p-2  text-center">' + formatDateIndonesiaTanggalBulan(e.send_at) + ' ' + formatJamMenit(e.send_at) + '</td>'
+                html += '<td class="p-2  text-center">' + formatDateIndonesiaTanggalBulanSort(e.send_at) + ' ' + formatJamMenit(e.send_at) + '</td>'
                 html += '<td class="p-2 ">'
                 // html += '<p class="m-0 super-small-text"><b>' + e.item_alias + '</b></p>'
-                html += '<p class="m-0">' + e.item_name + '</p>'
+                html += '<p class="m-0"><b>' + e.item_alias + '</b><p class="m-0 super-small-text">' + e.item_name + '</p></p>'
                 html += '</td>'
-                html += '<td class="p-2  text-center fw-bolder text-orange">' + number_format(e.qty) + '</td>'
+                if (dataProducts) {
+                    var nilaiConversi = conversiToTarget(e.qty, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+                } else {
+                    var nilaiConversi = number_format(e.qty) + ' ' + e.unit_name
+                }
+                html += '<td class="p-2  text-center fw-bolder text-orange nowrap">' + number_format(e.qty) + '<p class="m-0 super-small-text text-dark">( ' + nilaiConversi + ' )</p></td>'
                 html += '<td class="p-2  text-center text-orange">' + e.unit_name + '</td>'
                 html += '<td class="p-2  text-center bg-light"><b>' + e.source + '</b></td>'
                 html += '<td class="p-2  text-center bg-light">' + destination + '</td>'
@@ -1542,6 +1550,14 @@
         var data = listMachineTransferDetail.find((v, k) => {
             if (v.id == id) return true
         })
+        var dataProducts = dataEntry.machineStock.find((v, k) => {
+            if (v.item_id == data.item_id) return true
+        })
+        if (dataProducts) {
+            var nilaiConversi = conversiToTarget(data.qty, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
+        } else {
+            var nilaiConversi = number_format(data.qty) + ' ' + e.unit_name
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
         var html_header = '';
@@ -1565,11 +1581,11 @@
         html_body += '</div>'
         html_body += '<div class="col-4 mt-3">'
         html_body += '<p class="m-0 small-text"><b>QTY</b></p>'
-        html_body += '<p class="m-0 small">' + number_format(data.qty) + '</p>'
+        html_body += '<p class="m-0 small"><span class="text-orange fw-bolder">' + number_format(data.qty) + '</span> <span class="text-dark fw-bolder">( ' + nilaiConversi + ' )</span></p>'
         html_body += '</div>'
         html_body += '<div class="col-4 mt-3">'
         html_body += '<p class="m-0 small-text"><b>Unit</b></p>'
-        html_body += '<p class="m-0 small">' + data.unit_name + '</p>'
+        html_body += '<p class="m-0 small text-orange fw-bolder">' + data.unit_name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-4 mt-3">'
         html_body += '<p class="m-0 small-text"><b>Source</b></p>'

@@ -1088,7 +1088,7 @@
             <div class="row">
                 <div class="col align-self-center p-5">
                     <h3 class="text-dark-grey m-0">
-                        <b class="small">Material Settings</b>
+                        <b class="small">Group Material Settings</b>
                     </h3>
                     <p class="super-small-text m-0 text-light-dark-grey">Pengaturan Material Group dan Material Didalamnya</p>
                 </div>

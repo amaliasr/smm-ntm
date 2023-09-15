@@ -172,7 +172,7 @@
                             <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
                             <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
                             <a class="nav-link" href="<?= base_url(); ?>master/machine">Machine</a>
-                            <a class="nav-link" href="<?= base_url(); ?>master/material">Material</a>
+                            <a class="nav-link" href="<?= base_url(); ?>master/groupMaterial">Group Material</a>
                             <a class="nav-link" href="<?= base_url(); ?>master/billOfMaterial">Bill of Material</a>
                         </nav>
                     </div>

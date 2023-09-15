@@ -2013,7 +2013,7 @@
                             html += '<p class="m-0 small-text text-dark"><b>' + el.nama_shift + '</b></p>'
                             // data_work_plan
                             dataDetail.forEach(element => {
-                                html += '<p class="m-0 super-small-text">' + element.product_alias + ' <b class="">( ' + element.product_qty + ' ' + element.unit_name + ')</b></p>'
+                                html += '<p class="m-0 super-small-text">' + element.product_alias + ' <b class="">' + element.product_qty + ' ' + element.unit_name + '</b></p>'
                             });
                             html += '</div>'
                             html += '<div class="col-5 align-self-center text-center">'

@@ -943,6 +943,9 @@
     .datepicker table tr td.active {
         color: white !important;
     } */
+    .swal-wide {
+        width: 650px !important;
+    }
 </style>
 <style>
     /* ANIMATION */
@@ -1294,7 +1297,7 @@
         var html = ''
         var a = 0
         dataListWarehouse.warehouse.forEach(e => {
-            if (a == 0) {
+            if (a == 0 && !choosenId) {
                 choosenId = e.id
             }
             html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse' + e.id + '" onclick="chooseWarehouse(' + e.id + ')">'
@@ -1356,10 +1359,13 @@
         $('#btnWarehouse' + id).addClass('clicked')
     }
 
+    var nameStorage = ''
+
     function kerangkaGudangDetail(id) {
         var data = dataListWarehouse.warehouse.find((v, k) => {
             if (v.id == id) return true
         })
+        nameStorage = data.name
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-6">'
@@ -1404,25 +1410,27 @@
         html += '</div>'
 
         html += '<div class="col-12">'
+        html += '<div class="table-responsive">'
         html += '<table class="table table-sm table-hover mt-5">'
         html += '<thead>'
         html += '<tr class="border-top">'
-        html += '<th class="small-text text-center p-3">#</th>'
-        html += '<th class="small-text text-center p-3"></th>'
-        html += '<th class="small-text text-center p-3">Time</th>'
-        html += '<th class="small-text text-center p-3">User</th>'
-        html += '<th class="small-text text-center p-3 bg-light">Warehouse</th>'
-        html += '<th class="small-text text-center p-3 bg-light">Reference</th>'
-        html += '<th class="small-text text-center p-3 text-success"><i class="fa fa-plane me-1"></i>Direct</th>'
-        html += '<th class="small-text text-center p-3">Items / Materials</th>'
-        html += '<th class="small-text text-center p-3">QTY</th>'
-        html += '<th class="small-text text-center p-3">Status</th>'
-        html += '<th class="small-text text-center p-3"></th>'
+        html += '<th class="small-text text-center p-3 align-middle">#</th>'
+        html += '<th class="small-text text-center p-3 align-middle"></th>'
+        html += '<th class="small-text text-center p-3 align-middle">Time</th>'
+        html += '<th class="small-text text-center p-3 align-middle">User</th>'
+        html += '<th class="small-text text-center p-3 align-middle bg-light">Warehouse</th>'
+        html += '<th class="small-text text-center p-3 align-middle bg-light">Reference</th>'
+        html += '<th class="small-text text-center p-3 align-middle text-success"><i class="fa fa-plane me-1"></i>Direct</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Items / Materials</th>'
+        html += '<th class="small-text text-center p-3 align-middle">QTY</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Status</th>'
+        html += '<th class="small-text text-center p-3 align-middle"></th>'
         html += '</tr>'
         html += '</thead>'
         html += '<tbody id="tableDetail">'
         html += '</tbody>'
         html += '</table>'
+        html += '</div>'
         html += '</div>'
 
         html += '</div>'
@@ -1553,7 +1561,7 @@
                 html += '<tr class="' + colorToday + '">'
                 html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
                 html += '<td class="small-text align-middle text-center">' + arrow + '</td>'
-                html += '<td class="small-text align-middle text-center">' + formatDateIndonesiaTanggalBulan(e.time) + ' ' + formatJamMenit(e.time) + '</td>'
+                html += '<td class="small-text align-middle text-center">' + formatDateIndonesiaTanggalBulanSort(e.time) + ' ' + formatJamMenit(e.time) + '</td>'
                 html += '<td class="small-text align-middle text-center">' + employeeName + '</td>'
                 html += '<td class="small-text align-middle text-center bg-light">' + e.warehouse.name + '</td>'
                 html += '<td class="small-text align-middle text-center bg-light">'
@@ -1562,11 +1570,11 @@
                 html += '</td>'
                 var next = '-'
                 if (e.machine_next) {
-                    next = e.machine_next.name
+                    next = '<span class="text-success fw-bolder">' + e.machine_next.name + '</span>'
                 }
                 html += '<td class="small-text align-middle text-center">' + next + '</td>'
                 html += '<td class="small-text align-middle">' + e.item.name + '</td>'
-                html += '<td class="small-text align-middle text-end">' + e.qty + '</td>'
+                html += '<td class="small-text align-middle text-end fw-bolder">' + number_format(e.qty) + '</td>'
                 html += '<td class="small-text align-middle text-center">' + status + '</td>'
                 html += '<td class="small-text align-middle">'
                 html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting(' + e.id + ')"><i class="fa fa-eye"></i></button>'
@@ -1900,7 +1908,7 @@
             html_body += '<p class="m-0 small-text text-success fw-bolder">' + data.machine_next.name + '</p>'
             html_body += '</div>'
             html_body += '<div class="col">'
-            html_body += '<p class="m-0" style="font-size:8px;">*) Jika Disetujui maka Item tersebut akan diteruskan ke Direct yang dituju</p>'
+            // html_body += '<p class="m-0" style="font-size:8px;">*) Jika Disetujui maka Item tersebut akan diteruskan ke Direct yang dituju</p>'
         } else {
             html_body += '<p class="m-0 small-text"><b><i class="fa fa-plane me-1"></i>Direct</b></p>'
             html_body += '</div>'
@@ -1962,15 +1970,17 @@
         html_body += '<div class="col-12">'
         if (data.status == 'WAITING') {
             var next_id = null
+            var next_name = null
             if (data.machine_next) {
                 next_id = data.machine_next.id
+                next_name = data.machine_next.name
             }
             html_body += '<div class="row pt-5">'
             html_body += '<div class="col" style="height:50px;">'
-            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + next_id + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + next_id + ',' + "'" + next_name + "'" + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
             html_body += '</div>'
             html_body += '<div class="col" style="height:50px;">'
-            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + next_id + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + next_id + ',' + "'" + next_name + "'" + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
             html_body += '</div>'
             html_body += '</div>'
         }
@@ -1989,24 +1999,40 @@
         $('#modalFooter').html(html_footer).addClass('d-none');
     }
 
-    function approvalData(id, approval, machine_next) {
-        var isSendNextMachine = 0
-        if (machine_next) {
-            isSendNextMachine = 1
-        }
+    function approvalData(id, approval, machine_next, machine_next_name) {
         var status = 'menolak'
         if (approval) {
             status = 'menyetujui'
         }
-        Swal.fire({
+        var isSendNextMachine = 0
+        var dataSwal = {
             text: 'Apakah anda yakin ingin ' + status + ' data tersebut ?',
             icon: 'warning',
             showCancelButton: true,
+            showConfirmButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yakin',
             cancelButtonText: 'Batal',
-        }).then((result) => {
+        }
+        if (machine_next) {
+            isSendNextMachine = 1
+            dataSwal = {
+                text: 'Anda diminta menentukan untuk otomatis terkirim ke ' + machine_next_name + ' atau hanya masuk ke stok ' + nameStorage + ' ?',
+                icon: 'warning',
+                showCancelButton: true,
+                showConfirmButton: true,
+                showDenyButton: true,
+                denyButtonColor: '#3085d6',
+                confirmButtonColor: '#5cb85c',
+                denyButtonText: 'Tetap ke ' + nameStorage,
+                cancelButtonText: 'Batal',
+                customClass: 'swal-wide',
+                confirmButtonText: 'Lanjut ke ' + machine_next_name,
+            }
+        }
+
+        Swal.fire(dataSwal).then((result) => {
             if (result.isConfirmed) {
                 var type = 'POST'
                 var button = '#btnSimpan'
@@ -2016,6 +2042,18 @@
                     isReceive: approval,
                     employeeId: user_id,
                     isSendNextMachine: isSendNextMachine,
+                    receivedAt: $('#dateTransaction').val() + ' ' + $('#timeTransaction').val(),
+                }
+                kelolaData(data, type, url, button)
+            } else if (result.isDenied) {
+                var type = 'POST'
+                var button = '#btnSimpan'
+                var url = '<?php echo api_produksi('setMachineTransferReceive'); ?>'
+                var data = {
+                    id: id,
+                    isReceive: approval,
+                    employeeId: user_id,
+                    isSendNextMachine: 0,
                     receivedAt: $('#dateTransaction').val() + ' ' + $('#timeTransaction').val(),
                 }
                 kelolaData(data, type, url, button)

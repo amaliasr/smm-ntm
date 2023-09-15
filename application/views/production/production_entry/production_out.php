@@ -722,7 +722,7 @@
 
         html += '<input type="time" id="startTime" class="form-control" value="" required="required" oninput="fillForm(),addToEndTime(event),checkAvailableHours()" min="19:00" max="03:00">'
         html += '<div class="form-check align-self-center">'
-        html += '<input class="form-check-input" type="checkbox" value="" id="checkAutoNextHour" onchange="autoNextHour(),checkAvailableHours()">'
+        html += '<input class="form-check-input" type="checkbox" value="" id="checkAutoNextHour" onchange="autoNextHour(),checkAvailableHours()" checked>'
         html += '<label class="form-check-label" for="checkAutoNextHour">Auto Next Hour</label>'
         html += '</div>'
         html += '</div>'
@@ -780,6 +780,8 @@
         html += '</div>'
         $('#formFill').html(html)
         $('.nominal').number(true);
+        autoNextHour()
+        checkAvailableHours()
     }
 
     function detailProductionOut(id) {

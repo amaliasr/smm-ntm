@@ -1145,7 +1145,7 @@
                                 <div class="col-12">
                                     <div class="row ps-2 pe-2 pb-2" id="menuMaterial">
                                         <div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Material</b><span class="ms-2 badge bg-primary">15</span></div>
-                                        <div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Hasil Produksi</b><span class="ms-2 badge bg-grey">15</span></div>
+                                        <div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Produksi</b><span class="ms-2 badge bg-grey">15</span></div>
                                     </div>
                                 </div>
                             </div>

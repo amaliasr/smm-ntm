@@ -182,6 +182,9 @@ function number_format(x) {
 function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
 }
+function roundToThree(num) {
+    return +(Math.round(num + "e+3")  + "e-3");
+}
 function romanize(num) {
     if (isNaN(num))
         return NaN;
@@ -394,6 +397,17 @@ function shortenText(text, maxLength) {
 
     // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
     var formattedTime = hour + "." + minute;
+
+    return formattedTime;
+}
+  function convertTimeFormat2(timeString) {
+    // Memisahkan jam, menit, dan detik dari string waktu
+    var timeParts = timeString.split(":");
+    var hour = timeParts[0];
+    var minute = timeParts[1];
+
+    // Menggabungkan jam dan menit dengan tanda titik sebagai pemisah
+    var formattedTime = hour + ":" + minute;
 
     return formattedTime;
 }

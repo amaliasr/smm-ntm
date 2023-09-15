@@ -934,6 +934,7 @@
                 <div class="col text-end align-self-center">
                     <!-- <button type="button" class="btn btn-outline-success shadow-none btn-sm shadow-none"><i class="fa fa-save me-2"></i>Save Draft</button> -->
                     <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                    <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button>
                 </div>
                 <div class="col-12 pt-3">
                     <div class="h-100">

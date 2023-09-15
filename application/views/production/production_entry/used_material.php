@@ -88,11 +88,19 @@
                 <div class="row justify-content-between p-4 pb-3">
                     <div class="col-12">
                         <div class="row justify-content-between ps-2 pe-2 pb-3" id="menuMaterial">
-
                         </div>
                     </div>
                 </div>
                 <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
+                <div class="row small-text p-3 m-0 bg-light-grey justify-content-center">
+                    <div class="col-2"><i class="fa fa-clock-o me-2"></i>Time Production</div>
+                    <div class="col-2 fw-bolder" id="timeProduction">-</div>
+                    <div class="col-2"><i class="fa fa-calculator me-2"></i>Material Machine</div>
+                    <div class="col-1 fw-bolder"><span id="countMaterial">-</span> / <span id="totalMaterial">-</span></div>
+                    <div class="col-2"><i class="fa fa-calculator me-2"></i>Material All</div>
+                    <div class="col-1 fw-bolder"><span id="countMaterialAll">-</span> / <span id="totalMaterialAll">-</span></div>
+                </div>
+                <hr class="m-0">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -102,90 +110,12 @@
                             <th class="align-middle small-text">Stok Awal</th>
                             <th class="align-middle small-text"><i class="fa fa-arrow-down text-success me-2"></i>In</th>
                             <th class="align-middle small-text"><i class="fa fa-arrow-up text-danger me-2"></i>Out</th>
-                            <th class="align-middle small-text">Volume<br>Penggunaan</th>
+                            <th class="align-middle small-text">Pemakaian<br>Kotor</th>
                             <th class="align-middle small-text">Stok Akhir</th>
                             <th class="align-middle small-text"></th>
                         </tr>
                     </thead>
                     <tbody id="listMaterial">
-                        <tr class="fw-bolder bg-light">
-                            <td class="align-middle small-text text-center">1</td>
-                            <td class="align-middle small-text text-center">
-                                <i class="fa fa-star text-primary"></i>
-                            </td>
-                            <td class="align-middle small-text">
-                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                Etiket Armour Bold 20 SKM (Barcode Baru)
-                            </td>
-                            <td class="align-middle small-text text-center">Lembar</td>
-                            <td class="align-middle small-text text-center">130</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-self-center small-text text-center">
-
-                            </td>
-                            <td class="align-middle small-text text-center"></td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
-                        </tr>
-                        <tr class="fw-bolder bg-light-success">
-                            <td class="align-middle small-text text-center">1</td>
-                            <td class="align-middle small-text text-center">
-                                <i class="fa fa-star text-primary"></i>
-                            </td>
-                            <td class="align-middle small-text">
-                                <p class="m-0 super-small-text fw-light">IM.04-102</p>
-                                Isolasi Daimaru ( Uk. 48mm x 90y ) - 45 Micron
-                            </td>
-                            <td class="align-middle small-text text-center">Roll</td>
-                            <td class="align-middle small-text text-center">130</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-middle small-text text-center">2</td>
-                            <td class="align-self-center small text-center">
-                                <span class="badge bg-dark-grey">8</span>
-                            </td>
-                            <td class="align-middle small-text text-center">120</td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
-                        </tr>
-                        <tr class="bg-light-success">
-                            <td class="align-middle small-text text-center">1</td>
-                            <td class="align-middle small-text text-center">
-                                <i class="fa fa-star-o text-grey"></i>
-                            </td>
-                            <td class="align-middle small-text">
-                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                Etiket Armour Bold 20 SKM (Barcode Baru)
-                            </td>
-                            <td class="align-middle small-text text-center">Lembar</td>
-                            <td class="align-middle small-text text-center">130</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-middle small-text text-center">0</td>
-                            <td class="align-self-center small text-center">
-                                <span class="badge bg-dark-grey">8</span>
-                            </td>
-                            <td class="align-middle small-text text-center">120</td>
-                            <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
-
-                        </tr>
-                        <?php for ($i = 0; $i < 5; $i++) { ?>
-                            <tr>
-                                <td class="align-middle small-text text-center">1</td>
-                                <td class="align-middle small-text text-center">
-                                    <i class="fa fa-star-o text-grey"></i>
-                                </td>
-                                <td class="align-middle small-text">
-                                    <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                    Etiket Armour Bold 20 SKM (Barcode Baru)
-                                </td>
-                                <td class="align-middle small-text text-center">Lembar</td>
-                                <td class="align-middle small-text text-center">130</td>
-                                <td class="align-middle small-text text-center">0</td>
-                                <td class="align-middle small-text text-center">0</td>
-                                <td class="align-self-center small-text text-center"></td>
-                                <td class="align-middle small-text text-center">-</td>
-                                <td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO()"><i class="fa fa-pencil"></i></button></td>
-
-                            </tr>
-                        <?php } ?>
                     </tbody>
                 </table>
 
@@ -341,7 +271,7 @@
 
         // add
         if (material.fraction_formula) {
-            html_body += '<div class="card shadow-none mb-2 pointer" style="border: 2px dashed #d6d6d6;" onclick="listAdditional(1,' + id + ',' + work_plan_product_id + ')">'
+            html_body += '<div class="card shadow-none mb-2 pointer" style="border: 2px dashed #d6d6d6;" onclick="listAdditional(1,' + id + ',' + "'" + work_plan_product_id + "'" + ')">'
             html_body += '<div class="card-body text-center">'
             html_body += '<div class="row">'
             html_body += '<div class="col-12 align-self-center">'
@@ -355,9 +285,11 @@
         // add
 
         html_body += '</div>'
-        html_body += '<div class="col-12 text-end">'
-        html_body += '<p class="m-0 small-text text-primary pointer">Batalkan Input Stok Akhir Material ini ?</p>'
-        html_body += '</div>'
+        if (material.used_material) {
+            html_body += '<div class="col-12 text-end">'
+            html_body += '<p class="m-0 small-text text-primary pointer" onclick="removeAllMaterial(' + "'" + material.used_material.id + "'" + ',' + "'" + material.item.name + "'" + ')">Batalkan Input Stok Akhir Material ini ?</p>'
+            html_body += '</div>'
+        }
         html_body += '</div>'
         $('#modalBody').html(html_body)
         var html_footer = '';
@@ -386,15 +318,26 @@
         html_footer += '</div>'
         $('#modalFooter').html(html_footer)
         $('.nominal').number(true, 2);
-        listAdditional(0, id, work_plan_product_id)
+        listAdditional(0, id, work_plan_product_id, material.used_material)
+        if (material.used_material_remaining) {
+            // jika ada data used_material nya
+            material.used_material_remaining.forEach(e => {
+                listAdditional(1, id, work_plan_product_id, e)
+            });
+        }
     }
 
-
-    function listAdditional(jenis, id, work_plan_product_id) {
+    function listAdditional(jenis, id, work_plan_product_id, used_material = null) {
+        // console.log(used_material)
+        var idUsed = ''
+        if (used_material) {
+            idUsed = used_material.id
+        }
         var material = getDataMaterial(id, work_plan_product_id)
         var nameInput = []
         var unitInput = []
         if (jenis) {
+            // jika oecahan
             var getFormula = parseMathExpression(material.fraction_formula.formula)
             nameInput = parseString(material.fraction_formula.formula)
             for (let i = 0; i < nameInput.length; i++) {
@@ -412,15 +355,18 @@
             text += '</div>'
             text += '</div>'
         } else {
+            // jika utuh
             nameInput.push('')
             unitInput.push(material.unit.name)
             var text = '<p class="m-0 small-text"><b>' + material.unit.name + '</b></p>'
         }
         var html = ''
         // card
-        html += '<div class="card shadow-none mb-2 cardStokAkhir" id="cardMaterial' + countCard + +'' + work_plan_product_id + '' + id + '" data-variable="' + countCard + '' + work_plan_product_id + '' + id + '" data-id="' + id + '" data-work_plan_product_id="' + work_plan_product_id + '">'
+        var variableRows = '' + countCard + '' + work_plan_product_id + '' + id + ''
+        html += '<div class="card shadow-none mb-2 cardStokAkhir" id="cardMaterial' + variableRows + '" data-variable="' + variableRows + '" data-id="' + id + '" data-work_plan_product_id="' + work_plan_product_id + '" data-id_used="' + idUsed + '">'
         if (jenis) {
-            html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="removeMaterial(' + countCard + '' + ')"><i class="small-text fa fa-times text-light"></i></span>'
+            // jika pecahan
+            html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="removeMaterial(' + "'" + variableRows + "'," + "'" + idUsed + "'" + ')"><i class="small-text fa fa-times text-light"></i></span>'
         }
         html += '<div class="card-body">'
 
@@ -433,12 +379,22 @@
         html += '<div class="col-9 align-self-center border-start">'
         // form
         for (let i = 0; i < nameInput.length; i++) {
+            var value = ''
+            var idUsed = ''
+            if (used_material) {
+                idUsed = used_material.id
+                if (used_material.qty_remaining) {
+                    value = used_material.qty_remaining
+                } else {
+                    eval(`var value = used_material.${nameInput[i]}`)
+                }
+            }
             html += '<div class="row g-3 align-items-center justify-content-center small-text w-100">'
             html += '<div class="col-3">'
-            html += '<label for="input' + countCard + '' + work_plan_product_id + '' + id + '" class="col-form-label">' + changeTextInput(nameInput[i]) + '</label>'
+            html += '<label for="input' + variableRows + '" class="col-form-label">' + changeTextInput(nameInput[i]) + '</label>'
             html += '</div>'
             html += '<div class="col-4">'
-            html += '<input type="text" id="input' + i + countCard + work_plan_product_id + '' + id + '" class="form-control nominal input' + countCard + '' + work_plan_product_id + '' + id + '" aria-describedby="passwordHelpInline" autocomplete="off" oninput="createFormula(event,' + "'" + nameInput[i] + "'" + ',' + i + ',' + countCard + ',' + work_plan_product_id + ',' + id + ')" data-variable="' + nameInput[i] + '" data-jenis="' + jenis + '">'
+            html += '<input type="text" id="input' + i + countCard + work_plan_product_id + '' + id + '" class="form-control nominal input' + variableRows + '" aria-describedby="passwordHelpInline" autocomplete="off" oninput="createFormula(event,' + "'" + nameInput[i] + "'" + ',' + i + ',' + countCard + ',' + "'" + work_plan_product_id + "'" + ',' + id + ')" data-variable="' + nameInput[i] + '" data-jenis="' + jenis + '" data-id="' + "'" + idUsed + "'" + '" value="' + value + '">'
             html += '</div>'
             html += '<div class="col-3">'
             html += '<span id="passwordHelpInline" class="form-text">' + unitInput[i] + '</span>'
@@ -446,6 +402,7 @@
             html += '</div>'
         }
         if (jenis) {
+            // jika pecahan
             html += '<div class="row pt-2 align-items-center justify-content-center small-text w-100">'
             html += '<div class="col-7 text-end">'
             html += '</div>'
@@ -458,7 +415,7 @@
             html += '<label class="col-form-label">Sisa ' + material.unit.name + '</label>'
             html += '</div>'
             html += '<div class="col-4 text-end">'
-            html += '<b id="panjangSisa' + countCard + '' + work_plan_product_id + '' + id + '">0</b>'
+            html += '<b id="panjangSisa' + variableRows + '">0</b>'
             html += '</div>'
             html += '<div class="col-3">'
             html += '<span class="form-text">' + material.unit.name + '</span>'
@@ -468,7 +425,7 @@
         // form
         html += '</div>'
         html += '<div class="col-1 align-self-center pointer text-end">'
-        html += '<span class="fa fa-check text-grey fa-2x" id="checkMaterial' + countCard + +'' + work_plan_product_id + '' + id + '"></span>'
+        html += '<span class="fa fa-check text-grey fa-2x" id="checkMaterial' + countCard + '' + work_plan_product_id + '' + id + '"></span>'
         html += '</div>'
         html += '</div>'
 
@@ -485,17 +442,25 @@
                         kontenPopover += '<div class="col">'
                         kontenPopover += '<b>' + key.toLocaleUpperCase() + '</b>'
                         kontenPopover += '</div>'
-                        kontenPopover += '<div class="col text-end">'
-                        kontenPopover += '<b>' + material.unit_fraction[key] + '</b>'
-                        kontenPopover += '</div>'
-                        kontenPopover += '<div class="col-auto">'
-                        kontenPopover += '<span class="form-text">cm</span>'
-                        kontenPopover += '</div>'
-                        kontenPopover += '</div>'
+                        if (material.unit_fraction[key]) {
+                            kontenPopover += '<div class="col text-end">'
+                            kontenPopover += '<b>' + material.unit_fraction[key] + '</b>'
+                            kontenPopover += '</div>'
+                            kontenPopover += '<div class="col-auto">'
+                            kontenPopover += '<span class="form-text">cm</span>'
+                            kontenPopover += '</div>'
+                            kontenPopover += '</div>'
+                        } else {
+                            kontenPopover += '<div class="col text-end">'
+                            kontenPopover += '<b class="m-0 text-danger" style="font-size:5px !important;">*) Standard Ukuran Material belum ditentukan</b>'
+                            kontenPopover += '</div>'
+                            kontenPopover += '</div>'
+
+                        }
                     }
                 }
             });
-            var popoverTriggerEl = document.querySelector('[data-bs-toggle="popover"]');
+            var popoverTriggerEl = document.querySelector('#hoverQuestion' + countCard);
             var popover = new bootstrap.Popover(popoverTriggerEl, {
                 placement: 'bottom', // Menentukan posisi popover
                 trigger: 'hover click', // Menentukan trigger popover (dalam contoh ini, hover)
@@ -514,11 +479,44 @@
         }
         // card
         countCard++
+        akumulasiFormula()
+    }
+    var removedId = {
+        usedMaterial: [],
+        usedMaterialRemaining: []
     }
 
-    function removeMaterial(id) {
+    function removeMaterial(id, id_used) {
+        if (id_used) {
+            removedId.usedMaterialRemaining.push(id_used)
+        }
         $('#cardMaterial' + id).remove()
         akumulasiFormula()
+    }
+
+    function removeAllMaterial(id, name) {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin membatalkan Input Stok Akhir untuk Material ' + name + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var data = {
+                    deletedId: {
+                        usedMaterial: []
+                    }
+                }
+                data.deletedId.usedMaterial.push(id)
+                var type = 'POST'
+                var button = '#btnSimpan'
+                var url = '<?php echo api_produksi('setUsedMaterial'); ?>'
+                kelolaData(data, type, url, button)
+            }
+        })
     }
 
     function menuMaterial() {
@@ -530,7 +528,7 @@
             if (a == 0) {
                 id = e.work_plan_product_id
             }
-            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + e.work_plan_product_id + ')" id="colStatusLine' + e.work_plan_product_id + '"><b>' + e.product.alias + '</b> Batch ' + e.priority + '<span class="ms-2 fa fa-check text-grey"></span></div>'
+            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + e.work_plan_product_id + "'" + ')" id="colStatusLine' + e.work_plan_product_id + '"><b>' + e.product.alias + '</b> Batch ' + e.priority + '<span class="ms-2 fa fa-check text-grey"></span></div>'
             a++
         })
         html += '</div>'
@@ -539,15 +537,33 @@
     }
 
     function statusLine(status) {
-        // if (status == 'all') {
-        //     var data = data_material_filtered
-        // } else {
-        //     var data = data_material_filtered.filter((v, k) => {
-        //         if (v.status == status) return true
-        //     })
-        // }
-        listMaterial(status)
-        coloringStatusLine(status)
+        var data = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.work_plan_product_id == status) return true
+        })
+        if (data.time_start) {
+            listMaterial(status)
+            coloringStatusLine(status)
+            timeProduction(status)
+        } else {
+            // var html = ''
+            // html += '<tr>'
+            // html += '<td class="text-center p-5" colspan="9"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
+            // html += '</tr>'
+            // $('#listMaterial').html(html)
+            // $('#timeProduction').html('-')
+            Swal.fire({
+                icon: 'error',
+                title: 'Not Available',
+                text: 'Jam Produksi belum tersedia'
+            });
+        }
+    }
+
+    function timeProduction(status) {
+        var data = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.work_plan_product_id == status) return true
+        })
+        $('#timeProduction').html(convertTimeFormat2(data.time_start) + ' - ' + convertTimeFormat2(data.time_end))
     }
 
     function coloringStatusLine(status) {
@@ -572,19 +588,38 @@
             if (v.work_plan_product_id == status) return true
         })
         var no = 1
+        var count = 0
         // MATERIAL
+        $('#totalMaterial').html(data.material.length)
+        $('#totalMaterialAll').html(data.material.length + data.material_other.length)
         $.each(data.material, function(key, value) {
             var tr_class = 'fw-bolder bg-light'
+            if (value.gross_usage > 0) {
+                tr_class = 'fw-bolder bg-light-success'
+                count++
+            }
+            if (value.stok_akhir < 0) {
+                tr_class = 'fw-bolder bg-light-danger'
+            }
             html += formListMaterial(no, status, value, tr_class, '<i class="fa fa-star text-primary"></i>')
             no++
         });
+        $('#countMaterial').html(count)
 
         // MATERIAL OTHER
         $.each(data.material_other, function(key, value) {
             var tr_class = ''
+            if (value.gross_usage > 0) {
+                tr_class = 'bg-light-success'
+                count++
+            }
+            if (value.stok_akhir < 0) {
+                tr_class = 'bg-light-danger'
+            }
             html += formListMaterial(no, status, value, tr_class, '<i class="fa fa-star-o text-grey"></i>')
             no++
         });
+        $('#countMaterialAll').html(count)
         $('#listMaterial').html(html)
     }
 
@@ -599,15 +634,17 @@
         html += '<p class="m-0 super-small-text fw-light">' + data.item.code + '</p>'
         html += '<span class="text_search" data-id="' + no + '">' + data.item.name + '</span>'
         html += '</td>'
-        html += '<td class="align-middle small-text text-center">' + data.unit.name + '</td>'
+        html += '<td class="align-middle small-text text-center text-nowrap">' + data.unit.name + '</td>'
         html += '<td class="align-middle small-text text-center">' + number_format(data.stok_awal) + '</td>'
         html += '<td class="align-middle small-text text-center">' + number_format(data.in) + '</td>'
         html += '<td class="align-middle small-text text-center">' + number_format(data.out) + '</td>'
-        html += '<td class="align-self-center small-text text-center">'
-        html += ''
+        html += '<td class="align-middle small text-center">'
+        if (data.gross_usage) {
+            html += '<span class="badge bg-success">' + number_format(roundToTwo(data.gross_usage)) + '</span>'
+        }
         html += '</td>'
-        html += '<td class="align-middle small-text text-center"></td>'
-        html += '<td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO(' + data.item.id + ',' + work_plan_product_id + ')"><i class="fa fa-pencil"></i></button></td>'
+        html += '<td class="align-middle small-text text-center">' + number_format(roundToTwo(data.stok_akhir)) + '</td>'
+        html += '<td class="align-middle small-text text-center"><button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="inputSO(' + data.item.id + ',' + "'" + work_plan_product_id + "'" + ')"><i class="fa fa-pencil"></i></button></td>'
         html += '</tr>'
         return html
     }
@@ -656,42 +693,45 @@
         var jenis = $('.input' + countCard + work_plan_product_id + id).map(function() {
             return $(this).data('jenis');
         }).get();
+        // var idInput = $('.input' + countCard + work_plan_product_id + id).map(function() {
+        //     return $(this).data('id');
+        // }).get();
         // input data
-        if (jenis[0]) {
-            var disabled = 0
-            var getFormula = removeSymbols(material.fraction_formula.formula)
-            for (let i = 0; i < variable.length; i++) {
-                eval(`var ${variable[i]} = ${valueInput[i]}`)
-                if (!valueInput[i]) {
-                    disabled = 1
-                }
-            }
-            // get data
-            for (const key in material.unit_fraction) {
-                if (material.unit_fraction[key] !== null) {
-                    eval(`var ${key} = ${material.unit_fraction[key]}`);
-                }
-            }
-            var total = eval(getFormula)
-            $('#panjangSisa' + countCard + '' + work_plan_product_id + '' + id).html(roundToTwo(total))
-            if (!disabled) {
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).removeClass('text-grey')
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).addClass('text-success')
-            } else {
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).addClass('text-grey')
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).removeClass('text-success')
+        // if (jenis[0]) {
+        //     var disabled = 0
+        //     var getFormula = removeSymbols(material.fraction_formula.formula)
+        //     for (let i = 0; i < variable.length; i++) {
+        //         eval(`var ${variable[i]} = ${valueInput[i]}`)
+        //         if (!valueInput[i]) {
+        //             disabled = 1
+        //         }
+        //     }
+        //     // get data
+        //     for (const key in material.unit_fraction) {
+        //         if (material.unit_fraction[key] !== null) {
+        //             eval(`var ${key} = ${material.unit_fraction[key]}`);
+        //         }
+        //     }
+        //     var total = eval(getFormula)
+        //     $('#panjangSisa' + countCard + '' + work_plan_product_id + '' + id).html(roundToTwo(total))
+        //     if (!disabled) {
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).removeClass('text-grey')
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).addClass('text-success')
+        //     } else {
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).addClass('text-grey')
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).removeClass('text-success')
+        //     }
+        // } else {
+        //     console.log(valueInput[0])
+        //     if (valueInput[0]) {
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).removeClass('text-grey')
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).addClass('text-success')
+        //     } else {
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).addClass('text-grey')
+        //         $('#checkMaterial' + countCard + '' + work_plan_product_id + '' + id).removeClass('text-success')
 
-            }
-        } else {
-            if (valueInput[0]) {
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).removeClass('text-grey')
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).addClass('text-success')
-            } else {
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).addClass('text-grey')
-                $('#checkMaterial' + countCard + +'' + work_plan_product_id + '' + id).removeClass('text-success')
-
-            }
-        }
+        //     }
+        // }
         akumulasiFormula()
     }
 
@@ -714,6 +754,9 @@
         var work_plan_product_id = $('.cardStokAkhir').map(function() {
             return $(this).data('work_plan_product_id');
         }).get();
+        var id_used = $('.cardStokAkhir').map(function() {
+            return $(this).data('id_used');
+        }).get();
         for (let i = 0; i < variableCard.length; i++) {
             var material = getDataMaterial(id[i], work_plan_product_id[i])
             var valueInput = $('.input' + variableCard[i]).map(function() {
@@ -730,8 +773,23 @@
             if (jenis[0]) {
                 var getFormula = removeSymbols(material.fraction_formula.formula)
                 // input data
+                var unfilled = 0
                 for (let j = 0; j < variable.length; j++) {
+                    if (!valueInput[j]) {
+                        valueInput[j] = 0
+                    }
                     eval(`var ${variable[j]} = ${valueInput[j]}`)
+                    if (!valueInput[j]) {
+                        unfilled = 1
+                    }
+                }
+                if (!unfilled) {
+                    // console.log(variable[j])
+                    $('#checkMaterial' + variableCard[i]).removeClass('text-grey')
+                    $('#checkMaterial' + variableCard[i]).addClass('text-success')
+                } else {
+                    $('#checkMaterial' + variableCard[i]).addClass('text-grey')
+                    $('#checkMaterial' + variableCard[i]).removeClass('text-success')
                 }
                 // get data
                 for (const key in material.unit_fraction) {
@@ -739,7 +797,9 @@
                         eval(`var ${key} = ${material.unit_fraction[key]}`);
                     }
                 }
-                total = parseFloat(eval(getFormula))
+                var totalPerhitungan = parseFloat(eval(getFormula))
+                $('#panjangSisa' + variableCard[i]).html(roundToTwo(totalPerhitungan))
+                total = totalPerhitungan
                 qtyPecahan.push(total)
                 qtyPecahanRounded.push(Math.ceil(total))
             } else {
@@ -750,6 +810,13 @@
                 qtyUtuh = total
                 qtyPecahan.push(0)
                 qtyPecahanRounded.push(0)
+                if (valueInput[0]) {
+                    $('#checkMaterial' + variableCard[0]).removeClass('text-grey')
+                    $('#checkMaterial' + variableCard[0]).addClass('text-success')
+                } else {
+                    $('#checkMaterial' + variableCard[0]).addClass('text-grey')
+                    $('#checkMaterial' + variableCard[0]).removeClass('text-success')
+                }
             }
             grandTotal = parseFloat(grandTotal) + parseFloat(total)
         }
@@ -782,19 +849,26 @@
 
     function arrangeUsedMaterial(material_id, work_plan_product_id, material, qtyUtuh, qtyPecahan, qtyPecahanRounded) {
         dataInsert.usedMaterial = []
-        var id = new Date().getTime()
         var data = dataEntry.materialStock.find((v, k) => {
             if (v.work_plan_product_id == work_plan_product_id) return true
         })
         var variableCard = $('.cardStokAkhir').map(function() {
             return $(this).data('variable');
         }).get();
-        // console.log(qtyPecahan[0])
+        var id_used = $('.cardStokAkhir').map(function() {
+            return $(this).data('id_used');
+        }).get();
+        if (id_used[0]) {
+            var id = id_used[0]
+        } else {
+            var id = new Date().getTime()
+        }
         var indexPecahan = 0
         for (let i = 0; i < variableCard.length; i++) {
             var stokInput = $('.input' + variableCard[i]).map(function() {
                 return $(this).val();
             }).get();
+            // console.log(stokInput)
             var variableInput = $('.input' + variableCard[i]).map(function() {
                 return $(this).data('variable');
             }).get();
@@ -804,13 +878,21 @@
             if (jenisInput[0]) {
                 // jika pecahan
                 dataInsert.usedMaterialRemaining.push({
-                    id: id + '' + i,
+                    // id: id + '' + i,
                     used_material_id: id,
                     datetime: dataEntry.workPlanMachine.date + ' ' + data.time_end,
                     item_id_material: material_id,
                     qty: qtyPecahan[i],
                 })
+                if (id_used[i]) {
+                    dataInsert.usedMaterialRemaining[indexPecahan].id = id_used[i]
+                } else {
+                    dataInsert.usedMaterialRemaining[indexPecahan].id = id + '' + i
+                }
                 for (let j = 0; j < variableInput.length; j++) {
+                    if (!stokInput[j]) {
+                        stokInput[j] = 0
+                    }
                     eval(`dataInsert.usedMaterialRemaining[${indexPecahan}].${variableInput[j]} = ${stokInput[j]}`)
                 }
                 for (const key in material.unit_fraction) {
@@ -848,6 +930,7 @@
             qty_remaining_fraction: qty_remaining_fraction,
             note: '',
         })
+        dataInsert.deletedId = removedId
         console.log(dataInsert)
     }
 

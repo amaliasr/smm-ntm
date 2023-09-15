@@ -565,13 +565,6 @@
     .card-operan:hover {
         background-color: #9AC5F4;
         cursor: pointer;
-        color: white !important;
-    }
-
-    .btn-list-planning:active,
-    .clicked {
-        background-color: #27374D;
-        color: white;
     }
 
     .card-operan:active,
@@ -1206,11 +1199,11 @@
                         <div class="col-auto ps-1 pe-1">
                             <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
                                 <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-                                <label class="btn btn-outline-grey" for="btnradio1">VERPACK BANDROL<span class="badge bg-light text-dark ms-2">18</span></label>
+                                <label class="btn btn-outline-grey" style="padding-top:6px;padding-bottom:6px;" for="btnradio1">VERPACK BANDROL<span class="badge bg-light text-dark ms-2">18</span></label>
                                 <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-                                <label class="btn btn-outline-grey" for="btnradio2">VERPACK PLASTIK PACK<span class="badge bg-dark-grey ms-2">18</span></label>
+                                <label class="btn btn-outline-grey" style="padding-top:6px;padding-bottom:6px;" for="btnradio2">VERPACK PLASTIK PACK<span class="badge bg-dark-grey ms-2">18</span></label>
                                 <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
-                                <label class="btn btn-outline-grey" for="btnradio3">VERPACK SLOP</label>
+                                <label class="btn btn-outline-grey" style="padding-top:6px;padding-bottom:6px;" for="btnradio3">VERPACK SLOP</label>
                             </div>
                         </div>
                         <!-- <div class="col-auto">
@@ -1275,8 +1268,8 @@
                                                     <?php for ($k = 0; $k < 3; $k++) { ?>
                                                         <td class="align-middle super-small-text text-center jumlah-bom" id="bom<?= $i ?><?= $j ?><?= $k ?>" style="padding: 10px !important;" data-bs-toggle="popover" title='<div class="d-flex justify-content-between align-items-center"><p class="m-0 small-text">ABLF - FOIL</p><span class="pointer btn-close" type="button" id="btnClose<?= $i ?><?= $j ?><?= $k ?>" data-bs-dismiss="popover" aria-label="Close" on></span></div>'>
                                                             <div class="d-flex justify-content-between">
-                                                                <p class="m-0 small-text" id="operanHasil<?= $i ?><?= $j ?><?= $k ?>">X</p>
-                                                                <p class="m-0 small-text" id="variableHasil<?= $i ?><?= $j ?><?= $k ?>">2000</p>
+                                                                <p class="m-0 small-text" id="operanHasil<?= $i ?><?= $j ?><?= $k ?>"></p>
+                                                                <p class="m-0 small-text" id="variableHasil<?= $i ?><?= $j ?><?= $k ?>"></p>
                                                             </div>
                                                             <div hidden>
                                                                 <div data-name="popover-content" id="popover_content<?= $i ?><?= $j ?><?= $k ?>">
@@ -1367,7 +1360,7 @@
                     kontenPopover += '</div>'
 
                     kontenPopover += '<div class="col-8 ps-1 mb-1">'
-                    kontenPopover += '<input class="form-control form-control-sm nominal" type="text" oninput="setToCell(' + "'" + variable + "'" + ')">'
+                    kontenPopover += '<input class="form-control form-control-sm nominal" type="text" oninput="setToCell(event,' + "'" + variable + "'" + ')">'
                     kontenPopover += '</div>'
 
                     kontenPopover += '<div class="col-4 align-self-center">'
@@ -1377,30 +1370,30 @@
                     kontenPopover += '<div class="col-8">'
                     kontenPopover += '<div class="row align-items-center justify-content-center super-small-text w-100">'
                     kontenPopover += '<div class="col-3 p-1">'
-                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan" onclick="chooseOperan(' + "'" + variable + "'" + ',' + "'+'" + ')">'
+                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan' + variable + '" onclick="chooseOperan(this,' + "'" + variable + "'" + ',' + "'+'" + ')">'
                     kontenPopover += '<div class="card-body p-1 text-center">'
-                    kontenPopover += '<span class="h3 m-0">+</span>'
+                    kontenPopover += '<span class="h3 m-0 textOperan' + variable + '" id="textOperan' + "'" + variable + "'" + '">+</span>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '<div class="col-3 p-1">'
-                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan" onclick="chooseOperan(' + "'" + variable + "'" + ',' + "'−'" + ')">'
+                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan' + variable + '" onclick="chooseOperan(this,' + "'" + variable + "'" + ',' + "'−'" + ')">'
                     kontenPopover += '<div class="card-body p-1 text-center">'
-                    kontenPopover += '<span class="h3 m-0">−</span>'
+                    kontenPopover += '<span class="h3 m-0 textOperan' + variable + '" id="textOperan' + "'" + variable + "'" + '">−</span>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '<div class="col-3 p-1">'
-                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan" onclick="chooseOperan(' + "'" + variable + "'" + ',' + "'×'" + ')">'
+                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan' + variable + '" onclick="chooseOperan(this,' + "'" + variable + "'" + ',' + "'×'" + ')">'
                     kontenPopover += '<div class="card-body p-1 text-center">'
-                    kontenPopover += '<span class="h3 m-0">×</span>'
+                    kontenPopover += '<span class="h3 m-0 textOperan' + variable + '" id="textOperan' + "'" + variable + "'" + '">×</span>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '<div class="col-3 p-1">'
-                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan" onclick="chooseOperan(' + "'" + variable + "'" + ',' + "'÷'" + ')">'
+                    kontenPopover += '<div class="card shadow-none w-100 card-operan operan' + variable + '" onclick="chooseOperan(this,' + "'" + variable + "'" + ',' + "'÷'" + ')">'
                     kontenPopover += '<div class="card-body p-1 text-center">'
-                    kontenPopover += '<span class="h3 m-0">÷</span>'
+                    kontenPopover += '<span class="h3 m-0 textOperan' + variable + '" id="textOperan' + "'" + variable + "'" + '">÷</span>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
                     kontenPopover += '</div>'
@@ -1468,13 +1461,16 @@
         })
     }
 
-    function chooseOperan(variable, operan) {
-        $('.operan').removeClass('clicked')
-        $('.operan').addClass('clicked')
-        console.log(variable, operan)
+    function chooseOperan(example, variable, operan) {
+        $('.operan' + variable).removeClass('clicked')
+        $('.textOperan' + variable).removeClass('text-white')
+        $(example).addClass('clicked')
+        $(example).find('.h3').addClass('text-white');
+        $('#operanHasil' + variable).html(operan)
     }
 
-    function setToCell(variable) {
-
+    function setToCell(event, variable) {
+        var value = event.target.value
+        $('#variableHasil' + variable).html(value)
     }
 </script>
