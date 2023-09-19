@@ -868,6 +868,22 @@
     function empty(location, text) {
         $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><p class="small"><i>' + text + '</i></p><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player></div></div>')
     }
+
+    function notFoundWithButton(location, link, textBtn, textWarning) {
+        var html = ""
+        html += '<div class="card w-100 shadow-none mb-2 p-0" style="border:0px;">'
+        html += '<div class="card-body p-2">'
+        html += '<div class="row d-flex align-items-center">'
+        html += '<div class="col text-center p-5">'
+        html += '<i class="small">' + textWarning + '</i>'
+        html += '<br>'
+        html += '<button class="btn btn-sm mt-2 btn-success" onclick="linkToLinkLive(' + "'" + link + "'" + ')">' + textBtn + '</button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $(location).html(html)
+    }
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
         $(this).css('z-index', zIndex);
@@ -975,8 +991,13 @@
             })
             $('#listPlanning').html(html)
         } else {
-            notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
+            notFoundWithButton('#listPlanning', '<?= base_url() ?>production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
         }
+    }
+
+    function linkToLinkLive(link) {
+        var url = link
+        location.replace(url)
     }
 
     function loadDataPlanning(id) {

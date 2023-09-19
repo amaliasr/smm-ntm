@@ -851,7 +851,7 @@
                 switchCollapseExpired(0)
             }
         } else {
-            notFoundWithButton('#listPlanning', '<?= base_url() ?>/production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
+            notFoundWithButton('#listPlanning', '<?= base_url() ?>production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
         }
     }
 

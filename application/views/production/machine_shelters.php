@@ -1066,9 +1066,9 @@
             <div class="row p-3">
                 <div class="col align-self-center p-0">
                     <h3 class="text-dark-grey m-0">
-                        <b class="small">Machine Storage<br>Management</b>
+                        <b class="small">Machine Shelters<br>Management</b>
                     </h3>
-                    <p class="super-small-text m-0 text-light-dark-grey">Pengelolaan Penyimpanan Mesin</p>
+                    <p class="super-small-text m-0 text-light-dark-grey">Pengelolaan Penampungan Sementara Mesin</p>
                 </div>
 
                 <div class="col-12 p-0 pt-4 pb-2" id="listGudang">
@@ -1923,15 +1923,18 @@
         html_body += '<p class="m-0 small-text"><b>Waktu Persetujuan</b></p>'
         html_body += '</div>'
         html_body += '<div class="col-9">'
-
-        html_body += '<div class="row">'
-        html_body += '<div class="col">'
-        html_body += '<input class="form-control form-control-sm datepicker" type="text" id="dateTransaction" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatDate(data.time) + '">'
-        html_body += '</div>'
-        html_body += '<div class="col">'
-        html_body += '<input type="time" id="timeTransaction" class="form-control form-control-sm" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatTime(data.time) + '" required="required">'
-        html_body += '</div>'
-        html_body += '</div>'
+        if (data.status == 'WAITING') {
+            html_body += '<div class="row">'
+            html_body += '<div class="col">'
+            html_body += '<input class="form-control form-control-sm datepicker" type="text" id="dateTransaction" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatDate(data.time) + '">'
+            html_body += '</div>'
+            html_body += '<div class="col">'
+            html_body += '<input type="time" id="timeTransaction" class="form-control form-control-sm" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatTime(data.time) + '" required="required">'
+            html_body += '</div>'
+            html_body += '</div>'
+        } else {
+            html_body += '<p class="m-0 small-text">' + formatDate(data.time) + ' ' + formatTime(data.time) + '</p>'
+        }
 
         html_body += '</div>'
         html_body += '<div class="col-12">'

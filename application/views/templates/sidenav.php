@@ -118,7 +118,7 @@
                             <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                         <?php } ?>
                         <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
-                        <a class="nav-link" href="<?= base_url(); ?>production/machineStorage">Machine Storage</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/machineShelters">Machine Shelters</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
@@ -210,6 +210,9 @@
                         <?php } ?>
                         <?php if (if_report_machine()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
+                        <?php } ?>
+                        <?php if (if_report_production()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProduction">Report Production</a>
                         <?php } ?>
                     </nav>
                 </div>

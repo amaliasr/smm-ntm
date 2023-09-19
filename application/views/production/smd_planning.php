@@ -841,6 +841,11 @@
         $('#modalFooter2').addClass('d-none');
     }
 
+    function createWorkPlanWeekly(id) {
+        var url = '<?= base_url() ?>production/workPlan/' + id
+        window.open(url, '_blank')
+    }
+
     function linkToDetail(id) {
         var url = '<?= base_url() ?>production/detailPlanning/smd/' + id
         window.open(url, '_blank')

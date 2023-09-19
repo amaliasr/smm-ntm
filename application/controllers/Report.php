@@ -223,4 +223,9 @@ class Report extends CI_Controller
         $data['title'] = 'Report Machine';
         $this->template->views('report/reportMachine', $data);
     }
+    public function reportProduction()
+    {
+        $data['title'] = 'Report Production';
+        $this->template->views('report/reportProduction', $data);
+    }
 }

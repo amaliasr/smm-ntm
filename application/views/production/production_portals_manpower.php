@@ -689,7 +689,7 @@
                                     <p class="m-0 small-text" id="dateRange">-</p>
                                 </div>
                                 <div class="col text-end">
-
+                                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataPlanning()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                                     <button type="button" class="btn btn-primary btn-sm" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i> Filter</button>
                                 </div>
                                 <div class="col-12 pt-3">

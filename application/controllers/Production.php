@@ -201,9 +201,23 @@ class Production extends CI_Controller
         // $this->template->views('errors/notfound', $data);
         $this->template->views('production/template_production_entry', $data);
     }
-    public function machineStorage()
+    public function machineShelters()
     {
-        $data['title'] = 'Machine Storage';
-        $this->template->views('production/machine_storage', $data);
+        $data['title'] = 'Machine Shelters';
+        $this->template->views('production/machine_shelters', $data);
+    }
+    public function cetakWorkPlan()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['plan_id'] = $explodedParams[1];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('loadPageWorkPlanManage?productionPlanId=' . $data['plan_id'])))->data;
+        $html = $this->load->view('production/cetak_work_plan', $data, true);
+        $this->pdf->setPaper('A4', 'landscape');
+        $this->pdf->filename = "WORK PLAN " . $data['datas']->productionPlan->code . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream("WORK PLAN " . $data['datas']->productionPlan->code, array("Attachment" => 0));
     }
 }

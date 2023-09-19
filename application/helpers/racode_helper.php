@@ -286,3 +286,11 @@ function if_report_machine()
         return false;
     }
 }
+function if_report_production()
+{
+    if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
