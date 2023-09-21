@@ -206,6 +206,11 @@ class Production extends CI_Controller
         $data['title'] = 'Machine Shelters';
         $this->template->views('production/machine_shelters', $data);
     }
+    public function stockOpnameProduction()
+    {
+        $data['title'] = 'Stock Opname Production';
+        $this->template->views('production/stock_opname_production', $data);
+    }
     public function cetakWorkPlan()
     {
         $params = $this->input->get('params');

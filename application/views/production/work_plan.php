@@ -1981,18 +1981,22 @@
                 key: 'date',
                 value: dateList[i]
             })
-            html += '<th class="small-text"><div class="row"><div class="col-8 align-self-center p-0 text-end">' + formatInternationalDate(dateList[i]) + '</div><div class="col-4 align-self-center"><div class="dropdown"><span class="fa fa-ellipsis-h dropdown-date" role="button" id="dropdownMenuButtonDate" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;"></span>'
-            html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonDate">'
-            html += '<a class="dropdown-item" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ')"><i class="fa fa-file-o me-2"></i> Setting Man Power</a>'
-            html += '<a class="dropdown-item" onclick="formAddNotes(event,' + "'date'" + ",'" + dateList[i] + "'" + ')"><i class="fa fa-comment me-2"></i> Add Notes</a>'
-            html += '</div>'
+            html += '<th class="small-text p-3">'
+            html += '<div class="row">'
+            html += '<div class="col-12 align-self-center p-0 text-center">' + formatInternationalDate(dateList[i]) + '</div>'
+            // html += '<div class="col-4 align-self-center">'
+            // html += '<div class="dropdown"><span class="fa fa-ellipsis-h dropdown-date" role="button" id="dropdownMenuButtonDate" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;"></span>'
+            // html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonDate">'
+            // html += '<a class="dropdown-item" onclick="managementManPower(event,null,' + "'" + dateList[i] + "'" + ')"><i class="fa fa-file-o me-2"></i> Setting Man Power</a>'
+            // html += '<a class="dropdown-item" onclick="formAddNotes(event,' + "'date'" + ",'" + dateList[i] + "'" + ')"><i class="fa fa-comment me-2"></i> Add Notes</a>'
+            // html += '</div>'
             html += '</div></div></div>'
             html += '</th>'
             var textColor = 'text-grey'
             if (qcEmployee['qc'].total) {
                 textColor = 'text-orange'
             }
-            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ')"><p class="m-0 small-text ' + textColor + '">' + qcEmployee['qc'].total + ' Quality Control</p></a></th>'
+            html_qc += '<th class="small-text"><a href="javascript:void(0)" onclick="managementManPower(event,1,' + "'" + dateList[i] + "'" + ')"><p class="m-0 small-text ' + textColor + '">' + qcEmployee['qc'].total + ' Quality Control</p></a></th>'
         }
         $('#date_list').html(html)
         $('#qc_list').html(html_qc)
@@ -2022,7 +2026,7 @@
                 if (mekanikEmployee['mechanic'].total) {
                     textColor = 'text-orange'
                 }
-                html += '<p class="m-0 ' + textColor + '" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',null,' + d.id + ')"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
+                html += '<p class="m-0 ' + textColor + '" onclick="managementManPower(event,1,' + "'" + dateList[i] + "'" + ',null,' + d.id + ')"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
                 html += '</td>'
             }
             html += '</tr>'
@@ -2032,11 +2036,14 @@
                     html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + e.name + '</b></td>'
                     // loop date
                     for (let i = 0; i < dateList.length; i++) {
-                        html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
                         var data = data_work_plan_bar.machine.filter((v, k) => {
                             if (v.resource == e.id && v.start == dateList[i]) return true
                         })
-                        // console.log(data)
+                        if (data.length) {
+                            html += '<td class="p-1">'
+                        } else {
+                            html += '<td class="p-1" onclick="changePlan(event,' + "'" + dateList[i] + "'" + ',' + e.id + ')">'
+                        }
                         data.forEach(el => {
                             var dataDetail = removeNullProduct(data_work_plan.filter((v, k) => {
                                 if (v.machine_id == e.id && v.date == dateList[i] && v.shift_id == el.shift_id) return true
@@ -2062,7 +2069,7 @@
                             html += '</div>'
                             html += '<div class="col-5 align-self-center text-center">'
                             // man
-                            html += '<div class="avatars" onclick="managementManPower(event,' + "'" + dateList[i] + "'" + ',' + el.shift_group_id + ',' + d.id + ',' + e.id + ')">'
+                            html += '<div class="avatars" onclick="managementManPower(event,null,' + "'" + dateList[i] + "'" + ',' + el.shift_group_id + ',' + d.id + ',' + e.id + ')">'
                             var dataMaster = data_work.workPlan.find((v, k) => {
                                 if (v.work_plan.work_plan_id == el.work_plan_id) return true
                             }).work_plan.shift_qc
@@ -2239,8 +2246,10 @@
             }, 300);
         }
     }
+    var directManagement = null
+    var directManagementKey = null
 
-    function managementManPower(event, date = null, group_shift_id = null, machine_type_id = null, machine_id = null) {
+    function managementManPower(event, direct = null, date = null, group_shift_id = null, machine_type_id = null, machine_id = null) {
         event.stopPropagation();
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl');
@@ -2252,14 +2261,14 @@
         html_body += '<div class="row p-0 m-0">'
 
         // barak main
-        html_body += '<div class="col-12 col-md-8 p-4">'
+        html_body += '<div class="col-12 col-md-9 p-4">'
         html_body += '<div class="row">'
         // TANGGAL
-        html_body += '<div class="col-4">'
+        html_body += '<div class="col-3">'
         html_body += '<div class="card shadow-none h-100">'
         html_body += '<div class="card-body">'
         html_body += '<p class="super-small-text m-0 mb-4"><b>More Date</b></p>'
-        html_body += '<div id="listMoreDate" class="pe-2" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        html_body += '<div id="listMoreDate" class="pe-2" style="height: 500px;overflow-x: hidden;overflow-y: auto;">'
 
         html_body += '</div>'
         html_body += '</div>'
@@ -2267,7 +2276,7 @@
         html_body += '</div>'
         // TANGGAL
         // UTAMA
-        html_body += '<div class="col-8" id="bodyManPower">'
+        html_body += '<div class="col-9" id="bodyManPower">'
         html_body += '</div>'
         // UTAMA
         html_body += '</div>'
@@ -2275,7 +2284,7 @@
         // barak main
 
         // barak man power
-        html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
+        html_body += '<div class="col-12 col-md-3 p-4" style="background-color:#fcfcfc;">'
         html_body += '<div class="row">'
         // buat atas
         html_body += '<div class="col-12">'
@@ -2324,7 +2333,7 @@
         // header
         // list hooman
         html_body += '<div class="col-12">'
-        html_body += '<div style="max-height: 100px;overflow-x: hidden;overflow-y: auto;" id="listAddedManPower">'
+        html_body += '<div style="max-height: 200px;overflow-x: hidden;overflow-y: auto;" id="listAddedManPower">'
         html_body += '</div>'
         html_body += '</div>'
         // list hooman
@@ -2343,6 +2352,14 @@
         $('#modalFooter').html(html_footer);
         cardAlert('Pilih Posisi Terlebih Dahulu', '#listManPower')
         cardAlert('Pilih Posisi Terlebih Dahulu', '#listAddedManPower')
+        directManagement = direct
+        if (direct) {
+            if (machine_type_id) {
+                directManagementKey = 'mechanic'
+            } else {
+                directManagementKey = 'qc'
+            }
+        }
         listMoreDate(date, group_shift_id, machine_type_id, machine_id)
     }
 
@@ -2353,13 +2370,13 @@
             var arrow = ''
             var textColor = ''
             if (dateList[i] == date) {
-                arrow += '<div class="col-2 align-self-center">'
-                arrow += '<i class="fa fa-chevron-right"></i>'
+                arrow += '<div class="col-1 p-0 align-self-center">'
+                arrow += '<i class="fa fa-chevron-right small-text"></i>'
                 arrow += '</div>'
-                textColor = 'text-primary'
+                textColor = 'text-orange'
             }
             html += '<div class="row cursor-klik" onclick="listMoreDate(' + "'" + dateList[i] + "'" + ')">'
-            html += '<div class="col-10 align-self-center">'
+            html += '<div class="col-11 align-self-center">'
             html += '<p class="m-0 small-text ' + textColor + '"><b>' + formatDateIndonesiaShort(dateList[i]) + '</b></p>'
 
             html += '<p class="m-0 super-small-text ' + textColor + '">' + countEmployeePositions(dateList[i]) + ' Position Added</p>'
@@ -2458,7 +2475,7 @@
             html += '</div>'
 
             html += '<div class="row pt-4">'
-            html += '<div class="col-12" id="scrolledBodyManPower" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+            html += '<div class="col-12" id="scrolledBodyManPower" style="height: 500px;overflow-x: hidden;overflow-y: auto;">'
 
             // collapse
             html += '<div class="accordion" id="accordionPanelsStayOpenExample">'
@@ -2485,7 +2502,7 @@
                     // console.log(v.group_id)
                     var workPlanShiftId = null
                     var shiftWorkPlanShift = null
-                    var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanShift + ',null,null,' + workPlanShiftId + ')"></i>'
+                    var changeShiftBtn = '<i class="fa fa-calendar fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanShift + ',null,null,' + workPlanShiftId + ')"></i>'
                     var setBgAvailable = ''
                     if (availableData == 'tidak') {
                         unavailableData = showTextUnavailable()
@@ -2510,7 +2527,7 @@
                     html += '<div class="col-11">'
                     html += '<div class="row m-0 w-100">'
                     html += '<div class="col-1 align-self-center text-center p-2">'
-                    html += '<img class="w-100" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
+                    html += '<img class="w-50" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
                     html += '</div>'
                     html += '<div class="col align-self-center" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
                     html += '<p class="m-0">SHIFT</p>'
@@ -2562,7 +2579,7 @@
                         })
                         var workPlanMachineTypeId = null
                         var shiftWorkPlanMachineType = null
-                        var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachineType + ',null,' + value.id + ',' + workPlanMachineTypeId + ')"></i>'
+                        var changeShiftBtn = '<i class="fa fa-calendar fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachineType + ',null,' + value.id + ',' + workPlanMachineTypeId + ')"></i>'
                         var setBgAvailable = ''
                         if (availableData == 'tidak') {
                             unavailableData = showTextUnavailable()
@@ -2681,7 +2698,7 @@
                             })
                             var workPlanMachineId = null
                             var shiftWorkPlanMachine = null
-                            var changeShiftBtn = '<i class="fa fa-clock-o fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachine + ',' + values.id + ',' + value.id + ',' + workPlanMachineId + ')"></i>'
+                            var changeShiftBtn = '<i class="fa fa-calendar fa-2x btn-choose-shift" onclick="chooseShift(' + "'edit'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + shiftWorkPlanMachine + ',' + values.id + ',' + value.id + ',' + workPlanMachineId + ')"></i>'
                             var setBgAvailable = ''
                             if (availableData == 'tidak') {
                                 unavailableData = showTextUnavailable()
@@ -2770,6 +2787,9 @@
             html += '</div>'
             $('#bodyManPower').html(html)
             triggerCollapse(date, group_shift_id, machine_type_id, machine_id)
+            if (directManagement) {
+                chooseManPower('ya', directManagementKey, date, group_shift_id, machine_type_id, machine_id)
+            }
         } else {
             empty('#bodyManPower', 'Silahkan Pilih Tanggal Terlebih Dahulu')
         }
@@ -3336,60 +3356,60 @@
 
     function changePlan(event, date, machine_id, shift_id = null, shift_group_id = null) {
         event.stopPropagation();
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Change Brand & Production</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row p-0 m-0">'
-
-        html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
-
-        html_body += '<div class="row" id="headerPlan">'
-        html_body += headerPlan(date, machine_id, shift_id, shift_group_id)
-        html_body += '</div>'
-
-        html_body += '<div class="row mt-3">'
-        html_body += '<div class="col-12">'
-        html_body += '<p class="m-0 super-small-text mb-2"><b>Machine This Day</b></p>'
-        html_body += '</div>'
-        html_body += '<div class="col-12" id="machineThisDay" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
-        // card maker
-        html_body += machineThisDay(date, machine_id, shift_id, shift_group_id)
-        // end card maker
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-
-        html_body += '<div class="col-12 col-md-8 p-4">'
-        // header
-        html_body += '<div class="row" id="currentShiftMachine">'
-        html_body += currentShiftMachine(date, machine_id, shift_id, shift_group_id)
-        html_body += '</div>'
-        // header
-        // body
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12 p-1">'
-        html_body += '<div class="card shadow-none">'
-        html_body += '<div class="card-body h-100" id="bodyPerShift">'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        // body
-        html_body += '</div>'
-
-        html_body += '</div>'
-        $('#modalBody').html(html_body).addClass('p-0');
-
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
-        $('#modalFooter').html(html_footer);
         if (shift_id != null) {
+            $('#modal').modal('show')
+            $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-xl');
+            var html_header = '';
+            html_header += '<h5 class="modal-title">Change Brand & Production</h5>';
+            html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+            $('#modalHeader').html(html_header);
+            var html_body = '';
+            html_body += '<div class="row p-0 m-0">'
+
+            html_body += '<div class="col-12 col-md-4 p-4" style="background-color:#fcfcfc;">'
+
+            html_body += '<div class="row" id="headerPlan">'
+            html_body += headerPlan(date, machine_id, shift_id, shift_group_id)
+            html_body += '</div>'
+
+            html_body += '<div class="row mt-3">'
+            html_body += '<div class="col-12">'
+            html_body += '<p class="m-0 super-small-text mb-2"><b>Machine This Day</b></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-12" id="machineThisDay" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+            // card maker
+            html_body += machineThisDay(date, machine_id, shift_id, shift_group_id)
+            // end card maker
+            html_body += '</div>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+
+            html_body += '<div class="col-12 col-md-8 p-4">'
+            // header
+            html_body += '<div class="row" id="currentShiftMachine">'
+            html_body += currentShiftMachine(date, machine_id, shift_id, shift_group_id)
+            html_body += '</div>'
+            // header
+            // body
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12 p-1">'
+            html_body += '<div class="card shadow-none">'
+            html_body += '<div class="card-body h-100" id="bodyPerShift">'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            // body
+            html_body += '</div>'
+
+            html_body += '</div>'
+            $('#modalBody').html(html_body).addClass('p-0');
+
+            var html_footer = '';
+            html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+            html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan">Simpan</button>'
+            $('#modalFooter').html(html_footer);
             detailPerShift(event, date, machine_id, shift_id, shift_group_id)
         } else {
             var machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
@@ -4279,11 +4299,14 @@
 
                         // product
                         html_body += '<div class="row small-text">'
+                        // console.log(d.products)
+                        // if (d.products[0].id) {
                         d.products.forEach(e => {
                             html_body += '<div class="col-6">' + e.product.name + '</div>'
                             html_body += '<div class="col-2 text-end"><b>' + number_format(e.qty) + '</b></div>'
                             html_body += '<div class="col-3">' + e.unit.name + '</div>'
                         })
+                        // }
                         html_body += '</div>'
                         // product
 

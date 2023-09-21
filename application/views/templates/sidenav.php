@@ -119,6 +119,7 @@
                         <?php } ?>
                         <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
                         <a class="nav-link" href="<?= base_url(); ?>production/machineShelters">Machine Shelters</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
