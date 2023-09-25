@@ -1239,6 +1239,54 @@
     $('#modal2').on('hidden.bs.modal', function(e) {
         clearModal2();
     })
+
+    function conversiToTarget(input, multiplier, satuanBesar, satuanKecil) {
+        const trays = Math.floor(input / multiplier);
+        const remainingStik = input % multiplier;
+
+        var nilai = ''
+        if (remainingStik) {
+            if (trays) {
+                nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span> ' + number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
+            } else {
+                nilai = number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
+            }
+        } else {
+            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span>'
+        }
+        return nilai
+    }
+
+    function calculateConvertedMaterial(id) {
+        var totalDefault = 0
+        var valueItem = $('.qty_item' + id).map(function() {
+            return $(this).val();
+        }).get();
+        var unitItem = $('.qty_item' + id).map(function() {
+            return $(this).data('unit');
+        }).get();
+        var jenisUnitItem = $('.qty_item' + id).map(function() {
+            return $(this).data('tipe');
+        }).get();
+        // console.log(jenisUnitItem)
+        var dataProductsDefault = deepCopy(dataDetail.currentStock.find((v, k) => {
+            if (v.item.id == id) return true
+        }))
+        for (let i = 0; i < jenisUnitItem.length; i++) {
+            if (dataProductsDefault) {
+                if (!valueItem[i]) {
+                    valueItem[i] = 0
+                }
+                totalDefault = parseFloat(totalDefault) + (parseFloat(valueItem[i]) * eval(`dataProductsDefault.${jenisUnitItem[i]}.multiplier`))
+            } else {
+                totalDefault = parseFloat(totalDefault) + parseFloat(valueItem[i])
+            }
+        }
+        return {
+            totalDefault: totalDefault,
+            dataProductsDefault: dataProductsDefault,
+        }
+    }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -1297,7 +1345,7 @@
         var html = ''
         var a = 0
         dataListWarehouse.warehouse.forEach(e => {
-            if (a == 0 && !choosenId) {
+            if (a == 2 && !choosenId) {
                 choosenId = e.id
             }
             html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse' + e.id + '" onclick="chooseWarehouse(' + e.id + ')">'
@@ -1387,7 +1435,14 @@
         html += '<div class="col-3 pt-3">'
         html += '<div class="card shadow-none">'
         html += '<div class="card-body p-0 pt-3">'
+        html += '<div class="row">'
+        html += '<div class="col align-self-center">'
         html += '<b class="m-0 ms-3 small-text">Item Stock</b>'
+        html += '</div>'
+        html += '<div class="col align-self-center text-end">'
+        // html += '<b class="m-0 me-3 small-text">Item Stock</b>'
+        html += '</div>'
+        html += '</div>'
         html += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">'
         html += '<div class="m-0" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="listCurrentStock">'
         html += '</div>'
@@ -1512,9 +1567,10 @@
                 html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + e.item.code + '</p>'
                 html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + e.item.name + '</b></p>'
                 html += '</div>'
-                html += '<div class="col-auto text-end">'
-                html += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
-                html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
+                html += '<div class="col-auto text-end align-self-center">'
+                var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
+                html += '<h5 class="m-0 text-orange small-text"><b>' + nilaiConversi + '</b></h5>'
+                // html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
@@ -1533,6 +1589,7 @@
         if (dataDetail.mutationStock.length) {
             var a = 1
             dataDetail.mutationStock.forEach(e => {
+                // console.log(e)
                 var arrow = '<i class="fa fa-arrow-down text-success"></i>'
                 if (e.action == 'OUT') {
                     arrow = '<i class="fa fa-arrow-up text-danger"></i>'
@@ -1573,8 +1630,9 @@
                     next = '<span class="text-success fw-bolder">' + e.machine_next.name + '</span>'
                 }
                 html += '<td class="small-text align-middle text-center">' + next + '</td>'
-                html += '<td class="small-text align-middle">' + e.item.name + '</td>'
-                html += '<td class="small-text align-middle text-end fw-bolder">' + number_format(e.qty) + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.item.alias + '</td>'
+                var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
+                html += '<td class="small-text align-middle text-end fw-bolder text-orange text-nowrap">' + nilaiConversi + '</td>'
                 html += '<td class="small-text align-middle text-center">' + status + '</td>'
                 html += '<td class="small-text align-middle">'
                 html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting(' + e.id + ')"><i class="fa fa-eye"></i></button>'
@@ -1693,9 +1751,10 @@
             html_body += '<p class="m-0 super-small-text text_search2" data-id="' + e.item.id + '">' + e.item.code + '</p>'
             html_body += '<p class="m-0 super-small-text"><b class="text_search2" data-id="' + e.item.id + '">' + e.item.name + '</b></p>'
             html_body += '</div>'
-            html_body += '<div class="col-auto text-end">'
-            html_body += '<h5 class="m-0 text-orange small-text"><b>' + number_format(e.qty) + '</b></h5>'
-            html_body += '<p class="m-0 small-text">' + e.unit.name + '</p>'
+            html_body += '<div class="col-auto text-end align-self-center">'
+            var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
+            html_body += '<h5 class="m-0 text-orange small-text"><b>' + nilaiConversi + '</b></h5>'
+            // html_body += '<p class="m-0 small-text">' + e.unit.name + '</p>'
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
@@ -1751,24 +1810,42 @@
             html += '<div class="row">'
             html += '<div class="col-8">'
             itemIdSelected.forEach(e => {
+                var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
                 // card
                 html += '<div class="card shadow-none mb-2" id="cardHasil' + e.item.id + '">'
                 html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="chooseItem(' + e.item.id + ')"><i class="small-text fa fa-times text-light"></i></span>'
                 html += '<div class="card-body">'
                 html += '<div class="row">'
 
+
                 html += '<div class="row">'
                 html += '<div class="col-6">'
                 html += '<p class="m-0 super-small-text text-orange"><b>' + e.item.code + '</b></p>'
                 html += '<p class="m-0 small-text"><b>' + e.item.name + '</b></p>'
                 html += '</div>'
-                html += '<div class="col-4">'
-                html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty" required="required" onkeyup="fillForm(event,' + e.item.id + ')" autocomplete="off" value="' + e.qty_fill + '" data-item="' + e.item.id + '" data-unit="' + e.unit.id + '" style="background-color:transparent;border:0px;" data-stok="' + e.qty + '">'
+                html += '<div class="col-6">'
+
+                html += '<div class="row">'
+                if (e.unit_target.id != e.unit.id) {
+                    html += '<div class="col-8 mb-2">'
+                    html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty qty_item' + e.item.id + '" required="required" onkeyup="fillForm(event,' + e.item.id + ')" autocomplete="off" value="' + e.qty_fill + '" data-item="' + e.item.id + '" data-unit="' + e.unit_target.id + '" style="background-color:transparent;border:0px;" data-stok="' + e.qty + '" data-tipe="' + "unit_target" + '">'
+                    html += '<hr class="m-0">'
+                    html += '</div>'
+                    html += '<div class="col-4 mb-2 align-self-center">'
+                    html += '<p class="m-0 small"><b>' + e.unit_target.name + '</b></p>'
+                    html += '</div>'
+                }
+                html += '<div class="col-8">'
+                html += '<input type="text" id="qty" class="form-control form-control-sm nominal qty qty_item' + e.item.id + '" required="required" onkeyup="fillForm(event,' + e.item.id + ')" autocomplete="off" value="' + e.qty_fill + '" data-item="' + e.item.id + '" data-unit="' + e.unit.id + '" style="background-color:transparent;border:0px;" data-stok="' + e.qty + '" data-tipe="' + "unit_input" + '">'
                 html += '<hr class="m-0">'
-                html += '<p class="m-0 float-end super-small-text">Sisa Stok : <b class="text-orange">' + e.qty + '</b></p>'
+                html += '<p class="m-0 mt-2 float-end super-small-text">Sisa Stok : <b class="text-orange">' + nilaiConversi + '</b></p>'
                 html += '</div>'
-                html += '<div class="col-2 align-self-center">'
+                html += '<div class="col-4 align-self-center">'
                 html += '<p class="m-0 small"><b>' + e.unit.name + '</b></p>'
+                html += '</div>'
+
+                html += '</div>'
+
                 html += '</div>'
                 html += '</div>'
 
@@ -1948,19 +2025,21 @@
         html_body += '<div class="row">'
         if (jenis == 'parent') {
             data.machine_transfer_detail.forEach(el => {
+                var nilaiConversi = conversiToTarget(el.qty, el.unit_target.multiplier, el.unit_target.name, el.unit_input.name)
                 html_body += '<div class="col">'
                 html_body += '<p class="m-0 small-text">' + el.item.name + '</p>'
                 html_body += '</div>'
                 html_body += '<div class="col-auto text-end">'
-                html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(el.qty) + '</span> <b>' + el.unit.name + '</b></p>'
+                html_body += '<p class="m-0 small-text"><span class="text-orange"><b>' + nilaiConversi + '</b></span></p>'
                 html_body += '</div>'
             });
         } else {
+            var nilaiConversi = conversiToTarget(data.qty, data.unit_target.multiplier, data.unit_target.name, data.unit_input.name)
             html_body += '<div class="col">'
             html_body += '<p class="m-0 small-text">' + data.item.name + '</p>'
             html_body += '</div>'
             html_body += '<div class="col-auto text-end">'
-            html_body += '<p class="m-0 small-text"><span class="text-orange">' + number_format(data.qty) + '</span> <b>' + data.unit.name + '</b></p>'
+            html_body += '<p class="m-0 small-text"><span class="text-orange"><b>' + nilaiConversi + '</b></span></p>'
             html_body += '</div>'
         }
         html_body += '</div>'
@@ -2093,17 +2172,19 @@
     function fillForm(event, id) {
         const value = event.target.value;
         const stok = event.target.dataset.stok;
-        colorizedValue(removeCommas(value), stok, id)
+        const tipe = event.target.dataset.tipe;
+        colorizedValue(removeCommas(value), stok, id, tipe)
     }
 
     function removeCommas(numberWithCommas) {
         return numberWithCommas.replace(/,/g, '');
     }
 
-    function colorizedValue(value, stok, id, material_id) {
+    function colorizedValue(value, stok, id, material_id, tipe) {
         var data = itemIdSelected.find((v, k) => {
             if (v.item.id == id) return true
         })
+        value = calculateConvertedMaterial(id).totalDefault
         data.qty_fill = value
         if (value) {
             if (parseFloat(value) <= parseFloat(stok)) {
@@ -2164,7 +2245,6 @@
                     $('#dateInput').removeAttr('disabled', true)
                     var dataDate = getMissingDates(response.data)
                     var dateRange = getStartAndEndDate(response.data)
-                    console.log(response.data)
                     $('#dateInput').datepicker({
                         format: "yyyy-mm-dd",
                         orientation: "auto",
@@ -2204,6 +2284,7 @@
         var unit = $(".qty").map(function() {
             return $(this).data('unit');
         }).get();
+        var uniqueItemId = [...new Set(itemId)];
         var tujuanTransaksi = $("#tujuanTransaksi").val()
         var tujuanTransaksiVariable = $("#tujuanTransaksi").find(':selected').data('variable')
         var tujuanTransaksiGudang = $("#tujuanTransaksi").find(':selected').data('gudang')
@@ -2218,25 +2299,34 @@
             action: 'IN',
             tag: 'TRANSFER',
             note: $('#notes').val(),
-            // reference_id: null,
-            // work_plan_id: null,
-            // shift_id: null,
-            // machine_id_reference: null,
             gudang_id: choosenId
         })
         data.machineTransferDetail = []
-        for (let i = 0; i < qty.length; i++) {
-            if (qty[i]) {
-                data.machineTransferDetail.push({
-                    id: id + '' + i,
-                    machine_transfer_id: id,
-                    item_id: itemId[i],
-                    unit_id: unit[i],
-                    qty: qty[i]
-                })
-            }
-        }
-        // console.log(data)
+        // for (let i = 0; i < qty.length; i++) {
+        //     if (qty[i]) {
+        //         data.machineTransferDetail.push({
+        //             id: id + '' + i,
+        //             machine_transfer_id: id,
+        //             item_id: itemId[i],
+        //             unit_id: unit[i],
+        //             qty: qty[i]
+        //         })
+        //     }
+        // }
+        var index = 0
+        uniqueItemId.forEach(e => {
+            var dataProductsDefault = deepCopy(dataDetail.currentStock.find((v, k) => {
+                if (v.item.id == e) return true
+            }))
+            var total = calculateConvertedMaterial(e).totalDefault
+            data.machineTransferDetail.push({
+                id: id + '' + index,
+                machine_transfer_id: id,
+                item_id: e,
+                unit_id: dataProductsDefault.unit.id,
+                qty: total
+            })
+        })
         simpanData(data)
     }
 

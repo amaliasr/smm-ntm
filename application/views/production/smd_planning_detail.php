@@ -662,86 +662,88 @@
                 html += '<tr class="text-black">'
                 html += '<td colspan="' + jumlah + '" class="p-2 font-small"><b>' + value['name'] + '</b></td>'
                 html += '</tr>'
-                var obj_production_step = valuea['data'].filter((value3, key3) => {
+                var checkAvailableProduction = valuea['data'].filter((value3, key3) => {
                     if (value3.production_step.id === parseInt(value['id'])) return true
-                })[0]['data']
-                // console.log(value['machine_group_plan'])
-                $.each(value['machine_group_plan'], function(keys, values) {
-                    var obj_machine = obj_production_step.filter((value3, key3) => {
-                        if (value3.machine.id === values['id']) return true
-                    })[0]
-                    // console.log(obj_machine)
-                    var jumlahDoublePita = []
-                    var checkDPita = []
-                    if (obj_machine != undefined) {
-                        checkDPita = obj_machine.data.filter((v, k) => {
-                            if (v.pita.length > 1) return true
-                        })
-                        if (checkDPita.length != 0) {
-                            var jumlahDoublePita = checkDPita[0].pita
-                        }
-                    }
-                    // console.log(checkDPita)
-                    // console.log(jumlahDoublePita)
-                    var rowspan = ''
-                    if (jumlahDoublePita.length > 1) {
-                        rowspan = 'rowspan="' + jumlahDoublePita.length + '"'
-                    }
-                    html += '<tr>'
-                    html += '<td class="font-small" ' + rowspan + '>' + values['name'] + '</td>'
-                    html += '<td class="font-small" ' + rowspan + '>' + values['item_unit_name_plan'] + '</td>'
-                    $.each(data_plan['loadPage'][jenis_produksi]['product'], function(keys2, values2) {
-                        var obj_qty = ""
-                        if (obj_machine != undefined) {
-                            var obj_product = obj_machine['data'].find((value3, key3) => {
-                                if (value3.product.id === parseInt(values2['id'])) return true
-                            })
-                            if (obj_product != undefined) {
-                                obj_qty = obj_product['qty']
-                            }
-                            var checkLetakPita = checkDPita.find((v, k) => {
-                                if (v.product.id == values2.id) return true
-                            })
-                            var rowspanItem = ''
-                            if (checkLetakPita != undefined) {
-                                obj_qty = checkLetakPita.pita[0].qty
-                            } else {
-                                rowspanItem = rowspan
-                            }
-                        }
-                        var bg = ""
-                        if (obj_qty != "") {
-                            bg = 'bg-warning text-white'
-                            if (checkLetakPita != undefined) {
-                                let objColor = coloriPita.find((v, k) => {
-                                    if (v.id == checkLetakPita.pita[0].id) return true
-                                })
-                                bg = objColor.classes
-                            }
-                        }
-                        html += '<td class="' + bg + '" style="font-size:9px;font-weight:bold;text-align:right;" ' + rowspanItem + '>' + obj_qty + '</td>'
-                    })
-                    var total = 0
-                    if (obj_machine != undefined) {
-                        total = obj_machine['data'].reduce((n, {
-                            qty
-                        }) => n + qty, 0)
-                    }
-                    html += '<td class="align-self-center totalMesin bg-light" style="font-size:14px;font-weight:bold;text-align:right;" id="totalMesin' + values['id'] + formatDate(valuea['date']) + '" ' + rowspan + '>' + total + '</td>'
-                    html += '</tr>'
-                    if (jumlahDoublePita.length > 1) {
-                        html += '<tr>'
-                        checkDPita.forEach(e => {
-                            var obj_qty = e.pita[1].qty
-                            let objColor = coloriPita.find((v, k) => {
-                                if (v.id == e.pita[1].id) return true
-                            })
-                            // console.log(objColor.classes)
-                            html += '<td class="' + objColor.classes + '" style="font-size:9px;font-weight:bold;text-align:right;" >' + obj_qty + '</td>'
-                        })
-                        html += '</tr>'
-                    }
                 })
+                if (checkAvailableProduction.length) {
+                    var obj_production_step = checkAvailableProduction[0]['data']
+                    $.each(value['machine_group_plan'], function(keys, values) {
+                        var obj_machine = obj_production_step.filter((value3, key3) => {
+                            if (value3.machine.id === values['id']) return true
+                        })[0]
+                        // console.log(obj_machine)
+                        var jumlahDoublePita = []
+                        var checkDPita = []
+                        if (obj_machine != undefined) {
+                            checkDPita = obj_machine.data.filter((v, k) => {
+                                if (v.pita.length > 1) return true
+                            })
+                            if (checkDPita.length != 0) {
+                                var jumlahDoublePita = checkDPita[0].pita
+                            }
+                        }
+                        // console.log(checkDPita)
+                        // console.log(jumlahDoublePita)
+                        var rowspan = ''
+                        if (jumlahDoublePita.length > 1) {
+                            rowspan = 'rowspan="' + jumlahDoublePita.length + '"'
+                        }
+                        html += '<tr>'
+                        html += '<td class="font-small" ' + rowspan + '>' + values['name'] + '</td>'
+                        html += '<td class="font-small" ' + rowspan + '>' + values['item_unit_name_plan'] + '</td>'
+                        $.each(data_plan['loadPage'][jenis_produksi]['product'], function(keys2, values2) {
+                            var obj_qty = ""
+                            if (obj_machine != undefined) {
+                                var obj_product = obj_machine['data'].find((value3, key3) => {
+                                    if (value3.product.id === parseInt(values2['id'])) return true
+                                })
+                                if (obj_product != undefined) {
+                                    obj_qty = obj_product['qty']
+                                }
+                                var checkLetakPita = checkDPita.find((v, k) => {
+                                    if (v.product.id == values2.id) return true
+                                })
+                                var rowspanItem = ''
+                                if (checkLetakPita != undefined) {
+                                    obj_qty = checkLetakPita.pita[0].qty
+                                } else {
+                                    rowspanItem = rowspan
+                                }
+                            }
+                            var bg = ""
+                            if (obj_qty != "") {
+                                bg = 'bg-warning text-white'
+                                if (checkLetakPita != undefined) {
+                                    let objColor = coloriPita.find((v, k) => {
+                                        if (v.id == checkLetakPita.pita[0].id) return true
+                                    })
+                                    bg = objColor.classes
+                                }
+                            }
+                            html += '<td class="' + bg + '" style="font-size:9px;font-weight:bold;text-align:right;" ' + rowspanItem + '>' + obj_qty + '</td>'
+                        })
+                        var total = 0
+                        if (obj_machine != undefined) {
+                            total = obj_machine['data'].reduce((n, {
+                                qty
+                            }) => n + qty, 0)
+                        }
+                        html += '<td class="align-self-center totalMesin bg-light" style="font-size:14px;font-weight:bold;text-align:right;" id="totalMesin' + values['id'] + formatDate(valuea['date']) + '" ' + rowspan + '>' + total + '</td>'
+                        html += '</tr>'
+                        if (jumlahDoublePita.length > 1) {
+                            html += '<tr>'
+                            checkDPita.forEach(e => {
+                                var obj_qty = e.pita[1].qty
+                                let objColor = coloriPita.find((v, k) => {
+                                    if (v.id == e.pita[1].id) return true
+                                })
+                                // console.log(objColor.classes)
+                                html += '<td class="' + objColor.classes + '" style="font-size:9px;font-weight:bold;text-align:right;" >' + obj_qty + '</td>'
+                            })
+                            html += '</tr>'
+                        }
+                    })
+                }
             })
             html += '</tbody>'
             html += '</table>'

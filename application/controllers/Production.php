@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+
 class Production extends CI_Controller
 {
     public function __construct()
@@ -224,5 +228,133 @@ class Production extends CI_Controller
         $this->pdf->loadHtml($html);
         $this->pdf->render();
         $this->pdf->stream("WORK PLAN " . $data['datas']->productionPlan->code, array("Attachment" => 0));
+    }
+    public function exportStockOpnameProduction()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $typeFilter = (explode(',', $explodedParams[1]));
+        // print_r($typeFilter);
+        $textId = '';
+        $a = 2;
+        foreach ($typeFilter as $k => $v) {
+            $dataId = (explode(',', $explodedParams[$a++]));
+            foreach ($dataId as $key => $value) {
+                $textId .= strtolower($v) . 'Id%5B%5D=' . $value . '&';
+            }
+        }
+        $date_start = date('Y-m-d', strtotime($explodedParams[$a++]));
+        $date_end = date('Y-m-d', strtotime($explodedParams[$a++]));
+        $statusSplit = $explodedParams[$a++];
+        $url = "getProductionLineStock?" . $textId . "date_start=" . $date_start . "&date_end=" . $date_end . "";
+        $main = json_decode(file_get_contents(api_produksi($url)), true);
+        $body = $main['data'];
+        $spreadsheet = new Spreadsheet();
+        foreach ($body['machineStock'] as $key => $value) {
+            if ($key == 0) {
+                $worksheet[] = $spreadsheet->getActiveSheet()->setTitle($value['name']);
+            } else {
+                $worksheet[] = $spreadsheet->createSheet()->setTitle($value['name']);
+            }
+        }
+        // $sheet = $spreadsheet->getActiveSheet();
+        for ($i = 0; $i < count($worksheet); $i++) {
+            $worksheet[$i]->mergeCells('A1:A2')->setCellValue('A1', 'No');
+            $worksheet[$i]->mergeCells('B1:B2')->setCellValue('B1', 'Item');
+            $worksheet[$i]->mergeCells('C1:C2')->setCellValue('C1', 'ID Material');
+            $worksheet[$i]->mergeCells('D1:D2')->setCellValue('D1', 'Machine');
+            $worksheet[$i]->mergeCells('E1:E2')->setCellValue('E1', 'Unit');
+            $worksheet[$i]->mergeCells('F1:F2')->setCellValue('F1', 'Saldo Awal');
+            $hurufMergeAwal = 6;
+            $hurufMergeAkhir = 6;
+            $hurufTerakhir = 7;
+            $hurufTerakhirSplit = 7;
+            foreach ($body['machineStock'][0]['data'][0]['data'] as $key => $value) {
+                if ($statusSplit == 'merged') {
+                    $hurufMergeAkhir  = $hurufMergeAwal + 5;
+                    $hurufMergeAwal  = $hurufMergeAwal + 1;
+                    $worksheet[$i]->mergeCells(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1:' . Coordinate::stringFromColumnIndex($hurufMergeAkhir) . '1')->setCellValue(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1', $value['tanggal']);
+                    $hurufMergeAwal = $hurufMergeAkhir;
+                } else {
+                    for ($k = 0; $k < 5; $k++) {
+                        $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhirSplit++) . '1', $value['tanggal']);
+                    }
+                }
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'IN');
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'OUT');
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'PENGGUNAAN');
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'WASTE');
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'TOTAL');
+            }
+            $hurufMergeAwal++;
+            $worksheet[$i]->mergeCells(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1:' . Coordinate::stringFromColumnIndex($hurufMergeAwal) . '2')->setCellValue(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1', 'Saldo Akhir');
+            $rowCount = 3;
+            $number = 1;
+            foreach ($body['machineStock'] as $key => $value) {
+                if ($key == $i) {
+                    foreach ($value['data'] as $key2 => $value2) {
+                        $hurufTerakhir = 7;
+                        $worksheet[$i]->setCellValue('A' . $rowCount, $number++);
+                        $worksheet[$i]->setCellValue('B' . $rowCount, $value2['item']['name']);
+                        $worksheet[$i]->setCellValue('C' . $rowCount, $value2['item']['code']);
+                        $worksheet[$i]->setCellValue('D' . $rowCount, $value2['machine']['code']);
+                        $worksheet[$i]->setCellValue('E' . $rowCount, $value2['unit']['name']);
+                        $worksheet[$i]->setCellValue('F' . $rowCount, $value2['saldo_awal']);
+                        foreach ($value2['data'] as $key3 => $value3) {
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['in']);
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['out']);
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['penggunaan']);
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['waste']);
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['total']);
+                        }
+                        $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir) . $rowCount, $value2['saldo_akhir']);
+                        $rowCount++;
+                    }
+                }
+            }
+            $styleArray = [
+                'font' => [
+                    'bold' => true,
+                ],
+                'alignment' => [
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'wrapText' => true,
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFB100',
+                    ],
+                    'endColor' => [
+                        'argb' => 'FFB100',
+                    ],
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['argb' => '383838'],
+                    ],
+                ],
+            ];
+            $worksheet[$i]->getStyle('A1:' . Coordinate::stringFromColumnIndex($hurufTerakhir) . '1')->applyFromArray($styleArray);
+            $worksheet[$i]->getStyle('G2:' . Coordinate::stringFromColumnIndex($hurufTerakhir) . '2')->applyFromArray($styleArray);
+            $worksheet[$i]->getColumnDimension('A')->setAutoSize(true);
+            $worksheet[$i]->getColumnDimension('B')->setWidth(70);
+            $worksheet[$i]->getColumnDimension('C')->setAutoSize(true);
+            $worksheet[$i]->getColumnDimension('D')->setAutoSize(true);
+            $worksheet[$i]->freezePane('F3');
+        }
+
+
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'SO PRODUKSI ' . $epoch;
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
     }
 }

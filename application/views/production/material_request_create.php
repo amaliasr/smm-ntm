@@ -738,17 +738,35 @@
             },
             success: function(response) {
                 data_after_click_plan = response['data']
-                // console.log(data_after_click_plan['listProductionPlan'])
+                console.log(data_after_click_plan)
                 $.each(data_after_click_plan['listProductionPlan'], function(key, value) {
                     // kode smd
                     $.each(value['detail'], function(keys, values) {
                         // tgl smd
+                        var productName = ''
+                        var indexName = 0
+                        values.data.forEach(e => {
+                            // production step
+                            e.data.forEach(el => {
+                                // machine
+                                el.data.forEach(ele => {
+                                    // product
+                                    if (indexName) {
+                                        productName += ', ' + ele.product.code
+                                    } else {
+                                        productName += ele.product.code
+                                    }
+                                    indexName++
+                                });
+                            });
+                        });
                         list_data_plan.push({
                             'id': value['id'],
                             'code': value['code'],
                             'production_type': value['production_type']['id'],
                             'production_type_name': value['production_type']['name'],
                             'date': values['date'],
+                            'product_name': productName,
                         })
                     })
                 })
@@ -811,6 +829,7 @@
                         today = '<span class="badge bg-success">Today</span>'
                     }
                     html += '<p class="m-0"><b class="text_search" data-id="' + key + '">' + formatDateIndonesia(value['date']) + ' ' + today + '</b></p>'
+                    html += '<p class="m-0" style="font-size:10px;"><span class="text_search" data-id="' + key + '">' + value.product_name + '</span></p>'
                     html += '</div>'
                     html += '<div class="col-4 align-self-end">'
                     // html += '<p class="m-0 font-small">MR Created : <span class="fw-bold text-orange">2</span> Times</p>'

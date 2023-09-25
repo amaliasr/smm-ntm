@@ -196,6 +196,20 @@
             transform: rotate(2deg);
         }
     }
+
+    input[type="time"] {
+        position: relative;
+    }
+
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: block;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        background: transparent;
+    }
 </style>
 <div class="row">
     <div class="col-12">
@@ -834,6 +848,24 @@
             html_body += '<p class="m-0 small-text">-</p>'
         }
         html_body += '</div>'
+        if (data.status == 'WAITING') {
+            html_body += '<div class="col-12">'
+            html_body += '<hr>'
+            html_body += '</div>'
+            html_body += '<div class="col-3">'
+            html_body += '<p class="m-0 small-text"><b>Waktu Persetujuan</b></p>'
+            html_body += '</div>'
+            html_body += '<div class="col-9">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col">'
+            html_body += '<input class="form-control form-control-sm datepicker" type="text" id="dateTransaction" placeholder="Tanggal" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatDate(data.time) + '">'
+            html_body += '</div>'
+            html_body += '<div class="col">'
+            html_body += '<input type="time" id="timeTransaction" class="form-control form-control-sm" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + formatJamMenit(data.time) + '" required="required">'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
         html_body += '<div class="col-12">'
         html_body += '<hr>'
         html_body += '</div>'
@@ -882,6 +914,11 @@
         html_body += '</div>'
         $('#modalBody').html(html_body).removeClass('pt-0 pb-0')
         $('.nominal').number(true);
+        $('#dateTransaction').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            todayHighlight: true,
+        });
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="">Simpan</button>'
@@ -1679,6 +1716,7 @@
                     isReceive: approval,
                     employeeId: user_id,
                     isSendNextMachine: isSendNextMachine,
+                    receivedAt: $('#dateTransaction').val() + ' ' + $('#timeTransaction').val(),
                 }
                 kelolaData(data, type, url, button)
             }

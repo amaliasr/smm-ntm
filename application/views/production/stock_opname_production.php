@@ -1099,10 +1099,18 @@
     }
 
     .fourth-col {
-        width: 50px;
-        min-width: 50px;
-        max-width: 50px;
+        width: 80px;
+        min-width: 80px;
+        max-width: 80px;
         left: 340px;
+        /* you have to count the first-col width => your border width */
+    }
+
+    .fifth-col {
+        width: 70px;
+        min-width: 70px;
+        max-width: 70px;
+        left: 420px;
         /* you have to count the first-col width => your border width */
     }
 </style>
@@ -1127,8 +1135,17 @@
                     <p class="m-0 small-text" id="nama_machine">-</p>
                 </div>
                 <div class="col-6 text-end align-self-center">
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="changeFilter()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                    <button type="button" class="btn btn-primary shadow-none btn-sm shadow-none" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i>Filter</button>
+                    <button type="button" class="btn btn-outline-dark btn-sm shadow-none" id="btnRefresh" onclick="changeFilter()" disabled><i class="fa fa-refresh me-2"></i>Refresh</button>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-dark btn-sm shadow-none dropdown-toggle" type="button" id="btnExport" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                            <i class="fa fa-download me-2"></i>Export Excel
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="btnExport">
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportExcel('merged')">Date Merged</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportExcel('splited')">Date Splited</a></li>
+                        </ul>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm shadow-none" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i>Filter</button>
                 </div>
             </div>
             <!-- <div class="col-12 p-0 mt-4" style="height: 550px;overflow-x: hidden;overflow-y: auto;">
@@ -1301,6 +1318,10 @@
     $('#modal2').on('hidden.bs.modal', function(e) {
         clearModal2();
     })
+
+    function filterDuplicates(arr) {
+        return Array.from(new Set(arr));
+    }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -1357,16 +1378,33 @@
         })
     }
 
+
     function changeFilter() {
         var data = {}
         var value = $("#tujuanTransaksi").val()
-        var type = $("#tujuanTransaksi").find(':selected').data('type')
-        choosenId = value
-        choosenType = type
-        eval('data.' + type.toLowerCase() + 'Id' + ' = ' + value)
+        var type = $("#tujuanTransaksi").find(':selected').map(function() {
+            return $(this).data('type');
+        }).get();
+        var typeFilter = filterDuplicates(type)
+        for (let i = 0; i < typeFilter.length; i++) {
+            var text = typeFilter[i].toLowerCase()
+            eval(`data.${text}Id = []`)
+            for (let j = 0; j < value.length; j++) {
+                if (type[j] == typeFilter[i]) {
+                    eval(`data.${text}Id.push(${value[j]})`)
+                }
+            }
+        }
         if (dateStart || dateEnd) {
             data.dateStart = dateStart
             data.dateEnd = dateEnd
+        }
+        if (dateStart && dateEnd && value.length) {
+            $('#btnRefresh').removeAttr('disabled', true)
+            $('#btnExport').removeAttr('disabled', true)
+        } else {
+            $('#btnRefresh').attr('disabled', true)
+            $('#btnExport').attr('disabled', true)
         }
         var url = "<?= api_produksi('getProductionLineStock'); ?>"
         $.ajax({
@@ -1402,13 +1440,13 @@
     var nameStorage = ''
 
     function kerangkaGudangDetail(id, type) {
-        var data = dataListWarehouse.listProductionLine.find((v, k) => {
-            if (v.type == type) return true
-        }).data.find((v, k) => {
-            if (v.id == id) return true
-        })
-        nameStorage = data.name
-        $("#nama_machine").html(nameStorage)
+        // var data = dataListWarehouse.listProductionLine.find((v, k) => {
+        //     if (v.type == type) return true
+        // }).data.find((v, k) => {
+        //     if (v.id == id) return true
+        // })
+        // nameStorage = data.name
+        // $("#nama_machine").html(nameStorage)
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-12">'
@@ -1419,7 +1457,8 @@
         html += '<th class="small-text text-center p-3 align-middle sticky-col first-col" rowspan="3">#</th>'
         html += '<th class="small-text text-center p-3 align-middle sticky-col second-col" rowspan="3">Item</th>'
         html += '<th class="small-text text-center p-3 align-middle sticky-col third-col" rowspan="3">ID Material</th>'
-        html += '<th class="small-text text-center p-3 align-middle sticky-col fourth-col" rowspan="3">Unit</th>'
+        html += '<th class="small-text text-center p-3 align-middle sticky-col fourth-col" rowspan="3">Machine</th>'
+        html += '<th class="small-text text-center p-3 align-middle sticky-col fifth-col" rowspan="3">Unit</th>'
         html += '<th class="small-text text-center p-3 align-middle" rowspan="3">Saldo Awal</th>'
         dataDetail.machineStock[0].data[0].data.forEach(e => {
             html += '<th class="small-text text-center p-3 align-middle" colspan="5">' + e.tanggal + '</th>'
@@ -1448,24 +1487,30 @@
 
     function tableDetail() {
         var html = ''
-        if (dataDetail.machineStock[0].data.length) {
-            var a = 1
-            dataDetail.machineStock[0].data.forEach(e => {
-                html += '<tr class="">'
-                html += '<td class="small-text align-middle sticky-col first-col text-center">' + a++ + '</td>'
-                html += '<td class="small-text align-middle sticky-col second-col">' + e.item.name + '</td>'
-                html += '<td class="small-text align-middle sticky-col third-col text-center">' + e.item.code + '</td>'
-                html += '<td class="small-text align-middle sticky-col fourth-col text-center">' + e.unit.name + '</td>'
-                html += '<td class="small-text align-middle text-center">' + e.saldo_awal + '</td>'
-                e.data.forEach(el => {
-                    html += '<td class="small-text align-middle text-center">' + el.in + '</td>'
-                    html += '<td class="small-text align-middle text-center">' + el.out + '</td>'
-                    html += '<td class="small-text align-middle text-center">' + el.penggunaan + '</td>'
-                    html += '<td class="small-text align-middle text-center">' + el.waste + '</td>'
-                    html += '<td class="small-text align-middle text-center">' + el.total + '</td>'
-                })
-                html += '<td class="small-text align-middle text-center">' + e.saldo_akhir + '</td>'
+        var a = 1
+        if (dataDetail.machineStock.length) {
+            dataDetail.machineStock.forEach(e => {
+                html += '<tr>'
+                html += '<td class="small-text sticky-col" colspan="' + ((parseInt(e.data[0].data.length) * 5) + 7) + '"><b>' + e.name + '</b></td>'
                 html += '</tr>'
+                e.data.forEach(el => {
+                    html += '<tr>'
+                    html += '<td class="small-text align-middle sticky-col first-col text-center">' + a++ + '</td>'
+                    html += '<td class="small-text align-middle sticky-col second-col">' + el.item.name + '</td>'
+                    html += '<td class="small-text align-middle sticky-col third-col text-center">' + el.item.code + '</td>'
+                    html += '<td class="small-text align-middle sticky-col fourth-col text-center">' + el.machine.code + '</td>'
+                    html += '<td class="small-text align-middle sticky-col fifth-col text-center">' + el.unit.name + '</td>'
+                    html += '<td class="small-text align-middle text-center">' + el.saldo_awal + '</td>'
+                    el.data.forEach(ele => {
+                        html += '<td class="small-text align-middle text-center">' + ele.in + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + ele.out + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + ele.penggunaan + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + ele.waste + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + ele.total + '</td>'
+                    })
+                    html += '<td class="small-text align-middle text-center">' + el.saldo_akhir + '</td>'
+                    html += '</tr>'
+                });
             });
         }
         $('#tableDetail').html(html)
@@ -1515,22 +1560,16 @@
         $('#canvasHeader').html(header)
         var body = ''
         body += '<div class="row">'
-        body += '<div class="col-12">'
+        body += '<div class="col-12 pb-3">'
         body += '<b class="small">Machine / Warehouse</b>'
-        body += '<select class="form-select mb-3" name="state" id="tujuanTransaksi" onchange="changeFilter()">'
-        body += '<option value="" disabled selected>Pilih Tujuan</option>'
+        body += '<select class="form-select form-select-lg w-100 filter tujuanTransaksi" multiple id="tujuanTransaksi" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="changeFilter()">'
         dataListWarehouse.listProductionLine.forEach(e => {
-            body += '<optgroup label="' + e.type + '">'
             if (e.data) {
                 e.data.forEach(el => {
                     var selected = ''
-                    if (choosenId == el.id && choosenType == e.type) {
-                        selected = 'selected'
-                    }
-                    body += '<option value="' + el.id + '" data-type="' + e.type + '" ' + selected + '>' + el.name + '</option>'
+                    body += '<option value="' + el.id + '" data-type="' + e.type + '" selected>' + el.name + '</option>'
                 });
             }
-            body += '</optgroup>'
         });
         body += '</select>'
         body += '</div>'
@@ -1544,6 +1583,11 @@
         body += '</div>'
         body += '</div>'
         $('#canvasBody').html(body)
+        $('.filter').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            dropdownParent: $('#offcanvasRight'),
+        });
         new Litepicker({
             element: document.getElementById('dateStart'),
             elementEnd: document.getElementById('dateEnd'),
@@ -1558,5 +1602,29 @@
                 });
             },
         })
+    }
+
+    function exportExcel(status) {
+        var url = '<?= base_url('production/exportStockOpnameProduction') ?>';
+        var params = ''
+        var value = $("#tujuanTransaksi").val()
+        var type = $("#tujuanTransaksi").find(':selected').map(function() {
+            return $(this).data('type');
+        }).get();
+        var typeFilter = filterDuplicates(type)
+        params += "*$" + typeFilter.toString()
+        for (let i = 0; i < typeFilter.length; i++) {
+            var text = typeFilter[i].toLowerCase()
+            eval(`var ${text}Id = []`)
+            for (let j = 0; j < value.length; j++) {
+                if (type[j] == typeFilter[i]) {
+                    eval(`${text}Id.push(${value[j]})`)
+                }
+            }
+            eval(`params += "*$"+${text}Id.toString()`)
+        }
+        params += "*$" + dateStart + "*$" + dateEnd + "*$" + status;
+        // console.log(params)
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>
