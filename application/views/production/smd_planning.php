@@ -728,12 +728,13 @@
                 html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
             }
             html += '<a class="dropdown-item" onclick="cetakSMDPlanning(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
-            if (job_spv_smd) {
-                html += '<a class="dropdown-item"><button class="btn btn-danger w-100 btn-sm btnSimpan" onclick="deleteSMDPlanning(' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-trash me-2"></i> Hapus Data</button></a>'
-            }
-            if (job_foreman) {
+            if (job_foreman || job_spv_smd) {
                 html += '<hr>'
                 html += '<a class="dropdown-item" onclick="createWorkPlanWeekly(' + values.id + ')"><i class="fa fa-file-text-o me-2"></i> Work Plan Weekly</a>'
+            }
+            if (job_spv_smd) {
+                html += '<hr>'
+                html += '<a class="dropdown-item"><button class="btn btn-danger w-100 btn-sm btnSimpan" onclick="deleteSMDPlanning(' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-trash me-2"></i> Hapus Data</button></a>'
             }
             html += '</div>'
             html += '</div>'

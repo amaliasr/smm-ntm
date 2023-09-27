@@ -19,7 +19,7 @@
     }
 
     .text-grey {
-        color: #D8D9CF;
+        color: #6c6c67;
     }
 
     .text-dark-grey {
@@ -662,6 +662,50 @@
     .litepicker {
         z-index: 1000000 !important;
     }
+
+    .bg-CATCHER {
+        background-color: #618264 !important;
+    }
+
+    .bg-light-CATCHER {
+        background-color: #D0E7D2 !important;
+    }
+
+    .bg-HELPER {
+        background-color: #5B0888 !important;
+    }
+
+    .bg-light-HELPER {
+        background-color: #E5CFF7 !important;
+    }
+
+    .bg-OPERATOR {
+        background-color: #643843 !important;
+    }
+
+    .bg-light-OPERATOR {
+        background-color: #E7CBCB !important;
+    }
+
+    .bg-QC {
+        background-color: #0B2447 !important;
+    }
+
+    .bg-light-QC {
+        background-color: #A5D7E8 !important;
+    }
+
+    .bg-MECHANIC {
+        background-color: #8D7B68 !important;
+    }
+
+    .bg-light-MECHANIC {
+        background-color: #F1DEC9 !important;
+    }
+
+    .card-schedule:hover {
+        color: white !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -671,46 +715,44 @@
         <!-- RIGHT PANEL -->
         <div class="col-12 bg-white p-5">
             <div class="row">
-                <div class="col-1 align-self-center">
-                    <img class="w-100" src="<?= base_url() ?>assets/image/svg/planner.svg" alt="Icon" />
+                <div class="col-1 align-self-center text-center">
+                    <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/planner.svg" alt="Icon" />
                 </div>
                 <div class="col-auto align-self-center">
                     <h1 class="m-0"><b>Production Schedule</b></h1>
                     <p class="m-0 small-text">Jadwal kegiatan produksi</p>
                 </div>
             </div>
-            <div class="row pt-3">
+            <div class="row p-3 pt-3">
                 <div class="col-12 col-lg-12">
-                    <div class="card shadow-none mb-4" style="border-radius: 0px;">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col">
-                                    <p class="m-0 small-text text-start"><b>My Working Plan</b></p>
-                                    <p class="m-0 small-text" id="dateRange">-</p>
-                                </div>
-                                <div class="col text-end">
-                                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataPlanning()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i> Filter</button>
-                                </div>
-                                <div class="col-12 pt-3">
-                                    <div class="h-100">
-                                        <div class="table-responsive" id="table-product-trend-wrapper">
-                                            <table class="table table-bordered" style="width: 100%;white-space:nowrap;">
-                                                <thead>
-                                                    <tr id="date_list">
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="body_list">
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                </div>
+                <div class="col-12 col-lg-12">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <!-- <p class="m-0 small-text text-start"><b>My Working Plan</b></p> -->
+                            <p class="m-0 small fw-bolder" id="dateRange">-</p>
+                        </div>
+                        <div class="col text-end">
+                            <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataPlanning()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i> Filter</button>
+                        </div>
+                        <div class="col-12 pt-3">
+                            <div class="h-100">
+                                <div class="table-responsive" id="table-product-trend-wrapper">
+                                    <table class="table table-bordered table-hover" style="width: 100%;white-space:nowrap;">
+                                        <thead>
+                                            <tr id="date_list">
+                                            </tr>
+                                        </thead>
+                                        <tbody id="body_list">
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-7">
+                <!-- <div class="col-12 col-lg-7">
                     <div class="card shadow-none h-100" style="border-radius: 0px;">
                         <div class="card-body">
                             <div class="row">
@@ -745,7 +787,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -850,7 +892,7 @@
 
             // if (!acc[formattedDate]) {
             acc[a] = {
-                date: formattedDate,
+                date: item.date,
                 posisi: item.posisi,
                 note: item.note,
                 shift_id: item.shift_id,
@@ -1069,12 +1111,22 @@
         html += '<th class=""><b>Machine | Date</b></th>'
         data_work.schedule[0].line_shift[0].date_shift.forEach(e => {
             var today = ''
+            var dataPosition = dataDailyTask.filter((v, k) => {
+                if (v.date == e.date) return true
+            }).length
+            var badgePosition = ''
+            if (dataPosition) {
+                badgePosition = '<span class="badge bg-orange ms-1 fw-bold" style="padding: 5px !important;font-size:11px;">' + dataPosition + '</span>'
+            }
             var classToday = ''
             if (e.date == hariIni) {
                 today = 'bg-ijo-polos text-darker-grey'
                 classToday = 'today'
+                if (badgePosition) {
+                    badgePosition = '<span class="badge bg-dark ms-1 fw-bold" style="padding: 5px !important;font-size:11px;">' + dataPosition + '</span>'
+                }
             }
-            html += '<th class="small-text ' + today + ' ' + classToday + '">' + formatInternationalDate(e.date) + '</th>'
+            html += '<th class="small-text text-center ' + today + ' ' + classToday + '">' + formatInternationalDate(e.date) + ' ' + badgePosition + '</th>'
         });
         $('#date_list').html(html)
         createBodyPlanner()
@@ -1107,18 +1159,16 @@
                             if (d.date == hariIni) {
                                 today = 'bg-ijo-polos'
                             }
-                            html += '<div class="card mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ')">'
-                            html += '<div class="card-body  p-2">'
+                            html += '<div class="card card-schedule mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ')">'
+                            html += '<div class="card-body p-0">'
 
-                            html += '<div class="row">'
-                            html += '<div class="col-auto">'
-                            html += '<p class="m-0 super-small-text text-dark"><b>Shift ' + convertTimeFormat(data.start_time) + ' - ' + convertTimeFormat(data.end_time) + '</b></p>'
+                            html += '<div class="row p-0 m-0">'
+                            html += '<div class="col-1 m-0 p-1 rounded-start bg-' + s.person.person_label + '">'
                             html += '</div>'
-                            html += '<div class="col">'
-
-                            // s.person.forEach(p => {
-                            html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + s.person.person_label + '</span>'
-                            // });
+                            html += '<div class="col p-2 bg-light-' + s.person.person_label + '">'
+                            html += '<h6 class="m-0 text-grey"><b>' + s.person.person_label + '</b></h6>'
+                            html += '<p class="m-0 super-small-text text-dark-grey"><b>' + convertTimeFormat(data.start_time) + ' - ' + convertTimeFormat(data.end_time) + '</b></p>'
+                            // html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + s.person.person_label + '</span>'
                             html += '</div>'
                             html += '</div>'
 

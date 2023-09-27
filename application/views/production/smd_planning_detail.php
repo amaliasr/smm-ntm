@@ -328,7 +328,7 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <div class="page-header-icon"><i class="fa fa-industry"></i></div>
-                            SMD Plan Detail
+                            SMD Plan Detail <span id="productionType"></span>
                         </h1>
                     </div>
                     <div class="col-auto mt-4">
@@ -523,6 +523,7 @@
                 success: function(response) {
                     data_plan = response['data']
                     jenis_produksi = data_plan['data'][0]['production_type']['name'].toLowerCase()
+                    $('#productionType').html('<span class="badge bg-' + jenis_produksi + ' ms-2 fw-bolder">' + data_plan['data'][0]['production_type']['name'] + '</span>')
                     coloringPita()
                 }
             })
@@ -619,26 +620,30 @@
             html += '</div>'
             html += '<div class="col-auto">'
             html += '<div class="row">'
-            $.each(valuea.shift, function(k, v) {
-                html += '<div class="col-auto">'
-                html += '<div class="card mb-1 shadow-none">'
-                html += '<div class="card-body p-2">'
-                html += '<div class="row">'
-                html += '<div class="col-auto align-self-center">'
-                html += '<i class="fa fa-check-square text-success"></i>'
-                html += '</div>'
-                html += '<div class="col ps-0">'
-                html += '<b class="me-2">' + v.name + '</b>'
-                let obj = data_plan.loadPage[jenis_produksi].shift[0].shift_list.find((value, key) => {
-                    if (v.id === value.id) return true
-                });
-                html += (obj.start_time).substring(0, 5) + ' - ' + (obj.end_time).substring(0, 5)
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            })
+            if (valuea.shift) {
+                $.each(valuea.shift, function(k, v) {
+                    html += '<div class="col-auto">'
+                    html += '<div class="card mb-1 shadow-none">'
+                    html += '<div class="card-body p-2">'
+                    html += '<div class="row">'
+                    html += '<div class="col-auto align-self-center">'
+                    html += '<i class="fa fa-check-square text-success"></i>'
+                    html += '</div>'
+                    html += '<div class="col ps-0">'
+                    html += '<b class="me-2">' + v.name + '</b>'
+                    let obj = data_plan.loadPage[jenis_produksi].shift[0].shift_list.find((value, key) => {
+                        if (v.id === value.id) return true
+                    });
+                    html += (obj.start_time).substring(0, 5) + ' - ' + (obj.end_time).substring(0, 5)
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                })
+            } else {
+                html += '<div class="col-auto small"><i>No Shift Created</i></div>'
+            }
             html += '</div>'
             html += '</div>'
             html += '</div>'

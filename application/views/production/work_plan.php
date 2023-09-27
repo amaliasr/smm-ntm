@@ -892,6 +892,11 @@
     .custom-popover {
         width: 200px !important;
     }
+
+    .man-power:hover {
+        color: var(--bs-orange-rgb) !important;
+        font-weight: bolder !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -2538,7 +2543,7 @@
                     if (qcEmployee['qc'].total) {
                         textColor = 'text-orange'
                     }
-                    html += '<p class="m-0 fw-bold super-small-text ' + textColor + '"  onclick="chooseManPower(' + "'" + availableData + "'," + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control ' + warnEmpty + '</p>'
+                    html += '<p class="m-0 fw-bold super-small-text man-power ' + textColor + '"  onclick="chooseManPower(' + "'" + availableData + "'," + "'qc'" + ',' + "'" + date + "'" + ',' + v.group_id + ')">' + qcEmployee['qc'].total + ' Quality Control ' + warnEmpty + '</p>'
                     html += '</div>'
                     html += '</div>'
                     html += '</div>'
@@ -2611,7 +2616,7 @@
                         if (mekanikEmployee['mechanic'].total) {
                             textColor = 'text-orange'
                         }
-                        html += '<p class="m-0 fw-bold super-small-text ' + textColor + '"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik ' + warnEmpty + '</p>'
+                        html += '<p class="m-0 fw-bold super-small-text man-power ' + textColor + '"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik ' + warnEmpty + '</p>'
                         html += '</div>'
                         html += '</div>'
                         html += '</div>'
@@ -2727,9 +2732,9 @@
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
 
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
-                            html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
-                            html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
+                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
+                            html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
+                            html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
 
                             html += '</div>'
                             html += '</div>'

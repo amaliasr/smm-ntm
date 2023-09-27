@@ -147,58 +147,7 @@
 
                 </div>
                 <div id="lisMaterial">
-                    <div class="card shadow-none rounded-0 border-end-0 border-start-0">
-                        <div class="card-body p-0">
-                            <div class="row m-0">
-                                <div class="col-9">
-                                    <div class="row p-4">
-                                        <div class="col-12">
-                                            <b class="m-0 h1">ABLF12</b>
-                                            <p class="m-0 small-text">Armour Black 12 Filter</p>
-                                        </div>
-                                        <div class="col">
-                                            <div class="row mt-4">
-                                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-4">
-                                                    <div class="card card-waste shadow-none border-2 pointer bg-light-success border-success" onclick="inputWaste()">
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <div class="col-4 text-center">
-                                                                    <p class="m-0 text-success fw-bolder">100</p>
-                                                                    <p class="m-0 fw-bolder small-text">Gram</p>
-                                                                </div>
-                                                                <div class="col-8 align-self-center">
-                                                                    <p class="m-0 text-dark-grey"><b>Batang</b></p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <?php for ($i = 0; $i < 4; $i++) { ?>
-                                                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-4">
-                                                        <div class="card card-waste shadow-none border-2 pointer" onclick="inputWaste()">
-                                                            <div class="card-body">
-                                                                <div class="row">
-                                                                    <div class="col-4 text-center">
-                                                                        <p class="m-0 text-danger">0</p>
-                                                                        <p class="m-0 fw-bolder super-small-text">Gram</p>
-                                                                    </div>
-                                                                    <div class="col-8 align-self-center">
-                                                                        <p class="m-0 text-dark-grey"><b>Batang</b></p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-3 bg-light" id="fillWaste">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -214,20 +163,20 @@
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
     var modeChart = 0
     var dataEntry
-    var dataProductionOut = []
-    var dataProductionOutGroup
+    var data_entry_group = []
+    var data_entry_group_detail = []
+    var variable_insert = []
 
     $(document).ready(function() {
-        emptyText('#fillWaste', 'Pilih Card untuk Mengisi Waste')
+        // emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
         loadData()
-        menuWaste()
     })
 
     function loadData() {
         var data = {
             workPlanMachineId: workPlanMachineId,
         }
-        var url = "<?= api_produksi('loadPageCatcherEntry'); ?>"
+        var url = "<?= api_produksi('loadPageWasteMaterialEntry'); ?>"
         getData(data, url)
     }
 
@@ -251,30 +200,86 @@
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
+                // console.log(dataEntry.wasteGroup)
+                arrangeVariable()
             }
         })
+    }
+
+    function arrangeVariable() {
+        var index = 0
+        dataEntry.wasteGroup.forEach(a => {
+            // product
+            a.waste_groups.forEach(b => {
+                // group waste
+                b.waste_group_details.forEach(c => {
+                    // detail waste group (material group)
+                    var id = new Date().getTime() + '' + b.waste_group.id
+                    variable_insert.push({
+                        'id': id,
+                        'work_plan_id': ,
+                        'shift_id': ,
+                        'work_plan_product_id': ,
+                        'machine_id': ,
+                        'item_id_product': ,
+                        'waste_group_id': b.waste_group.id,
+                        'employee_id': ,
+                        'datetime': ,
+                        'unit_id': ,
+                        'qty': ,
+                        'note': ,
+                    })
+                    data_entry_group.push({
+                        'id': a.id,
+                        'product_id': a.item_product.id,
+                        'waste_group_id': b.waste_group.id,
+                        'waste_group_name': b.waste_group.name,
+                        'waste_group_ratio': b.ratio_total,
+                        'waste_unit_id': b.waste_group.unit_compute.id,
+                        'material_group_id': c.material_group.id,
+                        'material_group_name': c.material_group.name,
+                        'material_group_ratio': c.ratio,
+                        'item': []
+                    })
+                    c.items.forEach(d => {
+                        // list item
+                        data_entry_group[index].item.push({
+                            'item_id': d.item.id,
+                            'item_name': d.item.name,
+                            'item_is_default': d.item.id_default,
+                            'item_unit_id': d.unit.id,
+                            'item_unit_name': d.unit.name,
+                        })
+                    });
+                    index++
+                });
+            });
+        });
+        // console.log(data_entry_group)
+        menuWaste()
     }
 
     function menuWaste() {
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine(' + "'all'" + ')" id="colStatusLineall">Semua</div>'
-        for (let i = 0; i < 2; i++) {
-            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + i + "'" + ')" id="colStatusLine' + i + '">ABLF12</div>'
-        }
+        dataEntry.wasteGroup.forEach(e => {
+            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine(' + "'" + e.id + "'" + ')" id="colStatusLine' + e.id + '">' + e.item_product.alias + '</div>'
+        })
         html += '</div>'
         $('#menuWaste').html(html)
+        statusLine('all')
     }
 
     function statusLine(status) {
-        // if (status == 'all') {
-        //     var data = data_material_filtered
-        // } else {
-        //     var data = data_material_filtered.filter((v, k) => {
-        //         if (v.status == status) return true
-        //     })
-        // }
-        listMaterial(status)
+        if (status == 'all') {
+            var data = dataEntry.wasteGroup
+        } else {
+            var data = dataEntry.wasteGroup.filter((v, k) => {
+                if (v.id == status) return true
+            })
+        }
+        listMaterial(data)
         coloringStatusLine(status)
     }
 
@@ -294,8 +299,56 @@
         $('#statusLineIcon' + status).removeClass('bg-light text-grey').addClass('bg-light-maroon text-white')
     }
 
-    function listMaterial(status) {
+    function listMaterial(data) {
+        var html = ''
+        data.forEach(e => {
+            html += '<div class="card shadow-none rounded-0 border-end-0 border-start-0">'
+            html += '<div class="card-body p-0">'
+            html += '<div class="row m-0">'
+            html += '<div class="col-8 border-end">'
+            html += '<div class="row p-4">'
+            html += '<div class="col-12">'
+            html += '<b class="m-0 h1">' + e.item_product.alias + '</b>'
+            html += '<p class="m-0 small-text">' + e.item_product.name + '</p>'
+            html += '</div>'
+            html += '<div class="col">'
+            html += '<div class="row mt-4">'
 
+            e.waste_groups.forEach(el => {
+                html += '<div class="col-12 mb-2">'
+                html += '<div class="card card-waste shadow-none border-2 pointer" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')">'
+                html += '<div class="card-body">'
+                html += '<div class="row">'
+                html += '<div class="col-6 align-self-center">'
+                html += '<p class="m-0 text-dark-grey"><b>' + el.waste_group.name + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-4 text-center">'
+                html += '<input type="text" class="form-control nominal" autocomplete="off" id="text-waste' + e.id + '' + el.waste_group.id + '" style="border:none;background-color:transparent;" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')" oninput="inputWaste(' + e.id + ',' + el.waste_group.id + ')">'
+                html += '<hr class="m-0" style="border:1px solid black;">'
+                html += '<button class="btn btn-sm btn-success float-end mt-1 p-1 super-small-text" onclick="simpanData()" id="btnSave' + e.id + '' + el.waste_group.id + '" hidden><i class="fa fa-save me-1"></i>Save</button>'
+                html += '</div>'
+                html += '<div class="col-2 text-end align-self-center">'
+                html += '<p class="m-0 fw-bolder small">' + el.waste_group.unit_compute.name + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            });
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-4" id="fillWaste">'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#lisMaterial').html(html)
+        $('.nominal').number(true);
+        emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
     }
 
     function reset() {
@@ -303,31 +356,132 @@
         dataProductionOutGroup = []
     }
 
-    function inputWaste() {
+    function inputWaste(id, waste_group_id) {
+        var inputValue = $('#text-waste' + id + waste_group_id).val()
+        var data = data_entry_group.filter((v, k) => {
+            if (v.id == id && v.waste_group_id == waste_group_id) return true
+        })
         var html = ''
-        html += '<div class="row p-4 h-100 scale-in-center">'
-        html += '<div class="col-12 align-self-center">'
+        html += '<div class="row p-0">'
 
-        html += '<div class="card shadow-none" style="border:0px;height:100%;background-color:transparent">'
-        html += '<div class="card-body h-100 p-0">'
-
-        html += '<p class="m-0 super-small-text"><b>Fill Waste</b></p>'
-        html += '<p class="m-0 h3"><b>Batang</b></p>'
-        html += '<div class="row mt-3 align-items-center w-100">'
-        html += '<div class="col-12">'
-        html += '<input type="text" id="inputPassword6" class="form-control form-control-lg">'
-        html += '</div>'
-        html += '<div class="col-12 pt-2 text-end">Gram</div>'
-        html += '<div class="col-12 pt-2">'
-        html += '<button class="btn btn-lg btn-success w-100">Simpan</button>'
-        html += '</div>'
+        html += '<div class="col-12 p-4">'
+        html += '<p class="m-0 super-small-text"><b>Detail Information</b></p>'
+        html += '<p class="m-0 h3"><b>' + data[0].waste_group_name + '</b></p>'
         html += '</div>'
 
-        html += '</div>'
-        html += '</div>'
+        html += '<div class="col-12 p-0">'
+
+        data.forEach(e => {
+            html += '<div class="card rounded-0 shadow-none border-0 border-top border-bottom" style="background-color:transparent">'
+            html += '<div class="card-body p-3">'
+            html += '<div class="row">'
+            html += '<div class="col-9">'
+            html += '<p class="m-0 small-text fw-bolder">' + e.material_group_name + '</p>'
+            var dataItem = e.item.find((v, k) => {
+                if (v.item_is_default) return true
+            })
+            var edit = ''
+            if (e.item.length > 1) {
+                edit = '<i class="fa fa-pencil text-primary ms-1 pointer" onclick="showEditItem(' + id + ',' + waste_group_id + ',' + e.material_group_id + ')"></i>'
+            }
+            html += '<p class="m-0 super-small-text" id="textItem' + id + '' + waste_group_id + '' + e.material_group_id + '">' + dataItem.item_name + ' ' + edit + '</p>'
+            // select
+            html += '<div class="row g-3" id="item' + id + '' + waste_group_id + '' + e.material_group_id + '" hidden>'
+            html += '<div class="col-sm-10">'
+            html += '<select name="" class="form-control form-control-sm p-1 item small-text">'
+            if (e.item.length) {
+                e.item.forEach(e => {
+                    var select = ""
+                    if (e.item_is_default) {
+                        select = 'selected'
+                    }
+                    html += '<option value="' + e.item_id + '" ' + select + ' data-name="' + e.item_name + '">' + e.item_name + '</option>'
+                });
+            } else {
+                html += '<option value="" selected disabled>Tidak Ada Satuan</option>'
+            }
+            html += '</select>'
+            html += '</div>'
+            html += '<div class="col-sm align-self-center">'
+            html += '<span class="fa fa-times text-danger ms-1 pointer" onclick="showEditItem(' + id + ',' + waste_group_id + ',' + e.material_group_id + ')"></span>'
+            html += '</div>'
+            html += '</div>'
+            // seelect
+            html += '</div>'
+            html += '<div class="col-3 align-self-center text-end">'
+            var total = 0
+            if (inputValue) {
+                total = roundToTwo(parseInt(e.material_group_ratio) / parseInt(e.waste_group_ratio) * parseFloat(inputValue))
+            } else {
+                total = 0
+            }
+            html += '<p class="m-0 small-text text-orange fw-bold">' + number_format(total) + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
 
         html += '</div>'
+        html += '<div class="col-12 p-4">'
+        html += '</div>'
+
         html += '</div>'
         $('#fillWaste').html(html)
+        showSaveButton(inputValue, id, waste_group_id)
+    }
+
+    function showSaveButton(inputValue, id, waste_group_id) {
+        if (inputValue) {
+            $('#btnSave' + id + '' + waste_group_id).removeAttr('hidden', true)
+        } else {
+            $('#btnSave' + id + '' + waste_group_id).attr('hidden', true)
+        }
+    }
+
+    function showEditItem(id, waste_group_id, material_group_id) {
+        if ($('#item' + id + '' + waste_group_id + '' + material_group_id).is('[hidden]')) {
+            $('#item' + id + '' + waste_group_id + '' + material_group_id).removeAttr('hidden', true)
+            $('#textItem' + id + '' + waste_group_id + '' + material_group_id).attr('hidden', true)
+        } else {
+            $('#item' + id + '' + waste_group_id + '' + material_group_id).attr('hidden', true)
+            $('#textItem' + id + '' + waste_group_id + '' + material_group_id).removeAttr('hidden', true)
+        }
+        arrangeVariableInsert()
+    }
+
+    function arrangeVariableInsert() {
+
+    }
+
+    function simpanData() {
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                $(button).prop("disabled", false);
+                $('#modal').modal('hide')
+                loadData()
+            }
+        });
     }
 </script>
