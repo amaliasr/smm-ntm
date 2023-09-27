@@ -201,7 +201,8 @@ class Production extends CI_Controller
         }
         $menu = $dataAPI->ProductionEntryAccess;
         $data['menu'] = $menu;
-        $data['dataAPI'] = $dataAPI;
+        $data['datas'] = $dataAPI;
+        $data['dataAPI'] = json_encode($dataAPI);
         // $this->template->views('errors/notfound', $data);
         $this->template->views('production/template_production_entry', $data);
     }

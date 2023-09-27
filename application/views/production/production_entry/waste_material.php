@@ -141,6 +141,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="row">
     <div class="col-12">
+
         <div class="card shadow-none">
             <div class="card-body p-0 pb-5">
                 <div class="row justify-content-between p-5 pb-3" id="menuWaste">
@@ -153,7 +154,28 @@
         </div>
     </div>
 </div>
+<script>
+    function findDataById(inputId, data) {
+        const results = {
+            wasteMaterialCompute: [],
+            wasteMaterial: []
+        };
 
+        data.wasteMaterialCompute.forEach(item => {
+            if (item.id === inputId || item.waste_material_compute_id === inputId) {
+                results.wasteMaterialCompute.push(item);
+            }
+        });
+
+        data.wasteMaterial.forEach(item => {
+            if (item.id === inputId || item.waste_material_compute_id === inputId) {
+                results.wasteMaterial.push(item);
+            }
+        });
+
+        return results;
+    }
+</script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
@@ -165,7 +187,8 @@
     var dataEntry
     var data_entry_group = []
     var data_entry_group_detail = []
-    var variable_insert = []
+    var variable_insert = {}
+    var dataAPI = JSON.parse('<?= $dataAPI ?>')
 
     $(document).ready(function() {
         // emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
@@ -206,30 +229,65 @@
         })
     }
 
+    function resetVariable() {
+        variable_insert = {
+            wasteMaterialCompute: [],
+            wasteMaterial: [],
+            deletedId: {
+                wasteMaterialCompute: [],
+                wasteMaterial: []
+            }
+        }
+    }
+
     function arrangeVariable() {
+        resetVariable()
         var index = 0
         dataEntry.wasteGroup.forEach(a => {
             // product
             a.waste_groups.forEach(b => {
                 // group waste
+                var id = new Date().getTime() + '' + b.waste_group.id
+                variable_insert.wasteMaterialCompute.push({
+                    'id': id,
+                    'work_plan_id': dataAPI.workPlanMachine.work_plan_id,
+                    'shift_id': dataAPI.workPlanMachine.shift_id,
+                    'work_plan_product_id': a.work_plan_product_id,
+                    'machine_id': dataAPI.workPlanMachine.machine.id,
+                    'item_id_product': a.item_product.id,
+                    'waste_group_id': b.waste_group.id,
+                    'employee_id': user_id,
+                    'datetime': getDateTime(a.datetime_end),
+                    'unit_id': b.waste_group.unit_compute.id,
+                    'qty': 0,
+                    'note': '',
+                })
                 b.waste_group_details.forEach(c => {
-                    // detail waste group (material group)
-                    var id = new Date().getTime() + '' + b.waste_group.id
-                    variable_insert.push({
-                        'id': id,
-                        'work_plan_id': ,
-                        'shift_id': ,
-                        'work_plan_product_id': ,
-                        'machine_id': ,
-                        'item_id_product': ,
-                        'waste_group_id': b.waste_group.id,
-                        'employee_id': ,
-                        'datetime': ,
-                        'unit_id': ,
-                        'qty': ,
-                        'note': ,
+                    var dataItem = c.items.find((v, k) => {
+                        if (v.item.id_default) return true
                     })
+                    if (!dataItem) {
+                        dataItem = c.items[0]
+                    }
+                    variable_insert.wasteMaterial.push({
+                        'id': id + '' + c.material_group.id,
+                        'waste_material_compute_id': id,
+                        'work_plan_id': dataAPI.workPlanMachine.work_plan_id,
+                        'shift_id': dataAPI.workPlanMachine.shift_id,
+                        'work_plan_product_id': a.work_plan_product_id,
+                        'machine_id': dataAPI.workPlanMachine.machine.id,
+                        'item_id_product': a.item_product.id,
+                        'item_id_material': dataItem.item.id,
+                        'qty': 0,
+                        'unit_id': dataItem.unit.id,
+                        'unit_id_compute': dataItem.unit_compute.id,
+                        'qty_compute': 0,
+                        'datetime': getDateTime(a.datetime_end),
+                    })
+                    // detail waste group (material group)
                     data_entry_group.push({
+                        'waste_material_compute_id': id,
+                        'waste_material_id': id + '' + c.material_group.id,
                         'id': a.id,
                         'product_id': a.item_product.id,
                         'waste_group_id': b.waste_group.id,
@@ -325,7 +383,7 @@
                 html += '<div class="col-4 text-center">'
                 html += '<input type="text" class="form-control nominal" autocomplete="off" id="text-waste' + e.id + '' + el.waste_group.id + '" style="border:none;background-color:transparent;" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')" oninput="inputWaste(' + e.id + ',' + el.waste_group.id + ')">'
                 html += '<hr class="m-0" style="border:1px solid black;">'
-                html += '<button class="btn btn-sm btn-success float-end mt-1 p-1 super-small-text" onclick="simpanData()" id="btnSave' + e.id + '' + el.waste_group.id + '" hidden><i class="fa fa-save me-1"></i>Save</button>'
+                html += '<button class="btn btn-sm btn-primary float-end mt-1 p-1 super-small-text" onclick="simpanData()" hidden><i class="fa fa-save me-1"></i>Save</button>'
                 html += '</div>'
                 html += '<div class="col-2 text-end align-self-center">'
                 html += '<p class="m-0 fw-bolder small">' + el.waste_group.unit_compute.name + '</p>'
@@ -358,6 +416,9 @@
 
     function inputWaste(id, waste_group_id) {
         var inputValue = $('#text-waste' + id + waste_group_id).val()
+        if (!inputValue) {
+            inputValue = 0
+        }
         var data = data_entry_group.filter((v, k) => {
             if (v.id == id && v.waste_group_id == waste_group_id) return true
         })
@@ -365,12 +426,20 @@
         html += '<div class="row p-0">'
 
         html += '<div class="col-12 p-4">'
+
+        html += '<div class="row">'
+        html += '<div class="col-8">'
         html += '<p class="m-0 super-small-text"><b>Detail Information</b></p>'
         html += '<p class="m-0 h3"><b>' + data[0].waste_group_name + '</b></p>'
         html += '</div>'
+        html += '<div class="col-4 align-self-center">'
+        html += '<button class="btn btn-sm btn-primary" id="btnSave' + id + '' + waste_group_id + '" onclick="arrangeVariableInsert(' + "'" + data[0].waste_material_compute_id + "'" + ')" hidden><i class="fa fa-save me-1"></i> Save</button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
 
         html += '<div class="col-12 p-0">'
-
+        filteredVariable('wasteMaterialCompute', inputValue, data[0].waste_material_compute_id)
         data.forEach(e => {
             html += '<div class="card rounded-0 shadow-none border-0 border-top border-bottom" style="background-color:transparent">'
             html += '<div class="card-body p-3">'
@@ -420,6 +489,7 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
+            filteredVariable('wasteMaterial', total, e.waste_material_id)
         })
 
         html += '</div>'
@@ -429,6 +499,11 @@
         html += '</div>'
         $('#fillWaste').html(html)
         showSaveButton(inputValue, id, waste_group_id)
+        // console.log(variable_insert)
+    }
+
+    function convertTextToVariable(text) {
+        return text.replace(/([A-Z])/g, '_$1').toLowerCase() + '_id';
     }
 
     function showSaveButton(inputValue, id, waste_group_id) {
@@ -447,17 +522,27 @@
             $('#item' + id + '' + waste_group_id + '' + material_group_id).attr('hidden', true)
             $('#textItem' + id + '' + waste_group_id + '' + material_group_id).removeAttr('hidden', true)
         }
-        arrangeVariableInsert()
-    }
-
-    function arrangeVariableInsert() {
 
     }
 
-    function simpanData() {
+    function filteredVariable(variable, value, id) {
+        eval('variable_insert.' + variable + '.find((v, k) => {if (v.id == id)return true}).qty = ' + value)
+    }
+
+    function arrangeVariableInsert(id = null) {
+        if (id) {
+            var data = findDataById(id, variable_insert)
+        } else {
+            var data = variable_insert
+        }
+        simpanData(data)
+        // console.log(data)
+    }
+
+    function simpanData(data) {
         var type = 'POST'
         var button = '#btnSimpan'
-        var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
+        var url = '<?php echo api_produksi('setWasteMaterial'); ?>'
         kelolaData(data, type, url, button)
     }
 

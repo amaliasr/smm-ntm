@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-auto">
             <p class="m-0">You work at</p>
-            <h1 class=""><b>Machine <?= $dataAPI->workPlanMachine->machine->name ?></b></h1>
+            <h1 class=""><b>Machine <?= $datas->workPlanMachine->machine->name ?></b></h1>
         </div>
         <div class="col-auto">
             <p class="m-0">Position</p>
