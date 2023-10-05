@@ -519,6 +519,7 @@
                 if (v.item_id == e.product.id && v.priority == e.priority) return true
             })
             if (dataGroup) {
+                console.log(dataGroup)
                 var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                     if (v.work_plan_product_id == dataGroup.work_plan_product_id) return true
                 })

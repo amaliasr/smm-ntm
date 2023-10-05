@@ -241,6 +241,35 @@ Teruntuk Bpk/Ibu *" . $nama[$i] . "* , Material Request *" . $kode . "* telah di
         }
         echo $result;
     }
+    public function sendNotifWorkPlan()
+    {
+        $data = $this->input->get('data');
+        // print_r($data);
+        foreach ($data as $key => $value) {
+            $message = "*📦 PRODUCTION ENTRY 📦*
+
+Teruntuk Bpk/Ibu *" . $value['account_name'] . "* , Berikut merupakan entri produksi untuk 
+
+Tanggal : *" . $value['date'] . "*
+Mesin : *" . $value['machine_name'] . "*
+Posisi : *" . $value['account_type'] . "*
+
+Link Kerja : " . $value['link'] . "";
+            $url = 'https://app.whacenter.com/api/send';
+            $ch = curl_init($url);
+            $data = array(
+                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'number' => $value['phone'],
+                'message' => $message,
+            );
+            $payload = $data;
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($ch);
+            curl_close($ch);
+        }
+        echo $result;
+    }
     public function testWhatsapp()
     {
         $url = 'https://app.whacenter.com/api/send';

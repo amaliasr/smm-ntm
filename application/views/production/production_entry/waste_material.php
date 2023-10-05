@@ -58,6 +58,30 @@
     .card-waste:hover {
         background-color: #F7F7F7;
     }
+
+    .bg-light-danger {
+        background-color: #f8d6d9 !important;
+    }
+
+    .bg-dark-grey {
+        color: white;
+        background-color: #61677A !important;
+    }
+
+    .lingkaran {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        float: right;
+    }
+
+    .text-light-grey {
+        color: #c3c5c9;
+    }
 </style>
 <style>
     .scale-in-center {
@@ -162,18 +186,42 @@
         };
 
         data.wasteMaterialCompute.forEach(item => {
-            if (item.id === inputId || item.waste_material_compute_id === inputId) {
+            if (item.id == inputId || item.waste_material_compute_id == inputId) {
                 results.wasteMaterialCompute.push(item);
             }
         });
 
         data.wasteMaterial.forEach(item => {
-            if (item.id === inputId || item.waste_material_compute_id === inputId) {
+            if (item.id == inputId || item.waste_material_compute_id == inputId) {
                 results.wasteMaterial.push(item);
             }
         });
 
         return results;
+    }
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function cariDataTidakAda(dataUtama, dataInput) {
+        var hasil = [];
+
+        // Membuat objek untuk menyimpan material_group_id dari data input
+        var materialGroupIds = {};
+        for (var i = 0; i < dataInput.length; i++) {
+            materialGroupIds[dataInput[i].material_group.id] = true;
+        }
+        for (var j = 0; j < dataUtama.length; j++) {
+            var materialGroupId = dataUtama[j].material_group_id;
+
+            // Jika material_group_id tidak ada dalam data input, tambahkan ke hasil
+            if (!materialGroupIds[materialGroupId]) {
+                hasil.push(dataUtama[j]);
+            }
+        }
+
+        return hasil;
     }
 </script>
 <script>
@@ -189,6 +237,9 @@
     var data_entry_group_detail = []
     var variable_insert = {}
     var dataAPI = JSON.parse('<?= $dataAPI ?>')
+    var id_waste_group_clicked
+    var id_product_clicked
+    var data_unknown_material = []
 
     $(document).ready(function() {
         // emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
@@ -238,16 +289,38 @@
                 wasteMaterial: []
             }
         }
+        data_entry_group = []
+        data_entry_group_detail = []
+        data_unknown_material = []
     }
 
     function arrangeVariable() {
         resetVariable()
-        var index = 0
+        var indexMaterialGroup = 0
+        var indexWaste = 0
         dataEntry.wasteGroup.forEach(a => {
             // product
             a.waste_groups.forEach(b => {
                 // group waste
-                var id = new Date().getTime() + '' + b.waste_group.id
+                var note = ''
+                var qty = 0
+                if (b.waste_material_compute) {
+                    var id = b.waste_material_compute.id
+                    note = b.waste_material_compute.note
+                    qty = b.waste_material_compute.qty
+                    var datas = cariDataTidakAda(b.waste_material_compute.waste_materials, b.waste_group_details)
+                    data_unknown_material.push({
+                        id: id,
+                        unknown_data: datas
+                    })
+                } else {
+                    var id = new Date().getTime() + '' + b.waste_group.id
+                    data_unknown_material.push({
+                        id: id,
+                        unknown_data: []
+                    })
+                }
+                // data_unknown_material[indexWaste].push()
                 variable_insert.wasteMaterialCompute.push({
                     'id': id,
                     'work_plan_id': dataAPI.workPlanMachine.work_plan_id,
@@ -259,18 +332,49 @@
                     'employee_id': user_id,
                     'datetime': getDateTime(a.datetime_end),
                     'unit_id': b.waste_group.unit_compute.id,
-                    'qty': 0,
-                    'note': '',
+                    'qty': qty,
+                    'note': note,
                 })
                 b.waste_group_details.forEach(c => {
-                    var dataItem = c.items.find((v, k) => {
-                        if (v.item.id_default) return true
-                    })
+                    // waste group
+                    var dataWasteGroup = null
+                    var idWasteMaterial = id + '' + c.material_group.id
+                    var qtyDetail = 0
+                    var qtyDetailCompute = 0
+                    if (b.waste_material_compute) {
+                        // jika ada waste material compute
+                        var findWaste = b.waste_material_compute.waste_materials.find((v, k) => {
+                            if (v.material_group_id == c.material_group.id) return true
+                        })
+                        if (findWaste) {
+                            dataWasteGroup = deepCopy(findWaste)
+                        }
+                        if (!dataWasteGroup) {
+                            // jika waste group tidak tersedia
+                            dataWasteGroup = null
+                            var dataItem = c.items.find((v, k) => {
+                                if (v.item.id_default) return true
+                            })
+                        } else {
+                            // jika ada
+                            idWasteMaterial = dataWasteGroup.id
+                            qtyDetail = dataWasteGroup.qty
+                            qtyDetailCompute = dataWasteGroup.qty_compute
+                            var dataItem = c.items.find((v, k) => {
+                                if (v.item.id == dataWasteGroup.item_material.id) return true
+                            })
+                        }
+                    } else {
+                        var dataItem = c.items.find((v, k) => {
+                            if (v.item.id_default) return true
+                        })
+                    }
                     if (!dataItem) {
                         dataItem = c.items[0]
                     }
+
                     variable_insert.wasteMaterial.push({
-                        'id': id + '' + c.material_group.id,
+                        'id': idWasteMaterial,
                         'waste_material_compute_id': id,
                         'work_plan_id': dataAPI.workPlanMachine.work_plan_id,
                         'shift_id': dataAPI.workPlanMachine.shift_id,
@@ -278,10 +382,10 @@
                         'machine_id': dataAPI.workPlanMachine.machine.id,
                         'item_id_product': a.item_product.id,
                         'item_id_material': dataItem.item.id,
-                        'qty': 0,
+                        'qty': qtyDetail,
                         'unit_id': dataItem.unit.id,
                         'unit_id_compute': dataItem.unit_compute.id,
-                        'qty_compute': 0,
+                        'qty_compute': qtyDetailCompute,
                         'datetime': getDateTime(a.datetime_end),
                     })
                     // detail waste group (material group)
@@ -297,23 +401,31 @@
                         'material_group_id': c.material_group.id,
                         'material_group_name': c.material_group.name,
                         'material_group_ratio': c.ratio,
+                        'data_waste_group_input': dataWasteGroup,
                         'item': []
                     })
                     c.items.forEach(d => {
                         // list item
-                        data_entry_group[index].item.push({
+                        data_entry_group[indexMaterialGroup].item.push({
                             'item_id': d.item.id,
                             'item_name': d.item.name,
                             'item_is_default': d.item.id_default,
                             'item_unit_id': d.unit.id,
                             'item_unit_name': d.unit.name,
+                            'item_unit_multiplier': d.unit.multiplier,
+                            // 'item_unit_operator': d.unit.operator,
+                            'item_unit_compute_id': d.unit_compute.id,
+                            'item_unit_compute_name': d.unit_compute.name,
+                            'item_unit_compute_multiplier': d.unit_compute.multiplier,
+                            'item_unit_compute_operator': d.unit_compute.operator,
                         })
                     });
-                    index++
+                    indexMaterialGroup++
                 });
+                indexWaste++
             });
         });
-        // console.log(data_entry_group)
+        // console.log(data_unknown_material)
         menuWaste()
     }
 
@@ -363,7 +475,7 @@
             html += '<div class="card shadow-none rounded-0 border-end-0 border-start-0">'
             html += '<div class="card-body p-0">'
             html += '<div class="row m-0">'
-            html += '<div class="col-8 border-end">'
+            html += '<div class="col-7 border-end">'
             html += '<div class="row p-4">'
             html += '<div class="col-12">'
             html += '<b class="m-0 h1">' + e.item_product.alias + '</b>'
@@ -372,33 +484,43 @@
             html += '<div class="col">'
             html += '<div class="row mt-4">'
 
-            e.waste_groups.forEach(el => {
-                html += '<div class="col-12 mb-2">'
-                html += '<div class="card card-waste shadow-none border-2 pointer" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')">'
-                html += '<div class="card-body">'
-                html += '<div class="row">'
-                html += '<div class="col-6 align-self-center">'
-                html += '<p class="m-0 text-dark-grey"><b>' + el.waste_group.name + '</b></p>'
-                html += '</div>'
-                html += '<div class="col-4 text-center">'
-                html += '<input type="text" class="form-control nominal" autocomplete="off" id="text-waste' + e.id + '' + el.waste_group.id + '" style="border:none;background-color:transparent;" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')" oninput="inputWaste(' + e.id + ',' + el.waste_group.id + ')">'
-                html += '<hr class="m-0" style="border:1px solid black;">'
-                html += '<button class="btn btn-sm btn-primary float-end mt-1 p-1 super-small-text" onclick="simpanData()" hidden><i class="fa fa-save me-1"></i>Save</button>'
-                html += '</div>'
-                html += '<div class="col-2 text-end align-self-center">'
-                html += '<p class="m-0 fw-bolder small">' + el.waste_group.unit_compute.name + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            });
+            if (e.is_production_out) {
+                e.waste_groups.forEach(el => {
+                    var value = ''
+                    var colorCard = ''
+                    if (el.waste_material_compute) {
+                        value = el.waste_material_compute.qty
+                        colorCard = 'bg-light border-primary'
+                    }
+                    html += '<div class="col-12 mb-2">'
+                    html += '<div class="card card-waste shadow-none border-2 pointer ' + colorCard + '" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')">'
+                    html += '<div class="card-body">'
+                    html += '<div class="row">'
+                    html += '<div class="col-6 align-self-center">'
+                    html += '<p class="m-0 text-dark-grey"><b>' + el.waste_group.name + '</b></p>'
+                    html += '</div>'
+                    html += '<div class="col-4 text-center">'
+                    html += '<input type="text" class="form-control nominal" autocomplete="off" id="text-waste' + e.id + '' + el.waste_group.id + '" style="border:none;background-color:transparent;" onclick="inputWaste(' + e.id + ',' + el.waste_group.id + ')" oninput="inputWaste(' + e.id + ',' + el.waste_group.id + ')" value="' + value + '">'
+                    html += '<hr class="m-0" style="border:1px solid black;">'
+                    html += '<button class="btn btn-sm btn-primary float-end mt-1 p-1 super-small-text" onclick="simpanData()" hidden><i class="fa fa-save me-1"></i>Save</button>'
+                    html += '</div>'
+                    html += '<div class="col-2 text-end align-self-center">'
+                    html += '<p class="m-0 fw-bolder small">' + el.waste_group.unit_compute.name + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                });
+            } else {
+                html += emptyReturn('Waktu Production Out Belum Tersedia')
+            }
 
             html += '</div>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-4" id="fillWaste">'
+            html += '<div class="col-5" id="fillWaste">'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -407,6 +529,9 @@
         $('#lisMaterial').html(html)
         $('.nominal').number(true);
         emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
+        if (id_waste_group_clicked && id_waste_group_clicked) {
+            inputWaste(id_product_clicked, id_waste_group_clicked)
+        }
     }
 
     function reset() {
@@ -415,7 +540,10 @@
     }
 
     function inputWaste(id, waste_group_id) {
-        var inputValue = $('#text-waste' + id + waste_group_id).val()
+        var statusText = false
+        id_product_clicked = id
+        id_waste_group_clicked = waste_group_id
+        var inputValue = $('#text-waste' + id + '' + waste_group_id).val()
         if (!inputValue) {
             inputValue = 0
         }
@@ -430,25 +558,40 @@
         html += '<div class="row">'
         html += '<div class="col-8">'
         html += '<p class="m-0 super-small-text"><b>Detail Information</b></p>'
-        html += '<p class="m-0 h3"><b>' + data[0].waste_group_name + '</b></p>'
+        html += '<p class="m-0 h3 mb-1"><b>' + data[0].waste_group_name + '</b></p>'
         html += '</div>'
-        html += '<div class="col-4 align-self-center">'
+        html += '<div class="col-4 align-self-center text-end">'
         html += '<button class="btn btn-sm btn-primary" id="btnSave' + id + '' + waste_group_id + '" onclick="arrangeVariableInsert(' + "'" + data[0].waste_material_compute_id + "'" + ')" hidden><i class="fa fa-save me-1"></i> Save</button>'
         html += '</div>'
+        html += '<div class="col-12">'
+        // note
+        html += '<span class="note-field" id="note-field' + data[0].waste_material_compute_id + '">'
+        html += noteField(id, waste_group_id, data[0].waste_material_compute_id)
+        html += '</span>'
+        // note
         html += '</div>'
+
+        html += '</div>'
+
         html += '</div>'
 
         html += '<div class="col-12 p-0">'
-        filteredVariable('wasteMaterialCompute', inputValue, data[0].waste_material_compute_id)
+        filteredVariable('wasteMaterialCompute', '', inputValue, data[0].waste_material_compute_id)
         data.forEach(e => {
+            if (e.data_waste_group_input) {
+                var dataItem = e.item.find((v, k) => {
+                    if (v.item_id == e.data_waste_group_input.item_material.id) return true
+                })
+            } else {
+                var dataItem = e.item.find((v, k) => {
+                    if (v.item_is_default) return true
+                })
+            }
             html += '<div class="card rounded-0 shadow-none border-0 border-top border-bottom" style="background-color:transparent">'
             html += '<div class="card-body p-3">'
             html += '<div class="row">'
             html += '<div class="col-9">'
             html += '<p class="m-0 small-text fw-bolder">' + e.material_group_name + '</p>'
-            var dataItem = e.item.find((v, k) => {
-                if (v.item_is_default) return true
-            })
             var edit = ''
             if (e.item.length > 1) {
                 edit = '<i class="fa fa-pencil text-primary ms-1 pointer" onclick="showEditItem(' + id + ',' + waste_group_id + ',' + e.material_group_id + ')"></i>'
@@ -461,13 +604,13 @@
             if (e.item.length) {
                 e.item.forEach(e => {
                     var select = ""
-                    if (e.item_is_default) {
+                    if (e.item_id == dataItem.item_id) {
                         select = 'selected'
                     }
                     html += '<option value="' + e.item_id + '" ' + select + ' data-name="' + e.item_name + '">' + e.item_name + '</option>'
                 });
             } else {
-                html += '<option value="" selected disabled>Tidak Ada Satuan</option>'
+                html += '<option value="" selected disabled>Tidak Ada Item</option>'
             }
             html += '</select>'
             html += '</div>'
@@ -478,19 +621,71 @@
             // seelect
             html += '</div>'
             html += '<div class="col-3 align-self-center text-end">'
-            var total = 0
+            var totalQty = 0
             if (inputValue) {
-                total = roundToTwo(parseInt(e.material_group_ratio) / parseInt(e.waste_group_ratio) * parseFloat(inputValue))
+                totalQty = roundToTwo(parseInt(e.material_group_ratio) / parseInt(e.waste_group_ratio) * parseFloat(inputValue))
             } else {
-                total = 0
+                totalQty = 0
             }
-            html += '<p class="m-0 small-text text-orange fw-bold">' + number_format(total) + '</p>'
+            // hitung compute
+            var totalQtyCompute = 0
+            eval('totalQtyCompute = ' + totalQty + '' + dataItem.item_unit_compute_operator + '' + dataItem.item_unit_compute_multiplier)
+
+            if (e.data_waste_group_input) {
+                // jika sudah ada inputannya sebelumnya
+                if (totalQtyCompute != e.data_waste_group_input.qty_compute) {
+                    // jika data sebelumnya tidak sama dengan perhitungan
+                    statusText = true
+                    html += '<p class="m-0 small-text fw-bold text-decoration-line-through">' + number_format(e.data_waste_group_input.qty_compute) + '</p>'
+                    html += '<p class="m-0 small-text text-orange fw-bolder">' + number_format(totalQtyCompute) + '</p>'
+
+                } else {
+                    html += '<p class="m-0 small-text text-success fw-bolder">' + number_format(totalQtyCompute) + '</p>'
+                }
+            } else {
+                // jika belum ada inputan sebelumnya
+                html += '<p class="m-0 small-text text-orange fw-bold">' + number_format(totalQtyCompute) + '</p>'
+                if (inputValue) {
+                    statusText = true
+                }
+            }
             html += '</div>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            filteredVariable('wasteMaterial', total, e.waste_material_id)
+            filteredVariable('wasteMaterial', '', totalQty, e.waste_material_id)
+            filteredVariable('wasteMaterial', '_compute', totalQtyCompute, e.waste_material_id)
         })
+        // untuk yang file yang harus dihapus
+        var dataUnknown = data_unknown_material.find((v, k) => {
+            if (v.id == data[0].waste_material_compute_id) return true
+        })
+        // console.log(dataUnknown)
+        if (dataUnknown.unknown_data.length) {
+            html += '<div class="card rounded-0 shadow-none border-0 border-top border-bottom" style="background-color:transparent">'
+            html += '<div class="card-body p-3 pt-1 pb-1">'
+            html += '<span class="m-0 super-small-text text-danger" id="example" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="Data tersebut merupakan data yang sebelumnya tersimpan, akan tetapi material waste nya berubah pada produk tersebut. Sehingga waste material sebelumnya akan terhapus dan akan digantikan oleh waste dengan material yang baru"><i>This Data will Deleted after Save</i> <span class="fa fa-question-circle text-dark fa-1x"></span></span>'
+            html += '</div>'
+            html += '</div>'
+            dataUnknown.unknown_data.forEach(e => {
+                variable_insert.deletedId.wasteMaterial.push(e.id)
+                html += '<div class="card rounded-0 shadow-none border-0 border-top border-bottom bg-light-danger" style="background-color:transparent">'
+                html += '<div class="card-body p-3">'
+                html += '<div class="row">'
+                html += '<div class="col-1">'
+                html += '<span class="fa fa-times text-danger fw-bolder"></span>'
+                html += '</div>'
+                html += '<div class="col-8">'
+                html += '<p class="m-0 super-small-text fw-bolder">' + e.item_material.name + '</p>'
+                html += '</div>'
+                html += '<div class="col-3 align-self-center text-end">'
+                html += '<p class="m-0 small-text fw-bolder">' + number_format(e.qty_compute) + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            });
+        }
 
         html += '</div>'
         html += '<div class="col-12 p-4">'
@@ -498,16 +693,19 @@
 
         html += '</div>'
         $('#fillWaste').html(html)
-        showSaveButton(inputValue, id, waste_group_id)
-        // console.log(variable_insert)
+        if (dataUnknown.unknown_data.length) {
+            var exampleTriggerEl = document.getElementById('example')
+            var popover = bootstrap.Popover.getOrCreateInstance(exampleTriggerEl)
+        }
+        showSaveButton(statusText, id, waste_group_id)
     }
 
     function convertTextToVariable(text) {
         return text.replace(/([A-Z])/g, '_$1').toLowerCase() + '_id';
     }
 
-    function showSaveButton(inputValue, id, waste_group_id) {
-        if (inputValue) {
+    function showSaveButton(status, id, waste_group_id) {
+        if (status) {
             $('#btnSave' + id + '' + waste_group_id).removeAttr('hidden', true)
         } else {
             $('#btnSave' + id + '' + waste_group_id).attr('hidden', true)
@@ -525,8 +723,8 @@
 
     }
 
-    function filteredVariable(variable, value, id) {
-        eval('variable_insert.' + variable + '.find((v, k) => {if (v.id == id)return true}).qty = ' + value)
+    function filteredVariable(variable, variable_input, value, id) {
+        eval('variable_insert.' + variable + '.find((v, k) => {if (v.id == id)return true}).qty' + variable_input + ' = ' + value)
     }
 
     function arrangeVariableInsert(id = null) {
@@ -569,4 +767,44 @@
             }
         });
     }
+
+    function changeNoteField(id, waste_group_id, waste_material_compute_id) {
+        var data = variable_insert.wasteMaterialCompute.find((v, k) => {
+            if (v.id == waste_material_compute_id) return true
+        })
+        var html = '<textarea class="form-control w-100 textingNote" rows="5" placeholder="Tuliskan note disini" id="notes' + waste_material_compute_id + '" data-id="' + id + '" data-waste_group_id="' + waste_group_id + '" oninput="textingNote(' + id + ',' + waste_group_id + ',' + waste_material_compute_id + ')">' + data.note + '</textarea>'
+        // html += '<button class="btn btn-sm btn-success float-end mt-1" onclick="simpanNote(' + id + ')">Simpan</button>'
+        $('#note-field' + waste_material_compute_id).html(html).focus()
+    }
+
+    function noteField(id, waste_group_id, waste_material_compute_id) {
+        var data = variable_insert.wasteMaterialCompute.find((v, k) => {
+            if (v.id == waste_material_compute_id) return true
+        })
+        var note = '<i class="text-light-grey">Tambahkan Note Disini</i>'
+        if (data.note) {
+            note = data.note
+        }
+        var html = '<p class="m-0 text-dark-grey small-text pointer" onclick="changeNoteField(' + id + ',' + waste_group_id + ',' + waste_material_compute_id + ')"><i class="fa fa-sticky-note me-2"></i>' + note + ' <i class="fa fa-pencil text-primary ms-2"></i></p>'
+        return html
+    }
+
+    function textingNote(id, waste_group_id, waste_material_compute_id) {
+        var value = $('#notes' + waste_material_compute_id).val()
+        variable_insert.wasteMaterialCompute.find((v, k) => {
+            if (v.id == waste_material_compute_id) return true
+        }).note = value
+    }
+    $(document).on('focusout', '.textingNote', function(e) {
+        var value = e.target.value
+        var id = e.target.dataset.id
+        var waste_group_id = e.target.dataset.waste_group_id
+        var waste_material_compute_id = e.target.id.replace('notes', '');
+        if (value) {
+            showSaveButton(true, id, waste_group_id)
+        } else {
+            showSaveButton(false, id, waste_group_id)
+        }
+        $('#note-field' + waste_material_compute_id).html(noteField(id, waste_group_id, waste_material_compute_id))
+    })
 </script>

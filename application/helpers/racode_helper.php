@@ -148,6 +148,17 @@ function job_spv_audit_internal()
         return false;
     }
 }
+function job_accounting_and_tax()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 133) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 // BUAT PER CONTROLLER
 
 function if_smd_planning()

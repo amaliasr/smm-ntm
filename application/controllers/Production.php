@@ -261,12 +261,21 @@ class Production extends CI_Controller
         }
         // $sheet = $spreadsheet->getActiveSheet();
         for ($i = 0; $i < count($worksheet); $i++) {
-            $worksheet[$i]->mergeCells('A1:A2')->setCellValue('A1', 'No');
-            $worksheet[$i]->mergeCells('B1:B2')->setCellValue('B1', 'Item');
-            $worksheet[$i]->mergeCells('C1:C2')->setCellValue('C1', 'ID Material');
-            $worksheet[$i]->mergeCells('D1:D2')->setCellValue('D1', 'Machine');
-            $worksheet[$i]->mergeCells('E1:E2')->setCellValue('E1', 'Unit');
-            $worksheet[$i]->mergeCells('F1:F2')->setCellValue('F1', 'Saldo Awal');
+            if ($statusSplit == 'merged') {
+                $worksheet[$i]->mergeCells('A1:A2')->setCellValue('A1', 'No');
+                $worksheet[$i]->mergeCells('B1:B2')->setCellValue('B1', 'Item');
+                $worksheet[$i]->mergeCells('C1:C2')->setCellValue('C1', 'ID Material');
+                $worksheet[$i]->mergeCells('D1:D2')->setCellValue('D1', 'Machine');
+                $worksheet[$i]->mergeCells('E1:E2')->setCellValue('E1', 'Unit');
+                $worksheet[$i]->mergeCells('F1:F2')->setCellValue('F1', 'Saldo Awal');
+            } else {
+                $worksheet[$i]->setCellValue('A2', 'No');
+                $worksheet[$i]->setCellValue('B2', 'Item');
+                $worksheet[$i]->setCellValue('C2', 'ID Material');
+                $worksheet[$i]->setCellValue('D2', 'Machine');
+                $worksheet[$i]->setCellValue('E2', 'Unit');
+                $worksheet[$i]->setCellValue('F2', 'Saldo Awal');
+            }
             $hurufMergeAwal = 6;
             $hurufMergeAkhir = 6;
             $hurufTerakhir = 7;
@@ -289,7 +298,11 @@ class Production extends CI_Controller
                 $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'TOTAL');
             }
             $hurufMergeAwal++;
-            $worksheet[$i]->mergeCells(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1:' . Coordinate::stringFromColumnIndex($hurufMergeAwal) . '2')->setCellValue(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1', 'Saldo Akhir');
+            if ($statusSplit == 'merged') {
+                $worksheet[$i]->mergeCells(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1:' . Coordinate::stringFromColumnIndex($hurufMergeAwal) . '2')->setCellValue(Coordinate::stringFromColumnIndex($hurufMergeAwal) . '1', 'Saldo Akhir');
+            } else {
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhirSplit) . '2', 'Saldo Akhir');
+            }
             $rowCount = 3;
             $number = 1;
             foreach ($body['machineStock'] as $key => $value) {
@@ -340,6 +353,7 @@ class Production extends CI_Controller
                 ],
             ];
             $worksheet[$i]->getStyle('A1:' . Coordinate::stringFromColumnIndex($hurufTerakhir) . '1')->applyFromArray($styleArray);
+            $worksheet[$i]->getStyle('A2:' . Coordinate::stringFromColumnIndex($hurufTerakhir) . '2')->applyFromArray($styleArray);
             $worksheet[$i]->getStyle('G2:' . Coordinate::stringFromColumnIndex($hurufTerakhir) . '2')->applyFromArray($styleArray);
             $worksheet[$i]->getColumnDimension('A')->setAutoSize(true);
             $worksheet[$i]->getColumnDimension('B')->setWidth(70);

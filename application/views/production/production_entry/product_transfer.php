@@ -1556,7 +1556,7 @@
             var nilaiConversiStokAkhir = number_format(v.stok_akhir) + ' ' + v.unit_name
             var nilaiConversiJumlahStok = number_format(jumlahStok) + ' ' + v.unit_name
         }
-        html += '<p class="m-0 mt-2 super-small-text text-dark">' + nilaiConversiStokAkhir + ' <br> ' + nilaiConversiJumlahStok + '</p>'
+        html += '<p class="m-0 mt-2 super-small-text text-dark">Sisa : ' + nilaiConversiStokAkhir + ' <br> Total : ' + nilaiConversiJumlahStok + '</p>'
         html += '</div>'
 
         html += '<div class="col align-self-center">'

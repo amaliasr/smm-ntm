@@ -92,33 +92,8 @@
                     </div>
                 </div>
                 <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
-                <div class="row small-text p-3 m-0 bg-light-grey justify-content-center">
-                    <div class="col-2"><i class="fa fa-clock-o me-2"></i>Time Production</div>
-                    <div class="col-2 fw-bolder" id="timeProduction">-</div>
-                    <div class="col-2"><i class="fa fa-calculator me-2"></i>Material Machine</div>
-                    <div class="col-1 fw-bolder"><span id="countMaterial">-</span> / <span id="totalMaterial">-</span></div>
-                    <div class="col-2"><i class="fa fa-calculator me-2"></i>Material All</div>
-                    <div class="col-1 fw-bolder"><span id="countMaterialAll">-</span> / <span id="totalMaterialAll">-</span></div>
+                <div id="templateUsedMaterial">
                 </div>
-                <hr class="m-0">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="align-middle small-text">#</th>
-                            <th class="align-middle small-text" colspan="2">Material</th>
-                            <th class="align-middle small-text">Unit</th>
-                            <th class="align-middle small-text">Stok Awal</th>
-                            <th class="align-middle small-text"><i class="fa fa-arrow-down text-success me-2"></i>In</th>
-                            <th class="align-middle small-text"><i class="fa fa-arrow-up text-danger me-2"></i>Out</th>
-                            <th class="align-middle small-text">Pemakaian<br>Kotor</th>
-                            <th class="align-middle small-text">Stok Akhir</th>
-                            <th class="align-middle small-text"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="listMaterial">
-                    </tbody>
-                </table>
-
             </div>
         </div>
     </div>
@@ -228,6 +203,39 @@
                 menuMaterial()
             }
         })
+    }
+
+    function templateMaterial(status) {
+        var html = ''
+        html += '<div class="row small-text p-3 m-0 bg-light-grey justify-content-center">'
+        html += '<div class="col-2"><i class="fa fa-clock-o me-2"></i>Time Production</div>'
+        html += '<div class="col-2 fw-bolder" id="timeProduction">-</div>'
+        html += '<div class="col-2"><i class="fa fa-calculator me-2"></i>Material Machine</div>'
+        html += '<div class="col-1 fw-bolder"><span id="countMaterial">-</span> / <span id="totalMaterial">-</span></div>'
+        html += '<div class="col-2"><i class="fa fa-calculator me-2"></i>Material All</div>'
+        html += '<div class="col-1 fw-bolder"><span id="countMaterialAll">-</span> / <span id="totalMaterialAll">-</span></div>'
+        html += '</div>'
+        html += '<hr class="m-0">'
+        html += '<table class="table table-hover">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th class="align-middle small-text">#</th>'
+        html += '<th class="align-middle small-text" colspan="2">Material</th>'
+        html += '<th class="align-middle small-text">Unit</th>'
+        html += '<th class="align-middle small-text">Stok Awal</th>'
+        html += '<th class="align-middle small-text"><i class="fa fa-arrow-down text-success me-2"></i>In</th>'
+        html += '<th class="align-middle small-text"><i class="fa fa-arrow-up text-danger me-2"></i>Out</th>'
+        html += '<th class="align-middle small-text">Pemakaian<br>Kotor</th>'
+        html += '<th class="align-middle small-text">Stok Akhir</th>'
+        html += '<th class="align-middle small-text"></th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody id="listMaterial">'
+        html += '</tbody>'
+        html += '</table>'
+        $('#templateUsedMaterial').html(html)
+        listMaterial(status)
+        timeProduction(status)
     }
 
     function reset() {
@@ -541,21 +549,15 @@
             if (v.work_plan_product_id == status) return true
         })
         if (data.time_start) {
-            listMaterial(status)
+            templateMaterial(status)
             coloringStatusLine(status)
-            timeProduction(status)
         } else {
-            // var html = ''
-            // html += '<tr>'
-            // html += '<td class="text-center p-5" colspan="9"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
-            // html += '</tr>'
-            // $('#listMaterial').html(html)
-            // $('#timeProduction').html('-')
-            Swal.fire({
-                icon: 'error',
-                title: 'Not Available',
-                text: 'Jam Produksi belum tersedia'
-            });
+            // Swal.fire({
+            //     icon: 'error',
+            //     title: 'Not Available',
+            //     text: 'Waktu Produksi belum tersedia'
+            // });
+            empty('#templateUsedMaterial', 'Waktu Production Out Belum Tersedia')
         }
     }
 
@@ -931,7 +933,7 @@
             note: '',
         })
         dataInsert.deletedId = removedId
-        console.log(dataInsert)
+        // console.log(dataInsert)
     }
 
     function simpanData() {

@@ -942,13 +942,13 @@
                     </div>
                 </div>
                 <div class="col-6 ps-0 pe-1">
-                    <button type="button" class="btn btn-success shadow-none btn-sm w-100 h-100" style="text-align: left;">
+                    <button type="button" class="btn btn-success shadow-none btn-sm w-100 h-100" style="text-align: left;" onclick="saveAndShare()">
                         <div class="row">
                             <div class="col-auto p-0 pe-1 align-self-center">
                                 <i class="fa fa-share-alt fa-1x"></i>
                             </div>
                             <div class="col-auto p-0 ps-1 align-self-center">
-                                <p class="m-0 super-small-test">Save<br> and Share</p>
+                                <p class="m-0 super-small-test">Share All</p>
                             </div>
                         </div>
                     </button>
@@ -1449,6 +1449,10 @@
         });
 
         return Object.values(uniqueEmployees);
+    }
+
+    function ubahArrayKeString(arrayTanggal) {
+        return arrayTanggal.join(', ');
     }
 
     function cardAlert(text, direction) {
@@ -4222,10 +4226,6 @@
         }, 'slow');
     }
 
-    function filteredData() {
-
-    }
-
     function cetakPDF() {
         var url = '<?= base_url('production/cetakWorkPlan') ?>'
         var params = "*$" + plan_id
@@ -4259,6 +4259,7 @@
             html_body += '<div class="row">'
             html_body += '<div class="col">'
             html_body += '<b>' + formatDateIndonesia(a.date) + '</b>'
+            html_body += '<b class="float-end pointer" onclick="saveAndShare(' + "'" + a.date + "'" + ')"><i class="fa fa-share-alt"></i></b>'
 
             html_body += '<div class="row mt-2 ps-2">'
             a.work_plan.shift_qc.forEach(b => {
@@ -4407,5 +4408,94 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer);
+    }
+
+    function saveAndShare(date = null) {
+        var dataWorkPlan = data_work_plan
+        if (date) {
+            var dataWorkPlan = data_work_plan.filter((v, k) => {
+                if (v.date == date) return true
+            })
+        }
+        var data = []
+        var manpower = groupEmployeesByUnique(dataWorkPlan)
+        dataWorkPlan.forEach(e => {
+            const availablePositions = ["employee_catcher", "employee_helper", "employee_mechanic", "employee_operator", "employee_qc"];
+            for (let i = 0; i < availablePositions.length; i++) {
+                eval('var dataPosition = e.' + availablePositions[i])
+                dataPosition.forEach(el => {
+                    var pos = availablePositions[i].replace('employee_', '')
+                    var dataEmployee = data_work.manPower[pos.toLowerCase()].find((v, k) => {
+                        if (v.id == el.id) return true
+                    })
+                    var link = '<?= base_url() ?>production/productionEntry/default/' + btoa(e.work_plan_machine_id) + '/' + btoa(pos.toUpperCase())
+                    data.push({
+                        'account_id': el.id,
+                        'account_name': el.name,
+                        'account_type': pos.toUpperCase(),
+                        'work_plan_machine_id': e.work_plan_machine_id,
+                        'machine_name': e.machine_name,
+                        'phone': '081944946015',
+                        'link': link,
+                        'date': formatDateIndonesia(e.date)
+                        // 'phone': dataEmployee.phone,
+                    })
+                });
+            }
+        });
+        confirmShareWorkplan(data, date)
+    }
+
+    function confirmShareWorkplan(data, date) {
+        var text = 'keseluruhan'
+        if (date) {
+            text = 'tanggal ' + formatDateIndonesia(date)
+        }
+        Swal.fire({
+            text: 'Apakah anda yakin ingin berbagi Work Plan untuk ' + text + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsapp(data)
+            }
+        })
+    }
+
+
+    function shareWhatsapp(data) {
+        $.ajax({
+            url: "<?= base_url('api/sendNotifWorkPlan') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                data: data,
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $('#modal2').modal('hide')
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Mengirimkan Approval',
+                    icon: 'success',
+                }).then((responses) => {
+                    // console.log(response)
+                });
+            }
+        })
     }
 </script>
