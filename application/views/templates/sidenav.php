@@ -117,9 +117,15 @@
                         <?php if (if_manage_material_request()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/managementMaterialRequest">Manage Material Request</a>
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
-                        <a class="nav-link" href="<?= base_url(); ?>production/machineShelters">Machine Shelters</a>
-                        <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
+                        <?php if (if_production_portal()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
+                        <?php } ?>
+                        <?php if (if_machine_shelters()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/machineShelters">Machine Shelters</a>
+                        <?php } ?>
+                        <?php if (if_so_production()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
+                        <?php } ?>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->

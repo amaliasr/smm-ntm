@@ -2476,7 +2476,7 @@
                     onclick = 'onclick="tambahShiftBaru(' + "'" + date + "'" + ',' + v.group_id + ')"'
                 }
                 html += '<input type="radio" class="btn-check" name="btnradio" id="btnradio' + k + '" autocomplete="off" ' + checking + ' ' + disabled + '>'
-                html += '<label class="btn btn-outline-dark" for="btnradio' + k + '" ' + onclick + '><img class="me-1" style="width:10px" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon"/> ' + v.group_name + '</label>'
+                html += '<label class="btn btn-outline-dark" for="btnradio' + k + '" ' + onclick + '><img class="me-1" style="width:10px" src="<?= base_url() ?>assets/image/svg/' + v.group_name.toLowerCase() + '.svg" alt="Icon"/> ' + v.group_name + '</label>'
             })
             html += '</div>'
             // choose
@@ -2536,7 +2536,7 @@
                     html += '<div class="col-11">'
                     html += '<div class="row m-0 w-100">'
                     html += '<div class="col-1 align-self-center text-center p-2">'
-                    html += '<img class="w-50" src="<?= base_url() ?>assets/image/svg/' + v.group_name + '.svg" alt="Icon" />'
+                    html += '<img class="w-50" src="<?= base_url() ?>assets/image/svg/' + v.group_name.toLowerCase() + '.svg" alt="Icon" />'
                     html += '</div>'
                     html += '<div class="col align-self-center" data-bs-toggle="collapse" data-bs-target="#panelShift' + k + '" aria-expanded="true" aria-controls="panelShift' + k + '">'
                     html += '<p class="m-0">SHIFT</p>'

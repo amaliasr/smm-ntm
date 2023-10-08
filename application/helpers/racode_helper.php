@@ -158,12 +158,22 @@ function job_accounting_and_tax()
         return false;
     }
 }
+function job_administrasi_produksi()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 90) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // BUAT PER CONTROLLER
 
 function if_smd_planning()
 {
-    if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_spv_audit_internal()) {
+    if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_spv_audit_internal() || job_administrasi_produksi()) {
         return true;
     } else {
         return false;
@@ -195,7 +205,7 @@ function if_create_material_request()
 }
 function if_material_request()
 {
-    if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal()) {
+    if (job_spv_smd() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal() || job_administrasi_produksi()) {
         return true;
     } else {
         return false;
@@ -304,4 +314,28 @@ function if_report_production()
     } else {
         return false;
     }
+}
+function if_production_portal()
+{
+    // if (job_foreman() || job_administrasi_produksi() || job_spv_smd()) {
+    return true;
+    // } else {
+    //     return false;
+    // }
+}
+function if_machine_shelters()
+{
+    // if (job_foreman() || job_administrasi_produksi() || job_spv_smd()) {
+    return true;
+    // } else {
+    //     return false;
+    // }
+}
+function if_so_production()
+{
+    // if (job_foreman() || job_administrasi_produksi() || job_spv_smd()) {
+    return true;
+    // } else {
+    //     return false;
+    // }
 }

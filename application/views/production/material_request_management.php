@@ -918,7 +918,6 @@
     }
 
     function listMaterialRequest() {
-
         var html = ""
         $.each(data_request_manage['materialRequest'], function(key, value) {
             var jum = 0
@@ -1725,9 +1724,7 @@
         })
 
         function percentageToDegrees(percentage) {
-
             return percentage / 100 * 360
-
         }
 
     });
@@ -1845,6 +1842,8 @@
         indexLogistik[key]++
     }
 
+    var variableDataProcess = []
+
     function insertCardMaterial(values, key, keys, material_request_machine_id) {
         var dataInsert = {}
         var html = ''
@@ -1885,7 +1884,7 @@
         html += '<i class="fa fa-pencil text-primary ms-2 showUnitBaru" id="showUnitBaru' + key + keys + material_request_machine_id + '" style="cursor:pointer;" onclick="showUnitBaru(' + key + ',' + keys + ',' + material_request_machine_id + ')"></i><br>'
         html += '<div class="d-none fieldUnitBaru" id="inputUnitBaru' + key + keys + material_request_machine_id + '"><b class="super-small-text">Unit Baru</b>'
 
-        html += '<select name="" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + material_request_machine_id + '" data-key="' + key + keys + material_request_machine_id + '" data-unit="' + values.unit_id + '">'
+        html += '<select name="" class="form-control form-control-sm p-1 inputUnitBaru" id="inputUnitBaruForm' + key + keys + material_request_machine_id + '" data-id="' + jumlahTotalLogistik + '" data-key="' + key + keys + material_request_machine_id + '" data-unit="' + values.unit_id + '">'
         if (values.material_id != '') {
             values.unit_option.forEach(e => {
                 var select = ""
@@ -1913,6 +1912,16 @@
         html += '</div>'
         dataInsert.jumlah = jumlahTotalLogistik
         dataInsert.html = html
+        variableDataProcess.push({
+            'machine_id': values.material_id,
+            'material_request_machine_id': material_request_machine_id,
+            'material_request_item_id': values.material_request_item_id,
+            'unit_id': values.unit_id,
+            'qty': values.qty,
+            'key': key,
+            'keys': keys,
+            'jumlahTotalLogistik': jumlahTotalLogistik,
+        })
         jumlahTotalLogistik++
         $('#jumlahTotalLogistik').html(jumlahTotalLogistik)
         return dataInsert
@@ -1982,7 +1991,7 @@
     }
 
     function kirimApproval(id, code) {
-        console.log('test')
+        // console.log('test')
         var materailId = $('.cardItem').map(function() {
             return $(this).data('id');
         }).get();
@@ -2252,13 +2261,14 @@
     $(document).on('change', '.inputUnitBaru', function(e) {
         var key = $(this).data('key')
         var unit = $(this).data('unit')
+        var id = $(this).data('id')
         var value = $(this).val()
         var text = $(this).find("option:selected").data('name')
         whileOverThisUnit(key)
         if (value == '' || value == 0) {
             resetFormUnit(key)
         } else {
-            fillFormUnit(key, value, unit, text)
+            fillFormUnit(key, value, unit, text, id)
         }
     })
 
@@ -2301,9 +2311,28 @@
         $('#inputUnitBaru' + key).removeClass('d-none')
     }
 
-    function fillFormUnit(key, value, stok, name) {
+    function fillFormUnit(key, value, unit, name, id) {
         $('#unitLama' + key).removeClass('fw-bolder')
         $('#unitLama' + key).addClass('text-decoration-line-through')
         $('#unitBaru' + key).html('<br>' + name)
+        convertIntoUnit(key, value, unit, name, id)
+    }
+
+    function convertIntoUnit(key, value, unit, name, id) {
+        var material_id = $('#itemStok' + id).val()
+        var stok = stok_by_id[material_id]
+        var value_converted = 0
+        var data = data_all_stok.find((v, k) => {
+            if (v.item_id == material_id) return true
+        })
+        var findDataUnitBefore = data.unit_option.find((v, k) => {
+            if (v.id == unit) return true
+        })
+        var findDataUnitAfter = data.unit_option.find((v, k) => {
+            if (v.id == value) return true
+        })
+        // var value_converted = ()
+        console.log(findDataUnit)
+        // fillFormQty(key, value_converted, stok)
     }
 </script>

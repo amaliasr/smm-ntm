@@ -75,7 +75,7 @@
                                         <b>
                                             <h3>Hai Para Pekerja Hebat!</h3>
                                         </b>
-                                        <p class="small mt-3">Anda telah bekerja keras sepanjang hari, dan sekarang saatnya untuk memberikan diri Anda dengan beristirahat sejenak. Lihatlah kami membuat insight selama anda membuka aplikasi ini. Fitur baru ini akan mulai melihat aktivitas anda pada tanggal <b>24 Mei 2023</b>.</p>
+                                        <p class="small mt-3">Anda telah bekerja keras sepanjang hari, dan sekarang saatnya untuk memanjakan diri Anda dengan beristirahat sejenak dan makan cemilan kesukaanmu. Lihatlah kami membuat insight selama anda membuka aplikasi ini.</p>
                                     </div>
                                     <div class="col align-self-center">
                                         <div class="row">
