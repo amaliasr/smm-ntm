@@ -1770,6 +1770,17 @@
             var b = 0
             $.each(data_isi_material, function(keys, values) {
                 if (value['machine_id'] == values['machine_id']) {
+                    variableDataProcess.push({
+                        'machine_id': values.machine_id,
+                        'material_request_machine_id': value.material_request_machine_id,
+                        'material_request_item_id': values.material_request_item_id,
+                        'unit_id': values.unit_id,
+                        'qty': values.qty,
+                        'key': key,
+                        'keys': keys,
+                        'jumlahTotalLogistik': jumlahTotalLogistik,
+                        'material_id': values.material_id,
+                    })
                     html_body += insertCardMaterial(values, key, b, value.material_request_machine_id).html
                     indexLogistik[key]++
                     b++
@@ -1794,7 +1805,7 @@
         html_body += '</div>'
         html_body += '<div class="row mt-3">'
 
-        html_body += '<div class="col text-end align-self-center">Tanggal Ambil</div>'
+        html_body += '<div class="col text-end align-self-center"><b>Tanggal Ambil</b></div>'
         html_body += '<div class="col align-self-center">'
         html_body += '<input type="text" name="" id="tanggalAmbil" class="form-control form-control-sm p-1 datepicker" value="' + currentDate() + '">'
         html_body += '</div>'
@@ -1820,6 +1831,7 @@
         html_footer += '<button type="button" class="btn btn-primary w-100" id="btnApprove" disabled onclick="kirimApproval(' + data_materialrequest.id + ',' + "'" + data_materialrequest.code + "'" + ')"><span id="jumlahCardSelected">&nbsp;0&nbsp;</span> / <span>&nbsp;<span id="jumlahTotalLogistik">' + jumlahTotalLogistik + '</span>&nbsp;</span>&nbsp;Item Telah di Check</button>'
         $('#modalFooter').html(html_footer);
         $('.aliasName').hide()
+        // console.log(variableDataProcess)
     }
 
     function addNewRow(key, material_request_machine_id) {
@@ -1858,7 +1870,7 @@
         html += '<div class="row">'
         html += '<div class="col-4 small"><b class="super-small-text" id="materialCode' + key + keys + material_request_machine_id + '">' + values.material_code + '</b><span class="aliasName small-text text-grey"><br><span id="materialAlias' + key + keys + material_request_machine_id + '">' + values.material_alias + '</span></span><br>'
         // html += values.material_name
-        html += '<select style="border:none" class="form-control form-control-sm selectpicker w-100 itemStok" id="itemStok' + jumlahTotalLogistik + '" data-id="' + jumlahTotalLogistik + '" onchange="changeItemStok(' + jumlahTotalLogistik + ',' + key + ',' + keys + ',' + material_request_machine_id + ')">'
+        html += '<select style="border:none" class="form-control form-control-sm selectpicker w-100 itemStok" id="itemStok' + jumlahTotalLogistik + '" data-material_request_machine_id="' + material_request_machine_id + '" data-id="' + jumlahTotalLogistik + '" onchange="changeItemStok(' + jumlahTotalLogistik + ',' + key + ',' + keys + ',' + material_request_machine_id + ')">'
         html += '<option value="" selected disabled>Pilih Item</option>'
         $.each(data_all_stok, function(k, v) {
             var select = ''
@@ -1874,7 +1886,7 @@
         html += '<span class="m-0 fw-bolder" id="jumlahLama' + key + keys + material_request_machine_id + '">' + number_format(values.qty) + '</span>'
         html += '<span class="m-0 ms-1 fw-bolder" id="jumlahBaru' + key + keys + material_request_machine_id + '"></span>'
         html += '<i class="fa fa-pencil text-primary ms-2 showInputBaru" id="showInputBaru' + key + keys + material_request_machine_id + '" style="cursor:pointer;" onclick="showInputBaru(' + key + ',' + keys + ',' + material_request_machine_id + ')"></i><br>'
-        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + material_request_machine_id + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + material_request_machine_id + '" data-key="' + key + keys + material_request_machine_id + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" data-id="' + jumlahTotalLogistik + '" data-material_id="' + values.material_id + '" autocomplete="off" oninput="validateNumber(this)"></div>'
+        html += '<div class="d-none fieldInputBaru" id="inputBaru' + key + keys + material_request_machine_id + '"><b class="super-small-text">Jumlah Baru</b><input type="text" class="form-control form-control-sm p-1 inputBaru nominal" id="inputBaruForm' + key + keys + material_request_machine_id + '" data-key="' + key + keys + material_request_machine_id + '" data-qty="' + values.qty + '" data-stok="' + stok_by_id_berjalan[values.material_id] + '" data-id="' + jumlahTotalLogistik + '" data-material_id="' + values.material_id + '" autocomplete="off" oninput="validateNumber(this)" value="' + values.qty + '"></div>'
         // JUMLAH
         html += '</div>'
         html += '<div class="col">'
@@ -1912,16 +1924,6 @@
         html += '</div>'
         dataInsert.jumlah = jumlahTotalLogistik
         dataInsert.html = html
-        variableDataProcess.push({
-            'machine_id': values.material_id,
-            'material_request_machine_id': material_request_machine_id,
-            'material_request_item_id': values.material_request_item_id,
-            'unit_id': values.unit_id,
-            'qty': values.qty,
-            'key': key,
-            'keys': keys,
-            'jumlahTotalLogistik': jumlahTotalLogistik,
-        })
         jumlahTotalLogistik++
         $('#jumlahTotalLogistik').html(jumlahTotalLogistik)
         return dataInsert
@@ -2017,13 +2019,33 @@
             } else {
                 var qty = materailQty[i]
             }
+            var qty_converted = qty
+            var data = data_all_stok.find((v, k) => {
+                if (v.item_id == itemId[i]) return true
+            })
+            // console.log(data)
+            if (data) {
+                var findDataUnit = data.unit_option.find((v, k) => {
+                    if (v.id == data.satuan_id) return true
+                })
+                if (findDataUnit) {
+                    eval('qty_converted = parseFloat(' + qty + ' ' + findDataUnit.operator_reverse + ' ' + findDataUnit.multiplier + ')')
+                }
+            }
             detail.push({
                 material_request_item_id: materailId[i],
                 material_request_machine_id: materialRequestMachineId[i],
                 item_id: itemId[i],
-                qty_approve: qty,
-                unit_id_approve: materialUnitNewValue[i],
+                qty_approve: qty_converted,
+                unit_id_approve: data.satuan_id,
             })
+            // detail.push({
+            //     material_request_item_id: materailId[i],
+            //     material_request_machine_id: materialRequestMachineId[i],
+            //     item_id: itemId[i],
+            //     qty_approve: qty,
+            //     unit_id_approve: materialUnitNewValue[i],
+            // })
         }
         Swal.fire({
             text: 'Material akan diberikan kepada Foreman, apakah anda ingin melanjutkan?',
@@ -2185,17 +2207,24 @@
         var key = $(this).data('key')
         var qty = $(this).data('qty')
         var id = $(this).data('id')
-        // var material_id = $(this).data('material_id')
         var material_id = $('#itemStok' + id).val()
         var stok = stok_by_id[material_id]
-        // console.log(stok)
-        // var stok = $(this).data('stok')
         var value = $(this).val()
         whileOverThis(key)
         if (value == '') {
             resetFormQty(key)
         } else {
-            fillFormQty(key, value, stok)
+            var value_converted = value
+            var data = data_all_stok.find((v, k) => {
+                if (v.item_id == material_id) return true
+            })
+            var findDataUnit = data.unit_option.find((v, k) => {
+                if (v.id == data.satuan_id) return true
+            })
+            if (findDataUnit) {
+                eval('value_converted = parseFloat(' + value + ' ' + findDataUnit.operator_reverse + ' ' + findDataUnit.multiplier + ')')
+            }
+            fillFormQty(key, value_converted, stok)
         }
     })
 
@@ -2226,6 +2255,7 @@
         $('#jumlahLama' + key).addClass('fw-bolder')
         $('#jumlahLama' + key).removeClass('text-decoration-line-through')
         $('#jumlahBaru' + key).html('')
+        $('#inputBaruForm' + key).val('')
     }
 
     function closeFormQty(key) {
@@ -2242,6 +2272,7 @@
         $('#jumlahLama' + key).removeClass('fw-bolder')
         $('#jumlahLama' + key).addClass('text-decoration-line-through')
         $('#jumlahBaru' + key).html('<br>' + number_format(value))
+        $('#inputBaruForm' + key).val(value)
         if (value > stok) {
             colorizedInputBaru('text-danger', '#jumlahBaru' + key, 'add')
         } else {
@@ -2320,8 +2351,10 @@
 
     function convertIntoUnit(key, value, unit, name, id) {
         var material_id = $('#itemStok' + id).val()
+        var material_request_machine_id = $('#itemStok' + id).data('material_request_machine_id')
         var stok = stok_by_id[material_id]
         var value_converted = 0
+        var value_satuan_terkecil = 0
         var data = data_all_stok.find((v, k) => {
             if (v.item_id == material_id) return true
         })
@@ -2331,8 +2364,12 @@
         var findDataUnitAfter = data.unit_option.find((v, k) => {
             if (v.id == value) return true
         })
-        // var value_converted = ()
-        console.log(findDataUnit)
-        // fillFormQty(key, value_converted, stok)
+        var dataProcess = variableDataProcess.find((v, k) => {
+            if (v.material_id == material_id && v.material_request_machine_id == material_request_machine_id) return true
+        })
+        if (dataProcess) {
+            eval('value_converted = parseFloat(' + dataProcess.qty + ' ' + findDataUnitBefore.operator_reverse + ' ' + findDataUnitBefore.multiplier + ')' + findDataUnitAfter.operator + ' ' + findDataUnitAfter.multiplier)
+        }
+        fillFormQty(key, value_converted, stok)
     }
 </script>
