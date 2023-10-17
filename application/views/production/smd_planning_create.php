@@ -829,10 +829,12 @@
                 success: function(response) {
                     $('.form-control').removeAttr('disabled')
                     data_plan = response['data']
+                    // console.log(data_plan)
                     jenis_produksi = data_plan.production_type.name.toLowerCase()
                     dateStart = data_plan.date_start
                     dateEnd = data_plan.date_end
                     $('#dateRange').val(dateStart + ' - ' + dateEnd)
+                    $('#notes').val(data_plan.note)
                     setDateRange()
                 }
             })
@@ -1081,6 +1083,7 @@
                         'machine_group_plan_item': e2.item_id_product,
                         'machine_id': e3.id,
                         'machine_name': e3.name,
+                        'machine_item': e3.item_ids_product,
                     })
                 });
             });
@@ -1219,18 +1222,11 @@
                                 obj = ""
                             }
                         }
-                        // if (jenis_produksi == 'skt') {
-                        // console.log(machine_group_plan.find((v, k) => {
-                        //     if (v.machine_group_plan_id == values.id) return true
-                        // }))
                         var findGroupPlanItem = machine_group_plan.find((v, k) => {
                             if (v.machine_group_plan_id == values.id) return true
                         }).machine_group_plan_item.find((v, k) => {
                             if (v == values2['id']) return true
                         })
-                        // } else {
-                        //     var findGroupPlanItem = ''
-                        // }
                         var formPopover = values2['code'] + ' for ' + values.name
                         if (findGroupPlanItem != undefined) {
                             var findGroupPlan = machine_group_plan.find((v, k) => {
@@ -1296,13 +1292,13 @@
         })
         $('#dataDailyPlanning').html(html)
         $('.nominal').number(true);
-        if (jenis_produksi == 'skm') {
-            if (data['productionPlanGoal']) {
-                $.each(data['productionPlanGoal'], function(key, value) {
-                    changeColorTarget(value['item_id_product'])
-                })
-            }
+        // if (jenis_produksi == 'skm') {
+        if (data['productionPlanGoal']) {
+            $.each(data['productionPlanGoal'], function(key, value) {
+                changeColorTarget(value['item_id_product'])
+            })
         }
+        // }
         if (id_plan) {
             arrangedVariableEdit()
         } else {
@@ -1328,7 +1324,6 @@
 
     $(document).on('keyup', '.jumlahPlanning', function(e) {
         simpanJumlahPlanning('manual')
-
     })
 
     var tombolOtomatis = 0
@@ -1696,9 +1691,9 @@
         if (auto == '' && id_plan == '' && tombolOtomatis == 1) {
             $('.jumlahPlanning').val('')
         }
-        if (jenis_produksi == 'skm') {
-            $('.allfieldDPlan').addClass('bg-light')
-        }
+        // if (jenis_produksi == 'skm') {
+        $('.allfieldDPlan').addClass('bg-light')
+        // }
         var obj = []
         var objPlan = []
         var objPlanGroup = []
@@ -1762,6 +1757,7 @@
         }).get();
         var indexDetail = 0
         var indexGroup = 0
+        // console.log('++++++++++++++++++++++++++++++++++++++++')
         for (let i = 0; i < jumlahPlan.length; i++) {
             if (jumlahPlan[i] != "") {
                 if (jenis_produksi == 'skt') {
@@ -1811,7 +1807,6 @@
                             'unit_id': unit[i],
                             'pita_id': pitaCukai[j],
                         })
-
                         var production_plan_group = dataIdPlanGroup.find((v, k) => {
                             if (v.machine_id == mesin[i] && v.pita_id == pitaCukai[j] && v.product_id == produkPlan[i] && formatDate(v.date) == formatDate(tanggal[i])) return true
                         })
@@ -1843,27 +1838,42 @@
                                 'unit_id': unit[i],
                             })
                             var production_plan_detail = dataIdPlanDetail.find((v, k) => {
-                                if (v.machine_id == e.machine_id && v.product_id == produkPlan[i]) return true
+                                if (v.machine_id == e.machine_id && v.product_id == produkPlan[i] && formatDate(v.date) == formatDate(tanggal[i])) return true
                             })
+                            if (id_plan) {
+                                if (production_plan_detail) {
+                                    objPlan[indexDetail]['id'] = production_plan_detail.production_plan_detail_id
+                                }
+                            }
+                            indexDetail++
                         } else {
-                            objPlan.push({
-                                'qty': jum,
-                                'item_id_product': produkPlan[i],
-                                'machine_id': e.machine_id,
-                                'date': tanggal[i],
-                                'unit_id': unit[i],
-                                'pita_id': pitaCukai[j],
+                            // console.log(e)
+                            // cek apakah machine tersebut termasuk bagian dari product tersebut
+                            var check_ids_product = e.machine_item.find((v, k) => {
+                                if (v == produkPlan[i]) return true
                             })
-                            var production_plan_detail = dataIdPlanDetail.find((v, k) => {
-                                if (v.machine_id == e.machine_id && v.pita_id == pitaCukai[j] && v.product_id == produkPlan[i]) return true
-                            })
-                        }
-                        if (id_plan) {
-                            if (production_plan_detail) {
-                                objPlan[indexDetail]['id'] = production_plan_detail.production_plan_detail_id
+                            // console.log(check_ids_product)
+                            if (check_ids_product) {
+                                objPlan.push({
+                                    'qty': jum,
+                                    'item_id_product': produkPlan[i],
+                                    'machine_id': e.machine_id,
+                                    'date': tanggal[i],
+                                    'unit_id': unit[i],
+                                    'pita_id': pitaCukai[j],
+                                })
+                                var production_plan_detail = dataIdPlanDetail.find((v, k) => {
+                                    if (v.machine_id == e.machine_id && v.pita_id == pitaCukai[j] && v.product_id == produkPlan[i] && formatDate(v.date) == formatDate(tanggal[i])) return true
+                                })
+                                if (id_plan) {
+                                    if (production_plan_detail) {
+                                        objPlan[indexDetail]['id'] = production_plan_detail.production_plan_detail_id
+                                    }
+                                }
+                                indexDetail++
                             }
                         }
-                        indexDetail++
+
                     });
                 }
             }
@@ -1881,9 +1891,9 @@
         }
         var indexGoal = 0
         for (let i = 0; i < produk.length; i++) {
-            if (jenis_produksi == 'skm') {
-                changeColorTarget(produk[i])
-            }
+            // if (jenis_produksi == 'skm') {
+            changeColorTarget(produk[i])
+            // }
             if (jumlah[i] != "") {
                 if (jenis_produksi == 'skm') {
                     var propo = ''
@@ -1966,8 +1976,8 @@
                     var jumlah_isi = 0
                     var text_color = ''
                     if (data['productionPlanDetail'] != undefined) {
-                        var obj = data['productionPlanDetail'].filter((values, keys) => {
-                            if (values.item_id_product === parseInt(value['item_id_product']) && values.unit_id === parseInt(data_master[jenis_produksi]['goalSatuan']['id'])) return true
+                        var obj = data['productionPlanDetailGroup'].filter((values, keys) => {
+                            if (values.item_id_product == parseInt(value['item_id_product']) && values.unit_id == parseInt(data_master[jenis_produksi]['goalSatuan']['id'])) return true
                         })
                         jumlah_isi = obj.reduce((n, {
                             qty

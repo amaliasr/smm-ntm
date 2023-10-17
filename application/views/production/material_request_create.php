@@ -790,8 +790,8 @@
         html += '</div>'
         if (list_data_plan.length != 0) {
             $.each(list_data_plan, function(key, value) {
-                if (formatDate(value.date) < '') {
-                    // if (formatDate(value.date) < currentDate()) {
+                // if (formatDate(value.date) < '') {
+                if (formatDate(value.date) < currentDate()) {
                     jumlah_expired_plan++
                     html_expired_plan += '<div class="card card-hoper shadow-none mb-2 bg-light" id="card_search' + key + '">'
                     html_expired_plan += '<div class="card-body">'
@@ -809,7 +809,7 @@
                     html_expired_plan += '</div>'
                     html_expired_plan += '</div>'
                 } else {
-                    html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
+                    html += '<div class="card card-hoper cardPlanning date' + value['date'] + ' shadow-sm mb-2" data-date="' + value['date'] + '" style="cursor:pointer;" onclick="loadDataPlanning(' + value['id'] + ',' + "'" + value['date'] + "'" + ')" id="card_search' + key + '">'
                     html += '<div class="row g-0">'
                     html += '<div class="col-md-2 bg-' + value.production_type_name.toLowerCase() + '">'
                     html += '<div class="row d-flex align-items-center h-100">'
@@ -866,11 +866,33 @@
             html_collapse += '</div>'
             html_collapse += '</div>'
             $('#listPlanning').html(html)
+            findTodayAtListPlanning()
             if (jumlah_expired_plan > 0) {
                 switchCollapseExpired(0)
             }
         } else {
             notFoundWithButton('#listPlanning', '<?= base_url() ?>production/planning/smd', 'Check into List Planning', 'Tidak Ada Planning Minggu ini yang Tersedia')
+        }
+    }
+
+    function findTodayAtListPlanning() {
+        // Setelah elemen-elemen ditambahkan, kita dapat melakukan scroll
+        var targetCardId = currentDate(); // Id dari card yang ingin ditengahi
+        var targetElement = $('.date2023-10-10');
+        // Periksa apakah elemen target ada
+        if (targetElement.length > 0) {
+            var container = $('#listPlanning');
+            var containerHeight = container.height();
+            var elementHeight = targetElement.outerHeight();
+            var elementPosition = targetElement.position().top;
+
+            // Hitung posisi scroll untuk tengahi elemen
+            var scrollTo = elementPosition - (containerHeight / 2) + (elementHeight / 2);
+            // console.log(elementHeight)
+            // Animasikan scroll
+            container.animate({
+                scrollTop: scrollTo
+            }, 500);
         }
     }
 

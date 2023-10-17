@@ -112,6 +112,14 @@
                 #1C315E 0%,
                 rgba(34, 124, 112, 0.8) 100%) !important;
     }
+
+    .small-text {
+        font-size: 11px;
+    }
+
+    .super-small-text {
+        font-size: 9px;
+    }
 </style>
 <!-- loading CSS -->
 <style type="text/css">
@@ -258,6 +266,28 @@
     a {
         cursor: pointer;
     }
+
+    .select2-container--default .select2-selection--single {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 40px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 26px;
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        width: 20px;
+        visibility: hidden;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: grey;
+        line-height: 40px;
+        font-size: 12px;
+    }
 </style>
 <main>
     <!-- Main page content-->
@@ -290,8 +320,16 @@
                                         </span>
                                     </div>
                                 </div>
+                                <div class="col-auto ps-0">
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-light shadow-none" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="filterSpecial()">Filter Special</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                                 <?php if (job_foreman()) { ?>
-                                    <div class="col-auto">
+                                    <div class="col-auto ps-0">
                                         <div class="btn-group">
                                             <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span class="ms-2 d-none d-sm-block">Add New</span>
@@ -374,9 +412,41 @@
 <!-- Chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
+<script>
+    function transformData(data) {
+        const result = [];
+
+        data.forEach(item => {
+            item.detail.forEach(detailItem => {
+                const existingMaterial = result.find(
+                    resultItem => resultItem.material_id === detailItem.material_id
+                );
+
+                if (!existingMaterial) {
+                    result.push({
+                        material_id: detailItem.material_id,
+                        material_name: detailItem.material_name,
+                        material_code: detailItem.material_code,
+                    });
+                }
+            });
+        });
+
+        return result;
+    }
+
+    function filterData(data, dateStart, dateEnd, materialIds) {
+        return data.filter(item => {
+            const isWithinDateRange = (!dateStart || item.date >= dateStart) && (!dateEnd || item.date <= dateEnd);
+            const isMatchingMaterialId = !materialIds.length || materialIds.includes(item.material_id);
+            return isWithinDateRange && isMatchingMaterialId;
+        });
+    }
+</script>
 <script>
     function clearModal() {
         $('#modalDialog').removeClass();
@@ -431,6 +501,15 @@
         html += '</div>'
         html += '</div>'
         $(location).html(html)
+    }
+
+
+    function empty(location, text, height) {
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:100%;"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+    }
+
+    function emptyText(location, text) {
+        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none border-0" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>')
     }
     $(document).on('show.bs.modal', '.modal', function() {
         const zIndex = 1040 + 10 * $('.modal:visible').length;
@@ -493,7 +572,10 @@
         })
     }
     var data_isi_material = []
+    var data_isi_material_detail = []
     var detail = []
+    var indexMaterial = 0
+    var materialList
 
     function variableMR() {
         $.each(data_material, function(ke, valu) {
@@ -520,6 +602,20 @@
                                     'unit': values3['unit']['name'],
                                     'qty': values3['qty_request'],
                                 })
+                                data_isi_material_detail.push({
+                                    id: valu['id'],
+                                    date: valu['date'],
+                                    code: valu['code'],
+                                    status: valu['status'],
+                                    machine_id: values2['machine']['id'],
+                                    machine_code: values2['machine']['code'],
+                                    material_id: values3['material']['id'],
+                                    material_name: values3['material']['name'],
+                                    material_code: values3['material']['code'],
+                                    unit_id: values3['unit']['id'],
+                                    unit: values3['unit']['name'],
+                                    qty: values3['qty_request'],
+                                })
                             })
                         })
                     })
@@ -528,9 +624,11 @@
             // console.log(detail)
             data_isi_material.push({
                 id: valu['id'],
+                date: valu['date'],
                 detail: detail
             })
         })
+        materialList = transformData(data_isi_material)
         formMaterialRequest()
     }
 
@@ -999,5 +1097,147 @@
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
+    }
+
+    function filterSpecial() {
+        indexMaterial = 0
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Filter Special</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-4 p-3">'
+        // filter
+        // date
+        html_body += '<div class="row">'
+        html_body += '<b class="small">Tanggal</b>'
+        html_body += '<div class="col pe-0">'
+        html_body += '<input class="form-control form-control-sm datepicker" type="text" id="dateStart" placeholder="Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="" autocomplete="off">'
+        html_body += '</div>'
+        html_body += '<div class="col-auto align-self-center">-</div>'
+        html_body += '<div class="col ps-0">'
+        html_body += '<input class="form-control form-control-sm datepicker" type="text" id="dateEnd" placeholder="Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="" autocomplete="off">'
+        html_body += '</div>'
+        html_body += '</div>'
+        // date
+        // product
+        html_body += '<div class="row pt-2">'
+        html_body += '<b class="small">Material</b>'
+        html_body += '<div class="col-12" id="formMaterialId">'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<div class="card shadow-none pointer" onclick="selectMaterial()">'
+        html_body += '<div class="card-body p-3 text-center">'
+        html_body += '<p class="m-0 super-small-text"><i class="fa fa-plus"></i> Add Material</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // product
+        html_body += '<div class="row pt-2">'
+        html_body += '<div class="col-12 text-end">'
+        html_body += '<button class="btn btn-sm btn-primary" onclick="findFilterSpecial()">Cari</button>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // filter
+        html_body += '</div>'
+
+        html_body += '<div class="col-8" id="listFilterSpecial">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body)
+        $('.nominal').number(true);
+        new Litepicker({
+            element: document.getElementById('dateStart'),
+            elementEnd: document.getElementById('dateEnd'),
+            singleMode: false,
+            allowRepick: true,
+            firstDay: 0,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {});
+            },
+        })
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer).removeClass('d-none')
+        empty('#listFilterSpecial', 'Anda belum melakukan filter', '300px')
+    }
+
+    function selectMaterial() {
+        var html = ''
+        html += '<div class="row mb-2" id="fieldMaterial' + indexMaterial + '">'
+        html += '<div class="col-10 pe-0">'
+        html += '<select name="" id="materialId' + indexMaterial + '" class="form-control materialId" data-id="" style="height: 40px;">'
+        html += '<option value="" selected disabled>Pilih Material</option>'
+        materialList.forEach(e => {
+            html += '<option value="' + e.material_id + '">' + e.material_code + ' - ' + e.material_name + '</option>'
+        });
+        html += '</select>'
+        html += '</div>'
+        html += '<div class="col-2 text-end">'
+        html += '<button class="btn btn-sm btn-danger" onclick="removeMaterial(' + indexMaterial + ')" style="height: 40px;width: 40px;"><i class="fa fa-trash"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        $('#formMaterialId').append(html)
+        $('#materialId' + indexMaterial).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        indexMaterial++
+    }
+
+    function removeMaterial(id) {
+        $('#fieldMaterial' + id).remove()
+    }
+
+    function findFilterSpecial() {
+        var startDate = $('#dateStart').val()
+        var endDate = $('#dateEnd').val()
+        var materialId = $('.materialId').map(function() {
+            return parseInt($(this).val());
+        }).get();
+        var filteredData = filterData(data_isi_material_detail, startDate, endDate, materialId)
+        console.log(filteredData)
+        showDataFilterSpecial(filteredData)
+    }
+
+    function showDataFilterSpecial(data) {
+        var html = ''
+        html += '<div class="table-responsive">'
+        html += '<table class="table table-sm table-hover mt-3">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th class="small-text text-center p-3 align-middle">#</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Date</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Code</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Material</th>'
+        html += '<th class="small-text text-center p-3 align-middle">QTY</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Unit</th>'
+        html += '<th class="small-text text-center p-3 align-middle">Status</th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        var a = 1
+        data.forEach(e => {
+            html += '<tr>'
+            html += '<td class="super-small-text align-middle text-center">' + a++ + '</td>'
+            html += '<td class="super-small-text align-middle text-center">' + e.date + '</td>'
+            html += '<td class="super-small-text align-middle text-center">' + e.code.replace("MRSKT-", "") + '</td>'
+            html += '<td class="super-small-text align-middle">' + e.material_code + ' - ' + e.material_name + '</td>'
+            html += '<td class="super-small-text align-middle text-center">' + number_format(e.qty) + '</td>'
+            html += '<td class="super-small-text align-middle text-center">' + e.unit + '</td>'
+            html += '<td class="super-small-text align-middle text-center">' + e.status + '</td>'
+            html += '</tr>'
+        });
+        html += '</tbody>'
+        html += '</table>'
+        html += '</div>'
+        $('#listFilterSpecial').html(html)
     }
 </script>

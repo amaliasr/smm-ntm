@@ -121,11 +121,13 @@
                             <a class="nav-link" href="<?= base_url(); ?>production/productionPortals">Production Portals</a>
                         <?php } ?>
                         <?php if (if_machine_shelters()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>production/machineShelters">Machine Shelters</a>
+                            <a class="nav-link" href="<?= base_url(); ?>production/machineShelters"><i class="fa fa-database me-1"></i>Machine Shelters</a>
                         <?php } ?>
+                        <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a>
                         <?php if (if_so_production()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
                         <?php } ?>
+                        <a class="nav-link" href="<?= base_url(); ?>production/sktProduction"><i class="fa fa-leaf me-1"></i>SKT Production</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->

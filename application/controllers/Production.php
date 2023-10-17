@@ -216,6 +216,16 @@ class Production extends CI_Controller
         $data['title'] = 'Stock Opname Production';
         $this->template->views('production/stock_opname_production', $data);
     }
+    public function microWarehouse()
+    {
+        $data['title'] = 'Micro Warehouse';
+        $this->template->views('production/micro_warehouse', $data);
+    }
+    public function sktPortal()
+    {
+        $data['title'] = 'SKT Portaks';
+        $this->template->views('production/skt_portal', $data);
+    }
     public function cetakWorkPlan()
     {
         $params = $this->input->get('params');

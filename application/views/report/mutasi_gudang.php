@@ -227,8 +227,17 @@
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
             method: "GET",
             dataType: 'JSON',
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
             success: function(response) {
                 data_user = response['data']
                 getData()
@@ -241,14 +250,21 @@
             url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
             method: "GET",
             dataType: 'JSON',
-            error: function(xhr) {},
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
             beforeSend: function() {},
             success: function(response) {
+                showOverlay('hide')
                 data_item = response['data']['item'];
                 data_satuan = response['data']['itemSatuan'];
                 data_supplier = response['data']['supplier'];
                 data_gudang = response['data']['gudang'];
-
                 tampilFilter()
                 // getDataOpname()
             }
@@ -285,12 +301,12 @@
         if (data_item.length == item_id.length) {
             check = 'checked'
         }
-        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll()" ' + check + '>'
+        html_body += '<input class="form-check-input mb-2" type="checkbox" value="on" id="checkPilihSemua" onchange="itemAll(),openDisabled()" ' + check + '>'
         html_body += '<label class="form-check-label" for="checkPilihSemua">'
         html_body += 'Pilih Semua'
         html_body += '</label>'
         html_body += '</div>'
-        html_body += '<select class="form-select form-select-lg w-100 itemStok" multiple id="itemStok" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        html_body += '<select class="form-select form-select-lg w-100 itemStok" multiple id="itemStok" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="openDisabled()" >'
         // html_body += '<option value="" selected>All Item</option>'
         $.each(data_item, function(keys, values) {
             var select = ""
@@ -318,6 +334,11 @@
             singleMode: false,
             allowRepick: true,
             firstDay: 0,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    openDisabled()
+                });
+            },
         })
 
         var html_footer = '';
@@ -333,8 +354,8 @@
         html_footer += '</div>';
         html_footer += '</div>';
         html_footer += '<div class="col text-end">';
-        html_footer += '<button type="button" class="btn btn-primary btn-sm float-end" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
-        html_footer += '<button type="button" class="btn btn-outline-success btn-sm float-end ms-1 me-1" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm float-end actionButton" id="btnFilter" onclick="getDataOpname()" disabled>Simpan</button>'
+        html_footer += '<button type="button" class="btn btn-outline-success btn-sm float-end ms-1 me-1 actionButton" onclick="exportExcel()" disabled><i class="fa fa-download me-2"></i> Export Excel</button>'
         html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm float-end ms-1 me-1" data-bs-dismiss="modal">Tutup</button>'
         html_footer += '</div>';
         html_footer += '</div>';
@@ -347,6 +368,20 @@
         // html_footer += '<button type="button" class="btn btn-outline-success btn-sm float-end" onclick="exportExcel()"><i class="fa fa-download me-2"></i> Export Excel</button>'
         // html_footer += '<button type="button" class="btn btn-primary btn-sm float-end" id="btnFilter" onclick="getDataOpname()">Simpan</button>'
         $('#modalFooter').html(html_footer);
+    }
+
+    function openDisabled() {
+        console.log('test')
+        date_start = $('#dateStart').val()
+        date_end = $('#dateEnd').val()
+        item_id = $('.itemStok').map(function() {
+            return $(this).val();
+        }).get();
+        if (date_start && date_end && item_id.length) {
+            $('.actionButton').prop("disabled", false);
+        } else {
+            $('.actionButton').prop("disabled", true);
+        }
     }
 
     function itemAll() {
