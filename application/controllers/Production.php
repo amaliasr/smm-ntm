@@ -258,7 +258,7 @@ class Production extends CI_Controller
         $date_start = date('Y-m-d', strtotime($explodedParams[$a++]));
         $date_end = date('Y-m-d', strtotime($explodedParams[$a++]));
         $statusSplit = $explodedParams[$a++];
-        $url = "getProductionLineStock?" . $textId . "date_start=" . $date_start . "&date_end=" . $date_end . "";
+        $url = "getProductionLineStock?" . $textId . "dateStart=" . $date_start . "&dateEnd=" . $date_end . "";
         $main = json_decode(file_get_contents(api_produksi($url)), true);
         $body = $main['data'];
         $spreadsheet = new Spreadsheet();
@@ -303,9 +303,9 @@ class Production extends CI_Controller
                 }
                 $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'IN');
                 $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'OUT');
-                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'PENGGUNAAN');
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'NETT');
                 $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'WASTE');
-                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'TOTAL');
+                $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . '2', 'GROSS');
             }
             $hurufMergeAwal++;
             if ($statusSplit == 'merged') {
@@ -328,9 +328,9 @@ class Production extends CI_Controller
                         foreach ($value2['data'] as $key3 => $value3) {
                             $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['in']);
                             $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['out']);
-                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['penggunaan']);
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['nett']);
                             $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['waste']);
-                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['total']);
+                            $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir++) . $rowCount, $value3['gross']);
                         }
                         $worksheet[$i]->setCellValue(Coordinate::stringFromColumnIndex($hurufTerakhir) . $rowCount, $value2['saldo_akhir']);
                         $rowCount++;

@@ -1469,9 +1469,9 @@
         dataDetail.machineStock[0].data[0].data.forEach(e => {
             html += '<th class="small-text text-center p-3 align-middle">IN</th>'
             html += '<th class="small-text text-center p-3 align-middle">OUT</th>'
-            html += '<th class="small-text text-center p-3 align-middle">PENGGUNAAN</th>'
+            html += '<th class="small-text text-center p-3 align-middle">NETT</th>'
             html += '<th class="small-text text-center p-3 align-middle">WASTE</th>'
-            html += '<th class="small-text text-center p-3 align-middle">TOTAL</th>'
+            html += '<th class="small-text text-center p-3 align-middle">GROSS</th>'
         })
         html += '</tr>'
         html += '</thead>'
@@ -1504,9 +1504,9 @@
                     el.data.forEach(ele => {
                         html += '<td class="small-text align-middle text-center">' + ele.in + '</td>'
                         html += '<td class="small-text align-middle text-center">' + ele.out + '</td>'
-                        html += '<td class="small-text align-middle text-center">' + ele.penggunaan + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + ele.nett + '</td>'
                         html += '<td class="small-text align-middle text-center">' + ele.waste + '</td>'
-                        html += '<td class="small-text align-middle text-center">' + ele.total + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + ele.gross + '</td>'
                     })
                     html += '<td class="small-text align-middle text-center">' + el.saldo_akhir + '</td>'
                     html += '</tr>'
@@ -1551,8 +1551,10 @@
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
     }
+    var arrayListWarehouse = []
 
     function filterCanvas() {
+        arrayListWarehouse = []
         $('.offcanvas').offcanvas('show')
         var header = ''
         header += '<h5 id="offcanvasRightLabel">Filter</h5>'
@@ -1562,16 +1564,19 @@
         body += '<div class="row">'
         body += '<div class="col-12 pb-3">'
         body += '<b class="small">Machine / Warehouse</b>'
-        body += '<select class="form-select form-select-lg w-100 filter tujuanTransaksi" multiple id="tujuanTransaksi" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;">'
+        body += '<select class="form-select form-select-lg w-100 filter tujuanTransaksi" multiple id="tujuanTransaksi" style="width:100%;padding:0.875rem 3.375rem 0.875rem 1.125rem;" onchange="buttonAction()">'
         dataListWarehouse.listProductionLine.forEach(e => {
             if (e.data) {
                 e.data.forEach(el => {
+                    arrayListWarehouse.push(el.id)
                     var selected = ''
                     body += '<option value="' + el.id + '" data-type="' + e.type + '" selected>' + el.name + '</option>'
                 });
             }
         });
         body += '</select>'
+        body += '<button class="btn btn-sm btn-outline-primary small-text p-1 mt-2 me-2 shadow-none" onclick="selectAllSelect()">Select All</button>'
+        body += '<button class="btn btn-sm btn-outline-primary small-text p-1 mt-2 shadow-none" onclick="clearAllSelect()">Clear All</button>'
         body += '</div>'
         body += '<div class="col-12">'
         body += '<b class="small">Tanggal Mulai</b>'
@@ -1582,7 +1587,7 @@
         body += '<input class="form-control datepicker mb-3" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" autocomplete="off" value="' + dateEnd + '">'
         body += '</div>'
         body += '<div class="col-12 text-end">'
-        body += '<button class="btn btn-primary btn-sm" onclick="changeFilter()">Search</button>'
+        body += '<button class="btn btn-primary btn-sm" id="btnSearch" onclick="changeFilter()" disabled>Search</button>'
         body += '</div>'
         body += '<div class="col-12 mt-5">'
         body += '<p class="m-0 small-text">Found <span class="fw-bolder"></span> Datas</p>'
@@ -1597,6 +1602,7 @@
         new Litepicker({
             element: document.getElementById('dateStart'),
             elementEnd: document.getElementById('dateEnd'),
+            allowClear: true,
             singleMode: false,
             allowRepick: true,
             firstDay: 0,
@@ -1604,9 +1610,37 @@
                 picker.on('selected', (date1, date2) => {
                     dateStart = formatDate(date1['dateInstance'])
                     dateEnd = formatDate(date2['dateInstance'])
+                    buttonAction()
                 });
             },
         })
+    }
+
+    function clearAllSelect() {
+        $('.filter').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            dropdownParent: $('#offcanvasRight'),
+        }).val(null).trigger("change")
+        buttonAction()
+    }
+
+    function selectAllSelect() {
+        $('.filter').select2({
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            closeOnSelect: false,
+            dropdownParent: $('#offcanvasRight'),
+        }).val(arrayListWarehouse).trigger("change")
+        buttonAction()
+    }
+
+    function buttonAction() {
+        var value = $("#tujuanTransaksi").val()
+        if (dateStart && dateEnd && value.length) {
+            $('#btnSearch').removeAttr('disabled', true)
+        } else {
+            $('#btnSearch').attr('disabled', true)
+        }
     }
 
     function exportExcel(status) {

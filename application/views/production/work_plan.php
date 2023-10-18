@@ -965,6 +965,18 @@
                         </div>
                     </button>
                 </div>
+                <div class="col-12 pe-0 ps-0 pt-2">
+                    <button type="button" class="btn btn-outline-danger shadow-none btn-sm w-100 h-100" style="text-align: left;" id="btnBatalAllWorkPlan" onclick="batalAllWorkPlan()" disabled>
+                        <div class="row">
+                            <div class="col-auto p-0 pe-1 align-self-center">
+                                <i class="fa fa-times fa-1x"></i>
+                            </div>
+                            <div class="col-auto p-0 ps-1 align-self-center">
+                                <p class="m-0 super-small-test">Batalkan Semua Workplan</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
         <!-- RIGHT PANEL -->
@@ -1455,6 +1467,95 @@
         return arrayTanggal.join(', ');
     }
 
+    function showVariableForEmployee(d) {
+        var data = []
+        data_work.manPowerFrame.forEach(k => {
+            if (data_work.productionTypeForeman.name == 'SKM') {
+                if (k != 'qc' && k != 'mechanic') {
+                    eval(`var em${k} = []`)
+                    eval(`var dataEmployee =  d.employee_${k}`)
+                    if (dataEmployee.length > 0) {
+                        eval(`em${k}`) = dataEmployee.map(employee => employee.id)
+                    }
+                    data.push({
+                        variable: k,
+                        name: 'em' + k,
+                        data: eval(`em${k}`)
+                    })
+                }
+            } else {
+                // console.log(k)
+                eval(`var em${k} = []`)
+                eval(`var dataEmployee =  d.employee_${k}`)
+                if (dataEmployee.length > 0) {
+                    eval(`em${k}`) = dataEmployee.map(employee => employee.id)
+                }
+                data.push({
+                    variable: k,
+                    name: 'em' + k,
+                    data: eval(`em${k}`)
+                })
+            }
+        });
+        return data
+    }
+
+    function showVariableForEmployeeForManpower(masterMachine, date, v, value) {
+        var data = []
+        data_work.manPowerFrame.forEach(k => {
+            if (data_work.productionTypeForeman.name == 'SKM') {
+                if (k != 'qc' && k != 'mechanic') {
+                    eval(`var total${k} = 0`)
+                    $.each(masterMachine, function(keys, values) {
+                        var executorEmployee = manPowerFilter({
+                            key: 'date',
+                            value: date
+                        }, {
+                            key: 'shift_group_id',
+                            value: v.group_id
+                        }, {
+                            key: 'machine_type_id',
+                            value: value.id
+                        }, {
+                            key: 'machine_id',
+                            value: values.id
+                        })
+                        eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
+                    })
+                    data.push({
+                        variable: k,
+                        name: 'total' + k,
+                        data: eval(`total${k}`)
+                    })
+                }
+            } else {
+                eval(`var total${k} = 0`)
+                $.each(masterMachine, function(keys, values) {
+                    var executorEmployee = manPowerFilter({
+                        key: 'date',
+                        value: date
+                    }, {
+                        key: 'shift_group_id',
+                        value: v.group_id
+                    }, {
+                        key: 'machine_type_id',
+                        value: value.id
+                    }, {
+                        key: 'machine_id',
+                        value: values.id
+                    })
+                    eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
+                })
+                data.push({
+                    variable: k,
+                    name: 'total' + k,
+                    data: eval(`total${k}`)
+                })
+            }
+        });
+        return data
+    }
+
     function cardAlert(text, direction) {
         var html = ''
         html += '<div class="card h-100" style="background-color:transparent;border: 1px dashed #cfcfcf;">'
@@ -1562,6 +1663,7 @@
         resetDelete()
         var data = {
             productionPlanId: id,
+            employeeId: user_id,
         }
         var url = "<?= api_produksi('loadPageWorkPlanManage'); ?>"
         getData(data, url, id)
@@ -1595,14 +1697,20 @@
                 $('#dateRange').html(formatDateIndonesiaTanggalBulan(data_work.productionPlan.date_start) + ' - ' + formatDateIndonesiaTanggalBulan(data_work.productionPlan.date_end))
                 if (data_work.workPlan[0].work_plan.work_plan_id == null) {
                     // jika belum ada workplan
+                    $('#btnBatalAllWorkPlan').prop("disabled", true)
                     convertToWorkPlan()
                 } else {
+                    $('#btnBatalAllWorkPlan').prop("disabled", false)
                     // jika sudah ada workplan
                     convertedToWorkPlan = 'yes'
                     arrangeVariable()
                 }
             }
         })
+    }
+
+    function workPlanStarted(params) {
+
     }
     var data_work_converted = []
     var blankShift = []
@@ -1699,7 +1807,7 @@
             });
             indexDate++
         })
-        console.log(data_work.workPlan)
+        // console.log(data_work.workPlan)
         finishedConvert()
     }
 
@@ -1786,6 +1894,8 @@
             variableOfShift[e.id] = "" + convertTimeFormat(e.start_time) + " - " + convertTimeFormat(e.end_time)
         });
         var numIndex = 0
+        var numIndexMachine = 0
+        var numIndexWorkPlan = 0
         // VARIABLE WORK PLAN
         data_work.workPlan.forEach(a => {
             // date
@@ -1795,7 +1905,7 @@
                 id: a.work_plan.work_plan_id,
                 production_plan_id: data_work.productionPlan.id,
                 date: a.date,
-                note: a.note
+                note: a.note,
             })
             a.work_plan.shift_qc.forEach(b => {
                 // qc
@@ -1854,18 +1964,33 @@
                     // buat bar work plan
                     c.shift_machine.forEach(d => {
                         // machine
-                        var emoperator = []
-                        var emhelper = []
-                        var emcatcher = []
-                        if (d.employee_operator.length > 0) {
-                            emoperator = d.employee_operator.map(employee => employee.id)
-                        }
-                        if (d.employee_helper.length > 0) {
-                            emhelper = d.employee_helper.map(employee => employee.id)
-                        }
-                        if (d.employee_catcher.length > 0) {
-                            emcatcher = d.employee_catcher.map(employee => employee.id)
-                        }
+                        var dataEmployee = showVariableForEmployee(d)
+                        // console.log(dataEmployee)
+                        // var emoperator = []
+                        // var emhelper = []
+                        // var emcatcher = []
+                        // if (d.employee_operator.length > 0) {
+                        //     emoperator = d.employee_operator.map(employee => employee.id)
+                        // }
+                        // if (d.employee_helper.length > 0) {
+                        //     emhelper = d.employee_helper.map(employee => employee.id)
+                        // }
+                        // if (d.employee_catcher.length > 0) {
+                        //     emcatcher = d.employee_catcher.map(employee => employee.id)
+                        // }
+                        // if (d.work_plan_machine_id != null) {
+                        //     set_work_plan['workPlanMachine'].push({
+                        //         id: d.work_plan_machine_id,
+                        //         work_plan_machine_type_id: c.work_plan_machine_type_id,
+                        //         work_plan_id: a.work_plan.work_plan_id,
+                        //         shift_id: d.shift.id,
+                        //         machine_id: d.machine.id,
+                        //         employee_id_operator: emoperator,
+                        //         employee_id_helper: emhelper,
+                        //         employee_id_catcher: emcatcher,
+                        //         note: d.note,
+                        //     })
+                        // }
                         if (d.work_plan_machine_id != null) {
                             set_work_plan['workPlanMachine'].push({
                                 id: d.work_plan_machine_id,
@@ -1873,11 +1998,13 @@
                                 work_plan_id: a.work_plan.work_plan_id,
                                 shift_id: d.shift.id,
                                 machine_id: d.machine.id,
-                                employee_id_operator: emoperator,
-                                employee_id_helper: emhelper,
-                                employee_id_catcher: emcatcher,
                                 note: d.note,
                             })
+                            dataEmployee.forEach(k => {
+                                // console.log(k.variable)
+                                eval(`set_work_plan['workPlanMachine'][numIndexMachine].employee_id_${k.variable} =  k.variable`)
+                            })
+                            numIndexMachine++
                         }
 
                         // buat bar work plan
@@ -1892,6 +2019,7 @@
                             'resource': d.machine.id,
                             'start': a.date,
                         })
+
                         // buat bar work plan
                         var insertPriority = 1
                         d.products.forEach(e => {
@@ -1944,9 +2072,9 @@
                                 'shift_group_id_mechanic': c.shift.group_id,
                                 'machine_id': d.machine.id,
                                 'machine_name': d.machine.name,
-                                'employee_helper': d.employee_helper,
-                                'employee_catcher': d.employee_catcher,
-                                'employee_operator': d.employee_operator,
+                                // 'employee_helper': d.employee_helper,
+                                // 'employee_catcher': d.employee_catcher,
+                                // 'employee_operator': d.employee_operator,
                                 'note_machine': d.note,
                                 'work_plan_machine_id': d.work_plan_machine_id,
                                 'shift_id_machine': d.shift.id,
@@ -1960,6 +2088,12 @@
                                 'note_product': e.note,
                                 'work_plan_product_id': e.work_plan_product_id,
                             })
+                            var dataEmployee = showVariableForEmployee(d)
+                            dataEmployee.forEach(k => {
+                                // console.log(k.variable)
+                                eval(`data_work_plan[numIndexWorkPlan].employee_${k.variable} =  d.employee_${k.variable}`)
+                            })
+                            numIndexWorkPlan++
                         });
                     });
                 });
@@ -2031,12 +2165,15 @@
                     key: 'machine_type_id',
                     value: d.id
                 })
+                // console.log(mekanikEmployee)
                 html += '<td class="text-center small-text align-selft-center bg-light" style="vertical-align: middle;">'
-                var textColor = 'text-grey'
-                if (mekanikEmployee['mechanic'].total) {
-                    textColor = 'text-orange'
+                if (data_work.productionTypeForeman.name == 'SKM') {
+                    var textColor = 'text-grey'
+                    if (mekanikEmployee['mechanic'].total) {
+                        textColor = 'text-orange'
+                    }
+                    html += '<p class="m-0 ' + textColor + '" onclick="managementManPower(event,1,' + "'" + dateList[i] + "'" + ',null,' + d.id + ')"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
                 }
-                html += '<p class="m-0 ' + textColor + '" onclick="managementManPower(event,1,' + "'" + dateList[i] + "'" + ',null,' + d.id + ')"><b>' + mekanikEmployee['mechanic'].total + ' Mechanic</b></p>'
                 html += '</td>'
             }
             html += '</tr>'
@@ -2600,9 +2737,11 @@
                             workPlanMachineTypeId = findShift.work_plan_machine_type_id
                             shiftWorkPlanMachineType = dataShift.shift_id
                         }
-                        var warnEmpty = ''
-                        if (mekanikEmployee['mechanic'].total == 0) {
-                            warnEmpty = '<span class="ms-1 fa fa-warning text-warning"></span>'
+                        if (data_work.productionTypeForeman.name == 'SKM') {
+                            var warnEmpty = ''
+                            if (mekanikEmployee['mechanic'].total == 0) {
+                                warnEmpty = '<span class="ms-1 fa fa-warning text-warning"></span>'
+                            }
                         }
                         html += '<div class="accordion-item" style="border: none;">'
                         html += '<h2 class="accordion-header" id="headMachineType' + k + key + '" style="border: 1px solid #dedede;">'
@@ -2617,11 +2756,13 @@
                         html += '<b class="super-small-text">' + findShift + unavailableData + '</b>'
                         html += '</div>'
                         html += '<div class="col-4 text-end align-self-center pe-5">'
-                        var textColor = 'text-grey'
-                        if (mekanikEmployee['mechanic'].total) {
-                            textColor = 'text-orange'
+                        if (data_work.productionTypeForeman.name == 'SKM') {
+                            var textColor = 'text-grey'
+                            if (mekanikEmployee['mechanic'].total) {
+                                textColor = 'text-orange'
+                            }
+                            html += '<p class="m-0 fw-bold super-small-text man-power ' + textColor + '"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik ' + warnEmpty + '</p>'
                         }
-                        html += '<p class="m-0 fw-bold super-small-text man-power ' + textColor + '"  onclick="chooseManPower(' + "'" + availableData + "'," + "'mechanic'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ')">' + mekanikEmployee['mechanic'].total + ' Mekanik ' + warnEmpty + '</p>'
                         html += '</div>'
                         html += '</div>'
                         html += '</div>'
@@ -2646,37 +2787,35 @@
                         html += '<div class="row w-100">'
                         html += '<div class="col align-self-center text-dark-grey">'
                         html += '<b>SUMMARY ' + value.name + '</b>'
-                        var totalCat = 0
-                        var totalHel = 0
-                        var totalOper = 0
-                        var jumlahMachine = 0
-                        $.each(masterMachine, function(keys, values) {
-                            var executorEmployee = manPowerFilter({
-                                key: 'date',
-                                value: date
-                            }, {
-                                key: 'shift_group_id',
-                                value: v.group_id
-                            }, {
-                                key: 'machine_type_id',
-                                value: value.id
-                            }, {
-                                key: 'machine_id',
-                                value: values.id
-                            })
-                            totalCat = totalCat + parseInt(executorEmployee['catcher'].total)
-                            totalHel = totalHel + parseInt(executorEmployee['helper'].total)
-                            totalOper = totalOper + parseInt(executorEmployee['operator'].total)
-                            if (totalCat > 0 || totalHel > 0 || totalOper > 0) {
-                                jumlahMachine++
-                            }
-                        })
+                        var dataSummary = showVariableForEmployeeForManpower(masterMachine, date, v, value)
+                        // console.log(dataSummary)
+                        // var totalCat = 0
+                        // var totalHel = 0
+                        // var totalOper = 0
+                        // $.each(masterMachine, function(keys, values) {
+                        //     var executorEmployee = manPowerFilter({
+                        //         key: 'date',
+                        //         value: date
+                        //     }, {
+                        //         key: 'shift_group_id',
+                        //         value: v.group_id
+                        //     }, {
+                        //         key: 'machine_type_id',
+                        //         value: value.id
+                        //     }, {
+                        //         key: 'machine_id',
+                        //         value: values.id
+                        //     })
+                        //     totalCat = totalCat + parseInt(executorEmployee['catcher'].total)
+                        //     totalHel = totalHel + parseInt(executorEmployee['helper'].total)
+                        //     totalOper = totalOper + parseInt(executorEmployee['operator'].total)
+                        // })
                         // html += '<p class="m-0 super-small-text text-dark-grey">' + jumlahMachine + ' Machine Added</p>'
                         html += '</div>'
                         html += '<div class="col text-end align-self-center pe-5">'
-                        html += '<span class="me-2 text-dark-grey super-small-text">' + totalCat + ' Cather</span>'
-                        html += '<span class="me-2 text-dark-grey super-small-text">' + totalHel + ' Helper</span>'
-                        html += '<span class="me-2 text-dark-grey super-small-text">' + totalOper + ' Operator</span>'
+                        dataSummary.forEach(sum => {
+                            html += '<span class="me-2 text-dark-grey super-small-text">' + sum.data + ' ' + toTitleCase(sum.variable.replace('_', ' ')) + '</span>'
+                        });
                         html += '</div>'
                         html += '</div>'
 
@@ -2714,9 +2853,12 @@
                                 unavailableData = showTextUnavailable()
                                 changeShiftBtn = ''
                                 setBgAvailable = 'bg-unavailable'
-                                executorEmployee['catcher'].class = 'bg-grey'
-                                executorEmployee['helper'].class = 'bg-grey'
-                                executorEmployee['operator'].class = 'bg-grey'
+                                data_work.manPowerFrame.forEach(k => {
+                                    executorEmployee[k].class = 'bg-grey'
+                                })
+                                // executorEmployee['catcher'].class = 'bg-grey'
+                                // executorEmployee['helper'].class = 'bg-grey'
+                                // executorEmployee['operator'].class = 'bg-grey'
                             } else {
                                 var findShift = variableOfShift[dataShift.shift_id]
                                 workPlanMachineId = findShift.work_plan_machine_id
@@ -2737,9 +2879,12 @@
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
 
-                            html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
-                            html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
-                            html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
+                            data_work.manPowerFrame.forEach(k => {
+                                html += '<span class="badge ' + executorEmployee[k].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'" + k + "'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee[k].total + ' ' + toTitleCase(k.slice(0, 3)) + '</span>'
+                            })
+                            // html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
+                            // html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
+                            // html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
 
                             html += '</div>'
                             html += '</div>'
@@ -2957,14 +3102,24 @@
             }
             return true;
         });
+        // console.log(dataMachine)
         var varEmployee = {};
         for (var nama in data_work.manPower) {
-            if (data_work.workPlan[0].work_plan.work_plan_id != null) {
-                if (dataMachine.length > 0) {
-                    if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
-                        varEmployee[nama] = {};
-                        varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
-                        varEmployee[nama]['class'] = 'bg-position-filled';
+            var findNama = data_work.manPowerFrame.find((v, k) => {
+                if (v == nama) return true
+            })
+            if (findNama) {
+                if (data_work.workPlan[0].work_plan.work_plan_id != null) {
+                    if (dataMachine.length > 0) {
+                        if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
+                            varEmployee[nama] = {};
+                            varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                            varEmployee[nama]['class'] = 'bg-position-filled';
+                        } else {
+                            varEmployee[nama] = {};
+                            varEmployee[nama]['total'] = 0;
+                            varEmployee[nama]['class'] = 'bg-position';
+                        }
                     } else {
                         varEmployee[nama] = {};
                         varEmployee[nama]['total'] = 0;
@@ -2975,10 +3130,6 @@
                     varEmployee[nama]['total'] = 0;
                     varEmployee[nama]['class'] = 'bg-position';
                 }
-            } else {
-                varEmployee[nama] = {};
-                varEmployee[nama]['total'] = 0;
-                varEmployee[nama]['class'] = 'bg-position';
             }
         }
         return varEmployee;
@@ -4157,6 +4308,33 @@
             if (result.isConfirmed) {
                 loadDataPlanning(plan_id)
                 clearModal();
+            }
+        })
+    }
+
+    function batalAllWorkPlan() {
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus semua data Work Plan ini dan kembali ke Plan Default ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Kembali'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var type = 'POST'
+                var button = '#btnBatalAllWorkPlan'
+                var url = '<?php echo api_produksi('setWorkPlan'); ?>'
+                var data = {
+                    deletedId: {
+                        workPlan: []
+                    }
+                }
+                data_work.workPlan.forEach(e => {
+                    data.deletedId.workPlan.push(e.work_plan.work_plan_id)
+                });
+                kelolaData(data, type, url, button)
             }
         })
     }
