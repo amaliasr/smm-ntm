@@ -293,6 +293,10 @@
         font-size: 9px;
     }
 
+    .super-tiny-text {
+        font-size: 8px;
+    }
+
     .has-search .form-control {
         padding-left: 2.375rem;
     }

@@ -238,7 +238,7 @@
                 <div style="height: 400px;overflow-x: hidden;overflow-y: auto;">
 
                     <?php for ($i = 0; $i < 30; $i++) { ?>
-                        <div class="card shadow-none card-hoper border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search2">
+                        <div class="card shadow-none card-hoper border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search2" onclick="workPorgress()">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col px-3">
@@ -289,10 +289,11 @@
                 <div class="row pt-4">
                     <div class="col-9">
                         <h1 class="m-0 fw-bolder">Rusmiati Sarasvati</h1>
-                        <p class="m-0"></p>
+                        <p class="m-0">2,490 / <b class="text-dark-grey">3,000</b></p>
+                        <p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>
                     </div>
                     <div class="col-3">
-                        <div class="card bg-primary">
+                        <div class="card bg-warning">
                             <div class="card-body text-center text-white p-2">
                                 <p class="m-0 super-small-text">Setoran Ke</p>
                                 <h1 class="m-0 fw-bolder text-white">5</h1>
@@ -300,7 +301,23 @@
                         </div>
                     </div>
                     <div class="col-12 pt-4">
-                        <p class="m-0 super-small-text fw-bolder">Riwayat Setoran</p>
+                        <p class="super-small-text fw-bolder">Material Left</p>
+                        <div class="card shadow-sm">
+                            <div class="card-body p-3">
+                                <div class="row">
+                                    <div class="col align-self-center">
+                                        <p class="m-0 h2"><b>TSG</b></p>
+                                    </div>
+                                    <div class="col text-end">
+                                        <p class="m-0 small"><b>1,2 Kg</b></p>
+                                        <p class="m-0 super-tiny-text">Updated at 7/10/2023 16:00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 pt-4">
+                        <p class="super-small-text fw-bolder">Riwayat Setoran</p>
                         <table class="table table-bordered table-hover small-text table-sm">
                             <thead>
                                 <tr>
