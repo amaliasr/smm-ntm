@@ -435,7 +435,7 @@
 
             html_body += '<div class="row">'
             html_body += '<div class="col-6">'
-            html_body += '<p class="m-0" style="font-size:10px;"><i class="fa fa-clock-o"></i> : ' + value['date_transaction'] + '</p>'
+            html_body += '<p class="m-0" style="font-size:10px;"><i class="fa fa-clock-o"></i> : ' + value['date_transaction_detail'] + '</p>'
             html_body += '<b style="font-size:16px;" class="mb-3">' + value['no_sj'] + '</b>'
             html_body += '<p class="m-0" style="font-size:11px;">NO. PO : <span class="fw-bold">' + value['no_po'] + '</span></p>'
             html_body += '<p class="m-0" style="font-size:11px;">Supplier : <span class="fw-bold">' + value['supplier_name'] + '</span></p>'
@@ -500,7 +500,7 @@
             html += '</div>'
             html += '<div class="col-3 align-self-center ps-0">'
             if (obj == 0) {
-                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '" autocomplete="off">'
+                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '" data-date="' + "'" + values.date_transaction + "'" + '" autocomplete="off">'
             }
             html += '</div>'
             html += '<div class="col-2 align-self-center">'
@@ -510,10 +510,10 @@
             html += '</div>'
         })
         if (obj == 0) {
-            html += '<p class="m-0 mb-2 mt-3" style="font-size: 11px;"><b>Tambah Stok Sample</b></p>'
-            html += '<div id="dataSample">'
-            html += '</div>'
-            html += '<button class="btn btn-success btn-sm" onclick="tambahSample(' + id + ')"><i class="fa fa-plus me-2"></i>Tambah Sample</button>'
+            // html += '<p class="m-0 mb-2 mt-3" style="font-size: 11px;"><b>Tambah Stok Sample</b></p>'
+            // html += '<div id="dataSample">'
+            // html += '</div>'
+            // html += '<button class="btn btn-success btn-sm" onclick="tambahSample(' + id + ')"><i class="fa fa-plus me-2"></i>Tambah Sample</button>'
             html += '<p class="m-0 mb-3 mt-3" style="font-size: 11px;"><b>User yang Melakukan Pengecekan</b></p>'
             html += '<select name="" id="user_checking" class="form-select form-select-sm" required="required">'
             html += '<option value="" disabled selected>Pilih User</option>'
@@ -521,6 +521,8 @@
                 html += '<option value="' + value['id'] + '">' + value['name'] + '</option>'
             })
             html += '</select>'
+            html += '<p class="m-0 mb-3 mt-3" style="font-size: 11px;"><b>Tanggal Penerimaan</b></p>'
+            html += '<input class="form-control form-control-sm tanggalTerima datepicker mb-2">'
         }
         html += '</div>'
         html += '</div>'
@@ -533,6 +535,11 @@
         html += '</div>'
         $('#tampilSuratJalan').html(html)
         $('.nominal').number(true, 2);
+        $('.datepicker').datepicker({
+            format: "yyyy-mm-dd",
+            orientation: "auto",
+            autoclose: true
+        });
     }
     var noSampel = 0
 
@@ -607,6 +614,9 @@
         var order = $('.jumlahMasuk').map(function() {
             return $(this).data('order');
         }).get();
+        var date_transaction = $('.jumlahMasuk').map(function() {
+            return $(this).data('date');
+        }).get();
         var item_sampel = $('.itemSampel').map(function() {
             return $(this).val();
         }).get();
@@ -631,6 +641,7 @@
                 'jumlah_barang': jumlah[i],
                 'id_satuan': satuan[i],
                 'id_item': item[i],
+                'date_transaction': date_transaction[i],
             })
         }
         for (let i = 0; i < jumlah_sampel.length; i++) {
@@ -642,6 +653,7 @@
             })
         }
         var id_user_checking = $('#user_checking').val()
+        var date_received = $('.tanggalTerima').val()
         var type = 'POST'
         var data = {
             id_users: user_id,
@@ -652,26 +664,27 @@
             detail: detail,
             detail_sampel: detail_sampel,
             pr_id: pr_id,
+            date_received: date_received,
         }
         var button = '#btnChecked'
         var url = '<?php echo api_url('Api_Warehouse/insertPenerimaan'); ?>'
-        console.log(data)
-        // if (any_anomali == 1) {
-        //     Swal.fire({
-        //         text: 'Terdapat jumlah yang tidak sesuai dengan Surat Jalan, apakah anda ingin langsung menerima?',
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#3085d6',
-        //         cancelButtonColor: '#d33',
-        //         confirmButtonText: 'Terima Saja'
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             kelolaData(data, type, url, button)
-        //         }
-        //     })
-        // } else {
-        //     kelolaData(data, type, url, button)
-        // }
+        // console.log(data)
+        if (any_anomali == 1) {
+            Swal.fire({
+                text: 'Terdapat jumlah yang tidak sesuai dengan Surat Jalan, apakah anda ingin langsung menerima?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Terima Saja'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    kelolaData(data, type, url, button)
+                }
+            })
+        } else {
+            kelolaData(data, type, url, button)
+        }
     }
 
     function kelolaData(data, type, url, button) {

@@ -706,6 +706,21 @@
     .card-schedule:hover {
         color: white !important;
     }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check-input {
+        transform: scale(0.6);
+        margin: 0;
+    }
+
+    .form-check-label {
+        font-size: 12px;
+        margin-left: 5px;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -733,6 +748,16 @@
                             <p class="m-0 small fw-bolder" id="dateRange">-</p>
                         </div>
                         <div class="col text-end">
+                            <button class="btn btn-outline-primary btn-sm shadow-none" style="width: 180px;" onclick="changeScheduleOnly()" id="btnScheduleOnly">
+                                <div class="row w-100">
+                                    <div class="col-auto align-self-center pe-0" id="btnScheduleOnlyIcon">
+                                        <i class="fa fa-eye"></i>
+                                    </div>
+                                    <div class="col align-self-center">
+                                        <b class="small-text" id="btnScheduleOnlyText">My Schedule Only</b>
+                                    </div>
+                                </div>
+                            </button>
                             <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataPlanning()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                             <button type="button" class="btn btn-primary btn-sm" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i> Filter</button>
                         </div>
@@ -1016,7 +1041,7 @@
 
     function loadDataPlanning() {
         var data = {
-            productionTypeId: 1,
+            // productionTypeId: 1,
             employeeId: user_id,
         }
         if (dateStart != undefined) {
@@ -1065,6 +1090,8 @@
     var dataDailyTask
 
     function arrangeVariable() {
+        data_shift_person = []
+        data_shift_person_complete = []
         // console.log(data_work.schedule)
         data_work.schedule.forEach(a => {
             // section
@@ -1105,11 +1132,34 @@
         dataDailyTask = convertToDailyTasks(data_shift_person_complete)
         createHeaderPlanner()
     }
+    var seeScheduleOnly = false
+
+    function changeScheduleOnly() {
+        if (seeScheduleOnly) {
+            seeScheduleOnly = false
+            $('#btnScheduleOnly').removeClass('btn-primary')
+            $('#btnScheduleOnly').addClass('btn-outline-primary')
+            $('#btnScheduleOnlyIcon').html('<i class="fa fa-eye"></i>')
+            $('#btnScheduleOnlyText').html('My Schedule Only')
+        } else {
+            seeScheduleOnly = true
+            $('#btnScheduleOnly').addClass('btn-primary')
+            $('#btnScheduleOnly').removeClass('btn-outline-primary')
+            $('#btnScheduleOnlyIcon').html('<i class="fa fa-eye-slash"></i>')
+            $('#btnScheduleOnlyText').html('Show All Date')
+        }
+        createHeaderPlanner()
+    }
+    var totalLengthDateShift = 0
+    var dateShift = []
 
     function createHeaderPlanner() {
         var html = ''
+        totalLengthDateShift = 0
+        dateShift = []
         html += '<th class=""><b>Machine | Date</b></th>'
         data_work.schedule[0].line_shift[0].date_shift.forEach(e => {
+            var show = true
             var today = ''
             var dataPosition = dataDailyTask.filter((v, k) => {
                 if (v.date == e.date) return true
@@ -1126,7 +1176,14 @@
                     badgePosition = '<span class="badge bg-dark ms-1 fw-bold" style="padding: 5px !important;font-size:11px;">' + dataPosition + '</span>'
                 }
             }
-            html += '<th class="small-text text-center ' + today + ' ' + classToday + '">' + formatInternationalDate(e.date) + ' ' + badgePosition + '</th>'
+            if (seeScheduleOnly && !dataPosition) {
+                show = false
+            }
+            if (show) {
+                totalLengthDateShift++
+                dateShift.push(e)
+                html += '<th class="small-text text-center ' + today + ' ' + classToday + '">' + formatInternationalDate(e.date) + ' ' + badgePosition + '</th>'
+            }
         });
         $('#date_list').html(html)
         createBodyPlanner()
@@ -1134,48 +1191,50 @@
 
     function createBodyPlanner() {
         var html = ''
+        // console.log(data_shift_person)
         data_work.sectionLine.forEach(e => {
             html += '<tr>'
             html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;"><b>' + e.section + '</b></td>'
-            html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;" colspan="' + data_work.schedule[0].line_shift[0].date_shift.length + '"></td>'
+            html += '<td class="small-text align-selft-center bg-light" style="vertical-align: middle;" colspan="' + totalLengthDateShift + '"></td>'
             html += '</tr>'
             e.line.forEach(el => {
                 html += '<tr>'
                 html += '<td class="text-center small-text align-selft-center" style="vertical-align: middle;"><b>' + el.name + '</b></td>'
                 // loop date
-                data_work.schedule[0].line_shift[0].date_shift.forEach(d => {
+                dateShift.forEach(d => {
                     html += '<td class="p-1">'
                     var data = data_shift_person.find((v, k) => {
                         if (v.section == e.section && v.line_id == el.id && v.date == d.date) return true
                     })
-                    if (data.shift_person != null) {
-                        // console.log(data.shift_person)
-                        var a = 1
-                        data.shift_person.forEach(s => {
-                            var data = data_work.shift[0].shift_list.find((v, k) => {
-                                if (v.id == s.shift) return true
-                            })
-                            var today = 'bg-grey'
-                            if (d.date == hariIni) {
-                                today = 'bg-ijo-polos'
-                            }
-                            html += '<div class="card card-schedule mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ')">'
-                            html += '<div class="card-body p-0">'
+                    if (data) {
+                        if (data.shift_person) {
+                            var a = 1
+                            data.shift_person.forEach(s => {
+                                var data = data_work.shift[0].shift_list.find((v, k) => {
+                                    if (v.id == s.shift) return true
+                                })
+                                var today = 'bg-grey'
+                                if (d.date == hariIni) {
+                                    today = 'bg-ijo-polos'
+                                }
+                                html += '<div class="card card-schedule mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ')">'
+                                html += '<div class="card-body p-0">'
 
-                            html += '<div class="row p-0 m-0">'
-                            html += '<div class="col-1 m-0 p-1 rounded-start bg-' + s.person.person_label + '">'
-                            html += '</div>'
-                            html += '<div class="col p-2 bg-light-' + s.person.person_label + '">'
-                            html += '<h6 class="m-0 text-grey"><b>' + s.person.person_label + '</b></h6>'
-                            html += '<p class="m-0 super-small-text text-dark-grey"><b>' + convertTimeFormat(data.start_time) + ' - ' + convertTimeFormat(data.end_time) + '</b></p>'
-                            // html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + s.person.person_label + '</span>'
-                            html += '</div>'
-                            html += '</div>'
+                                html += '<div class="row p-0 m-0">'
+                                html += '<div class="col-1 m-0 p-1 rounded-start bg-' + s.person.person_label + '">'
+                                html += '</div>'
+                                html += '<div class="col p-2 bg-light-' + s.person.person_label + '">'
+                                html += '<h6 class="m-0 text-grey"><b>' + s.person.person_label + '</b></h6>'
+                                html += '<p class="m-0 super-small-text text-dark-grey"><b>' + convertTimeFormat(data.start_time) + ' - ' + convertTimeFormat(data.end_time) + '</b></p>'
+                                // html += '<span class="badge rounded-pill bg-position-' + a + ' me-1 super-small-text">' + s.person.person_label + '</span>'
+                                html += '</div>'
+                                html += '</div>'
 
-                            html += '</div>'
-                            html += '</div>'
-                            a++
-                        });
+                                html += '</div>'
+                                html += '</div>'
+                                a++
+                            });
+                        }
                     }
                     html += '</td>'
                 })
@@ -1194,7 +1253,11 @@
         // Cari elemen dengan class "date-20"
         var targetDate = $(".today");
         // Hitung posisi horizontal elemen target
-        var scrollLeft = targetDate.position().left - (tableContainer.width() / 2) + (targetDate.width() / 2);
+        if (targetDate.position()) {
+            var scrollLeft = targetDate.position().left - (tableContainer.width() / 2) + (targetDate.width() / 2);
+        } else {
+            var scrollLeft = 0
+        }
         // Gerakkan scroll horizontal ke posisi target
         tableContainer.scrollLeft(scrollLeft);
     }

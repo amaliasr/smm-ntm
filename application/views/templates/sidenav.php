@@ -127,7 +127,7 @@
                         <?php if (if_so_production()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/sktProduction"><i class="fa fa-leaf me-1"></i>SKT Production</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->

@@ -102,7 +102,7 @@ function job_logistik_warehouse()
 {
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 111) {
+    if ($job_title_id == 111 || $job_title_id == 139) {
         return true;
     } else {
         return false;

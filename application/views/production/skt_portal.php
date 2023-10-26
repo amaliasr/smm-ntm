@@ -1121,6 +1121,15 @@
         font-size: 12px;
     }
 </style>
+<style>
+    /* In order to place the tracking correctly */
+    canvas.drawing,
+    canvas.drawingBuffer {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+</style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
 <script src="<?= base_url() ?>assets/js/mobiscroll.jquery.min.js"></script>
@@ -1132,6 +1141,7 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <main>
     <div class="row">
         <div class="col-12 p-5 pb-4">
@@ -1140,7 +1150,7 @@
                     <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/boxes.svg" alt="Icon" />
                 </div>
                 <div class="col ps-0">
-                    <h1 class="m-0">Micro Warehouse</h1>
+                    <h1 class="m-0">SKT Portal</h1>
                     <p class="m-0 small">test</p>
                 </div>
                 <div class="col align-self-start text-end">
@@ -1157,156 +1167,10 @@
             </div>
         </div>
         <div class="col-12 p-5 pb-2 pt-0">
-            <div class="card shadow-none">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-8 p-3 pt-1">
-                            <div class="row">
-                                <div class="col">
-                                    <p class="m-0 small-text">6 Material</p>
-                                    <h4><b>Gudang Kecil SKM</b></h4>
-                                </div>
-                                <div class="col align-self-end">
-                                    <div class="form-group has-search">
-                                        <span class="fa fa-search form-control-feedback"></span>
-                                        <input type="text" class="form-control" placeholder="Search" id="search_nama" autocomplete="off">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3 pe-2" style="height:250px;overflow-x: hidden;overflow-y: auto;">
-                                <div class="row">
-                                    <?php for ($i = 0; $i < 100; $i++) { ?>
-                                        <div class="col-4">
-                                            <div class="card shadow-sm mt-2">
-                                                <div class="card-body p-3">
-                                                    <div class="row">
-                                                        <div class="col-4 align-self-center text-end">
-                                                            <p class="m-0 fw-bolder">5,000</p>
-                                                            <p class="m-0 super-small-text fw-bolder text-orange">Lembar</p>
-                                                        </div>
-                                                        <div class="col-8">
-                                                            <p class="m-0 super-small-text">RM.04-514</p>
-                                                            <p class="m-0 super-small-text fw-bolder">CAP DOZ FEO ARMOUR BOLD 20</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4 p-3 pt-1">
-                            <p class="m-0 small-text">Preview</p>
-                            <h4><b>Machine</b></h4>
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <b class="super-small-text">MAKER</b>
-                                    <div class="row" style="padding-left: 8px;">
-                                        <?php for ($i = 0; $i < 3; $i++) { ?>
-                                            <div class="col-auto p-1">
-                                                <div class="card shadow-none pointer bg-cyan-900" onclick="managementMaterial()" style="width: 60px;height:60px;">
-                                                    <div class="card-body p-1 small-text text-white text-center align-self-center d-flex align-items-center">
-                                                        <span>
-                                                            <p class="m-0 fw-bolder">MK9-A</p>
-                                                            <p class="m-0 super-small-text fw-light">20 ᴓ</p>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <b class="super-small-text">HLP</b>
-                                    <div class="row" style="padding-left: 8px;">
-                                        <?php for ($i = 0; $i < 4; $i++) { ?>
-                                            <div class="col-auto p-1">
-                                                <div class="card shadow-none pointer bg-cyan-600" onclick="managementMaterial()" style="width: 60px;height:60px;">
-                                                    <div class="card-body p-1 small-text text-white text-center align-self-center d-flex align-items-center">
-                                                        <span>
-                                                            <p class="m-0 fw-bolder">MK9-A</p>
-                                                            <p class="m-0 super-small-text fw-light">10 ᴓ</p>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 p-5 pt-0">
-            <div class="card shadow-none">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col">
-                            <p class="m-0 ms-3 small-text"><b>Transaction Mutation</b></p>
-                            <p class="m-0 ms-3 small-text">Rabu, 11 Oktober 2023</p>
-                        </div>
-                        <div class="col text-end align-self-end">
-                            <div class="form-group has-search">
-                                <span class="fa fa-search form-control-feedback"></span>
-                                <input type="text" class="form-control" placeholder="Search" id="search_nama" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover mt-3">
-                                    <thead>
-                                        <tr class="border-top">
-                                            <th class="small-text text-center p-3 align-middle">#</th>
-                                            <th class="small-text text-center p-3 align-middle"></th>
-                                            <th class="small-text text-center p-3 align-middle">Time</th>
-                                            <th class="small-text text-center p-3 align-middle">User</th>
-                                            <th class="small-text text-center p-3 align-middle bg-light">Warehouse</th>
-                                            <th class="small-text text-center p-3 align-middle bg-light">Reference</th>
-                                            <th class="small-text text-center p-3 align-middle text-success"><i class="fa fa-plane me-1"></i>Direct</th>
-                                            <th class="small-text text-center p-3 align-middle">Items / Materials</th>
-                                            <th class="small-text text-center p-3 align-middle">QTY</th>
-                                            <th class="small-text text-center p-3 align-middle">Satuan</th>
-                                            <th class="small-text text-center p-3 align-middle">Status</th>
-                                            <th class="small-text text-center p-3 align-middle"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tableDetail">
-                                        <tr class="">
-                                            <td class="small-text align-middle text-center">1</td>
-                                            <td class="small-text align-middle text-center">
-                                                <i class="fa fa-arrow-up text-danger"></i>
-                                            </td>
-                                            <td class="small-text align-middle text-center">
-                                                11-10-2023 23:00
-                                            </td>
-                                            <td class="small-text align-middle text-center">
-                                                Amalia
-                                            </td>
-                                            <td class="small-text align-middle text-center bg-light">
-                                                Gudang Kecil
-                                            </td>
-                                            <td class="small-text align-middle text-center bg-light">
-                                                <p class="m-0">MK9-A</p>
-                                            </td>
-                                            <td class="small-text align-middle text-center">MK9-B</td>
-                                            <td class="small-text align-middle text-center">RM.04-514</td>
-                                            <td class="small-text align-middle text-end fw-bolder text-orange text-nowrap">240</td>
-                                            <td class="small-text align-middle">Lembar</td>
-                                            <td class="small-text align-middle text-center">
-                                                <span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>
-                                            </td>
-                                            <td class="small-text align-middle">
-                                                <button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <h2 class="text-center">Barcode Scanner</h2>
+                    <div id="scanner-container"></div>
                 </div>
             </div>
         </div>
@@ -1355,180 +1219,7 @@
 </div>
 <?php $this->load->view('components/modal_static') ?>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-<script>
-    function getMissingDates(existingDates) {
-        if (existingDates.length === 0) {
-            return []; // Tidak ada tanggal yang hilang jika tidak ada tanggal yang ada
-        }
 
-        // Menghitung tanggal minimum dan maksimum dari existingDates
-        const minDate = new Date(Math.min(...existingDates.map(date => new Date(date))));
-        const maxDate = new Date(Math.max(...existingDates.map(date => new Date(date))));
-
-        // Menghitung bulan dan tahun dari minDate dan maxDate
-        const startYear = minDate.getFullYear();
-        const startMonth = minDate.getMonth();
-        const endYear = maxDate.getFullYear();
-        const endMonth = maxDate.getMonth();
-
-        const missingDates = [];
-        const currentDate = new Date(startYear, startMonth, 1); // Mulai dari tanggal 1 bulan pertama
-
-        while (currentDate <= maxDate) {
-            const formattedDate = currentDate.toISOString().split('T')[0];
-            if (!existingDates.includes(formattedDate)) {
-                missingDates.push(formattedDate);
-            }
-
-            currentDate.setDate(currentDate.getDate() + 1);
-
-            // Jika currentDate telah mencapai akhir bulan, lanjut ke bulan berikutnya
-            if (currentDate.getMonth() > endMonth || currentDate.getFullYear() > endYear) {
-                currentDate.setDate(1); // Reset ke tanggal 1
-                currentDate.setMonth(currentDate.getMonth() + 1); // Pindah ke bulan berikutnya
-            }
-        }
-
-        return missingDates;
-    }
-
-    function getAliases(data) {
-        const aliases = data.map(item => item.item.alias);
-        return aliases.join(', ');
-    }
-
-    function getStartAndEndDate(data) {
-        if (data.length === 0) {
-            return null; // Handle empty input array
-        }
-
-        const firstDate = new Date(data[0]);
-        const lastDate = new Date(data[data.length - 1]);
-
-        const year = firstDate.getFullYear();
-        const month = firstDate.getMonth() + 1; // Bulan dimulai dari 0 (Januari) hingga 11 (Desember)
-
-        // Tanggal awal bulan
-        const dateStart = `${year}-${month.toString().padStart(2, '0')}-01`;
-
-        // Tanggal akhir bulan
-        const lastDay = new Date(year, month, 0).getDate();
-        const nextMonth = month === 12 ? 1 : month + 1;
-        const nextYear = month === 12 ? year + 1 : year;
-        const dateEnd = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-${lastDay.toString().padStart(2, '0')}`;
-
-        return {
-            dateStart,
-            dateEnd
-        };
-    }
-
-
-    function notFound(location) {
-        $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_RaWlll5IJz.json" mode="bounce" background="transparent" speed="2" style="width: 100%; height: 400px;" loop autoplay></lottie-player>')
-    }
-
-    function empty(location, text, height) {
-        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
-    }
-
-    function emptyReturn(text, height) {
-        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
-        return html
-    }
-
-    function emptyText(location, text) {
-        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none border-0" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>')
-    }
-
-    function emptyTextReturn(text) {
-        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none border-0" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>'
-        return html
-    }
-
-    function formatNames(data) {
-        var firstNames = data.map(function(item) {
-            var firstName = item.name.split(' ')[0];
-            return firstName;
-        });
-        return firstNames.join(', ');
-    }
-
-    function deepCopy(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    }
-
-    function clearModal() {
-        $('#modalDialog').removeClass();
-        $('#modalDialog').removeAttr('style');
-        $('#modalHeader').html('');
-        $('#modalBody').html('');
-        $('#modalFooter').html('');
-    }
-
-    function clearModal2() {
-        $('#modalDialog2').removeClass();
-        $('#modalDialog2').removeAttr('style');
-        $('#modalHeader2').html('');
-        $('#modalBody2').html('');
-        $('#modalFooter2').html('');
-    }
-
-    $('#modal').on('hidden.bs.modal', function(e) {
-        clearModal();
-    })
-    $('#modal2').on('hidden.bs.modal', function(e) {
-        clearModal2();
-    })
-
-    function conversiToTarget(input, multiplier, satuanBesar, satuanKecil) {
-        const trays = Math.floor(input / multiplier);
-        const remainingStik = input % multiplier;
-
-        var nilai = ''
-        if (remainingStik) {
-            if (trays) {
-                nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span> ' + number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
-            } else {
-                nilai = number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
-            }
-        } else {
-            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span>'
-        }
-        return nilai
-    }
-
-    function calculateConvertedMaterial(id) {
-        var totalDefault = 0
-        var valueItem = $('.qty_item' + id).map(function() {
-            return $(this).val();
-        }).get();
-        var unitItem = $('.qty_item' + id).map(function() {
-            return $(this).data('unit');
-        }).get();
-        var jenisUnitItem = $('.qty_item' + id).map(function() {
-            return $(this).data('tipe');
-        }).get();
-        // console.log(jenisUnitItem)
-        var dataProductsDefault = deepCopy(dataDetail.currentStock.find((v, k) => {
-            if (v.item.id == id) return true
-        }))
-        for (let i = 0; i < jenisUnitItem.length; i++) {
-            if (dataProductsDefault) {
-                if (!valueItem[i]) {
-                    valueItem[i] = 0
-                }
-                totalDefault = parseFloat(totalDefault) + (parseFloat(valueItem[i]) * eval(`dataProductsDefault.${jenisUnitItem[i]}.multiplier`))
-            } else {
-                totalDefault = parseFloat(totalDefault) + parseFloat(valueItem[i])
-            }
-        }
-        return {
-            totalDefault: totalDefault,
-            dataProductsDefault: dataProductsDefault,
-        }
-    }
-</script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
@@ -1543,7 +1234,112 @@
 
     $(document).ready(function() {
         // loadData()
+        onCam()
     })
+
+    function onCam() {
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#scanner-container'),
+                constraints: {
+                    width: 480,
+                    height: 320,
+                    facingMode: "environment"
+                },
+                singleChannel: false, // Tambahkan ini
+                willReadFrequently: true // Tambahkan ini
+            },
+            decoder: {
+                readers: [
+                    "code_128_reader",
+                    "ean_reader",
+                    "ean_8_reader",
+                    "code_39_reader",
+                    "code_39_vin_reader",
+                    "codabar_reader",
+                    "upc_reader",
+                    "upc_e_reader",
+                    "i2of5_reader"
+                ],
+                debug: {
+                    showCanvas: true,
+                    showPatches: true,
+                    showFoundPatches: true,
+                    showSkeleton: true,
+                    showLabels: true,
+                    showPatchLabels: true,
+                    showRemainingPatchLabels: true,
+                    boxFromPatches: {
+                        showTransformed: true,
+                        showTransformedBox: true,
+                        showBB: true
+                    }
+                }
+            },
+
+        }, function(err) {
+            if (err) {
+                console.log(err);
+                return
+            }
+
+            console.log("Initialization finished. Ready to start");
+            Quagga.start();
+
+            // Set flag to is running
+            _scannerIsRunning = true;
+        });
+
+        Quagga.onProcessed(function(result) {
+            var drawingCtx = Quagga.canvas.ctx.overlay,
+                drawingCanvas = Quagga.canvas.dom.overlay;
+
+            if (result) {
+                if (result.boxes) {
+                    drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                    result.boxes.filter(function(box) {
+                        return box !== result.box;
+                    }).forEach(function(box) {
+                        Quagga.ImageDebug.drawPath(box, {
+                            x: 0,
+                            y: 1
+                        }, drawingCtx, {
+                            color: "green",
+                            lineWidth: 2
+                        });
+                    });
+                }
+
+                if (result.box) {
+                    Quagga.ImageDebug.drawPath(result.box, {
+                        x: 0,
+                        y: 1
+                    }, drawingCtx, {
+                        color: "#00F",
+                        lineWidth: 2
+                    });
+                }
+
+                if (result.codeResult && result.codeResult.code) {
+                    Quagga.ImageDebug.drawPath(result.line, {
+                        x: 'x',
+                        y: 'y'
+                    }, drawingCtx, {
+                        color: 'red',
+                        lineWidth: 3
+                    });
+                }
+            }
+        });
+
+
+        Quagga.onDetected(function(result) {
+            console.log("Barcode detected and processed : [" + result.codeResult.code + "]", result);
+        });
+
+    }
 
     function loadData() {
         var data = {
@@ -1608,162 +1404,5 @@
         for (let i = 0; i < array_arranged.length; i++) {
             $('#card_search' + array_arranged[i]).removeClass('d-none')
         }
-    }
-
-    function managementMaterial() {
-        const tinggiModal1 = parseFloat(window.innerHeight) - (59.2 + 24 + 62.48);
-        const tinggiModal2 = parseFloat(window.innerHeight) - (59.2 + 62.48 + 70.31);
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-fullscreen modal-dialog-scrollable modal-xl');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Machine Material Management</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-
-        html_body += '<div class="col-2 bg-light-grey p-3 pe-2 pt-4">'
-
-        html_body += '<div class="pe-2" style="height: ' + tinggiModal1 + 'px;overflow-x: hidden;overflow-y: auto;">'
-        html_body += '<p class="m-0 small-text"><b>Warehouse</b></p>'
-        html_body += '<div class="card shadow-sm mt-2 pointer card-hoper">'
-        html_body += '<div class="card-body p-3">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12">'
-        html_body += '<p class="m-0 fw-bolder small">GUDANG KECIL</p>'
-        html_body += '<p class="m-0 super-small-text">20 Materials</p>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '<p class="m-0 small-text mt-2"><b>Machine</b></p>'
-        for (let i = 0; i < 7; i++) {
-            html_body += '<div class="card shadow-sm mt-2 pointer card-hoper">'
-            html_body += '<div class="card-body p-3">'
-            html_body += '<div class="row">'
-            html_body += '<div class="col-12">'
-            html_body += '<p class="m-0 fw-bolder small">MAKER 9 A</p>'
-            html_body += '<p class="m-0 super-small-text">20 Materials</p>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '</div>'
-
-        html_body += '</div>'
-
-        html_body += '<div class="col-3 p-3 pt-4 border-end">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col align-self-center">'
-        html_body += '<p class="m-0 small-text"><b>Materials</b></p>'
-        html_body += '</div>'
-        html_body += '<div class="col align-self-center text-end">'
-        html_body += '<div class="form-check" style="padding-left: 80px;">'
-        html_body += '<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">'
-        html_body += '<label class="form-check-label small-text" for="flexCheckDefault">Select All</label>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '<div style="height: ' + tinggiModal2 + 'px;overflow-x: hidden;overflow-y: auto;" class="pe-2">'
-        for (let i = 0; i < 20; i++) {
-            html_body += '<div class="card shadow-sm mt-2 pointer card-hoper">'
-            html_body += '<div class="card-body p-3">'
-            html_body += '<div class="row">'
-            html_body += '<div class="col-10">'
-            html_body += '<p class="m-0 super-small-text">RM.04-514</p>'
-            html_body += '<p class="m-0 super-small-text fw-bolder">CAP DOZ FEO ARMOUR BOLD 20</p>'
-            html_body += '<p class="m-0 super-small-text fw-bolder text-orange">5000 Lembar</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<i class="fa fa-check text-grey"></i>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '<div class="col-7 p-3 pt-4" id="manageMachineMaterial">'
-        html_body += emptyReturn('Pilih Material Terlebih Dahulu', '100%')
-        html_body += '</div>'
-
-        html_body += '</div>'
-        $('#modalBody').html(html_body).addClass('pt-0 pb-0')
-        $('.nominal').number(true);
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        $('#modalFooter').html(html_footer).removeClass('d-none')
-        manageMachineMaterial()
-    }
-
-    function manageMachineMaterial() {
-        var html = ''
-        const tinggiModal2 = parseFloat(window.innerHeight) - (59.2 + 62.48 + 70.31);
-        html += '<div class="row">'
-        html += '<div class="col-7">'
-        html += '<p class="m-0 small-text"><b>Choosen Material <span class="text-orange">(20)</span></b></p>'
-        html += '<div class="mt-3 pe-2" id="listChoosenMaterial" style="height: ' + tinggiModal2 + 'px;overflow-x: hidden;overflow-y: auto;">'
-        for (let i = 0; i < 20; i++) {
-            html += '<div class="card shadow-none card-hoper mb-2 bg-light">'
-            html += '<div class="card-body p-3">'
-            html += '<div class="row w-100">'
-            html += '<div class="col-5 align-self-center">'
-            html += '<p class="m-0 super-small-text">CAP DOZ FEO ARMOUR BOLD 20</p>'
-            html += '</div>'
-            html += '<div class="col-4 align-self-center">'
-            html += '<input type="text" id="qty" class="form-control form-control-sm nominal" required="required"  autocomplete="off"  style="background-color:transparent;border:0px;">'
-            html += '<hr class="m-0">'
-            html += '</div>'
-            html += '<div class="col-2 align-self-center">'
-            html += '<p class="m-0 super-tiny-text"><b>Lembar</b></p>'
-            html += '</div>'
-            html += '<div class="col-1 align-self-center text-end pointer">'
-            html += '<i class="fa fa-times text-danger"></i>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        }
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="col-5">'
-        html += '<p class="m-0 small-text mb-3"><b>Properties</b></p>'
-        html += '<select name="" class="form-control selectGudang" id="selectGudang" data-id="" style="height: 40px;" onchange="listTujuan()">'
-        html += '<option value="" selected disabled>Pilih Tujuan</option>'
-        html += '<option value="1">GUDANG KECIL</option>'
-        html += '<option value="2">MESIN</option>'
-        html += '</select>'
-        html += '<div class="mt-2 w-100" id="listTujuan">'
-        html += emptyTextReturn('Pilih Tujuan Terlebih Dahulu')
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        $('#manageMachineMaterial').html(html)
-        $('.selectGudang').select2({
-            closeOnSelect: true,
-            dropdownParent: $('#modal'),
-            width: '100%',
-        })
-
-    }
-
-    function listTujuan() {
-        var html = ''
-        var value = $('#selectGudang').val()
-        if (value == 1) {
-
-        } else {
-            html += '<div class="row">'
-            html += '<div class="col-12">'
-            html += '<div class="card shadow-none">'
-            html += '<div class="card-body p-3 text-center">'
-            html += '<p class="m-0 small-text">MAKER 9 B</p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        }
-        $('#listTujuan').html(html)
     }
 </script>
