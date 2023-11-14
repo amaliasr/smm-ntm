@@ -247,7 +247,7 @@
                                                     foreach ($value4->machine->material as $key5 => $value5) {
                                                         if ($listMaterialUnique[$i]['id'] == $value5->material->id && $value4->machine->id == $value->detail->machine->id) {
                                         ?>
-                                                            <?php if ($value5->qty_approve) { ?>
+                                                            <?php if ($datas->materialRequest[0]->is_process == 1) { ?>
                                                                 <?= number_format($value5->qty_approve, 2, ',', '.') ?>
                                                             <?php } else { ?>
                                                                 <?= number_format($value5->qty_request, 2, ',', '.') ?>

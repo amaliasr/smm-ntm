@@ -494,11 +494,11 @@
                     html += '<td class="text-end">' + number_format(value3['total_mutasi']['jumlah_out_other']) + '</td>'
                 })
             })
-            html += '<td class="text-end">' + number_format(total_in) + '</td>'
+            html += '<td class="text-end">' + number_format(roundToTwo(total_in)) + '</td>'
             html += '<td class="text-end">' + number_format(total_inother) + '</td>'
             html += '<td class="text-end">' + number_format(total_out) + '</td>'
             html += '<td class="text-end">' + number_format(total_outother) + '</td>'
-            html += '<td class="text-end">' + number_format(value['stok_akhir']) + '</td>'
+            html += '<td class="text-end">' + number_format(roundToTwo(value['stok_akhir'])) + '</td>'
             html += '</tr>'
         })
         $('#contentTable').html(html)

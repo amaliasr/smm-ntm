@@ -253,7 +253,7 @@
                         <p class="m-0 super-small-text"><b>Transaksi</b></p>
                     </div>
                     <div class="col-auto text-end">
-                        <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="formTransaction()"><i class="fa fa-paper-plane me-2"></i>Transaction</button>
+                        <button type="button" class="btn btn-sm btn-primary shadow-none" onclick="formTransaction()"><i class="fa fa-paper-plane me-2"></i>Transaction</button>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="jumlahWaiting"></span>
@@ -396,7 +396,7 @@
     var itemIdSelected = []
 
     $(document).ready(function() {
-        loadData()
+        // loadData()
     })
 
     function loadData() {
@@ -1085,6 +1085,7 @@
         html += '<input class="form-control datepicker" type="text" id="dateInput" placeholder="Tanggal" value="' + dataEntry.workPlanMachine.date + '" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" disabled>'
         html += '<p class="small-text mt-3"><b>Waktu (Jam)</b></p>'
         html += '<input type="time" id="waktu" class="form-control" value="" required="required" oninput="eventButton()">'
+        html += '<button class="btn btn-sm btn-outline-dark float-end mt-2 p-2" onclick="autoClock()"><i class="fa fa-clock-o me-2"></i>Auto</button>'
         html += '<p class="small-text mt-3"><b>Notes</b></p>'
         html += '<textarea class="form-control" rows="8" placeholder="Tuliskan catatan disini" id="notes"></textarea>'
         html += '</div>'
@@ -1098,6 +1099,25 @@
         // $('.select2').select2({
         //     dropdownParent: $('#modal')
         // });
+    }
+
+    function currentTimeTitikDua() {
+        var d = new Date();
+        var jam = d.getHours();
+        var menit = d.getMinutes();
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        var time = jam + ":" + menit;
+        return time;
+    }
+
+    function autoClock() {
+        $('#waktu').val(currentTimeTitikDua())
+        eventButton()
     }
 
     function listFormTransaction() {

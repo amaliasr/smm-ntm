@@ -126,7 +126,8 @@
 
         .card-body {
             flex: 1 1 auto;
-            padding: 1rem 1rem;
+            padding: 2px;
+            padding-left: 10px;
         }
 
         .bg-shift-42 {
@@ -249,7 +250,8 @@ function tgl_indo($tanggal)
                                     <?php
                                     foreach ($datas->workPlan as $k => $v) {
                                         if ($v->date == $date_range[$i]) {
-                                            foreach ($v->work_plan->shift_qc as $k2 => $v2) {
+                                            $text = strtolower($datas->productionPlan->production_type->name);
+                                            foreach ($v->work_plan->$text->shift_qc as $k2 => $v2) {
                                                 foreach ($v2->shift_mechanic as $k3 => $v3) {
                                                     foreach ($v3->shift_machine as $k4 => $v4) {
                                                         if ($v4->machine->id == $value2->id) {

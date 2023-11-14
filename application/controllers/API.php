@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Mike42\Escpos\Printer;
+
 class Api extends CI_Controller
 {
     public function __construct()
@@ -304,5 +308,25 @@ Link Kerja : " . $value['link'] . "";
             $jsonData = json_encode($array);
             setcookie('page_visit', $jsonData, time() + 3600 * 24 * 365); // Buat cookie baru
         }
+    }
+    public function printThermal()
+    {
+        $printerDevice = "/dev/ttyS5";
+        // $connector = new WindowsPrintConnector($printerDevice);
+        $connector = new FilePrintConnector($printerDevice);
+        $printer = new Printer($connector);
+
+        $textToPrint = "===== Struk Pembelian =====\n";
+        $textToPrint .= "Barang 1        2 x 10.00\n";
+        $textToPrint .= "Barang 2        1 x 20.00\n";
+        $textToPrint .= "Total:          40.00\n";
+        $textToPrint .= "==========================\n";
+
+        $printer->text($textToPrint);
+
+        $printer->cut(); // Memotong kertas
+
+        $printer->close();
+        echo "Printed successfully";
     }
 }

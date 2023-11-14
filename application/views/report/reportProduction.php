@@ -116,6 +116,26 @@
         border: 1px solid #c5ccd6 !important;
         text-align: left !important;
     }
+
+    .formFilter {
+        border-radius: 20px;
+        width: 200px;
+        padding-left: 30px;
+        padding: 10px;
+        padding-right: 45px;
+    }
+
+    .is-select-picker {
+        border-radius: 20px !important;
+        width: 200px !important;
+        padding-left: 30px !important;
+        padding: 10px !important;
+        padding-right: 45px !important;
+    }
+
+    .border-radius-20 {
+        border-radius: 20px;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
@@ -128,60 +148,60 @@
         </div>
     </header>
     <!-- Main page content-->
-    <div class="container-xl px-4 mt-n10">
-        <div class="row justify-content-center">
+    <div class="container-xl mt-n10">
+        <div class="row justify-content-center mb-4">
             <div class="col pb-4">
-                <h1 class="text-dark"><b><i class="fa fa-book me-3"></i>Report Production</b></h1>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PRODUCTION</h1>
+                <p class="m-0 small">1 Nov 2023 - 7 Nov 2023</p>
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-md-12">
-                <div class="row">
-                    <div class="col-12 col-md-12 mb-2">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <div class="row mb-5">
-                                    <div class="col">
-                                        <h3 class="m-0 small"><b>History Transaction</b></h3>
-                                        <p class="m-0 small-text">Date : <span class="dateRangeText">-<span></p>
-                                    </div>
-                                    <div class="col-auto text-end align-self-center">
-                                        <div class="row">
-                                            <div class="col-auto pe-0">
-                                                <input type="search" class="form-control form-control-sm" placeholder="Search..." aria-controls="myTable" id="myInputTextField">
-                                            </div>
-                                            <div class="col-auto">
-                                                <button type="button" class="btn btn-success btn-sm"><i class="fa fa-download me-1"></i>Export</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12 mb-3" id="tampilReport">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover table-sm small" style="width: 100%;white-space:nowrap;" id="myTable">
-                                                <thead class="align-self-center">
-                                                    <tr class="align-self-center">
-                                                        <th style="width: 5%;" class="text-center p-2 small">No</th>
-                                                        <th style="width: 10%;" class="text-center p-2 small">Date</th>
-                                                        <th style="width: 20%;" class="text-center p-2 small">Item</th>
-                                                        <th style="width: 10%;" class="text-center p-2 small">Machine</th>
-                                                        <th style="width: 10%;" class="text-center p-2 small">QTY</th>
-                                                        <th style="width: 10%;" class="text-center p-2 small">Unit</th>
-                                                        <th style="width: 10%;" class="text-center p-2 small">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="contentTable">
-                                                    <tr class="align-self-center">
-                                                        <td colspan="7" class="text-center pt-5 pb-5 align-self-center"><i>Tidak Ada Data Tersedia</i></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="col-12 mb-2">
+                <div class="row justify-content-between">
+                    <div class="col-auto">
+                        <div class="row">
+                            <div class="col-auto">
+                                <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
+                            </div>
+                            <div class="col-auto p-0">
+                                <select class="selectpicker w-100" id="selectPeriod" title="Pilih Period">
+                                    <option value="SHIFT">SHIFT</option>
+                                    <option value="DAILY">DAILY</option>
+                                    <option value="WEEKLY">WEEKLY</option>
+                                    <option value="MONTHLY">MONTHLY</option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
+                                </select>
+                            </div>
+                            <div class="col-auto p-0 align-self-center">
+                                <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="fa fa-download me-2"></span>Downloads
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item" href="#">PDF</a></li>
+                                <li><a class="dropdown-item" href="#">Excel</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card shadow-none border-radius-20">
+                    <div class="card-body p-5">
+
+                        <p class="fw-bolder">Detail</p>
+                        <div class="table-responsible" id="dataTable">
+
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -217,11 +237,73 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    function arrayToString(arr) {
+        var resultString = arr.join(',');
+        return resultString;
+    }
+
+    function groupDataByProperties(data, propertyNames) {
+        // Menggunakan Set untuk menyimpan nilai unik dari kombinasi properti
+        var uniqueValuesSet = new Set();
+
+        // Loop melalui data untuk mendapatkan nilai unik dari kombinasi properti
+        data.forEach(function(item) {
+            // Membuat array yang berisi nilai properti yang diinginkan
+            var propertyValues = propertyNames.map(function(propertyName) {
+                return item[propertyName];
+            });
+
+            // Menambahkan array nilai properti ke dalam Set
+            uniqueValuesSet.add(JSON.stringify(propertyValues));
+        });
+
+        // Mengonversi Set menjadi array dan mengembalikan hasilnya
+        var uniqueValuesArray = Array.from(uniqueValuesSet).map(function(stringifiedArray) {
+            return JSON.parse(stringifiedArray);
+        });
+
+        return uniqueValuesArray;
+    }
+
+    function findQty(data, criteria) {
+        for (let i = 0; i < data.length; i++) {
+            let match = true;
+
+            for (let key in criteria) {
+                // Mengatasi properti dengan hierarki
+                const keys = key.split('.');
+                let currentValue = data[i];
+
+                for (let j = 0; j < keys.length; j++) {
+                    if (currentValue.hasOwnProperty(keys[j])) {
+                        currentValue = currentValue[keys[j]];
+                    } else {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    break;
+                }
+
+                if (currentValue !== criteria[key]) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match) {
+                return data[i].qty;
+            }
+        }
+
+        return null;
+    }
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -238,11 +320,63 @@
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
     var data_report = ""
+    var data_report_detail = []
     var supplier_id = ""
-    var date_start = ""
-    var date_end = ""
-
+    var date_start = currentDate()
+    var date_end = currentDate()
+    var periodOption
+    var structureData = {
+        MONTHLY: {
+            rowspan: 2,
+            data: [{
+                name: 'Year',
+                variable: 'year',
+                colspan: 0,
+            }, {
+                name: 'Month',
+                variable: 'month',
+                colspan: 1,
+            }]
+        },
+        WEEKLY: {
+            rowspan: 2,
+            data: [{
+                name: 'Year',
+                variable: 'year',
+                colspan: 0,
+            }, {
+                name: 'Week',
+                variable: 'week',
+                colspan: 1,
+            }]
+        },
+        DAILY: {
+            rowspan: 1,
+            data: [{
+                name: 'Date',
+                variable: 'date',
+                colspan: 1,
+            }]
+        },
+        SHIFT: {
+            rowspan: 2,
+            data: [{
+                name: 'Date',
+                variable: 'date',
+                colspan: 0,
+            }, {
+                name: 'Shift',
+                variable: 'shift',
+                colspan: 1,
+            }]
+        },
+    }
     $(document).ready(function() {
+        $('select').selectpicker();
+        loadData()
+    })
+
+    function loadData() {
         $('select').selectpicker();
         $.ajax({
             url: "<?= api_produksi('loadPageMachineReport'); ?>",
@@ -255,26 +389,29 @@
             beforeSend: function() {},
             success: function(response) {
                 data_user = response['data']
-                // getData()
-                $('#dateStart').val(data_user.date.dateStart)
-                $('#dateEnd').val(data_user.date.dateEnd)
-                new Litepicker({
-                    element: document.getElementById('dateStart'),
-                    elementEnd: document.getElementById('dateEnd'),
-                    singleMode: false,
-                    allowRepick: true,
-                    firstDay: 0,
-                    setup: (picker) => {
-                        picker.on('selected', (date1, date2) => {
-                            dateStart = formatDate(date1['dateInstance'])
-                            dateEnd = formatDate(date2['dateInstance'])
-                        });
-                    },
-                })
+                setDaterange()
                 formMachine()
             }
         })
-    })
+    }
+
+    function setDaterange() {
+        new Litepicker({
+            element: document.getElementById('dateRange'),
+            singleMode: false,
+            firstDay: 0,
+            startDate: date_start,
+            endDate: date_end,
+            format: "DD MMMM YYYY",
+            autoRefresh: true,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    date_start = formatDate(date1['dateInstance'])
+                    date_end = formatDate(date2['dateInstance'])
+                });
+            },
+        })
+    }
 
     function formMachine() {
         var html = ''
@@ -283,141 +420,185 @@
         });
         $('#selectMachine').html(html)
         $('#selectMachine').selectpicker('refresh');
-        formStatus()
+        autoSave()
     }
 
-    function formStatus() {
-        var html = ''
-        data_user.status.forEach(e => {
-            html += '<option value="' + e + '" selected>' + e + '</option>'
-        });
-        $('#selectStatus').html(html)
-        $('#selectStatus').selectpicker('refresh');
-        getData()
+    function simpanData() {
+        periodOption = $('#selectPeriod').val()
+        var machineId = arrayToString($('#selectMachine').map(function() {
+            return $(this).val();
+        }).get())
+        // ----------------------------------------- //
+        var type = 'GET'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('getReportResult'); ?>'
+        var data = {
+            dateStart: date_start,
+            dateEnd: date_end,
+            periodOption: periodOption,
+            machineId: machineId
+        }
+        kelolaData(data, type, url, button)
     }
 
-    function getData() {
-        $('.dateRangeText').html(formatDateIndonesia($('#dateStart').val()) + ' - ' + formatDateIndonesia($('#dateEnd').val()))
-        var machineId = $('#selectMachine').map(function() {
-            return $(this).val();
-        }).get();
-        var status = $('#selectStatus').map(function() {
-            return $(this).val();
-        }).get();
-        // console.log(dateStart, dateEnd, machineId, status)
+    function autoSave() {
+        periodOption = 'MONTHLY'
+        var type = 'GET'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('getReportResult'); ?>'
+        var data = {
+            dateStart: '2023-09-10',
+            dateEnd: '2023-10-24',
+            periodOption: periodOption,
+            machineId: '1,2,3,4,5,6,7,8'
+        }
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
         $.ajax({
-            url: "<?= api_produksi('getMachineReport'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                dateStart: $('#dateStart').val(),
-                dateEnd: $('#dateEnd').val(),
-                machineId: machineId,
-                status: status,
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
             },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
             success: function(response) {
-                data_report = response['data']
-                contentTable()
+                $(button).prop("disabled", false);
+                data_report = response.data
+                // console.log(data_report)
+                data_report.reportResult.forEach(e => {
+                    data_report_detail.push({
+                        machine_id: e.machine.id,
+                        machine_name: e.machine.name,
+                        item_id: e.item.id,
+                        item_name: e.item.name,
+                        item_code: e.item.code,
+                        unit_id: e.unit.id,
+                        unit_name: e.unit.name,
+                        qty: e.qty,
+                    })
+                });
+                updatedStructure()
             }
-        })
+        });
     }
 
-    function contentTable() {
+    function updatedStructure() {
+        if (structureData[periodOption].data.length > 1) {
+            structureData[periodOption].data[0].colspan = groupDataByProperties(data_report.reportResult, [structureData[periodOption].data[1].variable]).length
+        }
+        dataTable()
+    }
+
+    function dataTable() {
         var html = ''
-        $.each(data_report.item, function(key, value) {
+        html += '<table class="table table-bordered table-hover table-sm small">'
+        html += '<thead id="headTable">'
+        html += '</thead>'
+        html += '<tbody id="bodyTable">'
+        html += '</tbody>'
+        html += '</table>'
+        $('#dataTable').html(html)
+        headTable()
+    }
+
+    function headTable() {
+        var html = ''
+        var a = 0
+        structureData[periodOption].data.forEach(e => {
             html += '<tr>'
-            html += '<td class="p-2 small-text text-center">' + (parseInt(key) + 1) + '</td>'
-            html += '<td class="p-2 small-text">' + value.date + '</td>'
-            html += '<td class="p-2 small-text">' + value.item.name + '</td>'
-            html += '<td class="p-2 small-text">' + value.machine.name + '</td>'
-            html += '<td class="p-2 small-text text-end">' + value.qty + '</td>'
-            html += '<td class="p-2 small-text">' + value.unit.name + '</td>'
-            var sign = 'fa-arrow-up text-danger'
-            if (value.status == 'IN') {
-                sign = 'fa-arrow-down text-success'
+            if (!a) {
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">#</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Machine</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Product</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Unit</th>'
             }
-            html += '<td class="p-2 small-text text-center"><i class="fa ' + sign + '"></i></td>'
+            var dataChild = groupDataByProperties(data_report.reportResult, [e.variable])
+            for (let i = 0; i < dataChild.length; i++) {
+                html += '<th colspan="' + e.colspan + '">' + dataChild[i] + '</th>'
+            }
             html += '</tr>'
-        })
-        $('#contentTable').html(html)
-        oTable = $('#myTable').DataTable();
-        $('#myInputTextField').keyup(function() {
-            oTable.search($(this).val()).draw();
-        })
-        $('.dataTables_info').addClass('d-none')
-        $('.dataTables_filter').addClass('d-none')
-        $('.dataTables_length').addClass('small-text d-none')
-        $('.dataTables_paginate').addClass('small-text')
-        fillSelectFormUsageItem()
+            a++
+        });
+        $('#headTable').html(html)
+        bodyTable()
     }
 
-    function fillSelectFormUsageItem() {
+    function checkingData() {
+        var data = data_report_detail.find((v, k) => {
+            if (v.e == id) return true
+        })
+    }
+
+    function bodyTable() {
+        // console.log(data_report_detail)
+        var dataMachine = groupAndSum(data_report_detail, ['machine_id', 'machine_name', 'item_id', 'item_name', 'unit_name'], [])
         var html = ''
-        $.each(data_report.machineItem, function(key, value) {
-            html += '<option value="' + key + '">' + value.machine.code + '</option>'
-        });
-        $('#selectMachineUsage').html(html)
-        $('#selectMachineUsage').selectpicker('refresh')
-        usageItem()
-    }
-
-    function usageItem() {
-        var id = $('#selectMachineUsage').val()
-        var data = data_report.machineItem.filter((v, k) => {
-            if (k == id) return true
-        })[0].data
-        var varchart = []
-        var labels = []
-        $.each(data, function(key, value) {
-            var detail = []
-            $.each(value.item, function(keys, values) {
-                if (key == 0) {
-                    labels.push('0' + (parseInt(keys)))
-                }
-                detail.push(values.qty)
-            })
-            var label = 'Used'
-            if (value.status == 'IN') {
-                label = 'Received'
-            }
-            varchart.push({
-                'label': label,
-                'data': detail,
-            })
-        })
-        chart(varchart, labels)
-    }
-
-    function chart(varchart, labels) {
-        // console.log(varchart, labels)
-        $('#fieldChart').html('')
-        $('#fieldChart').html('<canvas id="myChart" class="pt-5 pb-5" style="width: 300px;"></canvas>')
-        let delayed;
-        const ctx = document.getElementById('myChart');
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: labels,
-                datasets: varchart
-            },
-            options: {
-                animation: {
-                    onComplete: () => {
-                        delayed = true;
-                    },
-                    delay: (context) => {
-                        let delay = 0;
-                        if (context.type === 'data' && context.mode === 'default' && !delayed) {
-                            delay = context.dataIndex * 300 + context.datasetIndex * 100;
+        //loop
+        var a = 1
+        dataMachine.forEach(e => {
+            html += '<tr>'
+            html += '<td class="text-center small-text">' + a++ + '</td>'
+            html += '<td class="text-center small-text">' + e.machine_name + '</td>'
+            html += '<td class="text-center small-text">' + e.item_name + '</td>'
+            html += '<td class="text-center small-text">' + e.unit_name + '</td>'
+            // loop
+            var dataChild = []
+            structureData[periodOption].data.forEach(el => {
+                dataChild.push({
+                    'variable': el.variable,
+                    'data': groupDataByProperties(data_report.reportResult, [el.variable]),
+                })
+            });
+            for (let i = 0; i < dataChild.length; i++) {
+                var criteria = []
+                var indexCriteria = 0
+                if (dataChild.length > 1) {
+                    for (let j = 0; j < dataChild[0].data.length; j++) {
+                        for (let k = 0; k < dataChild[1].data.length; k++) {
+                            criteria.push({
+                                'machine.id': e.machine_id,
+                                'item.id': e.item_id,
+                            })
+                            eval(`criteria[indexCriteria]['${dataChild[0].variable}'] = dataChild[0].data[j][0]`)
+                            eval(`criteria[indexCriteria]['${dataChild[1].variable}'] = dataChild[1].data[k][0]`)
+                            indexCriteria++
                         }
-                        return delay;
-                    },
-                },
-                responsive: false,
-                maintainAspectRatio: true,
+                    }
+                } else {
+                    for (let j = 0; j < dataChild[0].data.length; j++) {
+                        criteria.push({
+                            'machine.id': e.machine_id,
+                            'item.id': e.item_id,
+                        })
+                        eval(`criteria[indexCriteria]['${dataChild[0].variable}'] = dataChild[0].data[j][0]`)
+                        indexCriteria++
+                    }
+                }
             }
+            criteria.forEach(ele => {
+                var qty = findQty(data_report.reportResult, ele)
+                if (!qty) {
+                    qty = '-'
+                } else {
+                    qty = number_format(qty)
+                }
+                html += '<td class="text-center">' + qty + '</td>'
+            });
+            // loop
+            html += '</tr>'
         });
+        // end loop
+        $('#bodyTable').html(html)
+
     }
 </script>

@@ -675,7 +675,11 @@
             html += '<div class="row">'
             html += '<div class="col">'
             html += '<p class="text-grey m-0" style="font-size: 10px;">Created At <span>' + formatDateIndonesia(formatDate(values['created_at'])) + '</span></p>'
-            html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">#' + values['code'] + '</p>'
+            var workPlanBtn = ''
+            if (values.is_work_plan) {
+                workPlanBtn = '<i class="fa fa-briefcase me-2 text-success" title="Work Plan telah Dibuat"></i>'
+            }
+            html += '<p class="m-0 text_search" style="font-size: 14px;" data-id="' + keys + '">' + workPlanBtn + '' + values['code'] + '</p>'
             html += '<h6 class="m-0 text_search" style="cursor:pointer;" onclick="linkToDetail(' + values.id + ')" data-id="' + keys + '"><b>' + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + '</b></h6>'
             if (values.note == '') {
                 values.note = '-'

@@ -1886,19 +1886,39 @@
                                 data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine.push(dataMachine)
                                 var indexProduct = 0
                                 d.product.forEach(e => {
+                                    // console.log(e)
+                                    var productConvert = convertUnit(e, d.id)
                                     // product
                                     var dataProduct = deepCopy(template.products)[0]
-                                    dataProduct.product.id = e.id
-                                    dataProduct.product.code = e.code
-                                    dataProduct.product.name = e.name
-                                    dataProduct.product.alias = e.alias
-                                    dataProduct.qty = e.qty
-                                    dataProduct.unit.id = e.unit.id
-                                    dataProduct.unit.name = e.unit.name
-                                    dataProduct.unit.multiplier = e.unit.multiplier
+                                    dataProduct.product.id = productConvert.item_id
+                                    dataProduct.product.code = productConvert.item_code
+                                    dataProduct.product.name = productConvert.item_name
+                                    dataProduct.product.alias = productConvert.item_alias
+                                    dataProduct.qty = productConvert.qty
+                                    dataProduct.unit.id = productConvert.unit_id
+                                    dataProduct.unit.name = productConvert.unit_name
+                                    dataProduct.unit.multiplier = productConvert.unit_multiplier
+                                    // dataProduct.product.id = e.id
+                                    // dataProduct.product.code = e.code
+                                    // dataProduct.product.name = e.name
+                                    // dataProduct.product.alias = e.alias
+                                    // dataProduct.qty = e.qty
+                                    // dataProduct.unit.id = e.unit.id
+                                    // dataProduct.unit.name = e.unit.name
+                                    // dataProduct.unit.multiplier = e.unit.multiplier
                                     dataProduct.work_plan_product_id = new Date().getTime() + '' + +'' + indexShift + '' + indexDate + '' + indexMachineType + '' + indexMachine + '' + indexProduct
-                                    data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.push(dataProduct)
-                                    indexProduct++
+                                    var checkProduct
+                                    if (indexProduct) {
+                                        checkProduct = data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.find((v, k) => {
+                                            if (v.product.id == productConvert.item_id) return true
+                                        })
+                                    }
+                                    if (!checkProduct) {
+                                        data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.push(dataProduct)
+                                        indexProduct++
+                                    } else {
+                                        checkProduct.qty = parseFloat(checkProduct.qty) + parseFloat(productConvert.qty)
+                                    }
                                 });
                                 indexMachine++
                             });
@@ -1917,8 +1937,54 @@
         finishedConvert()
     }
 
-    function chooseShiftBeforeArrange() {
+    function convertUnit(data, machine_id) {
+        var conversion = 0
+        eval(`conversion = parseFloat(data.qty) ${data.unit_work_plan_conversion.operator} data.unit_work_plan_conversion.multiplier`)
+        var dataProduct = findProductItem(data.id, machine_id)
+        var findUnit = data_work.item.find((v, k) => {
+            if (v.id == dataProduct.id) return true
+        }).unit_default.find((v, k) => {
+            if (v.machine_id == machine_id) return true
+        }).unit_id
 
+        var findUnitMachine = data_work.item.find((v, k) => {
+            if (v.id == dataProduct.id) return true
+        }).unit_option.find((v, k) => {
+            if (v.id == findUnit) return true
+        })
+        if (findUnitMachine) {
+            eval(`conversion = parseFloat(conversion) ${findUnitMachine.operator} findUnitMachine.multiplier`)
+        }
+        return {
+            qty: Math.ceil(conversion),
+            unit_id: findUnitMachine.id,
+            unit_name: findUnitMachine.name,
+            unit_multiplier: findUnitMachine.multiplier,
+            item_id: dataProduct.id,
+            item_alias: dataProduct.alias,
+            item_code: dataProduct.code,
+            item_name: dataProduct.name,
+        }
+    }
+
+    function findProductItem(product_id, machine_id) {
+        var dataProduct = data_work.productItem.find((v, k) => {
+            if (v.id == product_id) return true
+        })
+        if (dataProduct) {
+            dataProduct = dataProduct.machine.find((v, k) => {
+                if (v.id == machine_id) return true
+            }).item_id
+        } else {
+            dataProduct = product_id
+        }
+        var viewDataProduct = groupAndSum(data_work.item, ['id', 'alias', 'code', 'name'], []).find((v, k) => {
+            if (v.id == dataProduct) return true
+        })
+        return viewDataProduct
+    }
+
+    function chooseShiftBeforeArrange() {
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
@@ -2142,22 +2208,27 @@
                         // buat bar work plan
                         var insertPriority = 1
                         d.products.forEach(e => {
-                            var dataProduct = data_work.productItem.find((v, k) => {
-                                if (v.id == e.product.id) return true
-                            })
-                            if (dataProduct) {
-                                dataProduct = dataProduct.machine.find((v, k) => {
-                                    if (v.id == d.machine.id) return true
-                                }).item_id
-                            } else {
-                                dataProduct = e.product.id
+                            // var dataProduct = data_work.productItem.find((v, k) => {
+                            //     if (v.id == e.product.id) return true
+                            // })
+                            // if (dataProduct) {
+                            //     dataProduct = dataProduct.machine.find((v, k) => {
+                            //         if (v.id == d.machine.id) return true
+                            //     }).item_id
+                            // } else {
+                            //     dataProduct = e.product.id
+                            // }
+                            console.log(e.product)
+                            var dataProduct = findProductItem(e.product.id, d.machine.id)
+                            if (!dataProduct) {
+                                dataProduct = e.product
                             }
                             // console.log(dataProduct)
                             if (e.work_plan_product_id != null) {
                                 set_work_plan['workPlanProduct'].push({
                                     id: e.work_plan_product_id,
                                     work_plan_machine_id: d.work_plan_machine_id,
-                                    item_id_product: dataProduct,
+                                    item_id_product: dataProduct.id,
                                     // item_id_product: dataProduct,
                                     qty: e.qty,
                                     unit_id: e.unit.id,
@@ -2166,6 +2237,10 @@
                                 })
                                 insertPriority++
                             }
+                            // var viewDataProduct = groupAndSum(data_work.item, ['id', 'alias', 'code', 'name'], []).find((v, k) => {
+                            //     if (v.id == dataProduct) return true
+                            // })
+                            // console.log(viewDataProduct)
                             // products
                             data_work_plan.push({
                                 'id': a.id,
@@ -2197,10 +2272,10 @@
                                 'note_machine': d.note,
                                 'work_plan_machine_id': d.work_plan_machine_id,
                                 'shift_id_machine': d.shift.id,
-                                'product_id': e.product.id,
-                                'product_code': e.product.code,
-                                'product_name': e.product.name,
-                                'product_alias': e.product.alias,
+                                'product_id': dataProduct.id,
+                                'product_code': dataProduct.code,
+                                'product_name': dataProduct.name,
+                                'product_alias': dataProduct.alias,
                                 'product_qty': e.qty,
                                 'unit_id': e.unit.id,
                                 'unit_name': e.unit.name,
@@ -3364,7 +3439,7 @@
             html += '<p class="m-0 small-text"><b class="text_search" data-id="' + a + '">' + e.full_name + '</b></p>'
             html += '<p class="m-0 super-small-text text-grey"><b class="text_search" data-id="' + a + '">' + e.job_title_name + '</b></p>'
             html += '</div>'
-            html += '<div class="col-2 align-self-center">'
+            html += '<div class="col-2 align-self-center text-start ps-0">'
             if (filter == undefined) {
                 jumlahUnchecked++
                 html += '<i class="fa fa-user-plus cursor-klik" onclick="addManPower(' + "'add'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
@@ -3392,7 +3467,7 @@
             html += '<p class="m-0 small-text text-dark"><b>' + e.name + '</b></p>'
             html += '<p class="m-0 super-small-text"><b>Had <span class="text-dark">' + dataPersonalWork.idCount + '</span> Positions in a This Date</b></p>'
             html += '</div>'
-            html += '<div class="col-2 align-self-center text-end">'
+            html += '<div class="col-2 align-self-center text-start ps-0">'
             html += '<i class="fa fa-times text-danger cursor-klik" onclick="addManPower(' + "'remove'" + ',' + e.id + ',' + "'" + date + "'," + shift_group_id + ',' + machine_type_id + ',' + machine_id + ',' + "'" + keys + "'" + ')"></i>'
             html += '</div>'
             html += '</div>'
@@ -3420,6 +3495,7 @@
             key = 'machine'
         }
         $('#accordion' + key + variable).addClass('bg-dongker')
+        searching()
     }
 
     function addManPower(action, employee_id, date, group_shift_id, machine_type_id, machine_id, key) {
@@ -4007,7 +4083,12 @@
         // var dataProduct = groupAndSum(data_work_plan, ['product_id', 'product_name', 'product_alias'], [])
         var dataProduct = getDataByIdArrayItemProduct(data_work.machine.find((v, k) => {
             if (v.id == machine_id) return true
-        }).item_id_product, groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []))
+        }).item_id_product, groupAndSum(data_work.item, ['id', 'alias', 'code', 'name'], []))
+        // var dataProduct = getDataByIdArrayItemProduct(data_work.machine.find((v, k) => {
+        //     if (v.id == machine_id) return true
+        // }).item_id_product, groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []))
+        // console.log(groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []))
+        // console.log(dataProduct)
         $('#modal2').modal('show')
         $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
         var html_header = '';
@@ -4148,7 +4229,7 @@
     }
 
     function addDataProduction(date, machine_id, shift_id, group_shift_id, product_id) {
-        var dataProduct = groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []).find((v, k) => {
+        var dataProduct = groupAndSum(data_work.item, ['id', 'alias', 'code', 'name'], []).find((v, k) => {
             if (v.id == product_id) return true
         })
         var dataUnitId = data_work.item.find((v, k) => {

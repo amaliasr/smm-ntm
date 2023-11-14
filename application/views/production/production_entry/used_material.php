@@ -169,7 +169,7 @@
     var dataProductionOutGroup
 
     $(document).ready(function() {
-        loadData()
+        // loadData()
     })
 
     function loadData() {

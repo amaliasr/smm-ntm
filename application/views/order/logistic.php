@@ -89,10 +89,16 @@
         transform: rotate(20deg);
         opacity: 0.3;
     }
+
+    .bg-scene {
+        background: url('../assets/image/background/logistic.png') no-repeat center center fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
 </style>
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <header class="page-header page-header-dark bg-scene pb-10">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
@@ -114,7 +120,7 @@
         <div class="row">
             <div class="col-12 col-md-12">
                 <div class="row">
-                    <div class="col-12 col-md-5 mb-2">
+                    <div class="col-12 col-md-6 mb-2">
                         <div class="card shadow-sm">
                             <div class="card-body">
                                 <div class="row">
@@ -133,7 +139,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-7 mb-4">
+                    <div class="col-12 col-md-6 mb-4">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <div class="row">
@@ -396,6 +402,7 @@
                         if (data_sj.length > 1) {
                             modalSJMulti()
                         } else {
+                            data_key = 0
                             formPencarianSJ(response['data'][0], 0)
                         }
                     }
@@ -403,8 +410,10 @@
             }
         })
     }
+    var data_key
 
     function formPencarianSJKey(key) {
+        data_key = key
         formPencarianSJ(data_sj[key], key)
     }
 
@@ -490,23 +499,45 @@
         html += '</div>'
 
         $.each(JSON.parse(data['data_detail']), function(keys, values) {
+            var converted = ''
+            var checkSatuan = values.unit_option.find((v, k) => {
+                if (v.id == values.satuan_id) return true
+            })
+            var satuanTerkecil = values.unit_option.find((v, k) => {
+                if (v.is_default == 1) return true
+            })
+            if (!checkSatuan.is_default) {
+                eval(`var total = parseFloat(values.jumlah) ${checkSatuan.operator_reverse} checkSatuan.multiplier`)
+                converted = '<span class="ms-1">= ' + number_format(total) + ' ' + satuanTerkecil.name + '</span>'
+            }
+
             html += '<div class="row">'
-            html += '<div class="col-2 p-2 text-center">'
-            html += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-50 mx-auto d-block">'
+            html += '<div class="col-1 p-2 text-center">'
+            html += '<img src="<?= base_url() ?>assets/image/logo/box.png" class="w-100 mx-auto d-block">'
             html += '</div>'
             html += '<div class="col-5 align-self-center ps-0">'
             html += '<p class="m-0 small" style="font-size:12px ;"><b>' + values['item_name'] + '</b></p>'
-            html += '<p class="m-0 small float-start" style="font-size:10px ;">' + values['jumlah'] + ' <span>' + values['satuan_name'] + '</span></p>'
+            html += '<p class="m-0 small float-start" style="font-size:10px ;">' + values['jumlah'] + ' <span>' + values['satuan_name'] + '</span>' + converted + '</p>'
             html += '</div>'
-            html += '<div class="col-3 align-self-center ps-0">'
             if (obj == 0) {
-                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '" data-date="' + "'" + values.date_transaction + "'" + '" autocomplete="off">'
+                html += '<div class="col-3 ps-0 pe-0 text-end">'
+                html += '<input type="text" name="" class="form-control form-control-sm p-1 nominal jumlahMasuk" id="jumlahMasuk' + keys + '" data-key="' + keys + '" data-jumlah="' + values['jumlah'] + '" data-item="' + values['item_id'] + '" data-satuan="' + values['satuan_id'] + '" data-order="' + values['id_detail_order'] + '" data-date="' + "'" + values.date_transaction + "'" + '" autocomplete="off" placeholder="0" oninput="convertOption()">'
+                html += '<p class="m-0 mt-1" style="font-size:10px;" id="convertedFill' + keys + '"></p>'
+                html += '</div>'
+                html += '<div class="col-3">'
+                html += '<select name="" id="satuanSelect' + keys + '" class="form-select form-select-sm satuanSelect" required="required" onchange="convertOption()">'
+                $.each(values.unit_option, function(key, value) {
+                    var select = ''
+                    if (value.id == values.satuan_id) {
+                        select = 'selected'
+                    }
+                    html += '<option value="' + value['id'] + '" ' + select + '>' + value['name'] + '</option>'
+                })
+                html += '</select>'
+                // html += '<p class="m-0 small text-start text-success d-none" id="checkItem' + keys + '" style="font-size:12px ;"><i class="fa fa-check fa-1x"></i></p>'
+                // html += '<p class="m-0 small text-start text-warning d-none" id="warningItem' + keys + '" style="font-size:12px ;"><i class="fa fa-exclamation fa-1x"></i></p>'
+                html += '</div>'
             }
-            html += '</div>'
-            html += '<div class="col-2 align-self-center">'
-            html += '<p class="m-0 small text-start text-success d-none" id="checkItem' + keys + '" style="font-size:12px ;"><i class="fa fa-check fa-1x"></i></p>'
-            html += '<p class="m-0 small text-start text-warning d-none" id="warningItem' + keys + '" style="font-size:12px ;"><i class="fa fa-exclamation fa-1x"></i></p>'
-            html += '</div>'
             html += '</div>'
         })
         if (obj == 0) {
@@ -540,6 +571,9 @@
             orientation: "auto",
             autoclose: true
         });
+        if (obj == 0) {
+            convertOption()
+        }
     }
     var noSampel = 0
 
@@ -614,6 +648,9 @@
         var order = $('.jumlahMasuk').map(function() {
             return $(this).data('order');
         }).get();
+        var key = $('.jumlahMasuk').map(function() {
+            return $(this).data('key');
+        }).get();
         var date_transaction = $('.jumlahMasuk').map(function() {
             return $(this).data('date');
         }).get();
@@ -636,10 +673,11 @@
         var detail = []
         var detail_sampel = []
         for (let i = 0; i < jumlah.length; i++) {
+            var data = convertReturn(i, order, key, jumlah)
             detail.push({
                 'id_detail_order': order[i],
-                'jumlah_barang': jumlah[i],
-                'id_satuan': satuan[i],
+                'jumlah_barang': data.total,
+                'id_satuan': data.satuanTerkecilId,
                 'id_item': item[i],
                 'date_transaction': date_transaction[i],
             })
@@ -789,5 +827,49 @@
         var url = '<?= base_url('order/cetakPenerimaan') ?>'
         var params = "*$" + btoa(no_sj) + "*$" + btoa(data_sj['data_detail']) + "*$" + btoa(supplier)
         window.open(url + '?params=' + (params), '_blank')
+    }
+
+    function convertOption() {
+        var key = $('.jumlahMasuk').map(function() {
+            return $(this).data('key');
+        }).get();
+        var order = $('.jumlahMasuk').map(function() {
+            return $(this).data('order');
+        }).get();
+        var jumlah = $('.jumlahMasuk').map(function() {
+            return $(this).data('jumlah');
+        }).get();
+        var valueJumlah = $('.jumlahMasuk').map(function() {
+            return $(this).val();
+        }).get();
+        var satuan = $('.jumlahMasuk').map(function() {
+            return $(this).data('satuan');
+        }).get();
+        for (let i = 0; i < key.length; i++) {
+            var data = convertReturn(i, order, key, valueJumlah)
+            $('#convertedFill' + key[i]).html(number_format(data.total) + ' ' + data.satuanTerkecilName)
+        }
+    }
+
+    function convertReturn(i, order, key, valueJumlah) {
+        var data = JSON.parse(data_sj[data_key].data_detail).find((v, k) => {
+            if (v.id_detail_order == order[i]) return true
+        })
+        var idSatuanSeelct = $('#satuanSelect' + key[i]).val()
+        var checkSatuan = data.unit_option.find((v, k) => {
+            if (v.id == idSatuanSeelct) return true
+        })
+        var satuanTerkecil = data.unit_option.find((v, k) => {
+            if (v.is_default == 1) return true
+        })
+        if (!valueJumlah[i]) {
+            valueJumlah[i] = 0
+        }
+        eval(`var total = parseFloat(valueJumlah[i]) ${checkSatuan.operator_reverse} checkSatuan.multiplier`)
+        return {
+            total: total,
+            satuanTerkecilName: satuanTerkecil.name,
+            satuanTerkecilId: satuanTerkecil.id,
+        }
     }
 </script>

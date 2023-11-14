@@ -217,13 +217,19 @@
         var dataFiltered = data.filter((v, k) => {
             if (v.akun == akun) return true
         })
-        // Mencari nilai terbesar
-        var maxValue = dataFiltered.reduce(function(prev, current) {
-            return (prev.count > current.count) ? prev : current;
-        })
-        var sum = dataFiltered.reduce(function(acc, current) {
-            return acc + current.count;
-        }, 0);
+        // console.log(data)
+        if (dataFiltered.length) {
+            // Mencari nilai terbesar
+            var maxValue = dataFiltered.reduce(function(prev, current) {
+                return (prev.count > current.count) ? prev : current;
+            })
+            var sum = dataFiltered.reduce(function(acc, current) {
+                return acc + current.count;
+            }, 0);
+        } else {
+            var maxValue = '-'
+            var sum = 0
+        }
 
         $('#totalMostVisited').html(maxValue.name)
         $('#totalPageVisited').html(sum)

@@ -10,6 +10,7 @@
 
 <!-- Font Awesome 5 -->
 <link href="<?= base_url(); ?>assets/vendor/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
+<script src="https://use.fontawesome.com/d80f210d12.js"></script>
 
 <!-- Bootstrap Toggle -->
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">

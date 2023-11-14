@@ -232,7 +232,7 @@ class Production extends CI_Controller
         $decodedParams = urldecode($params);
         $explodedParams = explode("*$", $decodedParams);
         $data['plan_id'] = $explodedParams[1];
-        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('loadPageWorkPlanManage?productionPlanId=' . $data['plan_id'])))->data;
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('loadPageWorkPlanManage?productionPlanId=' . $data['plan_id'] . '&employeeId=' . $this->session->userdata('employee_id'))))->data;
         $html = $this->load->view('production/cetak_work_plan', $data, true);
         $this->pdf->setPaper('A4', 'landscape');
         $this->pdf->filename = "WORK PLAN " . $data['datas']->productionPlan->code . ".pdf";

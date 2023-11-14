@@ -1142,6 +1142,12 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+
+<script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
 <main>
     <div class="row">
         <div class="col-12 p-5 pb-4">
@@ -1153,24 +1159,34 @@
                     <h1 class="m-0">SKT Portal</h1>
                     <p class="m-0 small">test</p>
                 </div>
-                <div class="col align-self-start text-end">
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="managementMaterial()"><i class="fa fa-paper-plane-o me-2"></i>Transaction</button>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false">
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="jumlahWaiting"></span>
-                            <i class="fa fa-bell-o"></i>
-                        </button>
-                        <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" id="notifWaiting">
-                        </ul>
-                    </div>
-                </div>
+
             </div>
         </div>
         <div class="col-12 p-5 pb-2 pt-0">
             <div class="row">
                 <div class="col-md-6 mx-auto">
-                    <h2 class="text-center">Barcode Scanner</h2>
-                    <div id="scanner-container"></div>
+                    <div style="text-align:center">
+                        <h1>Print Raw Commands from Javascript</h1>
+                        <div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
+                        <hr />
+                        <label class="checkbox">
+                            <input type="checkbox" id="useDefaultPrinter" /> <strong>Print to Default printer</strong>
+                        </label>
+                        <p>or...</p>
+                        <div id="installedPrinters">
+                            <label for="installedPrinterName">Select an installed Printer:</label>
+                            <select name="installedPrinterName" id="installedPrinterName"></select>
+                        </div>
+                        <br /><br />
+                        <button type="button" onclick="print();">Print Now...</button>
+                        <p id="test"></p>
+                    </div>
+                    <div style="text-align:center">
+                        <h1>List of Installed Printers</h1>
+                        <hr />
+                        <div id="lstPrinters">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1220,6 +1236,151 @@
 <?php $this->load->view('components/modal_static') ?>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 
+
+<script>
+    $('#qrcode').empty()
+    var qrcode = new QRCode("qrcode", {
+        text: "http://jindo.dev.naver.com/collie",
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    $(".qrcode > img").css({
+        "margin": "auto"
+    });
+    imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+    var image = imgBase64Data
+    //WebSocket settings
+    var _this = this;
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
+    // JSPM.JSPrintManager.start(true, '10.0.0.1', 25443);
+    JSPM.JSPrintManager.WS.onStatusChanged = function() {
+        if (jspmWSStatus()) {
+            //get client installed printers
+            JSPM.JSPrintManager.getPrinters().then(function(myPrinters) {
+                // JSPM.JSPrintManager.getBluetoothDevices().then(function(myPrinters) {
+                // $('#test').html(JSON.stringify(myPrinters[i]))
+                var options = '';
+                for (var i = 0; i < myPrinters.length; i++) {
+                    options += '<option>' + myPrinters[i] + '</option>';
+                    // options += '<option value="' + myPrinters[i].address + '">' + myPrinters[i].name + '</option>';
+                }
+                $('#installedPrinterName').html(options);
+            });
+            JSPM.JSPrintManager.getPrintersInfo().then(function(printersList) {
+                let clientPrinters = printersList;
+                let htmlContent = '';
+                for (let i = 0; i < clientPrinters.length; i++) {
+                    htmlContent += '<div>' + clientPrinters[i].name +
+                        ' ====>>>> ' + (_this.isVirtualPrinter(clientPrinters[i]) ? '<strong><em><span style="color:red">VIRTUAL PRINTER</span></em></strong>' : '<strong>REAL/PHYSICAL PRINTER</strong>') +
+                        '</div>';
+                }
+                $('#lstPrinters').html(htmlContent);
+            });
+        }
+    };
+
+    //Check JSPM WebSocket status
+    function jspmWSStatus() {
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+            return true;
+        else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+            alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
+            return false;
+        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+            alert('JSPM has blocked this website!');
+            return false;
+        }
+    }
+
+    function isVirtualPrinter(clientPrinter) {
+        let printerPort = clientPrinter.port.toLowerCase();
+        //For Windows
+        if (printerPort != "nul" && clientPrinter.BIDIEnabled) return false;
+        //For Unix
+        if (printerPort.indexOf("usb") >= 0 && printerPort.indexOf("?serial=") >= 0) return false;
+
+        return true;
+    }
+
+    //Do printing...
+    function print(o) {
+        if (jspmWSStatus()) {
+            var b64Prefix = "data:image/png;base64,";
+            var imgBase64Content = image.substring(b64Prefix.length, image.length);
+            //Create a ClientPrintJob
+            var cpj = new JSPM.ClientPrintJob();
+            var cpj2 = new JSPM.ClientPrintJob();
+            //Set Printer type (Refer to the help, there many of them!)
+            if ($('#useDefaultPrinter').prop('checked')) {
+                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                cpj2.clientPrinter = new JSPM.DefaultPrinter();
+            } else {
+                cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName').val());
+                cpj2.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName').val());
+                // cpj.clientPrinter = new JSPM.BluetoothPrinter($('#installedPrinterName').val(), 1);
+            }
+            var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, 'myFileToPrint.png', 1);
+            // printToBluetoothPrinter($('#installedPrinterName').val(), 'test')
+            var esc = '\x1B'; //ESC byte in hex notation
+            var newLine = '\x0A'; //LF byte in hex notation
+
+            var cmds = esc + "@"; //Initializes the printer (ESC @)
+            cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+            cmds += newLine + newLine;
+            cmds += 'Setoran 1'; //text to print
+            // cmds += image
+            cmds += newLine;
+            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+            cmds += 'Marsinah';
+            cmds += newLine;
+            cmds += 'Good : 500';
+            cmds += newLine + newLine;
+            cmds += newLine + newLine;
+
+            //add file to print job
+            cpj.printerCommands = cmds;
+            cpj2.files.push(myImageFile);
+            var cpjg = new JSPM.ClientPrintJobGroup();
+            cpjg.jobs.push(cpj);
+            cpjg.jobs.push(cpj2);
+            //Send print job to printer!
+            cpjg.sendToClient()
+        }
+    }
+    async function printToBluetoothPrinter(printerAddress, text) {
+        // console.log(printerAddress)
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{
+                    services: ['public/printer']
+                }],
+                optionalServices: ['public/printer'],
+                acceptAllDevices: true,
+                deviceInfos: [{
+                    name: 'MyPrinter',
+                    filters: [{
+                        services: ['public/printer']
+                    }]
+                }]
+            });
+
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('public/printer');
+            const characteristic = await service.getCharacteristic('public/printer');
+
+            await characteristic.writeValue(new TextEncoder().encode(text));
+            await server.disconnect();
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
+
+
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
@@ -1234,7 +1395,7 @@
 
     $(document).ready(function() {
         // loadData()
-        onCam()
+        // onCam()
     })
 
     function onCam() {

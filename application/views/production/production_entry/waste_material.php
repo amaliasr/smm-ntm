@@ -243,7 +243,7 @@
 
     $(document).ready(function() {
         // emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
-        loadData()
+        // loadData()
     })
 
     function loadData() {

@@ -568,8 +568,9 @@
 
     .btn-list-planning:active,
     .clicked {
-        background-color: #27374D;
+        background-color: #27374D !important;
         color: white;
+        border-color: #27374D !important;
     }
 
     .card-list-planning {
@@ -823,6 +824,10 @@
     .bg-light-dongker {
         background-color: #7d8794;
     }
+
+    .cameraOption {
+        border-radius: 20px !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -853,7 +858,9 @@
                         <a class="dropdown-item"><i class="fa fa-file-o me-2"></i> Test</a>
                     </div>
                 </div>
-                <div class="col-12 p-0 pt-4 pb-2">
+                <div class="col-12 p-0 pt-4 pb-2" id="showCameraQR">
+                </div>
+                <div class="col-12 p-0 pb-2">
                     <?php foreach ($menu as $key => $value) {
                         $clicked = '';
                         if ($value->name == $link) {
@@ -884,7 +891,7 @@
                     <?php } ?>
                 </div>
                 <div class="col-12 p-0 pt-2 pb-2">
-                    <div class="card shadow-none" style="border-radius: 0px;">
+                    <div class="card shadow-none">
                         <div class="card-body p-0">
                             <div class="row p-3">
                                 <div class="col-auto align-self-center">
@@ -902,7 +909,7 @@
                     </div>
                 </div>
                 <div class="col-12 p-0 pt-2 pb-2">
-                    <div class="card shadow-none" style="border-radius: 0px;">
+                    <div class="card shadow-none">
                         <div class="card-body p-0">
                             <div class="row p-3">
                                 <div class="col-auto align-self-center">
@@ -937,7 +944,7 @@
                 </div>
                 <div class="col text-end align-self-center">
                     <!-- <button type="button" class="btn btn-outline-success shadow-none btn-sm shadow-none"><i class="fa fa-save me-2"></i>Save Draft</button> -->
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
                 </div>
                 <div class="col-12 pt-3">
@@ -984,6 +991,8 @@
 </div>
 <?php $this->load->view('components/modal_static') ?>
 <script>
+    var stillOpenModal = false
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -1002,9 +1011,11 @@
 
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
+        stillOpenModal = false
     })
     $('#modal2').on('hidden.bs.modal', function(e) {
         clearModal2();
+        stillOpenModal = false
     })
 
     function notFound(location) {
@@ -1035,6 +1046,16 @@
         return html
     }
 
+    function cardAlert(text) {
+        var html = ''
+        html += '<div class="card shadow-none h-100" style="background-color:transparent;border: 1px dashed #cfcfcf;">'
+        html += '<div class="card-body p-3 text-center d-flex align-items-center justify-content-center">'
+        html += '<p class="m-0 super-small-text text-grey"><i>' + text + '</i></p>'
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+
 
     function formatNames(data) {
         if (data.length) {
@@ -1060,7 +1081,7 @@
 
     function loadDataTemplate() {
         var data = {
-            personLabel: 'CATCHER',
+            personLabel: '<?= $label ?>',
             workPlanMachineId: workPlanMachineId,
         }
         var url = "<?= api_produksi('loadPageProductionEntry'); ?>"
@@ -1102,16 +1123,30 @@
 
     function listWorkPlan(data) {
         var html = ''
+        html += '<div class="row mb-2 text-grey justify-content-between">'
+        html += '<div class="col align-self-center text-center">'
+        html += '<p class="super-small-text m-0"><b>Product</b></p>'
+        html += '</div>'
+        html += '<div class="col align-self-center text-center">'
+        html += '<p class="super-small-text m-0"><b>Realization</b></p>'
+        html += '</div>'
+        html += '<div class="col align-self-center text-center">'
+        html += '<p class="super-small-text m-0"><b>Target</b></p>'
+        html += '</div>'
+        html += '</div>'
         data.workPlanMachine.products.forEach(e => {
             html += '<div class="card shadow-none mb-2">'
             html += '<div class="card-body p-1 ps-3 pe-3">'
             html += '<div class="row justify-content-between">'
             html += '<div class="col align-self-center">'
-            html += '<p class="small-text m-0"><b>' + e.product.alias + '</b></p>'
-            html += '<p class="m-0 super-small-text text-grey">Batch ' + e.priority + '</p>'
+            html += '<p class="small-text m-0"><b>' + e.product.alias + '</b> #' + e.priority + '</p>'
+            // html += '<p class="m-0 super-small-text">#' + e.priority + '</p>'
             html += '</div>'
-            html += '<div class="col align-self-center text-end">'
-            html += '<p class="m-0 small-text">' + e.qty + ' ' + e.unit_target.name + '</p>'
+            html += '<div class="col align-self-center super-small-text text-center" id="realizationTarget' + e.product.id + '">'
+            html += '--'
+            html += '</div>'
+            html += '<div class="col align-self-center text-center">'
+            html += '<p class="m-0 super-small-text">' + e.qty + ' ' + e.unit_target.name + '</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -1134,5 +1169,6 @@
         html += '<div class="col-7"><b>' + formatNames(data.workPlanMachine.employee_catcher) + '</b></div>'
         html += '</div>'
         $('#workingInformation').html(html)
+        loadData()
     }
 </script>

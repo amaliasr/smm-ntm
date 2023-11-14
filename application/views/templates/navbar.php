@@ -127,7 +127,7 @@ if (isset($_COOKIE['visiting'])) {
             var dataFiltered = dataJson.find((v, k) => {
                 if (v.name == dashboard && v.akun == akun) return true
             })
-            if (dataFiltered == undefined) {
+            if (!dataFiltered) {
                 // jika tidak ada (create)
                 dataJson.push({
                     'akun': akun,

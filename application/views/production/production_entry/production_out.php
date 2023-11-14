@@ -75,7 +75,7 @@
                         <p class="m-0 super-small-text"><b>Production Detail</b></p>
                     </div>
                     <div class="col-auto text-end">
-                        <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="formProductionOut()"><i class="fa fa-plus me-2"></i>Add New</button>
+                        <button type="button" class="btn btn-sm btn-primary shadow-none" onclick="formProductionOut()"><i class="fa fa-plus me-2"></i>Add New</button>
                         <button type="button" class="btn btn-sm btn-outline-dark shadow-none" id="btnModeChart" onclick="changeModeChart(1)"><i class="fa fa-table me-2"></i>Mode Chart</button>
                     </div>
                 </div>
@@ -453,7 +453,7 @@
     var dataProductionOutGroup
 
     $(document).ready(function() {
-        loadData()
+        // loadData()
     })
 
     function loadData() {

@@ -1267,7 +1267,7 @@
             'material_request_machine': material_request_machine,
             'material_request_item': material_request_item,
         }
-        // console.log(data)
+        console.log(data)
         doSimpan(data)
     }
 

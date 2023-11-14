@@ -215,7 +215,75 @@
         border: 1px solid rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
         border-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
     }
+
+    .bg-light-warning {
+        background-color: #fdf5e5;
+        border-color: #f4a100;
+    }
+
+    .timeline.timeline-sm .timeline-item .timeline-item-content {
+        padding-bottom: 3rem;
+    }
+
+    .form-invisible-line {
+        padding: 0px;
+        font-size: 2rem;
+        font-weight: bolder;
+        text-align: right;
+    }
+
+    .table-hijau {
+        background-color: #e5f6f0 !important;
+    }
+
+    .form-select,
+    .dataTable-selector {
+        text-align: right !important;
+        background-position: left 1.125rem center !important;
+        padding-right: 0px;
+        font-weight: bolder;
+        font-size: large;
+    }
 </style>
+<style>
+    /* In order to place the tracking correctly */
+    canvas.drawing,
+    canvas.drawingBuffer {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    #html5-qrcode-button-camera-stop,
+    #html5-qrcode-button-camera-start {
+        border-color: #69707a;
+        background-color: white;
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1;
+        color: #69707a;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 10px;
+        font-size: 0.875rem;
+        border-radius: 20px;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+            border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #html5-qrcode-anchor-scan-type-change {
+        display: none !important;
+    }
+</style>
+<script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
 <div class="row">
     <div class="col-6 pt-2">
         <div class="card shadow-none">
@@ -223,10 +291,11 @@
                 <div class="row justify-content-between p-3">
                     <div class="col-auto">
                         <p class="m-0 super-small-text"><b>Worker Progress</b></p>
-                        <p class="m-0 super-small-text text-grey"><b>20 Persons</b></p>
+                        <p class="m-0 super-small-text text-grey"><b><span id="totalWorker">0</span> Persons</b></p>
                     </div>
                     <div class="col-auto text-end">
-                        <button type="button" class="btn btn-sm btn-outline-dark shadow-none" onclick="formTransaction()">QR OFF<i class="fa fa-qrcode ms-2"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="triggerQR()" id="btnQR">QR SCANNER<i class="fa fa-qrcode ms-2 text-green"></i></button>
+                        <!-- <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="textPirnt()">TEST</i></button> -->
                     </div>
                 </div>
                 <div class="row">
@@ -235,49 +304,14 @@
                     </div>
                 </div>
                 <!-- <div> -->
-                <div style="height: 400px;overflow-x: hidden;overflow-y: auto;">
-
-                    <?php for ($i = 0; $i < 30; $i++) { ?>
-                        <div class="card shadow-none card-hoper border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search2" onclick="workPorgress()">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col px-3">
-                                        <p class="m-0 small text_search2 fw-bolder">RUSMIATI SARASVATI</p>
-                                        <p class="m-0 super-small-text text-grey"><b class="text_search2">2,490 / <span class="text-dark-grey">3,000</span></b></p>
-                                    </div>
-                                    <div class="col px-3">
-                                    </div>
-                                    <div class="col-12 pt-3">
-                                        <div class="row px-3">
-                                            <?php for ($j = 0; $j < 4; $j++) { ?>
-                                                <div class="col p-0 pe-1">
-                                                    <span class="badge rounded-pill super-small-text p-1 bg-primary w-100">500</span>
-                                                </div>
-                                            <?php } ?>
-                                            <?php for ($j = 0; $j < 1; $j++) { ?>
-                                                <div class="col p-0 pe-1">
-                                                    <span class="badge rounded-pill super-small-text p-1 bg-orange w-100">490</span>
-                                                </div>
-                                            <?php } ?>
-                                            <?php for ($j = 0; $j < 5; $j++) { ?>
-                                                <div class="col p-0 pe-1">
-                                                    <span class="badge rounded-pill super-small-text p-1 bg-outline-primary w-100">500</span>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php } ?>
-
+                <div style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="workerProgress">
                 </div>
                 <!-- </div> -->
             </div>
         </div>
     </div>
     <div class="col-6 pt-2">
-        <div class="card shadow-none">
+        <div class="card shadow-none h-100">
             <div class="card-body">
                 <div class="row justify-content-between">
                     <div class="col-auto">
@@ -286,170 +320,209 @@
                     <div class="col-auto text-end">
                     </div>
                 </div>
-                <div class="row pt-4">
-                    <div class="col-9">
-                        <h1 class="m-0 fw-bolder">Rusmiati Sarasvati</h1>
-                        <p class="m-0">2,490 / <b class="text-dark-grey">3,000</b></p>
-                        <p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>
-                    </div>
-                    <div class="col-3">
-                        <div class="card bg-warning">
-                            <div class="card-body text-center text-white p-2">
-                                <p class="m-0 super-small-text">Setoran Ke</p>
-                                <h1 class="m-0 fw-bolder text-white">5</h1>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 pt-4">
-                        <p class="super-small-text fw-bolder">Material Left</p>
-                        <div class="card shadow-sm">
-                            <div class="card-body p-3">
-                                <div class="row">
-                                    <div class="col align-self-center">
-                                        <p class="m-0 h2"><b>TSG</b></p>
-                                    </div>
-                                    <div class="col text-end">
-                                        <p class="m-0 small"><b>1,2 Kg</b></p>
-                                        <p class="m-0 super-tiny-text">Updated at 7/10/2023 16:00</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 pt-4">
-                        <p class="super-small-text fw-bolder">Riwayat Setoran</p>
-                        <table class="table table-bordered table-hover small-text table-sm">
-                            <thead>
-                                <tr>
-                                    <th class="align-middle" rowspan="2">#</th>
-                                    <th class="align-middle" rowspan="2">Jam Setor</th>
-                                    <th class="align-middle" rowspan="2">Brand</th>
-                                    <th class="align-middle" colspan="3">Quantity</th>
-                                    <th class="align-middle" rowspan="2">Total</th>
-                                    <th class="align-middle" rowspan="2">Status</th>
-                                </tr>
-                                <tr>
-                                    <th>Good</th>
-                                    <th>Bad</th>
-                                    <th>Fillup</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php for ($i = 0; $i < 5; $i++) { ?>
-                                    <tr>
-                                        <td class="text-center align-middle" style="height: 30px;">1</td>
-                                        <td class="text-center align-middle" style="height: 30px;">10:23</td>
-                                        <td class="text-center align-middle" style="height: 30px;">AK</td>
-                                        <td class="text-center align-middle" style="height: 30px;">490</td>
-                                        <td class="text-center align-middle" style="height: 30px;">10</td>
-                                        <td class="text-center align-middle" style="height: 30px;">10</td>
-                                        <td class="text-center align-middle" style="height: 30px;">500</td>
-                                        <td class="text-center align-middle" style="height: 30px;">Complete</td>
-                                    </tr>
-                                <?php } ?>
-                                <?php for ($i = 0; $i < 5; $i++) { ?>
-                                    <tr>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                        <td class="text-center align-middle" style="height: 30px;"></td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-
-                    </div>
+                <div class="row pt-4" id="detailWorker">
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+<div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script src="<?= base_url(); ?>assets/html5-qrcode.min.js"></script>
+
 <script>
-    function sortByProductId(data, idProducts) {
-        const idSet = new Set(idProducts);
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
 
-        const sortedData = [...data].sort((a, b) => {
-            const aInIdProducts = idSet.has(a.item_id);
-            const bInIdProducts = idSet.has(b.item_id);
-
-            if (aInIdProducts && !bInIdProducts) {
-                return -1;
-            } else if (!aInIdProducts && bInIdProducts) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-
-        return sortedData;
+    function createCodeId() {
+        var date = new Date();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        var jam = date.getHours();
+        var menit = date.getMinutes();
+        var detik = date.getSeconds();
+        if (detik < 10) {
+            detik = "0" + detik;
+        }
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        if (day < 10) {
+            day = "0" + day;
+        }
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var date = year + "" + month + "" + day + '' + jam + "" + menit + "" + detik;
+        return date;
     }
 
-    function extractProductId(data) {
-        return data.map(function(item) {
-            return item.product.id;
-        });
+    function replaceNullWithZero(variable) {
+        return variable !== null ? variable : 0;
     }
 
-    function sumQtyByItemId(data) {
-        const qtySumByItemId = {};
+    function findStatusEdit(id, menu) {
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == id) return true
+        })
+        // console.log(data)
+        var status
+        var nextStatus
+        var qty = {}
+        var worker_id = null
+        if (data) {
+            worker_id = data.worker_id
+            qty = deepCopy(data[menu.toLowerCase()])
+            status = menu
+            nextStatus = menu
+        }
+        return {
+            id: id,
+            status: status,
+            nextStatus: nextStatus,
+            qty: qty,
+            worker_id: worker_id
+        }
+    }
 
-        data.forEach(item => {
-            const itemId = item.item.id;
-            const qty = item.qty;
+    function findStatus(id = null) {
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == id) return true
+        })
+        // console.log(data)
+        var status
+        var nextStatus
+        var qty = {}
+        var worker_id = null
+        if (data) {
+            worker_id = data.worker_id
+            if (data.delivery.is_process && !data.sortir.is_process && !data.fillup.is_process && !data.complete.is_process) {
+                status = 'DELIVERY'
+                nextStatus = 'SORTIR'
+                qty = {
+                    waste: data.delivery.waste,
+                    good: data.delivery.good,
+                }
+            } else if (data.delivery.is_process && data.sortir.is_process && !data.fillup.is_process && !data.complete.is_process) {
+                status = 'SORTIR'
+                nextStatus = 'FILLUP'
+                qty = {
+                    reject: data.sortir.reject,
+                    good: data.sortir.good,
+                }
+            } else if (data.delivery.is_process && data.sortir.is_process && data.fillup.is_process && !data.complete.is_process) {
+                status = 'FILLUP'
+                nextStatus = 'COMPLETE'
+                qty = {
+                    waste: data.fillup.waste,
+                    good: data.fillup.good,
+                }
 
-            if (!qtySumByItemId[itemId]) {
-                qtySumByItemId[itemId] = qty;
+            } else if (data.delivery.is_process && data.sortir.is_process && data.fillup.is_process && data.complete.is_process) {
+                status = 'COMPLETE'
+                nextStatus = 'DONE'
+                qty = {
+                    waste: data.complete.waste,
+                    reject: data.complete.reject,
+
+                    good: data.complete.good,
+                }
+            } else if (data.delivery.is_process && data.sortir.is_process && !data.fillup.is_process && data.complete.is_process) {
+                status = 'COMPLETE'
+                nextStatus = 'DONE'
+                qty = {
+                    waste: data.complete.waste,
+                    reject: data.complete.reject,
+
+                    good: data.complete.good,
+                }
             } else {
-                qtySumByItemId[itemId] += qty;
+                status = 'PROCESS'
+                nextStatus = 'DELIVERY'
+                qty = {
+                    good: 0
+                }
             }
-        });
+        } else {
+            status = 'NOT CREATED'
+            nextStatus = 'DELIVERY'
+            qty = {
+                good: 0
+            }
+        }
+        return {
+            id: id,
+            status: status,
+            nextStatus: nextStatus,
+            qty: qty,
+            worker_id: worker_id
+        }
+    }
 
-        const output = [];
-        for (const itemId in qtySumByItemId) {
-            output.push({
-                item_id: parseInt(itemId),
-                total_qty: qtySumByItemId[itemId],
+    function totalSetoran(worker_id) {
+        var dataWorker = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        })
+        var total = 0
+        if (dataWorker.data.length) {
+            dataWorker.data.forEach(e => {
+                total = total + parseFloat(findStatus(e.result_product_person_id).qty.good)
             });
         }
-
-        return output;
+        return total
     }
 
     function deepCopy(obj) {
         return JSON.parse(JSON.stringify(obj));
     }
 
-    function percentageToDegrees(percentage) {
-        return percentage / 100 * 360
+    function sortArrayOfObjectsDescending(arr, prop) {
+        var data = deepCopy(arr)
+        return data.sort((a, b) => (b[prop] > a[prop]) ? 1 : ((a[prop] > b[prop]) ? -1 : 0));
     }
 
-    function getAliases(data) {
-        const aliases = data.map(item => item.item.alias);
-        return aliases.join(', ');
-    }
-
-    function conversiToTarget(input, multiplier, satuanBesar, satuanKecil) {
-        const trays = Math.floor(input / multiplier);
-        const remainingStik = input % multiplier;
-
-        var nilai = ''
-        if (remainingStik) {
-            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span> ' + number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
+    function findNumberofSetoran(worker_id) {
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        })
+        var numSetoran = 1
+        if (data.data.length) {
+            numSetoran = data.data[parseInt(data.data.length) - 1].number
         } else {
-            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span>'
+            numSetoran = 0
         }
-        return nilai
+        return numSetoran
+    }
+
+    function jumlahkanQtyBerdasarkanItemId(data) {
+        const hasilJumlah = {};
+
+        data.forEach(item => {
+            const itemId = item.item.id;
+
+            if (hasilJumlah[itemId]) {
+                hasilJumlah[itemId].qty += item.qty;
+            } else {
+                hasilJumlah[itemId] = {
+                    item: item.item,
+                    unit: item.unit,
+                    qty: item.qty
+                };
+            }
+        });
+
+        return Object.values(hasilJumlah);
     }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
+    var label = '<?= $label ?>'
     var job_spv_smd = '<?= job_spv_smd() ?>'
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
@@ -457,20 +530,47 @@
     var workPlanMachineId = '<?= $workPlanMachineId ?>'
     var dataEntry
     var itemIdSelected = []
+    var defaultleSetoran = 10
+    var dataDetailDelivery = []
+    var dataMaterial = []
+    var newSetoranBar = 1
+    var dataSaveSetoran = {}
+    var dataSaveMaterial = {
+        remainingMaterialPerson: [],
+        deletedId: []
+    }
+    var workerIdClicked
+    var setoranIdClicked
+    var materialIdClicked
+    var cameraOn
+    var JustOnCamAfterAdd = false
+    var scanned = false
+    var accessMenu = {
+        FOREMAN_AST: [{
+            access_name: 'Delivered',
+            name: 'DELIVERY'
+        }, {
+            access_name: 'Complete',
+            name: 'DONE'
+        }]
+    }
+
 
     $(document).ready(function() {
         // loadData()
+        empty('#detailWorker', '<span class="small-text">Pilih Worker pada Panel Kiri untuk Melihat Detail</span>')
     })
 
     function loadData() {
         var data = {
             workPlanMachineId: workPlanMachineId,
         }
-        var url = "<?= api_produksi('loadPageProductTransferEntry'); ?>"
+        var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
         getData(data, url)
     }
 
     function getData(data, url) {
+        showOverlay('show')
         $.ajax({
             url: url,
             method: "GET",
@@ -484,14 +584,1591 @@
                     text: 'Error Data'
                 });
             },
-            beforeSend: function() {
-                showOverlay('show')
-            },
+            beforeSend: function() {},
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
                 arrangeVariable()
             }
         })
+    }
+
+    function arrangeVariable() {
+        dataDetailDelivery = []
+        dataMaterial = []
+        $('#workerProgress').html('')
+        dataEntry.productionDelivery.forEach(e => {
+            e.data.forEach(el => {
+                dataDetailDelivery.push({
+                    'worker_id': e.employee_worker.id,
+                    'worker_name': e.employee_worker.name,
+                    'result_product_person_id': el.result_product_person_id,
+                    'number': el.number,
+                    'datetime': el.datetime,
+                    'item': el.item,
+                    'unit': el.unit,
+                    'delivery': el.delivery,
+                    'sortir': el.sortir,
+                    'fillup': el.fillup,
+                    'complete': el.complete,
+                })
+            });
+        })
+        dataEntry.productMaterial.forEach(e => {
+            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                if (v.product.id == e.item_id) return true
+            })
+            e.material_group.forEach(el => {
+                var itemDefault = el.items.find((v, k) => {
+                    if (v.item.id == el.item_id_default) return true
+                })
+                dataMaterial.push({
+                    work_plan_product_id: dataProducts.work_plan_product_id,
+                    item_id: e.item_id,
+                    item_name: e.name,
+                    item_code: e.code,
+                    item_name: e.name,
+                    material_group_id: el.material_group.id,
+                    material_group_name: el.material_group.name,
+                    material_id: itemDefault.item.id,
+                    material_code: itemDefault.item.code,
+                    material_alias: itemDefault.item.alias,
+                    material_name: itemDefault.item.name,
+                    unit_id: itemDefault.unit.id,
+                    unit_name: itemDefault.unit.name,
+                })
+            })
+        })
+        // console.log(dataDetailDelivery)
+        workerProgress()
+    }
+
+    function workerProgress() {
+        $('#totalWorker').html(dataEntry.productionDelivery.length)
+        var html = ''
+        dataEntry.productionDelivery.forEach(e => {
+            html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
+            html += '<div class="card-body p-0">'
+            html += '<div class="row">'
+            html += '<div class="col-10 card-hoper p-0" onclick="detailWorker(' + e.employee_worker.id + ')">'
+            html += '<div class="row p-3 px-4">'
+            html += '<div class="col-12 ps-3">'
+            html += '<p class="m-0 small fw-bolder"><span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
+            html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> / --</span></p>'
+            html += '</div>'
+            html += '<div class="col-12 pt-3">'
+            html += '<div class="row ps-3">'
+            for (let i = 1; i <= defaultleSetoran; i++) {
+                var check = e.data.find((v, k) => {
+                    if (v.number == i) return true
+                })
+                var bg = 'bg-outline-primary'
+                var value = 0
+                if (check) {
+                    var dataDelivery = findStatus(check.result_product_person_id)
+                    if (check.complete.is_process) {
+                        bg = 'bg-primary'
+                        value = check.good
+                    } else {
+                        bg = 'bg-orange'
+
+                    }
+                } else {
+                    var dataDelivery = findStatus()
+                }
+                html += '<div class="col p-0 pe-1">'
+                html += '<span class="badge rounded-pill super-small-text p-1 ' + bg + ' w-100">' + dataDelivery.qty.good + '</span>'
+                html += '</div>'
+            }
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-2 card-hoper p-0" onclick="workProgress(' + e.employee_worker.id + ')">'
+            html += '<div class="row h-100">'
+            html += '<div class="col-12 align-self-center text-center p-0">'
+            html += '<i class="fa fa-pencil fa-1x text-grey"></i>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#workerProgress').html(html)
+        if (stillOpenModal) {
+            if (!JustOnCamAfterAdd) {
+                if (materialIdClicked) {
+                    newMaterial(workerIdClicked)
+                } else {
+                    modalWorkProgress()
+                }
+            } else {
+                JustOnCamAfterAdd = false
+                // nanti buka kamera disini
+                $('#modal').modal('hide')
+            }
+            detailWorker(workerIdClicked)
+        }
+    }
+
+    function detailWorker(worker_id) {
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        })
+        templateDetailWorker(data)
+    }
+
+    function templateDetailWorker(data) {
+        var html = ''
+        html += '<div class="col-9">'
+        html += '<h1 class="m-0 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
+        html += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
+        html += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
+        html += '</div>'
+        html += '<div class="col-3">'
+        html += '<div class="card bg-warning">'
+        html += '<div class="card-body text-center text-white p-2">'
+        html += '<p class="m-0 super-small-text">Setoran Ke</p>'
+        html += '<h1 class="m-0 fw-bolder text-white">' + findNumberofSetoran(data.employee_worker.id) + '</h1>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 pt-4">'
+        html += '<p class="super-small-text fw-bolder">Material Stock</p>'
+        if (data.remaining_material) {
+            data.remaining_material.forEach(e => {
+                html += '<div class="card shadow-sm mb-2">'
+                html += '<div class="card-body p-3">'
+                html += '<div class="row">'
+                html += '<div class="col align-self-center">'
+                html += '<p class="m-0 h2"><b>' + e.item.name + '</b></p>'
+                html += '</div>'
+                html += '<div class="col text-end">'
+                html += '<p class="m-0 small"><b>' + e.qty + ' ' + e.unit.name + '</b></p>'
+                html += '<p class="m-0 super-tiny-text">Added at ' + formatJamMenit(e.datetime) + '</p>'
+                html += '</div>'
+                html += '<div class="col-2 text-center align-self-center pointer" onclick="sisaStokMaterial(' + data.employee_worker.id + ')">'
+                html += '<i class="fa fa-pencil text-danger"></i>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            });
+        } else {
+            html += '<div class="mb-2">'
+            html += cardAlert('Tidak Ada Material Stock')
+            html += '</div>'
+        }
+
+        html += '</div>'
+        // if (data.remaining_material) {
+        html += '<div class="col-12 text-end">'
+        html += '<button type="button" class="btn btn-outline-dark btn-sm super-small-text" onclick="sisaStokMaterial(' + data.employee_worker.id + ')"><i class="fa fa-plus me-2"></i>Tambah Material</button>'
+        html += '</div>'
+        // }
+
+        html += '<div class="col-12 pt-4">'
+        html += '<p class="super-small-text fw-bolder">Riwayat Setoran</p>'
+        html += '<table class="table table-bordered table-hover small-text table-sm">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th class="align-middle super-small-text" rowspan="2">#</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Jam Setor</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Brand</th>'
+        html += '<th class="align-middle super-small-text" colspan="3">Quantity</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Unit</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Status</th>'
+        html += '</tr>'
+        html += '<tr>'
+        html += '<th class="super-small-text">Good</th>'
+        html += '<th class="super-small-text">Bad</th>'
+        html += '<th class="super-small-text">Reject</th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+
+        if (data.data.length) {
+            data.data.forEach(e => {
+                var dataDelivery = findStatus(e.result_product_person_id)
+                var bgColor = ''
+                if (!dataDelivery.qty.good) {
+                    dataDelivery.qty.good = '-'
+                }
+                if (!dataDelivery.qty.waste) {
+                    dataDelivery.qty.waste = '-'
+                }
+                if (!dataDelivery.qty.reject) {
+                    dataDelivery.qty.reject = '-'
+                }
+                if (dataDelivery.status == 'COMPLETE') {
+                    bgColor = 'table-hijau'
+                }
+                html += '<tr class="' + bgColor + '">'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + e.number + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + formatJamMenit(e.datetime) + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + e.item.alias + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.good + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.waste + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.reject + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + e.unit.name + '</td>'
+                html += '<td class="text-center align-middle small-text" style="height: 30px;">' + toTitleCase(dataDelivery.status) + '</td>'
+                html += '</tr>'
+            });
+        }
+
+        html += '<tr class="pointer" onclick="workProgress(' + data.employee_worker.id + ')">'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '<td class="text-center align-middle" style="height: 30px;"></td>'
+        html += '</tr>'
+
+        html += '</tbody>'
+        html += '</table>'
+
+        html += '</div>'
+
+        $('#detailWorker').html(html)
+        totalRealizationofTarget()
+    }
+
+    function totalRealizationofTarget() {
+        var total = jumlahkanQtyBerdasarkanItemId(dataEntry.productionOutItem)
+        // console.log(total)
+        total.forEach(e => {
+            $('#realizationTarget' + e.item.id).html(e.qty + ' ' + e.unit.name)
+        });
+    }
+
+    function triggerQR() {
+        if (cameraOn) {
+            cameraOn = false
+            $('#btnQR').html('QR SCANNER<i class="fa fa-qrcode ms-2 text-green"></i>').removeClass('btn-dark').addClass('btn-outline-dark')
+            $('#showCameraQR').html('')
+            // scanButtonStopScanningText()
+            stream.getTracks().forEach((track) => {
+                if (track.readyState == 'live' && track.kind === 'video') {
+                    track.stop();
+                }
+            });
+        } else {
+            cameraOn = true
+            $('#btnQR').html('OFF CAM<i class="fa fa-times ms-2 text-danger"></i>').addClass('btn-dark').removeClass('btn-outline-dark')
+            onCam2()
+        }
+    }
+
+    function onCam2() {
+        var html5QrcodeScanner = new Html5QrcodeScanner(
+            "showCameraQR", {
+                fps: 10,
+                qrbox: 250
+            });
+        html5QrcodeScanner.render(onScanSuccess);
+        $('#showCameraQR__scan_region').addClass('cameraOption')
+        $('#html5-qrcode-button-camera-stop').addClass('btn bt-primary btn-sm')
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        checkWorkerId(decodedText)
+        html5QrcodeScanner.clear();
+    }
+    var scanned2 = false
+
+    function checkWorkerId(eid) {
+        let arrayOfNumbers = eid.split(',').map(Number);
+        if (arrayOfNumbers.length == 1) {
+            scanned = true
+            scanned2 = false
+            var dataProducts = dataEntry.productionDelivery.find((v, k) => {
+                if (v.employee_worker.eid == arrayOfNumbers[0]) return true
+            })
+            if (!dataProducts) {
+                dataProducts = dataEntry.employee.find((v, k) => {
+                    if (v.eid == arrayOfNumbers[0]) return true
+                })
+                dataProducts = dataProducts.id
+                createNewWorker(dataProducts)
+            } else {
+                dataProducts = dataProducts.employee_worker.id
+                workProgress(dataProducts)
+            }
+        } else {
+            scanned = false
+            scanned2 = true
+            var dataProducts = dataEntry.productionDelivery.find((v, k) => {
+                if (v.employee_worker.id == arrayOfNumbers[0]) return true
+            })
+            setoranIdClicked = arrayOfNumbers[1]
+            workProgress(dataProducts.employee_worker.id)
+        }
+    }
+
+    function createNewWorker(id) {
+        var dataEmployee = dataEntry.employee.find((v, k) => {
+            if (v.id == id) return true
+        })
+        if (!dataEntry.productionDelivery) {
+            dataEntry.productionDelivery = []
+        }
+        dataEntry.productionDelivery.push({
+            employee_worker: {
+                "id": dataEmployee.id,
+                "eid": dataEmployee.eid,
+                "name": dataEmployee.name
+            },
+            remaining_material: null,
+            data: []
+        })
+        arrangeVariable()
+        workProgress(id)
+    }
+
+    function workProgress(worker_id) {
+        workerIdClicked = worker_id
+        stillOpenModal = true
+        if (!scanned2) {
+            setoranIdClicked = null
+        }
+        newSetoranBar = 1
+        detailWorker(worker_id)
+        modalWorkProgress()
+    }
+
+    function modalWorkProgress() {
+        materialIdClicked = false
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == workerIdClicked) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Entry Data</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row w-100">'
+
+        html_body += '<div class="col-3 p-5 pt-4 pe-2 border-end">'
+        html_body += '<h1 class="mb-1 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
+        // html_body += '<p class="m-0">2,490 / <b class="text-dark-grey">3,000</b></p>'
+        html_body += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
+        html_body += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
+
+        html_body += '<div class="mt-5" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        html_body += '<div class="me-2">'
+        // LIST SETORAN
+
+        // add setoran
+        html_body += '<div class="pb-2">'
+        html_body += '<div class="card card-hoper shadow-none" style="border: 1px dashed grey" onclick="setoranBaru(' + workerIdClicked + ')" id="btnNewSetoran">'
+        html_body += '<div class="card-body p-3">'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col align-self-center text-center">'
+        html_body += '<p class="m-0 small-text"><i class="fa fa-plus me-2"></i>Setoran Baru</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // add setoran
+
+        // setoran semu
+        html_body += '<div class="" id="setoranSemu">'
+        html_body += '</div>'
+        // setoran semu
+        // LIST SETORAN
+        var a = 0
+        html_body += '<div class="">'
+        sortArrayOfObjectsDescending(data.data, 'number').forEach(e => {
+            var dataDelivery = findStatus(e.result_product_person_id)
+            var bgColor = ''
+            var deleteButton = ''
+            var qty = dataDelivery.qty.good
+            var icon = ''
+            if (a == 0 && dataDelivery.status == 'PROCESS') {
+                deleteButton = deleteAndCloseButton('setoran', data.employee_worker.id, e.result_product_person_id)
+            }
+            if (dataDelivery.status == 'COMPLETE') {
+                bgColor = 'bg-light-success'
+                icon = '<span class="fa fa-check fa-1x text-success"></span>'
+            } else if (dataDelivery.status == 'PROCESS') {
+                bgColor = ''
+                qty = '--'
+                icon = '<span class="fa fa-clock-o fa-1x text-grey"></span>'
+            } else {
+                bgColor = 'bg-light-warning'
+                icon = '<span class="fa fa-exclamation fa-1x text-warning"></span>'
+            }
+            html_body += setoranBar(e, deleteButton, bgColor, qty, icon)
+            a++
+        })
+        html_body += '</div>'
+        html_body += '</div>'
+        // LIST SETORAN
+
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-9 p-0">'
+        html_body += '<div class="row" id="isiWorkProgress">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+        empty('#isiWorkProgress', '<span class="small-text">Pilih Setoran pada Panel Kiri untuk Melihat Detail</span>', '500px')
+        // console.log(setoranIdClicked)
+        if (setoranIdClicked) {
+            isiWorkProgress(setoranIdClicked)
+        }
+        if (scanned) {
+            setoranBaru(data.employee_worker.id)
+        }
+    }
+
+    function deleteAndCloseButton(jenis, worker_id, id) {
+        var fungsi = ''
+        if (jenis == 'material') {
+            fungsi = 'onclick="deleteMaterial(' + worker_id + ',' + id + ')"'
+        } else if (jenis == 'setoran') {
+            fungsi = 'onclick="deleteSetoran(' + worker_id + ',' + id + ')"'
+        }
+        var html = '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;z-index:999;" ' + fungsi + '><i class="small-text fa fa-times text-light"></i></span>'
+        return html
+    }
+
+    function deleteSetoran(worker_id, id) {
+        var datas = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).data.find((v, k) => {
+            if (v.result_product_person_id == id) return true
+        })
+        if (!datas) {
+            // jika datanya setoran baru
+            $('#setoranSemu').html('')
+            $('#btnNewSetoran').removeAttr('hidden', true)
+        } else {
+            Swal.fire({
+                text: 'Apakah anda ingin menghapus data setoran ke ' + datas.number + ' ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var data = {
+                        deletedId: {
+                            resultProductPerson: []
+                        }
+                    }
+                    data.deletedId.resultProductPerson.push(id)
+                    simpanData(data)
+                }
+            })
+        }
+    }
+
+    function deleteMaterial(worker_id, id) {
+        // console.log(dataSaveMaterial.remainingMaterialPerson)
+        dataSaveMaterial.deletedId.remainingMaterialPerson.push(id)
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).remaining_material
+        var dataFiltered = data.filter(p => p.remaining_material_person_id != id);
+        // var materialFiltered = dataSaveMaterial.remainingMaterialPerson.filter(p => p.id != id);
+        // dataSaveMaterial.remainingMaterialPerson = materialFiltered
+        if (!dataFiltered.length) {
+            dataFiltered = null
+        }
+        dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).remaining_material = dataFiltered
+        newMaterial(worker_id)
+    }
+
+    function setoranBar(e, deleteButton, bgColor, qty, icon) {
+        var dataStatus = findStatus(e.result_product_person_id)
+        var html = ''
+        var time = '--'
+        if (e.datetime) {
+            time = formatJamMenit(e.datetime)
+        }
+        // html += '<div class="col-12 pb-2">'
+        html += '<div class="card card-hoper shadow-none ' + bgColor + ' cardProgress mb-2" onclick="isiWorkProgress(' + e.result_product_person_id + ')" id="cardProgress' + e.result_product_person_id + '">'
+        html += deleteButton
+        html += '<div class="card-body p-3">'
+
+        html += '<div class="row w-100">'
+        html += '<div class="col">'
+        html += '<p class="m-0 small-text fw-bolder">Setoran ' + e.number + '</p>'
+        html += '<p class="m-0 super-tiny-text"><i class="me-2">' + dataStatus.nextStatus + '</i>' + time + '</p>'
+        html += '</div>'
+        html += '<div class="col align-self-center text-end">'
+        html += '<p class="m-0 fw-bolder">' + qty + '</p>'
+        html += '</div>'
+        html += '<div class="col-1 align-self-center text-end">'
+        html += icon
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        // html += '</div>'
+        return html
+    }
+
+    function checkLabelEdit(menu) {
+        var data = accessMenu[label].find((v, k) => {
+            if (v.name == menu) return true
+        })
+        return data
+    }
+
+    function editSortir(result_product_person_id, menu) {
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        var dataStatus = findStatusEdit(result_product_person_id, menu)
+        // console.log(data, dataStatus)
+        formWorkProgress(data, dataStatus, true)
+    }
+
+    function isiWorkProgress(result_product_person_id = null) {
+        setoranIdClicked = result_product_person_id
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        var dataStatus = findStatus(result_product_person_id)
+        var html = ''
+        html += '<div class="col-8 border-end" style="height:600px;" id="formWorkProgress">'
+        html += '</div>'
+
+        html += '<div class="col-4">'
+
+        html += '<div class="row w-100 p-3 pe-1 pt-4">'
+        html += '<p class="m-0 small fw-bolder">Timeline</p>'
+        // timeline
+        var status = ''
+        var text = ''
+        var btnEdit = ''
+        html += '<div class="timeline timeline-sm mt-5">'
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        if (data) {
+            if (data.delivery.is_process) {
+                status = 'bg-success text-white'
+                text = '<p>Pukul ' + formatJamMenit(data.delivery.process_at) + ' Setoran ' + data.delivery.good + ' ' + data.unit.name + ' dengan Jumlah Bad ' + replaceNullWithZero(data.delivery.waste) + ' ' + data.unit.name + '</p>'
+                text += '<button class="btn btn-sm btn-outline-success" onclick="cetakQR(' + result_product_person_id + ')">Cetak QR</button>'
+                if (checkLabelEdit('DELIVERY')) {
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'DELIVERY' + "'" + ')"></span>'
+                }
+            }
+        }
+
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Delivered</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
+        if (data) {
+            if (data.sortir.is_process) {
+                status = 'bg-success text-white'
+                text = '<p>Pukul ' + formatJamMenit(data.sortir.process_at) + ' Item Good ' + data.sortir.good + ' Reject ' + replaceNullWithZero(data.sortir.reject) + ' ' + data.unit.name + '</p>'
+                if (checkLabelEdit('SORTIR')) {
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'SORTIR' + "'" + ')"></span>'
+                }
+            }
+        }
+
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>QC Sorting</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+
+        var textColor = ''
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
+        if (data) {
+            if (!data.fillup.is_process && data.complete.is_process) {
+                textColor = 'text-grey'
+                text = '<p>Tidak Ada Setor Reject</p>'
+            }
+        }
+        html += '<div class="timeline-item ' + textColor + '">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        if (data) {
+            if (data.fillup.is_process) {
+                status = 'bg-success text-white'
+                text = '<p>Pukul ' + formatJamMenit(data.fillup.process_at) + ' Reject ' + data.fillup.good + ' ' + data.unit.name + ' telah disetor</p>'
+                if (checkLabelEdit('FILLUP')) {
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'FILLUP' + "'" + ')"></span>'
+                }
+            }
+        }
+
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Setor Reject</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        if (data) {
+            if (data.complete.is_process) {
+                status = 'bg-success text-white'
+                text = '<p>Total Good Stock ' + data.complete.good + ' ' + data.unit.name + '</p>'
+            }
+        }
+
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Complete</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // timeline
+        html += '</div>'
+        $('#isiWorkProgress').html(html)
+        coloredClickerBar(result_product_person_id)
+        // console.log(dataStatus)
+        formWorkProgress(data, dataStatus)
+    }
+
+    function coloredClickerBar(result_product_person_id) {
+        $('.cardProgress').removeClass('clicked')
+        $('#cardProgress' + result_product_person_id).addClass('clicked')
+    }
+
+    function sisaStokMaterial(worker_id) {
+        workerIdClicked = worker_id
+        setoranIdClicked = null
+        materialIdClicked = true
+        stillOpenModal = true
+        dataSaveMaterial = {
+            remainingMaterialPerson: [],
+            deletedId: {
+                remainingMaterialPerson: []
+            }
+        }
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Material Entry</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12" id="newMaterial">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanMaterial()">Simpan</button>'
+        $('#modalFooter').html(html_footer)
+        newMaterial(worker_id)
+    }
+
+    function newMaterial(worker_id) {
+        var html = ''
+        dataSaveMaterial.remainingMaterialPerson = []
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        })
+        // console.log(data)
+        dataMaterial.forEach(e => {
+            if (data.remaining_material) {
+                var datas = data.remaining_material.find((v, k) => {
+                    if (v.item.id == e.material_id) return true
+                })
+            } else {
+                var datas = null
+            }
+            if (!datas) {
+                html += '<div id="materialEntryField' + e.item_id + '' + e.material_id + '">'
+
+                html += '<div class="card shadow-sm mb-2 bg-light card-hoper" onclick="AddNewMaterial(' + worker_id + ',' + e.item_id + ',' + e.material_id + ')">'
+                html += '<div class="card-body p-2 px-3">'
+                html += '<div class="row">'
+
+                html += '<div class="col-10 align-self-center">'
+                html += '<p class="super-small-text m-0">' + e.item_name + '</p>'
+                html += '<p class="m-0 h5 text-dark-grey"><b>' + toTitleCase(e.material_name) + '</b></p>'
+                html += '</div>'
+
+                html += '<div class="col-2 text-end text-center align-self-center">'
+                html += '<i class="fa fa-plus"></i>'
+                html += '</div>'
+
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+
+                html += '</div>'
+            } else {
+                html += remainingMaterial(worker_id, datas)
+            }
+        });
+        $('#newMaterial').html(html)
+        $('.nominal').number(true, 2);
+    }
+
+    function fillToMaterialEntry(worker_id, item_id, material_id) {
+        var jumlahMaterial = $('#jumlahMaterial' + worker_id + item_id + material_id).val()
+        var jamMaterial = $('#jamMaterial' + worker_id + item_id + material_id).val()
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).remaining_material.find((v, k) => {
+            if (v.item.id == material_id) return true
+        })
+        data.qty = jumlahMaterial
+        data.datetime = dataEntry.workPlanMachine.date + ' ' + jamMaterial + ':00'
+        newMaterial(worker_id)
+    }
+
+    function AddNewMaterial(worker_id, item_id, material_id) {
+        var dataMaterials = dataMaterial.find((v, k) => {
+            if (v.material_id == material_id && v.item_id == item_id) return true
+        })
+        var dataCreate = {
+            "qty": 0,
+            "item": {
+                "id": dataMaterials.material_id,
+                "code": dataMaterials.material_code,
+                "name": dataMaterials.material_name,
+                "alias": dataMaterials.material_alias,
+            },
+            "unit": {
+                "id": dataMaterials.unit_id,
+                "name": dataMaterials.unit_name
+            },
+            "datetime": currentDateTime(),
+            "work_plan_product_id": dataMaterials.work_plan_product_id,
+            "remaining_material_person_id": createCodeId()
+        }
+        var dataAll = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).remaining_material
+        if (!dataAll) {
+            dataEntry.productionDelivery.find((v, k) => {
+                if (v.employee_worker.id == worker_id) return true
+            }).remaining_material = []
+        }
+        dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).remaining_material.push(dataCreate)
+        newMaterial(worker_id)
+    }
+
+    function remainingMaterial(worker_id, data) {
+        var html = ''
+        var time = ''
+        if (data.datetime) {
+            time = formatJamMenit(data.datetime)
+        }
+        var dataMaterials = dataMaterial.find((v, k) => {
+            if (v.material_id == data.item.id) return true
+        })
+        saveDataMaterial(worker_id, dataMaterials.item_id, dataMaterials.material_id)
+        html += '<div class="card card-hoper shadow-sm mb-2">'
+        html += deleteAndCloseButton('material', worker_id, data.remaining_material_person_id)
+        html += '<div class="card-body p-2 px-3">'
+        html += '<div class="row">'
+        html += '<div class="col align-self-center">'
+        html += '<p class="super-small-text m-0">' + dataMaterials.item_name + '</p>'
+        html += '<p class="m-0 h2"><b>' + data.item.name + '</b></p>'
+        html += '<p class="m-0 small-text"><b>Added At </b>' + time + '</p>'
+        html += '</div>'
+        html += '<div class="col text-end">'
+
+        html += '<div class="row">'
+
+        html += '<div class="col-8">'
+        html += '<input class="form-control form-control-lg nominal form-invisible-line jumlahMaterial" style="background-color:transparent;border:0px;" type="text" placeholder="0" id="jumlahMaterial' + worker_id + '' + dataMaterials.item_id + '' + dataMaterials.material_id + '" data-id="' + data.remaining_material_person_id + '" value="' + data.qty + '" oninput="fillToMaterialEntry(' + worker_id + ',' + dataMaterials.item_id + ',' + dataMaterials.material_id + ')">'
+        html += '<hr class="m-0 text-danger">'
+        html += '</div>'
+        html += '<div class="col-4 align-self-center text-center">'
+        html += '<p class="m-0 small"><b>' + data.unit.name + '</b></p>'
+        html += '</div>'
+
+        html += '<div class="col-8">'
+        html += '<input class="form-control form-control-lg nominal form-invisible-line jamMaterial" style="background-color:transparent;border:0px;" type="time" placeholder="0" id="jamMaterial' + worker_id + '' + dataMaterials.item_id + '' + dataMaterials.material_id + '" data-id="' + data.remaining_material_person_id + '" value="' + time + '" oninput="fillToMaterialEntry(' + worker_id + ',' + dataMaterials.item_id + ',' + dataMaterials.material_id + ')">'
+        html += '<hr class="m-0 text-danger">'
+        html += '<button class="btn btn-outline-dark btn-sm mt-2 shadow-none" onclick="autoJamMaterial(' + worker_id + ',' + dataMaterials.item_id + ',' + dataMaterials.material_id + '),fillToMaterialEntry(' + worker_id + ',' + dataMaterials.item_id + ',' + dataMaterials.material_id + ')">Auto <i class="fa fa-clock-o ms-2"></i></button>'
+        html += '</div>'
+        html += '<div class="col-4 align-self-center text-center">'
+        html += '<i class="fa fa-clock-o"></i>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+
+    function saveDataMaterial(worker_id, item_id, material_id) {
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        }).remaining_material.find((v, k) => {
+            if (v.item.id == material_id) return true
+        })
+        var dataMaterials = dataMaterial.find((v, k) => {
+            if (v.material_id == material_id && v.item_id == item_id) return true
+        })
+        dataSaveMaterial.remainingMaterialPerson.push({
+            id: data.remaining_material_person_id,
+            work_plan_id: dataEntry.workPlanMachine.work_plan_id,
+            work_plan_product_id: dataMaterials.work_plan_product_id,
+            shift_id: dataEntry.workPlanMachine.shift_id,
+            machine_id: dataEntry.workPlanMachine.machine.id,
+            employee_id_worker: worker_id,
+            item_id_product: item_id,
+            item_id: material_id,
+            qty: data.qty,
+            unit_id: data.unit.id,
+            created_at: currentDateTime(),
+            updated_at: currentDateTime(),
+            datetime: data.datetime,
+            note: '',
+        })
+    }
+
+
+    function formDELIVERY(id = null, edit = false) {
+        var dataEdit
+        var good = ''
+        var bad = ''
+        var time = ''
+        if (edit) {
+            dataEdit = findStatusEdit(id, 'DELIVERY')
+            good = dataEdit.qty.good
+            bad = dataEdit.qty.waste
+            time = formatJamMenit(dataEdit.qty.process_at)
+        }
+        var html = ''
+        html += '<div class="row justify-content-end">'
+        // sesi input
+
+        // jumlah setoran
+        html += '<div class="col-8 text-end">'
+        html += '<p class="mb-1 small-text"><b>Jumlah Setoran</b></p>'
+        html += '<input class="form-control form-control-lg nominal form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + good + '">'
+        html += '<hr class="m-0 text-danger">'
+        html += '</div>'
+        html += '<div class="col-12 text-end">'
+        html += '<div class="row pt-2 justify-content-end">'
+        for (let i = 0; i < 3; i++) {
+            html += '<div class="col-2 ps-0">'
+            html += '<button class="btn btn-outline-dark btn-sm w-100 shadow-none" onclick="autoJumlahGood(500)">500</button>'
+            html += '</div>'
+        }
+        html += '</div>'
+        html += '</div>'
+        // jumlah setoran
+
+        // jumlah bad
+        html += '<div class="col-8 text-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Bad</b></p>'
+        html += '<input class="form-control form-control-lg nominal form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" value="' + bad + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+        html += '<div class="col-12 text-end pe-4">'
+        html += '<div class="row pt-2 justify-content-end">'
+        for (let i = 1; i <= 6; i++) {
+            html += '<div class="col-1 pe-0">'
+            html += '<button class="btn btn-outline-dark btn-sm w-100 shadow-none" onclick="autoJumlahBad(' + i + ')">' + i + '</button>'
+            html += '</div>'
+        }
+        html += '</div>'
+        html += '</div>'
+        // jumlah bad
+
+        // jam setoran
+        html += '<div class="col-4 text-end align-self-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jam Setoran</b></p>'
+        html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-12 text-end">'
+        html += '<div class="row pt-2 justify-content-end">'
+        html += '<div class="col-4">'
+        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoJamSetoran()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // jam setoran
+
+        html += '<div class="col-12 text-end pt-3">'
+        html += '<button class="btn btn-outline-primary btn-sm me-1" onclick="arrangeVariableInsert()">Simpan</button>'
+        if (!edit) {
+            html += '<button class="btn btn-primary btn-sm" onclick="insertWithNextPerson()">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        }
+        html += '</div>'
+        // sesi input
+        html += '</div>'
+        $('#formEntryData').html(html)
+    }
+
+    function formSORTIR(id = null, edit = false) {
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        var dataEdit
+        var good = ''
+        var bad = ''
+        var time = ''
+        if (edit) {
+            dataEdit = findStatusEdit(id, 'SORTIR')
+            good = dataEdit.qty.good
+            bad = dataEdit.qty.reject
+            time = formatJamMenit(dataEdit.qty.process_at)
+        }
+        var html = ''
+        html += '<div class="row justify-content-end">'
+        // sesi input
+
+        // view
+        html += '<div class="col-12">'
+        html += '<div class="card bg-light-grey shadow-sm">'
+        html += '<div class="card-body">'
+
+        html += '<div class="row">'
+        html += '<div class="col-4">'
+        html += '<p class="fw-bolder m-0 small">Review Setoran</p>'
+        html += '<p class="m-0 small-text">Delivery</p>'
+        html += '</div>'
+
+        html += '<div class="col-4">'
+        html += '<p class="m-0 super-small-text fw-bolder">Stock Tersedia</p>'
+        html += '<h1 class="fw-bolder">' + dataDelivery.qty.good + '</h1>'
+        html += '</div>'
+        html += '<div class="col-4">'
+        html += '<p class="m-0 super-small-text fw-bolder">Good Sorting</p>'
+        html += '<h1 class="fw-bolder" id="goodSorting">--</h1>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // view
+
+        // jumlah bad
+        html += '<div class="col-8 text-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Bad</b></p>'
+        html += '<input class="form-control form-control-lg nominal form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" oninput="goodSortingFill()" value="' + bad + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+        html += '<div class="col-12 text-end pe-4">'
+        html += '<div class="row pt-2 justify-content-end">'
+        for (let i = 0; i <= 6; i++) {
+            html += '<div class="col-1 pe-0">'
+            html += '<button class="btn btn-outline-dark btn-sm w-100 shadow-none" onclick="autoJumlahBad(' + i + '),goodSortingFill()">' + i + '</button>'
+            html += '</div>'
+        }
+        html += '</div>'
+        html += '</div>'
+        // jumlah bad
+
+        // jam setoran
+        html += '<div class="col-4 text-end align-self-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jam Setoran</b></p>'
+        html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-12 text-end">'
+        html += '<div class="row pt-2 justify-content-end">'
+        html += '<div class="col-4">'
+        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoJamSetoran()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // jam setoran
+
+        html += '<div class="col-12 text-end pt-3">'
+        html += '<button class="btn btn-primary btn-sm" onclick="filteredSortir()">Simpan</button>'
+        html += '</div>'
+        // sesi input
+        html += '</div>'
+        $('#formEntryData').html(html)
+    }
+
+    function filteredSortir() {
+        var jumlahBad = $('#jumlahBad').val()
+        if (!jumlahBad) {
+            Swal.fire({
+                text: 'Setoran Tidak ada jumlah Bad, apakah anda ingin menyelesaikan Sortir ke ' + dataSaveSetoran.number + ' ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    arrangeVariableInsert(1)
+                }
+            })
+        } else {
+            arrangeVariableInsert()
+        }
+    }
+
+    function formFILLUP(id = null, edit = false) {
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        var dataEdit
+        var good = ''
+        var bad = ''
+        var time = ''
+        if (edit) {
+            dataEdit = findStatusEdit(id, 'FILLUP')
+            good = dataEdit.qty.good
+            bad = dataEdit.qty.waste
+            time = formatJamMenit(dataEdit.qty.process_at)
+        }
+        var html = ''
+        html += '<div class="row justify-content-end">'
+        // sesi input
+
+        // view
+        html += '<div class="col-12">'
+        html += '<div class="card bg-light-grey shadow-sm">'
+        html += '<div class="card-body">'
+
+        html += '<div class="row">'
+        html += '<div class="col-4">'
+        html += '<p class="fw-bolder m-0 small">Review QC</p>'
+        html += '<p class="m-0 small-text">QC Sorting</p>'
+        html += '</div>'
+
+        html += '<div class="col-4">'
+        html += '<p class="m-0 super-small-text fw-bolder">QC Reject</p>'
+        if (!dataDelivery.qty.reject) {
+            dataDelivery.qty.reject = 0
+        }
+        html += '<h1 class="fw-bolder">' + dataDelivery.qty.reject + '</h1>'
+        html += '</div>'
+        html += '<div class="col-4">'
+        html += '<p class="m-0 super-small-text fw-bolder">Setoran Reject</p>'
+        html += '<h1 class="m-0 fw-bolder" id="showSetoranReject">--</h1>'
+        html += '<p class="m-0 super-tiny-text" id="textSetoranReject"></p>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // view
+
+        // jumlah setoran
+        html += '<div class="col-8 text-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Setoran Reject</b></p>'
+        html += '<input class="form-control form-control-lg nominal form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" oninput="setoranRejectFill()" value="' + bad + '">'
+        html += '<hr class="m-0 text-danger">'
+        html += '</div>'
+
+        html += '<div class="col-12 text-end">'
+        html += '<div class="row pt-2 justify-content-end">'
+        html += '<div class="col-4">'
+        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoSetoranReject(),setoranRejectFill()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // jumlah setoran
+
+        // jam setoran
+        html += '<div class="col-5 text-end align-self-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jam Setoran</b></p>'
+        html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-12 text-end">'
+        html += '<div class="row pt-2 justify-content-end">'
+        html += '<div class="col-4">'
+        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoJamSetoran()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // jam setoran
+
+        html += '<div class="col-12 text-end pt-3">'
+        html += '<button class="btn btn-primary btn-sm" onclick="arrangeVariableInsert()">Simpan dan Selesaikan</button>'
+        html += '</div>'
+        // sesi input
+        html += '</div>'
+        $('#formEntryData').html(html)
+    }
+
+    function formDONE(id = null, edit = false) {
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        var html = ''
+
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<div class="card shadow-none border-0">'
+        html += '<div class="card-body">'
+
+        html += '<div class="row">'
+
+        html += '<div class="col-12 pb-5">'
+        html += '<lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/success.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
+        html += '</div>'
+
+        html += '<div class="col-3">'
+        html += '<p class="fw-bolder m-0 small">Summary</p>'
+        html += '<p class="m-0 super-small-text">All Deliveries are Complete</p>'
+        html += '</div>'
+
+        html += '<div class="col-3">'
+        html += '<p class="m-0 super-small-text fw-bolder">Good Stock</p>'
+        html += '<h1 class="fw-bolder text-success">' + dataDelivery.qty.good + '</h1>'
+        html += '</div>'
+        html += '<div class="col-3">'
+        html += '<p class="m-0 super-small-text fw-bolder">Waste Stock</p>'
+        if (!dataDelivery.qty.waste) {
+            dataDelivery.qty.waste = 0
+        }
+        html += '<h1 class="fw-bolder text-danger">' + dataDelivery.qty.waste + '</h1>'
+        html += '</div>'
+        html += '<div class="col-3">'
+        html += '<p class="m-0 super-small-text fw-bolder">Reject Stock</p>'
+        if (!dataDelivery.qty.reject) {
+            dataDelivery.qty.reject = 0
+        }
+        html += '<h1 class="fw-bolder text-orange">' + dataDelivery.qty.reject + '</h1>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        $('#formEntryData').html(html)
+    }
+
+    function formWorkProgress(dataDetail, dataStatus, edit = false) {
+        // console.log(dataStatus)
+        if (!dataDetail) {
+            dataDetail = dataSaveSetoran
+        } else {
+            dataSaveSetoran = {
+                result_product_person_id: dataDetail.result_product_person_id,
+                datetime: dataDetail.datetime,
+                number: dataDetail.number,
+                next_status: dataStatus.nextStatus,
+                qty_good: dataStatus.qty.good,
+                qty_reject: dataStatus.qty.reject,
+                qty_delivery_good: dataDetail.delivery.good,
+                qty_sortir_good: dataDetail.sortir.good,
+                worker_id: dataStatus.worker_id
+            }
+        }
+        var html = ''
+        html += '<div class="row w-100 p-3 pe-1 pt-4">'
+
+        html += '<div class="col-7 pb-3">'
+        html += '<h2 class="m-0 fw-bolder">' + dataStatus.nextStatus + ' <span id="badgeStatusEdit"></span></h2>'
+        html += '<p class="m-0 fw-bolder small-text">SETORAN ' + dataDetail.number + '</p>'
+        html += '</div>'
+        html += '<div class="col-5 pb-3">'
+        // select
+        html += '<select class="form-select shadow-none text-dark" id="productSetoran" style="border:none">'
+        dataEntry.workPlanMachine.products.forEach(e => {
+            html += '<option value="' + e.product.id + '" data-unit="' + e.unit_input.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '">' + e.product.name + '</option>'
+        });
+        html += '<select>'
+        // select
+        html += '</div>'
+        // ---
+        html += '<div class="col-12" id="formEntryData">'
+        html += '</div>'
+        //---
+        html += '</div>'
+        $('#formWorkProgress').html(html)
+        var badge = ''
+        if (edit) {
+            badge = '<span class="badge bg-warning ms-2 small"><i class="fa fa-pencil me-2"></i>Edit</span>'
+        }
+        $('#badgeStatusEdit').html(badge)
+        eval(`form${dataStatus.nextStatus}(dataDetail.result_product_person_id,edit)`)
+    }
+
+    function setoranBaru(worker_id) {
+        dataSaveSetoran = {}
+        var html = ''
+        var numSetoran = findNumberofSetoran(worker_id)
+        var result_product_person_id = createCodeId()
+        var dataStatus = findStatus(result_product_person_id)
+        var e = {
+            result_product_person_id: result_product_person_id,
+            datetime: currentDateTime(),
+            number: parseInt(numSetoran) + parseInt(newSetoranBar),
+            next_status: dataStatus.nextStatus,
+            qty_good: dataStatus.qty.good,
+            qty_sortir_good: 0,
+            qty_delivery_good: 0,
+            worker_id: worker_id
+        }
+        dataSaveSetoran = e
+        html += setoranBar(e, deleteAndCloseButton('setoran', worker_id, result_product_person_id), '', '--', '<i class="fa fa-clock-o text-grey"></i>')
+        $('#setoranSemu').append(html)
+        $('#btnNewSetoran').attr('hidden', true)
+        isiWorkProgress(result_product_person_id)
+        // newSetoranBar++
+    }
+
+    function currentTimeTitikDua() {
+        var d = new Date();
+        var jam = d.getHours();
+        var menit = d.getMinutes();
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        var time = jam + ":" + menit;
+        return time;
+    }
+
+    function autoJamSetoran() {
+        $('#jamSetoran').val(currentTimeTitikDua())
+    }
+
+    function autoJamMaterial(worker_id, item_id, material_id) {
+        $('#jamMaterial' + worker_id + item_id + material_id).val(currentTimeTitikDua())
+    }
+
+    function autoJumlahGood(value) {
+        $('#jumlahGood').val(value)
+    }
+
+    function autoJumlahBad(value) {
+        $('#jumlahBad').val(value)
+    }
+
+    function autoSetoranReject() {
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        $('#jumlahBad').val(dataDelivery.qty.reject)
+    }
+
+    function setoranRejectFill() {
+        var value = $('#jumlahBad').val()
+        if (!value) {
+            value = 0
+        }
+        $('#showSetoranReject').html(value)
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        if (dataDelivery.qty.reject == value) {
+            $('#textSetoranReject').html('<span class="text-success">Jumlah Sesuai <i class="fa fa-check ms-2"></i></span>')
+        } else {
+            $('#textSetoranReject').html('<span class="text-danger">Jumlah Tidak Sesuai <i class="fa fa-times ms-2"></i></span>')
+        }
+    }
+
+    function goodSortingFill() {
+        var value = $('#jumlahBad').val()
+        if (!value) {
+            value = 0
+        }
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        var goodStock = parseInt(dataDelivery.qty.good) - parseInt(value)
+        $('#goodSorting').html('<span class="text-success">' + goodStock + '</span>')
+    }
+
+    function insertWithNextPerson() {
+        JustOnCamAfterAdd = true
+        arrangeVariableInsert()
+    }
+
+    function arrangeVariableInsert(autoComplete = null) {
+        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        var jamSetoran = dataEntry.workPlanMachine.date + ' ' + $('#jamSetoran').val() + ':00'
+        var jumlahBad = $('#jumlahBad').val()
+        if (!jumlahBad) {
+            jumlahBad = 0
+        }
+
+        if (autoComplete) {
+            dataSaveSetoran.qty_sortir_good = dataDelivery.qty.good
+        }
+        var variableInsert = {
+            DELIVERY: {
+                datetime: jamSetoran,
+                employee_id_deliv: user_id,
+                qty_good_deliv: $('#jumlahGood').val(),
+                qty_waste_deliv: jumlahBad,
+                note_deliv: '',
+            },
+            SORTIR: {
+                is_sortir: 1,
+                sortir_at: jamSetoran,
+                employee_id_sortir: user_id,
+                qty_good_sortir: parseInt(dataSaveSetoran.qty_delivery_good) - parseInt(jumlahBad),
+                qty_reject_sortir: jumlahBad,
+                note_sortir: ''
+            },
+            FILLUP: {
+                is_fillup: 1,
+                fillup_at: jamSetoran,
+                employee_id_fillup: user_id,
+                qty_good_fillup: jumlahBad,
+                qty_waste_fillup: 0,
+                note_fillup: '',
+            },
+            COMPLETE: {
+                is_complete: 1,
+                complete_at: jamSetoran,
+                employee_id_complete: user_id,
+                qty_final: parseInt(dataSaveSetoran.qty_sortir_good) + parseInt(jumlahBad),
+                note_complete: '',
+            }
+        }
+        var id_product = $("#productSetoran").val()
+        var unit_product = $("#productSetoran").find(':selected').data('unit')
+        var work_plan_product_id = $("#productSetoran").find(':selected').data('work_plan_product_id')
+        var dataMentah = {
+            id: dataSaveSetoran.result_product_person_id,
+            number: dataSaveSetoran.number,
+            employee_id: dataSaveSetoran.worker_id,
+            shift_id: dataEntry.workPlanMachine.shift_id,
+            machine_id: dataEntry.workPlanMachine.machine.id,
+            work_plan_id: dataEntry.workPlanMachine.work_plan_id,
+            created_at: currentDateTime(),
+            updated_at: currentDateTime(),
+            item_id: id_product,
+            unit_id: unit_product,
+            work_plan_product_id: work_plan_product_id,
+        }
+
+        var data = {
+            resultProductPerson: {
+                ...dataMentah,
+                ...variableInsert[dataSaveSetoran.next_status],
+            }
+        }
+        if (autoComplete || dataSaveSetoran.next_status == 'FILLUP') {
+            var dataNext = variableInsert['COMPLETE']
+            data.resultProductPerson = {
+                ...data.resultProductPerson,
+                ...dataNext
+            };
+        }
+        // console.log(data)
+        simpanData(data)
+    }
+
+    function simpanData(data) {
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
+        kelolaData(data, type, url, button)
+    }
+
+    function simpanMaterial() {
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setRemainingMaterialPerson'); ?>'
+        // console.log(dataSaveMaterial)
+        kelolaData(dataSaveMaterial, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                $(button).prop("disabled", false);
+                $('#btnNewSetoran').removeAttr('hidden', true)
+                dataSaveMaterial = {
+                    remainingMaterialPerson: [],
+                    deletedId: {
+                        remainingMaterialPerson: []
+                    }
+                }
+                materialIdClicked = false
+                loadData()
+            }
+        });
+    }
+    // search multi
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function textPirnt(id) {
+        $.ajax({
+            url: "<?= base_url('api/printThermal') ?>", // The server-side script to handle printing
+            data: {
+                id: id,
+            },
+            type: 'POST',
+            success: function(response) {
+                // console.log(response);
+            }
+        });
+    }
+
+    function cetakQR(id) {
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == id) return true
+        })
+        $('#qrcode').empty()
+        var qrcode = new QRCode("qrcode", {
+            text: data.worker_id + ',' + id,
+            width: 128,
+            height: 128,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        $(".qrcode > img").css({
+            "margin": "auto"
+        });
+        var image = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        doPrint(image, data, id)
+    }
+
+    function doPrint(image, data, id) {
+        var dataStatus = findStatus(id)
+        if (jspmWSStatus()) {
+            var b64Prefix = "data:image/png;base64,";
+            var imgBase64Content = image.substring(b64Prefix.length, image.length);
+            //Create a ClientPrintJob
+            var cpj = new JSPM.ClientPrintJob();
+            var cpj2 = new JSPM.ClientPrintJob();
+            //Set Printer type (Refer to the help, there many of them!)
+            cpj.clientPrinter = new JSPM.DefaultPrinter();
+            cpj2.clientPrinter = new JSPM.DefaultPrinter();
+            var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, 'myFileToPrint.png', 1);
+            // printToBluetoothPrinter($('#installedPrinterName').val(), 'test')
+            var esc = '\x1B'; //ESC byte in hex notation
+            var newLine = '\x0A'; //LF byte in hex notation
+
+            var cmds = esc + "@"; //Initializes the printer (ESC @)
+            cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+            cmds += newLine + newLine;
+            cmds += 'Setoran ' + data.number; //text to print
+            // cmds += image
+            cmds += newLine;
+            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+            cmds += newLine;
+            cmds += data.worker_name
+            cmds += newLine;
+            cmds += getDateStringWithTime(data.datetime);
+            cmds += newLine + newLine;
+            cmds += 'Good : ' + data.delivery.good;
+            cmds += newLine;
+            cmds += 'Waste : ' + data.delivery.waste;
+            cmds += newLine + newLine;
+
+            //add file to print job
+            cpj.printerCommands = cmds;
+            cpj2.files.push(myImageFile);
+            var cpjg = new JSPM.ClientPrintJobGroup();
+            cpjg.jobs.push(cpj);
+            cpjg.jobs.push(cpj2);
+            //Send print job to printer!
+            cpjg.sendToClient()
+        }
+    }
+
+    function jspmWSStatus() {
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+            return true;
+        else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+            alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
+            return false;
+        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+            alert('JSPM has blocked this website!');
+            return false;
+        }
     }
 </script>
