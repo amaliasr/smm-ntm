@@ -1003,6 +1003,7 @@
     function loadDataPlanning(id) {
         var data = {
             productionPlanId: id,
+            employeeId: user_id,
             // productionPlanId: id,
         }
         var url = "<?= api_produksi('getWorkPlan'); ?>"
@@ -1011,6 +1012,7 @@
 
     var data_work = ''
     var id_production_plan_clicked = ''
+    var type_name_production = ''
 
     function getData(data, url, id) {
         $.ajax({
@@ -1035,8 +1037,9 @@
                 $('#time').html(currentDateTimeNoSeconds())
                 data_work = response['data']
                 id_production_plan_clicked = id
+                type_name_production = data_work.productionTypeIdForeman.name.toLowerCase()
                 $('#planDate').html(formatDateIndonesia(data_work.productionPlan.date_start) + ' - ' + formatDateIndonesia(data_work.productionPlan.date_end))
-                if (!data_work.workPlan[0].work_plan.work_plan_id) {
+                if (!data_work.workPlan[0].work_plan[type_name_production].work_plan_id) {
                     $('#notif').html('<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"></span>')
                 } else {
                     $('#notif').html('')
@@ -1119,11 +1122,11 @@
             'target_per_machine': target_per_machine,
         }
         // VARIABLE WORK PLAN
-        if (data_work.workPlan[0].work_plan.work_plan_id) {
+        if (data_work.workPlan[0].work_plan[type_name_production].work_plan_id) {
             data_work.workPlan.forEach(a => {
                 // date
                 // jika null, maka pakai production_plan
-                a.work_plan.shift_qc.forEach(b => {
+                a.work_plan[type_name_production].shift_qc.forEach(b => {
                     // shift
                     b.shift_mechanic.forEach(c => {
                         // machine_type
@@ -1135,7 +1138,7 @@
                                     'id': a.id,
                                     'date': a.date,
                                     'note': a.note,
-                                    'work_plan_id': a.work_plan.work_plan_id,
+                                    'work_plan_id': a.work_plan[type_name_production].work_plan_id,
                                     'shift_id': d.shift.id,
                                     'shift_name': d.shift.name,
                                     'shift_end': d.shift.end,
@@ -1201,7 +1204,7 @@
             // loop date
             for (let i = 0; i < dateList.length; i++) {
                 html += '<td class="p-1">'
-                if (data_work.workPlan[0].work_plan.work_plan_id) {
+                if (data_work.workPlan[0].work_plan[type_name_production].work_plan_id) {
                     var data = data_work_plan_group.filter((v, k) => {
                         if (v.resource == e.id && v.start == dateList[i]) return true
                     })

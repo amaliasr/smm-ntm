@@ -123,11 +123,8 @@
                         <?php if (if_machine_shelters()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/machineShelters"><i class="fa fa-database me-1"></i>Machine Shelters</a>
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a>
-                        <?php if (if_so_production()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
-                        <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a>
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
@@ -220,8 +217,23 @@
                         <?php if (if_report_machine()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
                         <?php } ?>
-                        <?php if (if_report_production()) { ?>
+                        <?php if (if_so_production()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
+                        <?php } ?>
+                        <!-- <?php if (if_report_production()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportProduction">Report Production</a>
+                        <?php } ?> -->
+                        <?php if (if_report_production_worker()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionWorker">Report Production Worker</a>
+                        <?php } ?>
+                        <?php if (if_report_production_daily()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionDaily">Report Production Daily</a>
+                        <?php } ?>
+                        <?php if (if_report_person_earn()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportPersonEarn">Report Person Salary</a>
+                        <?php } ?>
+                        <?php if (if_report_incomplete()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportIncomplete">Report Incomplete</a>
                         <?php } ?>
                     </nav>
                 </div>

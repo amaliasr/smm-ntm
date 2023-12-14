@@ -1125,7 +1125,7 @@
         html += '<button class="nav-link p-3 small text-dark" id="nav-2-tab" data-bs-toggle="tab" data-bs-target="#nav-2" type="button" role="tab" aria-controls="nav-2" aria-selected="false"><i class="fa fa-clock-o me-2"></i>Activities</button>'
         html += '</div>'
         html += '</nav>'
-        html += '<div class="tab-content" id="nav-tabContent">'
+        html += '<div class="tab-content" id="nav-tabContent" style="height: 500px;overflow-x: hidden;overflow-y: auto;">'
         html += '<div class="tab-pane fade show active" id="nav-0" role="tabpanel" aria-labelledby="nav-0-tab">'
         html += '<div class="table-responsive mt-3">'
         html += '<table class="table table-sm table-hover" style="font-size: 10px;">'
@@ -1287,8 +1287,8 @@
         html += '</div>'
         html += '</div>'
 
-        if (data_materialrequest.process_at != null) {
-            date = formatDateIndonesia(data_materialrequest.process_at)
+        if (data_materialrequest.processed_at != null) {
+            date = formatDateIndonesia(data_materialrequest.processed_at)
             if (data_materialrequest.is_process == 1) {
                 check = '<i class="fa fa-check text-success fa-3x"></i>'
             } else {
@@ -1298,6 +1298,7 @@
             date = '<i>(Not Available)</i>'
             check = '<i class="fa fa-check text-light fa-3x"></i>'
         }
+        var user = data_materialrequest.approved_employee.name
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
         html += '<div class="timeline-item-marker-text" style="white-space: normal;font-size:11px;">' + date + '</div>'
@@ -1307,14 +1308,14 @@
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
         html += '<h6 class="text-dark">Processed by Logistik</h6>'
-        html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
+        // html += '<p>Approving by ' + user + '</p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
 
-        if (data_materialrequest.receive_at != null) {
-            date = formatDateIndonesia(data_materialrequest.receive_at)
+        if (data_materialrequest.received_t != null) {
+            date = formatDateIndonesia(data_materialrequest.received_t)
             if (data_materialrequest.is_receive == 1) {
                 check = '<i class="fa fa-check text-success fa-3x"></i>'
             } else {
@@ -1333,7 +1334,7 @@
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
         html += '<h6 class="text-dark">Received by Foreman</h6>'
-        html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
+        // html += '<p>This is the content for the first timeline item. In this styled example, we are styling the timeline marker with background and typography utility classes. We have also shown that you can use the card component within the timeline item content.</p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'

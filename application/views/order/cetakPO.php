@@ -10,12 +10,13 @@
     <style type="text/css">
         body {
             font-family: 'Nunito', sans-serif;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .table_main,
         .th_main,
-        .td_main {
+        .td_main,
+        .th_approval {
             border: 1px solid black;
             border-color: #444941;
             border-collapse: collapse;
@@ -28,6 +29,20 @@
 
         }
 
+        .th_main {
+            padding: 10px;
+            height: 10px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        .th_approval {
+            padding: 5px;
+            height: 5px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
         .bg_color_blue {
             background-color: #CEE5D0;
         }
@@ -36,12 +51,6 @@
             background-color: #FFE162;
         }
 
-        .th_main {
-            padding: 10px;
-            height: 10px;
-            text-align: center;
-            word-wrap: break-word;
-        }
 
         .align-center {
             text-align: center;
@@ -55,11 +64,6 @@
             page-break-before: always;
         }
 
-        @page {
-            margin-top: 90px;
-            margin-bottom: 70px;
-        }
-
         footer {
             position: fixed;
             bottom: -60px;
@@ -68,13 +72,19 @@
 
         header {
             position: fixed;
-            top: -60px;
+            top: -50px;
             height: 100px;
         }
 
+        @page {
+            margin-top: 70px;
+            margin-bottom: 30px;
+        }
+
+
         body {
-            margin-top: 90px;
-            margin-bottom: 100px;
+            margin-top: 70px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -141,7 +151,7 @@
             Dengan Hormat,<br>
             Bersama dengan surat ini kami memesan barang - barang berikut :
         </div>
-        <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
+        <table style="width:100%;margin-top:10px;margin-bottom:20px;" class="table_main">
             <tr style="text-align: center">
                 <th class="th_main">Item</th>
                 <th class="th_main">Qty</th>
@@ -161,18 +171,18 @@
                 </tr>
             <?php } ?>
             <tr>
-                <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>Sub Total (Rp)</b></td>
-                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->total_harga, 2, ',', '.') ?></b></td>
+                <td class="td_main" colspan="4" style="text-align: right;font-size:12px;padding-right:10px;"><b>Sub Total (Rp)</b></td>
+                <td class="td_main" style="text-align:right;font-size:12px;"><b><?= number_format($datas->total_harga, 2, ',', '.') ?></b></td>
                 <td class="td_main"></td>
             </tr>
             <tr>
-                <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>PPN 11%</b></td>
-                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->ppn, 2, ',', '.') ?></b></td>
+                <td class="td_main" colspan="4" style="text-align: right;font-size:12px;padding-right:10px;"><b>PPN 11%</b></td>
+                <td class="td_main" style="text-align:right;font-size:12px;"><b><?= number_format($datas->ppn, 2, ',', '.') ?></b></td>
                 <td class="td_main"></td>
             </tr>
             <tr>
-                <td class="td_main" colspan="4" style="text-align: right;font-size:14px;padding-right:10px;"><b>Total (Rp)</b></td>
-                <td class="td_main" style="text-align:right;font-size:14px;"><b><?= number_format($datas->grand_total, 2, ',', '.') ?></b></td>
+                <td class="td_main" colspan="4" style="text-align: right;font-size:12px;padding-right:10px;"><b>Total (Rp)</b></td>
+                <td class="td_main" style="text-align:right;font-size:12px;"><b><?= number_format($datas->grand_total, 2, ',', '.') ?></b></td>
                 <td class="td_main"></td>
             </tr>
         </table>
@@ -189,6 +199,114 @@
                             <li>Quantity Pengiriman ±5% dari quantity PO</li>
                         </ol>
                         <p>Atas perhatian dan kerjasamanya kami ucapkan terima kasih</p>
+                        <?php if ($qrcode != '0') { ?>
+                            <b style="margin-bottom: 20px;margin-top:30px;">APPROVAL :</b>
+                            <table style="width: 100%;margin-top:10px;">
+                                <tr style="vertical-align: top;">
+                                    <?php $a = 0;
+                                    foreach (json_decode($datas->data_approval) as $key => $value) {
+                                    ?>
+                                        <td>
+                                            <table style="width: 100%;">
+                                                <tr style="vertical-align: middle;">
+                                                    <td rowspan="2" style="width:40px;text-align:left;padding:0px;margin:0px;">
+                                                        <?php if ($value->is_accept == 'Accepted') {
+                                                            $images = base_url() . 'assets/image/logo/check.png';
+                                                        ?>
+                                                            <!-- <span class="check-icon">&#xf00c;</span> -->
+
+                                                        <?php } else if ($value->is_accept == 'Rejected') {
+                                                            $images = base_url() . 'assets/image/logo/times.png';
+                                                        ?>
+                                                            <!-- <span class="times-icon">&#xf00d;</span> -->
+                                                        <?php } else {
+                                                            $images = base_url() . 'assets/image/logo/clock.png';
+                                                        ?>
+                                                            <!-- <span class="clock-icon">&#xf017;</span> -->
+                                                        <?php } ?>
+                                                        <?php
+                                                        // Read image path, convert to base64 encoding
+                                                        $imageDatas = base64_encode(file_get_contents($images));
+                                                        // Format the image SRC:  data:{mime};base64,{data};
+                                                        $srcs = 'data:image/png;base64,' . $imageDatas;
+                                                        ?>
+                                                        <img src="<?= $srcs ?>" style="width:50%;">
+                                                    </td>
+                                                    <td style="padding:0px;margin:0px;">
+                                                        <b>
+                                                            <?php
+                                                            if ($a == 0) {
+                                                                echo 'Checked';
+                                                            } else {
+                                                                echo 'Approved';
+                                                            }
+                                                            ?>
+                                                        </b>
+                                                    </td>
+                                                </tr>
+                                                <tr style="vertical-align: middle;">
+                                                    <td style="padding:0px;margin:0px;font-size:8px;">
+                                                        <?php if ($value->is_accept == 'Accepted' || $value->is_accept == 'Rejected') { ?>
+                                                            <?php
+                                                            $namaArr = explode(' ', $value->user_name);
+
+                                                            if (count($namaArr) >= 2) {
+                                                                $duaKataDepan = $namaArr[0] . ' ' . $namaArr[1];
+                                                                echo $duaKataDepan;
+                                                            } else {
+                                                                echo $value->user_name;
+                                                            }
+                                                            ?>
+                                                            <br>
+                                                            <p style="margin: 0px;padding:0px;font-size:6px;"><?= date('d-m-Y H:i', strtotime($value->date_approval)) ?></p>
+                                                        <?php } else { ?>
+                                                            <i style="font-size:10px;color:grey;">Belum Ada</i>
+                                                        <?php } ?>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <br>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    <?php
+                                        $a++;
+                                    } ?>
+                                </tr>
+                            </table>
+                            <!-- <table class="table_main" style="margin-top: 20px;">
+                                <tr>
+                                    <th class="th_approval">No</th>
+                                    <th class="th_approval">Jabatan</th>
+                                    <th class="th_approval">Nama</th>
+                                    <th class="th_approval">Tanggal</th>
+                                    <th class="th_approval">Status</th>
+                                </tr>
+                                <tr>
+                                    <td class="th_approval" style="font-size: 10px;">1</td>
+                                    <td class="th_approval" style="font-size: 10px;">STAFF PURCHASING</td>
+                                    <td class="th_approval" style="font-size: 10px;">RATNA NURUL</td>
+                                    <td class="th_approval" style="font-size: 10px;">08/11/2023 08:24</td>
+                                    <td class="th_approval" style="font-size: 10px;">CHECKED</td>
+                                </tr>
+                                <tr>
+                                    <td class="th_approval" style="font-size: 10px;">1</td>
+                                    <td class="th_approval" style="font-size: 10px;">STAFF PURCHASING</td>
+                                    <td class="th_approval" style="font-size: 10px;">RATNA NURUL</td>
+                                    <td class="th_approval" style="font-size: 10px;">08/11/2023 08:24</td>
+                                    <td class="th_approval" style="font-size: 10px;">CHECKED</td>
+                                </tr>
+                                <tr>
+                                    <td class="th_approval" style="font-size: 10px;">1</td>
+                                    <td class="th_approval" style="font-size: 10px;">STAFF PURCHASING</td>
+                                    <td class="th_approval" style="font-size: 10px;">RATNA NURUL</td>
+                                    <td class="th_approval" style="font-size: 10px;">08/11/2023 08:24</td>
+                                    <td class="th_approval" style="font-size: 10px;">CHECKED</td>
+                                </tr>
+                            </table> -->
+                        <?php } ?>
                     </div>
                 </td>
                 <td style="width: 40%;">

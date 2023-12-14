@@ -141,7 +141,7 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" data-status="PR">PR</button>
                                     </li>
-                                    <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 35 || $this->session->userdata('division_id') == 10) { ?>
+                                    <?php if ($this->session->userdata('division_id') == 4 || $this->session->userdata('division_id') == 35 || $this->session->userdata('division_id') == 10 || $this->session->userdata('job_title_id') == 133 || $this->session->userdata('job_title_id') == 10) { ?>
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-status="PO">PO</button>
                                         </li>
@@ -858,7 +858,6 @@
                 html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
 
                 if (values['state'] == 'APPROVED') {
-
                     html += '<a class="dropdown-item" onclick="perubahanPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-pencil me-2"></i> Perubahan PO</a>'
                 }
                 html += '<a class="dropdown-item" onclick="detailPO(' + values['pr_id'] + ',' + values['po_id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'

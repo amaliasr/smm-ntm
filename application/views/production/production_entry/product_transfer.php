@@ -602,6 +602,34 @@
         notifWaiting()
     }
 
+    function singkatkanTeks(teksAwal) {
+        // Mengecek apakah panjang teks awal lebih dari 3 karakter
+        var kataKata = teksAwal.split(' ');
+        if (kataKata[0].length > 5) {
+            // Mengambil tiga karakter pertama dari teks awal
+            var singkatan = teksAwal.substring(0, 3);
+
+            // Mengambil kata selanjutnya setelah tiga karakter pertama
+            var teksAkhir = singkatan + '. ' + hapusKataPertama(teksAwal);
+
+            return teksAkhir;
+        } else {
+            // Jika panjang teks awal tidak lebih dari 3 karakter, kembalikan teks awal
+            return teksAwal;
+        }
+    }
+
+    function hapusKataPertama(teksAwal) {
+        // Membagi teks menjadi array kata-kata
+        var kataKata = teksAwal.split(' ');
+        // Menghapus kata pertama dari array
+        kataKata.shift();
+        // Menggabungkan kembali array kata-kata menjadi teks
+        var teksAkhir = kataKata.join(' ');
+
+        return teksAkhir;
+    }
+
     function notifWaiting() {
         var html = ''
         var count = 0
@@ -609,11 +637,11 @@
             if (e.status == 'WAITING' && e.action == 'IN' && count < 4) {
                 html += '<div style="width: 300px;max-height: 400px;overflow-x: hidden;overflow-y: auto;">'
                 html += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="detailWaiting(' + e.id + ')">'
-                html += '<div class="row">'
+                html += '<div class="row pt-2 pb-2">'
 
                 html += '<div class="col-3 text-center">'
                 html += '<div class="circle-shape bg-dongker">'
-                html += '<p class="m-0 text-wrap small-text text-white">' + e.subject_sender.name + '</p>'
+                html += '<p class="m-0 text-wrap small-text text-white">' + singkatkanTeks(e.subject_sender.name) + '</p>'
                 html += '</div>'
                 html += '</div>'
 
@@ -645,7 +673,7 @@
                 html += '</div>'
                 html += '</a></li>'
                 html += '</div>'
-                html += '<li><hr class="dropdown-divider"></li>'
+                html += '<li><hr class="dropdown-divider mt-0 mb-0"></li>'
                 count++
             }
         });
@@ -1613,7 +1641,7 @@
         if (dataProducts) {
             var nilaiConversi = conversiToTarget(data.qty, dataProducts.unit_target.multiplier, dataProducts.unit_target.name, dataProducts.unit_input.name)
         } else {
-            var nilaiConversi = number_format(data.qty) + ' ' + e.unit_name
+            var nilaiConversi = number_format(data.qty) + ' ' + data.unit_name
         }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');

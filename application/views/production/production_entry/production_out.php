@@ -136,6 +136,8 @@
         if (!dataList.length) {
             missingHours.push(shiftStart);
         } else {
+            var realStartHour = parseInt(dataList[0].start)
+            startHour = realStartHour
             // Mengatasi lintas hari
             if (startHour > endHour) {
                 for (var i = startHour + 1; i < 24; i++) {
@@ -177,7 +179,6 @@
                             break;
                         }
                     }
-
                     if (!found) {
                         missingHours.push(hour);
                     }
@@ -185,7 +186,13 @@
             }
 
         }
-
+        // jika melebihi jam
+        if (found) {
+            if (hour) {
+                hour = dataList[parseInt(dataList.length) - 1].end
+                missingHours.push(parseInt(hour));
+            }
+        }
         return missingHours;
     }
 
@@ -416,6 +423,7 @@
     }
 
     function findDateFromTime(inputTime, datetimeStart, datetimeEnd) {
+        var date = ''
         const inputHourMinute = inputTime.split(":");
         const inputHour = parseInt(inputHourMinute[0]);
         const inputMinute = parseInt(inputHourMinute[1]);
@@ -426,17 +434,19 @@
         const startDate = startDateTime.getDate();
         const endDate = endDateTime.getDate();
 
-        if (inputHour >= startDateTime.getHours() && inputHour <= 23) {
-            return `${startDateTime.getFullYear()}-${(startDateTime.getMonth() + 1)
+        if ((inputHour >= startDateTime.getHours() && inputHour <= 23) || inputHour > endDateTime.getHours()) {
+            date = `${startDateTime.getFullYear()}-${(startDateTime.getMonth() + 1)
       .toString()
       .padStart(2, "0")}-${startDate.toString().padStart(2, "0")}`;
-        } else if (inputHour >= 0 && inputHour <= endDateTime.getHours()) {
-            return `${endDateTime.getFullYear()}-${(endDateTime.getMonth() + 1)
+        } else if ((inputHour >= 0 && inputHour <= endDateTime.getHours()) || inputTime < startDateTime.getHours()) {
+            date = `${endDateTime.getFullYear()}-${(endDateTime.getMonth() + 1)
       .toString()
       .padStart(2, "0")}-${endDate.toString().padStart(2, "0")}`;
         } else {
-            return "";
+            date = "";
+
         }
+        return date
     }
 </script>
 <script>
@@ -519,7 +529,6 @@
                 if (v.item_id == e.product.id && v.priority == e.priority) return true
             })
             if (dataGroup) {
-                console.log(dataGroup)
                 var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                     if (v.work_plan_product_id == dataGroup.work_plan_product_id) return true
                 })
@@ -545,15 +554,18 @@
                 var nilaiConversi = 0
             }
             // console.log(nilaiConversi)
-            html += '<div class="row">'
-            html += '<div class="col align-self-center pb-3">'
+            html += '<div class="row w-100 mb-2 pb-2">'
+            html += '<div class="col align-self-center">'
             html += '<div class="progress">'
             html += '<div class="progress-bar ' + bg + '" style="width: ' + percent + '%" role="progressbar" aria-valuenow="' + percent + '" aria-valuemin="0" aria-valuemax="100">' + percent + '%</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-3">'
+            html += '<div class="col-2 align-self-center">'
             html += '<h5 class="text-dark-grey m-0"><b>' + e.product.alias + ' - #' + e.priority + '</b></h5>'
             html += '<p class="m-0 small-text">' + nilaiConversi + ' / ' + e.qty + ' ' + e.unit_target.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-1 ps-0 align-self-center">'
+            html += '<button class="btn btn-outline-primary"  onclick="formProductionOut(' + "'" + e.work_plan_product_id + "'" + ')"><i class="fa fa-plus me-2"></i>Add</button>'
             html += '</div>'
             html += '</div>'
         })
@@ -591,6 +603,8 @@
                 var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                     if (v.work_plan_product_id == e.work_plan_product_id) return true
                 })
+                console.log(dataEntry.workPlanMachine.products)
+                console.log(e.work_plan_product_id)
                 html += '<tr>'
                 html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
                 html += '<td class="p-2 text-center">' + convertTimeFormat(e.time.start) + ' - ' + convertTimeFormat(e.time.end) + '</td>'
@@ -683,7 +697,7 @@
         }
     }
 
-    function formProductionOut() {
+    function formProductionOut(work_plan_product_id = null) {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
@@ -697,7 +711,13 @@
         html_body += '<select id="selectItem" class="form-select" onchange="formFill(),fillForm()">'
         html_body += '<option value="" selected disabled><i>Pilih Item</i></option>'
         dataEntry.workPlanMachine.products.forEach(e => {
-            html_body += '<option value="' + e.product.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '">' + e.product.name + ' - Batch ' + e.priority + '</option>'
+            var select = ''
+            if (work_plan_product_id) {
+                if (e.work_plan_product_id == work_plan_product_id) {
+                    select = 'selected'
+                }
+            }
+            html_body += '<option value="' + e.product.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '" ' + select + '>' + e.product.name + ' - Batch ' + e.priority + '</option>'
         })
         html_body += '</select>'
         html_body += '</div>'
@@ -712,6 +732,10 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" disabled onclick="simpanData()">Simpan</button>'
         $('#modalFooter').html(html_footer);
+        if (work_plan_product_id) {
+            formFill()
+            fillForm()
+        }
     }
 
     function formFill() {
@@ -844,6 +868,8 @@
             var id = $('#selectItem').find(':selected').data('work_plan_product_id')
             var dataList = convertToPerHour(convertDataToListTime(dataEntry.workPlanMachine.products))
             var missingHours = findMissingHours(extractHour(dataEntry.workPlanMachine.shift.start), extractHour(dataEntry.workPlanMachine.shift.end), dataList)[0] + ':00'
+            // console.log(dataList)
+            // console.log(missingHours)
             $('#startTime').val(missingHours)
             $('#endTime').val(addOneHour(missingHours))
         } else {
@@ -896,7 +922,6 @@
         var checkStart = checkTimeStart(startTime, dataList)
         var checkEnd = checkTimeEnd(endTime, dataList)
         if (checkStart && checkEnd) {
-            // console.log(startTime)
             checkAvailableHoursInProducts(startTime, endTime)
         } else {
             $('#textWarning').html('<p class="m-0 super-small-text">Jam Tersebut Telah Dipakai, Harap Input Jam yang Masih Tersedia</p>')

@@ -136,6 +136,20 @@
     .border-radius-20 {
         border-radius: 20px;
     }
+
+    #tableDetail_length,
+    #tableDetail_info {
+        display: none;
+    }
+
+    .dataTables_filter {
+        margin-bottom: 10px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        float: none;
+        text-align: center;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
@@ -149,10 +163,10 @@
     </header>
     <!-- Main page content-->
     <div class="container-xl mt-n10">
-        <div class="row justify-content-center mb-4">
+        <div class="row justify-content-center mb-2">
             <div class="col pb-4">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PRODUCTION</h1>
-                <p class="m-0 small">1 Nov 2023 - 7 Nov 2023</p>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PERSON SALARY</h1>
+                <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
         <div class="row">
@@ -161,47 +175,60 @@
                     <div class="col-auto">
                         <div class="row">
                             <div class="col-auto">
+                                <p class="fw-bolder small-text m-0">Tanggal</p>
                                 <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
                             </div>
-                            <div class="col-auto p-0">
-                                <select class="selectpicker w-100" id="selectPeriod" title="Pilih Period">
-                                    <option value="SHIFT">SHIFT</option>
-                                    <option value="DAILY">DAILY</option>
-                                    <option value="WEEKLY">WEEKLY</option>
-                                    <option value="MONTHLY">MONTHLY</option>
-                                </select>
-                            </div>
-                            <div class="col-auto">
+                            <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Machine</p>
                                 <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
                                 </select>
                             </div>
-                            <div class="col-auto p-0 align-self-center">
+                            <div class="col-auto p-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto d-flex align-items-end">
                         <div class="dropdown">
-                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" disabled>
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item" href="#">PDF</a></li>
-                                <li><a class="dropdown-item" href="#">Excel</a></li>
+                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body p-5">
 
-                        <p class="fw-bolder">Detail</p>
+            <div class="col-12 mb-2">
+                <div class="card shadow-none border-radius-20">
+                    <div class="card-body">
+                        <p class="fw-bolder m-0">Detail</p>
                         <div class="table-responsible" id="dataTable">
 
                         </div>
 
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card shadow-none border-radius-20">
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card shadow-none border-radius-20">
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card shadow-none border-radius-20">
+                    <div class="card-body">
                     </div>
                 </div>
             </div>
@@ -236,10 +263,43 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    function notFoundReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/nodata.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function empty(location, text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+    }
+
+    function emptyReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function emptyText(location, text) {
+        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+    }
+
+    function emptyTextReturn(text) {
+        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
     function arrayToString(arr) {
         var resultString = arr.join(',');
         return resultString;
@@ -251,9 +311,14 @@
 
         // Loop melalui data untuk mendapatkan nilai unik dari kombinasi properti
         data.forEach(function(item) {
+
             // Membuat array yang berisi nilai properti yang diinginkan
             var propertyValues = propertyNames.map(function(propertyName) {
-                return item[propertyName];
+                if (item[propertyName].name) {
+                    return item[propertyName].name
+                } else {
+                    return item[propertyName];
+                }
             });
 
             // Menambahkan array nilai properti ke dalam Set
@@ -289,18 +354,28 @@
                 if (!match) {
                     break;
                 }
-
-                if (currentValue !== criteria[key]) {
+                if (currentValue != criteria[key]) {
                     match = false;
                     break;
                 }
             }
-
             if (match) {
-                return data[i].qty;
+                if (data[i].qty_waste == null) {
+                    data[i].qty_waste = 0
+                }
+                if (data[i].qty_goods == null) {
+                    data[i].qty_goods = 0
+                }
+                if (data[i].qty_reject == null) {
+                    data[i].qty_reject = 0
+                }
+                return {
+                    qty_goods: number_format(data[i].qty_goods),
+                    qty_reject: number_format(data[i].qty_reject),
+                    qty_waste: number_format(data[i].qty_waste),
+                }
             }
         }
-
         return null;
     }
 
@@ -320,64 +395,15 @@
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
     var data_report = ""
-    var data_report_detail = []
-    var supplier_id = ""
     var date_start = currentDate()
     var date_end = currentDate()
-    var periodOption
-    var structureData = {
-        MONTHLY: {
-            rowspan: 2,
-            data: [{
-                name: 'Year',
-                variable: 'year',
-                colspan: 0,
-            }, {
-                name: 'Month',
-                variable: 'month',
-                colspan: 1,
-            }]
-        },
-        WEEKLY: {
-            rowspan: 2,
-            data: [{
-                name: 'Year',
-                variable: 'year',
-                colspan: 0,
-            }, {
-                name: 'Week',
-                variable: 'week',
-                colspan: 1,
-            }]
-        },
-        DAILY: {
-            rowspan: 1,
-            data: [{
-                name: 'Date',
-                variable: 'date',
-                colspan: 1,
-            }]
-        },
-        SHIFT: {
-            rowspan: 2,
-            data: [{
-                name: 'Date',
-                variable: 'date',
-                colspan: 0,
-            }, {
-                name: 'Shift',
-                variable: 'shift',
-                colspan: 1,
-            }]
-        },
-    }
     $(document).ready(function() {
+        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
         $('select').selectpicker();
         loadData()
     })
 
     function loadData() {
-        $('select').selectpicker();
         $.ajax({
             url: "<?= api_produksi('loadPageMachineReport'); ?>",
             method: "GET",
@@ -385,14 +411,29 @@
             data: {
                 employeeId: user_id,
             },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
             success: function(response) {
+                showOverlay('hide')
                 data_user = response['data']
                 setDaterange()
                 formMachine()
+                dateRangeString()
             }
         })
+    }
+
+    function dateRangeString() {
+        $('#dateRangeString').html(formatDateIndonesiaShort(date_start) + ' - ' + formatDateIndonesiaShort(date_end))
     }
 
     function setDaterange() {
@@ -420,37 +461,24 @@
         });
         $('#selectMachine').html(html)
         $('#selectMachine').selectpicker('refresh');
-        autoSave()
+        $('#selectMachine').selectpicker({
+
+        });
+        // autoSave()
     }
 
     function simpanData() {
-        periodOption = $('#selectPeriod').val()
-        var machineId = arrayToString($('#selectMachine').map(function() {
+        machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResult'); ?>'
+        var url = '<?php echo api_produksi('getReportResultPersonEarn'); ?>'
         var data = {
             dateStart: date_start,
             dateEnd: date_end,
-            periodOption: periodOption,
             machineId: machineId
-        }
-        kelolaData(data, type, url, button)
-    }
-
-    function autoSave() {
-        periodOption = 'MONTHLY'
-        var type = 'GET'
-        var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResult'); ?>'
-        var data = {
-            dateStart: '2023-09-10',
-            dateEnd: '2023-10-24',
-            periodOption: periodOption,
-            machineId: '1,2,3,4,5,6,7,8'
         }
         kelolaData(data, type, url, button)
     }
@@ -461,6 +489,7 @@
             type: type,
             data: data,
             error: function(xhr) {
+                showOverlay('hide')
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -470,38 +499,30 @@
             },
             beforeSend: function() {
                 $(button).prop("disabled", true);
+                showOverlay('show')
             },
             success: function(response) {
+                showOverlay('hide')
+                dateRangeString()
                 $(button).prop("disabled", false);
                 data_report = response.data
-                // console.log(data_report)
-                data_report.reportResult.forEach(e => {
-                    data_report_detail.push({
-                        machine_id: e.machine.id,
-                        machine_name: e.machine.name,
-                        item_id: e.item.id,
-                        item_name: e.item.name,
-                        item_code: e.item.code,
-                        unit_id: e.unit.id,
-                        unit_name: e.unit.name,
-                        qty: e.qty,
-                    })
-                });
-                updatedStructure()
+                if (data_report.reportResultPersonEarn.length) {
+                    updatedStructure()
+                } else {
+                    // tidak ada data
+                    $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
+                }
             }
         });
     }
 
     function updatedStructure() {
-        if (structureData[periodOption].data.length > 1) {
-            structureData[periodOption].data[0].colspan = groupDataByProperties(data_report.reportResult, [structureData[periodOption].data[1].variable]).length
-        }
         dataTable()
     }
 
     function dataTable() {
         var html = ''
-        html += '<table class="table table-bordered table-hover table-sm small">'
+        html += '<table class="table table-bordered table-hover table-sm small w-100" id="tableDetail">'
         html += '<thead id="headTable">'
         html += '</thead>'
         html += '<tbody id="bodyTable">'
@@ -513,92 +534,62 @@
 
     function headTable() {
         var html = ''
-        var a = 0
-        structureData[periodOption].data.forEach(e => {
-            html += '<tr>'
-            if (!a) {
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">#</th>'
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Machine</th>'
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Product</th>'
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Unit</th>'
-            }
-            var dataChild = groupDataByProperties(data_report.reportResult, [e.variable])
-            for (let i = 0; i < dataChild.length; i++) {
-                html += '<th colspan="' + e.colspan + '">' + dataChild[i] + '</th>'
-            }
-            html += '</tr>'
-            a++
-        });
+        html += '<tr>'
+        html += '<th class="align-middle" rowspan="2">#</th>'
+        html += '<th class="align-middle" rowspan="2">EID</th>'
+        html += '<th class="align-middle" rowspan="2">Nama</th>'
+        html += '<th class="align-middle" rowspan="2">No. Meja</th>'
+        const dates = data_report.reportResultPersonEarn[0].data.map(item => Object.keys(item)[0]);
+        for (let i = 0; i < dates.length; i++) {
+            html += '<th class="align-middle" colspan="3">' + dates[i] + '</th>'
+        }
+        html += '</tr>'
+
+        html += '<tr>'
+        for (let i = 0; i < dates.length; i++) {
+            html += '<th class="align-middle">QTY</th>'
+            html += '<th class="align-middle">Earn</th>'
+            html += '<th class="align-middle">Total Setor</th>'
+        }
+        html += '</tr>'
         $('#headTable').html(html)
         bodyTable()
     }
 
-    function checkingData() {
-        var data = data_report_detail.find((v, k) => {
-            if (v.e == id) return true
+    function bodyTable() {
+        var html = ''
+        var a = 1
+        data_report.reportResultPersonEarn.forEach(e => {
+            html += '<tr>'
+            html += '<td class="text-center small-text">' + a++ + '</td>'
+            html += '<td class="text-center small-text">' + e.employee.eid + '</td>'
+            html += '<td class="text-center small-text">' + e.employee.name + '</td>'
+            html += '<td class="text-center small-text">' + e.row_code + '</td>'
+            e.data.forEach(el => {
+                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].qty) + '</td>'
+                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].earn) + '</td>'
+                html += '<td class="text-center small-text">' + el[Object.keys(el)[0]].total_deliv + '</td>'
+            });
+            html += '</tr>'
+        });
+        $('#bodyTable').html(html)
+        $('#tableDetail').DataTable({
+            ordering: false, // Menonaktifkan pengurutan
+            pageLength: 200,
+            scrollY: "400px",
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            fixedHeader: true,
+            fixedColumns: {
+                leftColumns: 2
+            },
         })
     }
 
-    function bodyTable() {
-        // console.log(data_report_detail)
-        var dataMachine = groupAndSum(data_report_detail, ['machine_id', 'machine_name', 'item_id', 'item_name', 'unit_name'], [])
-        var html = ''
-        //loop
-        var a = 1
-        dataMachine.forEach(e => {
-            html += '<tr>'
-            html += '<td class="text-center small-text">' + a++ + '</td>'
-            html += '<td class="text-center small-text">' + e.machine_name + '</td>'
-            html += '<td class="text-center small-text">' + e.item_name + '</td>'
-            html += '<td class="text-center small-text">' + e.unit_name + '</td>'
-            // loop
-            var dataChild = []
-            structureData[periodOption].data.forEach(el => {
-                dataChild.push({
-                    'variable': el.variable,
-                    'data': groupDataByProperties(data_report.reportResult, [el.variable]),
-                })
-            });
-            for (let i = 0; i < dataChild.length; i++) {
-                var criteria = []
-                var indexCriteria = 0
-                if (dataChild.length > 1) {
-                    for (let j = 0; j < dataChild[0].data.length; j++) {
-                        for (let k = 0; k < dataChild[1].data.length; k++) {
-                            criteria.push({
-                                'machine.id': e.machine_id,
-                                'item.id': e.item_id,
-                            })
-                            eval(`criteria[indexCriteria]['${dataChild[0].variable}'] = dataChild[0].data[j][0]`)
-                            eval(`criteria[indexCriteria]['${dataChild[1].variable}'] = dataChild[1].data[k][0]`)
-                            indexCriteria++
-                        }
-                    }
-                } else {
-                    for (let j = 0; j < dataChild[0].data.length; j++) {
-                        criteria.push({
-                            'machine.id': e.machine_id,
-                            'item.id': e.item_id,
-                        })
-                        eval(`criteria[indexCriteria]['${dataChild[0].variable}'] = dataChild[0].data[j][0]`)
-                        indexCriteria++
-                    }
-                }
-            }
-            criteria.forEach(ele => {
-                var qty = findQty(data_report.reportResult, ele)
-                if (!qty) {
-                    qty = '-'
-                } else {
-                    qty = number_format(qty)
-                }
-                html += '<td class="text-center">' + qty + '</td>'
-            });
-            // loop
-            html += '</tr>'
-        });
-        // end loop
-        $('#bodyTable').html(html)
-
+    function cetakReport(x, y) {
+        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn"')
+        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId;
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

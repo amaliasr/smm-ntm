@@ -228,4 +228,475 @@ class Report extends CI_Controller
         $data['title'] = 'Report Production';
         $this->template->views('report/reportProduction', $data);
     }
+    public function reportProductionWorker()
+    {
+        $data['title'] = 'Report Production Worker';
+        $this->template->views('report/reportProductionWorker', $data);
+    }
+    public function pdfProductionWorker()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['format'] = $explodedParams[1];
+        $data['date_start'] = date('Y-m-d', strtotime($explodedParams[2]));
+        $data['date_end'] = date('Y-m-d', strtotime($explodedParams[3]));
+        $data['groupingOption'] = $explodedParams[4];
+        $data['periodOption'] = $explodedParams[5];
+        $data['machineId'] = $explodedParams[6];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getReportResultPerson?dateStart=' . $data['dateStart'] . '&dateEnd=' . $data['dateEnd'] . '&groupingOption=' . $data['groupingOption'] . '&periodOption=' . $data['periodOption'] . '&machineId=' . $data['machineId'])))->data;
+        $html = $this->load->view('report/cetakProductionWorker', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = "REPORT PRODUCTION WORKER.pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream($data['datas']->no_pr, array("Attachment" => 0));
+    }
+    public function groupDataByProperties($data, $propertyNames)
+    {
+        // Menggunakan array asosiatif untuk menyimpan nilai unik dari kombinasi properti
+        $uniqueValuesArray = array();
+
+        // Loop melalui data untuk mendapatkan nilai unik dari kombinasi properti
+        foreach ($data as $item) {
+            // Membuat array yang berisi nilai properti yang diinginkan
+            $propertyValues = array_map(function ($propertyName) use ($item) {
+                if (isset($item->$propertyName->name)) {
+                    return $item->$propertyName->name;
+                } else {
+                    return $item->$propertyName;
+                }
+            }, $propertyNames);
+
+            // Menambahkan array nilai properti ke dalam array asosiatif
+            $uniqueValuesArray[json_encode($propertyValues)] = $propertyValues;
+        }
+
+        // Mengembalikan hasilnya dalam bentuk array asosiatif
+        return array_values($uniqueValuesArray);
+    }
+    function groupAndSum($arr, $groupKeys, $sumKeys)
+    {
+        $result = [];
+
+        foreach ($arr as $curr) {
+            $group = implode('-', array_map(function ($k) use ($curr) {
+                return $curr[$k];
+            }, $groupKeys));
+
+            if (!isset($result[$group])) {
+                $result[$group] = array_merge(array_combine($groupKeys, array_map(function ($k) use ($curr) {
+                    return $curr[$k];
+                }, $groupKeys)), array_combine($sumKeys, array_fill(0, count($sumKeys), 0)));
+            }
+
+            foreach ($sumKeys as $k) {
+                $result[$group][$k] += $curr[$k];
+            }
+        }
+
+        return array_values($result);
+    }
+    function findQty($data, $criteria)
+    {
+        foreach ($data as $item) {
+            $match = true;
+
+            foreach ($criteria as $key => $value) {
+                // Mengatasi properti dengan hierarki
+                $keys = explode('->', $key);
+                $currentValue = $item;
+
+                foreach ($keys as $nestedKey) {
+                    if (isset($currentValue->{$nestedKey})) {
+                        $currentValue = $currentValue->{$nestedKey};
+                    } else {
+                        $match = false;
+                        break;
+                    }
+                }
+
+                if (!$match || $currentValue != $value) {
+                    $match = false;
+                    break;
+                }
+            }
+
+            if ($match) {
+                // Mengatasi nilai null
+                $qtyGoods = isset($item->qty_goods) ? $item->qty_goods : 0;
+                $qtyReject = isset($item->qty_reject) ? $item->qty_reject : 0;
+                $qtyWaste = isset($item->qty_waste) ? $item->qty_waste : 0;
+
+                return [
+                    'qty_goods' => $qtyGoods,
+                    'qty_reject' => $qtyReject,
+                    'qty_waste' => $qtyWaste,
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    public function excelProductionWorker()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $format = $explodedParams[1];
+        // format 0 raw
+        $date_start = date('Y-m-d', strtotime($explodedParams[2]));
+        $date_end = date('Y-m-d', strtotime($explodedParams[3]));
+        $groupingOption = $explodedParams[4];
+        $nameVariable = strtolower($groupingOption);
+        $periodOption = $explodedParams[5];
+        $machineId = $explodedParams[6];
+        $dataStructure = json_decode($explodedParams[7]);
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPerson?dateStart=' . $date_start . '&dateEnd=' . $date_end . '&groupingOption=' . $groupingOption . '&periodOption=' . $periodOption . '&machineId=' . $machineId)))->data->reportResultPerson;
+        $huruf = range('A', 'Z');
+        $extension = 'xlsx';
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $jumlahColumn = 1;
+        if ($format == 0) {
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Tanggal');
+            if ($groupingOption == 'WORKER') {
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'IED');
+            }
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Worker');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Product');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Unit');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Good');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Waste');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Reject');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Jumlah Setor');
+            $jumlahColumn = 1;
+            $rowCount = 2;
+            for ($k = 0; $k < count($body); $k++) {
+                $jumlahColumn = 1;
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $k + 1);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->date);
+                if ($groupingOption == 'WORKER') {
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->$nameVariable->eid);
+                }
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->$nameVariable->name);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->item->name);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->unit->name);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->qty_goods);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->qty_waste);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->qty_reject);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->deliv_total);
+                $rowCount++;
+            }
+            $styleArray = [
+                'font' => [
+                    'bold' => true,
+                ],
+                'alignment' => [
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'wrapText' => false,
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFB100',
+                    ],
+                    'endColor' => [
+                        'argb' => 'FFB100',
+                    ],
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['argb' => '383838'],
+                    ],
+                ],
+            ];
+            $spreadsheet->getActiveSheet()->getStyle('A1:J1')->applyFromArray($styleArray);
+        } else {
+            $jumlahColumn = 1;
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No');
+            if ($groupingOption == 'WORKER') {
+                $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'EID');
+            }
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', ucfirst($groupingOption));
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Product');
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Unit');
+            $jumlahRow = 1;
+            $variableColumn = $jumlahColumn;
+            $loopEnd = 1;
+            foreach ($dataStructure->$periodOption->data as $key => $value) {
+                $jumlahColumn = $variableColumn;
+                $dataChild = $this->groupDataByProperties($body, [$value->variable]);
+                $jumlahLoop = 1;
+                $loopEnd = $loopEnd * count($dataChild);
+                if ($jumlahRow == count($dataStructure->$periodOption->data) && count($dataStructure->$periodOption->data) >= 1) {
+                    $jumlahLoop = count($this->groupDataByProperties($body, [$dataStructure->$periodOption->data[0]->variable]));
+                }
+                for ($j = 0; $j < $jumlahLoop; $j++) {
+                    for ($i = 0; $i < count($dataChild); $i++) {
+                        $endJumlahColumn = $jumlahColumn + $value->colspan - 1;
+                        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($endJumlahColumn) . $jumlahRow)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow, $dataChild[$i][0]);
+                        $jumlahColumn = $endJumlahColumn + 1;
+                    }
+                }
+                $jumlahRow++;
+            }
+            $jumlahColumn = $variableColumn;
+            for ($i = 0; $i < $loopEnd; $i++) {
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'Good');
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'Waste');
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'Reject');
+            }
+            $rowCount = 0;
+            for ($k = 0; $k < count($body); $k++) {
+                $data_report_detail[$rowCount]['item_id'] = $body[$k]->item->id;
+                $data_report_detail[$rowCount]['item_name'] = $body[$k]->item->name;
+                $data_report_detail[$rowCount]['item_code'] = $body[$k]->item->code;
+                $data_report_detail[$rowCount]['unit_id'] = $body[$k]->unit->id;
+                $data_report_detail[$rowCount]['unit_name'] = $body[$k]->unit->name;
+                $data_report_detail[$rowCount]['qty_waste'] = $body[$k]->qty_waste;
+                $data_report_detail[$rowCount]['qty_reject'] = $body[$k]->qty_reject;
+                $data_report_detail[$rowCount]['qty_goods'] = $body[$k]->qty_goods;
+                $data_report_detail[$rowCount][$nameVariable . '_id'] = $body[$k]->$nameVariable->id;
+                $data_report_detail[$rowCount][$nameVariable . '_name'] = $body[$k]->$nameVariable->name;
+                if ($groupingOption == 'WORKER') {
+                    $data_report_detail[$rowCount][$nameVariable . '_eid'] = $body[$k]->$nameVariable->eid;
+                }
+                $rowCount++;
+            }
+            if ($groupingOption == 'WORKER') {
+                $dataMachine = $this->groupAndSum($data_report_detail, [$nameVariable . '_id', $nameVariable . '_name', $nameVariable . '_eid', 'item_id', 'item_name', 'unit_name'], []);
+            } else {
+                $dataMachine = $this->groupAndSum($data_report_detail, [$nameVariable . '_id', $nameVariable . '_name', 'item_id', 'item_name', 'unit_name'], []);
+            }
+            $jumlahRow++;
+            $jumlahColumn = 1;
+            $no = 1;
+            $indexChild = 0;
+            foreach ($dataStructure->$periodOption->data as $key => $value) {
+                $variableUsed = str_replace('.', '->', $value->variable_used);
+                $dataChildBody[$indexChild]['variable'] = $variableUsed;
+                $dataChildBody[$indexChild]['data'] = $this->groupDataByProperties($body, [$value->variable]);
+                $indexChild++;
+            }
+            foreach ($dataMachine as $key => $value) {
+                $jumlahColumn = 1;
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
+                if ($groupingOption == 'WORKER') {
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value[$nameVariable . '_eid']);
+                }
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value[$nameVariable . '_name']);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value['item_name']);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value['unit_name']);
+                for ($i = 0; $i < count($dataChildBody); $i++) {
+                    $indexCriteria = 0;
+                    if (count($dataChildBody) > 1) {
+                        for ($j = 0; $j < count($dataChildBody[0]['data']); $j++) {
+                            for ($k = 0; $k < count($dataChildBody[1]['data']); $k++) {
+                                $criteria[$indexCriteria]['item->id'] = $value['item_id'];
+                                $criteria[$indexCriteria][$nameVariable . '->id'] = $value[$nameVariable . '_id'];
+                                $criteria[$indexCriteria][$dataChildBody[0]['variable']] = $dataChildBody[0]['data'][$j][0];
+                                $criteria[$indexCriteria][$dataChildBody[1]['variable']] = $dataChildBody[1]['data'][$k][0];
+                                $indexCriteria++;
+                            }
+                        }
+                    } else {
+                        for ($j = 0; $j < count($dataChildBody[0]['data']); $j++) {
+                            $criteria[$indexCriteria]['item->id'] = $value['item_id'];
+                            $criteria[$indexCriteria][$nameVariable . '->id'] = $value[$nameVariable . '_id'];
+                            $criteria[$indexCriteria][$dataChildBody[0]['variable']] = $dataChildBody[0]['data'][$j][0];
+                            $criteria[$indexCriteria][$dataChildBody[0]['variable']] = $dataChildBody[0]['data'][$j][0];
+                            $indexCriteria++;
+                        }
+                    }
+                }
+                foreach ($criteria as $k => $v) {
+                    $qty = $this->findQty($body, $v);
+                    if (!$qty) {
+                        $qty['qty_goods'] = '-';
+                        $qty['qty_reject'] = '-';
+                        $qty['qty_waste'] = '-';
+                    }
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $qty['qty_goods']);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $qty['qty_waste']);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $qty['qty_reject']);
+                }
+                $jumlahRow++;
+            }
+        }
+        // exit;
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'REPORT PRODUCTION WORKER ' . $epoch;
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
+    public function reportPersonEarn()
+    {
+        $data['title'] = 'Report Person Earn';
+        $this->template->views('report/reportPersonEarn', $data);
+    }
+    public function excelPersonEarn()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $date_start = date('Y-m-d', strtotime($explodedParams[1]));
+        $date_end = date('Y-m-d', strtotime($explodedParams[2]));
+        $machineId = $explodedParams[3];
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonEarn?dateStart=' . $date_start . '&dateEnd=' . $date_end . '&machineId=' . $machineId)))->data->reportResultPersonEarn;
+        $huruf = range('A', 'Z');
+        $extension = 'xlsx';
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->mergeCells('A1:A2')->setCellValue('A1', 'No');
+        $sheet->mergeCells('B1:B2')->setCellValue('B1', 'EID');
+        $sheet->mergeCells('C1:C2')->setCellValue('C1', 'Nama');
+        $sheet->mergeCells('D1:D2')->setCellValue('D1', 'No. Meja');
+        $jumlahColumn = 5;
+        $jumlahColumn2 = 5;
+        $keys = array_map(function ($item) {
+            return key($item);
+        }, $body[0]->data);
+        for ($i = 0; $i < count($keys); $i++) {
+            $startColumn = $jumlahColumn;
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($startColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 2) . '1')->setCellValue(Coordinate::stringFromColumnIndex($startColumn) . '1', $keys[$i]);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'QTY');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Earn');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total Setor');
+            $jumlahColumn++;
+        }
+        $jumlahRow = 3;
+        $jumlahColumn = 1;
+        $no = 1;
+        foreach ($body as $key => $value) {
+            $jumlahColumn = 1;
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->eid);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->name);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->row_code);
+            // print_r($value->data);
+            foreach ($value->data as $item) {
+                $dateKey = key((array)$item);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->qty);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->earn);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_deliv);
+            }
+            $jumlahRow++;
+        }
+
+        // exit;
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'REPORT PRODUCTION WORKER ' . $epoch;
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
+    public function reportIncomplete()
+    {
+        $data['title'] = 'Report Incomplete Data';
+        $this->template->views('report/reportIncompleteData', $data);
+    }
+    public function reportProductionDaily()
+    {
+        $data['title'] = 'Report Production Daily';
+        $this->template->views('report/reportProductionDaily', $data);
+    }
+    public function reportDailySKT()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $date = date('Y-m-d', strtotime($explodedParams[1]));
+        $machineId = $explodedParams[2];
+        $rowCode = $explodedParams[3];
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $date . '&machineId=' . $machineId . '&rowCode=' . $rowCode)))->data->reportResultPersonDaily;
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->mergeCells('A1:A2')->setCellValue('A1', 'No');
+        $sheet->mergeCells('B1:B2')->setCellValue('B1', 'EID');
+        $sheet->mergeCells('C1:C2')->setCellValue('C1', 'Nama');
+        $sheet->mergeCells('D1:D2')->setCellValue('D1', 'Group');
+        $keys = array_map(function ($item) {
+            return key($item);
+        }, $body[0]->data);
+        $jumlahColumn = 5;
+        $jumlahColumn2 = 5;
+        for ($i = 0; $i < count($keys); $i++) {
+            $startColumn = $jumlahColumn;
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($startColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 1) . '1')->setCellValue(Coordinate::stringFromColumnIndex($startColumn) . '1', 'Setoran ' . $keys[$i]);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Jumlah Setoran');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Jam');
+            $jumlahColumn++;
+        }
+        $jumlahRow = 3;
+        $jumlahColumn = 1;
+        $no = 1;
+        foreach ($body as $key => $value) {
+            $jumlahColumn = 1;
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->eid);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->name);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->row_code);
+            // print_r($value->data);
+            foreach ($value->data as $item) {
+                $dateKey = key((array)$item);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_good);
+                $time = '';
+                if ($item->{$dateKey}->time) {
+                    $time = date("H:i", strtotime($item->{$dateKey}->time[0]));
+                }
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $time);
+            }
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->total_good);
+            $jumlahRow++;
+        }
+        $jumlahColumn = $jumlahColumn - 1;
+        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '2')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . '1', 'Total');
+        // exit;
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'REPORT PRODUCTION DAILY ' . $epoch;
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
+    public function reportDailySKTPdf()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['date'] = date('Y-m-d', strtotime($explodedParams[1]));
+        $data['machineId'] = $explodedParams[2];
+        $data['rowCode'] = $explodedParams[3];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $data['date'] . '&machineId=' . $data['machineId'] . '&rowCode=' . $data['rowCode'])))->data;
+        // $this->load->view('report/cetakReportDailySKT', $data);
+        $html = $this->load->view('report/cetakReportDailySKT', $data, true);
+        $this->pdf->setPaper('A4', 'landscape');
+        $this->pdf->filename = "REPORT PRODUCTION DAILY.pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream('REPORT PRODUCTION DAILY', array("Attachment" => 0));
+    }
 }

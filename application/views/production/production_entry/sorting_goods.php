@@ -381,27 +381,7 @@
 </div>
 <div class="fixed-top" style="z-index: 999999999;">
     <div class="bg-danger text-white small p-3 text-center" style="width: 350px;" id="offlineModePane" hidden>
-        <i class="fa fa-wifi me-2"></i>Offline Mode<span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2" onclick="simpanOfflineMode()"><i class="fa fa-save me-1"></i>Send All</button></span>
-    </div>
-</div>
-<div aria-live="polite" aria-atomic="true" class="position-relative">
-    <!-- Position it: -->
-    <!-- - `.toast-container` for spacing between toasts -->
-    <!-- - `.position-absolute`, `top-0` & `end-0` to position the toasts in the upper right corner -->
-    <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
-    <div class="toast-container position-absolute bottom-0 end-0 p-3" style="z-index: 9999999999999999">
-
-        <!-- Then put toasts within -->
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toast">
-            <div class="toast-header">
-                <strong class="me-auto">Berhasil</strong>
-                <small class="text-muted">Just Now</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                Refresh Data Berhasil !
-            </div>
-        </div>
+        <i class="fa fa-wifi me-2"></i>Offline Mode<span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><span id="" class="ms-2 btn btn-dark p-2" onclick="simpanOfflineMode()"><i class="fa fa-save me-1"></i>Send All</span></span>
     </div>
 </div>
 <div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
@@ -409,23 +389,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script src="<?= base_url(); ?>assets/html5-qrcode.min.js"></script>
 <script>
-    function measureSpeed() {
-        var startTime, endTime;
-        var download = new Image();
-        download.onload = function() {
-            endTime = (new Date()).getTime();
-            var duration = (endTime - startTime) / 1000; // in seconds
-            var speed = (2.5 / duration).toFixed(2); // Assuming 2.5 MB file size
-
-            // Tampilkan kecepatan koneksi
-            $('#speed').text(speed + ' Mbps');
-        }
-
-        // Mulai waktu pengukuran
-        startTime = (new Date()).getTime();
-        var cacheBuster = '?t=' + startTime;
-        download.src = 'https://example.com/test-file.jpg' + cacheBuster;
-    }
     // Fungsi yang akan dipanggil ketika koneksi terputus
     function handleConnectionLost() {
         console.log("Koneksi terputus. Melakukan sesuatu...");
@@ -443,37 +406,36 @@
     }
 
     // Menambahkan event listener untuk event offline
-    window.addEventListener('offline', handleConnectionLost);
-
+    // window.addEventListener('offline', handleConnectionLost);
     // Memeriksa status koneksi setiap 60 detik (sesuaikan sesuai kebutuhan)
-
+    // setInterval(checkConnectionStatus, 60000);
     JSPM.JSPrintManager.auto_reconnect = true;
     JSPM.JSPrintManager.start();
 
-    function createCodeId(worker_id = '') {
-        var date = (new Date).getTime()
-        // var day = date.getDate();
-        // var month = date.getMonth() + 1;
-        // var year = date.getFullYear();
-        // var jam = date.getHours();
-        // var menit = date.getMinutes();
-        // var detik = date.getSeconds();
-        // if (detik < 10) {
-        //     detik = "0" + detik;
-        // }
-        // if (menit < 10) {
-        //     menit = "0" + menit;
-        // }
-        // if (jam < 10) {
-        //     jam = "0" + jam;
-        // }
-        // if (day < 10) {
-        //     day = "0" + day;
-        // }
-        // if (month < 10) {
-        //     month = "0" + month;
-        // }
-        // var date = year + "" + month + "" + day + '' + jam + "" + menit + "" + detik;
+    function createCodeId() {
+        var date = new Date();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        var jam = date.getHours();
+        var menit = date.getMinutes();
+        var detik = date.getSeconds();
+        if (detik < 10) {
+            detik = "0" + detik;
+        }
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        if (day < 10) {
+            day = "0" + day;
+        }
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var date = year + "" + month + "" + day + '' + jam + "" + menit + "" + detik;
         return date;
     }
 
@@ -601,18 +563,6 @@
         return data.sort((a, b) => (b[prop] > a[prop]) ? 1 : ((a[prop] > b[prop]) ? -1 : 0));
     }
 
-    function findHighestNumber(data) {
-        let highestNumber = 0;
-
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].number > highestNumber) {
-                highestNumber = data[i].number;
-            }
-        }
-
-        return highestNumber;
-    }
-
     function findNumberofSetoran(worker_id) {
         var data = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.id == worker_id) return true
@@ -623,15 +573,6 @@
         } else {
             numSetoran = 0
         }
-        if (variableSaveOffline.resultProductPerson.length) {
-            var dataOffline = variableSaveOffline.resultProductPerson.filter((v, k) => {
-                if (v.employee_id == worker_id) return true
-            })
-            if (dataOffline.length) {
-                numSetoran = findHighestNumber(dataOffline)
-            }
-        }
-
         return numSetoran
     }
 
@@ -689,6 +630,8 @@
         resultProductPerson: [],
         deletedId: []
     }
+    var manuallyInsertStatus = ''
+    var manuallyInsertSId = null
     var firstAddedResultProductPersonId = ''
     var accessMenu = {
         deliver_goods: [{
@@ -724,15 +667,16 @@
         var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
         getData(data, url)
     }
-    setInterval(loadDataPeriodic, 60000);
 
     function getData(data, url) {
+        showOverlay('show')
         $.ajax({
             url: url,
             method: "GET",
             dataType: 'JSON',
             data: data,
             error: function(xhr) {
+                showOverlay('hide')
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -805,25 +749,6 @@
 
     function workerProgress() {
         $('#totalWorker').html(dataEntry.productionDelivery.length)
-        $('#workerProgress').html(formWorkerProgress())
-        if (stillOpenModal) {
-            if (!JustOnCamAfterAdd) {
-                if (materialIdClicked) {
-                    newMaterial(workerIdClicked)
-                } else {
-                    modalWorkProgress()
-                }
-            } else {
-                JustOnCamAfterAdd = false
-                // nanti buka kamera disini
-                firstAddedResultProductPersonId = ''
-                scannerQR()
-            }
-            detailWorker(workerIdClicked)
-        }
-    }
-
-    function formWorkerProgress() {
         var html = ''
         dataEntry.productionDelivery.forEach(e => {
             html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
@@ -874,7 +799,22 @@
             html += '</div>'
             html += '</div>'
         });
-        return html
+        $('#workerProgress').html(html)
+        if (stillOpenModal) {
+            if (!JustOnCamAfterAdd) {
+                if (materialIdClicked) {
+                    newMaterial(workerIdClicked)
+                } else {
+                    modalWorkProgress()
+                }
+            } else {
+                JustOnCamAfterAdd = false
+                // nanti buka kamera disini
+                firstAddedResultProductPersonId = ''
+                scannerQR()
+            }
+            detailWorker(workerIdClicked)
+        }
     }
 
     function detailWorker(worker_id) {
@@ -1059,8 +999,12 @@
                 dataProducts = dataEntry.employee.find((v, k) => {
                     if (v.eid == arrayOfNumbers[0]) return true
                 })
-                dataProducts = dataProducts.id
-                createNewWorker(dataProducts)
+                if (dataProducts) {
+                    dataProducts = dataProducts.id
+                    createNewWorker(dataProducts)
+                } else {
+                    loadDataAfterAutoSave()
+                }
             } else {
                 dataProducts = dataProducts.employee_worker.id
                 workProgress(dataProducts)
@@ -1068,25 +1012,26 @@
         } else {
             scanned = false
             scanned2 = true
-            var dataProducts = dataEntry.productionDelivery.find((v, k) => {
-                if (v.employee_worker.id == arrayOfNumbers[0]) return true
-            })
+            // var dataProducts = dataEntry.productionDelivery.find((v, k) => {
+            //     if (v.employee_worker.id == arrayOfNumbers[0]) return true
+            // })
             setoranIdClicked = arrayOfNumbers[1]
             if (!afterScan) {
                 afterScan = true
-                if (offlineMode) {
-                    // jika offline
-                    afterScan = false
-                    workProgress(arrayOfNumbers[0])
-                } else {
-                    // jika online
-                    loadScanData(arrayOfNumbers[0])
-                }
+                // if (offlineMode) {
+                //     // jika offline
+                //     afterScan = false
+                //     workProgress(arrayOfNumbers[0])
+                // } else {
+                //     // jika online
+                loadScanData(arrayOfNumbers[0], arrayOfNumbers[1])
+                // }
             }
         }
     }
 
-    function loadScanData(worker_id) {
+    function loadScanData(worker_id, result_product_person_id_scanned) {
+        manuallyInsertSId = result_product_person_id_scanned
         showOverlay('show')
         $.ajax({
             url: "<?= api_produksi('getProductionDeliv'); ?>",
@@ -1106,64 +1051,108 @@
             beforeSend: function() {},
             success: function(response) {
                 showOverlay('hide')
-                var dataLoadProductionDeliv = response.data.productionDelivery
-                var findEntry = dataEntry.productionDelivery.filter((v, k) => {
-                    if (v.employee_worker.id == worker_id) return true
-                })
-                if (!findEntry.length) {
-                    findEntry.push(dataLoadProductionDeliv[0])
+                var currentDateLoad = response.data.productionDelivery[0].data[0].datetime
+                if (response.data) {
+                    if (formatDate(dataEntry.workPlanMachine.date) != formatDate(currentDateLoad)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Anda Salah Tanggal',
+                            text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad)
+                        });
+                        $('#codeQR').val('')
+                        afterScan = false
+                    } else {
+                        arrangeDataAfterLoadScanData(response, worker_id, result_product_person_id_scanned)
+                    }
                 } else {
-                    findEntry[0].data = dataLoadProductionDeliv[0].data
+                    Swal.fire({
+                        text: 'Data Belum Dikenal, Coba Scan Ulang?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadDataAfterAutoSave()
+                        }
+                    })
+                    // Swal.fire({
+                    //     text: 'Tidak Ada Data yang dibuat, Apakah buat setoran baru terlebih dahulu secara manual ?',
+                    //     icon: 'warning',
+                    //     showCancelButton: true,
+                    //     confirmButtonColor: '#3085d6',
+                    //     cancelButtonColor: '#d33',
+                    //     confirmButtonText: 'Ya',
+                    //     cancelButtonText: 'Batal',
+                    // }).then((result) => {
+                    //     if (result.isConfirmed) {
+                    //         manuallyInsertSetoran('DELIVERY', worker_id, result_product_person_id_scanned)
+                    //     }
+                    // })
                 }
-                dataDetailDelivery = []
-                dataMaterial = []
-                dataEntry.productionDelivery.forEach(e => {
-                    e.data.forEach(el => {
-                        dataDetailDelivery.push({
-                            'worker_id': e.employee_worker.id,
-                            'worker_name': e.employee_worker.name,
-                            'result_product_person_id': el.result_product_person_id,
-                            'number': el.number,
-                            'datetime': el.datetime,
-                            'item': el.item,
-                            'unit': el.unit,
-                            'delivery': el.delivery,
-                            'sortir': el.sortir,
-                            'fillup': el.fillup,
-                            'complete': el.complete,
-                        })
-                    });
-                })
-                dataEntry.productMaterial.forEach(e => {
-                    var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                        if (v.product.id == e.item_id) return true
-                    })
-                    e.material_group.forEach(el => {
-                        var itemDefault = el.items.find((v, k) => {
-                            if (v.item.id == el.item_id_default) return true
-                        })
-                        dataMaterial.push({
-                            work_plan_product_id: dataProducts.work_plan_product_id,
-                            item_id: e.item_id,
-                            item_name: e.name,
-                            item_code: e.code,
-                            item_name: e.name,
-                            material_group_id: el.material_group.id,
-                            material_group_name: el.material_group.name,
-                            material_id: itemDefault.item.id,
-                            material_code: itemDefault.item.code,
-                            material_alias: itemDefault.item.alias,
-                            material_name: itemDefault.item.name,
-                            unit_id: itemDefault.unit.id,
-                            unit_name: itemDefault.unit.name,
-                        })
-                    })
-                })
-                afterScan = false
-                workProgress(worker_id)
-                workerProgress()
+                // workerProgress()
             }
         })
+    }
+
+    function arrangeDataAfterLoadScanData(response, worker_id, result_product_person_id_scanned) {
+        var dataLoadProductionDeliv = response.data.productionDelivery
+        var findEntry = dataEntry.productionDelivery.filter((v, k) => {
+            if (v.employee_worker.id == worker_id) return true
+        })
+        if (!findEntry.length) {
+            findEntry.push(dataLoadProductionDeliv[0])
+        } else {
+            findEntry[0].data = dataLoadProductionDeliv[0].data
+        }
+        dataDetailDelivery = []
+        dataMaterial = []
+        dataEntry.productionDelivery.forEach(e => {
+            e.data.forEach(el => {
+                dataDetailDelivery.push({
+                    'worker_id': e.employee_worker.id,
+                    'worker_name': e.employee_worker.name,
+                    'result_product_person_id': el.result_product_person_id,
+                    'number': el.number,
+                    'datetime': el.datetime,
+                    'item': el.item,
+                    'unit': el.unit,
+                    'delivery': el.delivery,
+                    'sortir': el.sortir,
+                    'fillup': el.fillup,
+                    'complete': el.complete,
+                })
+            });
+        })
+        dataEntry.productMaterial.forEach(e => {
+            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                if (v.product.id == e.item_id) return true
+            })
+            e.material_group.forEach(el => {
+                var itemDefault = el.items.find((v, k) => {
+                    if (v.item.id == el.item_id_default) return true
+                })
+                dataMaterial.push({
+                    work_plan_product_id: dataProducts.work_plan_product_id,
+                    item_id: e.item_id,
+                    item_name: e.name,
+                    item_code: e.code,
+                    item_name: e.name,
+                    material_group_id: el.material_group.id,
+                    material_group_name: el.material_group.name,
+                    material_id: itemDefault.item.id,
+                    material_code: itemDefault.item.code,
+                    material_alias: itemDefault.item.alias,
+                    material_name: itemDefault.item.name,
+                    unit_id: itemDefault.unit.id,
+                    unit_name: itemDefault.unit.name,
+                })
+            })
+        })
+        afterScan = false
+        workProgress(worker_id)
     }
 
     function createNewWorker(id) {
@@ -1194,7 +1183,113 @@
         }
         newSetoranBar = 1
         // detailWorker(worker_id)
-        modalWorkProgress()
+        var data = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.id == workerIdClicked) return true
+        })
+        // console.log(data)
+        if (data) {
+            modalWorkProgress()
+        } else {
+            Swal.fire({
+                text: 'Data Belum Dikenal, Coba Scan Ulang?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Batal',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    loadDataAfterAutoSave()
+                }
+            })
+            // Swal.fire({
+            //     icon: 'error',
+            //     title: 'Tidak Ada Data',
+            //     text: 'Tidak Ada Data yang dibuat, buat setoran baru terlebih dahulu'
+            // });
+        }
+    }
+
+    function loadDataAfterAutoSave() {
+        var data = {
+            workPlanMachineId: workPlanMachineId,
+        }
+        var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
+        getDataAfterAutoSave(data, url)
+    }
+
+    function getDataAfterAutoSave(data, url) {
+        showOverlay('show')
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {},
+            success: function(response) {
+                showOverlay('hide')
+                dataEntry = response.data
+                $('#codeQR').val('')
+                arrangeVariableAutoSave()
+            }
+        })
+    }
+
+    function arrangeVariableAutoSave() {
+        dataDetailDelivery = []
+        dataMaterial = []
+        dataEntry.productionDelivery.forEach(e => {
+            e.data.forEach(el => {
+                dataDetailDelivery.push({
+                    'worker_id': e.employee_worker.id,
+                    'worker_name': e.employee_worker.name,
+                    'result_product_person_id': el.result_product_person_id,
+                    'number': el.number,
+                    'datetime': el.datetime,
+                    'item': el.item,
+                    'unit': el.unit,
+                    'delivery': el.delivery,
+                    'sortir': el.sortir,
+                    'fillup': el.fillup,
+                    'complete': el.complete,
+                })
+            });
+        })
+        dataEntry.productMaterial.forEach(e => {
+            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                if (v.product.id == e.item_id) return true
+            })
+            e.material_group.forEach(el => {
+                var itemDefault = el.items.find((v, k) => {
+                    if (v.item.id == el.item_id_default) return true
+                })
+                dataMaterial.push({
+                    work_plan_product_id: dataProducts.work_plan_product_id,
+                    item_id: e.item_id,
+                    item_name: e.name,
+                    item_code: e.code,
+                    item_name: e.name,
+                    material_group_id: el.material_group.id,
+                    material_group_name: el.material_group.name,
+                    material_id: itemDefault.item.id,
+                    material_code: itemDefault.item.code,
+                    material_alias: itemDefault.item.alias,
+                    material_name: itemDefault.item.name,
+                    unit_id: itemDefault.unit.id,
+                    unit_name: itemDefault.unit.name,
+                })
+            })
+        })
+        afterScan = false
     }
 
     function modalWorkProgress() {
@@ -1202,6 +1297,7 @@
         var data = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.id == workerIdClicked) return true
         })
+
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
@@ -1253,13 +1349,14 @@
         html_body += '<div class="">'
         sortArrayOfObjectsDescending(data.data, 'number').forEach(e => {
             var dataDelivery = findStatus(e.result_product_person_id)
+            // console.log(dataDelivery)
             var bgColor = ''
             var deleteButton = ''
             var qty = dataDelivery.qty.good
             var icon = ''
-            // if (dataDelivery.status == 'DELIVERY') {
-            deleteButton = deleteAndCloseButton('setoran', data.employee_worker.id, e.result_product_person_id)
-            // }
+            if (a == 0 && dataDelivery.status == 'DELIVER') {
+                deleteButton = deleteAndCloseButton('setoran', data.employee_worker.id, e.result_product_person_id)
+            }
             if (dataDelivery.status == 'COMPLETE') {
                 bgColor = 'bg-light-success'
                 icon = '<span class="fa fa-check fa-1x text-success"></span>'
@@ -1300,6 +1397,9 @@
         }
         if (scanned) {
             setoranBaru(data.employee_worker.id)
+        }
+        if (manuallyInsertStatus) {
+            setoranBaru(workerIdClicked)
         }
     }
 
@@ -1647,7 +1747,7 @@
             },
             "datetime": currentDateTime(),
             "work_plan_product_id": dataMaterials.work_plan_product_id,
-            "remaining_material_person_id": createCodeId(worker_id)
+            "remaining_material_person_id": createCodeId()
         }
         var dataAll = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.id == worker_id) return true
@@ -1827,7 +1927,7 @@
         html += '<div class="col-12 text-end pt-3">'
         // html += '<button class="btn btn-outline-primary btn-sm me-1" onclick="AddedResultProductPersonId(),arrangeVariableInsert()" tabindex="4">Simpan</button>'
         // if (!edit) {
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertWithNextPerson()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="AddedResultProductPersonId(),insertWithNextPerson()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
         // }
         html += '</div>'
         // sesi input
@@ -1835,18 +1935,14 @@
         $('#formEntryData').html(html)
         // $('#modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            if (auto500) {
-                $('#jumlahBad').focus();
-            } else {
-                $('#jumlahGood').focus();
-            }
+            $('#jumlahGood').focus();
         }, 100);
         // })
         $('.nominal').on('keypress', handleNumericInput);
         $('.form-delivery').on('keypress', function(event) {
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
-                // AddedResultProductPersonId()
+                AddedResultProductPersonId()
                 insertWithNextPerson()
             }
         });
@@ -1981,14 +2077,42 @@
                 cancelButtonText: 'Batal',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    JustOnCamAfterAdd = true
-                    arrangeVariableInsert(1)
+                    // JustOnCamAfterAdd = true
+                    // arrangeVariableInsert(1)
+                    beforeSaveFilteredSortir(1)
                 }
             })
         } else {
-            JustOnCamAfterAdd = true
-            arrangeVariableInsert()
+            // JustOnCamAfterAdd = true
+            // arrangeVariableInsert()
+            beforeSaveFilteredSortir()
         }
+    }
+
+    function beforeSaveFilteredSortir(autoComplete = null) {
+        if (checkNotLong('form-sortir')) {
+            JustOnCamAfterAdd = true
+            arrangeVariableInsert(autoComplete)
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Terlalu Panjang',
+                text: 'Data yang dimasukkan Terlalu Panjang'
+            });
+        }
+    }
+
+    function checkNotLong(kelas) {
+        var value = $('.' + kelas).map(function() {
+            return $(this).val();
+        }).get();
+        var stillNormal = true
+        for (let i = 0; i < value.length; i++) {
+            if (value[i].length > 9) {
+                stillNormal = false
+            }
+        }
+        return stillNormal
     }
 
     function formFILLUP(id = null, edit = false) {
@@ -2095,8 +2219,16 @@
 
     function insertFillup() {
         if (checkNotEmpty('form-fillup')) {
-            JustOnCamAfterAdd = true
-            arrangeVariableInsert()
+            if (checkNotLong('form-fillup')) {
+                JustOnCamAfterAdd = true
+                arrangeVariableInsert()
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terlalu Panjang',
+                    text: 'Data yang dimasukkan Terlalu Panjang'
+                });
+            }
         } else {
             Swal.fire({
                 icon: 'error',
@@ -2204,7 +2336,11 @@
         if (check) {
             eval(`form${dataStatus.nextStatus}(dataDetail.result_product_person_id,edit)`)
         } else {
-            $('#formEntryData').html(emptyReturn('Anda Tidak Memiliki Akses'))
+            if (manuallyInsertStatus) {
+                eval(`form${dataStatus.nextStatus}(dataDetail.result_product_person_id,edit)`)
+            } else {
+                $('#formEntryData').html(emptyReturn('Anda Tidak Memiliki Akses'))
+            }
         }
     }
 
@@ -2212,7 +2348,11 @@
         dataSaveSetoran = {}
         var html = ''
         var numSetoran = findNumberofSetoran(worker_id)
-        var result_product_person_id = createCodeId(worker_id)
+        if (manuallyInsertSId) {
+            var result_product_person_id = manuallyInsertSId
+        } else {
+            var result_product_person_id = createCodeId()
+        }
         var dataStatus = findStatus(result_product_person_id)
         var e = {
             result_product_person_id: result_product_person_id,
@@ -2296,18 +2436,9 @@
     }
 
     function insertWithNextPerson() {
-        firstAddedResultProductPersonId = dataSaveSetoran.result_product_person_id
         if (checkNotEmpty('form-delivery')) {
-            if (checkNotLong('form-delivery')) {
-                JustOnCamAfterAdd = true
-                arrangeVariableInsert()
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Terlalu Panjang',
-                    text: 'Data yang dimasukkan Terlalu Panjang'
-                });
-            }
+            JustOnCamAfterAdd = true
+            arrangeVariableInsert()
         } else {
             Swal.fire({
                 icon: 'error',
@@ -2328,19 +2459,6 @@
             }
         }
         return stillEmpty
-    }
-
-    function checkNotLong(kelas) {
-        var value = $('.' + kelas).map(function() {
-            return $(this).val();
-        }).get();
-        var stillNormal = true
-        for (let i = 0; i < value.length; i++) {
-            if (value[i].length > 9) {
-                stillNormal = false
-            }
-        }
-        return stillNormal
     }
 
     function arrangeVariableInsert(autoComplete = null) {
@@ -2423,10 +2541,10 @@
             // mode online
             simpanData(data)
         }
+        // console.log(data)
     }
 
     function simpanVariableOffline(data, dataDelivery) {
-        $('#textAutoSave').html('')
         var dataEmployee = dataEntry.employee.find((v, k) => {
             if (v.id == data.resultProductPerson.employee_id) return true
         })
@@ -2505,12 +2623,11 @@
     function simpanOfflineMode() {
         firstAddedResultProductPersonId = ''
         var type = 'POST'
-        var button = '#btnSimpanOffline'
+        var button = '#btnSimpan'
+
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
         var data = variableSaveOffline
-        if (variableSaveOffline.resultProductPerson.length) {
-            kelolaDataSaveAuto(data, type, url, button)
-        }
+        kelolaData(data, type, url, button)
     }
 
     function simpanData(data) {
@@ -2549,6 +2666,9 @@
                 $(button).prop("disabled", false);
                 // $('#modal').modal('hide')
                 $('#btnNewSetoran').removeAttr('hidden', true)
+                if (offlineMode) {
+                    buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
+                }
                 loadAfterSave()
             }
         });
@@ -2556,20 +2676,15 @@
 
     function loadAfterSave() {
         scanned = false
+        manuallyInsertStatus = ''
+        manuallyInsertSId = null
         dataSaveMaterial = {
             remainingMaterialPerson: [],
             deletedId: {
                 remainingMaterialPerson: []
             }
         }
-        variableSaveOffline = {
-            resultProductPerson: [],
-            deletedId: []
-        }
         materialIdClicked = false
-        if (offlineMode) {
-            buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
-        }
         loadData()
     }
     // search multi
@@ -2844,7 +2959,7 @@
         $('#modal').modal('show')
         $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-centered');
         var html_header = '';
-        html_header += '<h5 class="modal-title">QR Scan</h5>';
+        html_header += '<h5 class="modal-title">QR Scan | ' + formatDateIndonesia(dataEntry.workPlanMachine.date) + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
@@ -2877,12 +2992,20 @@
             }
         });
     }
+    // $(document).on('keypress', '#codeQR', function(e) {
+    //     if (e.keyCode === 13) {
+    //         changeScanner()
+    //     }
+    // })
+
     var scannedId = ''
 
     function changeScanner() {
         if ($('#codeQR').val()) {
             scannedId = $('#codeQR').val()
+            // setTimeout(function() {
             checkWorkerId(scannedId)
+            // }, 10);
         }
     }
 
@@ -2913,13 +3036,11 @@
     function noConnection() {
         offlineMode = true
         $('#offlineModePane').prop("hidden", false);
-        setIntervalOfflineMode()
     }
 
     function yesConnection() {
         offlineMode = false
         $('#offlineModePane').prop("hidden", true);
-        setIntervalOfflineMode()
     }
 
     // Panggil fungsi saat halaman dimuat atau pada suatu peristiwa
@@ -2928,227 +3049,9 @@
             event.returnValue = "Data Offline Mode masih belum di Upload";
         }
     });
-    var intervalId
 
-    function setIntervalOfflineMode() {
-        if (!offlineMode) {
-            clearInterval(intervalId);
-        } else {
-            // tiap satu menit
-            intervalId = setInterval(autoSaveAtOfflineMode, 30 * 1000);
-        }
-    }
-
-    function deepCopy(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    }
-
-    function autoSaveAtOfflineMode() {
-        var type = 'POST'
-        var button = '#btnSimpanOffline'
-        var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
-        var data = deepCopy(variableSaveOffline)
-        if (variableSaveOffline.resultProductPerson.length) {
-            kelolaDataSaveAuto(data, type, url, button)
-        }
-    }
-
-    function kelolaDataSaveAuto(data, type, url, button) {
-        $.ajax({
-            url: url,
-            type: type,
-            data: data,
-            error: function(xhr) {
-                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
-            },
-            beforeSend: function() {
-                $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
-            },
-            success: function(response) {
-                // variableSaveOffline = {
-                //     resultProductPerson: [],
-                //     deletedId: []
-                // }
-                // Buat salinan data agar data asli tidak berubah
-                var dataToDelete = deepCopy(data.resultProductPerson)
-                let newData = deepCopy(variableSaveOffline.resultProductPerson).slice();
-                // Loop melalui setiap elemen di dataToDelete dan hapus dari newData
-                dataToDelete.forEach(itemToDelete => {
-                    newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
-                });
-                variableSaveOffline.resultProductPerson = newData
-                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
-                $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
-                buttonSaveOfflineMode([])
-                loadDataAfterAutoSave()
-            }
-        });
-    }
-
-    function loadDataAfterAutoSave() {
-        var data = {
-            workPlanMachineId: workPlanMachineId,
-        }
-        var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
-        getDataAfterAutoSave(data, url)
-    }
-
-    function getDataAfterAutoSave(data, url) {
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: 'JSON',
-            data: data,
-            error: function(xhr) {
-                $('#textAutoSave').html('<span class="ms-2 super-small-text">Gagal Memuat Data, Refresh Data</span>')
-            },
-            beforeSend: function() {
-                $('#textAutoSave').html('<span class="ms-2 super-small-text">Memuat Data...</span>')
-            },
-            success: function(response) {
-                $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
-                dataEntry = response.data
-                arrangeVariableAutoSave()
-            }
-        })
-    }
-
-    function arrangeVariableAutoSave() {
-        dataDetailDelivery = []
-        dataMaterial = []
-        dataEntry.productionDelivery.forEach(e => {
-            e.data.forEach(el => {
-                dataDetailDelivery.push({
-                    'worker_id': e.employee_worker.id,
-                    'worker_name': e.employee_worker.name,
-                    'result_product_person_id': el.result_product_person_id,
-                    'number': el.number,
-                    'datetime': el.datetime,
-                    'item': el.item,
-                    'unit': el.unit,
-                    'delivery': el.delivery,
-                    'sortir': el.sortir,
-                    'fillup': el.fillup,
-                    'complete': el.complete,
-                })
-            });
-        })
-        dataEntry.productMaterial.forEach(e => {
-            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                if (v.product.id == e.item_id) return true
-            })
-            e.material_group.forEach(el => {
-                var itemDefault = el.items.find((v, k) => {
-                    if (v.item.id == el.item_id_default) return true
-                })
-                dataMaterial.push({
-                    work_plan_product_id: dataProducts.work_plan_product_id,
-                    item_id: e.item_id,
-                    item_name: e.name,
-                    item_code: e.code,
-                    item_name: e.name,
-                    material_group_id: el.material_group.id,
-                    material_group_name: el.material_group.name,
-                    material_id: itemDefault.item.id,
-                    material_code: itemDefault.item.code,
-                    material_alias: itemDefault.item.alias,
-                    material_name: itemDefault.item.name,
-                    unit_id: itemDefault.unit.id,
-                    unit_name: itemDefault.unit.name,
-                })
-            })
-        })
-    }
-
-    function loadDataPeriodic() {
-        var data = {
-            workPlanMachineId: workPlanMachineId,
-        }
-        var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
-        getDataPeriodic(data, url)
-    }
-
-    function getDataPeriodic(data, url) {
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: 'JSON',
-            data: data,
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
-            },
-            beforeSend: function() {
-                // $('#workerProgress').html(loadingDataReturn())
-            },
-            success: function(response) {
-                showSuccessToast()
-                $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
-                dataEntry = response.data
-                arrangeVariablePeriodic()
-            }
-        })
-    }
-
-    function showSuccessToast() {
-        var successToast = new bootstrap.Toast(document.getElementById('toast'));
-        successToast.show();
-
-        // Menutup toast secara otomatis setelah 3 detik (sesuaikan dengan kebutuhan)
-        setTimeout(function() {
-            successToast.hide();
-        }, 3000);
-    }
-
-    function arrangeVariablePeriodic() {
-        dataDetailDelivery = []
-        dataMaterial = []
-        dataEntry.productionDelivery.forEach(e => {
-            e.data.forEach(el => {
-                dataDetailDelivery.push({
-                    'worker_id': e.employee_worker.id,
-                    'worker_name': e.employee_worker.name,
-                    'result_product_person_id': el.result_product_person_id,
-                    'number': el.number,
-                    'datetime': el.datetime,
-                    'item': el.item,
-                    'unit': el.unit,
-                    'delivery': el.delivery,
-                    'sortir': el.sortir,
-                    'fillup': el.fillup,
-                    'complete': el.complete,
-                })
-            });
-        })
-        dataEntry.productMaterial.forEach(e => {
-            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                if (v.product.id == e.item_id) return true
-            })
-            e.material_group.forEach(el => {
-                var itemDefault = el.items.find((v, k) => {
-                    if (v.item.id == el.item_id_default) return true
-                })
-                dataMaterial.push({
-                    work_plan_product_id: dataProducts.work_plan_product_id,
-                    item_id: e.item_id,
-                    item_name: e.name,
-                    item_code: e.code,
-                    item_name: e.name,
-                    material_group_id: el.material_group.id,
-                    material_group_name: el.material_group.name,
-                    material_id: itemDefault.item.id,
-                    material_code: itemDefault.item.code,
-                    material_alias: itemDefault.item.alias,
-                    material_name: itemDefault.item.name,
-                    unit_id: itemDefault.unit.id,
-                    unit_name: itemDefault.unit.name,
-                })
-            })
-        })
-        $('#totalWorker').html(dataEntry.productionDelivery.length)
-        $('#workerProgress').html(formWorkerProgress())
+    function manuallyInsertSetoran(status, worker_id, result_product_person_id_scanned = null) {
+        manuallyInsertStatus = status
+        createNewWorker(worker_id)
     }
 </script>

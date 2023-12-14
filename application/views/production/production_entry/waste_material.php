@@ -308,7 +308,11 @@
                     var id = b.waste_material_compute.id
                     note = b.waste_material_compute.note
                     qty = b.waste_material_compute.qty
+                    console.log(b.waste_material_compute.waste_materials)
+                    console.log(b.waste_group_details)
                     var datas = cariDataTidakAda(b.waste_material_compute.waste_materials, b.waste_group_details)
+                    console.log('-------------------------------')
+                    // console.log(datas)
                     data_unknown_material.push({
                         id: id,
                         unknown_data: datas
@@ -477,9 +481,12 @@
             html += '<div class="row m-0">'
             html += '<div class="col-7 border-end">'
             html += '<div class="row p-4">'
-            html += '<div class="col-12">'
+            html += '<div class="col-6">'
             html += '<b class="m-0 h1">' + e.item_product.alias + '</b>'
             html += '<p class="m-0 small-text">' + e.item_product.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-6 align-self-center text-end">'
+            html += '<button class="btn btn-primary" id="btnSaveAll()" onclick="arrangeVariableInsert()"><i class="fa fa-save me-1"></i> Save All</button>'
             html += '</div>'
             html += '<div class="col">'
             html += '<div class="row mt-4">'
@@ -527,11 +534,20 @@
             html += '</div>'
         })
         $('#lisMaterial').html(html)
-        $('.nominal').number(true);
+        // $('.nominal').number(true);
         emptyText('#fillWaste', 'Pilih Card untuk Melihat Informasi')
         if (id_waste_group_clicked && id_waste_group_clicked) {
             inputWaste(id_product_clicked, id_waste_group_clicked)
         }
+    }
+
+    function ubahTandaKoma(input) {
+        // Mengecek apakah input mengandung tanda koma
+        if (input.includes(',')) {
+            // Mengganti tanda koma dengan titik
+            input = input.replace(',', '.');
+        }
+        return input;
     }
 
     function reset() {
@@ -543,7 +559,7 @@
         var statusText = false
         id_product_clicked = id
         id_waste_group_clicked = waste_group_id
-        var inputValue = $('#text-waste' + id + '' + waste_group_id).val()
+        var inputValue = parseFloat(ubahTandaKoma($('#text-waste' + id + '' + waste_group_id).val()))
         if (!inputValue) {
             inputValue = 0
         }
@@ -623,7 +639,7 @@
             html += '<div class="col-3 align-self-center text-end">'
             var totalQty = 0
             if (inputValue) {
-                totalQty = roundToTwo(parseInt(e.material_group_ratio) / parseInt(e.waste_group_ratio) * parseFloat(inputValue))
+                totalQty = roundToTwo(parseFloat(e.material_group_ratio) / parseFloat(e.waste_group_ratio) * parseFloat(inputValue))
             } else {
                 totalQty = 0
             }

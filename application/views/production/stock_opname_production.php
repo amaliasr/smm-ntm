@@ -1500,15 +1500,15 @@
                     html += '<td class="small-text align-middle sticky-col third-col text-center">' + el.item.code + '</td>'
                     html += '<td class="small-text align-middle sticky-col fourth-col text-center">' + el.machine.code + '</td>'
                     html += '<td class="small-text align-middle sticky-col fifth-col text-center">' + el.unit.name + '</td>'
-                    html += '<td class="small-text align-middle text-center">' + el.saldo_awal + '</td>'
+                    html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(el.saldo_awal)) + '</td>'
                     el.data.forEach(ele => {
-                        html += '<td class="small-text align-middle text-center">' + ele.in + '</td>'
-                        html += '<td class="small-text align-middle text-center">' + ele.out + '</td>'
-                        html += '<td class="small-text align-middle text-center">' + ele.nett + '</td>'
-                        html += '<td class="small-text align-middle text-center">' + ele.waste + '</td>'
-                        html += '<td class="small-text align-middle text-center">' + ele.gross + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(ele.in)) + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(ele.out)) + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(ele.nett)) + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(ele.waste)) + '</td>'
+                        html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(ele.gross)) + '</td>'
                     })
-                    html += '<td class="small-text align-middle text-center">' + el.saldo_akhir + '</td>'
+                    html += '<td class="small-text align-middle text-center">' + number_format(roundToTwo(el.saldo_akhir)) + '</td>'
                     html += '</tr>'
                 });
             });

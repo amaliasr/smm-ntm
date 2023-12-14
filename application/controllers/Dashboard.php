@@ -20,4 +20,9 @@ class Dashboard extends CI_Controller
 		$data['full_name'] = $this->full_name;
 		$this->template->views('index', $data);
 	}
+	public function account()
+	{
+		$data['title'] = 'Account';
+		$this->template->views('account', $data);
+	}
 }

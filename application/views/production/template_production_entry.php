@@ -944,7 +944,23 @@
                 </div>
                 <div class="col text-end align-self-center">
                     <!-- <button type="button" class="btn btn-outline-success shadow-none btn-sm shadow-none"><i class="fa fa-save me-2"></i>Save Draft</button> -->
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                    <?php if ($link == 'deliver_goods' || $link == 'sorting_goods') { ?>
+                        <!-- SKT -->
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                        <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="configurationPrinters()"><i class="fa fa-print me-2"></i>Config Printer</button> -->
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none small me-1" onclick="loadIncomplete('DATA')"><span class="badge rounded-pill bg-danger me-2" style="padding-top:1px;padding-bottom:1px;padding-left:5px;padding-right:5px;font-size:10px;" id="jumlahIncomplete">0</span>Incomplete Data
+                        </button>
+                        <div class="btn-group float-end">
+                            <button class="btn btn-outline-dark btn-sm dropdown-toggle shadow-none" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                More
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="formReportDailySKT()"><i class="fa fa-file-excel-o me-2"></i>Report Daily</a></li>
+                            </ul>
+                        </div>
+                    <?php } else { ?>
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                    <?php } ?>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
                 </div>
                 <div class="col-12 pt-3">
@@ -1046,6 +1062,11 @@
         return html
     }
 
+    function loadingDataReturn() {
+        var html = '<lottie-player src="<?= base_url() ?>assets/json/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>'
+        return html
+    }
+
     function cardAlert(text) {
         var html = ''
         html += '<div class="card shadow-none h-100" style="background-color:transparent;border: 1px dashed #cfcfcf;">'
@@ -1075,9 +1096,85 @@
 </script>
 <script>
     var workPlanMachineId = '<?= $workPlanMachineId ?>'
+    var link = '<?= $link ?>'
     $(document).ready(function() {
         loadDataTemplate()
+        if (link == 'deliver_goods' || link == 'sorting_goods') {
+            loadIncomplete()
+        }
     })
+
+    function loadIncomplete(dataOption = 'COUNT') {
+        var data = {
+            dateStart: currentDate(),
+            dateEnd: currentDate(),
+            dataProfile: 'ALL',
+            machineId: 15,
+            dataOption: dataOption,
+        }
+        var url = "<?= api_produksi('getReportIncompleteDeliv'); ?>"
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {},
+            beforeSend: function() {},
+            success: function(response) {
+                if (dataOption == 'COUNT') {
+                    var data = response.data.reportResultPerson
+                    if (data.length) {
+                        $('#jumlahIncomplete').removeClass('bg-light').addClass('bg-danger').html(data)
+                    } else {
+                        $('#jumlahIncomplete').addClass('bg-light').removeClass('bg-danger').html('0')
+                    }
+                } else {
+                    var url = "<?= base_url() ?>report/reportIncomplete"
+                    window.open(url);
+                    // var data = response.data.reportResultPerson
+                    // incompleteData(data)
+                }
+            }
+        })
+    }
+
+    function incompleteData(data) {
+        console.log(data)
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Incomplete Data</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12 p-5 pt-3 pb-3">'
+        html_body += '<div class="input-group">'
+        html_body += '<input class="form-control form-control-sm pe-0" type="text" autocomplete="off" placeholder="Cari Pekerja" aria-label="Search" id="search_planning">'
+        html_body += '<span class="input-group-text">'
+        html_body += '<i class="fa fa-search"></i>'
+        html_body += '</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12">'
+        html_body += '<hr class="m-0">'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 p-5 pt-3 pb-3">'
+        html_body += '<div class="card shadow-none mb-2">'
+        html_body += '<div class="card-body">'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0 overflow-hidden')
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+    }
 
     function loadDataTemplate() {
         var data = {
@@ -1086,6 +1183,27 @@
         }
         var url = "<?= api_produksi('loadPageProductionEntry'); ?>"
         getDataTemplate(data, url)
+    }
+    var dateMachine = ''
+    var dataTemplate
+    var hurufRowCode
+
+    function arrayToString(arr) {
+        var resultString = arr.join(',');
+        return resultString;
+    }
+
+    function convertRowCode(data) {
+        var row = []
+        data.forEach(e => {
+            for (let i = 0; i < e.codes.length; i++) {
+                if (e.codes[i]) {
+                    row.push(e.codes[i])
+                    // e.codes[i] = 'UNKNOWN'
+                }
+            }
+        });
+        return row.sort()
     }
 
     function getDataTemplate(data, url) {
@@ -1108,7 +1226,12 @@
             success: function(response) {
                 showOverlay('hide')
                 var data = response.data
+                dataTemplate = data
+                if (link == 'deliver_goods' || link == 'sorting_goods') {
+                    hurufRowCode = convertRowCode(dataTemplate.rowCodeProfile)
+                }
                 $('#date').html(formatDateIndonesia(data.workPlanMachine.date))
+                dateMachine = data.workPlanMachine.date
                 $('#shiftName').html(convertTimeFormat(data.workPlanMachine.shift.start) + ' - ' + convertTimeFormat(data.workPlanMachine.shift.end))
                 $('#machineName').html(data.workPlanMachine.machine.name)
                 if (data.workPlanMachine.shift.group_id == 1) {
@@ -1170,5 +1293,96 @@
         html += '</div>'
         $('#workingInformation').html(html)
         loadData()
+    }
+
+    function formReportDailySKT() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Download Report Daily - Option</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        var huruf = hurufRowCode
+        html_body += '<div class="row w-100 pb-5">'
+        html_body += '<div class="col-12">'
+        dataTemplate.rowCodeProfile.forEach(e => {
+            html_body += '<span class="badge rounded-pill me-2 bg-light text-dark p-2 pillKategori" style="cursor:pointer;1px solid black;" id="pillKategori' + e.id + '" onclick="chooseKategori(' + e.id + ')">' + e.name + '</span>'
+        });
+        html_body += '<span class="badge rounded-pill me-2 bg-light text-dark p-2 pillKategori" style="cursor:pointer;1px solid black;" id="pillKategori" onclick="chooseKategori()">Semua</span>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="row w-100">'
+
+        for (let i = 0; i < huruf.length; i++) {
+            html_body += '<div class="col-2">'
+            html_body += '<div class="card bg-info text-white shadow-none pointer card-hoper mb-2 cardMeja" data-huruf="' + huruf[i] + '" id="cardMeja' + huruf[i] + '" onclick="chooseMeja(' + "'" + huruf[i] + "'" + ')">'
+            html_body += '<div class="card-body text-center p-2">'
+            html_body += huruf[i]
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '<div class="col-4">'
+        html_body += '<div class="card bg-info text-white shadow-none pointer card-hoper mb-2 cardMeja" data-huruf="UNKNOWN" id="cardMejaUNKNOWN" onclick="chooseMeja(' + "'UNKNOWN'" + ')">'
+        html_body += '<div class="card-body text-center p-2">'
+        html_body += 'UNKNOWN'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="downloadReportDailySKT()">Simpan</button>'
+        $('#modalFooter').html(html_footer)
+        chooseKategori()
+    }
+
+    function chooseMeja(huruf) {
+        var meja = $('#cardMeja' + huruf).hasClass('bg-info')
+        if (meja) {
+            $('#cardMeja' + huruf).removeClass('bg-info text-white')
+        } else {
+            $('#cardMeja' + huruf).addClass('bg-info text-white')
+        }
+    }
+
+    function chooseKategori(id = '') {
+        $('.pillKategori').removeClass('bg-dark text-white')
+        $('#pillKategori' + id).addClass('bg-dark text-white')
+        $('.cardMeja').removeClass('bg-info text-white')
+        if (id) {
+            dataTemplate.rowCodeProfile.forEach(e => {
+                if (e.id == id) {
+                    for (let i = 0; i < e.codes.length; i++) {
+                        if (!e.codes[i]) {
+                            e.codes[i] = 'UNKNOWN'
+                        }
+                        $('#cardMeja' + e.codes[i]).addClass('bg-info text-white')
+                    }
+                }
+            })
+        } else {
+            dataTemplate.rowCodeProfile.forEach(e => {
+                for (let i = 0; i < e.codes.length; i++) {
+                    if (!e.codes[i]) {
+                        e.codes[i] = 'UNKNOWN'
+                    }
+                    $('#cardMeja' + e.codes[i]).addClass('bg-info text-white')
+                }
+            })
+        }
+    }
+
+    function downloadReportDailySKT() {
+        var url = "<?= base_url() ?>report/reportDailySKT"
+        var rowCode = arrayToString($('.cardMeja.bg-info').map(function() {
+            return $(this).data('huruf');
+        }).get())
+        var params = "*$" + dateMachine + "*$15" + "*$" + rowCode;
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

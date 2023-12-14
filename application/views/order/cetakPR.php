@@ -53,6 +53,16 @@
         .page_break {
             page-break-before: always;
         }
+
+        @page {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        body {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -84,7 +94,7 @@
     </table>
     <hr style="height:1px;border:none;color:#333;background-color:#333;margin-bottom:20px;" />
     <b style="text-align: center;font-size:12px;">PURCHASE REQUISITION</b>
-    <table style="width: 100%;margin-top:40px;">
+    <table style="width: 100%;margin-top:20px;">
         <tr>
             <td style="width: 50%;vertical-align: top;">
                 <table style="width: 100%;">
@@ -121,7 +131,7 @@
             </td>
         </tr>
     </table>
-    <table style="width:100%;margin-top:30px;margin-bottom:30px;" class="table_main">
+    <table style="width:100%;margin-top:10px;margin-bottom:20px;" class="table_main">
         <tr style="text-align: center">
             <th class="th_main" rowspan="2">NO</th>
             <th class="th_main" rowspan="2">DESCRIPTION</th>
@@ -155,8 +165,87 @@
         <tr style="vertical-align: top;">
             <td style="width: 50%;">
                 <div style="text-align: left;">
-                    <b style="margin-bottom: 10px;">JUSTIFICATION :</b>
-                    <div style="word-wrap: break-word;"><?= $datas->justification ?></div>
+                    <b style="margin-bottom: 5px;">JUSTIFICATION :</b>
+                    <?php if (!$datas->justification) {
+                        $datas->justification = '-';
+                    } ?>
+                    <p style="word-wrap: break-word;"><?= $datas->justification ?></p>
+                    <b style="margin-bottom: 10px;margin-top:30px;">APPROVAL :</b>
+                    <table style="width: 100%;margin-top:10px;">
+                        <tr style="vertical-align: top;">
+                            <?php $a = 0;
+                            foreach (json_decode($datas->data_approval) as $key => $value) {
+                            ?>
+                                <td>
+                                    <table style="width: 100%;">
+                                        <tr style="vertical-align: middle;">
+                                            <td rowspan="2" style="width:40px;text-align:left;padding:0px;margin:0px;">
+                                                <?php if ($value->is_accept == 'Accepted') {
+                                                    $images = base_url() . 'assets/image/logo/check.png';
+                                                ?>
+                                                    <!-- <span class="check-icon">&#xf00c;</span> -->
+
+                                                <?php } else if ($value->is_accept == 'Rejected') {
+                                                    $images = base_url() . 'assets/image/logo/times.png';
+                                                ?>
+                                                    <!-- <span class="times-icon">&#xf00d;</span> -->
+                                                <?php } else {
+                                                    $images = base_url() . 'assets/image/logo/clock.png';
+                                                ?>
+                                                    <!-- <span class="clock-icon">&#xf017;</span> -->
+                                                <?php } ?>
+                                                <?php
+                                                // Read image path, convert to base64 encoding
+                                                $imageDatas = base64_encode(file_get_contents($images));
+                                                // Format the image SRC:  data:{mime};base64,{data};
+                                                $srcs = 'data:image/png;base64,' . $imageDatas;
+                                                ?>
+                                                <img src="<?= $srcs ?>" style="width:50%;">
+                                            </td>
+                                            <td style="padding:0px;margin:0px;">
+                                                <b>
+                                                    <?php
+                                                    if ($a == 0) {
+                                                        echo 'Checked';
+                                                    } else {
+                                                        echo 'Approved';
+                                                    }
+                                                    ?>
+                                                </b>
+                                            </td>
+                                        </tr>
+                                        <tr style="vertical-align: middle;">
+                                            <td style="padding:0px;margin:0px;font-size:8px;">
+                                                <?php if ($value->is_accept == 'Accepted' || $value->is_accept == 'Rejected') { ?>
+                                                    <?php
+                                                    $namaArr = explode(' ', $value->user_name);
+
+                                                    if (count($namaArr) >= 2) {
+                                                        $duaKataDepan = $namaArr[0] . ' ' . $namaArr[1];
+                                                        echo $duaKataDepan;
+                                                    } else {
+                                                        echo $value->user_name;
+                                                    }
+                                                    ?>
+                                                    <br>
+                                                    <p style="margin: 0px;padding:0px;font-size:6px;"><?= date('d-m-Y H:i', strtotime($value->date_approval)) ?></p>
+                                                <?php } else { ?>
+                                                    <i style="font-size:10px;color:grey;">Belum Ada</i>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <br>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            <?php
+                                $a++;
+                            } ?>
+                        </tr>
+                    </table>
                 </div>
             </td>
             <td style="width: 50%;text-align:center;">

@@ -79,6 +79,10 @@
     .custom-popover {
         width: 200px !important;
     }
+
+    .bg-light-danger {
+        background-color: #fce7e5 !important;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="row">
@@ -216,7 +220,8 @@
         html += '<div class="col-1 fw-bolder"><span id="countMaterialAll">-</span> / <span id="totalMaterialAll">-</span></div>'
         html += '</div>'
         html += '<hr class="m-0">'
-        html += '<table class="table table-hover">'
+        html += '<div class="table-responsive" id="table-product-trend-wrapper">'
+        html += '<table class="table table-hover" style="width: 100%;">'
         html += '<thead>'
         html += '<tr>'
         html += '<th class="align-middle small-text">#</th>'
@@ -233,7 +238,9 @@
         html += '<tbody id="listMaterial">'
         html += '</tbody>'
         html += '</table>'
+        html += '</div>'
         $('#templateUsedMaterial').html(html)
+        draggableTables('table-product-trend-wrapper')
         listMaterial(status)
         timeProduction(status)
     }
@@ -262,10 +269,11 @@
     function inputSO(id, work_plan_product_id) {
         countCard = 0
         var material = getDataMaterial(id, work_plan_product_id)
+        // console.log(material)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
         var html_header = '';
-        html_header += '<h5 class="modal-title">Input Stok Akhir</h5>';
+        html_header += '<h5 class="modal-title">' + material.item.name + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
@@ -344,6 +352,7 @@
         var material = getDataMaterial(id, work_plan_product_id)
         var nameInput = []
         var unitInput = []
+        var jenisInput = 'pecahan'
         if (jenis) {
             // jika oecahan
             var getFormula = parseMathExpression(material.fraction_formula.formula)
@@ -367,11 +376,12 @@
             nameInput.push('')
             unitInput.push(material.unit.name)
             var text = '<p class="m-0 small-text"><b>' + material.unit.name + '</b></p>'
+            jenisInput = 'utuh'
         }
         var html = ''
         // card
         var variableRows = '' + countCard + '' + work_plan_product_id + '' + id + ''
-        html += '<div class="card shadow-none mb-2 cardStokAkhir" id="cardMaterial' + variableRows + '" data-variable="' + variableRows + '" data-id="' + id + '" data-work_plan_product_id="' + work_plan_product_id + '" data-id_used="' + idUsed + '">'
+        html += '<div class="card shadow-none mb-2 cardStokAkhir" id="cardMaterial' + variableRows + '" data-variable="' + variableRows + '" data-id="' + id + '" data-work_plan_product_id="' + work_plan_product_id + '" data-id_used="' + idUsed + '" data-jenis="' + jenis + '">'
         if (jenis) {
             // jika pecahan
             html += '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;" onclick="removeMaterial(' + "'" + variableRows + "'," + "'" + idUsed + "'" + ')"><i class="small-text fa fa-times text-light"></i></span>'
@@ -402,7 +412,7 @@
             html += '<label for="input' + variableRows + '" class="col-form-label">' + changeTextInput(nameInput[i]) + '</label>'
             html += '</div>'
             html += '<div class="col-4">'
-            html += '<input type="text" id="input' + i + countCard + work_plan_product_id + '' + id + '" class="form-control nominal input' + variableRows + '" aria-describedby="passwordHelpInline" autocomplete="off" oninput="createFormula(event,' + "'" + nameInput[i] + "'" + ',' + i + ',' + countCard + ',' + "'" + work_plan_product_id + "'" + ',' + id + ')" data-variable="' + nameInput[i] + '" data-jenis="' + jenis + '" data-id="' + "'" + idUsed + "'" + '" value="' + value + '">'
+            html += '<input type="text" id="input' + i + countCard + work_plan_product_id + '' + id + '" class="form-control nominal input' + variableRows + ' ' + jenisInput + '" aria-describedby="passwordHelpInline" autocomplete="off" oninput="createFormula(event,' + "'" + nameInput[i] + "'" + ',' + i + ',' + countCard + ',' + "'" + work_plan_product_id + "'" + ',' + id + ')" data-variable="' + nameInput[i] + '" data-jenis="' + jenis + '" data-id="' + "'" + idUsed + "'" + '" value="' + value + '">'
             html += '</div>'
             html += '<div class="col-3">'
             html += '<span id="passwordHelpInline" class="form-text">' + unitInput[i] + '</span>'
@@ -440,7 +450,7 @@
         html += '</div>'
         html += '</div>'
         $('#listAdditional').append(html)
-        $('.nominal').number(true, 2);
+        // $('.nominal').number(true);
         if (jenis) {
             var kontenPopover = ''
             getFormula.data.forEach(e => {
@@ -485,14 +495,46 @@
             // var exampleEl = document.getElementById('#hoverQuestion' + countCard)
             // var popover = new bootstrap.Popover(exampleEl, options)
         }
+        $('.utuh').on('keypress', handleNumericInput);
+        $('.pecahan').on('keypress', handleFractionInput);
         // card
         countCard++
         akumulasiFormula()
     }
+
+    function handleFractionInput(event) {
+        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39, 46, 44];
+        if (allowChars.indexOf(event.which) === -1) {
+            event.preventDefault();
+        }
+
+        var inputValue = $(this).val();
+        // Mengganti koma dengan titik
+        inputValue = inputValue.replace(/,/, '.');
+
+        // Memeriksa apakah sudah ada titik atau koma dalam nilai input
+        if ((event.which === 46 || event.which === 44) && inputValue.indexOf('.') !== -1) {
+            event.preventDefault();
+        }
+
+        $(this).val(inputValue.replace(/[^\d.]/g, ''));
+    }
+
+    function handleNumericInput(event) {
+        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
+        if (allowChars.indexOf(event.which) === -1) {
+            event.preventDefault();
+        }
+
+        var inputValue = $(this).val();
+        $(this).val(inputValue.replace(/[^\d]/g, ''));
+    }
+
     var removedId = {
         usedMaterial: [],
         usedMaterialRemaining: []
     }
+
 
     function removeMaterial(id, id_used) {
         if (id_used) {
@@ -642,7 +684,11 @@
         html += '<td class="align-middle small-text text-center">' + number_format(data.out) + '</td>'
         html += '<td class="align-middle small text-center">'
         if (data.gross_usage) {
-            html += '<span class="badge bg-success">' + number_format(roundToTwo(data.gross_usage)) + '</span>'
+            if (data.gross_usage > 0) {
+                html += '<span class="badge bg-success">' + number_format(roundToTwo(data.gross_usage)) + '</span>'
+            } else {
+                html += '<span class="badge bg-danger">' + number_format(roundToTwo(data.gross_usage)) + '</span>'
+            }
         }
         html += '</td>'
         html += '<td class="align-middle small-text text-center">' + number_format(roundToTwo(data.stok_akhir)) + '</td>'
@@ -687,7 +733,7 @@
     function createFormula(event, nameInput, i, countCard, work_plan_product_id, id) {
         var material = getDataMaterial(id, work_plan_product_id)
         var valueInput = $('.input' + countCard + work_plan_product_id + id).map(function() {
-            return $(this).val();
+            return parseFloat(ubahTandaKoma($(this).val()));
         }).get();
         var variable = $('.input' + countCard + work_plan_product_id + id).map(function() {
             return $(this).data('variable');
@@ -761,8 +807,9 @@
         }).get();
         for (let i = 0; i < variableCard.length; i++) {
             var material = getDataMaterial(id[i], work_plan_product_id[i])
+            // console.log(material)
             var valueInput = $('.input' + variableCard[i]).map(function() {
-                return $(this).val();
+                return parseFloat(ubahTandaKoma($(this).val()));
             }).get();
             var variable = $('.input' + variableCard[i]).map(function() {
                 return $(this).data('variable');
@@ -773,6 +820,7 @@
             var value = event.target.value
             var total = 0
             if (jenis[0]) {
+                console.log(material.fraction_formula.formula)
                 var getFormula = removeSymbols(material.fraction_formula.formula)
                 // input data
                 var unfilled = 0
@@ -795,7 +843,7 @@
                 }
                 // get data
                 for (const key in material.unit_fraction) {
-                    if (material.unit_fraction[key] !== null) {
+                    if (material.unit_fraction[key] != null) {
                         eval(`var ${key} = ${material.unit_fraction[key]}`);
                     }
                 }
@@ -849,6 +897,15 @@
         return true
     }
 
+    function ubahTandaKoma(input) {
+        // Mengecek apakah input mengandung tanda koma
+        if (input.includes(',')) {
+            // Mengganti tanda koma dengan titik
+            input = input.replace(',', '.');
+        }
+        return input;
+    }
+
     function arrangeUsedMaterial(material_id, work_plan_product_id, material, qtyUtuh, qtyPecahan, qtyPecahanRounded) {
         dataInsert.usedMaterial = []
         var data = dataEntry.materialStock.find((v, k) => {
@@ -856,6 +913,9 @@
         })
         var variableCard = $('.cardStokAkhir').map(function() {
             return $(this).data('variable');
+        }).get();
+        var jenisCard = $('.cardStokAkhir').map(function() {
+            return $(this).data('jenis');
         }).get();
         var id_used = $('.cardStokAkhir').map(function() {
             return $(this).data('id_used');
@@ -868,7 +928,7 @@
         var indexPecahan = 0
         for (let i = 0; i < variableCard.length; i++) {
             var stokInput = $('.input' + variableCard[i]).map(function() {
-                return $(this).val();
+                return parseFloat(ubahTandaKoma($(this).val()));
             }).get();
             // console.log(stokInput)
             var variableInput = $('.input' + variableCard[i]).map(function() {
@@ -941,6 +1001,7 @@
         var type = 'POST'
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setUsedMaterial'); ?>'
+        // console.log(data)
         kelolaData(data, type, url, button)
     }
 
