@@ -80,6 +80,7 @@ function is_direktur()
 }
 function job_spv_smd()
 {
+    // FEBY
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
     if ($job_title_id == 7 || $job_title_id == 130) {
@@ -98,8 +99,29 @@ function job_foreman()
         return false;
     }
 }
+function job_foreman_skt()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 129) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_foreman_skm()
+{
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 84 || $job_title_id == 87 || $job_title_id == 135) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function job_logistik_warehouse()
 {
+    //MAHADIKA & ALDIKE
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
     if ($job_title_id == 111 || $job_title_id == 139) {
@@ -140,6 +162,7 @@ function job_mekanik_packer()
 }
 function job_spv_audit_internal()
 {
+    // AUDIT
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
     if ($job_title_id == 108) {
@@ -150,6 +173,7 @@ function job_spv_audit_internal()
 }
 function job_accounting_and_tax()
 {
+    // IWAN & HANNY
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
     if ($job_title_id == 133 || $job_title_id == 10) {
@@ -160,9 +184,43 @@ function job_accounting_and_tax()
 }
 function job_administrasi_produksi()
 {
+    // DELYA
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
     if ($job_title_id == 90) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_spv_tax()
+{
+    // REZA
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 94) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_admin_pga()
+{
+    // SINDI
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 140) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function job_kepala_operator()
+{
+    // MEGA
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 147) {
         return true;
     } else {
         return false;
@@ -292,7 +350,7 @@ function if_report_po()
 }
 function if_report_mutasi_gudang()
 {
-    if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm() || job_spv_audit_internal()) {
+    if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm() || job_spv_audit_internal() || job_spv_tax()) {
         return true;
     } else {
         return false;
@@ -308,7 +366,7 @@ function if_report_opname()
 }
 function if_report_machine()
 {
-    if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal()) {
+    if (job_logistik_warehouse() || job_foreman_skm() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal()) {
         return true;
     } else {
         return false;
@@ -316,7 +374,7 @@ function if_report_machine()
 }
 function if_report_production()
 {
-    if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal()) {
+    if (job_foreman_skm() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
         return true;
     } else {
         return false;
@@ -324,7 +382,15 @@ function if_report_production()
 }
 function if_report_production_worker()
 {
-    if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal() || job_accounting_and_tax()) {
+    if (job_spv_smd() || job_foreman_skt() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_result_production()
+{
+    if (job_spv_smd() || job_foreman_skm() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
         return true;
     } else {
         return false;
@@ -332,7 +398,7 @@ function if_report_production_worker()
 }
 function if_report_production_daily()
 {
-    if (job_logistik_warehouse() || job_foreman() || job_spv_smd() || job_supply_sparepart() || job_spv_audit_internal() || job_accounting_and_tax()) {
+    if (job_spv_smd() || job_foreman_skt() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
         return true;
     } else {
         return false;
@@ -340,7 +406,7 @@ function if_report_production_daily()
 }
 function if_report_person_earn()
 {
-    if (job_spv_smd() || job_foreman() || job_spv_audit_internal() || job_accounting_and_tax()) {
+    if (job_spv_smd() || job_foreman_skt() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_admin_pga()) {
         return true;
     } else {
         return false;
@@ -348,7 +414,15 @@ function if_report_person_earn()
 }
 function if_report_incomplete()
 {
-    if (job_spv_smd() || job_spv_audit_internal() || job_accounting_and_tax()) {
+    if (job_spv_smd() || job_foreman_skt() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_person_quality()
+{
+    if (job_spv_smd() || job_foreman_skt() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
         return true;
     } else {
         return false;
@@ -364,7 +438,7 @@ function if_production_portal()
 }
 function if_machine_shelters()
 {
-    if (job_foreman() || job_spv_smd()) {
+    if (job_foreman_skm() || job_spv_smd()) {
         return true;
     } else {
         return false;
@@ -372,9 +446,9 @@ function if_machine_shelters()
 }
 function if_so_production()
 {
-    // if (job_foreman() || job_administrasi_produksi() || job_spv_smd()) {
-    return true;
-    // } else {
-    //     return false;
-    // }
+    if (job_spv_smd() || job_foreman_skm() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax()) {
+        return true;
+    } else {
+        return false;
+    }
 }

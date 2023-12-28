@@ -175,11 +175,11 @@ class Production extends CI_Controller
     public function productionPortals()
     {
         $data['title'] = 'Production Portals';
-        if (job_foreman() || job_spv_smd()) {
-            $this->template->views('production/production_portals', $data);
-        } else {
-            $this->template->views('production/production_portals_manpower', $data);
-        }
+        // if (job_foreman() || job_spv_smd()) {
+        // $this->template->views('production/production_portals', $data);
+        // } else {
+        $this->template->views('production/production_portals_manpower', $data);
+        // }
     }
     public function workPlan($id)
     {

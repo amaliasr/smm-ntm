@@ -1,9 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-use Mike42\Escpos\PrintConnectors\FilePrintConnector;
-use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
-use Mike42\Escpos\Printer;
 
 class Api extends CI_Controller
 {
@@ -36,7 +33,7 @@ Silahkan klik link dibawah ini untuk melanjutkan proses tanda tangan
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -89,7 +86,7 @@ Informasi Tambahan, Link dapat digunakan ketika sudah waktunya melakukan SO (ses
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -118,7 +115,7 @@ Silahkan klik link dibawah ini untuk melihat detail Planning Produksi mingguan
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -149,7 +146,7 @@ Silahkan klik link dibawah ini untuk melakukan persetujuan
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -179,7 +176,7 @@ Silahkan klik link dibawah ini untuk melakukan proses Material *" . $type_name .
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -208,7 +205,7 @@ Silahkan klik link dibawah ini untuk melakukan penerimaan Material
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -233,7 +230,7 @@ Teruntuk Bpk/Ibu *" . $nama[$i] . "* , Material Request *" . $kode . "* telah di
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -262,7 +259,7 @@ Link Kerja : " . $value['link'] . "";
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+                'device_id' => '62f7862faf676f2df774958b88241e51',
                 'number' => $value['phone'],
                 'message' => $message,
             );
@@ -279,7 +276,7 @@ Link Kerja : " . $value['link'] . "";
         $url = 'https://app.whacenter.com/api/send';
         $ch = curl_init($url);
         $data = array(
-            'device_id' => '007ff5bdad61fc8ad374ded6553b0817',
+            'device_id' => '62f7862faf676f2df774958b88241e51',
             'number' => '081944946015',
             'message' => 'test WA',
         );
@@ -308,25 +305,5 @@ Link Kerja : " . $value['link'] . "";
             $jsonData = json_encode($array);
             setcookie('page_visit', $jsonData, time() + 3600 * 24 * 365); // Buat cookie baru
         }
-    }
-    public function printThermal()
-    {
-        $printerDevice = "/dev/ttyS5";
-        // $connector = new WindowsPrintConnector($printerDevice);
-        $connector = new FilePrintConnector($printerDevice);
-        $printer = new Printer($connector);
-
-        $textToPrint = "===== Struk Pembelian =====\n";
-        $textToPrint .= "Barang 1        2 x 10.00\n";
-        $textToPrint .= "Barang 2        1 x 20.00\n";
-        $textToPrint .= "Total:          40.00\n";
-        $textToPrint .= "==========================\n";
-
-        $printer->text($textToPrint);
-
-        $printer->cut(); // Memotong kertas
-
-        $printer->close();
-        echo "Printed successfully";
     }
 }

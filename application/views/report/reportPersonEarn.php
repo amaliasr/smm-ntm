@@ -150,9 +150,23 @@
         float: none;
         text-align: center;
     }
+
+    .bg-orange-light {
+        background-color: #fcf6ec !important;
+    }
+
+    table {
+        border-collapse: initial !important;
+        /* Don't collapse */
+        border-spacing: 0px !important;
+        border: 1px solid #dce0e6 !important;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
+<link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
 
 
 <main>
@@ -164,13 +178,13 @@
     <!-- Main page content-->
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
-            <div class="col pb-4">
+            <div class="col pb-2">
                 <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PERSON SALARY</h1>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
         <div class="row">
-            <div class="col-12 mb-2">
+            <div class="col-12 mb-4">
                 <div class="row justify-content-between">
                     <div class="col-auto">
                         <div class="row">
@@ -379,12 +393,72 @@
         return null;
     }
 
+    function formatJustDay(orginaldate) {
+        var date = new Date(orginaldate);
+        var hari = date.getDay();
+        switch (hari) {
+            case 0:
+                hari = "Minggu";
+                break;
+            case 1:
+                hari = "Senin";
+                break;
+            case 2:
+                hari = "Selasa";
+                break;
+            case 3:
+                hari = "Rabu";
+                break;
+            case 4:
+                hari = "Kamis";
+                break;
+            case 5:
+                hari = "Jumat";
+                break;
+            case 6:
+                hari = "Sabtu";
+                break;
+        }
+        return hari;
+    }
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
         $('#modalHeader').html('');
         $('#modalBody').html('');
         $('#modalFooter').html('');
+    }
+
+    function getFirstDateOfCurrentMonth() {
+        const currentDate = new Date();
+        const firstDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+
+        const year = firstDate.getFullYear();
+        const month = (firstDate.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+        const day = firstDate.getDate().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function getPreviousFriday() {
+        // Mendapatkan tanggal hari ini
+        const today = new Date();
+
+        // Mendapatkan hari dalam bentuk angka (0: Minggu, 1: Senin, ..., 6: Sabtu)
+        const dayOfWeek = today.getDay();
+
+        // Menghitung selisih hari untuk kembali ke hari Jumat
+        const daysUntilFriday = (dayOfWeek + 2) % 7;
+
+        // Menghitung tanggal Jumat sebelumnya
+        const previousFriday = new Date(today);
+        previousFriday.setDate(today.getDate() - daysUntilFriday);
+
+        // Format tanggal menjadi string 'YYYY-MM-DD'
+        const formattedDate = previousFriday.toISOString().split('T')[0];
+
+        return formattedDate;
     }
 
 
@@ -395,7 +469,7 @@
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
     var data_report = ""
-    var date_start = currentDate()
+    var date_start = getPreviousFriday()
     var date_end = currentDate()
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
@@ -465,6 +539,7 @@
 
         });
         // autoSave()
+        simpanData()
     }
 
     function simpanData() {
@@ -535,21 +610,41 @@
     function headTable() {
         var html = ''
         html += '<tr>'
-        html += '<th class="align-middle" rowspan="2">#</th>'
-        html += '<th class="align-middle" rowspan="2">EID</th>'
-        html += '<th class="align-middle" rowspan="2">Nama</th>'
-        html += '<th class="align-middle" rowspan="2">No. Meja</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">EID</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Nama</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">No. Meja</th>'
         const dates = data_report.reportResultPersonEarn[0].data.map(item => Object.keys(item)[0]);
         for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle" colspan="3">' + dates[i] + '</th>'
+            var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
+                if (v.date == dates[i]) return true
+            })
+            var bgOver = ''
+            var badgeOver = ''
+            if (dataDate.is_overtime) {
+                bgOver = 'bg-orange-light'
+                badgeOver = '<span class="badge bg-orange ms-2" style="font-size:5px;vertical-align: middle;padding-top:3px;">OVERTIME</span>'
+            }
+            html += '<th class="align-middle ' + bgOver + '" colspan="3">'
+            html += '<p class="m-0 fw-bolder">' + formatJustDay(dates[i]) + '</p>'
+            html += '<p class="m-0 super-small-text fw-normal">' + dates[i] + '' + badgeOver + '</p>'
+            html += '</th>'
         }
+        html += '<th class="align-middle" rowspan="2">Total Salary</th>'
         html += '</tr>'
 
         html += '<tr>'
         for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle">QTY</th>'
-            html += '<th class="align-middle">Earn</th>'
-            html += '<th class="align-middle">Total Setor</th>'
+            var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
+                if (v.date == dates[i]) return true
+            })
+            var bgOver = ''
+            if (dataDate.is_overtime) {
+                bgOver = 'bg-orange-light'
+            }
+            html += '<th class="align-middle ' + bgOver + '">QTY</th>'
+            html += '<th class="align-middle ' + bgOver + '">Earn</th>'
+            html += '<th class="align-middle ' + bgOver + '">Total Setor</th>'
         }
         html += '</tr>'
         $('#headTable').html(html)
@@ -560,16 +655,25 @@
         var html = ''
         var a = 1
         data_report.reportResultPersonEarn.forEach(e => {
+
             html += '<tr>'
-            html += '<td class="text-center small-text">' + a++ + '</td>'
-            html += '<td class="text-center small-text">' + e.employee.eid + '</td>'
-            html += '<td class="text-center small-text">' + e.employee.name + '</td>'
-            html += '<td class="text-center small-text">' + e.row_code + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
+            html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + e.row_code + '</td>'
             e.data.forEach(el => {
-                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].qty) + '</td>'
-                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].earn) + '</td>'
-                html += '<td class="text-center small-text">' + el[Object.keys(el)[0]].total_deliv + '</td>'
+                var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
+                    if (v.date == Object.keys(el)[0]) return true
+                })
+                var bgOver = ''
+                if (dataDate.is_overtime) {
+                    bgOver = 'bg-orange-light'
+                }
+                html += '<td class="text-center small-text ' + bgOver + '">' + number_format(el[Object.keys(el)[0]].qty) + '</td>'
+                html += '<td class="text-center small-text ' + bgOver + '">' + number_format(roundToTwo(el[Object.keys(el)[0]].earn)) + '</td>'
+                html += '<td class="text-center small-text ' + bgOver + '">' + el[Object.keys(el)[0]].total_deliv + '</td>'
             });
+            html += '<td class="text-end small-text">' + number_format(roundToTwo(e.total.earn)) + '</td>'
             html += '</tr>'
         });
         $('#bodyTable').html(html)
@@ -582,8 +686,9 @@
             paging: false,
             fixedHeader: true,
             fixedColumns: {
-                leftColumns: 2
+                left: 4
             },
+            paging: false,
         })
     }
 

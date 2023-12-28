@@ -828,6 +828,10 @@
     .cameraOption {
         border-radius: 20px !important;
     }
+
+    .bg-light-orange {
+        background-color: #fda45a !important;
+    }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/mobiscroll.jquery.min.css">
@@ -960,6 +964,8 @@
                         </div>
                     <?php } else { ?>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="chooseBrand()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
+                        <button type="button" class="btn shadow-none btn-sm shadow-none btn-danger" onclick="closeBrand()"><i class="fa fa-times me-2"></i>Closing</button>
                     <?php } ?>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
                 </div>
@@ -1028,10 +1034,12 @@
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
         stillOpenModal = false
+        isOtherDate = false
     })
     $('#modal2').on('hidden.bs.modal', function(e) {
         clearModal2();
         stillOpenModal = false
+        isOtherDate = false
     })
 
     function notFound(location) {
@@ -1101,6 +1109,8 @@
         loadDataTemplate()
         if (link == 'deliver_goods' || link == 'sorting_goods') {
             loadIncomplete()
+        } else {
+            // chooseBrand()
         }
     })
 
@@ -1139,7 +1149,6 @@
     }
 
     function incompleteData(data) {
-        console.log(data)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
         var html_header = '';
@@ -1384,5 +1393,133 @@
         }).get())
         var params = "*$" + dateMachine + "*$15" + "*$" + rowCode;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
+    }
+
+    function chooseBrand() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Choose Brand</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12" id="listChooseBrand">'
+
+        for (let i = 0; i < 1; i++) {
+            html_body += '<div class="card mb-2 shadow-sm bg-light-success">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+
+            html_body += '<div class="col-1 pe-0 align-self-center">'
+            html_body += '<p class="m-0 small fw-bold">#1</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-3 ps-0 align-self-center">'
+            html_body += '<h3 class="m-0 fw-bolder">ABLF <i class="fa fa-check-circle text-success"></i></h3>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 align-self-center">'
+            html_body += '<p class="m-0 super-small-text">Start Time</p>'
+            html_body += '<p class="m-0 fw-bolder">08:00</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 align-self-center">'
+            html_body += '<p class="m-0 super-small-text">End Time</p>'
+            html_body += '<p class="m-0 fw-bolder">09:00</p>'
+            html_body += '</div>'
+            html_body += '<div class="col align-self-center text-end">'
+            html_body += '<i class="small">Selesai</i>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        for (let i = 0; i < 1; i++) {
+            html_body += '<div class="card mb-2 shadow-sm bg-light-orange text-white">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+
+            html_body += '<div class="col-1 pe-0 align-self-center">'
+            html_body += '<p class="m-0 small fw-bold">#1</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-3 ps-0 align-self-center">'
+            html_body += '<h3 class="m-0 fw-bolder text-white">ABLF</h3>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 align-self-center">'
+            html_body += '<p class="m-0 super-small-text">Start Time</p>'
+            html_body += '<p class="m-0 fw-bolder">08:00</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 align-self-center">'
+            html_body += '<p class="m-0 super-small-text">End Time</p>'
+            html_body += '<p class="m-0 fw-bolder">--:--</p>'
+            html_body += '</div>'
+            html_body += '<div class="col align-self-center text-end">'
+            html_body += '<button class="btn btn-danger" onclick="closeBrand()">Close</button>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        for (let i = 0; i < 2; i++) {
+            html_body += '<div class="card mb-2 shadow-sm card-hoper pointer" onclick="afterChooseBrand()">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+
+            html_body += '<div class="col-1 pe-0 align-self-center">'
+            html_body += '<p class="m-0 small fw-bold">#1</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-3 ps-0 align-self-center">'
+            html_body += '<h3 class="m-0 fw-bolder">ABLF</h3>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 align-self-center">'
+            html_body += '<p class="m-0 super-small-text">Start Time</p>'
+            html_body += '<p class="m-0 fw-bolder">--:--</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-2 align-self-center">'
+            html_body += '<p class="m-0 super-small-text">End Time</p>'
+            html_body += '<p class="m-0 fw-bolder">--:--</p>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('p-0')
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+    }
+
+    function afterChooseBrand() {
+        Swal.fire({
+            text: 'Apakah Anda Yakin ingin memproses brand ABLF ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {}
+        })
+    }
+
+    function closeBrand() {
+        Swal.fire({
+            text: 'Apakah Anda Yakin ingin Closing Brand ABLF ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {}
+        })
     }
 </script>

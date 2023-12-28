@@ -150,9 +150,19 @@
         float: none;
         text-align: center;
     }
+
+    table {
+        border-collapse: initial !important;
+        /* Don't collapse */
+        border-spacing: 0px !important;
+        border: 1px solid #dce0e6 !important;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
+<link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
 
 
 <main>
@@ -164,13 +174,13 @@
     <!-- Main page content-->
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
-            <div class="col pb-4">
+            <div class="col pb-2">
                 <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PRODUCTION WORKER</h1>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
         <div class="row">
-            <div class="col-12 mb-2">
+            <div class="col-12 mb-4">
                 <div class="row justify-content-between">
                     <div class="col-auto">
                         <div class="row">
@@ -507,8 +517,8 @@
                 showOverlay('hide')
                 data_user = response['data']
                 setDaterange()
-                formMachine()
                 dateRangeString()
+                formMachine()
             }
         })
     }
@@ -542,6 +552,7 @@
 
         });
         // autoSave()
+        simpanData()
     }
 
     function simpanData() {
@@ -647,13 +658,13 @@
         structureData[periodOption].data.forEach(e => {
             html += '<tr>'
             if (!a) {
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">#</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">#</th>'
                 if (groupingOption == 'WORKER') {
-                    html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">EID</th>'
+                    html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">EID</th>'
                 }
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">' + toTitleCase(groupingOption) + '</th>'
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Product</th>'
-                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '">Unit</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">' + toTitleCase(groupingOption) + '</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">Product</th>'
+                html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">Unit</th>'
             }
             var dataChild = groupDataByProperties(data_report.reportResultPerson, [e.variable])
             jumlahLoop = 1;
@@ -700,14 +711,14 @@
         var a = 1
         dataMachine.forEach(e => {
             html += '<tr>'
-            html += '<td class="text-center small-text">' + a++ + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
             if (groupingOption == 'WORKER') {
-                eval(`html += '<td class="text-center small-text">' + e.${groupingOption.toLowerCase()}_eid + '</td>'`)
+                eval(`html += '<td class="text-center small-text" style="background-color: white;">' + e.${groupingOption.toLowerCase()}_eid + '</td>'`)
             }
-            eval(`html += '<td class="text-center small-text">' + e.${groupingOption.toLowerCase()}_name + '</td>'`)
-            // html += '<td class="text-center small-text">' + e.machine_name + '</td>'
-            html += '<td class="text-center small-text">' + e.item_name + '</td>'
-            html += '<td class="text-center small-text">' + e.unit_name + '</td>'
+            eval(`html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.${groupingOption.toLowerCase()}_name + '</td>'`)
+            // html += '<td class="text-center small-text" style="background-color: white;">' + e.machine_name + '</td>'
+            html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.item_name + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + e.unit_name + '</td>'
             // loop
             var dataChild = []
             structureData[periodOption].data.forEach(el => {
@@ -772,8 +783,9 @@
             paging: false,
             fixedHeader: true,
             fixedColumns: {
-                leftColumns: 2
+                left: 5
             },
+            paging: false,
 
         })
     }

@@ -1001,6 +1001,35 @@
         return datesInMonth
     }
 
+    function formatJustDay(orginaldate) {
+        var date = new Date(orginaldate);
+        var hari = date.getDay();
+        switch (hari) {
+            case 0:
+                hari = "Minggu";
+                break;
+            case 1:
+                hari = "Senin";
+                break;
+            case 2:
+                hari = "Selasa";
+                break;
+            case 3:
+                hari = "Rabu";
+                break;
+            case 4:
+                hari = "Kamis";
+                break;
+            case 5:
+                hari = "Jumat";
+                break;
+            case 6:
+                hari = "Sabtu";
+                break;
+        }
+        return hari;
+    }
+
     function loadingData(location) {
         $(location).html('<lottie-player src="<?= base_url() ?>assets/json/lf20_afKs3W.json"  background="transparent"  speed="1"  style="width: 100%; height: 400px;"  loop  autoplay></lottie-player>')
     }
@@ -1182,7 +1211,10 @@
             if (show) {
                 totalLengthDateShift++
                 dateShift.push(e)
-                html += '<th class="small-text text-center ' + today + ' ' + classToday + '">' + formatInternationalDate(e.date) + ' ' + badgePosition + '</th>'
+                html += '<th class="small-text text-center ' + today + ' ' + classToday + '">'
+                html += '<p class="m-0 small-text lh-1 text-grey">' + formatJustDay(e.date) + '</p>'
+                html += formatInternationalDate(e.date) + ' ' + badgePosition
+                html += '</th>'
             }
         });
         $('#date_list').html(html)

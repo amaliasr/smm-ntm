@@ -603,8 +603,6 @@
                 var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                     if (v.work_plan_product_id == e.work_plan_product_id) return true
                 })
-                console.log(dataEntry.workPlanMachine.products)
-                console.log(e.work_plan_product_id)
                 html += '<tr>'
                 html += '<th class="p-2 text-center" scope="row">' + a++ + '</th>'
                 html += '<td class="p-2 text-center">' + convertTimeFormat(e.time.start) + ' - ' + convertTimeFormat(e.time.end) + '</td>'

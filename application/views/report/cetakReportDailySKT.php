@@ -179,9 +179,10 @@ function extractRowCodesWithCount($data)
     foreach ($data as $item) {
         if (isset($item->row_code)) {
             $rowCodes[] = $item->row_code;
+        } else {
+            $rowCodes[] = '';
         }
     }
-
     // Menggunakan array_count_values untuk mendapatkan jumlah setiap nilai
     $rowCodeCounts = array_count_values($rowCodes);
 

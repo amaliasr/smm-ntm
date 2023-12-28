@@ -451,7 +451,7 @@
     JSPM.JSPrintManager.start();
 
     function createCodeId(worker_id = '') {
-        var date = (new Date).getTime()
+        var date = (new Date).getTime() + '' + worker_id
         // var day = date.getDate();
         // var month = date.getMonth() + 1;
         // var year = date.getFullYear();
@@ -1308,7 +1308,7 @@
         if (jenis == 'material') {
             fungsi = 'onclick="deleteMaterial(' + worker_id + ',' + id + ')"'
         } else if (jenis == 'setoran') {
-            fungsi = 'onclick="deleteSetoran(' + worker_id + ',' + id + ')"'
+            fungsi = 'onclick="deleteSetoran(' + worker_id + ',' + "'" + id + "'" + ')"'
         }
         var html = '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" style="width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;cursor:pointer;z-index:999;" ' + fungsi + '><i class="small-text fa fa-times text-light"></i></span>'
         return html
@@ -1372,7 +1372,7 @@
             time = formatJamMenit(e.datetime)
         }
         // html += '<div class="col-12 pb-2">'
-        html += '<div class="card card-hoper shadow-none ' + bgColor + ' cardProgress mb-2" onclick="isiWorkProgress(' + e.result_product_person_id + ')" id="cardProgress' + e.result_product_person_id + '">'
+        html += '<div class="card card-hoper shadow-none ' + bgColor + ' cardProgress mb-2" onclick="isiWorkProgress(' + "'" + e.result_product_person_id + "'" + ')" id="cardProgress' + e.result_product_person_id + '">'
         html += deleteButton
         html += '<div class="card-body p-3">'
 
@@ -1439,7 +1439,7 @@
             if (data.delivery.is_process) {
                 status = 'bg-success text-white'
                 text = '<p>Pukul ' + formatJamMenit(data.delivery.process_at) + ' Setoran ' + data.delivery.good + ' ' + data.unit.name + ' dengan Jumlah Bad ' + replaceNullWithZero(data.delivery.waste) + ' ' + data.unit.name + '</p>'
-                text += '<button class="btn btn-sm btn-outline-success" onclick="cetakQR(' + result_product_person_id + ')">Cetak QR</button>'
+                text += '<button class="btn btn-sm btn-outline-success" onclick="cetakQR(' + "'" + result_product_person_id + "'" + ')">Cetak QR</button>'
                 if (checkLabelEdit('DELIVERY')) {
                     btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'DELIVERY' + "'" + ')"></span>'
                 }
@@ -2507,7 +2507,7 @@
         var type = 'POST'
         var button = '#btnSimpanOffline'
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
-        var data = variableSaveOffline
+        var data = deepCopy(variableSaveOffline)
         if (variableSaveOffline.resultProductPerson.length) {
             kelolaDataSaveAuto(data, type, url, button)
         }
@@ -2636,6 +2636,7 @@
             padding: 0,
         });
         var image = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        console.log(image)
         doPrint(image, data, id)
     }
 
@@ -2844,7 +2845,7 @@
         $('#modal').modal('show')
         $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-centered');
         var html_header = '';
-        html_header += '<h5 class="modal-title">QR Scan</h5>';
+        html_header += '<h5 class="modal-title">QR Scan | ' + formatDateIndonesia(dataEntry.workPlanMachine.date) + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';

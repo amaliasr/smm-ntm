@@ -988,7 +988,7 @@
     }
 
     function checkWorkerId(eid) {
-        let arrayOfNumbers = eid.split(',').map(Number);
+        let arrayOfNumbers = eid.split(',').map(String);
         if (arrayOfNumbers.length == 1) {
             scanned = true
             scanned2 = false
@@ -1030,7 +1030,12 @@
         }
     }
 
+    var isOtherDate = false
+    var dataOtherDate = ''
+
     function loadScanData(worker_id, result_product_person_id_scanned) {
+        dataOtherDate = ''
+        isOtherDate = false
         manuallyInsertSId = result_product_person_id_scanned
         showOverlay('show')
         $.ajax({
@@ -1055,12 +1060,26 @@
                 if (response.data) {
                     if (formatDate(dataEntry.workPlanMachine.date) != formatDate(currentDateLoad)) {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Anda Salah Tanggal',
-                            text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad)
-                        });
-                        $('#codeQR').val('')
-                        afterScan = false
+                            text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad),
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Lanjut',
+                            cancelButtonText: 'Batal',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                afterScan = false
+                                isOtherDate = true
+                                dataOtherDate = response.data
+                                modalWorkProgressOtherDate(response.data)
+                            }
+                        })
+                        // Swal.fire({
+                        //     icon: 'error',
+                        //     title: 'Anda Salah Tanggal',
+                        //     text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad)
+                        // });
                     } else {
                         arrangeDataAfterLoadScanData(response, worker_id, result_product_person_id_scanned)
                     }
@@ -1095,6 +1114,93 @@
                 // workerProgress()
             }
         })
+    }
+
+    function modalWorkProgressOtherDate(d) {
+        materialIdClicked = false
+        var data = d.productionDelivery[0]
+        data.data.forEach(e => {
+            dataDetailDelivery.push({
+                'worker_id': data.employee_worker.id,
+                'worker_name': data.employee_worker.name,
+                'result_product_person_id': e.result_product_person_id,
+                'number': e.number,
+                'datetime': e.datetime,
+                'item': e.item,
+                'unit': e.unit,
+                'delivery': e.delivery,
+                'sortir': e.sortir,
+                'fillup': e.fillup,
+                'complete': e.complete,
+            })
+        });
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Entry Data | ' + formatDateIndonesia(data.data[0].datetime) + '</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row w-100">'
+
+        html_body += '<div class="col-3 p-5 pt-4 pe-2 border-end">'
+        html_body += '<h1 class="mb-1 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
+        // html_body += '<p class="m-0">2,490 / <b class="text-dark-grey">3,000</b></p>'
+        // html_body += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
+        html_body += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
+
+        html_body += '<div class="mt-5" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        html_body += '<div class="me-2">'
+
+        // LIST SETORAN
+        var a = 0
+        html_body += '<div class="">'
+        sortArrayOfObjectsDescending(data.data, 'number').forEach(e => {
+            var dataDelivery = findStatus(e.result_product_person_id)
+            // console.log(dataDelivery)
+            var bgColor = ''
+            var deleteButton = ''
+            var qty = dataDelivery.qty.good
+            var icon = ''
+            if (a == 0 && dataDelivery.status == 'DELIVER') {
+                deleteButton = deleteAndCloseButton('setoran', data.employee_worker.id, e.result_product_person_id)
+            }
+            if (dataDelivery.status == 'COMPLETE') {
+                bgColor = 'bg-light-success'
+                icon = '<span class="fa fa-check fa-1x text-success"></span>'
+            } else if (dataDelivery.status == 'PROCESS') {
+                bgColor = ''
+                qty = '--'
+                icon = '<span class="fa fa-clock-o fa-1x text-grey"></span>'
+            } else {
+                bgColor = 'bg-light-warning'
+                icon = '<span class="fa fa-exclamation fa-1x text-warning"></span>'
+            }
+            html_body += setoranBar(e, deleteButton, bgColor, qty, icon)
+            a++
+        })
+        html_body += '</div>'
+        html_body += '</div>'
+        // LIST SETORAN
+
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-9 p-0">'
+        html_body += '<div class="row" id="isiWorkProgress">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+        if (setoranIdClicked) {
+            isiWorkProgress(setoranIdClicked)
+        }
     }
 
     function arrangeDataAfterLoadScanData(response, worker_id, result_product_person_id_scanned) {
@@ -2289,7 +2395,7 @@
     }
 
     function formWorkProgress(dataDetail, dataStatus, edit = false) {
-        // console.log(dataStatus)
+        console.log(isOtherDate)
         if (!dataDetail) {
             dataDetail = dataSaveSetoran
         } else {
@@ -2316,7 +2422,11 @@
         // select
         html += '<select class="form-select shadow-none text-dark" id="productSetoran" style="border:none">'
         dataEntry.workPlanMachine.products.forEach(e => {
-            html += '<option value="' + e.product.id + '" data-unit="' + e.unit_input.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '">' + e.product.name + '</option>'
+            var wppid = e.work_plan_product_id
+            if (isOtherDate) {
+                wppid = dataOtherDate.workPlanProductId
+            }
+            html += '<option value="' + e.product.id + '" data-unit="' + e.unit_input.id + '" data-work_plan_product_id="' + wppid + '">' + e.product.name + '</option>'
         });
         html += '<select>'
         // select
@@ -2507,13 +2617,17 @@
         var id_product = $("#productSetoran").val()
         var unit_product = $("#productSetoran").find(':selected').data('unit')
         var work_plan_product_id = $("#productSetoran").find(':selected').data('work_plan_product_id')
+        var work_plan_id = dataEntry.workPlanMachine.work_plan_id
+        if (isOtherDate) {
+            work_plan_id = dataOtherDate.workPlanId
+        }
         var dataMentah = {
             id: dataSaveSetoran.result_product_person_id,
             number: dataSaveSetoran.number,
             employee_id: dataSaveSetoran.worker_id,
             shift_id: dataEntry.workPlanMachine.shift_id,
             machine_id: dataEntry.workPlanMachine.machine.id,
-            work_plan_id: dataEntry.workPlanMachine.work_plan_id,
+            work_plan_id: work_plan_id,
             created_at: currentDateTime(),
             updated_at: currentDateTime(),
             item_id: id_product,

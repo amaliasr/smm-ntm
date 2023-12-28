@@ -214,26 +214,71 @@
                         <?php if (if_report_opname()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportOpname">Report Opname</a>
                         <?php } ?>
-                        <?php if (if_report_machine()) { ?>
+                        <!-- <?php if (if_report_machine()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
-                        <?php } ?>
+                        <?php } ?> -->
                         <?php if (if_so_production()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
                         <?php } ?>
                         <!-- <?php if (if_report_production()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportProduction">Report Production</a>
                         <?php } ?> -->
+                        <?php if (if_report_result_production()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportResultProduction">Report Result Production</a>
+                        <?php } ?>
                         <?php if (if_report_production_worker()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionWorker">Report Production Worker</a>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionWorker">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-male"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Prod.Worker
+                                    </div>
+                                </div>
+                            </a>
                         <?php } ?>
                         <?php if (if_report_production_daily()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionDaily">Report Production Daily</a>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionDaily">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Production Daily
+                                    </div>
+                                </div>
+                                <!-- <i class="fa fa-calendar me-1"></i>Report Production Daily -->
+                            </a>
                         <?php } ?>
                         <?php if (if_report_person_earn()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportPersonEarn">Report Person Salary</a>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportPersonEarn">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-dollar"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Person Salary
+                                    </div>
+                                </div>
+                                <!-- <i class="fa fa-dollar me-1"></i>Report Person Salary -->
+                            </a>
                         <?php } ?>
                         <?php if (if_report_incomplete()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportIncomplete">Report Incomplete</a>
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>report/reportIncomplete">Report Incomplete</a> -->
+                        <?php } ?>
+                        <?php if (if_report_person_quality()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportPersonQuality">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-check-circle-o"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Person Quality
+                                    </div>
+                                </div>
+                                <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->
+                            </a>
                         <?php } ?>
                     </nav>
                 </div>

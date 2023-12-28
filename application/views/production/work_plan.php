@@ -1298,11 +1298,8 @@
         return missingGroups;
     }
 
-    function formatJustDay() {
+    function formatJustDay(orginaldate) {
         var date = new Date(orginaldate);
-        var tahun = date.getFullYear();
-        var bulan = date.getMonth();
-        var tanggal = date.getDate();
         var hari = date.getDay();
         switch (hari) {
             case 0:
@@ -1327,46 +1324,7 @@
                 hari = "Sabtu";
                 break;
         }
-        switch (bulan) {
-            case 0:
-                bulan = "Januari";
-                break;
-            case 1:
-                bulan = "Februari";
-                break;
-            case 2:
-                bulan = "Maret";
-                break;
-            case 3:
-                bulan = "April";
-                break;
-            case 4:
-                bulan = "Mei";
-                break;
-            case 5:
-                bulan = "Juni";
-                break;
-            case 6:
-                bulan = "Juli";
-                break;
-            case 7:
-                bulan = "Agustus";
-                break;
-            case 8:
-                bulan = "September";
-                break;
-            case 9:
-                bulan = "Oktober";
-                break;
-            case 10:
-                bulan = "November";
-                break;
-            case 11:
-                bulan = "Desember";
-                break;
-        }
-        var tampilTanggal = hari + ", " + tanggal + " " + bulan + " " + tahun;
-        return tampilTanggal;
+        return hari;
     }
 
     function findPositionUser(data, id) {
@@ -2365,15 +2323,23 @@
             })
             var classToday = ''
             var badgeToday = ''
+            var badgeLembur = ''
             var bgToday = ''
             if (dateList[i] == hariIni) {
                 classToday = 'today'
                 bgToday = 'bg-ijo-polos'
                 badgeToday = '<span class="badge bg-primary ms-2">Today</span>'
             }
-            html += '<th class="small-text p-3 ' + classToday + ' ' + bgToday + '">'
+            if (formatJustDay(dateList[i]) == 'Minggu') {
+                badgeLembur = '<span class="badge bg-orange ms-2">Lembur</span>'
+            }
+            html += '<th class="small-text align-middle p-2 ' + classToday + ' ' + bgToday + '">'
             html += '<div class="row">'
-            html += '<div class="col-12 align-self-center p-0 text-center">' + formatInternationalDate(dateList[i]) + badgeToday + '</div>'
+            html += '<div class="col-12 align-self-center p-0 text-center">'
+            html += '<p class="m-0">' + formatJustDay(dateList[i]) + '</p>'
+            html += '<p class="m-0">' + formatInternationalDate(dateList[i]) + '</p>'
+            html += badgeToday + badgeLembur
+            html += '</div>'
             // html += '<div class="col-4 align-self-center">'
             // html += '<div class="dropdown"><span class="fa fa-ellipsis-h dropdown-date" role="button" id="dropdownMenuButtonDate" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;"></span>'
             // html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButtonDate">'
