@@ -960,6 +960,7 @@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="formReportDailySKT()"><i class="fa fa-file-excel-o me-2"></i>Report Daily</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="offlineModeLog()"><i class="fa fa-cog me-2"></i>Offline Mode Log</a></li>
                             </ul>
                         </div>
                     <?php } else { ?>
@@ -1521,5 +1522,25 @@
         }).then((result) => {
             if (result.isConfirmed) {}
         })
+    }
+
+    function offlineModeLog() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Offline Mode Log</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = ''
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<textarea class="form-control" rows="20">' + JSON.stringify(variableSaveOffline) + '</textarea>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
     }
 </script>

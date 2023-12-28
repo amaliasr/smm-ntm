@@ -1853,21 +1853,13 @@
     }
 
     function handleNumericInput(event) {
-        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39, 46, 44];
+        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
         if (allowChars.indexOf(event.which) === -1) {
             event.preventDefault();
         }
 
         var inputValue = $(this).val();
-        // Mengganti koma dengan titik
-        inputValue = inputValue.replace(/,/, '.');
-
-        // Memeriksa apakah sudah ada titik atau koma dalam nilai input
-        if ((event.which === 46 || event.which === 44) && inputValue.indexOf('.') !== -1) {
-            event.preventDefault();
-        }
-
-        $(this).val(inputValue.replace(/[^\d.]/g, ''));
+        $(this).val(inputValue.replace(/[^\d]/g, ''));
     }
 
     function formSORTIR(id = null, edit = false) {
@@ -2471,8 +2463,22 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
-        html_body += '<div class="col-12">'
+        html_body += '<div class="col-12" id="listDataOfflineMode">'
 
+
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('p-0')
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        // html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanOfflineMode()">Simpan</button>'
+        $('#modalFooter').html(html_footer)
+        listDataOfflineMode()
+    }
+
+    function listDataOfflineMode() {
+        var html_body = ''
         variableSaveOffline.resultProductPerson.forEach(e => {
             var dataEmployee = dataEntry.employee.find((v, k) => {
                 if (v.id == e.employee_id) return true
@@ -2488,18 +2494,27 @@
             html_body += '<div class="col-auto align-self-center">'
             html_body += '<p class="m-0 fw-bolder">' + e.qty_good_deliv + '</p>'
             html_body += '</div>'
+            html_body += '<div class="col-auto align-self-center">'
+            html_body += '<button class="btn btn-sm btn-primary" onclick="saveOneByOneOffline(' + "'" + e.id + "'" + ')">Retry</button>'
+            html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
             html_body += '</div>'
         });
+        $('#listDataOfflineMode').html(html_body)
+    }
 
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body).removeClass('p-0')
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        // html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanOfflineMode()">Simpan</button>'
-        $('#modalFooter').html(html_footer)
+    function saveOneByOneOffline(id) {
+        var data = deepCopy(variableSaveOffline.resultProductPerson)
+        var dataFilter = data.filter((v, k) => {
+            if (v.id == id) return true
+        })
+        var newData = {}
+        newData.resultProductPerson = dataFilter
+        var type = 'POST'
+        var button = '#btnSimpanOffline'
+        var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
+        kelolaDataSaveAuto(newData, type, url, button)
     }
 
     function simpanOfflineMode() {
@@ -3059,6 +3074,7 @@
                 })
             })
         })
+        listDataOfflineMode()
     }
 
     function loadDataPeriodic() {
