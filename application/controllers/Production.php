@@ -187,12 +187,13 @@ class Production extends CI_Controller
         $data['id'] = $id;
         $this->template->views('production/work_plan', $data);
     }
-    public function productionEntry($linkBefore = null, $workPlanMachineId = null, $label = null)
+    public function productionEntry($linkBefore = null, $workPlanMachineId = null, $label = null, $workPlanId = null)
     {
         $data['title'] = 'Production Entry';
         $data['workPlanMachineId'] = base64_decode($workPlanMachineId);
         $data['label'] = base64_decode($label);
-        $dataAPI = json_decode($this->curl->simple_get(api_produksi('loadPageProductionEntry?personLabel=' . base64_decode($label) . '&workPlanMachineId=' . base64_decode($workPlanMachineId))))->data;
+        $data['workPlanId'] = base64_decode($workPlanId);
+        $dataAPI = json_decode($this->curl->simple_get(api_produksi('loadPageProductionEntry?personLabel=' . base64_decode($label) . '&workPlanMachineId=' . base64_decode($workPlanMachineId) . '&workPlanId=' . base64_decode($workPlanId))))->data;
         $data['linkBefore'] = $linkBefore;
         if ($linkBefore) {
             $data['link'] = $linkBefore;
@@ -381,5 +382,10 @@ class Production extends CI_Controller
         header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
         header('Cache-Control: max-age=0');
         $writer->save('php://output');
+    }
+    public function manageProduction()
+    {
+        $data['title'] = 'Manage Production';
+        $this->template->views('production/manage_production', $data);
     }
 }

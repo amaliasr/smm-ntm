@@ -151,20 +151,14 @@
         text-align: center;
     }
 
-    .text-small {
-        font-size: 10px;
-    }
-
-    .super-text-small {
-        font-size: 8px;
-    }
-
     table {
         border-collapse: initial !important;
         /* Don't collapse */
         border-spacing: 0px !important;
         border: 1px solid #dce0e6 !important;
     }
+
+    .bg-purples {}
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
@@ -172,7 +166,8 @@
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
 
-<main>
+
+<main class="bg-purples">
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
         <div class="container-xl px-4 mb-5">
@@ -182,7 +177,7 @@
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
             <div class="col pb-2">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PRODUCTION DAILY</h1>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">MANAGE PRODUCTION</h1>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
@@ -200,91 +195,33 @@
                                 <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
                                 </select>
                             </div>
-                            <div class="col-auto ps-0">
-                                <p class="fw-bolder small-text m-0">Kode Meja</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja">
-                                </select>
-                            </div>
                             <div class="col-auto p-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-auto d-flex align-items-end">
-                        <div class="dropdown">
-                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-                                <span class="fa fa-download me-2"></span>Downloads
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 pe-1">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body p-3">
-                        <div class="row">
-                            <div class="col-4 align-self-center text-center">
-                                <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/trolley_full.svg" alt="Icon" />
-                            </div>
-                            <div class="col-8">
-                                <p class="m-0 lh-2 fw-bold super-text-small">Setoran Terbanyak</p>
-                                <p class="m-0 lh-1 fw-bolder h3" id="namaSetoranTerbanyak">-</p>
-                                <p class="m-0 lh-2 fw-bold super-text-small">Jumlah <span class="text-success" id="jumlahSetoranTerbanyak">-</span> Btg</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 ps-1 pe-1">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body p-3">
-                        <div class="row">
-                            <div class="col-4 align-self-center text-center">
-                                <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/trolley_less.svg" alt="Icon" />
-                            </div>
-                            <div class="col-8">
-                                <p class="m-0 lh-2 fw-bold super-text-small">Setoran Terendah</p>
-                                <p class="m-0 lh-1 fw-bolder h3" id="namaSetoranTersedikit">-</p>
-                                <p class="m-0 lh-2 fw-bold super-text-small">Jumlah <span class="text-danger" id="jumlahSetoranTersedikit">-</span> Btg</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 ps-1">
-                <div class="card shadow-none border-radius-20 h-100">
-                    <div class="card-body p-3">
-                        <div class="row h-100">
-                            <div class="col-3">
-
-                            </div>
-                            <div class="col-9 align-self-center">
-                                <p class="m-0 lh-2 fw-bold small">Total Setoran</p>
-                                <p class="m-0 lh-1 fw-bolder h2"><span id="totalAllSetoran" class="text-primary">-</span> Btg</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 mt-2">
-                <div class="card shadow-none border-radius-20">
+            <div class="col-12 mb-2">
+                <div class="card shadow-none border-radius-20 p-3">
                     <div class="card-body">
-                        <p class="fw-bolder m-0">Detail</p>
                         <div class="table-responsible" id="dataTable">
-
+                            <div class="row">
+                                <div class="col-auto"><b>Still Open</b></div>
+                                <div class="col align-self-center">
+                                    <hr>
+                                </div>
+                                <div class="col-12">
+                                    test
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </main>
@@ -432,26 +369,6 @@
         return null;
     }
 
-    function findTopEmployees(data) {
-        // Menyusun data berdasarkan total_good secara menurun
-        data.sort((a, b) => b.total_good - a.total_good);
-
-        // Mengambil 3 karyawan teratas
-        const topEmployees = data.slice(0, 10);
-
-        return topEmployees;
-    }
-
-    function findDownEmployees(data) {
-        // Menyusun data berdasarkan total_good secara menaik
-        data.sort((a, b) => a.total_good - b.total_good);
-
-        // Mengambil 3 karyawan teratas
-        const topEmployees = data.slice(0, 3);
-
-        return topEmployees;
-    }
-
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -472,16 +389,15 @@
     var date_end = currentDate()
     var machineId
     var rowCode
-    var dataProfile = 'IGNORESORTIR'
     $(document).ready(function() {
-        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
-        $('select').selectpicker();
-        loadData()
+        // $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
+        // $('select').selectpicker();
+        // loadData()
     })
 
     function loadData() {
         $.ajax({
-            url: "<?= api_produksi('loadPageReportResultPersonDaily'); ?>",
+            url: "<?= api_produksi('loadPageMachineReport'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
@@ -509,21 +425,22 @@
     }
 
     function dateRangeString() {
-        $('#dateRangeString').html(formatDateIndonesiaShort(date_start))
+        $('#dateRangeString').html(formatMonthYear(date_start) + ' - ' + formatMonthYear(date_end))
     }
 
     function setDaterange() {
         new Litepicker({
             element: document.getElementById('dateRange'),
-            singleMode: true,
+            singleMode: false,
             firstDay: 0,
             startDate: date_start,
+            endDate: date_end,
             format: "DD MMMM YYYY",
             autoRefresh: true,
             setup: (picker) => {
-                picker.on('selected', (date1) => {
+                picker.on('selected', (date1, date2) => {
                     date_start = formatDate(date1['dateInstance'])
-                    // date_end = formatDate(date2['dateInstance'])
+                    date_end = formatDate(date2['dateInstance'])
                 });
             },
         })
@@ -531,25 +448,12 @@
 
     function formMachine() {
         var html = ''
-        data_user.dataMachine.forEach(e => {
+        data_user.machine.forEach(e => {
             html += '<option value="' + e.id + '" selected>' + e.code + '</option>'
         });
         $('#selectMachine').html(html)
         $('#selectMachine').selectpicker('refresh');
         $('#selectMachine').selectpicker({
-
-        });
-        formCodeMeja()
-    }
-
-    function formCodeMeja() {
-        var html = ''
-        data_user.rowCodeProfile.forEach(e => {
-            html += '<option value="' + e.id + '" selected>' + e.name + '</option>'
-        });
-        $('#selectCodeMeja').html(html)
-        $('#selectCodeMeja').selectpicker('refresh');
-        $('#selectCodeMeja').selectpicker({
 
         });
         simpanData()
@@ -564,34 +468,14 @@
         machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
-        var dataCode = $('#selectCodeMeja').map(function() {
-            return $(this).val();
-        }).get()
-        var row = []
-        data_user.rowCodeProfile.forEach(e => {
-            for (let i = 0; i < dataCode.length; i++) {
-                if (e.id == dataCode[i]) {
-                    for (let j = 0; j < e.codes.length; j++) {
-                        if (!e.codes[j]) {
-                            e.codes[j] = 'UNKNOWN'
-                        }
-                        row.push(e.codes[j])
-                    }
-                }
-
-            }
-        })
-        rowCode = arrayToString(row)
-        // rowCode
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResultPersonDaily'); ?>'
+        var url = '<?php echo api_produksi('getReportResultPersonQuality'); ?>'
         var data = {
-            date: date_start,
+            dateStart: date_start,
+            dateEnd: date_end,
             machineId: machineId,
-            rowCode: rowCode,
-            dataProfile: dataProfile
         }
         kelolaData(data, type, url, button)
     }
@@ -619,50 +503,25 @@
                 dateRangeString()
                 $(button).prop("disabled", false);
                 data_report = response.data
-                if (data_report.reportResultPersonDaily.length) {
-                    updatedStructure()
-                    setoranTerbanyak()
-                } else {
-                    // tidak ada data
-                    $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
-                }
+                // if (data_report.reportResultPersonQuality.length) {
+                updatedStructure()
+                // } else {
+                // tidak ada data
+                // $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
+                // }
             }
         });
     }
 
     function updatedStructure() {
-        dataTable()
+        // dataTable()
     }
 
-    function setoranTerbanyak() {
-        var setoranTerbanyak = findTopEmployees(data_report.reportResultPersonDaily)
-        $('#namaSetoranTerbanyak').html(shortenText(setoranTerbanyak[0].employee.name, 20))
-        $('#jumlahSetoranTerbanyak').html(number_format(setoranTerbanyak[0].total_good))
-        // console.log(setoranTerbanyak)
-        setoranTersedikit()
-    }
-
-    function setoranTersedikit() {
-        var setoranTersedikit = findDownEmployees(data_report.reportResultPersonDaily)
-        $('#namaSetoranTersedikit').html(shortenText(setoranTersedikit[0].employee.name, 20))
-        $('#jumlahSetoranTersedikit').html(number_format(setoranTersedikit[0].total_good))
-        // console.log(setoranTerbanyak)
-        totalAllSetoran()
-    }
-
-    function totalAllSetoran() {
-        var total = calculateTotalGood(data_report.reportResultPersonDaily)
-        $('#totalAllSetoran').html(number_format(total))
-    }
-
-    function calculateTotalGood(data) {
-        const totalGood = data.reduce((acc, employee) => acc + employee.total_good, 0);
-        return totalGood;
-    }
+    function tableTemplate() {}
 
     function dataTable() {
         var html = ''
-        html += '<table class="table table-bordered table-hover table-sm small" id="tableDetail">'
+        html += '<table class="table table-bordered table-hover table-sm small-text w-100" id="tableDetail">'
         html += '<thead id="headTable">'
         html += '</thead>'
         html += '<tbody id="bodyTable">'
@@ -672,25 +531,72 @@
         headTable()
     }
 
+    function formatMonthYear(orginaldate) {
+        var date = new Date(orginaldate);
+        var tahun = date.getFullYear();
+        var bulan = date.getMonth();
+        switch (bulan) {
+            case 0:
+                bulan = "Januari";
+                break;
+            case 1:
+                bulan = "Februari";
+                break;
+            case 2:
+                bulan = "Maret";
+                break;
+            case 3:
+                bulan = "April";
+                break;
+            case 4:
+                bulan = "Mei";
+                break;
+            case 5:
+                bulan = "Juni";
+                break;
+            case 6:
+                bulan = "Juli";
+                break;
+            case 7:
+                bulan = "Agustus";
+                break;
+            case 8:
+                bulan = "September";
+                break;
+            case 9:
+                bulan = "Oktober";
+                break;
+            case 10:
+                bulan = "November";
+                break;
+            case 11:
+                bulan = "Desember";
+                break;
+        }
+        var tampilTanggal = bulan + " " + tahun;
+        return tampilTanggal;
+    }
+
     function headTable() {
         var html = ''
         html += '<tr>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">EID</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Nama</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Group</th>'
-        const dates = data_report.reportResultPersonDaily[0].data.map(item => Object.keys(item)[0]);
-        for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle" colspan="2">Setoran ' + dates[i] + '</th>'
-        }
-        html += '<th class="align-middle" rowspan="2">Total</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Date</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Shift</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Machine</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Product</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Start - End</th>'
+        html += '<th class="align-middle" colspan="5">Worker</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Status</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Action</th>'
         html += '</tr>'
 
         html += '<tr>'
-        for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle">Jumlah Setoran</th>'
-            html += '<th class="align-middle">Jam</th>'
-        }
+        html += '<th class="align-middle">Catcher</th>'
+        html += '<th class="align-middle">Helper</th>'
+        html += '<th class="align-middle">Operator</th>'
+        html += '<th class="align-middle">Mechanic</th>'
+        html += '<th class="align-middle">QC</th>'
         html += '</tr>'
         $('#headTable').html(html)
         bodyTable()
@@ -699,23 +605,52 @@
     function bodyTable() {
         var html = ''
         var a = 1
-        data_report.reportResultPersonDaily.forEach(e => {
-            html += '<tr>'
-            html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
-            html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
-            html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
-            html += '<td class="text-center small-text" style="background-color: white;">' + e.row_code + '</td>'
-            e.data.forEach(el => {
-                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
-                var time = ''
-                if (el[Object.keys(el)[0]].time) {
-                    time = convertTimeFormat2(el[Object.keys(el)[0]].time[0])
-                }
-                html += '<td class="text-center small-text">' + time + '</td>'
-            });
-            html += '<td class="text-center small-text">' + e.total_good + '</td>'
+        for (let i = 0; i < 3; i++) {
+            html += '<tr class="">'
+            html += '<td class="text-center align-middle small-text" rowspan="2" style="background-color: white;">' + a++ + '</td>'
+            html += '<td class="text-center align-middle small-text" rowspan="2" style="background-color: white;">Senin<br>12-01-2024</td>'
+            html += '<td class="text-center align-middle small-text text-nowrap" rowspan="2" style="background-color: white;">Shift Pagi</td>'
+            html += '<td class="text-center align-middle small-text text-nowrap" rowspan="2" style="background-color: white;">MK9-A</td>'
+            html += '<td class="text-center align-middle small-text">ABOF20</td>'
+            html += '<td class="text-center align-middle small-text">08:00 - 12:00</td>'
+            html += '<td class="text-center align-middle small-text"><i class="fa fa-check text-success"></i></td>'
+            html += '<td class="text-center align-middle small-text"><i class="fa fa-check text-success"></i></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text text-success fw-bolder"><i>Open</i></td>'
+            html += '<td class="text-center align-middle small-text text-success fw-bolder"><button class="btn btn-sm btn-danger super-small-text p-2">Close</button></td>'
             html += '</tr>'
-        });
+
+            html += '<tr>'
+            html += '<td class="text-center align-middle small-text">ABLF20</td>'
+            html += '<td class="text-center align-middle small-text">--:-- - --:--</td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text text-success fw-bolder"></td>'
+            html += '<td class="text-center align-middle small-text text-success fw-bolder"></td>'
+            html += '</tr>'
+        }
+        for (let i = 0; i < 100; i++) {
+            html += '<tr class="bg-light">'
+            html += '<td class="text-center align-middle small-text bg-light" style="background-color: white;">' + a++ + '</td>'
+            html += '<td class="text-center align-middle small-text bg-light" style="background-color: white;">Senin<br>12-01-2024</td>'
+            html += '<td class="text-center align-middle small-text bg-light text-nowrap" style="background-color: white;">Shift Pagi</td>'
+            html += '<td class="text-center align-middle small-text bg-light text-nowrap" style="background-color: white;">MK9-A</td>'
+            html += '<td class="text-center align-middle small-text">ABLF20</td>'
+            html += '<td class="text-center align-middle small-text">08:00 - 13:00</td>'
+            html += '<td class="text-center align-middle small-text"><i class="fa fa-check text-success"></i></td>'
+            html += '<td class="text-center align-middle small-text"><i class="fa fa-check text-success"></i></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"></td>'
+            html += '<td class="text-center align-middle small-text"><i class="text-danger">Closed</i></td>'
+            html += '<td class="text-center align-middle small-text text-success fw-bolder"></td>'
+            html += '</tr>'
+        }
         $('#bodyTable').html(html)
         $('#tableDetail').DataTable({
             ordering: false, // Menonaktifkan pengurutan
@@ -726,7 +661,7 @@
             paging: false,
             fixedHeader: true,
             fixedColumns: {
-                left: 4
+                left: 3
             },
             paging: false,
         })
@@ -734,11 +669,11 @@
 
     function cetakReport(x, y) {
         if (x == 'excel') {
-            var url = "<?= base_url() ?>report/reportDailySKT"
+            var url = "<?= base_url() ?>report/reportPersonQualityExcel"
         } else {
-            var url = "<?= base_url() ?>report/reportDailySKTPdf"
+            var url = "<?= base_url() ?>report/reportPersonQualityPdf"
         }
-        var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode + "*$" + dataProfile;
+        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

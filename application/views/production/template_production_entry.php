@@ -871,7 +871,7 @@
                             $clicked = 'clicked';
                         }
                     ?>
-                        <div class="card shadow-none mb-2 btn-list-planning <?= $clicked ?>" onclick="location='<?= base_url() ?>production/productionEntry/<?= $value->name ?>/<?= base64_encode($workPlanMachineId) ?>/<?= base64_encode($label) ?>'">
+                        <div class="card shadow-none mb-2 btn-list-planning <?= $clicked ?>" onclick="location='<?= base_url() ?>production/productionEntry/<?= $value->name ?>/<?= base64_encode($workPlanMachineId) ?>/<?= base64_encode($label) ?>/<?= base64_encode($workPlanId) ?>'">
                             <span class="position-absolute top-50 start-100 translate-middle p-2 bg-light border border-light-dark rounded-circle" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;cursor:pointer;"><i class="fa fa-check text-light-dark"></i></span>
                             <div class="card-body pt-3 pb-3">
                                 <div class="row">
@@ -965,8 +965,8 @@
                         </div>
                     <?php } else { ?>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="chooseBrand()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
-                        <button type="button" class="btn shadow-none btn-sm shadow-none btn-danger" onclick="closeBrand()"><i class="fa fa-times me-2"></i>Closing</button>
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" id="btnChooseBrand" onclick="chooseBrand()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
+                        <button type="button" class="btn shadow-none btn-sm shadow-none btn-danger" id="btnCloseBrand" onclick="closeBrand()" hidden><i class="fa fa-times me-2"></i>Closing</button>
                     <?php } ?>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
                 </div>
@@ -1105,13 +1105,15 @@
 </script>
 <script>
     var workPlanMachineId = '<?= $workPlanMachineId ?>'
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var link = '<?= $link ?>'
+    var workPlanId = '<?= $workPlanId ?>'
+    var isRunningID = ''
+
     $(document).ready(function() {
         loadDataTemplate()
         if (link == 'deliver_goods' || link == 'sorting_goods') {
             loadIncomplete()
-        } else {
-            // chooseBrand()
         }
     })
 
@@ -1190,6 +1192,7 @@
         var data = {
             personLabel: '<?= $label ?>',
             workPlanMachineId: workPlanMachineId,
+            workPlanId: workPlanId,
         }
         var url = "<?= api_produksi('loadPageProductionEntry'); ?>"
         getDataTemplate(data, url)
@@ -1249,6 +1252,36 @@
                 } else {
                     $('#iconShift').html('<img class="float-center" style="width: 20px;" src="<?= base_url() ?>assets/image/svg/pm.svg" alt="Icon" />')
                 }
+                getWorkPlanProduct(data)
+            }
+        })
+    }
+    var dataWorkPlanProducts
+    var isRunningBrand = false
+
+    function getWorkPlanProduct(data) {
+        $.ajax({
+            url: "<?= api_produksi('getWorkPlanProduct'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                workPlanMachineId: workPlanMachineId,
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                dataWorkPlanProducts = response.data
+                isRunningBrand = ifBrandIsRunning()
                 listWorkPlan(data)
             }
         })
@@ -1302,7 +1335,14 @@
         html += '<div class="col-7"><b>' + formatNames(data.workPlanMachine.employee_catcher) + '</b></div>'
         html += '</div>'
         $('#workingInformation').html(html)
-        loadData()
+        var label = '<?= $link ?>'
+        if (label != 'default') {
+            loadData()
+        } else {
+            if (!isRunningBrand) {
+                chooseBrand()
+            }
+        }
     }
 
     function formReportDailySKT() {
@@ -1396,6 +1436,25 @@
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 
+
+    function ifBrandIsRunning() {
+        var dataIsRunning = dataWorkPlanProducts.workPlanProduct.find((v, k) => {
+            if (v.is_running == 1) return true
+        })
+        if (dataIsRunning) {
+            // jika ada yang berjalan
+            isRunningID = dataIsRunning.id
+            $('#btnChooseBrand').prop('hidden', true)
+            $('#btnCloseBrand').prop('hidden', false)
+            return true
+        } else {
+            isRunningID = ''
+            $('#btnChooseBrand').prop('hidden', false)
+            $('#btnCloseBrand').prop('hidden', true)
+            return false
+        }
+    }
+
     function chooseBrand() {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
@@ -1407,86 +1466,6 @@
         html_body += '<div class="row">'
 
         html_body += '<div class="col-12" id="listChooseBrand">'
-
-        for (let i = 0; i < 1; i++) {
-            html_body += '<div class="card mb-2 shadow-sm bg-light-success">'
-            html_body += '<div class="card-body">'
-            html_body += '<div class="row">'
-
-            html_body += '<div class="col-1 pe-0 align-self-center">'
-            html_body += '<p class="m-0 small fw-bold">#1</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-3 ps-0 align-self-center">'
-            html_body += '<h3 class="m-0 fw-bolder">ABLF <i class="fa fa-check-circle text-success"></i></h3>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<p class="m-0 super-small-text">Start Time</p>'
-            html_body += '<p class="m-0 fw-bolder">08:00</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<p class="m-0 super-small-text">End Time</p>'
-            html_body += '<p class="m-0 fw-bolder">09:00</p>'
-            html_body += '</div>'
-            html_body += '<div class="col align-self-center text-end">'
-            html_body += '<i class="small">Selesai</i>'
-            html_body += '</div>'
-
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        for (let i = 0; i < 1; i++) {
-            html_body += '<div class="card mb-2 shadow-sm bg-light-orange text-white">'
-            html_body += '<div class="card-body">'
-            html_body += '<div class="row">'
-
-            html_body += '<div class="col-1 pe-0 align-self-center">'
-            html_body += '<p class="m-0 small fw-bold">#1</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-3 ps-0 align-self-center">'
-            html_body += '<h3 class="m-0 fw-bolder text-white">ABLF</h3>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<p class="m-0 super-small-text">Start Time</p>'
-            html_body += '<p class="m-0 fw-bolder">08:00</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<p class="m-0 super-small-text">End Time</p>'
-            html_body += '<p class="m-0 fw-bolder">--:--</p>'
-            html_body += '</div>'
-            html_body += '<div class="col align-self-center text-end">'
-            html_body += '<button class="btn btn-danger" onclick="closeBrand()">Close</button>'
-            html_body += '</div>'
-
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-        for (let i = 0; i < 2; i++) {
-            html_body += '<div class="card mb-2 shadow-sm card-hoper pointer" onclick="afterChooseBrand()">'
-            html_body += '<div class="card-body">'
-            html_body += '<div class="row">'
-
-            html_body += '<div class="col-1 pe-0 align-self-center">'
-            html_body += '<p class="m-0 small fw-bold">#1</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-3 ps-0 align-self-center">'
-            html_body += '<h3 class="m-0 fw-bolder">ABLF</h3>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<p class="m-0 super-small-text">Start Time</p>'
-            html_body += '<p class="m-0 fw-bolder">--:--</p>'
-            html_body += '</div>'
-            html_body += '<div class="col-2 align-self-center">'
-            html_body += '<p class="m-0 super-small-text">End Time</p>'
-            html_body += '<p class="m-0 fw-bolder">--:--</p>'
-            html_body += '</div>'
-
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
-
         html_body += '</div>'
 
         html_body += '</div>'
@@ -1494,7 +1473,69 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
+        listChooseBrand()
     }
+
+    function listChooseBrand() {
+        var html = ''
+        dataWorkPlanProducts.workPlanProduct.forEach(e => {
+            var bg = 'card-hoper pointer'
+            var text = ''
+            var btnChoose = 'onclick="afterChooseBrand()"'
+            if (e.is_complete) {
+                bg = 'bg-light-success'
+                btnChoose = ''
+            } else {
+                if (e.is_running) {
+                    bg = 'bg-light-orange text-white'
+                    text = 'text-white'
+                    btnChoose = ''
+                }
+            }
+            html += '<div class="card mb-2 shadow-sm ' + bg + '" ' + btnChoose + '>'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+
+            html += '<div class="col-2 align-self-center">'
+            html += '<p class="m-0 small fw-bold">#' + e.priority + '</p>'
+            html += '</div>'
+            html += '<div class="col-4 ps-0 align-self-center">'
+            html += '<h5 class="m-0 fw-bolder ' + text + '">' + e.product.alias + '</h5>'
+            html += '<p class="m-0 super-small-text">' + e.product.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-2 align-self-center">'
+            html += '<p class="m-0 super-small-text">Start Time</p>'
+            var startTimeBrand = '--:--'
+            if (e.datetime_start) {
+                startTimeBrand = formatJamMenit(e.datetime_start)
+            }
+            var endTimeBrand = '--:--'
+            if (e.datetime_end) {
+                endTimeBrand = formatJamMenit(e.datetime_end)
+            }
+            html += '<p class="m-0 fw-bolder">' + startTimeBrand + '</p>'
+            html += '</div>'
+            html += '<div class="col-2 align-self-center">'
+            html += '<p class="m-0 super-small-text">End Time</p>'
+            html += '<p class="m-0 fw-bolder">' + endTimeBrand + '</p>'
+            html += '</div>'
+            if (e.is_complete) {
+                html += '<div class="col-2 align-self-center text-end">'
+                html += '<i class="small">Selesai</i>'
+                html += '</div>'
+            } else {
+                html += '<div class="col-2 align-self-center text-end">'
+                html += '<button class="btn btn-sm btn-danger btnSimpan" onclick="closeBrand(' + "'" + e.id + "'" + ')">Close</button>'
+                html += '</div>'
+            }
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listChooseBrand').html(html)
+    }
+
 
     function afterChooseBrand() {
         Swal.fire({
@@ -1510,9 +1551,17 @@
         })
     }
 
+    function generateCode() {
+        var date = (new Date).getTime()
+        return date;
+    }
+
     function closeBrand() {
+        var data = dataWorkPlanProducts.workPlanProduct.find((v, k) => {
+            if (v.id == isRunningID) return true
+        })
         Swal.fire({
-            text: 'Apakah Anda Yakin ingin Closing Brand ABLF ?',
+            text: 'Apakah Anda Yakin ingin Closing Brand ' + data.product.alias + ' ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -1520,8 +1569,50 @@
             confirmButtonText: 'Yakin',
             cancelButtonText: 'Batal',
         }).then((result) => {
-            if (result.isConfirmed) {}
+            if (result.isConfirmed) {
+                var dataInsert = {
+                    workPlanProductClosing: [{
+                        id: generateCode(),
+                        work_plan_product_id: id,
+                        datetime: currentDateTime(),
+                        employee_id: user_id,
+                        person_label: '<?= $label ?>',
+                        note: '',
+                    }]
+                }
+                simpanDataTemplate(dataInsert)
+            }
         })
+    }
+
+    function simpanDataTemplate(data) {
+        var type = 'POST'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_produksi('setWorkPlanProductClosing'); ?>'
+        kelolaDataTemplate(data, type, url, button)
+    }
+
+    function kelolaDataTemplate(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                $(button).prop("disabled", false);
+                loadDataTemplate()
+            }
+        });
     }
 
     function offlineModeLog() {

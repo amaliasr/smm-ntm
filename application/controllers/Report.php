@@ -626,7 +626,8 @@ class Report extends CI_Controller
         $date = date('Y-m-d', strtotime($explodedParams[1]));
         $machineId = $explodedParams[2];
         $rowCode = $explodedParams[3];
-        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $date . '&machineId=' . $machineId . '&rowCode=' . $rowCode)))->data->reportResultPersonDaily;
+        $dataProfile = $explodedParams[4];
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $date . '&machineId=' . $machineId . '&rowCode=' . $rowCode . '&dataProfile=' . $dataProfile)))->data->reportResultPersonDaily;
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->mergeCells('A1:A2')->setCellValue('A1', 'No');
@@ -690,7 +691,9 @@ class Report extends CI_Controller
         $data['date'] = date('Y-m-d', strtotime($explodedParams[1]));
         $data['machineId'] = $explodedParams[2];
         $data['rowCode'] = $explodedParams[3];
-        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $data['date'] . '&machineId=' . $data['machineId'] . '&rowCode=' . $data['rowCode'])))->data;
+        $data['dataProfile'] = $explodedParams[4];
+        echo $data['dataProfile'];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $data['date'] . '&machineId=' . $data['machineId'] . '&rowCode=' . $data['rowCode'] . '&dataProfile=' . $data['dataProfile'])))->data;
         // $this->load->view('report/cetakReportDailySKT', $data);
         $html = $this->load->view('report/cetakReportDailySKT', $data, true);
         $this->pdf->setPaper('A4', 'landscape');

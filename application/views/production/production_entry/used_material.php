@@ -179,8 +179,9 @@
     function loadData() {
         var data = {
             workPlanMachineId: workPlanMachineId,
+            workPlanProductId: isRunningID
         }
-        var url = "<?= api_produksi('loadPageUsedMaterialEntry'); ?>"
+        var url = "<?= api_produksi('loadPageUsedMaterialEntrySingle'); ?>"
         getData(data, url)
     }
 
@@ -204,6 +205,9 @@
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
+                var dataMentah = deepCopy(dataEntry.materialStock)
+                dataEntry.materialStock = []
+                dataEntry.materialStock.push(dataMentah)
                 menuMaterial()
             }
         })
@@ -216,8 +220,6 @@
         html += '<div class="col-2 fw-bolder" id="timeProduction">-</div>'
         html += '<div class="col-2"><i class="fa fa-calculator me-2"></i>Material Machine</div>'
         html += '<div class="col-1 fw-bolder"><span id="countMaterial">-</span> / <span id="totalMaterial">-</span></div>'
-        html += '<div class="col-2"><i class="fa fa-calculator me-2"></i>Material All</div>'
-        html += '<div class="col-1 fw-bolder"><span id="countMaterialAll">-</span> / <span id="totalMaterialAll">-</span></div>'
         html += '</div>'
         html += '<hr class="m-0">'
         html += '<div class="table-responsive" id="table-product-trend-wrapper">'
@@ -245,6 +247,10 @@
         timeProduction(status)
     }
 
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
     function reset() {
         dataProductionOut = []
         dataProductionOutGroup = []
@@ -258,11 +264,11 @@
         var material = data.material.find((v, k) => {
             if (v.item.id == id) return true
         })
-        if (!material) {
-            material = data.material_other.find((v, k) => {
-                if (v.item.id == id) return true
-            })
-        }
+        // if (!material) {
+        //     material = data.material_other.find((v, k) => {
+        //         if (v.item.id == id) return true
+        //     })
+        // }
         return material
     }
 
@@ -635,7 +641,7 @@
         var count = 0
         // MATERIAL
         $('#totalMaterial').html(data.material.length)
-        $('#totalMaterialAll').html(data.material.length + data.material_other.length)
+        // $('#totalMaterialAll').html(data.material.length + data.material_other.length)
         $.each(data.material, function(key, value) {
             var tr_class = 'fw-bolder bg-light'
             if (value.gross_usage > 0) {
@@ -650,20 +656,20 @@
         });
         $('#countMaterial').html(count)
 
-        // MATERIAL OTHER
-        $.each(data.material_other, function(key, value) {
-            var tr_class = ''
-            if (value.gross_usage > 0) {
-                tr_class = 'bg-light-success'
-                count++
-            }
-            if (value.stok_akhir < 0) {
-                tr_class = 'bg-light-danger'
-            }
-            html += formListMaterial(no, status, value, tr_class, '<i class="fa fa-star-o text-grey"></i>')
-            no++
-        });
-        $('#countMaterialAll').html(count)
+        // // MATERIAL OTHER
+        // $.each(data.material_other, function(key, value) {
+        //     var tr_class = ''
+        //     if (value.gross_usage > 0) {
+        //         tr_class = 'bg-light-success'
+        //         count++
+        //     }
+        //     if (value.stok_akhir < 0) {
+        //         tr_class = 'bg-light-danger'
+        //     }
+        //     html += formListMaterial(no, status, value, tr_class, '<i class="fa fa-star-o text-grey"></i>')
+        //     no++
+        // });
+        // $('#countMaterialAll').html(count)
         $('#listMaterial').html(html)
     }
 

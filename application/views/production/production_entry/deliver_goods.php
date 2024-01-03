@@ -380,7 +380,7 @@
     </div>
 </div>
 <div class="fixed-top" style="z-index: 999999999;">
-    <div class="bg-danger text-white small p-3 text-center" style="width: 350px;" id="offlineModePane" hidden>
+    <div class="bg-danger text-white small p-3 text-center m-1 rounded-pill top-0 start-100" style="width: 350px;" id="offlineModePane" hidden>
         <i class="fa fa-wifi me-2"></i>Offline Mode<span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2" onclick="simpanOfflineMode()"><i class="fa fa-save me-1"></i>Send All</button></span>
     </div>
 </div>
@@ -806,6 +806,7 @@
     function workerProgress() {
         $('#totalWorker').html(dataEntry.productionDelivery.length)
         $('#workerProgress').html(formWorkerProgress())
+        searching()
         if (stillOpenModal) {
             if (!JustOnCamAfterAdd) {
                 if (materialIdClicked) {
@@ -850,7 +851,6 @@
                         value = check.good
                     } else {
                         bg = 'bg-orange'
-
                     }
                 } else {
                     var dataDelivery = findStatus()
@@ -2651,7 +2651,6 @@
             padding: 0,
         });
         var image = qrcode._oDrawing._elCanvas.toDataURL("image/png")
-        console.log(image)
         doPrint(image, data, id)
     }
 
@@ -2944,6 +2943,7 @@
             event.returnValue = "Data Offline Mode masih belum di Upload";
         }
     });
+
     var intervalId
 
     function setIntervalOfflineMode() {
@@ -3167,5 +3167,6 @@
         })
         $('#totalWorker').html(dataEntry.productionDelivery.length)
         $('#workerProgress').html(formWorkerProgress())
+        searching()
     }
 </script>

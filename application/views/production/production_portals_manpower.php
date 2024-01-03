@@ -924,6 +924,7 @@
                 shift_name: item.shift_name,
                 work_plan_table_id: item.work_plan_table_id,
                 work_plan_table_type: item.work_plan_table_type,
+                work_plan_id: item.work_plan_id,
                 machine: [],
             };
             // }
@@ -1151,6 +1152,7 @@
                                 'posisi': d.person.person_label,
                                 'work_plan_table_id': d.person.work_plan_table.id,
                                 'work_plan_table_type': d.person.work_plan_table.type,
+                                'work_plan_id': d.person.work_plan_table.work_plan_id,
                                 'note': d.person.note,
                             })
                         });
@@ -1249,7 +1251,7 @@
                                 if (d.date == hariIni) {
                                     today = 'bg-ijo-polos'
                                 }
-                                html += '<div class="card card-schedule mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ')">'
+                                html += '<div class="card card-schedule mb-2 shadow-none rounded-3 ' + today + '" style="cursor:pointer;" onclick="openDailyTask(' + "'" + s.person.id + "'" + ',' + "'" + s.person.person_label + "'" + ',' + "'" + s.person.work_plan_table.work_plan_id + "'" + ')">'
                                 html += '<div class="card-body p-0">'
 
                                 html += '<div class="row p-0 m-0">'
@@ -1302,7 +1304,7 @@
             const parts = dateString.split(" ");
             const day = parseInt(parts[0]);
             const month = parts[1];
-            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + "'" + e.work_plan_table_id + "'" + ',' + "'" + e.posisi + "'" + ')">'
+            html += '<div class="card card-hoper shadow-sm mb-2" style="cursor:pointer;" onclick="openDailyTask(' + "'" + e.work_plan_table_id + "'" + ',' + "'" + e.posisi + "'" + ',' + "'" + e.work_plan_id + "'" + ')">'
             html += '<div class="row g-0">'
             html += '<div class="col-md-2 bg-skm">'
             html += '<div class="row d-flex align-items-center h-100">'
@@ -1342,9 +1344,9 @@
         insight()
     }
 
-    function openDailyTask(id, label) {
+    function openDailyTask(id, label, work_plan_id) {
         // console.log(id)
-        var url = '<?= base_url() ?>production/productionEntry/default/' + btoa(id) + '/' + btoa(label)
+        var url = '<?= base_url() ?>production/productionEntry/default/' + btoa(id) + '/' + btoa(label) + '/' + btoa(work_plan_id)
         window.open(url, '_blank')
     }
 

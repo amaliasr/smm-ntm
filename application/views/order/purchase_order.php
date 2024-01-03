@@ -573,7 +573,7 @@
                     if (value.qty_sisa !== 0) return true
                 }).length
                 // console.log(qtyMasihAda)
-                if (divisi_id == 4 && values['state_order'] != 'DONE' && qtyMasihAda > 0 || values['is_complete'] != 1) {
+                if (divisi_id == 4 && (values['state_order'] != 'DONE' && qtyMasihAda > 0 || values['is_complete'] != 1)) {
                     html += '<a class="dropdown-item ' + textPO + '" ' + btnPO + '> <i class="fa fa-plus me-2"></i> Buat PO</a>'
                 }
                 html += '<a class="dropdown-item" onclick="detailPR(' + values['id'] + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
@@ -603,7 +603,7 @@
                     html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + '081944946015' + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
                     html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Tautan</a>'
                 }
-                if (values['state_order'] == null && values['state'] != 'CANCEL' || values['is_complete'] == null || values['is_complete'] == 0) {
+                if ((values['state_order'] == null && values['state'] != 'CANCEL' || values['is_complete'] == null || values['is_complete'] == 0) && divisi_id == 4) {
                     html += '<hr class="m-2">'
                     html += '<div class="text-center pe-2 ps-2">'
                     html += '<button class="btn btn-sm btn-danger w-100" onclick="formCancelPR(' + values['id'] + ')">Pembatalan PR</button>'

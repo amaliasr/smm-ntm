@@ -309,44 +309,29 @@
                                 <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="scannerQR()">SCANNER<i class="fa fa-qrcode ms-2 text-green"></i></button>
                             </div>
                             <div class="col-auto ps-2 align-self-center">
-                                <?php if ($link == 'deliver_goods') { ?>
-                                    <div class="btn-group float-end">
-                                        <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                            Option
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <form class="px-3">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" value="" id="checkFastMode" onclick="fastModeOn()">
-                                                        <label class="form-check-label small" for="checkFastMode">
-                                                            Fast Mode
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" value="" id="checkAuto500" onclick="auto500On()" checked>
-                                                        <label class="form-check-label small" for="checkAuto500">
-                                                            Auto 500
-                                                        </label>
-                                                    </div>
-                                                    <hr>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" value="" id="checkOfflineMode" onclick="offlineModeOn()">
-                                                        <label class="form-check-label small" for="checkOfflineMode">
-                                                            Offline Mode
-                                                        </label>
-                                                    </div>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <!-- <div class="form-check">
+                                <div class="btn-group float-end">
+                                    <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                        Option
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <form class="px-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="" id="checkOfflineMode" onclick="offlineModeOn()">
+                                                    <label class="form-check-label small" for="checkOfflineMode">
+                                                        Offline Mode
+                                                    </label>
+                                                </div>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="checkFastMode" onclick="fastModeOn()">
                                         <label class="form-check-label small" for="checkFastMode">
                                             Fast Mode
                                         </label>
                                     </div> -->
-                                <?php } ?>
                             </div>
                         </div>
                     </div>
@@ -379,9 +364,29 @@
         </div>
     </div>
 </div>
-<div class="fixed-top" style="z-index: 999999999;">
-    <div class="bg-danger text-white small p-3 text-center" style="width: 350px;" id="offlineModePane" hidden>
-        <i class="fa fa-wifi me-2"></i>Offline Mode<span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><span id="" class="ms-2 btn btn-dark p-2" onclick="simpanOfflineMode()"><i class="fa fa-save me-1"></i>Send All</span></span>
+<div class="fixed-top text-center" style="z-index: 999999999;">
+    <div class="bg-danger text-white small p-3 text-center m-1 rounded-pill top-0 start-100" style="width: 350px;" id="offlineModePane" hidden>
+        <i class="fa fa-wifi me-2"></i>Offline Mode<span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2" onclick="simpanOfflineMode()"><i class="fa fa-save me-1"></i>Send All</button></span>
+    </div>
+</div>
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+    <!-- Position it: -->
+    <!-- - `.toast-container` for spacing between toasts -->
+    <!-- - `.position-absolute`, `top-0` & `end-0` to position the toasts in the upper right corner -->
+    <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
+    <div class="toast-container position-absolute bottom-0 end-0 p-3" style="z-index: 9999999999999999">
+
+        <!-- Then put toasts within -->
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toast">
+            <div class="toast-header">
+                <strong class="me-auto">Berhasil</strong>
+                <small class="text-muted">Just Now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Refresh Data Berhasil !
+            </div>
+        </div>
     </div>
 </div>
 <div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
@@ -749,6 +754,26 @@
 
     function workerProgress() {
         $('#totalWorker').html(dataEntry.productionDelivery.length)
+        $('#workerProgress').html(formWorkerProgress())
+        searching()
+        if (stillOpenModal) {
+            if (!JustOnCamAfterAdd) {
+                if (materialIdClicked) {
+                    newMaterial(workerIdClicked)
+                } else {
+                    modalWorkProgress()
+                }
+            } else {
+                JustOnCamAfterAdd = false
+                // nanti buka kamera disini
+                firstAddedResultProductPersonId = ''
+                scannerQR()
+            }
+            detailWorker(workerIdClicked)
+        }
+    }
+
+    function formWorkerProgress() {
         var html = ''
         dataEntry.productionDelivery.forEach(e => {
             html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
@@ -799,22 +824,7 @@
             html += '</div>'
             html += '</div>'
         });
-        $('#workerProgress').html(html)
-        if (stillOpenModal) {
-            if (!JustOnCamAfterAdd) {
-                if (materialIdClicked) {
-                    newMaterial(workerIdClicked)
-                } else {
-                    modalWorkProgress()
-                }
-            } else {
-                JustOnCamAfterAdd = false
-                // nanti buka kamera disini
-                firstAddedResultProductPersonId = ''
-                scannerQR()
-            }
-            detailWorker(workerIdClicked)
-        }
+        return html
     }
 
     function detailWorker(worker_id) {
@@ -1037,6 +1047,27 @@
         dataOtherDate = ''
         isOtherDate = false
         manuallyInsertSId = result_product_person_id_scanned
+        var findData = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id_scanned) return true
+        })
+        if (findData) {
+            // jika ada
+            var findEntry = dataEntry.productionDelivery.filter((v, k) => {
+                if (v.employee_worker.id == worker_id) return true
+            })
+            var response = {
+                data: {
+                    productionDelivery: findEntry
+                },
+            }
+            arrangeDataAfterLoadScanData(response, worker_id, result_product_person_id_scanned)
+        } else {
+            // jika tak ada
+            processLoadData(worker_id, result_product_person_id_scanned)
+        }
+    }
+
+    function processLoadData(worker_id, result_product_person_id_scanned) {
         showOverlay('show')
         $.ajax({
             url: "<?= api_produksi('getProductionDeliv'); ?>",
@@ -1059,27 +1090,27 @@
                 var currentDateLoad = response.data.productionDelivery[0].data[0].datetime
                 if (response.data) {
                     if (formatDate(dataEntry.workPlanMachine.date) != formatDate(currentDateLoad)) {
-                        Swal.fire({
-                            text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad),
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Lanjut',
-                            cancelButtonText: 'Batal',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                afterScan = false
-                                isOtherDate = true
-                                dataOtherDate = response.data
-                                modalWorkProgressOtherDate(response.data)
-                            }
-                        })
                         // Swal.fire({
-                        //     icon: 'error',
-                        //     title: 'Anda Salah Tanggal',
-                        //     text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad)
-                        // });
+                        //     text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad),
+                        //     icon: 'warning',
+                        //     showCancelButton: true,
+                        //     confirmButtonColor: '#3085d6',
+                        //     cancelButtonColor: '#d33',
+                        //     confirmButtonText: 'Lanjut',
+                        //     cancelButtonText: 'Batal',
+                        // }).then((result) => {
+                        //     if (result.isConfirmed) {
+                        //         afterScan = false
+                        //         isOtherDate = true
+                        //         dataOtherDate = response.data
+                        //         modalWorkProgressOtherDate(response.data)
+                        //     }
+                        // })
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Anda Salah Tanggal',
+                            text: 'Data yang discan data tanggal ' + formatDateIndonesia(currentDateLoad)
+                        });
                     } else {
                         arrangeDataAfterLoadScanData(response, worker_id, result_product_person_id_scanned)
                     }
@@ -2055,21 +2086,13 @@
     }
 
     function handleNumericInput(event) {
-        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39, 46, 44];
+        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
         if (allowChars.indexOf(event.which) === -1) {
             event.preventDefault();
         }
 
         var inputValue = $(this).val();
-        // Mengganti koma dengan titik
-        inputValue = inputValue.replace(/,/, '.');
-
-        // Memeriksa apakah sudah ada titik atau koma dalam nilai input
-        if ((event.which === 46 || event.which === 44) && inputValue.indexOf('.') !== -1) {
-            event.preventDefault();
-        }
-
-        $(this).val(inputValue.replace(/[^\d.]/g, ''));
+        $(this).val(inputValue.replace(/[^\d]/g, ''));
     }
 
     function formSORTIR(id = null, edit = false) {
@@ -2663,27 +2686,7 @@
             if (v.id == data.resultProductPerson.employee_id) return true
         })
         variableSaveOffline.resultProductPerson.push(data.resultProductPerson)
-        dataDetailDelivery.push({
-            'worker_id': data.resultProductPerson.employee_id,
-            'worker_name': dataEmployee.name,
-            'result_product_person_id': data.resultProductPerson.id,
-            'number': data.resultProductPerson.number,
-            'datetime': data.resultProductPerson.datetime,
-            'item': {
-                id: data.resultProductPerson.item_id,
-            },
-            'unit': {
-                id: data.resultProductPerson.unit_id
-            },
-            'delivery': {
-                good: data.resultProductPerson.qty_good_deliv
-            },
-            'sortir': null,
-            'fillup': null,
-            'complete': null,
-        })
         buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
-        cetakQR(firstAddedResultProductPersonId)
     }
 
     function buttonSaveOfflineMode(data) {
@@ -3150,11 +3153,34 @@
     function noConnection() {
         offlineMode = true
         $('#offlineModePane').prop("hidden", false);
+        setIntervalOfflineMode()
     }
 
     function yesConnection() {
         offlineMode = false
         $('#offlineModePane').prop("hidden", true);
+        setIntervalOfflineMode()
+    }
+
+    var intervalId
+
+    function setIntervalOfflineMode() {
+        if (!offlineMode) {
+            clearInterval(intervalId);
+        } else {
+            // tiap satu menit
+            intervalId = setInterval(autoSaveAtOfflineMode, 30 * 1000);
+        }
+    }
+
+    function autoSaveAtOfflineMode() {
+        var type = 'POST'
+        var button = '#btnSimpanOffline'
+        var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
+        var data = deepCopy(variableSaveOffline)
+        if (variableSaveOffline.resultProductPerson.length) {
+            kelolaDataSaveAuto(data, type, url, button)
+        }
     }
 
     // Panggil fungsi saat halaman dimuat atau pada suatu peristiwa
@@ -3167,5 +3193,93 @@
     function manuallyInsertSetoran(status, worker_id, result_product_person_id_scanned = null) {
         manuallyInsertStatus = status
         createNewWorker(worker_id)
+    }
+    setInterval(loadDataPeriodic, 60000);
+
+    function loadDataPeriodic() {
+        var data = {
+            workPlanMachineId: workPlanMachineId,
+        }
+        var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
+        getDataPeriodic(data, url)
+    }
+
+    function getDataPeriodic(data, url) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'JSON',
+            data: data,
+            error: function(xhr) {},
+            beforeSend: function() {
+                // $('#workerProgress').html(loadingDataReturn())
+            },
+            success: function(response) {
+                showSuccessToast()
+                $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
+                dataEntry = response.data
+                arrangeVariablePeriodic()
+            }
+        })
+    }
+
+    function showSuccessToast() {
+        var successToast = new bootstrap.Toast(document.getElementById('toast'));
+        successToast.show();
+
+        // Menutup toast secara otomatis setelah 3 detik (sesuaikan dengan kebutuhan)
+        setTimeout(function() {
+            successToast.hide();
+        }, 3000);
+    }
+
+    function arrangeVariablePeriodic() {
+        dataDetailDelivery = []
+        dataMaterial = []
+        dataEntry.productionDelivery.forEach(e => {
+            e.data.forEach(el => {
+                dataDetailDelivery.push({
+                    'worker_id': e.employee_worker.id,
+                    'worker_name': e.employee_worker.name,
+                    'result_product_person_id': el.result_product_person_id,
+                    'number': el.number,
+                    'datetime': el.datetime,
+                    'item': el.item,
+                    'unit': el.unit,
+                    'delivery': el.delivery,
+                    'sortir': el.sortir,
+                    'fillup': el.fillup,
+                    'complete': el.complete,
+                })
+            });
+        })
+        dataEntry.productMaterial.forEach(e => {
+            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                if (v.product.id == e.item_id) return true
+            })
+            e.material_group.forEach(el => {
+                var itemDefault = el.items.find((v, k) => {
+                    if (v.item.id == el.item_id_default) return true
+                })
+                dataMaterial.push({
+                    work_plan_product_id: dataProducts.work_plan_product_id,
+                    item_id: e.item_id,
+                    item_name: e.name,
+                    item_code: e.code,
+                    item_name: e.name,
+                    material_group_id: el.material_group.id,
+                    material_group_name: el.material_group.name,
+                    material_id: itemDefault.item.id,
+                    material_code: itemDefault.item.code,
+                    material_alias: itemDefault.item.alias,
+                    material_name: itemDefault.item.name,
+                    unit_id: itemDefault.unit.id,
+                    unit_name: itemDefault.unit.name,
+                })
+            })
+        })
+        $('#totalWorker').html(dataEntry.productionDelivery.length)
+        $('#workerProgress').html(formWorkerProgress())
+        searching()
     }
 </script>
