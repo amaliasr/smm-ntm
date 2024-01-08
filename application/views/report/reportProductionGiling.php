@@ -151,8 +151,12 @@
         text-align: center;
     }
 
-    .bg-orange-light {
-        background-color: #fcf6ec !important;
+    .text-small {
+        font-size: 10px;
+    }
+
+    .super-text-small {
+        font-size: 8px;
     }
 
     table {
@@ -161,17 +165,12 @@
         border-spacing: 0px !important;
         border: 1px solid #dce0e6 !important;
     }
-
-    .bg-light-danger {
-        background-color: #f9dfdf !important;
-    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
-
 
 <main>
     <!-- Main page content-->
@@ -183,7 +182,7 @@
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
             <div class="col pb-2">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PERSON SALARY</h1>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT GILING</h1>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
@@ -201,6 +200,11 @@
                                 <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
                                 </select>
                             </div>
+                            <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Kode Meja</p>
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja">
+                                </select>
+                            </div>
                             <div class="col-auto p-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
@@ -214,14 +218,15 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel')">Excel</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf')">PDF</a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 mb-2">
+            <div class="col-12 mt-2">
                 <div class="card shadow-none border-radius-20">
                     <div class="card-body">
                         <p class="fw-bolder m-0">Detail</p>
@@ -232,24 +237,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-4">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
-                    </div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
-                    </div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </main>
@@ -397,33 +385,24 @@
         return null;
     }
 
-    function formatJustDay(orginaldate) {
-        var date = new Date(orginaldate);
-        var hari = date.getDay();
-        switch (hari) {
-            case 0:
-                hari = "Minggu";
-                break;
-            case 1:
-                hari = "Senin";
-                break;
-            case 2:
-                hari = "Selasa";
-                break;
-            case 3:
-                hari = "Rabu";
-                break;
-            case 4:
-                hari = "Kamis";
-                break;
-            case 5:
-                hari = "Jumat";
-                break;
-            case 6:
-                hari = "Sabtu";
-                break;
-        }
-        return hari;
+    function findTopEmployees(data) {
+        // Menyusun data berdasarkan total_good secara menurun
+        data.sort((a, b) => b.total_good - a.total_good);
+
+        // Mengambil 3 karyawan teratas
+        const topEmployees = data.slice(0, 10);
+
+        return topEmployees;
+    }
+
+    function findDownEmployees(data) {
+        // Menyusun data berdasarkan total_good secara menaik
+        data.sort((a, b) => a.total_good - b.total_good);
+
+        // Mengambil 3 karyawan teratas
+        const topEmployees = data.slice(0, 3);
+
+        return topEmployees;
     }
 
     function clearModal() {
@@ -434,37 +413,6 @@
         $('#modalFooter').html('');
     }
 
-    function getFirstDateOfCurrentMonth() {
-        const currentDate = new Date();
-        const firstDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-
-        const year = firstDate.getFullYear();
-        const month = (firstDate.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
-        const day = firstDate.getDate().toString().padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
-    }
-
-    function getPreviousFriday() {
-        // Mendapatkan tanggal hari ini
-        const today = new Date();
-
-        // Mendapatkan hari dalam bentuk angka (0: Minggu, 1: Senin, ..., 6: Sabtu)
-        const dayOfWeek = today.getDay();
-
-        // Menghitung selisih hari untuk kembali ke hari Jumat
-        const daysUntilFriday = (dayOfWeek + 2) % 7;
-
-        // Menghitung tanggal Jumat sebelumnya
-        const previousFriday = new Date(today);
-        previousFriday.setDate(today.getDate() - daysUntilFriday);
-
-        // Format tanggal menjadi string 'YYYY-MM-DD'
-        const formattedDate = previousFriday.toISOString().split('T')[0];
-
-        return formattedDate;
-    }
-
 
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
@@ -473,8 +421,11 @@
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
     var data_report = ""
-    var date_start = getPreviousFriday()
+    var date_start = currentDate()
     var date_end = currentDate()
+    var machineId
+    var rowCode
+    var dataProfile = 'IGNORESORTIR'
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
         $('select').selectpicker();
@@ -483,7 +434,7 @@
 
     function loadData() {
         $.ajax({
-            url: "<?= api_produksi('loadPageMachineReport'); ?>",
+            url: "<?= api_produksi('loadPageReportResultPersonDaily'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
@@ -511,22 +462,21 @@
     }
 
     function dateRangeString() {
-        $('#dateRangeString').html(formatDateIndonesiaShort(date_start) + ' - ' + formatDateIndonesiaShort(date_end))
+        $('#dateRangeString').html(formatDateIndonesiaShort(date_start))
     }
 
     function setDaterange() {
         new Litepicker({
             element: document.getElementById('dateRange'),
-            singleMode: false,
+            singleMode: true,
             firstDay: 0,
             startDate: date_start,
-            endDate: date_end,
             format: "DD MMMM YYYY",
             autoRefresh: true,
             setup: (picker) => {
-                picker.on('selected', (date1, date2) => {
+                picker.on('selected', (date1) => {
                     date_start = formatDate(date1['dateInstance'])
-                    date_end = formatDate(date2['dateInstance'])
+                    // date_end = formatDate(date2['dateInstance'])
                 });
             },
         })
@@ -534,7 +484,7 @@
 
     function formMachine() {
         var html = ''
-        data_user.machine.forEach(e => {
+        data_user.dataMachine.forEach(e => {
             html += '<option value="' + e.id + '" selected>' + e.code + '</option>'
         });
         $('#selectMachine').html(html)
@@ -542,22 +492,59 @@
         $('#selectMachine').selectpicker({
 
         });
-        // autoSave()
+        formCodeMeja()
+    }
+
+    function formCodeMeja() {
+        var html = ''
+        data_user.rowCodeProfile.forEach(e => {
+            html += '<option value="' + e.id + '" selected>' + e.name + '</option>'
+        });
+        $('#selectCodeMeja').html(html)
+        $('#selectCodeMeja').selectpicker('refresh');
+        $('#selectCodeMeja').selectpicker({
+
+        });
         simpanData()
+    }
+
+    function arrayToString(arr) {
+        var resultString = arr.join(',');
+        return resultString;
     }
 
     function simpanData() {
         machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
+        var dataCode = $('#selectCodeMeja').map(function() {
+            return $(this).val();
+        }).get()
+        var row = []
+        data_user.rowCodeProfile.forEach(e => {
+            for (let i = 0; i < dataCode.length; i++) {
+                if (e.id == dataCode[i]) {
+                    for (let j = 0; j < e.codes.length; j++) {
+                        if (!e.codes[j]) {
+                            e.codes[j] = 'UNKNOWN'
+                        }
+                        row.push(e.codes[j])
+                    }
+                }
+
+            }
+        })
+        rowCode = arrayToString(row)
+        // rowCode
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResultPersonEarn'); ?>'
+        var url = '<?php echo api_produksi('getResultProductWorkerTotalDaily'); ?>'
         var data = {
-            dateStart: date_start,
-            dateEnd: date_end,
-            machineId: machineId
+            date: date_start,
+            machineId: machineId,
+            rowCode: rowCode,
+            dataProfile: dataProfile
         }
         kelolaData(data, type, url, button)
     }
@@ -585,8 +572,9 @@
                 dateRangeString()
                 $(button).prop("disabled", false);
                 data_report = response.data
-                if (data_report.reportResultPersonEarn.length) {
-                    updatedStructure()
+                if (data_report.resultProductWorkerTotal.length) {
+                    // updatedStructure()
+                    // setoranTerbanyak()
                 } else {
                     // tidak ada data
                     $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
@@ -599,9 +587,35 @@
         dataTable()
     }
 
+    function setoranTerbanyak() {
+        var setoranTerbanyak = findTopEmployees(data_report.resultProductWorkerTotal)
+        $('#namaSetoranTerbanyak').html(shortenText(setoranTerbanyak[0].employee.name, 20))
+        $('#jumlahSetoranTerbanyak').html(number_format(setoranTerbanyak[0].total_good))
+        // console.log(setoranTerbanyak)
+        setoranTersedikit()
+    }
+
+    function setoranTersedikit() {
+        var setoranTersedikit = findDownEmployees(data_report.resultProductWorkerTotal)
+        $('#namaSetoranTersedikit').html(shortenText(setoranTersedikit[0].employee.name, 20))
+        $('#jumlahSetoranTersedikit').html(number_format(setoranTersedikit[0].total_good))
+        // console.log(setoranTerbanyak)
+        totalAllSetoran()
+    }
+
+    function totalAllSetoran() {
+        var total = calculateTotalGood(data_report.resultProductWorkerTotal)
+        $('#totalAllSetoran').html(number_format(total))
+    }
+
+    function calculateTotalGood(data) {
+        const totalGood = data.reduce((acc, employee) => acc + employee.total_good, 0);
+        return totalGood;
+    }
+
     function dataTable() {
         var html = ''
-        html += '<table class="table table-bordered table-hover table-sm small w-100" id="tableDetail">'
+        html += '<table class="table table-bordered table-hover table-sm small" id="tableDetail">'
         html += '<thead id="headTable">'
         html += '</thead>'
         html += '<tbody id="bodyTable">'
@@ -617,38 +631,18 @@
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">EID</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">Nama</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">No. Meja</th>'
-        const dates = data_report.reportResultPersonEarn[0].data.map(item => Object.keys(item)[0]);
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Group</th>'
+        const dates = data_report.resultProductWorkerTotal[0].data.map(item => Object.keys(item)[0]);
         for (let i = 0; i < dates.length; i++) {
-            var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
-                if (v.date == dates[i]) return true
-            })
-            var bgOver = ''
-            var badgeOver = ''
-            if (dataDate.is_overtime) {
-                bgOver = 'bg-orange-light'
-                badgeOver = '<span class="badge bg-orange ms-2" style="font-size:5px;vertical-align: middle;padding-top:3px;">OVERTIME</span>'
-            }
-            html += '<th class="align-middle ' + bgOver + '" colspan="3">'
-            html += '<p class="m-0 fw-bolder">' + formatJustDay(dates[i]) + '</p>'
-            html += '<p class="m-0 super-small-text fw-normal">' + dates[i] + '' + badgeOver + '</p>'
-            html += '</th>'
+            html += '<th class="align-middle" colspan="2">Setoran ' + dates[i] + '</th>'
         }
-        html += '<th class="align-middle" rowspan="2">Total Salary</th>'
+        html += '<th class="align-middle" rowspan="2">Total</th>'
         html += '</tr>'
 
         html += '<tr>'
         for (let i = 0; i < dates.length; i++) {
-            var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
-                if (v.date == dates[i]) return true
-            })
-            var bgOver = ''
-            if (dataDate.is_overtime) {
-                bgOver = 'bg-orange-light'
-            }
-            html += '<th class="align-middle ' + bgOver + '">QTY</th>'
-            html += '<th class="align-middle ' + bgOver + '">Earn</th>'
-            html += '<th class="align-middle ' + bgOver + '">Total Setor</th>'
+            html += '<th class="align-middle">Jumlah Setoran</th>'
+            html += '<th class="align-middle">Jam</th>'
         }
         html += '</tr>'
         $('#headTable').html(html)
@@ -658,30 +652,21 @@
     function bodyTable() {
         var html = ''
         var a = 1
-        data_report.reportResultPersonEarn.forEach(e => {
-
+        data_report.resultProductWorkerTotal.forEach(e => {
             html += '<tr>'
             html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
             html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.row_code + '</td>'
             e.data.forEach(el => {
-                var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
-                    if (v.date == Object.keys(el)[0]) return true
-                })
-                var bgOver = ''
-                if (dataDate.is_overtime) {
-                    bgOver = 'bg-orange-light'
+                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
+                var time = ''
+                if (el[Object.keys(el)[0]].time) {
+                    time = convertTimeFormat2(el[Object.keys(el)[0]].time[0])
                 }
-                var bgDanger = ''
-                if (!el[Object.keys(el)[0]].reject_left) {
-                    bgDanger = 'bg-light-danger'
-                }
-                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(el[Object.keys(el)[0]].qty) + '</td>'
-                html += '<td class="text-center small-text ' + bgOver + '">' + number_format(roundToTwo(el[Object.keys(el)[0]].earn)) + '</td>'
-                html += '<td class="text-center small-text ' + bgOver + '">' + el[Object.keys(el)[0]].total_deliv + '</td>'
+                html += '<td class="text-center small-text">' + time + '</td>'
             });
-            html += '<td class="text-end small-text">' + number_format(roundToTwo(e.total.earn)) + '</td>'
+            html += '<td class="text-center small-text">' + e.total_good + '</td>'
             html += '</tr>'
         });
         $('#bodyTable').html(html)
@@ -700,9 +685,13 @@
         })
     }
 
-    function cetakReport(x, y) {
-        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId;
+    function cetakReport(x) {
+        if (x == 'excel') {
+            var url = "<?= base_url() ?>report/reportGilingExcel"
+        } else {
+            var url = "<?= base_url() ?>report/reportGilingPdf"
+        }
+        var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

@@ -147,6 +147,10 @@
         .bg-line {
             background-color: #d7f0fc !important;
         }
+
+        .bg-danger {
+            background-color: #ec9797 !important;
+        }
     </style>
 </head>
 <?php
@@ -189,9 +193,9 @@ function extractRowCodesWithCount($data)
     // Mengembalikan hasil dalam format yang diinginkan
     $result = array();
     foreach ($rowCodeCounts as $rowCode => $count) {
-        if ($count > 35) {
-            $sisaCount = $count - 35;
-            $result[] = array('row_code' => $rowCode, 'count' => 35, 'data' => 'normal split');
+        if ($count > 34) {
+            $sisaCount = $count - 34;
+            $result[] = array('row_code' => $rowCode, 'count' => 34, 'data' => 'normal split');
             $result[] = array('row_code' => $rowCode, 'count' => $sisaCount, 'data' => 'split');
         } else {
             $result[] = array('row_code' => $rowCode, 'count' => $count, 'data' => 'normal');
@@ -252,6 +256,9 @@ function shortenText($text, $length = 20)
                 } else {
                     $a = 1;
                 }
+                $jumlahTotalGood = 0;
+                $jumlahSetoranArray;
+                unset($jumlahSetoranArray);
                 foreach ($datas->reportResultPersonDaily as $key => $value) {
                     if ($value->row_code == $v['row_code'] && $a == $trueNumber) {
                         $classMain = '';
@@ -278,8 +285,27 @@ function shortenText($text, $length = 20)
                             ?>
                                 <?php if ($value2->{$dateKey}->total_good == 0) {
                                     $value2->{$dateKey}->total_good = '';
+                                }
+                                if ($value2->{$dateKey}->reject_left) {
+                                    $classMainDanger = 'bg-danger';
+                                } else {
+                                    $classMainDanger = $classMain;
+                                }
+                                ?>
+                                <td class="td_main <?= $classMainDanger ?>" style="text-align: center;font-size:10px;"><?= $value2->{$dateKey}->total_good ?></td>
+
+                                <?php
+                                if (!isset($jumlahSetoranArray[$dateKey])) {
+                                    if ($value2->{$dateKey}->total_good == '') {
+                                        $value2->{$dateKey}->total_good = 0;
+                                    }
+                                    $jumlahSetoranArray[$dateKey] = $value2->{$dateKey}->total_good;
+                                } else {
+                                    if ($value2->{$dateKey}->total_good == '') {
+                                        $value2->{$dateKey}->total_good = 0;
+                                    }
+                                    $jumlahSetoranArray[$dateKey] = $jumlahSetoranArray[$dateKey] + $value2->{$dateKey}->total_good;
                                 } ?>
-                                <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:10px;"><?= $value2->{$dateKey}->total_good ?></td>
                                 <?php
                                 $time = '';
                                 if ($value2->{$dateKey}->time) {
@@ -288,6 +314,7 @@ function shortenText($text, $length = 20)
                                 <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:10px;"><?= $time ?></td>
                             <?php } ?>
                             <td class="td_main <?= $classMain ?>" style="text-align: left;font-size:10px;"><b><?= $value->total_good ?></b></td>
+                            <?php $jumlahTotalGood = $jumlahTotalGood + $value->total_good ?>
                         </tr>
                 <?php
                     }
@@ -301,8 +328,15 @@ function shortenText($text, $length = 20)
                         }
                     }
                 }
+                // print_r($jumlahSetoranArray);
                 ?>
-
+                <tr style="text-align: center;">
+                    <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;" colspan="4">Total</th>
+                    <?php for ($i = 1; $i <= 10; $i++) { ?>
+                        <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;" colspan="2"><b><?= $jumlahSetoranArray[$i] ?></b></th>
+                    <?php } ?>
+                    <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;"><b><?= $jumlahTotalGood ?></b></th>
+                </tr>
             </table>
             <?php $jumlahTable++; ?>
             <?php if ($jumlahTable <= count($datagroup)) { ?>

@@ -469,9 +469,14 @@
     function loadData() {
         var data = {
             workPlanMachineId: workPlanMachineId,
+            workPlanProductId: isRunningID
         }
-        var url = "<?= api_produksi('loadPageProductionOutEntry'); ?>"
+        var url = "<?= api_produksi('loadPageProductionOutEntrySingle'); ?>"
         getData(data, url)
+    }
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
     }
 
     function getData(data, url) {
@@ -494,6 +499,9 @@
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
+                var dataMentah = deepCopy(dataEntry.workPlanMachine.product)
+                dataEntry.workPlanMachine.products = []
+                dataEntry.workPlanMachine.products.push(dataMentah)
                 arrangeVariable()
             }
         })

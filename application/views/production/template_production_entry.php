@@ -881,11 +881,18 @@
                                     <div class="col-9 align-self-center">
                                         <b class="small-text">
                                             <?php
-                                            $words = preg_split('/_/', $value->name);
+                                            $words = preg_split('/ /', $value->label);
                                             $uppercaseWords = array_map('strtoupper', $words);
                                             ?>
-                                            <?php for ($i = 0; $i < count($uppercaseWords); $i++) { ?>
-                                                <p class="m-0"><?= $uppercaseWords[$i] ?></p>
+                                            <?php if (count($uppercaseWords) <= 2) { ?>
+                                                <?php for ($i = 0; $i < count($uppercaseWords); $i++) { ?>
+                                                    <p class="m-0"><?= $uppercaseWords[$i] ?></p>
+                                                <?php } ?>
+                                            <?php } else { ?>
+                                                <?php for ($i = 0; $i < 1; $i++) { ?>
+                                                    <p class="m-0"><?= $uppercaseWords[$i] ?></p>
+                                                <?php } ?>
+                                                <p class="m-0"><?= $uppercaseWords[count($uppercaseWords) - 2] ?> <?= $uppercaseWords[count($uppercaseWords) - 1] ?></p>
                                             <?php } ?>
                                         </b>
                                     </div>
@@ -965,7 +972,7 @@
                         </div>
                     <?php } else { ?>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" id="btnChooseBrand" onclick="chooseBrand()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" id="btnChooseBrand" onclick="chooseBrandTemplate()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
                         <button type="button" class="btn shadow-none btn-sm shadow-none btn-danger" id="btnCloseBrand" onclick="closeBrand()" hidden><i class="fa fa-times me-2"></i>Closing</button>
                     <?php } ?>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
@@ -1337,10 +1344,18 @@
         $('#workingInformation').html(html)
         var label = '<?= $link ?>'
         if (label != 'default') {
-            loadData()
+            if (isRunningID) {
+                loadData()
+            } else {
+                if (data.productionType.name == 'SKM') {
+                    chooseBrandTemplate()
+                } else {
+                    loadData()
+                }
+            }
         } else {
-            if (!isRunningBrand) {
-                chooseBrand()
+            if (!isRunningBrand && data.productionType.name == 'SKM') {
+                chooseBrandTemplate()
             }
         }
     }
@@ -1455,7 +1470,7 @@
         }
     }
 
-    function chooseBrand() {
+    function chooseBrandTemplate() {
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
         var html_header = '';
@@ -1473,15 +1488,15 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
-        listChooseBrand()
+        listChooseBrandTemplate()
     }
 
-    function listChooseBrand() {
+    function listChooseBrandTemplate() {
         var html = ''
         dataWorkPlanProducts.workPlanProduct.forEach(e => {
             var bg = 'card-hoper pointer'
             var text = ''
-            var btnChoose = 'onclick="afterChooseBrand()"'
+            var btnChoose = 'onclick="afterChooseBrand(' + "'" + e.id + "'" + ')"'
             if (e.is_complete) {
                 bg = 'bg-light-success'
                 btnChoose = ''
@@ -1524,9 +1539,11 @@
                 html += '<i class="small">Selesai</i>'
                 html += '</div>'
             } else {
-                html += '<div class="col-2 align-self-center text-end">'
-                html += '<button class="btn btn-sm btn-danger btnSimpan" onclick="closeBrand(' + "'" + e.id + "'" + ')">Close</button>'
-                html += '</div>'
+                if (e.is_running) {
+                    html += '<div class="col-2 align-self-center text-end">'
+                    html += '<button class="btn btn-sm btn-danger btnSimpan" onclick="closeBrand(' + "'" + e.id + "'" + ')">Close</button>'
+                    html += '</div>'
+                }
             }
 
             html += '</div>'
@@ -1537,9 +1554,12 @@
     }
 
 
-    function afterChooseBrand() {
+    function afterChooseBrand(id) {
+        var data = dataWorkPlanProducts.workPlanProduct.find((v, k) => {
+            if (v.id == id) return true
+        })
         Swal.fire({
-            text: 'Apakah Anda Yakin ingin memproses brand ABLF ?',
+            text: 'Apakah Anda Yakin ingin memproses brand ' + data.product.alias + ' ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -1547,7 +1567,11 @@
             confirmButtonText: 'Yakin',
             cancelButtonText: 'Batal',
         }).then((result) => {
-            if (result.isConfirmed) {}
+            if (result.isConfirmed) {
+                $('#modal').modal('hide')
+                isRunningID = id
+                loadData()
+            }
         })
     }
 

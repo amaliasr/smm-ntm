@@ -249,9 +249,14 @@
     function loadData() {
         var data = {
             workPlanMachineId: workPlanMachineId,
+            workPlanProductId: isRunningID
         }
-        var url = "<?= api_produksi('loadPageWasteMaterialEntry'); ?>"
+        var url = "<?= api_produksi('loadPageWasteMaterialEntrySingle'); ?>"
         getData(data, url)
+    }
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
     }
 
     function getData(data, url) {
@@ -274,6 +279,9 @@
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
+                var dataMentah = deepCopy(dataEntry.wasteGroup)
+                dataEntry.wasteGroup = []
+                dataEntry.wasteGroup.push(dataMentah)
                 // console.log(dataEntry.wasteGroup)
                 arrangeVariable()
             }
@@ -308,10 +316,10 @@
                     var id = b.waste_material_compute.id
                     note = b.waste_material_compute.note
                     qty = b.waste_material_compute.qty
-                    console.log(b.waste_material_compute.waste_materials)
-                    console.log(b.waste_group_details)
+                    // console.log(b.waste_material_compute.waste_materials)
+                    // console.log(b.waste_group_details)
                     var datas = cariDataTidakAda(b.waste_material_compute.waste_materials, b.waste_group_details)
-                    console.log('-------------------------------')
+                    // console.log('-------------------------------')
                     // console.log(datas)
                     data_unknown_material.push({
                         id: id,
@@ -486,7 +494,7 @@
             html += '<p class="m-0 small-text">' + e.item_product.name + '</p>'
             html += '</div>'
             html += '<div class="col-6 align-self-center text-end">'
-            html += '<button class="btn btn-primary" id="btnSaveAll()" onclick="arrangeVariableInsert()"><i class="fa fa-save me-1"></i> Save All</button>'
+            html += '<button class="btn btn-primary" id="btnSaveAll" onclick="arrangeVariableInsertByProduct(' + "'" + e.work_plan_product_id + "'" + ')"><i class="fa fa-save me-1"></i> Save All</button>'
             html += '</div>'
             html += '<div class="col">'
             html += '<div class="row mt-4">'
@@ -519,6 +527,15 @@
                     html += '</div>'
                     html += '</div>'
                 });
+                var notes = ''
+                if (e.note_waste) {
+                    notes = e.note_waste
+                }
+                html += '<div class="col-12 mb-2">'
+                html += '<label class="small-text fw-bolder">Notes <span class="text-danger">(wajib)</span> : </label>'
+                html += '<textarea class="form-control" rows="4" id="notes' + e.work_plan_product_id + '">' + notes + '</textarea>'
+                html += '</div>'
+
             } else {
                 html += emptyReturn('Waktu Production Out Belum Tersedia')
             }
@@ -743,6 +760,10 @@
         eval('variable_insert.' + variable + '.find((v, k) => {if (v.id == id)return true}).qty' + variable_input + ' = ' + value)
     }
 
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
     function arrangeVariableInsert(id = null) {
         if (id) {
             var data = findDataById(id, variable_insert)
@@ -751,6 +772,38 @@
         }
         simpanData(data)
         // console.log(data)
+    }
+
+    function arrangeVariableInsertByProduct(id) {
+        var data = deepCopy(variable_insert)
+        var wasteMaterial = data.wasteMaterial.filter((v, k) => {
+            if (v.work_plan_product_id == id) return true
+        })
+        var wasteMaterialCompute = data.wasteMaterialCompute.filter((v, k) => {
+            if (v.work_plan_product_id == id) return true
+        })
+        var notes = $('#notes' + id).val()
+        var workPlanProduct = [{
+            id: id,
+            note_waste: notes,
+        }]
+        var dataFiltered = {
+            deletedId: data.deletedId,
+            wasteMaterial: wasteMaterial,
+            wasteMaterialCompute: wasteMaterialCompute,
+            workPlanProduct: workPlanProduct,
+        }
+
+        // console.log(dataFiltered)
+        if (notes) {
+            simpanData(dataFiltered)
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Notes masih Kosong',
+                text: 'Harap mengisi notes terlebih dahulu'
+            });
+        }
     }
 
     function simpanData(data) {

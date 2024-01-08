@@ -2339,6 +2339,7 @@
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
         var jamSetoran = dataEntry.workPlanMachine.date + ' ' + $('#jamSetoran').val() + ':00'
         var jumlahBad = $('#jumlahBad').val()
+        var jumlahInput = $('#jumlahGood').val()
         if (!jumlahBad) {
             jumlahBad = 0
         }
@@ -2350,7 +2351,7 @@
             DELIVERY: {
                 datetime: jamSetoran,
                 employee_id_deliv: user_id,
-                qty_good_deliv: $('#jumlahGood').val(),
+                qty_good_deliv: jumlahInput,
                 qty_waste_deliv: jumlahBad,
                 note_deliv: '',
             },
@@ -2408,11 +2409,58 @@
                 ...dataNext
             };
         }
+        if (dataSaveSetoran.qty_delivery_good > 0 && jumlahInput != dataSaveSetoran.qty_delivery_good) {
+            // edit DELIVERY FULL
+            var dataEdit = {
+                qty_good_deliv: jumlahInput,
+                qty_waste_deliv: jumlahBad,
+            }
+            if (dataDelivery.status == 'SORTIR') {
+                // console.log(dataDelivery)
+                dataEdit = {
+                    ...dataEdit,
+                    ...{
+                        qty_good_sortir: parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject),
+                        qty_reject_sortir: parseInt(dataDelivery.qty.reject),
+                    }
+                }
+            } else if (dataDelivery.status == 'COMPLETE' && dataDelivery.qty.reject == 0) {
+                dataEdit = {
+                    ...dataEdit,
+                    ...{
+                        qty_good_sortir: parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject),
+                        qty_reject_sortir: parseInt(dataDelivery.qty.reject),
+                        qty_final: (parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject)) + parseInt(dataDelivery.qty.reject),
+                    }
+                }
+            } else if (dataDelivery.status == 'COMPLETE' && dataDelivery.qty.reject > 0) {
+                dataEdit = {
+                    ...dataEdit,
+                    ...{
+                        qty_good_sortir: parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject),
+                        qty_reject_sortir: parseInt(dataDelivery.qty.reject),
+                        qty_final: (parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject)) + parseInt(dataDelivery.qty.reject),
+                        qty_good_fillup: parseInt(dataDelivery.qty.reject),
+                    }
+                }
+            }
+            var data = {
+                resultProductPerson: {
+                    ...dataMentah,
+                    ...dataEdit,
+                }
+            }
+            // edit DELIVERY FULL
+        }
         if (offlineMode) {
             // mode offline
             simpanVariableOffline(data, dataDelivery)
         } else {
             // mode online
+            // console.log(dataSaveSetoran)
+            // console.log(jumlahInput)
+            // console.log(dataDelivery)
+            // console.log(data)
             simpanData(data)
         }
     }
@@ -2808,7 +2856,7 @@
         var data = ''
         if (jspmWSStatus()) {
             //get client installed printers
-            console.log(JSPM.JSPrintManager.getPrinters())
+            // console.log(JSPM.JSPrintManager.getPrinters())
             JSPM.JSPrintManager.getPrinters().then(function(myPrinters) {
                 for (var i = 0; i < myPrinters.length; i++) {
                     data += '<div class="col-12 mb-2">'

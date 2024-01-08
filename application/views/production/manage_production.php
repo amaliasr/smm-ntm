@@ -158,6 +158,24 @@
         border: 1px solid #dce0e6 !important;
     }
 
+    .vertical-line {
+        border-left: 3px dotted #b2b0b0;
+        height: 15px;
+        margin: 0 auto;
+    }
+
+    .v-zone {
+        /* display: flex; */
+        padding-left: 20px;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+    }
+
+    .start-10 {
+        left: 10% !important;
+    }
+
     .bg-purples {}
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
@@ -175,47 +193,297 @@
     </header>
     <!-- Main page content-->
     <div class="container-xl mt-n10">
-        <div class="row justify-content-center mb-2">
+        <div class="row justify-content-between mb-2">
             <div class="col pb-2">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">MANAGE PRODUCTION</h1>
-                <p class="m-0 small" id="dateRangeString">-</p>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">PRODUCTION WORKSPACE</h1>
+                <p class="m-0 small">SKM Production Workspace</p>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="row justify-content-between">
+            <div class="col-auto align-self-center">
+                <div class="row">
                     <div class="col-auto">
-                        <div class="row">
-                            <div class="col-auto">
-                                <p class="fw-bolder small-text m-0">Tanggal</p>
-                                <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
-                            </div>
-                            <div class="col-auto ps-0">
-                                <p class="fw-bolder small-text m-0">Machine</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
-                                </select>
-                            </div>
-                            <div class="col-auto p-0 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
-                            </div>
-                        </div>
+                        <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
                     </div>
-                    <div class="col-auto d-flex align-items-end">
+                    <div class="col-auto p-0 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                     </div>
                 </div>
             </div>
-
-            <div class="col-12 mb-2">
-                <div class="card shadow-none border-radius-20 p-3">
+        </div>
+        <div class="row">
+            <!-- masih terbuka -->
+            <div class="col-12 mt-4 mb-2">
+                <div class="card shadow-sm border-radius-20 p-3 position-relative">
+                    <span class="position-absolute top-0 start-10 translate-middle badge bg-primary">SEDANG BERJALAN
+                    </span>
                     <div class="card-body">
                         <div class="table-responsible" id="dataTable">
-                            <div class="row">
-                                <div class="col-auto"><b>Still Open</b></div>
-                                <div class="col align-self-center">
-                                    <hr>
+                            <div class="row mb-2">
+                                <div class="col-4">
+                                    <div class="row p-3 pb-0 pt-0">
+                                        <div class="col-4 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Date</p>
+                                        </div>
+                                        <div class="col-4 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Shift</p>
+                                        </div>
+                                        <div class="col-4 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Machine</p>
+                                        </div>
+                                    </div>
                                 </div>
+                                <div class="col-8">
+                                    <div class="row p-3 pb-0 pt-0">
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Product</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Time</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Progress</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Worker</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Status</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Action</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
                                 <div class="col-12">
-                                    test
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 pe-1">
+                                            <div class="card shadow-none border-2 mb-2">
+                                                <div class="card-body p-3">
+                                                    <div class="row">
+                                                        <div class="col-4 align-self-center text-center">
+                                                            <p class="m-0 small-text">1 Januari 2024</p>
+                                                        </div>
+                                                        <div class="col-4 align-self-center text-center">
+                                                            <p class="m-0 small-text">07:00 - 15:00</p>
+                                                        </div>
+                                                        <div class="col-4 align-self-center text-center">
+                                                            <p class="m-0 fw-bolder small">MAKER 9 C</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 ps-0">
+                                            <div class="card shadow-none border-2 card-hoper mb-2">
+                                                <div class="card-body p-3">
+                                                    <div class="row">
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 fw-bolder">ABLF 20</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 small-text">07:00 - 08:00</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <!-- progress bar -->
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">90 / 200</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2 pe-0 ps-0 align-self-center text-center">
+                                                            <span class="badge bg-danger">C</span>
+                                                            <span class="badge bg-danger">H</span>
+                                                            <span class="badge bg-grey">O</span>
+                                                            <span class="badge bg-grey">Q</span>
+                                                            <span class="badge bg-grey">M</span>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <i class="small">OPEN</i>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <button class="btn btn-danger btn-sm">CLOSE</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="v-zone">
+                                                <div class="vertical-line mt-1 mb-1 align-self-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 ps-0">
+                                            <div class="card shadow-none border-2 card-hoper mb-2">
+                                                <div class="card-body p-3">
+                                                    <div class="row">
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 fw-bolder">ABOF 20</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 small-text">--:-- - --:--</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <!-- progress bar -->
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0 / 200</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2 pe-0 ps-0 align-self-center text-center">
+                                                            <span class="badge bg-grey">C</span>
+                                                            <span class="badge bg-grey">H</span>
+                                                            <span class="badge bg-grey">O</span>
+                                                            <span class="badge bg-grey">Q</span>
+                                                            <span class="badge bg-grey">M</span>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <i class="small">--</i>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- yang closing -->
+            <div class="col-12 mt-4 mb-2">
+                <div class="card shadow-sm border-radius-20 p-3 position-relative">
+                    <span class="position-absolute top-0 start-10 translate-middle badge bg-primary">SEDANG BERJALAN
+                    </span>
+                    <div class="card-body">
+                        <div class="table-responsible" id="dataTable">
+                            <div class="row mb-2">
+                                <div class="col-4">
+                                    <div class="row p-3 pb-0 pt-0">
+                                        <div class="col-4 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Date</p>
+                                        </div>
+                                        <div class="col-4 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Shift</p>
+                                        </div>
+                                        <div class="col-4 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Machine</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <div class="row p-3 pb-0 pt-0">
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Product</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Time</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Progress</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Worker</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Status</p>
+                                        </div>
+                                        <div class="col-2 align-self-center text-center">
+                                            <p class="m-0 fw-bolder small-text">Action</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 pe-1">
+                                            <div class="card shadow-none border-2 mb-2">
+                                                <div class="card-body p-3">
+                                                    <div class="row">
+                                                        <div class="col-4 align-self-center text-center">
+                                                            <p class="m-0 small-text">1 Januari 2024</p>
+                                                        </div>
+                                                        <div class="col-4 align-self-center text-center">
+                                                            <p class="m-0 small-text">07:00 - 15:00</p>
+                                                        </div>
+                                                        <div class="col-4 align-self-center text-center">
+                                                            <p class="m-0 fw-bolder small">MAKER 9 C</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 ps-0">
+                                            <div class="card shadow-none border-2 card-hoper mb-2">
+                                                <div class="card-body p-3">
+                                                    <div class="row">
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 fw-bolder">ABLF 20</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 small-text">07:00 - 08:00</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <!-- progress bar -->
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">90 / 200</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2 pe-0 ps-0 align-self-center text-center">
+                                                            <span class="badge bg-danger">C</span>
+                                                            <span class="badge bg-danger">H</span>
+                                                            <span class="badge bg-grey">O</span>
+                                                            <span class="badge bg-grey">Q</span>
+                                                            <span class="badge bg-grey">M</span>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <i class="small">OPEN</i>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <button class="btn btn-danger btn-sm">CLOSE</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="v-zone">
+                                                <div class="vertical-line mt-1 mb-1 align-self-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 ps-0">
+                                            <div class="card shadow-none border-2 card-hoper mb-2">
+                                                <div class="card-body p-3">
+                                                    <div class="row">
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 fw-bolder">ABOF 20</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <p class="m-0 small-text">--:-- - --:--</p>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <!-- progress bar -->
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0 / 200</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2 pe-0 ps-0 align-self-center text-center">
+                                                            <span class="badge bg-grey">C</span>
+                                                            <span class="badge bg-grey">H</span>
+                                                            <span class="badge bg-grey">O</span>
+                                                            <span class="badge bg-grey">Q</span>
+                                                            <span class="badge bg-grey">M</span>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                            <i class="small">--</i>
+                                                        </div>
+                                                        <div class="col-2 align-self-center text-center">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -206,8 +206,11 @@
                 showOverlay('hide')
                 dataEntry = response.data
                 var dataMentah = deepCopy(dataEntry.materialStock)
+                var dataMentahProduk = deepCopy(dataEntry.workPlanMachine.product)
                 dataEntry.materialStock = []
+                dataEntry.workPlanMachine.products = []
                 dataEntry.materialStock.push(dataMentah)
+                dataEntry.workPlanMachine.products.push(dataMentahProduk)
                 menuMaterial()
             }
         })

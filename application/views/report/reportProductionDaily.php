@@ -218,8 +218,10 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','NORMAL')">Excel</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf','NORMAL')">PDF</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','IGNORESORTIR')">Excel (Ignore Sortir)</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf','IGNORESORTIR')">PDF (Ignore Sortir)</a></li>
                             </ul>
                         </div>
                     </div>
@@ -662,11 +664,13 @@
 
     function dataTable() {
         var html = ''
-        html += '<table class="table table-bordered table-hover table-sm small" id="tableDetail">'
+        html += '<table class="table table-bordered table-hover table-sm small" style="overflow-x: hidden;" id="tableDetail">'
         html += '<thead id="headTable">'
         html += '</thead>'
         html += '<tbody id="bodyTable">'
         html += '</tbody>'
+        html += '<tfoot id="footTable">'
+        html += '</tfoot>'
         html += '</table>'
         $('#dataTable').html(html)
         headTable()
@@ -699,6 +703,8 @@
     function bodyTable() {
         var html = ''
         var a = 1
+        var footMenu = []
+        var totalDaily = 0
         data_report.reportResultPersonDaily.forEach(e => {
             html += '<tr>'
             html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
@@ -712,11 +718,35 @@
                     time = convertTimeFormat2(el[Object.keys(el)[0]].time[0])
                 }
                 html += '<td class="text-center small-text">' + time + '</td>'
+                if (!footMenu[Object.keys(el)[0]]) {
+                    footMenu[Object.keys(el)[0]] = el[Object.keys(el)[0]].total_good
+                } else {
+                    footMenu[Object.keys(el)[0]] = footMenu[Object.keys(el)[0]] + el[Object.keys(el)[0]].total_good
+                }
             });
             html += '<td class="text-center small-text">' + e.total_good + '</td>'
             html += '</tr>'
+            totalDaily += e.total_good
         });
         $('#bodyTable').html(html)
+        footTable(footMenu, totalDaily)
+
+    }
+
+    function footTable(footMenu, totalDaily) {
+        var html = ''
+        html += '<tr>'
+        html += '<th class="align-middle" style="background-color: white;"></th>'
+        html += '<th class="align-middle" style="background-color: white;"></th>'
+        html += '<th class="align-middle" style="background-color: white;"></th>'
+        html += '<th class="align-middle" style="background-color: white;">Total</th>'
+        const dates = data_report.reportResultPersonDaily[0].data.map(item => Object.keys(item)[0]);
+        for (let i = 0; i < dates.length; i++) {
+            html += '<th class="align-middle" colspan="2">' + number_format(footMenu[dates[i]]) + '</th>'
+        }
+        html += '<th class="align-middle">' + number_format(totalDaily) + '</th>'
+        html += '</tr>'
+        $('#footTable').html(html)
         $('#tableDetail').DataTable({
             ordering: false, // Menonaktifkan pengurutan
             pageLength: 200,
@@ -725,6 +755,7 @@
             scrollCollapse: true,
             paging: false,
             fixedHeader: true,
+            fixedFooter: true,
             fixedColumns: {
                 left: 4
             },
@@ -738,7 +769,7 @@
         } else {
             var url = "<?= base_url() ?>report/reportDailySKTPdf"
         }
-        var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode + "*$" + dataProfile;
+        var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode + "*$" + y;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>
