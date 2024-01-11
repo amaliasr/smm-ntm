@@ -109,6 +109,10 @@
         justify-content: center;
         margin: 0;
     }
+
+    .progress-bar:hover {
+        cursor: pointer;
+    }
 </style>
 <style>
     /* ANIMATION */
@@ -230,11 +234,11 @@
                 </div>
                 <div class="w-100">
                     <div class="progress" style="border-radius: 0px;height:50px;">
-                        <div class="progress-bar bg-blue" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-blue" onclick="addDowntime()" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
                         </div>
-                        <div class="progress-bar bg-warning" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-warning" onclick="addDowntime()" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
                         </div>
-                        <div class="progress-bar bg-danger" style="width: 4%" aria-valuenow="4" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-danger" onclick="addDowntime()" style="width: 4%" aria-valuenow="4" aria-valuemin="0" aria-valuemax="100">
                         </div>
                     </div>
                 </div>
@@ -287,7 +291,7 @@
                         <p class="m-0 super-small-text"><b>Detail Downtime</b></p>
                     </div>
                     <div class="col-auto text-end">
-                        <button type="button" class="btn btn-sm btn-outline-primary shadow-none" onclick="formTransaction()"><i class="fa fa-paper-plane me-2"></i>Transaction</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary shadow-none" onclick="addDowntime()"><i class="fa fa-clock-o me-2"></i>Add Time</button>
                     </div>
                     <div class="col-12">
                         <table class="table table-sm table-hover">
@@ -414,6 +418,7 @@
 
     $(document).ready(function() {
         // loadData()
+        addDowntime()
     })
 
     function loadData() {
@@ -459,35 +464,19 @@
 
     function addDowntime() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
-        html_header += '<h5 class="modal-title">Unprocessed Data</h5>';
+        html_header += '<h5 class="modal-title">Add Time</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
-        html_body += '<div class="row p-3">'
-
-        html_body += '<nav>'
-        html_body += '<div class="nav nav-tabs" id="nav-tab" role="tablist">'
-        html_body += '<button class="nav-link small-text active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Today</button>'
-        html_body += '<button class="nav-link small-text" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">All Pending</button>'
-        html_body += '</div>'
-        html_body += '</nav>'
-        html_body += '<div class="tab-content" id="nav-tabContent">'
-        html_body += '<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">'
-        // today
-        // today
-        html_body += '</div>'
-        html_body += '<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">'
-        // all
-        // all
-        html_body += '</div>'
-        html_body += '</div>'
-
+        html_body += '<div class="row">'
+        html_body += ''
         html_body += '</div>'
         $('#modalBody').html(html_body)
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanOfflineMode()">Simpan</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
     }
 </script>

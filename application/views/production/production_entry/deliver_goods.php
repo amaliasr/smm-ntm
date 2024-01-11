@@ -584,10 +584,23 @@
             if (v.employee_worker.id == worker_id) return true
         })
         var total = 0
-        if (dataWorker.data.length) {
-            dataWorker.data.forEach(e => {
-                total = total + parseFloat(findStatus(e.result_product_person_id).qty.good)
-            });
+        if (dataWorker) {
+            if (dataWorker.data.length) {
+                dataWorker.data.forEach(e => {
+                    total = total + parseFloat(findStatus(e.result_product_person_id).qty.good)
+                });
+            }
+        }
+        var dataOffline = deepCopy(variableSaveOffline.resultProductPerson)
+        if (dataOffline.length) {
+            var dataWorker = dataOffline.filter((v, k) => {
+                if (v.employee_id == worker_id) return true
+            })
+            if (dataWorker.length) {
+                dataWorker.forEach(e => {
+                    total = total + parseFloat(e.qty_good_deliv)
+                });
+            }
         }
         return total
     }
@@ -827,16 +840,20 @@
     function formWorkerProgress() {
         var html = ''
         dataEntry.productionDelivery.forEach(e => {
+            var badgeMeja = ''
+            if (e.employee_worker.row_code) {
+                badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.employee_worker.row_code + '</span>'
+            }
             html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
             html += '<div class="card-body p-0">'
             html += '<div class="row">'
             html += '<div class="col-10 card-hoper p-0" onclick="detailWorker(' + e.employee_worker.id + ')">'
             html += '<div class="row p-3 px-4">'
             html += '<div class="col-12 ps-3">'
-            html += '<p class="m-0 small fw-bolder"><span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
-            html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> / --</span></p>'
+            html += '<p class="m-0 small fw-bolder">' + badgeMeja + '<span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
+            html += '<p class="m-0 mt-1 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> / --</span></p>'
             html += '</div>'
-            html += '<div class="col-12 pt-3">'
+            html += '<div class="col-12 pt-1">'
             html += '<div class="row ps-3">'
             for (let i = 1; i <= defaultleSetoran; i++) {
                 var check = e.data.find((v, k) => {
@@ -886,8 +903,12 @@
 
     function templateDetailWorker(data) {
         var html = ''
+        var badgeMeja = ''
+        if (data.employee_worker.row_code) {
+            badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + data.employee_worker.row_code + '</span>'
+        }
         html += '<div class="col-9">'
-        html += '<h1 class="m-0 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
+        html += '<h1 class="m-0 fw-bolder">' + badgeMeja + data.employee_worker.name.toUpperCase() + '</h1>'
         html += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
         html += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
         html += '</div>'
@@ -1202,6 +1223,10 @@
         var data = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.id == workerIdClicked) return true
         })
+        var badgeMeja = ''
+        if (data.employee_worker.row_code) {
+            badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + data.employee_worker.row_code + '</span>'
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
@@ -1216,7 +1241,7 @@
         html_body += '<div class="row w-100">'
 
         html_body += '<div class="col-3 p-5 pt-4 pe-2 border-end">'
-        html_body += '<h1 class="mb-1 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
+        html_body += '<h1 class="mb-1 fw-bolder">' + badgeMeja + data.employee_worker.name.toUpperCase() + '</h1>'
         // html_body += '<p class="m-0">2,490 / <b class="text-dark-grey">3,000</b></p>'
         html_body += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
         html_body += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
@@ -2685,6 +2710,7 @@
         var data = dataDetailDelivery.find((v, k) => {
             if (v.result_product_person_id == id) return true
         })
+
         $('#qrcode').empty()
         var qrcode = new QRCode("qrcode", {
             text: data.worker_id + ',' + id,
@@ -2766,7 +2792,21 @@
 
     function doPrint(image, data, id) {
         firstAddedResultProductPersonId = ''
+        var dataEmployee = dataEntry.employee.find((v, k) => {
+            if (v.id == data.worker_id) return true
+        })
+        var nomorMeja = ''
+        if (dataEmployee) {
+            nomorMeja = dataEmployee.row_code + ' - '
+        }
+        var totalADay = 0;
+        var templateTotalADay = ''
+        if (fastMode) {
+            totalADay = number_format(totalSetoran(data.worker_id))
+            templateTotalADay = 'Total : ' + totalADay
+        }
         var dataStatus = findStatus(id)
+
         if (jspmWSStatus()) {
             var b64Prefix = "data:image/png;base64,";
             image = image.trim();
@@ -2781,7 +2821,7 @@
             cpj.clientPrinter = new JSPM.DefaultPrinter();
             cpj2.clientPrinter = new JSPM.DefaultPrinter();
             cpj3.clientPrinter = new JSPM.DefaultPrinter();
-            var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, "MyPicture-PX=0.2-PY=0.1-PW=1.5-PH=1.5-PO=P.jpg", 1);
+            var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, "MyPicture-PX=0.4-PY=0.1-PW=1-PH=1-PO=P.jpg", 1);
             myImageFile.printRotation = 'Rot90';
             // var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, 'myFileToPrint.png', 1);
             // printToBluetoothPrinter($('#installedPrinterName').val(), 'test')
@@ -2789,9 +2829,9 @@
             var newLine = '\x0A'; //LF byte in hex notation
 
             var cmds = esc + "@"; //Initializes the printer (ESC @)
-            cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
-            cmds += newLine;
-            cmds += 'Setoran ' + data.number; //text to print
+            cmds += esc + '!' + '\x31' + '\x00'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+            // cmds += newLine;
+            cmds += nomorMeja + 'Setoran ' + data.number; //text to print
             // cmds += image
             cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
             cmds += newLine;
@@ -2799,7 +2839,7 @@
             cmds += newLine;
             cmds += getDateStringWithTimeReal(data.datetime);
             cmds += newLine;
-            cmds += 'Good : ' + data.delivery.good;
+            cmds += 'Good : ' + data.delivery.good + '  | Reject : '
             cmds += newLine;
             var cmds2 = ''
             // cmds2 += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
@@ -2809,8 +2849,11 @@
             // // cmds2 += '                                '
             // cmds2 += '________________________________'
             // cmds2 += newLine + newLine;
-            cmds2 += 'Reject : '
-            cmds2 += newLine + newLine + newLine + newLine
+            cmds2 += templateTotalADay
+            cmds2 += newLine + newLine
+            if (fastMode) {
+                cmds2 += newLine
+            }
             // cmds2 += '----------- Potong -------------'
             // cmds2 += newLine + newLine;
             // cmds2 += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex

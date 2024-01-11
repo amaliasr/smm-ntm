@@ -181,14 +181,14 @@
     <!-- Main page content-->
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
-            <div class="col pb-2">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT GILING</h1>
-                <p class="m-0 small" id="dateRangeString">-</p>
+            <div class="col-auto text-center pb-2">
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">FORM REPORT GILING</h1>
+                <!-- <p class="m-0 small" id="dateRangeString">-</p> -->
             </div>
         </div>
         <div class="row">
             <div class="col-12 mb-4">
-                <div class="row justify-content-between">
+                <div class="row justify-content-center">
                     <div class="col-auto">
                         <div class="row">
                             <div class="col-auto">
@@ -197,42 +197,57 @@
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Machine</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangevariable()">
                                 </select>
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Kode Meja</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja">
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja" onchange="arrangevariable()">
                                 </select>
                             </div>
-                            <div class="col-auto p-0 d-flex align-items-end">
+                            <!-- <div class="col-auto p-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
-                    <div class="col-auto d-flex align-items-end">
+                    <!-- <div class="col-auto d-flex align-items-end">
                         <div class="dropdown">
                             <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" disabled>
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel')">Excel</a></li>
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf')">PDF</a></li>
                             </ul>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
             <div class="col-12 mt-2">
                 <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
-                        <p class="fw-bolder m-0">Detail</p>
-                        <div class="table-responsible" id="dataTable">
-
+                    <div class="card-body text-center p-5">
+                        <p class="h1 m-0 fw-bolder">DOWNLOAD FORM</p>
+                        <div class="row justify-content-center mt-5">
+                            <div class="col-3">
+                                <div class="card card-hoper pointer shadow-sm" onclick="cetakReport('excel')">
+                                    <div class="card-body text-center p-5">
+                                        <i class="fa fa-file-excel-o text-success" style="font-size: 90px;"></i>
+                                        <p class="m-0 mt-5" style="font-weight: 900 !important;font-size:25px;">EXCEL</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card card-hoper pointer shadow-sm" onclick="cetakReport('pdf')">
+                                    <div class="card-body text-center p-5">
+                                        <i class="fa fa-file-pdf-o text-danger" style="font-size: 90px;"></i>
+                                        <p class="m-0 mt-5" style="font-weight: 900 !important;font-size:25px;">PDF</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <!-- <div class="table-responsible" id="dataTable">
+                        </div> -->
 
                     </div>
                 </div>
@@ -505,7 +520,8 @@
         $('#selectCodeMeja').selectpicker({
 
         });
-        simpanData()
+        // simpanData()
+        arrangevariable()
     }
 
     function arrayToString(arr) {
@@ -513,7 +529,7 @@
         return resultString;
     }
 
-    function simpanData() {
+    function arrangevariable() {
         machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
@@ -535,6 +551,9 @@
             }
         })
         rowCode = arrayToString(row)
+    }
+
+    function simpanData() {
         // rowCode
         // ----------------------------------------- //
         var type = 'GET'

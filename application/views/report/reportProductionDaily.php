@@ -197,12 +197,12 @@
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Machine</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangeVariable()">
                                 </select>
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Kode Meja</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja">
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja" onchange="arrangeVariable()">
                                 </select>
                             </div>
                             <div class="col-auto p-0 d-flex align-items-end">
@@ -212,7 +212,7 @@
                     </div>
                     <div class="col-auto d-flex align-items-end">
                         <div class="dropdown">
-                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
@@ -476,7 +476,7 @@
     var rowCode
     var dataProfile = 'IGNORESORTIR'
     $(document).ready(function() {
-        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
+        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
         loadData()
     })
@@ -508,6 +508,30 @@
                 dateRangeString()
             }
         })
+    }
+
+    function arrangeVariable() {
+        machineId = arrayToString($('#selectMachine').map(function() {
+            return $(this).val();
+        }).get())
+        var dataCode = $('#selectCodeMeja').map(function() {
+            return $(this).val();
+        }).get()
+        var row = []
+        data_user.rowCodeProfile.forEach(e => {
+            for (let i = 0; i < dataCode.length; i++) {
+                if (e.id == dataCode[i]) {
+                    for (let j = 0; j < e.codes.length; j++) {
+                        if (!e.codes[j]) {
+                            e.codes[j] = 'UNKNOWN'
+                        }
+                        row.push(e.codes[j])
+                    }
+                }
+
+            }
+        })
+        rowCode = arrayToString(row)
     }
 
     function dateRangeString() {
@@ -554,7 +578,8 @@
         $('#selectCodeMeja').selectpicker({
 
         });
-        simpanData()
+        // simpanData()
+        arrangeVariable()
     }
 
     function arrayToString(arr) {
@@ -563,27 +588,6 @@
     }
 
     function simpanData() {
-        machineId = arrayToString($('#selectMachine').map(function() {
-            return $(this).val();
-        }).get())
-        var dataCode = $('#selectCodeMeja').map(function() {
-            return $(this).val();
-        }).get()
-        var row = []
-        data_user.rowCodeProfile.forEach(e => {
-            for (let i = 0; i < dataCode.length; i++) {
-                if (e.id == dataCode[i]) {
-                    for (let j = 0; j < e.codes.length; j++) {
-                        if (!e.codes[j]) {
-                            e.codes[j] = 'UNKNOWN'
-                        }
-                        row.push(e.codes[j])
-                    }
-                }
-
-            }
-        })
-        rowCode = arrayToString(row)
         // rowCode
         // ----------------------------------------- //
         var type = 'GET'
@@ -685,7 +689,7 @@
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">Group</th>'
         const dates = data_report.reportResultPersonDaily[0].data.map(item => Object.keys(item)[0]);
         for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle" colspan="2">Setoran ' + dates[i] + '</th>'
+            html += '<th class="align-middle text-center" colspan="2">Setoran ' + dates[i] + '</th>'
         }
         html += '<th class="align-middle" rowspan="2">Total</th>'
         html += '</tr>'

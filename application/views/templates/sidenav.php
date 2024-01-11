@@ -143,6 +143,16 @@
                                 </div>
                             </div>
                         </a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/restAbsence">
+                            <div class="row">
+                                <div class="col-2 pe-0">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                                <div class="col-10 ps-0">
+                                    Break Time
+                                </div>
+                            </div>
+                        </a>
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
                     </nav>
@@ -304,10 +314,10 @@
                             <a class="nav-link" href="<?= base_url(); ?>report/reportProductionGiling">
                                 <div class="row">
                                     <div class="col-2 pe-0">
-                                        <i class="fa fa-leaf"></i>
+                                        <i class="fa fa-file-pdf-o"></i>
                                     </div>
                                     <div class="col-10 ps-0">
-                                        Report Giling
+                                        Form Report Giling
                                     </div>
                                 </div>
                                 <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->

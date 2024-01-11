@@ -190,7 +190,7 @@
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Period</p>
-                                <select class="selectpicker w-100" id="selectPeriod" title="Pilih Period">
+                                <select class="selectpicker w-100" id="selectPeriod" title="Pilih Period" onchange="arrangeVariable()">
                                     <option value="SHIFT">SHIFT</option>
                                     <option value="DAILY" selected>DAILY</option>
                                     <option value="WEEKLY">WEEKLY</option>
@@ -199,14 +199,14 @@
                             </div>
                             <div class="col-auto p-0">
                                 <p class="fw-bolder small-text m-0">Group By</p>
-                                <select class="selectpicker w-100" id="selectGrouping" title="Pilih Grouping By">
+                                <select class="selectpicker w-100" id="selectGrouping" title="Pilih Grouping By" onchange="arrangeVariable()">
                                     <option value="MACHINE">MACHINE</option>
                                     <option value="WORKER" selected>WORKER</option>
                                 </select>
                             </div>
                             <div class="col-auto">
                                 <p class="fw-bolder small-text m-0">Machine</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin">
+                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangeVariable()">
                                 </select>
                             </div>
                             <div class="col-auto p-0 d-flex align-items-end">
@@ -216,7 +216,7 @@
                     </div>
                     <div class="col-auto d-flex align-items-end">
                         <div class="dropdown">
-                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
@@ -485,7 +485,7 @@
         },
     }
     $(document).ready(function() {
-        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
+        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
         loadData()
     })
@@ -552,15 +552,20 @@
 
         });
         // autoSave()
-        simpanData()
+        // simpanData()
+        arrangeVariable()
     }
 
-    function simpanData() {
+    function arrangeVariable() {
         periodOption = $('#selectPeriod').val()
         groupingOption = $('#selectGrouping').val()
         machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
+    }
+
+    function simpanData() {
+
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'

@@ -309,6 +309,22 @@ function shortenText($text, $length = 20)
 
     return $shortenedText;
 }
+function groupDataByRowCode($data)
+{
+    $groupedData = [];
+
+    foreach ($data as $item) {
+        $rowCode = $item->row_code;
+
+        if (!isset($groupedData[$rowCode])) {
+            $groupedData[$rowCode] = [];
+        }
+
+        $groupedData[$rowCode][] = $item->employee;
+    }
+
+    return $groupedData;
+}
 ?>
 
 <body>
@@ -357,9 +373,11 @@ function shortenText($text, $length = 20)
             } ?>
         </table>
         <?php
+        // print_r($datas->resultProductWorkerTotal);
         $datagroup = extractRowCodesWithCount($datas->resultProductWorkerTotal);
         $datagroupSplit = extractRowCodesWithCountSplit($datas->resultProductWorkerTotal);
-        // print_r($datagroupSplit);
+        $datagroupByRowCode = groupDataByRowCode($datas->resultProductWorkerTotal);
+        // print_r($datagroupByRowCode);
         $jumlahTable = 1;
         $splitNumber = 1;
         foreach ($datagroup as $k => $v) { ?>

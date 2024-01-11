@@ -4,6 +4,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Protection;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class Report extends CI_Controller
 {
@@ -906,10 +908,14 @@ class Report extends CI_Controller
         $rowCode = $explodedParams[3];
         $body = json_decode($this->curl->simple_get(api_produksi('getResultProductWorkerTotalDaily?date=' . $date . '&machineId=' . $machineId . '&rowCode=' . $rowCode)))->data->resultProductWorkerTotal;
         $spreadsheet = new Spreadsheet();
+        $spreadsheet->getActiveSheet()->getProtection()->setSheet(true);
+        $spreadsheet->getDefaultStyle()->getProtection()->setLocked(false);
         $sheet = $spreadsheet->getActiveSheet();
         $jumlahColumn = 1;
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '2')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'SATUAN');
-        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '2')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'MATERIAL');
+        $jumlahColumnBefore = $jumlahColumn;
+        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn += 1) . '2')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore) . '1', 'MATERIAL');
+        $jumlahColumn++;
         $jumlahColumnBefore = $jumlahColumn;
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 2) . '1')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore) . '1', 'SISA AWAL');
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore++) . '2', 'DI ORANG GILING');
@@ -938,7 +944,9 @@ class Report extends CI_Controller
         foreach ($dataMaterial as $value) {
             $jumlahColumn = 1;
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value['satuan']);
-            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value['material']);
+            $jumlahColumnBefore = $jumlahColumn;
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) .  $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn += 1) .  $jumlahRow)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore) . $jumlahRow, $value['material']);
+            $sheet->setCellValue('F' . $jumlahRow, '=(D' . $jumlahRow . '+E' . $jumlahRow . ')');
             $jumlahRow++;
         }
         $jumlahRow = 3;
@@ -957,6 +965,7 @@ class Report extends CI_Controller
         $jumlahRow = $jumlahRowStart;
         $jumlahColumn = $jumlahColumnStart;
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'NO');
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'NIK');
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'NAMA');
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'GROUP');
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'SISA AWAL TSG');
@@ -970,35 +979,50 @@ class Report extends CI_Controller
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, 'HASIL PRODUKSI');
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow++, 'AMBRI RUSAK (LBR)');
         $no = 1;
+        $totalProduksi = 0;
         foreach ($body as $key => $value) {
             $jumlahColumn = 1;
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->eid);
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->name);
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->row_code);
-            $sheet->setCellValue(Coordinate::stringFromColumnIndex(6) . $jumlahRow, '=(' . Coordinate::stringFromColumnIndex(4) . $jumlahRow . '+' . Coordinate::stringFromColumnIndex(5) . $jumlahRow . ')-' . Coordinate::stringFromColumnIndex(7) . $jumlahRow . '');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex(7) . $jumlahRow, '=(' . Coordinate::stringFromColumnIndex(5) . $jumlahRow . '+' . Coordinate::stringFromColumnIndex(6) . $jumlahRow . ')-' . Coordinate::stringFromColumnIndex(8) . $jumlahRow . '');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex(9) . $jumlahRow, '=(' . Coordinate::stringFromColumnIndex(7) . $jumlahRow . '/' . Coordinate::stringFromColumnIndex(13) . $jumlahRow . ')');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex(14) . $jumlahRow, '=(' . Coordinate::stringFromColumnIndex(10) . $jumlahRow . '+' . Coordinate::stringFromColumnIndex(11) . $jumlahRow . '-' . Coordinate::stringFromColumnIndex(12) . $jumlahRow . '-' . Coordinate::stringFromColumnIndex(13) . $jumlahRow . ')');
             $jumlahColumn += 8;
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->qty);
             $jumlahRow++;
+            $totalProduksi += $value->qty;
         }
-        $jumlahRowEnd = $jumlahRow;
+        $jumlahRowEnd = $jumlahRow - 1;
         $jumlahColumnEnd = $jumlahColumn;
         // bagian bawah 
         $jumlahRow = $jumlahRowEnd + 2;
         $jumlahRow2 = $jumlahRowEnd + 3;
-        $jumlahColumn = 3;
+        $jumlahColumn = 4;
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow2)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow . '', 'SISA AWAL');
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow2)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow . '', 'TERIMA BATANGAN DARI WAGIR');
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow2)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow . '', 'HASIL PRODUKSI');
         $jumlahColumnBefore = $jumlahColumn;
 
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 1) . $jumlahRow . '')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore) . $jumlahRow . '', 'PEMAKAIAN');
-
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore++) . $jumlahRow2, 'AK 12 SKT');
         $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnBefore++) . $jumlahRow2, 'AK 16 SKT');
         $jumlahColumn++;
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow2)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow . '', 'SISA AKHIR');
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow2)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow . '', 'WASTE BTG DI BANDULAN');
         $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow2)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow . '', 'WASTE BTGAN DI WAGIR');
+
+
+        $sheet->setCellValue('H3', '=SUM(E' . ($jumlahRowStart + 1) . ':E' . $jumlahRowEnd . ')');
+        $sheet->setCellValue('I3', '=SUM(H' . ($jumlahRowStart + 1) . ':H' . $jumlahRowEnd . ')');
+        $sheet->setCellValue('H4', '=SUM(J' . ($jumlahRowStart + 1) . ':J' . $jumlahRowEnd . ')');
+        $sheet->setCellValue('I4', '=SUM(L' . ($jumlahRowStart + 1) . ':L' . $jumlahRowEnd . ')');
+        $sheet->setCellValue('L4', '=SUM(N' . ($jumlahRowStart + 1) . ':N' . $jumlahRowEnd . ')');
+        $sheet->setCellValue('K3', '=(I3+J3)');
+        $sheet->setCellValue('K4', '=(I4+J4)');
+
+        $sheet->setCellValue('F' . ($jumlahRow2 + 1), $totalProduksi);
         $styleArrayHeader = [
             'font' => [
                 'bold' => true,
@@ -1032,14 +1056,36 @@ class Report extends CI_Controller
                 ],
             ],
         ];
-        $sheet->getStyle('A1:S2')->applyFromArray($styleArrayHeader);
-        $sheet->getStyle('A7:M7')->applyFromArray($styleArrayHeader);
-        $sheet->getStyle('C' . ($jumlahRowEnd + 2) . ':J' . ($jumlahRowEnd + 3))->applyFromArray($styleArrayHeader);
-        $sheet->getStyle('A3:S5')->applyFromArray($styleArrayBody);
-        $sheet->getStyle('C' . ($jumlahRowEnd + 4) . ':J' . ($jumlahRowEnd + 5))->applyFromArray($styleArrayBody);
+        $styleArrayFormula = [
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'd7d7d7',
+                ],
+                'endColor' => [
+                    'argb' => 'd7d7d7',
+                ],
+            ],
+            'protection' => array('locked' => \PhpOffice\PhpSpreadsheet\Style\Protection::PROTECTION_PROTECTED),
+        ];
+
+        $sheet->getStyle('F3:F5')->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('H3:H4')->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('I3:I4')->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('K3:K4')->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('L4')->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('G8:G' . $jumlahRowEnd)->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('I8:I' . $jumlahRowEnd)->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('N8:N' . $jumlahRowEnd)->applyFromArray($styleArrayFormula);
+        $sheet->getStyle('A1:T2')->applyFromArray($styleArrayHeader);
+        $sheet->getStyle('A7:N7')->applyFromArray($styleArrayHeader);
+        $sheet->getStyle('D' . ($jumlahRowEnd + 2) . ':K' . ($jumlahRowEnd + 3))->applyFromArray($styleArrayHeader);
+        $sheet->getStyle('A3:T5')->applyFromArray($styleArrayBody);
+        $sheet->getStyle('D' . ($jumlahRowEnd + 4) . ':K' . ($jumlahRowEnd + 5))->applyFromArray($styleArrayBody);
         $sheet->getStyle(Coordinate::stringFromColumnIndex($jumlahColumnStart) . $jumlahRowStart . ':' . Coordinate::stringFromColumnIndex($jumlahColumnEnd) . $jumlahRowEnd)->applyFromArray($styleArrayBody);
         $sheet->getColumnDimension('A')->setAutoSize(true);
-        $sheet->getColumnDimension('B')->setWidth(35);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(35);
         // exit;
         $date_time = date('Y-m-d H:i:s');
         $epoch = strtotime($date_time);

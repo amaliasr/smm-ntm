@@ -388,4 +388,9 @@ class Production extends CI_Controller
         $data['title'] = 'Manage Production';
         $this->template->views('production/manage_production', $data);
     }
+    public function restAbsence()
+    {
+        $data['title'] = 'Break Absence';
+        $this->template->views('production/rest_absence', $data);
+    }
 }
