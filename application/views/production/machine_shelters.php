@@ -2059,10 +2059,10 @@
             }
             html_body += '<div class="row pt-5">'
             html_body += '<div class="col" style="height:50px;">'
-            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + id + ',0,' + next_id + ',' + "'" + next_name + "'" + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-danger" onclick="approvalData(' + "'" + id + "'" + ',0,' + next_id + ',' + "'" + next_name + "'" + ')"><i class="me-2 fa fa-times"></i> Reject</button>'
             html_body += '</div>'
             html_body += '<div class="col" style="height:50px;">'
-            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + id + ',1,' + next_id + ',' + "'" + next_name + "'" + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
+            html_body += '<button class=" w-100 h-100 btn btn-sm btn-outline-success" onclick="approvalData(' + "'" + id + "'" + ',1,' + next_id + ',' + "'" + next_name + "'" + ')"><i class="me-2 fa fa-check"></i> Accept</button>'
             html_body += '</div>'
             html_body += '</div>'
         }
@@ -2114,6 +2114,15 @@
             }
         }
 
+        var receivedAt = $('#dateTransaction').val() + ' ' + $('#timeTransaction').val()
+        if (dataDetail.mutationStockWaiting.length) {
+            var dataFind = dataDetail.mutationStockWaiting.find((v, k) => {
+                if (v.id == id) return true
+            })
+            if (dataFind) {
+                receivedAt = dataFind.time
+            }
+        }
         Swal.fire(dataSwal).then((result) => {
             if (result.isConfirmed) {
                 var type = 'POST'
@@ -2124,7 +2133,7 @@
                     isReceive: approval,
                     employeeId: user_id,
                     isSendNextMachine: isSendNextMachine,
-                    receivedAt: $('#dateTransaction').val() + ' ' + $('#timeTransaction').val(),
+                    receivedAt: receivedAt,
                 }
                 kelolaData(data, type, url, button)
             } else if (result.isDenied) {
@@ -2136,7 +2145,7 @@
                     isReceive: approval,
                     employeeId: user_id,
                     isSendNextMachine: 0,
-                    receivedAt: $('#dateTransaction').val() + ' ' + $('#timeTransaction').val(),
+                    receivedAt: receivedAt,
                 }
                 kelolaData(data, type, url, button)
             }

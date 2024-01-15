@@ -215,6 +215,10 @@
         border-left-width: 0.25rem;
         border-radius: 0.25rem;
     }
+
+    .start-90 {
+        left: 90% !important;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
@@ -251,7 +255,7 @@
         </div>
         <div class="row mt-3">
             <div class="col-9">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm h-100">
                     <div class="card-body p-0">
                         <div class="row">
                             <div class="col-4 border-end p-5">
@@ -279,9 +283,9 @@
             </div>
             <div class="col-3">
                 <div class="card shadow-sm h-100">
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <p class="m-0 small fw-bolder">Belum Kembali</p>
-                        <div id="dataBelumKembalik">
+                        <div class="mt-3 pt-2 pe-2" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="dataBelumKembali">
                         </div>
                     </div>
                 </div>
@@ -318,6 +322,7 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<script src="<?= base_url(); ?>assets/js/easytimer.min.js"></script>
 
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
@@ -431,6 +436,7 @@
             }
         })
     }
+    var data_detail = []
 
     function arrangeVariable(ifAuto) {
         var data = deepCopy(data_user.employeeLeavePass)
@@ -482,10 +488,37 @@
         }
         // console.log(data)
         data_user.employeeLeavePass = deepCopy(data)
-        // console.log(data_user.employeeLeavePass)
+        data_detail = []
+        data_user.employeeLeavePass.forEach(e => {
+            if (e.data_leave) {
+                e.data_leave.forEach(el => {
+                    var dataBreak = data_user.leavePassType.find((v, k) => {
+                        if (v.id == el.leave_pass_type_id) return true
+                    })
+                    data_detail.push({
+                        id: e.id,
+                        eid: e.eid,
+                        name: e.name,
+                        row_code: e.row_code,
+                        id_leave: el.id,
+                        leave_pass_type_id: el.leave_pass_type_id,
+                        leave_pass_type_name: dataBreak.name,
+                        leave_pass_type_icon: dataBreak.icon,
+                        datetime_in: el.datetime_in,
+                        datetime_out: el.datetime_out,
+                        minutes_usage: el.minutes_usage,
+                        is_over: el.is_over,
+                        minutes_over: el.minutes_over,
+                        employee_id_check: el.employee_id_check,
+
+                    })
+                });
+            }
+        });
         if (scannedEid) {
             findIDPekerja(scannedEid, ifAuto)
         }
+        dataBelumKembali()
     }
 
     function sisaWaktu(eid, id_break) {
@@ -574,14 +607,12 @@
 
     function kerangkaIsi(data, ifAuto = null) {
         var html = ''
-        html += '<div class="row h-100">'
+        html += '<div class="row">'
         html += '<div class="col-12">'
         html += '<p class="m-0">' + data.eid + '</p>'
         html += '<p class="m-0 fw-bolder lh-1" style="font-weight: 900 !important;font-size:30px;">' + data.name.toUpperCase() + '</p>'
         html += '<p class="m-0 fw-bold">Sisa Waktu Istirahat : <span class="fw-bolder text-orange">' + sisaWaktu(data.eid, 2) + '</span> Menit</p>'
-        html += '<div class="row mt-3" id="alertStillBreak">'
-        html += '</div>'
-        html += '<div class="row">'
+        html += '<div class="row mt-3">'
         html += '<div class="col-3">'
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center p-3">'
@@ -623,7 +654,7 @@
         html += '</div>'
         html += '<div class="col-12">'
         html += '<p class="m-0 small fw-bolder">Detail Waktu</p>'
-        html += '<div class="row" id="detailWaktu">'
+        html += '<div class="mt-2 pe-2" style="height: 250px;overflow-x: hidden;overflow-y: auto;" id="detailWaktu">'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -671,7 +702,6 @@
                 var dataBreak = data_user.leavePassType.find((v, k) => {
                     if (v.id == e.leave_pass_type_id) return true
                 })
-                html += '<div class="col-12">'
                 html += '<div class="card shadow-none mb-2 border-' + dataBreak.icon.toLowerCase() + '">'
                 html += '<div class="card-body p-0">'
                 html += '<div class="row p-0 m-0 w-100">'
@@ -703,11 +733,12 @@
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
-                html += '</div>'
             });
         } else {
-            html += '<div class="col-12 h-100">'
-            html += emptyReturn('Belum ada Data Istirahat')
+            html += '<div class="row h-100">'
+            html += '<div class="col-12">'
+            html += emptyTextReturn('Belum ada Data Istirahat')
+            html += '</div>'
             html += '</div>'
         }
         $('#detailWaktu').html(html)
@@ -992,5 +1023,45 @@
         } else {
             $('#saveField').prop("hidden", true)
         }
+    }
+
+    var timer = new easytimer.Timer();
+    timer.start();
+
+    timer.addEventListener('secondsUpdated', function(e) {
+        dataBelumKembali()
+    });
+
+    function dataBelumKembali() {
+        var html = ''
+        var a = 0
+        data_detail.forEach(e => {
+            if (!e.datetime_out) {
+                var selisih = selisihMenit(e.datetime_in, currentDateTime())
+                html += '<div class="card shadow-none mb-2 pointer card-hoper">'
+                html += '<span class="position-absolute top-0 start-90 translate-middle badge rounded-pill bg-dark-' + e.leave_pass_type_icon.toLowerCase() + ' super-small-text">' + selisih + ' menit</span>'
+                html += '<div class="card-body p-3">'
+                html += '<div class="row justify-content-between">'
+
+                html += '<div class="col-auto align-self-center">'
+                html += '<p class="m-0 fw-bold super-small-text">' + e.eid + '</p>'
+                html += '<p class="m-0 fw-bolder small">' + shortenText(e.name, 20) + '</p>'
+                html += '<p class="m-0 lh-1 fw-bold small-text">Waktu ' + toTitleCase(e.leave_pass_type_name) + '</p>'
+                html += '</div>'
+
+                html += '<div class="col-auto align-self-center">'
+                html += '<p class="m-0 ssmall">' + formatJamMenit(e.datetime_in) + '</p>'
+                html += '</div>'
+
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                a++
+            }
+        });
+        if (!a) {
+            html += emptyTextReturn('Tidak Ada')
+        }
+        $('#dataBelumKembali').html(html)
     }
 </script>
