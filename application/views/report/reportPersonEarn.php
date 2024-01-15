@@ -679,7 +679,7 @@
                     bgOver = 'bg-orange-light'
                 }
                 var bgDanger = ''
-                if (!el[Object.keys(el)[0]].reject_left) {
+                if (el[Object.keys(el)[0]].reject_left) {
                     bgDanger = 'bg-light-danger'
                 }
                 html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(el[Object.keys(el)[0]].qty) + '</td>'

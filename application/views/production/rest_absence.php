@@ -198,6 +198,15 @@
 
     }
 
+    .bg-break-1 {
+        background-color: #7077A1 !important;
+    }
+
+    .bg-break-2 {
+        background-color: #F6B17A !important;
+    }
+
+
     .bd-callout {
         padding: 1.25rem;
         margin-top: 1.25rem;
@@ -229,18 +238,13 @@
             </div>
             <div class="col-auto align-self-center">
                 <div class="row">
-                    <div class="col-auto text-end">
-                        <p class="m-0 small-text fw-bolder"><i>Telah Disimpan Otomatis</i></p>
-                        <p class="m-0 super-small-text"><i>Terakhir Simpan 16:29</i></p>
+                    <div class="col-auto text-end" id="textAutoSave">
                     </div>
-                    <div class="col-auto text-end">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
+                    <div class="col-auto text-end" id="loadingSave" hidden>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto" hidden id="saveField">
                         <button class="btn btn-outline-primary btn-sm"><i class="fa fa-eye me-2"></i>View</button>
-                        <button class="btn btn-primary btn-sm"><i class="fa fa-save me-2"></i>Simpan</button>
+                        <button class="btn btn-primary btn-sm" id="btnSimpan" onclick="autoSaveData()"><i class="fa fa-save me-2"></i>Simpan</button>
                     </div>
                 </div>
             </div>
@@ -251,11 +255,11 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12 pt-3 text-center">
-                                <p class="m-0 small"><span class="fw-bolder">Selasa</span>, 09 Januari 2024</p>
+                                <p class="m-0 small" id="dateCurrent"></p>
                                 <lottie-player style="margin:auto;" src="<?= base_url() ?>assets/json/scan_barcode.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>
                             </div>
                             <div class="col-12">
-                                <input class="form-control rounded-pill" style="text-align: center;" tabindex="1" role="dialog" placeholder="ID Pekerja" autofocus>
+                                <input class="form-control rounded-pill" style="text-align: center;" tabindex="1" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off" onblur="this.focus()" autofocus>
                                 <button class="mt-2 w-100 btn btn-primary rounded-pill"><i class="fa fa-search me-2"></i>Cari</button>
                             </div>
                             <div class="col-12">
@@ -348,6 +352,7 @@
         $('#modalHeader').html('');
         $('#modalBody').html('');
         $('#modalFooter').html('');
+        $('#codeQR').val('')
     }
 
     $('#modal').on('hidden.bs.modal', function(e) {
@@ -360,19 +365,43 @@
     var master_break = {
         istirahat: 60,
     }
+    var scannedEid = null
+    var dataSave = {
+        leavePassLog: [],
+        deletedId: {
+            leavePassLog: [],
+        }
+    }
+    var firstAccess = true
+    var insertMode = true
 
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function createCodeId(id = '') {
+        var code = (new Date).getTime() + '' + id
+        return code;
+    }
     $(document).ready(function() {
+        $('#dateCurrent').html(formatDateIndonesia(currentDate()))
         $('#kerangkaIsi').html(emptyReturn('Anda Belum Melakukan Scanning'))
         loadData()
     })
 
-    function loadData() {
+    function loadData(ifAuto = null) {
+        data_user = ''
         $.ajax({
             url: "<?= api_produksi('loadPageEmployeeLeavePass'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                date: currentDate(),
+            },
             error: function(xhr) {
-                showOverlay('hide')
+                if (firstAccess) {
+                    showOverlay('hide')
+                }
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -380,51 +409,176 @@
                 });
             },
             beforeSend: function() {
-                showOverlay('show')
+                if (firstAccess) {
+                    showOverlay('show')
+                }
             },
             success: function(response) {
-                showOverlay('hide')
+                if (firstAccess) {
+                    showOverlay('hide')
+                }
                 data_user = response['data']
-                console.log(data_user)
+                firstAccess = false
+                arrangeVariable(ifAuto)
             }
         })
     }
 
-    function findIDPekerja(eid) {
-        var dataFilter = data_user.employeeLeavePass.find((v, k) => {
-            if (v.eid == eid) return true
-        })
-        kerangkaIsi(dataFilter)
+    function arrangeVariable(ifAuto) {
+        var data = deepCopy(data_user.employeeLeavePass)
+        if (dataSave.leavePassLog.length) {
+            deepCopy(dataSave.leavePassLog).forEach(e => {
+                var datetime_out = null
+                var minutes_usage = null
+                var is_over = 0
+                var minutes_over = 0
+                if (e.datetime_out) {
+                    datetime_out = e.datetime_out
+                    minutes_usage = e.minutes_usage
+                    is_over = e.is_over
+                    minutes_over = e.minutes_over
+                }
+                var dataTemplate = {
+                    id: e.id,
+                    employee_id: e.employee_id,
+                    leave_pass_type_id: e.leave_pass_type_id,
+                    datetime_in: e.datetime_in,
+                    datetime_out: datetime_out,
+                    minutes_usage: minutes_usage,
+                    is_over: is_over,
+                    minutes_over: minutes_over,
+                    employee_id_check: e.employee_id_check,
+                }
+                var dataAsliFiltered = data.filter((v, k) => {
+                    if (v.id == e.employee_id) return true
+                })
+                if (!dataAsliFiltered[0].data_leave) {
+                    dataAsliFiltered[0].data_leave = []
+                    dataAsliFiltered[0].data_leave.push(dataTemplate)
+                } else {
+                    var checkDataLeave = dataAsliFiltered[0].data_leave.filter((v, k) => {
+                        if (v.id == e.id) return true
+                    })
+                    if (checkDataLeave.length) {
+                        // jika ada sebelumnya
+                        dataAsliFiltered[0].data_leave = dataAsliFiltered[0].data_leave.filter((v, k) => {
+                            if (v.id != e.id) return true
+                        })
+                        dataAsliFiltered[0].data_leave.push(dataTemplate)
+                    } else {
+                        // jika tidak ada
+                        dataAsliFiltered[0].data_leave.push(dataTemplate)
+                    }
+                }
+            });
+        }
+        // console.log(data)
+        data_user.employeeLeavePass = deepCopy(data)
+        // console.log(data_user.employeeLeavePass)
+        if (scannedEid) {
+            findIDPekerja(scannedEid, ifAuto)
+        }
     }
 
-    function kerangkaIsi(data) {
+    function sisaWaktu(eid, id_break) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        var dataBreak = data_user.leavePassType.find((v, k) => {
+            if (v.id == id_break) return true
+        })
+        var dataReturn = dataBreak.minutes_max
+        if (!data.data_leave) {
+            dataReturn = dataBreak.minutes_max
+        } else {
+            // rumus
+            var totalMinutes = findTotalMinutes(data.data_leave)
+            if (totalMinutes > dataBreak.minutes_max) {
+                dataReturn = 0
+            } else {
+                dataReturn = parseInt(dataBreak.minutes_max) - parseInt(totalMinutes)
+            }
+        }
+        return dataReturn
+    }
+
+    function findTotalMinutes(data) {
+        var total = 0
+        data.forEach(e => {
+            if (!e.minutes_usage) {
+                e.minutes_usage = 0
+            }
+            total = total + parseInt(e.minutes_usage)
+        });
+        return total
+    }
+
+    function sisaFreq(eid, id_break) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        var dataBreak = data_user.leavePassType.find((v, k) => {
+            if (v.id == id_break) return true
+        })
+        var dataReturn = 0
+        if (!data.data_leave) {
+            dataReturn = dataBreak.freq_max
+        } else {
+            // rumus
+        }
+        return dataReturn
+    }
+
+    function hitungMinutesOver(minutes_max, input) {
+        var data = 0
+        if (minutes_max == null) {
+            data = 0
+        } else {
+            if (input > minutes_max) {
+                data = parseFloat(input) - parseInt(minutes_max)
+            }
+        }
+        return data
+    }
+
+    $(document).on('keypress', '#codeQR', function(e) {
+        if (event.keyCode === 13) {
+            changeScanner()
+        }
+    })
+
+    function changeScanner() {
+        if ($('#codeQR').val()) {
+            var scannedId = $('#codeQR').val()
+            showrestMode(scannedId)
+            findIDPekerja(scannedId)
+        }
+    }
+
+    function findIDPekerja(eid, ifAuto = null) {
+        scannedEid = eid
+        var dataMaster = deepCopy(data_user.employeeLeavePass)
+        var dataFilter = dataMaster.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        kerangkaIsi(dataFilter, ifAuto)
+    }
+
+    function kerangkaIsi(data, ifAuto = null) {
         var html = ''
         html += '<div class="row h-100">'
         html += '<div class="col-6 p-5">'
         html += '<p class="m-0">21098736489</p>'
         html += '<p class="m-0 fw-bolder lh-1" style="font-weight: 900 !important;font-size:40px;">' + data.name.toUpperCase() + '</p>'
-        html += '<p class="m-0 fw-bold">Sisa Waktu Istirahat : <span class="fw-bolder text-orange">30</span> Menit</p>'
-        html += '<div class="row mt-3">'
-        html += '<div class="col-12">'
-        html += '<div class="alert alert-danger p-3" role="alert">'
-        html += '<div class="row justify-content-between">'
-        html += '<div class="col-auto">'
-        html += 'Sedang <b>Istirahat</b>'
-        html += '<p class="m-0 super-small-text">Dari pukul 09.00</p>'
-        html += '</div>'
-        html += '<div class="col-auto align-self-center">'
-        html += '<button class="btn btn-sm btn-danger">Stop</button>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
+        html += '<p class="m-0 fw-bold">Sisa Waktu Istirahat : <span class="fw-bolder text-orange">' + sisaWaktu(data.eid, 2) + '</span> Menit</p>'
+        html += '<div class="row mt-3" id="alertStillBreak">'
         html += '</div>'
         html += '<div class="row">'
         html += '<div class="col-6">'
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center">'
         html += '<p class="m-0 fw-bolder small-text">TOTAL ISTIRAHAT</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;">62</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalIstirahat">0</p>'
         html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
@@ -433,7 +587,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center">'
         html += '<p class="m-0 fw-bolder small-text">TOTAL IBADAH</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;">0</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalIbadah">0</p>'
         html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
 
         html += '</div>'
@@ -443,7 +597,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center">'
         html += '<p class="m-0 fw-bolder small-text">TOTAL SEMUA</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;">62</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalSemua"></p>'
         html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
@@ -452,7 +606,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center">'
         html += '<p class="m-0 fw-bolder small-text">WAKTU OVERTIME</p>'
-        html += '<p class="m-0 text-danger" style="font-weight: 900 !important;font-size:30px;">2</p>'
+        html += '<p class="m-0 text-danger" style="font-weight: 900 !important;font-size:30px;" id="waktuOvertime">0</p>'
         html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
@@ -461,65 +615,329 @@
         html += '</div>'
         html += '<div class="col-6 border-start p-5">'
         html += '<p class="m-0 small fw-bolder">Detail Waktu</p>'
-        html += '<div class="row mt-2">'
-
-        html += '<div class="col-12">'
-        html += '<div class="card shadow-none mb-2 border-mosque">'
-        html += '<div class="card-body p-0">'
-        html += '<div class="row p-0 m-0 w-100">'
-        html += '<div class="col-2 p-3 align-self-center bg-dark-mosque text-center" style="border-bottom-left-radius: 0.35rem;border-top-left-radius: 0.35rem;">'
-        html += '<p class="m-0 lh-1 text-white fw-bolder">40</p>'
-        html += '<p class="m-0 lh-1 text-white super-small-text">Menit</p>'
-        html += '</div>'
-        html += '<div class="col p-2 ps-3 align-self-center">'
-        html += '<p class="m-0 fw-bolder ">Waktu Ibadah</p>'
-        html += '<p class="m-0 fw-bold  super-small-text">12:00 - 13:00</p>'
-        html += '</div>'
-        html += '<div class="col p-2 pe-3 align-self-center text-end">'
-        html += '<i class="text-danger small-text">Overtime</i>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-
-
-        html += '<div class="col-12">'
-        html += '<div class="card shadow-none mb-2 border-lunch">'
-        html += '<div class="card-body p-0">'
-        html += '<div class="row  p-0 m-0 w-100">'
-        html += '<div class="col-2 p-3 align-self-center bg-dark-lunch text-center" style="border-bottom-left-radius: 0.35rem;border-top-left-radius: 0.35rem;">'
-        html += '<p class="m-0 lh-1 text-white fw-bolder">10</p>'
-        html += '<p class="m-0 lh-1 text-white super-small-text">Menit</p>'
-        html += '</div>'
-        html += '<div class="col p-2 ps-3 align-self-center">'
-        html += '<p class="m-0 fw-bolder ">Istirahat</p>'
-        html += '<p class="m-0 fw-bold  super-small-text">12:00 - 13:00</p>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
+        html += '<div class="row mt-2" id="detailWaktu">'
 
         html += '</div>'
         html += '</div>'
         html += '</div>'
+        $('#kerangkaIsi').html(html)
+        collectInformation(data.eid)
+        if (!ifAuto) {
+
+        }
     }
 
-    function simpanData() {
-        machineId = arrayToString($('#selectMachine').map(function() {
-            return $(this).val();
-        }).get())
-        // ----------------------------------------- //
-        var type = 'GET'
-        var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResultPersonQuality'); ?>'
-        var data = {
-            dateStart: date_start,
-            dateEnd: date_end,
-            machineId: machineId,
+    function collectInformation(eid) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        informationBox(data)
+        // alertStillBreak(data)
+        detailWaktu(data)
+    }
+
+    function showrestMode(eid) {
+        var dataMaster = deepCopy(data_user.employeeLeavePass)
+        var data = dataMaster.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        if (!data.data_leave) {
+            // jika leave nya null (belum pernah istirahat)
+            chooseRest(data.id)
+        } else {
+            var dataLeave = data.data_leave.find((v, k) => {
+                if (v.is_over == 0) return true
+            })
+            if (dataLeave) {
+                // jika ada yang belum checkout
+                stopRest(data.id, dataLeave)
+            } else {
+                chooseRest(data.id)
+            }
         }
-        kelolaData(data, type, url, button)
+    }
+
+    function detailWaktu(data) {
+        var html = ''
+        if (data.data_leave) {
+            data.data_leave.forEach(e => {
+                var dataBreak = data_user.leavePassType.find((v, k) => {
+                    if (v.id == e.leave_pass_type_id) return true
+                })
+                html += '<div class="col-12">'
+                html += '<div class="card shadow-none mb-2 border-' + dataBreak.icon.toLowerCase() + '">'
+                html += '<div class="card-body p-0">'
+                html += '<div class="row p-0 m-0 w-100">'
+
+                html += '<div class="col-2 p-3 align-self-center bg-dark-' + dataBreak.icon.toLowerCase() + ' text-center" style="border-bottom-left-radius: 0.35rem;border-top-left-radius: 0.35rem;">'
+                if (!e.minutes_usage) {
+                    e.minutes_usage = 0
+                }
+                html += '<p class="m-0 lh-1 text-white fw-bolder small">' + e.minutes_usage + '</p>'
+                html += '<p class="m-0 lh-1 text-white super-small-text">Menit</p>'
+                html += '</div>'
+
+                html += '<div class="col p-2 ps-3 align-self-center">'
+                html += '<p class="m-0 fw-bolder">Waktu ' + toTitleCase(dataBreak.name) + '</p>'
+                if (e.is_over) {
+                    var textMinutes = formatJamMenit(e.datetime_in) + ' - ' + formatJamMenit(e.datetime_out)
+                } else {
+                    var textMinutes = formatJamMenit(e.datetime_in) + ' - ???'
+                }
+                html += '<p class="m-0 fw-bold  super-small-text">' + textMinutes + '</p>'
+                html += '</div>'
+
+                html += '<div class="col p-2 pe-3 align-self-center text-end">'
+                if (e.minutes_over) {
+                    html += '<i class="text-danger small-text">Overtime</i>'
+                }
+                html += '</div>'
+
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            });
+        } else {
+            html += '<div class="col-12 h-100">'
+            html += emptyReturn('Belum ada Data Istirahat')
+            html += '</div>'
+        }
+        $('#detailWaktu').html(html)
+    }
+
+    function informationBox(data) {
+        $('#totalIstirahat').html(totalIstirahat(data.eid))
+        $('#totalIbadah').html(totalIbadah(data.eid))
+        $('#totalSemua').html(parseInt(totalIstirahat(data.eid)) + parseInt(totalIbadah(data.eid)))
+        $('#waktuOvertime').html(waktuOvertime(data.eid))
+    }
+
+    function totalIstirahat(eid) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        var total = 0
+        data.data_leave.forEach(e => {
+            if (e.leave_pass_type_id == 2) {
+                if (!e.minutes_usage) {
+                    e.minutes_usage = 0
+                }
+                total = total + parseInt(e.minutes_usage)
+            }
+        });
+        return total
+    }
+
+    function totalIbadah(eid) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        var total = 0
+        data.data_leave.forEach(e => {
+            if (e.leave_pass_type_id == 1) {
+                if (!e.minutes_usage) {
+                    e.minutes_usage = 0
+                }
+                total = total + parseInt(e.minutes_usage)
+            }
+        });
+        return total
+    }
+
+    function waktuOvertime(eid) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        var total = 0
+        data.data_leave.forEach(e => {
+            if (!e.minutes_over) {
+                e.minutes_over = 0
+            }
+            total = total + parseInt(e.minutes_over)
+        });
+        return total
+    }
+
+    function alertStillBreak(data) {
+        var html = ''
+        if (data.data_leave) {
+            html += '<div class="col-12">'
+            html += '<div class="alert alert-danger p-3" role="alert">'
+            html += '<div class="row justify-content-between">'
+            html += '<div class="col-auto">'
+            html += 'Sedang <b>Istirahat</b>'
+            html += '<p class="m-0 super-small-text">Dari pukul 09.00</p>'
+            html += '</div>'
+            html += '<div class="col-auto align-self-center">'
+            // html += '<button class="btn btn-sm btn-danger">Stop</button>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        }
+        $('#alertStillBreak').html(html)
+    }
+
+
+    function chooseRest(id) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.id == id) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pilih Istirahat</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+
+        data_user.leavePassType.forEach(e => {
+            html_body += '<div class="col">'
+            html_body += '<div class="card shadow-none border-none pointer h-100 bg-break-' + e.id + '" style="border-radius:20px;" onclick="saveBreak(' + id + ',' + e.id + ')">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12 text-center">'
+            html_body += '<img src="<?= base_url() ?>assets/image/svg/' + e.icon + '.svg" style="width: 50%">'
+            html_body += '<h1 class="m-0 fw-bolder text-white lh-1 mt-5" style="font-weight: 900 !important;font-size:50px;">' + e.name + '</h1>'
+            if (e.minutes_max) {
+                html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA WAKTU : ' + sisaWaktu(data.eid, e.id) + ' MENIT</h5>'
+            }
+            if (e.freq_max) {
+                html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA : ' + sisaFreq(data.eid, e.id) + ' KALI</h5>'
+            }
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        });
+
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body)
+        $('#modalFooter').addClass('d-none');
+    }
+
+    function stopRest(id, dataLeave) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.id == id) return true
+        })
+        let timerIntervalSwal;
+        Swal.fire({
+            title: data.name,
+            html: "Telah Checkout Istirahat",
+            timer: 500,
+            timerProgressBar: true,
+            didOpen: () => {},
+            willClose: () => {
+                clearInterval(timerIntervalSwal);
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+                insertMode = false
+                saveBreak(id, dataLeave.leave_pass_type_id, dataLeave.id)
+            }
+        });
+    }
+
+    function selisihMenit(datetime1, datetime2) {
+        // Mengonversi string datetime menjadi objek Date
+        const date1 = new Date(datetime1);
+        const date2 = new Date(datetime2);
+
+        // Menghitung selisih waktu dalam milidetik
+        const selisihMilidetik = Math.abs(date2 - date1);
+
+        // Menghitung selisih menit
+        const selisih = Math.floor(selisihMilidetik / (1000 * 60));
+
+        return selisih;
+    }
+
+    function saveBreak(employee_id, jenisIstirahat, id_leave = null) {
+        if (id_leave) {
+            // edit
+            var data = data_user.employeeLeavePass.find((v, k) => {
+                if (v.id == employee_id) return true
+            }).data_leave.find((v, k) => {
+                if (v.id == id_leave) return true
+            })
+            var dataBreak = data_user.leavePassType.find((v, k) => {
+                if (v.id == data.leave_pass_type_id) return true
+            })
+            var datetime_out = currentDateTime()
+            var selisih = selisihMenit(getDateTime(data.datetime_in), datetime_out)
+            var minutesOver = hitungMinutesOver(dataBreak.minutes_max, selisih)
+            var data = {
+                id: id_leave,
+                employee_id: employee_id,
+                leave_pass_type_id: jenisIstirahat,
+                datetime_in: getDateTime(data.datetime_in),
+                datetime_out: datetime_out,
+                minutes_usage: selisih,
+                is_over: 1,
+                minutes_over: minutesOver,
+                employee_id_check: user_id,
+            }
+        } else {
+            // tambah
+            var idLeave = createCodeId(employee_id)
+            var data = {
+                id: idLeave,
+                employee_id: employee_id,
+                leave_pass_type_id: jenisIstirahat,
+                datetime_in: currentDateTime(),
+                employee_id_check: user_id,
+                minutes_over: 0,
+            }
+        }
+        // console.log(data)
+        dataSave.leavePassLog.push(data)
+        ifDataEmpty()
+        afterSaveBreak()
+    }
+
+    function afterSaveBreak() {
+        $('#modal').modal('hide')
+        $('#codeQR').val('')
+        $('#codeQR').focus();
+        arrangeVariable()
+    }
+    setInterval(autoSaveData, 60 * 1000);
+    setInterval(loadData, 5 * 60 * 1000);
+
+    function autoSaveData() {
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setLeavePassLog'); ?>'
+        var data = deepCopy(dataSave)
+        if (dataSave.leavePassLog.length) {
+            kelolaData(data, type, url, button)
+        }
+    }
+
+    function currentTimeTitikDua() {
+        var d = new Date();
+        var jam = d.getHours();
+        var menit = d.getMinutes();
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        var time = jam + ":" + menit;
+        return time;
+    }
+
+    function textAutoSave() {
+        var html = ''
+        html += '<p class="m-0 small-text fw-bolder"><i>Telah Disimpan Otomatis</i></p>'
+        html += '<p class="m-0 super-small-text"><i>Terakhir Simpan ' + currentTimeTitikDua() + '</i></p>'
+        return html
     }
 
     function kelolaData(data, type, url, button) {
@@ -528,94 +946,34 @@
             type: type,
             data: data,
             error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
-                $(button).prop("disabled", false);
+                $(button).prop("disabled", false)
+                $('#loadingSave').prop("hidden", true)
             },
             beforeSend: function() {
-                $(button).prop("disabled", true);
-                showOverlay('show')
+                $(button).prop("disabled", true)
+                $('#loadingSave').prop("hidden", false)
             },
             success: function(response) {
-                showOverlay('hide')
+                var dataToDelete = deepCopy(data.leavePassLog)
+                let newData = deepCopy(dataSave.leavePassLog).slice();
+                dataToDelete.forEach(itemToDelete => {
+                    newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                });
+                dataSave.leavePassLog = newData
+                $(button).prop("disabled", false)
+                $('#loadingSave').prop("hidden", true)
+                $('#textAutoSave').prop("hidden", false).html(textAutoSave())
+                ifDataEmpty()
+                loadData(1)
             }
         });
     }
 
-
-    function chooseRest() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Pilih Istirahat</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-
-        html_body += '<div class="col">'
-        html_body += '<div class="card shadow-none border-none pointer h-100" style="border-radius:20px;background-color:#F6B17A">'
-        html_body += '<div class="card-body">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<img src="<?= base_url() ?>assets/image/svg/lunch.svg" style="width: 50%">'
-        html_body += '<h1 class="m-0 fw-bolder text-white lh-1 mt-5" style="font-weight: 900 !important;font-size:50px;">ISTIRAHAT</h1>'
-        html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA WAKTU : 45 MENIT</h5>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-
-        html_body += '<div class="col">'
-        html_body += '<div class="card shadow-none border-none pointer h-100" style="border-radius:20px;background-color:#7077A1">'
-        html_body += '<div class="card-body">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<img src="<?= base_url() ?>assets/image/svg/mosque.svg" style="width: 50%">'
-        html_body += '<h1 class="m-0 fw-bolder text-white mt-5" style="font-weight: 900 !important;font-size:50px;">IBADAH</h1>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        $('#modalBody').html(html_body)
-        $('#modalFooter').addClass('d-none');
-    }
-
-    function stopRest() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Pilih Istirahat</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-
-        html_body += '<div class="col">'
-        html_body += '<div class="card shadow-none border-none pointer h-100" style="border-radius:20px;background-color:#F6B17A">'
-        html_body += '<div class="card-body">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<img src="<?= base_url() ?>assets/image/svg/lunch.svg" style="width: 50%">'
-        html_body += '<h1 class="m-0 fw-bolder text-white lh-1 mt-5" style="font-weight: 900 !important;font-size:50px;">ISTIRAHAT</h1>'
-        html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA WAKTU : 45 MENIT</h5>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        $('#modalBody').html(html_body)
-        $('#modalFooter').addClass('d-none');
+    function ifDataEmpty() {
+        if (dataSave.leavePassLog.length) {
+            $('#saveField').prop("hidden", false)
+        } else {
+            $('#saveField').prop("hidden", true)
+        }
     }
 </script>

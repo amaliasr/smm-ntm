@@ -165,6 +165,10 @@
         border-spacing: 0px !important;
         border: 1px solid #dce0e6 !important;
     }
+
+    .bg-light-danger {
+        background-color: #f9dfdf !important;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
@@ -474,7 +478,7 @@
     var date_end = currentDate()
     var machineId
     var rowCode
-    var dataProfile = 'IGNORESORTIR'
+    var dataProfile = 'NORMAL'
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
@@ -716,7 +720,11 @@
             html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.row_code + '</td>'
             e.data.forEach(el => {
-                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
+                var bg = ''
+                if (el[Object.keys(el)[0]].reject_left) {
+                    bg = 'bg-light-danger'
+                }
+                html += '<td class="text-center small-text ' + bg + '">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
                 var time = ''
                 if (el[Object.keys(el)[0]].time) {
                     time = convertTimeFormat2(el[Object.keys(el)[0]].time[0])

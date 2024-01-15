@@ -581,6 +581,17 @@ class Report extends CI_Controller
         $jumlahRow = 3;
         $jumlahColumn = 1;
         $no = 1;
+        $styleArrayFormula = [
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'f9dfdf',
+                ],
+                'endColor' => [
+                    'argb' => 'f9dfdf',
+                ],
+            ],
+        ];
         foreach ($body as $key => $value) {
             $jumlahColumn = 1;
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
@@ -590,12 +601,17 @@ class Report extends CI_Controller
             // print_r($value->data);
             foreach ($value->data as $item) {
                 $dateKey = key((array)$item);
+                $jumlahColumQty = $jumlahColumn;
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->qty);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->earn);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_deliv);
+                if ($item->{$dateKey}->reject_left) {
+                    $sheet->getStyle(Coordinate::stringFromColumnIndex($jumlahColumQty) . $jumlahRow)->applyFromArray($styleArrayFormula);
+                }
             }
             $jumlahRow++;
         }
+
 
         // exit;
         $date_time = date('Y-m-d H:i:s');
