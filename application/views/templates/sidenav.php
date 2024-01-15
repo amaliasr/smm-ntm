@@ -310,6 +310,19 @@
                                 <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->
                             </a>
                         <?php } ?>
+                        <?php if (if_report_leave_pass()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportLeavePass">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-coffee"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Leave Pass
+                                    </div>
+                                </div>
+                                <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->
+                            </a>
+                        <?php } ?>
                         <?php if (if_report_production_skt()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportProductionGiling">
                                 <div class="row">

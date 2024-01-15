@@ -447,6 +447,14 @@ function if_report_production_skt()
         return false;
     }
 }
+function if_report_leave_pass()
+{
+    if (job_spv_smd() || job_foreman_skt() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan()) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function if_production_portal()
 {
     // if (job_foreman() || job_administrasi_produksi() || job_spv_smd()) {

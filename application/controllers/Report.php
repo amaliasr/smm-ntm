@@ -1115,4 +1115,9 @@ class Report extends CI_Controller
 
         $writer->save('php://output');
     }
+    public function reportLeavePass()
+    {
+        $data['title'] = 'Report Leave Pass';
+        $this->template->views('report/reportLeavePass', $data);
+    }
 }

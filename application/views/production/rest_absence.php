@@ -250,31 +250,39 @@
             </div>
         </div>
         <div class="row mt-3">
-            <div class="col-3">
+            <div class="col-9">
                 <div class="card shadow-sm">
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-12 pt-3 text-center">
-                                <p class="m-0 small" id="dateCurrent"></p>
-                                <lottie-player style="margin:auto;" src="<?= base_url() ?>assets/json/scan_barcode.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>
-                            </div>
-                            <div class="col-12">
-                                <input class="form-control rounded-pill" style="text-align: center;" tabindex="1" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off" onblur="this.focus()" autofocus>
-                                <button class="mt-2 w-100 btn btn-primary rounded-pill"><i class="fa fa-search me-2"></i>Cari</button>
-                            </div>
-                            <div class="col-12">
-                                <div class="bd-callout bd-callout-warning super-small-text">
-                                    Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b>
+                            <div class="col-4 border-end p-5">
+                                <div class="row">
+                                    <div class="col-12 pt-3 text-center">
+                                        <p class="m-0 small" id="dateCurrent"></p>
+                                        <lottie-player style="margin:auto;" src="<?= base_url() ?>assets/json/scan_barcode.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>
+                                    </div>
+                                    <div class="col-12">
+                                        <input class="form-control rounded-pill" style="text-align: center;" tabindex="1" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off" onblur="this.focus()" autofocus>
+                                        <button class="mt-2 w-100 btn btn-primary rounded-pill"><i class="fa fa-search me-2"></i>Cari</button>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="bd-callout bd-callout-warning super-small-text">
+                                            Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="col-8 p-5" id="kerangkaIsi">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-9">
+            <div class="col-3">
                 <div class="card shadow-sm h-100">
-                    <div class="card-body p-0" id="kerangkaIsi">
-
+                    <div class="card-body">
+                        <p class="m-0 small fw-bolder">Belum Kembali</p>
+                        <div id="dataBelumKembalik">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -567,56 +575,55 @@
     function kerangkaIsi(data, ifAuto = null) {
         var html = ''
         html += '<div class="row h-100">'
-        html += '<div class="col-6 p-5">'
-        html += '<p class="m-0">21098736489</p>'
-        html += '<p class="m-0 fw-bolder lh-1" style="font-weight: 900 !important;font-size:40px;">' + data.name.toUpperCase() + '</p>'
+        html += '<div class="col-12">'
+        html += '<p class="m-0">' + data.eid + '</p>'
+        html += '<p class="m-0 fw-bolder lh-1" style="font-weight: 900 !important;font-size:30px;">' + data.name.toUpperCase() + '</p>'
         html += '<p class="m-0 fw-bold">Sisa Waktu Istirahat : <span class="fw-bolder text-orange">' + sisaWaktu(data.eid, 2) + '</span> Menit</p>'
         html += '<div class="row mt-3" id="alertStillBreak">'
         html += '</div>'
         html += '<div class="row">'
-        html += '<div class="col-6">'
+        html += '<div class="col-3">'
         html += '<div class="card shadow-sm mb-3">'
-        html += '<div class="card-body text-center">'
-        html += '<p class="m-0 fw-bolder small-text">TOTAL ISTIRAHAT</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalIstirahat">0</p>'
-        html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
+        html += '<div class="card-body text-center p-3">'
+        html += '<p class="m-0 fw-bolder super-small-text">TOTAL<br>ISTIRAHAT</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:15px;" id="totalIstirahat">0</p>'
+        html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-6">'
+        html += '<div class="col-3">'
         html += '<div class="card shadow-sm mb-3">'
-        html += '<div class="card-body text-center">'
-        html += '<p class="m-0 fw-bolder small-text">TOTAL IBADAH</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalIbadah">0</p>'
-        html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
+        html += '<div class="card-body text-center p-3">'
+        html += '<p class="m-0 fw-bolder super-small-text">TOTAL<br>IBADAH</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:15px;" id="totalIbadah">0</p>'
+        html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
 
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-6">'
+        html += '<div class="col-3">'
         html += '<div class="card shadow-sm mb-3">'
-        html += '<div class="card-body text-center">'
-        html += '<p class="m-0 fw-bolder small-text">TOTAL SEMUA</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalSemua"></p>'
-        html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
+        html += '<div class="card-body text-center p-3">'
+        html += '<p class="m-0 fw-bolder super-small-text">TOTAL<br>SEMUA</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:15px;" id="totalSemua"></p>'
+        html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-6">'
+        html += '<div class="col-3">'
         html += '<div class="card shadow-sm mb-3">'
-        html += '<div class="card-body text-center">'
-        html += '<p class="m-0 fw-bolder small-text">WAKTU OVERTIME</p>'
-        html += '<p class="m-0 text-danger" style="font-weight: 900 !important;font-size:30px;" id="waktuOvertime">0</p>'
-        html += '<p class="m-0  lh-1 fw-bolder small-text">Menit</p>'
+        html += '<div class="card-body text-center p-3">'
+        html += '<p class="m-0 fw-bolder super-small-text">WAKTU<br>OVERTIME</p>'
+        html += '<p class="m-0 text-danger" style="font-weight: 900 !important;font-size:15px;" id="waktuOvertime">0</p>'
+        html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-6 border-start p-5">'
+        html += '<div class="col-12">'
         html += '<p class="m-0 small fw-bolder">Detail Waktu</p>'
-        html += '<div class="row mt-2" id="detailWaktu">'
-
+        html += '<div class="row" id="detailWaktu">'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -646,7 +653,7 @@
             chooseRest(data.id)
         } else {
             var dataLeave = data.data_leave.find((v, k) => {
-                if (v.is_over == 0) return true
+                if (!v.datetime_out) return true
             })
             if (dataLeave) {
                 // jika ada yang belum checkout
@@ -678,13 +685,13 @@
                 html += '</div>'
 
                 html += '<div class="col p-2 ps-3 align-self-center">'
-                html += '<p class="m-0 fw-bolder">Waktu ' + toTitleCase(dataBreak.name) + '</p>'
-                if (e.is_over) {
+                html += '<p class="m-0 lh-1 fw-bolder">Waktu ' + toTitleCase(dataBreak.name) + '</p>'
+                if (e.datetime_out) {
                     var textMinutes = formatJamMenit(e.datetime_in) + ' - ' + formatJamMenit(e.datetime_out)
                 } else {
                     var textMinutes = formatJamMenit(e.datetime_in) + ' - ???'
                 }
-                html += '<p class="m-0 fw-bold  super-small-text">' + textMinutes + '</p>'
+                html += '<p class="m-0 fw-bold lh-1  super-small-text">' + textMinutes + '</p>'
                 html += '</div>'
 
                 html += '<div class="col p-2 pe-3 align-self-center text-end">'
@@ -718,14 +725,16 @@
             if (v.eid == eid) return true
         })
         var total = 0
-        data.data_leave.forEach(e => {
-            if (e.leave_pass_type_id == 2) {
-                if (!e.minutes_usage) {
-                    e.minutes_usage = 0
+        if (data.data_leave) {
+            data.data_leave.forEach(e => {
+                if (e.leave_pass_type_id == 2) {
+                    if (!e.minutes_usage) {
+                        e.minutes_usage = 0
+                    }
+                    total = total + parseInt(e.minutes_usage)
                 }
-                total = total + parseInt(e.minutes_usage)
-            }
-        });
+            });
+        }
         return total
     }
 
@@ -734,14 +743,16 @@
             if (v.eid == eid) return true
         })
         var total = 0
-        data.data_leave.forEach(e => {
-            if (e.leave_pass_type_id == 1) {
-                if (!e.minutes_usage) {
-                    e.minutes_usage = 0
+        if (data.data_leave) {
+            data.data_leave.forEach(e => {
+                if (e.leave_pass_type_id == 1) {
+                    if (!e.minutes_usage) {
+                        e.minutes_usage = 0
+                    }
+                    total = total + parseInt(e.minutes_usage)
                 }
-                total = total + parseInt(e.minutes_usage)
-            }
-        });
+            });
+        }
         return total
     }
 
@@ -750,12 +761,14 @@
             if (v.eid == eid) return true
         })
         var total = 0
-        data.data_leave.forEach(e => {
-            if (!e.minutes_over) {
-                e.minutes_over = 0
-            }
-            total = total + parseInt(e.minutes_over)
-        });
+        if (data.data_leave) {
+            data.data_leave.forEach(e => {
+                if (!e.minutes_over) {
+                    e.minutes_over = 0
+                }
+                total = total + parseInt(e.minutes_over)
+            });
+        }
         return total
     }
 
@@ -871,6 +884,10 @@
             var datetime_out = currentDateTime()
             var selisih = selisihMenit(getDateTime(data.datetime_in), datetime_out)
             var minutesOver = hitungMinutesOver(dataBreak.minutes_max, selisih)
+            var is_over = 0
+            if (data.minutes_over) {
+                is_over = 1
+            }
             var data = {
                 id: id_leave,
                 employee_id: employee_id,
@@ -878,7 +895,7 @@
                 datetime_in: getDateTime(data.datetime_in),
                 datetime_out: datetime_out,
                 minutes_usage: selisih,
-                is_over: 1,
+                is_over: is_over,
                 minutes_over: minutesOver,
                 employee_id_check: user_id,
             }
