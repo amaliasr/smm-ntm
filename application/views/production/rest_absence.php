@@ -393,7 +393,7 @@
     }
 
     function createCodeId(id = '') {
-        var code = (new Date).getTime() + '' + id
+        var code = id + '' + (new Date).getTime()
         return code;
     }
     $(document).ready(function() {
@@ -528,16 +528,34 @@
         var dataBreak = data_user.leavePassType.find((v, k) => {
             if (v.id == id_break) return true
         })
-        var dataReturn = dataBreak.minutes_max
-        if (!data.data_leave) {
-            dataReturn = dataBreak.minutes_max
-        } else {
-            // rumus
-            var totalMinutes = findTotalMinutes(data.data_leave)
-            if (totalMinutes > dataBreak.minutes_max) {
-                dataReturn = 0
+        // console.log(id_break)
+        if (dataBreak.minutes_max) {
+            // ISTIRAHAT
+            var dataReturn = dataBreak.minutes_max
+            if (!data.data_leave) {
+                dataReturn = dataBreak.minutes_max
             } else {
-                dataReturn = parseInt(dataBreak.minutes_max) - parseInt(totalMinutes)
+                // rumus
+                var totalMinutes = findTotalMinutes(data.data_leave)
+                if (totalMinutes > dataBreak.minutes_max) {
+                    dataReturn = 0
+                } else {
+                    dataReturn = parseInt(dataBreak.minutes_max) - parseInt(totalMinutes)
+                }
+            }
+        } else {
+            // IBADAH
+            var dataReturn = dataBreak.freq_max
+            if (!data.data_leave) {
+                dataReturn = dataBreak.freq_max
+            } else {
+                // rumus
+                var totalFreq = findTotalFreq(data.data_leave)
+                if (totalFreq > dataBreak.freq_max) {
+                    dataReturn = 0
+                } else {
+                    dataReturn = parseInt(dataBreak.freq_max) - parseInt(totalFreq)
+                }
             }
         }
         return dataReturn
@@ -549,7 +567,19 @@
             if (!e.minutes_usage) {
                 e.minutes_usage = 0
             }
-            total = total + parseInt(e.minutes_usage)
+            if (e.leave_pass_type_id == 2) {
+                total = total + parseInt(e.minutes_usage)
+            }
+        });
+        return total
+    }
+
+    function findTotalFreq(data) {
+        var total = 0
+        data.forEach(e => {
+            if (e.leave_pass_type_id == 1) {
+                total++
+            }
         });
         return total
     }
@@ -617,7 +647,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center p-3">'
         html += '<p class="m-0 fw-bolder super-small-text">TOTAL<br>ISTIRAHAT</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:15px;" id="totalIstirahat">0</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalIstirahat">0</p>'
         html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
@@ -626,7 +656,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center p-3">'
         html += '<p class="m-0 fw-bolder super-small-text">TOTAL<br>IBADAH</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:15px;" id="totalIbadah">0</p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalIbadah">0</p>'
         html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
 
         html += '</div>'
@@ -636,7 +666,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center p-3">'
         html += '<p class="m-0 fw-bolder super-small-text">TOTAL<br>SEMUA</p>'
-        html += '<p class="m-0" style="font-weight: 900 !important;font-size:15px;" id="totalSemua"></p>'
+        html += '<p class="m-0" style="font-weight: 900 !important;font-size:30px;" id="totalSemua"></p>'
         html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
@@ -645,7 +675,7 @@
         html += '<div class="card shadow-sm mb-3">'
         html += '<div class="card-body text-center p-3">'
         html += '<p class="m-0 fw-bolder super-small-text">WAKTU<br>OVERTIME</p>'
-        html += '<p class="m-0 text-danger" style="font-weight: 900 !important;font-size:15px;" id="waktuOvertime">0</p>'
+        html += '<p class="m-0 text-danger" style="font-weight: 900 !important;font-size:30px;" id="waktuOvertime">0</p>'
         html += '<p class="m-0 fw-bolder super-small-text">Menit</p>'
         html += '</div>'
         html += '</div>'
@@ -823,7 +853,6 @@
         $('#alertStillBreak').html(html)
     }
 
-
     function chooseRest(id) {
         var data = data_user.employeeLeavePass.find((v, k) => {
             if (v.id == id) return true
@@ -839,7 +868,7 @@
 
         data_user.leavePassType.forEach(e => {
             html_body += '<div class="col">'
-            html_body += '<div class="card shadow-none border-none pointer h-100 bg-break-' + e.id + '" style="border-radius:20px;" onclick="saveBreak(' + id + ',' + e.id + ')">'
+            html_body += '<div class="card shadow-none border-none pointer h-100 bg-break-' + e.id + '" style="border-radius:20px;" onclick="saveBreak(' + "'" + id + "'" + ',' + "'" + e.id + "'" + ')">'
             html_body += '<div class="card-body">'
             html_body += '<div class="row">'
             html_body += '<div class="col-12 text-center">'
@@ -849,7 +878,7 @@
                 html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA WAKTU : ' + sisaWaktu(data.eid, e.id) + ' MENIT</h5>'
             }
             if (e.freq_max) {
-                html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA : ' + sisaFreq(data.eid, e.id) + ' KALI</h5>'
+                html_body += '<h5 class="m-0 fw-bolder text-white lh-1">SISA : ' + sisaWaktu(data.eid, e.id) + ' KALI</h5>'
             }
 
             html_body += '</div>'
@@ -902,6 +931,37 @@
     }
 
     function saveBreak(employee_id, jenisIstirahat, id_leave = null) {
+        var dataUser = data_user.employeeLeavePass.find((v, k) => {
+            if (v.id == employee_id) return true
+        })
+        if (id_leave) {
+            actionSaveBreak(employee_id, jenisIstirahat, id_leave)
+        } else {
+            var sisa = sisaWaktu(dataUser.eid, jenisIstirahat)
+            if (sisa <= 0) {
+                var dataBreak = data_user.leavePassType.find((v, k) => {
+                    if (v.id == jenisIstirahat) return true
+                })
+                Swal.fire({
+                    text: 'Jam ' + toTitleCase(dataBreak.name) + ' Sudah Habis, Apakah tetap ingin melanjutkan ?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Batal',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        actionSaveBreak(employee_id, jenisIstirahat, id_leave)
+                    }
+                })
+            } else {
+                actionSaveBreak(employee_id, jenisIstirahat, id_leave)
+            }
+        }
+    }
+
+    function actionSaveBreak(employee_id, jenisIstirahat, id_leave = null) {
         if (id_leave) {
             // edit
             var data = data_user.employeeLeavePass.find((v, k) => {
@@ -1064,4 +1124,9 @@
         }
         $('#dataBelumKembali').html(html)
     }
+    window.addEventListener("beforeunload", function(event) {
+        if (dataSave.leavePassLog.length) {
+            event.returnValue = "Data masih belum di Upload";
+        }
+    });
 </script>

@@ -1120,4 +1120,19 @@ class Report extends CI_Controller
         $data['title'] = 'Report Leave Pass';
         $this->template->views('report/reportLeavePass', $data);
     }
+    public function pdfLeavePass()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['dateStart'] = date('Y-m-d', strtotime($explodedParams[1]));
+        $data['dateEnd'] = date('Y-m-d', strtotime($explodedParams[2]));
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getReportLeavePassLog?dateStart=' . $data['dateStart'] . '&dateEnd=' . $data['dateEnd'])))->data;
+        $html = $this->load->view('report/cetakRreportLeavePassPdf', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = "REPORT LEAVE PASS.pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream('REPORT LEAVE PASS', array("Attachment" => 0));
+    }
 }

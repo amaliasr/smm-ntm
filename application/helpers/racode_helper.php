@@ -237,6 +237,17 @@ function job_atasan()
         return false;
     }
 }
+function job_security()
+{
+    // GANGGA
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 134) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // BUAT PER CONTROLLER
 function if_smd_planning()
@@ -474,6 +485,14 @@ function if_machine_shelters()
 function if_so_production()
 {
     if (job_spv_smd() || job_foreman_skm() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_rest_absence()
+{
+    if (job_security()) {
         return true;
     } else {
         return false;

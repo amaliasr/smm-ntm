@@ -143,16 +143,18 @@
                                 </div>
                             </div>
                         </a>
-                        <a class="nav-link" href="<?= base_url(); ?>production/restAbsence">
-                            <div class="row">
-                                <div class="col-2 pe-0">
-                                    <i class="fa fa-clock-o"></i>
+                        <?php if (if_rest_absence()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>production/restAbsence">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Break Time
+                                    </div>
                                 </div>
-                                <div class="col-10 ps-0">
-                                    Break Time
-                                </div>
-                            </div>
-                        </a>
+                            </a>
+                        <?php } ?>
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
                     </nav>

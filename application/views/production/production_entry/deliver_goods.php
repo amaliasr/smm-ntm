@@ -451,7 +451,7 @@
     JSPM.JSPrintManager.start();
 
     function createCodeId(worker_id = '') {
-        var date = (new Date).getTime() + '' + worker_id
+        var date = worker_id + '' + (new Date).getTime()
         // var day = date.getDate();
         // var month = date.getMonth() + 1;
         // var year = date.getFullYear();
