@@ -242,7 +242,7 @@ function job_security()
     // GANGGA
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 134) {
+    if ($job_title_id == 157) {
         return true;
     } else {
         return false;
@@ -348,7 +348,23 @@ function if_logistik()
 }
 function if_master()
 {
+    if (is_purchasing() || is_direktur() || job_spv_audit_internal() || job_spv_smd() || job_foreman()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_master_purchasing()
+{
     if (is_purchasing() || is_direktur() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_master_production()
+{
+    if (job_spv_smd() || is_direktur() || job_foreman()) {
         return true;
     } else {
         return false;
@@ -493,6 +509,14 @@ function if_so_production()
 function if_rest_absence()
 {
     if (job_security()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_dashboard_report()
+{
+    if (job_spv_smd() || job_foreman() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan()) {
         return true;
     } else {
         return false;

@@ -794,7 +794,7 @@
             workPlanProduct: workPlanProduct,
         }
 
-        // console.log(dataFiltered)
+        console.log(dataFiltered)
         if (notes) {
             simpanData(dataFiltered)
         } else {

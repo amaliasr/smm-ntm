@@ -207,11 +207,16 @@
                     </a>
                     <div class="collapse show" id="collapseDashboards3" data-bs-parent="#accordionSidenav3">
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav3Pages">
-                            <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
-                            <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
-                            <a class="nav-link" href="<?= base_url(); ?>master/machine">Machine</a>
-                            <a class="nav-link" href="<?= base_url(); ?>master/groupMaterial">Group Material</a>
-                            <a class="nav-link" href="<?= base_url(); ?>master/billOfMaterial">Bill of Material</a>
+                            <?php if (if_master_purchasing()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>master/items">Items</a>
+                                <a class="nav-link" href="<?= base_url(); ?>master/supplier">Supplier</a>
+                            <?php } ?>
+                            <?php if (if_master_production()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>master/machine">Machine</a>
+                                <a class="nav-link" href="<?= base_url(); ?>master/groupMaterial">Group Material</a>
+                                <a class="nav-link" href="<?= base_url(); ?>master/billOfMaterial">Bill of Material</a>
+                                <a class="nav-link" href="<?= base_url(); ?>master/waste">Waste</a>
+                            <?php } ?>
                         </nav>
                     </div>
                 <?php } ?>

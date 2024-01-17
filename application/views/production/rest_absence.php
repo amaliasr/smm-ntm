@@ -265,8 +265,8 @@
                                         <lottie-player style="margin:auto;" src="<?= base_url() ?>assets/json/scan_barcode.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>
                                     </div>
                                     <div class="col-12">
-                                        <input class="form-control rounded-pill" style="text-align: center;" tabindex="1" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off" onblur="this.focus()" autofocus>
-                                        <button class="mt-2 w-100 btn btn-primary rounded-pill"><i class="fa fa-search me-2"></i>Cari</button>
+                                        <input class="form-control rounded-pill form-leave" style="text-align: center;" tabindex="1" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off" onblur="this.focus()" autofocus>
+                                        <button class="mt-2 w-100 btn btn-primary rounded-pill" onclick="changeScanner()"><i class="fa fa-search me-2"></i>Cari</button>
                                     </div>
                                     <div class="col-12">
                                         <div class="bd-callout bd-callout-warning super-small-text">
@@ -600,13 +600,24 @@
         return dataReturn
     }
 
-    function hitungMinutesOver(minutes_max, input) {
+    function hitungMinutesOver(minutes_max, input, eid, jenisIstirahat) {
         var data = 0
         if (minutes_max == null) {
+            // IBADAH
             data = 0
+            var sisa = sisaWaktu(eid, jenisIstirahat)
+            if (sisa <= 0) {
+                data = 1
+            }
         } else {
             if (input > minutes_max) {
                 data = parseFloat(input) - parseInt(minutes_max)
+            }
+            if (eid) {
+                var sisa = sisaWaktu(eid, jenisIstirahat)
+                if (sisa <= 0) {
+                    data = input
+                }
             }
         }
         return data
@@ -618,11 +629,33 @@
         }
     })
 
+    function checkNotLong(kelas) {
+        var value = $('.' + kelas).map(function() {
+            return $(this).val();
+        }).get();
+        var stillNormal = true
+        for (let i = 0; i < value.length; i++) {
+            if (value[i].length > 12) {
+                stillNormal = false
+            }
+        }
+        return stillNormal
+    }
+
     function changeScanner() {
         if ($('#codeQR').val()) {
-            var scannedId = $('#codeQR').val()
-            showrestMode(scannedId)
-            findIDPekerja(scannedId)
+            if (checkNotLong('form-leave')) {
+                var scannedId = $('#codeQR').val()
+                showrestMode(scannedId)
+                findIDPekerja(scannedId)
+            } else {
+                $('#codeQR').val('')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terlalu Panjang',
+                    text: 'Data yang dimasukkan Terlalu Panjang'
+                });
+            }
         }
     }
 
@@ -963,10 +996,11 @@
 
     function actionSaveBreak(employee_id, jenisIstirahat, id_leave = null) {
         if (id_leave) {
-            // edit
-            var data = data_user.employeeLeavePass.find((v, k) => {
+            // edit (closing)
+            var dataUser = data_user.employeeLeavePass.find((v, k) => {
                 if (v.id == employee_id) return true
-            }).data_leave.find((v, k) => {
+            })
+            var data = dataUser.data_leave.find((v, k) => {
                 if (v.id == id_leave) return true
             })
             var dataBreak = data_user.leavePassType.find((v, k) => {
@@ -974,9 +1008,9 @@
             })
             var datetime_out = currentDateTime()
             var selisih = selisihMenit(getDateTime(data.datetime_in), datetime_out)
-            var minutesOver = hitungMinutesOver(dataBreak.minutes_max, selisih)
+            var minutesOver = hitungMinutesOver(dataBreak.minutes_max, selisih, dataUser.eid, jenisIstirahat)
             var is_over = 0
-            if (data.minutes_over) {
+            if (minutesOver) {
                 is_over = 1
             }
             var data = {

@@ -79,11 +79,22 @@ if (isset($_COOKIE['visiting'])) {
     <!-- Navbar Items-->
     <ul class="navbar-nav align-items-center ms-auto">
         <!-- User Dropdown-->
+        <?php $fotoProfile = $this->session->userdata('image_profile') ?>
         <li class="nav-item dropdown no-caret dropdown-user me-3 me-lg-4">
-            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="img-fluid" src="<?= base_url('assets/img/illustrations/profiles/profile-2.png') ?>" /></a>
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <?php if ($fotoProfile) { ?>
+                    <img class="img-fluid" src="https://assets-hr.s3.ap-southeast-3.amazonaws.com/employee/photo/<?= $fotoProfile ?>" />
+                <?php } else { ?>
+                    <img class="img-fluid" src="<?= base_url('assets/img/illustrations/profiles/profile-2.png') ?>" />
+                <?php } ?>
+            </a>
             <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                 <h6 class="dropdown-header d-flex align-items-center">
-                    <img class="dropdown-user-img" src="<?= base_url('assets/img/illustrations/profiles/profile-2.png') ?>" />
+                    <?php if ($fotoProfile) { ?>
+                        <img class="dropdown-user-img" src="https://assets-hr.s3.ap-southeast-3.amazonaws.com/employee/photo/<?= $fotoProfile ?>" />
+                    <?php } else { ?>
+                        <img class="dropdown-user-img" src="<?= base_url('assets/img/illustrations/profiles/profile-2.png') ?>" />
+                    <?php } ?>
                     <div class="dropdown-user-details">
                         <div class="dropdown-user-details-name" id="name"><?= $this->session->userdata('full_name') ?></div>
                         <div class="dropdown-user-details-email"><?= $this->session->userdata('username') ?></div>

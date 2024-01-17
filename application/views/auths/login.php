@@ -270,13 +270,6 @@
                     }).done(function() {
                         $('#btnLogin').html('Login').removeAttr('disabled', true);
                     });
-                    // toast({
-                    //     icon: 'success',
-                    //     title: 'Login Berhasil',
-                    //     timer: 1500
-                    // }).then(() => {
-
-                    // });
                 }
             }
         });

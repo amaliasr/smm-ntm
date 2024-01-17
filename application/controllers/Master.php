@@ -36,4 +36,9 @@ class Master extends CI_Controller
         $data['title'] = 'Master Bill Of Material';
         $this->template->views('master/billOfMaterial', $data);
     }
+    public function waste()
+    {
+        $data['title'] = 'Master Waste';
+        $this->template->views('master/waste', $data);
+    }
 }

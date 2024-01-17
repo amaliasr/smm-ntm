@@ -255,9 +255,9 @@
                                 <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/mosque.svg" alt="Icon" />
                             </div>
                             <div class="col-8">
-                                <p class="m-0 lh-2 fw-bold small-text">Sering Ibadah</p>
+                                <p class="m-0 lh-2 fw-bold small-text">Paling Lama Ibadah</p>
                                 <p class="m-0 lh-1 fw-bolder h3" id="namaSeringIbadah">-</p>
-                                <p class="m-0 lh-2 fw-bold super-small-text">Jumlah : <span class="text-success" id="jumlahSeringIbadah">0</span> Kali</p>
+                                <p class="m-0 lh-2 fw-bold super-small-text">Jumlah : <span class="text-success" id="jumlahSeringIbadah">0</span> Menit, <span class="text-success" id="jumlahSeringIbadahFreq">0</span> Kali</p>
                             </div>
                         </div>
                     </div>
@@ -490,7 +490,7 @@
 
     function findTopIbadah(data) {
         // Menyusun data berdasarkan total_good secara menurun
-        data.sort((a, b) => b.freq_ibadah - a.freq_ibadah);
+        data.sort((a, b) => b.minute_usage_ibadah - a.minute_usage_ibadah);
 
         // Mengambil 3 karyawan teratas
         const topEmployees = data.slice(0, 10);
@@ -612,7 +612,8 @@
     function seringIbadah() {
         var employeeSeringIbadah = findTopIbadah(data_report.reportLeavePassLog)
         $('#namaSeringIbadah').html(shortenText(employeeSeringIbadah[0].name, 20))
-        $('#jumlahSeringIbadah').html(number_format(employeeSeringIbadah[0].freq_ibadah))
+        $('#jumlahSeringIbadah').html(number_format(employeeSeringIbadah[0].minute_usage_ibadah))
+        $('#jumlahSeringIbadahFreq').html(number_format(employeeSeringIbadah[0].freq_ibadah))
     }
 
     function updatedStructure() {
