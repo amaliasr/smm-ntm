@@ -14,13 +14,13 @@ if (isset($_COOKIE['visiting'])) {
 <style>
     /* @import url("https://fonts.googleapis.com/css2?family=Russo+One&display=swap"); */
 
-    svg {
+    .runningText {
         /* font-family: "Russo One", sans-serif; */
         width: 100%;
         height: 100%;
     }
 
-    svg text {
+    .runningText text {
         animation: stroke 5s 1 alternate;
         stroke-width: 0;
         font-size: 1rem;
@@ -68,7 +68,7 @@ if (isset($_COOKIE['visiting'])) {
     <!-- * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px-->
     <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="<?= base_url() ?>dashboard" style="color: #CCA922;">
         <div class="wrapper">
-            <svg style="height: 3.625rem;">
+            <svg class="runningText" style="height: 3.625rem;">
                 <text x="50%" y="50%" dy=".35em" text-anchor="middle">
                     PT. SINAR MAHKOTA MAS
                 </text>

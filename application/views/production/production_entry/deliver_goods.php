@@ -306,7 +306,7 @@
                                 <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="triggerQR()" id="btnQR">CAMERA<i class="fa fa-camera ms-2 text-green"></i></button>
                             </div>
                             <div class="col-auto ps-0 pe-0">
-                                <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="scannerQR()">SCANNER<i class="fa fa-qrcode ms-2 text-green"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="openModalScanner()">SCANNER<i class="fa fa-qrcode ms-2 text-green"></i></button>
                             </div>
                             <div class="col-auto ps-2 align-self-center">
                                 <?php if ($link == 'deliver_goods') { ?>
@@ -880,7 +880,7 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-2 card-hoper p-0" onclick="workProgress(' + e.employee_worker.id + ')">'
+            html += '<div class="col-2 card-hoper p-0" onclick="firstWorkProgress(' + e.employee_worker.id + ')">'
             html += '<div class="row h-100">'
             html += '<div class="col-12 align-self-center text-center p-0">'
             html += '<i class="fa fa-pencil fa-1x text-grey"></i>'
@@ -1071,6 +1071,7 @@
     function checkWorkerId(eid) {
         let arrayOfNumbers = eid.split(',').map(Number);
         if (arrayOfNumbers.length == 1) {
+            // new
             scanned = true
             scanned2 = false
             var dataProducts = dataEntry.productionDelivery.find((v, k) => {
@@ -1207,6 +1208,11 @@
         workProgress(id)
     }
 
+    function firstWorkProgress(worker_id) {
+        $('#modal').modal('show')
+        workProgress(worker_id)
+    }
+
     function workProgress(worker_id) {
         workerIdClicked = worker_id
         stillOpenModal = true
@@ -1227,7 +1233,12 @@
         if (data.employee_worker.row_code) {
             badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + data.employee_worker.row_code + '</span>'
         }
-        $('#modal').modal('show')
+        $('#modalDialog').removeClass();
+        $('#modalDialog').removeAttr('style');
+        $('#modalHeader').html('');
+        $('#modalBody').html('');
+        $('#modalFooter').html('');
+
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
         var textFast = ''
@@ -1781,7 +1792,7 @@
     function formDELIVERY(id = null, edit = false) {
         var dataEdit
         var good = ''
-        var bad = ''
+        var bad = 2
         var time = timeNow()
         if (auto500) {
             good = '500'
@@ -2945,9 +2956,19 @@
         // console.log(data)
     }
 
+    function openModalScanner() {
+        $('#modal').modal('show')
+        scannerQR()
+    }
+
     function scannerQR() {
         firstAddedResultProductPersonId = ''
-        $('#modal').modal('show')
+        // $('#modal').modal('show')
+        $('#modalDialog').removeClass();
+        $('#modalDialog').removeAttr('style');
+        $('#modalHeader').html('');
+        $('#modalBody').html('');
+        $('#modalFooter').html('');
         $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-centered');
         var html_header = '';
         html_header += '<h5 class="modal-title">QR Scan | ' + formatDateIndonesia(dataEntry.workPlanMachine.date) + '</h5>';
@@ -2955,16 +2976,18 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row justify-content-center">'
-        html_body += '<div class="col-6 text-center">'
+        // html_body += '<div class="col-6 text-center">'
 
-        html_body += '<lottie-player style="width: 100%;height:100%" src="<?= base_url() ?>assets/json/scanner.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
+        // html_body += '<lottie-player style="width: 100%;height:100%" src="<?= base_url() ?>assets/json/scanner.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
 
+        // html_body += '</div>'
+        html_body += '<div class="col-12 text-center">'
+        html_body += '<div class="row" style="height:200px;">'
+        html_body += '<div class="col-12 align-self-center"><p class="m-0 small fw-bolder">Running a Scanner</p></div>'
+        html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-12 text-center">'
-        html_body += '<p class="m-0 mt-5 mb-5 small fw-bolder">Running a Scanner</p>'
-        html_body += '</div>'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<input class="form-control" type="text" id="codeQR" role="dialog" autocomplete="off">'
+        html_body += '<input class="form-control" type="text" id="codeQR" role="dialog" autocomplete="off" value="2208298105">'
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body).removeClass('p-0')
@@ -3193,7 +3216,7 @@
                 // $('#workerProgress').html(loadingDataReturn())
             },
             success: function(response) {
-                showSuccessToast()
+                // showSuccessToast()
                 $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
                 dataEntry = response.data
                 arrangeVariablePeriodic()

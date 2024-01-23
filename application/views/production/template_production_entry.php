@@ -957,10 +957,10 @@
                     <!-- <button type="button" class="btn btn-outline-success shadow-none btn-sm shadow-none"><i class="fa fa-save me-2"></i>Save Draft</button> -->
                     <?php if ($link == 'deliver_goods' || $link == 'sorting_goods') { ?>
                         <!-- SKT -->
-                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-1" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                         <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="configurationPrinters()"><i class="fa fa-print me-2"></i>Config Printer</button> -->
-                        <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none small me-1" onclick="loadIncomplete('DATA')"><span class="badge rounded-pill bg-danger me-2" style="padding-top:1px;padding-bottom:1px;padding-left:5px;padding-right:5px;font-size:10px;" id="jumlahIncomplete">0</span>Incomplete Data
-                        </button>
+                        <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none small me-1" onclick="loadIncomplete('DATA')"><span class="badge rounded-pill bg-danger me-2" style="padding-top:1px;padding-bottom:1px;padding-left:5px;padding-right:5px;font-size:10px;" id="jumlahIncomplete">0</span>Incomplete Data
+                        </button> -->
                         <div class="btn-group float-end">
                             <button class="btn btn-outline-dark btn-sm dropdown-toggle shadow-none" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                 More
@@ -1120,7 +1120,7 @@
     $(document).ready(function() {
         loadDataTemplate()
         if (link == 'deliver_goods' || link == 'sorting_goods') {
-            loadIncomplete()
+            // loadIncomplete()
         }
     })
 

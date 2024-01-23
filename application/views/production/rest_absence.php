@@ -641,11 +641,12 @@
         }
         return stillNormal
     }
+    var scannedId
 
     function changeScanner() {
         if ($('#codeQR').val()) {
             if (checkNotLong('form-leave')) {
-                var scannedId = $('#codeQR').val()
+                scannedId = $('#codeQR').val()
                 showrestMode(scannedId)
                 findIDPekerja(scannedId)
             } else {
@@ -886,6 +887,8 @@
         $('#alertStillBreak').html(html)
     }
 
+    var idnya
+
     function chooseRest(id) {
         var data = data_user.employeeLeavePass.find((v, k) => {
             if (v.id == id) return true
@@ -898,13 +901,14 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
-
+        var a = 1;
         data_user.leavePassType.forEach(e => {
             html_body += '<div class="col">'
-            html_body += '<div class="card shadow-none border-none pointer h-100 bg-break-' + e.id + '" style="border-radius:20px;" onclick="saveBreak(' + "'" + id + "'" + ',' + "'" + e.id + "'" + ')">'
+            html_body += '<div class="card card-hoper shadow-none border-none pointer h-100 bg-break-' + e.id + '" style="border-radius:20px;" onclick="saveBreak(' + "'" + id + "'" + ',' + "'" + e.id + "'" + ')">'
             html_body += '<div class="card-body">'
             html_body += '<div class="row">'
             html_body += '<div class="col-12 text-center">'
+            html_body += '<p class="fw-bolder text-white h1">Ketik ' + a++ + '</p>'
             html_body += '<img src="<?= base_url() ?>assets/image/svg/' + e.icon + '.svg" style="width: 50%">'
             html_body += '<h1 class="m-0 fw-bolder text-white lh-1 mt-5" style="font-weight: 900 !important;font-size:50px;">' + e.name + '</h1>'
             if (e.minutes_max) {
@@ -920,12 +924,35 @@
             html_body += '</div>'
             html_body += '</div>'
         });
-
-
         html_body += '</div>'
         $('#modalBody').html(html_body)
         $('#modalFooter').addClass('d-none');
+        idnya = id
+
     }
+    $(document).on('keypress', function(event) {
+        // Check if the modal is still shown (has the 'show' class)
+        if ($('#modal').hasClass('show')) {
+            // Check if the key pressed is '1' (key code 49)
+            if (event.which == 49) {
+                saveBreak(idnya, 2)
+            } else if (event.which == 50) {
+                saveBreak(idnya, 1)
+            }
+        }
+    });
+    // $(document).on('keypress', function(e) {
+    //     // Periksa kode tombol
+    //     switch (e.which) {
+    //         case 49: // Tombol 1 (Angka 1)
+    //             saveBreak(idnya, 2)
+    //             break;
+    //         case 50: // Tombol 2 (Angka 2)
+    //             saveBreak(idnya, 1)
+    //             break;
+    //             // Tambahkan case lain sesuai kebutuhan
+    //     }
+    // });
 
     function stopRest(id, dataLeave) {
         var data = data_user.employeeLeavePass.find((v, k) => {
@@ -1163,4 +1190,5 @@
             event.returnValue = "Data masih belum di Upload";
         }
     });
+    // Event listener untuk menangkap event keyboard
 </script>
