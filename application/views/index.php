@@ -370,6 +370,24 @@
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<script>
+    function loadingReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/loading.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function errorReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><button class="btn btn-sm btn-primary mt-3" onclick="' + text + '()"><i class="fa fa-refresh me-2"></i>Refresh</button></div></div></div></div>'
+        return html
+    }
+</script>
 <script>
     var akun = '<?= $this->session->userdata('username') ?>'
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -450,6 +468,11 @@
         return result;
     }
 
+    function findDataByIndex(dataArray, targetType) {
+        const result = dataArray[targetType]
+        return result;
+    }
+
     function updateTime() {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
@@ -511,6 +534,7 @@
     }
 
     function loadData() {
+        $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
         $.ajax({
             url: "https://rest.pt-bks.com/hr_lr/smm/get-data-employee",
             method: "GET",
@@ -518,8 +542,12 @@
             data: {
                 employee_id: user_id,
             },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                $('#pencapaianTarget').html(errorReturn('loadData'))
+            },
+            beforeSend: function() {
+                $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
+            },
             success: function(response) {
                 data_user = response['data']
                 if (data_user.person.birth_date) {
@@ -545,10 +573,10 @@
                 employeeId: user_id,
             },
             error: function(xhr) {
-
+                $('#pencapaianTarget').html(errorReturn('loadMachine'))
             },
             beforeSend: function() {
-
+                $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
             },
             success: function(response) {
                 data_machine = response['data']
@@ -578,8 +606,12 @@
                 machineId: machineId,
                 periodOption: periodOption
             },
-            error: function(xhr) {},
-            beforeSend: function() {},
+            error: function(xhr) {
+                $('#pencapaianTarget').html(errorReturn('loadPencapaianTarget'))
+            },
+            beforeSend: function() {
+                $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
+            },
             success: function(response) {
                 data_pencapaian = response['data'].planActual
                 pencapaianTarget()
@@ -683,13 +715,17 @@
     function targetTable() {
         var html = ''
         var heading = data_pencapaian[0].data
+        var periodtext = ''
+        if (periodOption == 'WEEKLY') {
+            periodtext = 'Week '
+        }
         html += '<table class="table table-sm table-bordered table-hover w-100" id="tableDetail">'
         html += '<thead>'
         html += '<tr>'
         html += '<th class="align-middle" rowspan="2">Produk</th>'
         html += '<th class="align-middle" rowspan="2">Unit</th>'
         heading.forEach(e => {
-            html += '<th class="align-middle" colspan="3">' + e.index + '</th>'
+            html += '<th class="align-middle" colspan="3">' + periodtext + '' + e.index + '</th>'
         });
         html += '</tr>'
         html += '<tr>'
@@ -743,14 +779,14 @@
         html += '<div class="col-auto text-center">'
 
         html += '<div class="row">'
-        html += '<div class="col-auto align-self-center pointer">'
+        html += '<div class="col-auto align-self-center pointer" onclick="nextPrevious(' + "'-1'" + "" + ')">'
         html += '<span id="mengurangiHari"><i class="fa fa-chevron-left"></i></span>'
         html += '</div>'
         html += '<div class="col-auto">'
-        html += '<p class="m-0 fw-bolder">Week 1</p>'
-        html += '<p class="m-0 small-text">1 Januari 2024 - 7 Januari 2024</p>'
+        html += '<p class="m-0 fw-bolder" id="titleTime">-</p>'
+        html += '<p class="m-0 small-text" id="periodTime">-</p>'
         html += '</div>'
-        html += '<div class="col-auto align-self-center pointer">'
+        html += '<div class="col-auto align-self-center pointer" onclick="nextPrevious(' + "'+1'" + "" + ')">'
         html += '<span id="mengurangiHari"><i class="fa fa-chevron-right"></i></span>'
         html += '</div>'
         html += '</div>'
@@ -762,16 +798,121 @@
 
         // form
         html += '</div>'
-        html += '<div class="col-12">'
-        html += '<div id="myChart"></div>'
+        html += '<div class="col-12" id="formMyChart">'
         html += '</div>'
         html += '</div>'
         $('#pencapaianTarget').html(html)
-        arrangeVariableChart()
+        findVariableChart()
     }
 
-    function arrangeVariableChart() {
-        var dataToday = findDataByDate(data_pencapaian[0].data, currentDate());
+    function formatDateText(orginaldate) {
+        var date = new Date(orginaldate);
+        var tahun = date.getFullYear();
+        var bulan = date.getMonth();
+        var tanggal = date.getDate();
+        var hari = date.getDay();
+        switch (hari) {
+            case 0:
+                hari = "Minggu";
+                break;
+            case 1:
+                hari = "Senin";
+                break;
+            case 2:
+                hari = "Selasa";
+                break;
+            case 3:
+                hari = "Rabu";
+                break;
+            case 4:
+                hari = "Kamis";
+                break;
+            case 5:
+                hari = "Jumat";
+                break;
+            case 6:
+                hari = "Sabtu";
+                break;
+        }
+        switch (bulan) {
+            case 0:
+                bulan = "Januari";
+                break;
+            case 1:
+                bulan = "Februari";
+                break;
+            case 2:
+                bulan = "Maret";
+                break;
+            case 3:
+                bulan = "April";
+                break;
+            case 4:
+                bulan = "Mei";
+                break;
+            case 5:
+                bulan = "Juni";
+                break;
+            case 6:
+                bulan = "Juli";
+                break;
+            case 7:
+                bulan = "Agustus";
+                break;
+            case 8:
+                bulan = "September";
+                break;
+            case 9:
+                bulan = "Oktober";
+                break;
+            case 10:
+                bulan = "November";
+                break;
+            case 11:
+                bulan = "Desember";
+                break;
+        }
+        var tampilTanggal = tanggal + " " + bulan + " " + tahun;
+        return tampilTanggal;
+    }
+
+    var dataToday
+
+    function findIndexByIndex(dataArray, targetIndex) {
+        for (let i = 0; i < dataArray.length; i++) {
+            if (dataArray[i].index === targetIndex) {
+                return i; // Mengembalikan indeks saat ditemukan
+            }
+        }
+        return -1; // Mengembalikan -1 jika tidak ditemukan
+    }
+
+
+    function nextPrevious(type) {
+        var findCurrentIndex = findIndexByIndex(data_pencapaian[0].data, dataToday.index)
+        eval('var findIndexFromType = parseInt(findCurrentIndex)' + type)
+        if (findIndexFromType < 0 || !data_pencapaian[0].data[findIndexFromType]) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Not Available',
+                text: 'Telah Mencapai Batas Tanggal'
+            });
+        } else {
+            dataToday = findDataByIndex(data_pencapaian[0].data, findIndexFromType);
+            arrangeVariableChart(dataToday)
+        }
+    }
+
+    function findVariableChart(dateFill = null) {
+        if (!dateFill) {
+            dateFill = currentDate()
+        }
+        dataToday = findDataByDate(data_pencapaian[0].data, dateFill);
+        arrangeVariableChart(dataToday)
+    }
+
+    function arrangeVariableChart(dataToday) {
+        $('#formMyChart').html('<div id="myChart"></div>')
         var actualData = []
         var targetData = []
         var brandList = []
@@ -784,6 +925,17 @@
                 }
             });
         });
+        dragTime(dataToday, actualData, targetData, brandList)
+    }
+
+
+    function dragTime(dataToday, actualData, targetData, brandList) {
+        var periodText = ''
+        if (periodOption == 'WEEKLY') {
+            periodText = 'Week '
+        }
+        $('#titleTime').html(periodText + '' + dataToday.index)
+        $('#periodTime').html(formatDateText(dataToday.date.start) + ' - ' + formatDateText(dataToday.date.end))
         settingChart(actualData, targetData, brandList)
     }
 
