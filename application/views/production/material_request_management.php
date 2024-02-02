@@ -1807,9 +1807,14 @@
         html_body += '</div>'
         html_body += '<div class="row mt-3">'
 
-        html_body += '<div class="col text-end align-self-center"><b>Tanggal Ambil</b></div>'
+        html_body += '<div class="col text-end align-self-center"><b>Waktu Ambil</b></div>'
         html_body += '<div class="col align-self-center">'
         html_body += '<input type="text" name="" id="tanggalAmbil" class="form-control form-control-sm p-1 datepicker" value="' + currentDate() + '">'
+        html_body += '</div>'
+        html_body += '<div class="col align-self-center">'
+        html_body += '<input type="time" name="" id="jamAmbil" class="form-control form-control-sm p-1" value="' + formatJamMenit(currentDateTime()) + '">'
+        html_body += '</div>'
+
         html_body += '</div>'
 
         html_body += '</div>'
@@ -1934,8 +1939,13 @@
 
     function stokGudang(material_id) {
         var html = ''
+        if (stok_by_id[material_id]) {
+            var stok = stok_by_id[material_id]
+        } else {
+            var stok = 0
+        }
         if (material_id != '') {
-            html += number_format(stok_by_id[material_id]) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[material_id] + '</p>'
+            html += number_format(stok) + '<p class="fw-bold m-0" style="font-size:10px;">' + satuan_by_name[material_id] + '</p>'
         } else {
             html += '<i class="super-small-text lh-0 text-danger">Not Available<br><b>Pilih Item Terlebih Dahulu</b></i>'
         }
@@ -2117,7 +2127,7 @@
                     material_request_id: id,
                     is_proses: 1,
                     employee_id: user_id,
-                    take_out_at: $('#tanggalAmbil').val(),
+                    take_out_at: $('#tanggalAmbil').val() + ' ' + $('#jamAmbil').val() + ':00',
                     data: detail,
                 }
                 var button = '#btnApprove'

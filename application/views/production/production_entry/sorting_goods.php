@@ -3081,13 +3081,15 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row justify-content-center">'
-        html_body += '<div class="col-6 text-center">'
+        // html_body += '<div class="col-6 text-center">'
 
-        html_body += '<lottie-player style="width: 100%;height:100%" src="<?= base_url() ?>assets/json/scanner.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
+        // html_body += '<lottie-player style="width: 100%;height:100%" src="<?= base_url() ?>assets/json/scanner.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
 
-        html_body += '</div>'
+        // html_body += '</div>'
         html_body += '<div class="col-12 text-center">'
-        html_body += '<p class="m-0 mt-5 mb-5 small fw-bolder">Running a Scanner</p>'
+        html_body += '<div class="row" style="height:200px;">'
+        html_body += '<div class="col-12 align-self-center"><p class="m-0 small fw-bolder">Running a Scanner</p></div>'
+        html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-12 text-center">'
         html_body += '<input class="form-control" type="text" id="codeQR" role="dialog" autocomplete="off">'
@@ -3215,7 +3217,7 @@
                 // $('#workerProgress').html(loadingDataReturn())
             },
             success: function(response) {
-                showSuccessToast()
+                // showSuccessToast()
                 $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
                 dataEntry = response.data
                 arrangeVariablePeriodic()

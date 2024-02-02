@@ -1082,102 +1082,28 @@
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <main>
-    <div class="row">
-        <!-- LEFT PANEL -->
-        <div class="col-3 bg-left-panel full-height border-end">
-            <div class="row">
-                <div class="col align-self-center p-5">
-                    <h3 class="text-dark-grey m-0">
-                        <b class="small">Machine Settings</b>
-                    </h3>
-                    <p class="super-small-text m-0 text-light-dark-grey">Pengaturan Machine dan Material Didalamnya</p>
-                </div>
+    <header class="page-header page-header-dark pb-10">
+        <div class="container-xl px-4 mb-5">
+        </div>
+    </header>
+    <div class="container-xl mt-n10">
+        <div class="row justify-content-center">
+            <div class="col pb-2">
+                <h1 class="text-dark-grey m-0">
+                    <b class="small">Machine Settings</b>
+                </h1>
+                <p class="super-small-text m-0 text-light-dark-grey">Pengaturan Machine dan Material Didalamnya</p>
             </div>
-            <div class="row">
-                <div class="col-12 p-0 ps-4 pb-2 pe-4">
-                    <div class="list-material-group">
-                        <div class="form-group has-search">
-                            <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control" placeholder="Search Group" id="search_nama">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 p-0 ps-4 pb-2 pe-4" id="listMachine" style="height: 500px;overflow-x: hidden;overflow-y: auto;">
-                    <div class="list-material-group" id="listGroup">
-                        <?php for ($i = 0; $i < 2; $i++) { ?>
-                            <div class="card shadow-none mb-2 card-material small-text">
-                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
-                                    <p class="m-0">SKM</p>
-                                    <span class="fa fa-chevron-down"></span>
-                                </div>
-                            </div>
-                            <div class="list-material-group" id="listGroupJenis">
-                                <?php for ($j = 0; $j < 3; $j++) { ?>
-                                    <div class="card shadow-none mb-2 card-material small-text">
-                                        <div class="card-body p-2 d-flex justify-content-between align-items-center">
-                                            <p class="m-0">MAKER</p>
-                                            <span class="fa fa-chevron-down"></span>
-                                        </div>
-                                    </div>
-                                    <div class="list-material-group" id="listGroupJenisDetail">
-                                        <?php for ($k = 0; $k < 3; $k++) { ?>
-                                            <div class="card shadow-none mb-2 card-material small-text">
-                                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
-                                                    <p class="m-0">MAKER 9 A</p>
-                                                </div>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
-                    </div>
+            <div class="col-auto align-self-center">
+                <div class="row ps-2 pe-2 pb-2" id="navbarStatus">
+
                 </div>
             </div>
         </div>
-        <!-- RIGHT PANEL -->
-        <div class="col-9 bg-white p-0 pt-5" id="kerangkaGudangDetail">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card shadow-none border-0">
-                        <div class="card-body p-0">
-                            <div class="row justify-content-between p-4 pb-3" style="margin-bottom: 5px;">
-                                <div class="col-12">
-                                    <div class="row ps-2 pe-2 pb-2" id="menuMaterial">
-                                        <div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Material</b><span class="ms-2 badge bg-primary">15</span></div>
-                                        <div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Produksi</b><span class="ms-2 badge bg-grey">15</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th class="align-middle small-text">#</th>
-                                        <th class="align-middle small-text">Material</th>
-                                        <th class="align-middle small-text">Unit</th>
-                                        <th class="align-middle small-text"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="listMaterial">
-                                    <?php for ($i = 0; $i < 5; $i++) { ?>
-                                        <tr>
-                                            <td class="align-middle small-text text-center">1</td>
-                                            <td class="align-middle small-text">
-                                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
-                                                Etiket Armour Bold 20 SKM (Barcode Baru)
-                                            </td>
-                                            <td class="align-middle small-text text-center">Lembar</td>
-                                            <td class="align-middle small-text text-center">
-                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" style="width: 20px;height: 20px;">
-                                            </td>
-
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-
-                        </div>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-12" id="listProductionType">
                     </div>
                 </div>
             </div>
@@ -1227,6 +1153,8 @@
 </div>
 <?php $this->load->view('components/modal_static') ?>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
@@ -1234,21 +1162,20 @@
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
-    var dataListWarehouse
+    var dataListMachine
     var dataDetail
     var itemIdSelected = []
     var choosenId
+    var indexLine = ''
 
     $(document).ready(function() {
         loadData()
     })
 
     function loadData() {
-        var data = {
-            employeeId: user_id,
-        }
-        var url = "<?= api_produksi('loadPageStorageManage'); ?>"
-        // getData(data, url)
+        var data = {}
+        var url = "<?= api_produksi('loadPageMachineProductManage'); ?>"
+        getData(data, url)
     }
 
     function getData(data, url) {
@@ -1270,8 +1197,139 @@
             },
             success: function(response) {
                 showOverlay('hide')
-                dataListWarehouse = response.data
+                dataListMachine = response.data
+                navbarStatus()
+                dataProductionType()
             }
         })
+    }
+
+    function navbarStatus() {
+        var html = ''
+        html += '<div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="chooseStatusLine()" id="colStatusLine"><b>Semua</b></div>'
+        dataListMachine.machineProduct.forEach(e => {
+            html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="chooseStatusLine(' + e.id + ')" id="colStatusLine' + e.id + '"><b>' + e.name + '</b></div>'
+        });
+        $('#navbarStatus').html(html)
+    }
+
+    function chooseStatusLine(e = '') {
+        indexLine = e
+        statusLines()
+    }
+
+    function statusLines() {
+        $('.statusLine').removeClass('fw-bold filter-border').addClass('text-grey')
+        $('#colStatusLine' + indexLine).addClass('fw-bold filter-border').removeClass('text-grey')
+        dataProductionType(indexLine)
+    }
+
+    function dataProductionType(e) {
+        if (e) {
+            var data = dataListMachine.machineProduct.filter((v, k) => {
+                if (v.id == e) return true
+            })
+        } else {
+            var data = dataListMachine.machineProduct
+        }
+        listProductionType(data)
+    }
+
+    function listProductionType(data) {
+        var html = ''
+        data.forEach(e => {
+            html += '<div class="card shadow-none mb-2">'
+            html += '<div class="card-header">'
+            html += '<div class="row justify-content-between">'
+            html += '<div class="col-auto">'
+            html += '<h1 class="text-dark fw-bolder m-0 text-dark-grey">' + e.name + '</h1>'
+            html += '</div>'
+            html += '<div class="col-auto">'
+            html += '<button type="button" class="btn btn-outline-primary btn-sm"><i class="fa fa-plus me-2"></i>Add Machine Group</button>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+            e.machine_types.forEach(el => {
+                html += '<div class="col-12">'
+                html += listMachineParent(el)
+                html += '</div>'
+            });
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listProductionType').html(html)
+    }
+
+    function listMachineParent(data) {
+        var html = ''
+        html += '<div class="card shadow-none mb-2">'
+        html += '<div class="card-body">'
+        html += '<div class="row justify-content-between">'
+        html += '<div class="col-auto">'
+        html += '<h5 class="text-dark fw-bolder m-0 text-dark-grey">' + data.name + '</h5>'
+        html += '</div>'
+        html += '<div class="col-auto">'
+        html += '<button type="button" class="btn btn-outline-primary btn-sm"><i class="fa fa-plus me-2"></i>Add Machine</button>'
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += templateTable(data.machines)
+        html += '</table>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+
+    function templateTable(data) {
+        var html = ''
+        html += '<table class="table table-sm table-hover mt-3 w-100">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th class="align-middle small-text" style="width:10px">#</th>'
+        html += '<th class="align-middle small-text" style="width:100px">Code</th>'
+        html += '<th class="align-middle small-text" style="width:100px">Name</th>'
+        html += '<th class="align-middle small-text" style="width:100px">Created At</th>'
+        html += '<th class="align-middle small-text" style="width:100px">Total Produk</th>'
+        html += '<th class="align-middle small-text" style="width:100px">Action</th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        var a = 1
+        data.forEach(e => {
+            html += listMachineDetail(a, e)
+            a++
+        });
+        html += '</tbody>'
+        return html
+    }
+
+    function listMachineDetail(num, data) {
+        var html = ''
+        html += '<tr>'
+        html += '<td class="align-middle small-text text-center">' + num + '</td>'
+        html += '<td class="align-middle small-text text-center">' + data.code + '</td>'
+        html += '<td class="align-middle small-text text-center">' + data.name + '</td>'
+        html += '<td class="align-middle small-text text-center">' + getDateTime(data.created_at) + '</td>'
+        html += '<td class="align-middle text-center"><span class="badge bg-warning">' + data.item_products.length + '</span></td>'
+        html += '<td class="align-middle small-text text-center">'
+        html += '<button type="button" class="btn btn-outline-primary btn-sm me-1"><i class="fa fa-pencil"></i></button>'
+        html += '<button type="button" class="btn btn-primary btn-sm" onclick="directToManage(' + "'" + data.id + "'" + ')"><i class="fa fa-gears"></i></button>'
+        html += '</td>'
+        html += '</tr>'
+        return html
+    }
+
+    function directToManage(id) {
+        var url = "<?= base_url() ?>master/groupMaterial/" + id
+        window.open(url, '_blank');
+    }
+
+    function statusLine(e = '') {
+
     }
 </script>

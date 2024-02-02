@@ -492,7 +492,7 @@ function if_production_portal()
 }
 function if_machine_shelters()
 {
-    if (job_foreman_skm() || job_spv_smd()) {
+    if (job_foreman_skm()) {
         return true;
     } else {
         return false;
@@ -517,6 +517,14 @@ function if_rest_absence()
 function if_dashboard_report()
 {
     if (job_spv_smd() || job_foreman() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_extras()
+{
+    if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_smd() || job_foreman()  || job_spv_tax() || job_atasan() || job_logistik_warehouse()) {
         return true;
     } else {
         return false;

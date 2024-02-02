@@ -393,4 +393,9 @@ class Production extends CI_Controller
         $data['title'] = 'Break Absence';
         $this->template->views('production/rest_absence', $data);
     }
+    public function productionOutTerminal()
+    {
+        $data['title'] = 'Production Out Terminal';
+        $this->template->views('production/production_out_terminal', $data);
+    }
 }

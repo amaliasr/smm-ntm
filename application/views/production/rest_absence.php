@@ -284,7 +284,10 @@
             <div class="col-3">
                 <div class="card shadow-sm h-100">
                     <div class="card-body p-4">
-                        <p class="m-0 small fw-bolder">Belum Kembali</p>
+                        <p class="m-0 small fw-bolder">Belum Kembali (<span id="jumlahBelumKembali">-</span>)</p>
+                        <div class="mt-3" id="dataBelumKembaliLebih">
+
+                        </div>
                         <div class="mt-3 pt-2 pe-2" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="dataBelumKembali">
                         </div>
                     </div>
@@ -367,13 +370,32 @@
         $('#modalFooter').html('');
         $('#codeQR').val('')
     }
+    // var codeQRInput = $('#codeQR');
+    // codeQRInput.on('blur', handleBlurEvent);
+
+    // function handleBlurEvent() {
+    //     if ($('#modal').hasClass('show')) {
+    //         $('#modal').focus();
+    //     } else {
+    //         codeQRInput.focus();
+    //     }
+    // }
 
     $('#modal').on('hidden.bs.modal', function(e) {
+        // codeQRInput.on('blur', handleBlurEvent);
+        // codeQRInput.focus();
         clearModal();
+        onBlurWhenModalOff()
     })
+    $('#modal').on('shown.bs.modal', function() {
+        //     codeQRInput.off('blur', handleBlurEvent);
+        //     $('#modal').focus();
+        offBlurWhenModalOn()
+    });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_user = ""
+    var notes = ''
     var current_date = currentDate()
     var master_break = {
         istirahat: 60,
@@ -409,6 +431,7 @@
             method: "GET",
             dataType: 'JSON',
             data: {
+                // date: '2024-01-01',
                 date: currentDate(),
             },
             error: function(xhr) {
@@ -641,6 +664,7 @@
         }
         return stillNormal
     }
+
     var scannedId
 
     function changeScanner() {
@@ -743,19 +767,28 @@
         var data = dataMaster.find((v, k) => {
             if (v.eid == eid) return true
         })
-        if (!data.data_leave) {
-            // jika leave nya null (belum pernah istirahat)
-            chooseRest(data.id)
-        } else {
-            var dataLeave = data.data_leave.find((v, k) => {
-                if (!v.datetime_out) return true
-            })
-            if (dataLeave) {
-                // jika ada yang belum checkout
-                stopRest(data.id, dataLeave)
-            } else {
+        if (data) {
+            if (!data.data_leave) {
+                // jika leave nya null (belum pernah istirahat)
                 chooseRest(data.id)
+            } else {
+                var dataLeave = data.data_leave.find((v, k) => {
+                    if (!v.datetime_out) return true
+                })
+                if (dataLeave) {
+                    // jika ada yang belum checkout
+                    stopRest(data.id, dataLeave)
+                } else {
+                    chooseRest(data.id)
+                }
             }
+        } else {
+            $('#codeQR').val('')
+            Swal.fire({
+                icon: 'error',
+                title: 'Data Tidak Ditemukan',
+                text: 'Coba Lagi'
+            });
         }
     }
 
@@ -789,7 +822,7 @@
                 html += '</div>'
 
                 html += '<div class="col p-2 pe-3 align-self-center text-end">'
-                if (e.minutes_over) {
+                if (e.is_over) {
                     html += '<i class="text-danger small-text">Overtime</i>'
                 }
                 html += '</div>'
@@ -888,11 +921,13 @@
     }
 
     var idnya
+    var idSaved
 
     function chooseRest(id) {
         var data = data_user.employeeLeavePass.find((v, k) => {
             if (v.id == id) return true
         })
+        idSaved = ''
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg');
         var html_header = '';
@@ -933,11 +968,14 @@
     $(document).on('keypress', function(event) {
         // Check if the modal is still shown (has the 'show' class)
         if ($('#modal').hasClass('show')) {
-            // Check if the key pressed is '1' (key code 49)
-            if (event.which == 49) {
-                saveBreak(idnya, 2)
-            } else if (event.which == 50) {
-                saveBreak(idnya, 1)
+            if (!idSaved) {
+                idSaved = idnya
+                // Check if the key pressed is '1' (key code 49)
+                if (event.which == 49) {
+                    saveBreak(idnya, 2)
+                } else if (event.which == 50) {
+                    saveBreak(idnya, 1)
+                }
             }
         }
     });
@@ -1051,6 +1089,9 @@
                 minutes_over: minutesOver,
                 employee_id_check: user_id,
             }
+            if (notes) {
+                data['note'] = notes
+            }
         } else {
             // tambah
             var idLeave = createCodeId(employee_id)
@@ -1073,6 +1114,7 @@
         $('#modal').modal('hide')
         $('#codeQR').val('')
         $('#codeQR').focus();
+        notes = ''
         arrangeVariable()
     }
     setInterval(autoSaveData, 60 * 1000);
@@ -1156,16 +1198,17 @@
     function dataBelumKembali() {
         var html = ''
         var a = 0
+        var overTime = []
         data_detail.forEach(e => {
             if (!e.datetime_out) {
                 var selisih = selisihMenit(e.datetime_in, currentDateTime())
-                html += '<div class="card shadow-none mb-2 pointer card-hoper">'
+                html += '<div class="card shadow-none mb-2 pointer card-hoper" onclick="forceStopRest(' + "'" + e.eid + "'" + ',' + "'" + e.id_leave + "'" + ')">'
                 html += '<span class="position-absolute top-0 start-90 translate-middle badge rounded-pill bg-dark-' + e.leave_pass_type_icon.toLowerCase() + ' super-small-text">' + selisih + ' menit</span>'
                 html += '<div class="card-body p-3">'
                 html += '<div class="row justify-content-between">'
 
                 html += '<div class="col-auto align-self-center">'
-                html += '<p class="m-0 fw-bold super-small-text">' + e.eid + '</p>'
+                html += '<p class="m-0 fw-bold super-small-text">No. Meja ' + e.row_code + '</p>'
                 html += '<p class="m-0 fw-bolder small">' + shortenText(e.name, 20) + '</p>'
                 html += '<p class="m-0 lh-1 fw-bold small-text">Waktu ' + toTitleCase(e.leave_pass_type_name) + '</p>'
                 html += '</div>'
@@ -1177,18 +1220,89 @@
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
+                if (selisih > 60) {
+                    overTime.push(e)
+                }
                 a++
             }
         });
         if (!a) {
             html += emptyTextReturn('Tidak Ada')
         }
+        $('#jumlahBelumKembali').html(a)
         $('#dataBelumKembali').html(html)
+        overtimeData(overTime)
+    }
+
+    function overtimeData(data) {
+        var html = ''
+        data.forEach(e => {
+            var selisih = selisihMenit(e.datetime_in, currentDateTime())
+            html += '<div class="card shadow-none mb-2 pointer card-hoper" onclick="forceStopRest(' + "'" + e.eid + "'" + ',' + "'" + e.id_leave + "'" + ')" style="background-color:#fce6e6 !important">'
+            html += '<div class="card-body p-3">'
+            html += '<div class="row justify-content-between">'
+
+            html += '<div class="col-auto align-self-center">'
+            html += '<i class="fa fa-warning text-danger fa-2x"></i>'
+            html += '</div>'
+            html += '<div class="col align-self-center">'
+            html += '<p class="m-0 fw-bolder small-text">' + shortenText(e.name, 20) + '</p>'
+            html += '<p class="m-0 fw-bold super-small-text">Belum Kembali dengan total ' + selisih + ' Menit</p>'
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        })
+        $('#dataBelumKembaliLebih').html(html)
     }
     window.addEventListener("beforeunload", function(event) {
         if (dataSave.leavePassLog.length) {
             event.returnValue = "Data masih belum di Upload";
         }
     });
-    // Event listener untuk menangkap event keyboard
+
+
+    function forceStopRest(eid, id_leave) {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Checkin Paksa</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<p class="small fw-bolder">Tambahkan Alasan dibawah ini</p>'
+        html_body += '<textarea class="form-control w-100 textingNote" rows="5" placeholder="Tuliskan alasan disini" id="notes"></textarea>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += '<button class="btn btn-danger w-100 mt-3" onclick="doForceStopRest(' + "'" + eid + "'" + ',' + "'" + id_leave + "'" + ')">Lanjut Checkin Paksa</button>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body)
+        $('#modalFooter').addClass('d-none');
+    }
+
+    function doForceStopRest(eid, id_leave) {
+        notes = $('#notes').val()
+        if (!notes) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Notes masih kosong',
+                text: 'Wajib menambahkan notes'
+            });
+        } else {
+            showrestMode(eid)
+        }
+    }
+
+    function onBlurWhenModalOff() {
+        $('#codeQR').attr('onblur', 'this.focus()').focus();
+    }
+
+    function offBlurWhenModalOn() {
+        $('#codeQR').removeAttr('onblur', 'this.focus()')
+        $('#notes').focus();
+    }
 </script>

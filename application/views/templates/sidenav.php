@@ -133,7 +133,7 @@
                             </a>
                             <!-- <a class="nav-link" href="<?= base_url(); ?>production/machineShelters"><i class="fa fa-database me-1"></i>Machine Shelters</a> -->
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/manageProduction">
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>production/manageProduction">
                             <div class="row">
                                 <div class="col-2 pe-0">
                                     <i class="fa fa-bar-chart-o"></i>
@@ -142,7 +142,7 @@
                                     Production Workspace
                                 </div>
                             </div>
-                        </a>
+                        </a> -->
                         <?php if (if_rest_absence()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>production/restAbsence">
                                 <div class="row">
@@ -155,6 +155,16 @@
                                 </div>
                             </a>
                         <?php } ?>
+                        <a class="nav-link" href="<?= base_url(); ?>production/productionOutTerminal">
+                            <div class="row">
+                                <div class="col-2 pe-0">
+                                    <i class="fa fa-database"></i>
+                                </div>
+                                <div class="col-10 ps-0">
+                                    Production Out Terminal
+                                </div>
+                            </div>
+                        </a>
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
                     </nav>
@@ -345,10 +355,19 @@
                         <?php } ?>
                     </nav>
                 </div>
-                <!-- <a class="nav-link" href="<?= base_url(); ?>report">
-                    <div class="nav-link-icon"><i class="fa fa-book"></i></div>
-                    Report
-                </a> -->
+                <!-- Sidenav Accordion Raw Data-->
+                <?php if (if_extras()) { ?>
+                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseDashboards6" aria-expanded="true" aria-controls="collapseDashboards6">
+                        <div class="nav-link-icon"><i class="fa fa-database"></i></div>
+                        Extras
+                        <div class="sidenav-collapse-arrow"><i class="fa fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse show" id="collapseDashboards6" data-bs-parent="#accordionSidenav5">
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav6Pages">
+                            <a class="nav-link" href="<?= base_url(); ?>extra/rawData">Raw Data</a>
+                        </nav>
+                    </div>
+                <?php } ?>
             </div>
         </div>
         <!-- Sidenav Footer-->

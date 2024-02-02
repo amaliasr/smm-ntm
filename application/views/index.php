@@ -192,6 +192,7 @@
                             <div class="row justify-content-between">
                                 <div class="col-4 align-self-center">
                                     <b class="small"><i class="fa fa-industry me-2 text-warning"></i>Pencapaian Target</b>
+                                    <p class="m-0 small-text" id="dateRange">-</p>
                                 </div>
                                 <div class="col-4 text-center align-self-center">
                                     <input type="radio" class="btn-sm btn-check" name="options" id="option1" autocomplete="off" onclick="changePeriodOption('DAILY')">
@@ -216,6 +217,30 @@
                                             <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" onclick="changePencapaianTarget('chart')">
                                             <label class="btn btn-outline-switch-chart shadow-none" for="btnradio3"><i class="fa fa-bar-chart"></i></label>
                                         </div>
+                                        <button type="button" class="ms-1 shadow-none btn btn-sm btn-outline-switch-chart" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false"><i class="fa fa-filter"></i></button>
+                                        <div class="dropdown-menu" style="width: 200px;">
+                                            <div class="row">
+                                                <div class="col-12 text-center">
+                                                    <p class="m-0 small fw-bolder">Filter</p>
+                                                </div>
+                                            </div>
+                                            <div class="dropdown-divider"></div>
+                                            <div class="px-4 py-3">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <b class="small">Tanggal Mulai</b>
+                                                        <input class="form-control form-control-sm datepicker mb-3" type="text" id="dateStartTarget" autocomplete="off">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <b class="small">Tanggal Akhir</b>
+                                                        <input class="form-control form-control-sm datepicker mb-3" type="text" id="dateEndTarget" autocomplete="off">
+                                                    </div>
+                                                    <div class="col-12 text-end">
+                                                        <button class="btn btn-sm btn-primary" onclick="loadPencapaianTarget()">Search</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12 mt-4" id="pencapaianTarget">
@@ -224,7 +249,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12">
+                <!-- <div class="col-12">
                     <div class="card shadow-sm mb-4">
                         <div class="card-body">
                             <div class="row justify-content-between">
@@ -306,7 +331,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             <?php } else { ?>
                 <div class="col-12 col-md-8">
                     <div class="card shadow-sm mb-4 h-100">
@@ -393,6 +418,7 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var machineId = []
     var modetarget = 'table'
+    var indexMachine = 0
     var TxtType = function(el, toRotate, period) {
         this.toRotate = toRotate;
         this.el = el;
@@ -492,10 +518,11 @@
     function getFirstDate() {
         // Mendapatkan tanggal hari ini
         const today = new Date();
+        var month = today.getMonth() + 1;
         var year = today.getFullYear();
 
         // Format tanggal menjadi string 'YYYY-MM-DD'
-        const formattedDate = year + "-01-01";
+        const formattedDate = year + "-" + month + "-01";
 
         return formattedDate;
     }
@@ -533,7 +560,13 @@
         return hasil;
     }
 
+    function dateInformation() {
+        $('#dateRange').html(formatDateIndonesiaShort(dateStartTarget) + ' - ' + formatDateIndonesiaShort(dateEndTarget))
+    }
+
     function loadData() {
+        $('#dateStartTarget').val(dateStartTarget)
+        $('#dateEndTarget').val(dateEndTarget)
         $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
         $.ajax({
             url: "https://rest.pt-bks.com/hr_lr/smm/get-data-employee",
@@ -543,7 +576,8 @@
                 employee_id: user_id,
             },
             error: function(xhr) {
-                $('#pencapaianTarget').html(errorReturn('loadData'))
+                $('#pencapaianTarget').html(errorReturn('loadMachine'))
+                loadMachine()
             },
             beforeSend: function() {
                 $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
@@ -593,16 +627,18 @@
         periodOption = stats
         loadPencapaianTarget()
     }
-
+    var dateStartTarget = getFirstDate()
+    var dateEndTarget = currentDate()
 
     function loadPencapaianTarget() {
+        dateInformation()
         $.ajax({
             url: "<?= api_produksi('getDashboardPlanActual'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                dateStart: getFirstDate(),
-                dateEnd: currentDate(),
+                dateStart: dateStartTarget,
+                dateEnd: dateEndTarget,
                 machineId: machineId,
                 periodOption: periodOption
             },
@@ -614,8 +650,26 @@
             },
             success: function(response) {
                 data_pencapaian = response['data'].planActual
+                setDaterange()
                 pencapaianTarget()
             }
+        })
+    }
+
+    function setDaterange() {
+        new Litepicker({
+            element: document.getElementById('dateStartTarget'),
+            elementEnd: document.getElementById('dateEndTarget'),
+            singleMode: false,
+            firstDay: 0,
+            format: "DD MMMM YYYY",
+            allowRepick: true,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    dateStartTarget = formatDate(date1['dateInstance'])
+                    dateEndTarget = formatDate(date2['dateInstance'])
+                });
+            },
         })
     }
 
@@ -714,10 +768,10 @@
 
     function targetTable() {
         var html = ''
-        var heading = data_pencapaian[0].data
+        var heading = data_pencapaian[0].data[0].data
         var periodtext = ''
         if (periodOption == 'WEEKLY') {
-            periodtext = 'Week '
+            periodtext = 'Minggu '
         }
         html += '<table class="table table-sm table-bordered table-hover w-100" id="tableDetail">'
         html += '<thead>'
@@ -737,22 +791,31 @@
         html += '</tr>'
         html += '</thead>'
         html += '<tbody class="small-text">'
-        data_pencapaian.forEach(e => {
+        data_pencapaian.forEach(d => {
             html += '<tr>'
-            html += '<td class="text-nowrap">' + e.item.name + '</td>'
-            html += '<td class="text-center text-nowrap">' + e.unit.name + '</td>'
-            e.data.forEach(el => {
-                html += '<td class="text-center">' + number_format(roundToTwo(el.data.qty_plan)) + '</td>'
-                html += '<td class="text-center">' + number_format(roundToTwo(el.data.qty_actual)) + '</td>'
-                var percen = 0
-                if (!el.data.qty_plan || !el.data.qty_actual) {
-                    percen = 0
-                } else {
-                    percen = roundToTwo(parseFloat(el.data.qty_actual) / parseFloat(el.data.qty_plan) * 100)
-                }
-                html += '<td class="text-center">' + percen + '%</td>'
-            });
+            html += '<td class="fw-bolder bg-light" style="border-right:0px;">' + d.machineTypeName + '</td>'
+            for (let i = 0; i < ((parseInt(data_pencapaian[0].data[0].data.length) * 3) + 1); i++) {
+                html += '<td class="bg-light" style="border-left:0px;border-right:0px;"></td>'
+
+            }
             html += '</tr>'
+            d.data.forEach(e => {
+                html += '<tr>'
+                html += '<td class="text-nowrap">' + e.item.name + '</td>'
+                html += '<td class="text-center text-nowrap">' + e.unit.name + '</td>'
+                e.data.forEach(el => {
+                    html += '<td class="text-center">' + number_format(roundToTwo(el.data.qty_plan)) + '</td>'
+                    html += '<td class="text-center">' + number_format(roundToTwo(el.data.qty_actual)) + '</td>'
+                    var percen = 0
+                    if (!el.data.qty_plan || !el.data.qty_actual) {
+                        percen = 0
+                    } else {
+                        percen = roundToTwo(parseFloat(el.data.qty_actual) / parseFloat(el.data.qty_plan) * 100)
+                    }
+                    html += '<td class="text-center">' + percen + '%</td>'
+                });
+                html += '</tr>'
+            });
         });
         html += '</tbody>'
         html += '</table>'
@@ -880,7 +943,16 @@
 
     function findIndexByIndex(dataArray, targetIndex) {
         for (let i = 0; i < dataArray.length; i++) {
-            if (dataArray[i].index === targetIndex) {
+            if (dataArray[i].index == targetIndex) {
+                return i; // Mengembalikan indeks saat ditemukan
+            }
+        }
+        return -1; // Mengembalikan -1 jika tidak ditemukan
+    }
+
+    function findIndexByMachine(machineId) {
+        for (let i = 0; i < data_pencapaian.length; i++) {
+            if (data_pencapaian[i].machineTypeId == machineId) {
                 return i; // Mengembalikan indeks saat ditemukan
             }
         }
@@ -889,16 +961,16 @@
 
 
     function nextPrevious(type) {
-        var findCurrentIndex = findIndexByIndex(data_pencapaian[0].data, dataToday.index)
+        var findCurrentIndex = findIndexByIndex(data_pencapaian[indexMachine].data[0].data, dataToday.index)
         eval('var findIndexFromType = parseInt(findCurrentIndex)' + type)
-        if (findIndexFromType < 0 || !data_pencapaian[0].data[findIndexFromType]) {
+        if (findIndexFromType < 0 || !data_pencapaian[indexMachine].data[0].data[findIndexFromType]) {
             Swal.fire({
                 icon: 'error',
                 title: 'Not Available',
                 text: 'Telah Mencapai Batas Tanggal'
             });
         } else {
-            dataToday = findDataByIndex(data_pencapaian[0].data, findIndexFromType);
+            dataToday = findDataByIndex(data_pencapaian[indexMachine].data[0].data, findIndexFromType);
             arrangeVariableChart(dataToday)
         }
     }
@@ -907,17 +979,50 @@
         if (!dateFill) {
             dateFill = currentDate()
         }
-        dataToday = findDataByDate(data_pencapaian[0].data, dateFill);
+        dataToday = findDataByDate(data_pencapaian[indexMachine].data[0].data, dateFill);
+        arrangeVariableChart(dataToday)
+    }
+
+    function formMyChart() {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-1" id="listMachine">'
+        html += '</div>'
+        html += '<div class="col-11">'
+        html += '<div id="myChart"></div>'
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+
+    function listMachine() {
+        var html = ''
+        var a = 0
+        data_pencapaian.forEach(e => {
+            var checked = ''
+            if (a == indexMachine) {
+                checked = 'checked'
+            }
+            html += '<input type="radio" class="btn-check" name="optionMachine" id="optionMachine' + a + '" autocomplete="off" ' + checked + '><label class="btn btn-sm btn-outline-switch-chart mb-1 w-100 shadow-none super-small-text" for="optionMachine' + a + '" onclick="changeMachine(' + e.machineTypeId + ')">' + e.machineTypeName + '</label>'
+            a++
+        });
+        $('#listMachine').html(html)
+    }
+
+    function changeMachine(machineId = null) {
+        indexMachine = findIndexByMachine(machineId)
+        var findCurrentIndex = findIndexByIndex(data_pencapaian[indexMachine].data[0].data, dataToday.index)
+        dataToday = findDataByIndex(data_pencapaian[indexMachine].data[0].data, findCurrentIndex);
         arrangeVariableChart(dataToday)
     }
 
     function arrangeVariableChart(dataToday) {
-        $('#formMyChart').html('<div id="myChart"></div>')
+        $('#formMyChart').html(formMyChart())
         var actualData = []
         var targetData = []
         var brandList = []
-        data_pencapaian.forEach(e => {
-            brandList.push(e.item.code)
+        data_pencapaian[indexMachine].data.forEach(e => {
+            brandList.push(e.item.alias)
             e.data.forEach(el => {
                 if (el.index == dataToday.index) {
                     actualData.push(roundToTwo(el.data.qty_actual))
@@ -925,6 +1030,7 @@
                 }
             });
         });
+        listMachine()
         dragTime(dataToday, actualData, targetData, brandList)
     }
 
@@ -932,7 +1038,7 @@
     function dragTime(dataToday, actualData, targetData, brandList) {
         var periodText = ''
         if (periodOption == 'WEEKLY') {
-            periodText = 'Week '
+            periodText = 'Minggu '
         }
         $('#titleTime').html(periodText + '' + dataToday.index)
         $('#periodTime').html(formatDateText(dataToday.date.start) + ' - ' + formatDateText(dataToday.date.end))
@@ -940,6 +1046,7 @@
     }
 
     function settingChart(actualData, targetData, brandList) {
+        var unitName = data_pencapaian[indexMachine].data[0].unit.name
         var options = {
             series: [{
                 name: 'Aktual',
@@ -981,7 +1088,7 @@
             tooltip: {
                 y: {
                     formatter: function(val) {
-                        return "" + val + " Batang"
+                        return "" + val + " " + unitName
                     }
                 }
             }

@@ -1062,13 +1062,13 @@
 <main>
     <div class="row">
         <!-- LEFT PANEL -->
-        <div class="col-2 bg-left-panel full-height p-5 pt-2 pe-2">
+        <div class="col-2 bg-left-panel full-height p-5 pt-2 pe-3">
             <div class="row p-3">
                 <div class="col align-self-center p-0">
                     <h3 class="text-dark-grey m-0">
-                        <b class="small">Machine Shelters<br>Management</b>
+                        <b class="small">Production Out<br>Terminal</b>
                     </h3>
-                    <p class="super-small-text m-0 text-light-dark-grey">Pengelolaan Penampungan Sementara Mesin</p>
+                    <p class="super-small-text m-0 text-light-dark-grey">Pengelolaan Penyimpanan Hasil Produksi</p>
                 </div>
 
                 <div class="col-12 p-0 pt-4 pb-2" id="listGudang">
@@ -1337,8 +1337,9 @@
             success: function(response) {
                 showOverlay('hide')
                 dataListWarehouse = response.data
+                listGudang()
                 if (dataListWarehouse.warehouse.length) {
-                    listGudang()
+                    // listGudang()
                 } else {
                     emptyText('#kerangkaGudangDetail', 'Tidak Ada Data Tersedia')
                 }
@@ -1348,16 +1349,12 @@
 
     function listGudang() {
         var html = ''
-        var a = 0
-        dataListWarehouse.warehouse.forEach(e => {
-            if (a == 2 && !choosenId) {
-                choosenId = e.id
-            }
-            html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse' + e.id + '" onclick="chooseWarehouse(' + e.id + ')">'
+        for (let i = 0; i < 2; i++) {
+            html += '<div class="card shadow-none mb-2 btn-list-planning" id="btnWarehouse" onclick="chooseWarehouse()">'
             html += '<div class="card-body pt-3 pb-3">'
             html += '<div class="row">'
             html += '<div class="col-lg-10 col-md-9 align-self-center wrap-text">'
-            html += '<b class="small-text">' + e.name + '</b>'
+            html += '<b class="small-text">Gudang WIP</b>'
             html += '</div>'
             html += '<div class="col-lg-2 col-md-3 text-center align-self-center">'
             html += '<i class="fa fa-chevron-right"></i>'
@@ -1365,46 +1362,9 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            a++
-        });
+        }
         $('#listGudang').html(html)
-        // empty('#kerangkaGudangDetail', 'Pilih Gudang Terlebih Dahulu', '500px')
-        chooseWarehouse(choosenId)
-    }
-
-    function chooseWarehouse(id, start = null, end = null) {
-        choosenId = id
-        colorizedMenu(id)
-        var data = {
-            warehouseId: id,
-        }
-        if (start || end) {
-            data.dateStart = start
-            data.dateEnd = end
-        }
-        var url = "<?= api_produksi('getWarehouseStockInfo'); ?>"
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: 'JSON',
-            data: data,
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
-            },
-            beforeSend: function() {
-                showOverlay('show')
-            },
-            success: function(response) {
-                showOverlay('hide')
-                dataDetail = response.data
-                kerangkaGudangDetail(id)
-            }
-        })
+        kerangkaGudangDetail()
     }
 
     function colorizedMenu(id) {
@@ -1414,16 +1374,11 @@
 
     var nameStorage = ''
 
-    function kerangkaGudangDetail(id) {
-        var data = dataListWarehouse.warehouse.find((v, k) => {
-            if (v.id == id) return true
-        })
-        nameStorage = data.name
+    function kerangkaGudangDetail() {
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-6">'
-        html += '<p class="m-0 super-small-text" id="date">-</p>'
-        html += '<b>' + data.name + '</b>'
+        html += '<b>Gudang WIP</b>'
         html += '</div>'
         html += '<div class="col-6 text-end align-self-center">'
         html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>'

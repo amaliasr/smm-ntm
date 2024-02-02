@@ -1060,38 +1060,14 @@
         padding-left: 16px;
     }
 
-    .card-product {
+    .card-material {
         background-color: transparent !important;
         cursor: pointer;
     }
 
-    .card-product:hover {
+    .card-material:hover {
         background-color: #9AC5F4 !important;
         color: white !important;
-    }
-
-    .card-product:active,
-    .clicked {
-        background-color: #27374D !important;
-        color: white;
-        border-color: #27374D !important;
-    }
-
-    .card-waste {
-        background-color: transparent !important;
-        cursor: pointer;
-    }
-
-    .card-waste:hover {
-        background-color: #9AC5F4 !important;
-        color: white !important;
-    }
-
-    .card-waste:active,
-    .clicked {
-        background-color: #27374D !important;
-        color: white;
-        border-color: #27374D !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -1108,14 +1084,13 @@
 <main>
     <div class="row">
         <!-- LEFT PANEL -->
-        <div class="col-2 bg-left-panel full-height border-end">
+        <div class="col-3 bg-left-panel full-height border-end">
             <div class="row">
                 <div class="col align-self-center p-5">
                     <h3 class="text-dark-grey m-0">
-                        <b class="small-text">Group Material</b>
-                        <p class="h4 fw-bolder m-0" style="font-weight: 900 !important;" id="machineName">-</p>
+                        <b class="small">Machine Settings</b>
                     </h3>
-                    <p class="super-small-text m-0 text-light-dark-grey">Pengaturan Material Group dan Material Didalamnya</p>
+                    <p class="super-small-text m-0 text-light-dark-grey">Pengaturan Machine dan Material Didalamnya</p>
                 </div>
             </div>
             <div class="row">
@@ -1127,22 +1102,91 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 p-0 ps-4 pb-2 pe-4" style="max-height: 400px;overflow-x: hidden;overflow-y: auto;">
-                    <div class="list-material-group" id="listProduct">
-                    </div>
-                </div>
-                <div class="col-12 p-2 ps-4 pb-2 pe-4">
-                    <div class="list-material-group">
-                        <button class="btn btn-outline-primary w-100 mb-2" style="border-style: dotted;border-width:2px;" onclick="addProductForm()"><i class="fa fa-plus me-2"></i>Tambah Produk</button>
+                <div class="col-12 p-0 ps-4 pb-2 pe-4" id="listMachine" style="height: 500px;overflow-x: hidden;overflow-y: auto;">
+                    <div class="list-material-group" id="listGroup">
+                        <?php for ($i = 0; $i < 2; $i++) { ?>
+                            <div class="card shadow-none mb-2 card-material small-text">
+                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                                    <p class="m-0">SKM</p>
+                                    <span class="fa fa-chevron-down"></span>
+                                </div>
+                            </div>
+                            <div class="list-material-group" id="listGroupJenis">
+                                <?php for ($j = 0; $j < 3; $j++) { ?>
+                                    <div class="card shadow-none mb-2 card-material small-text">
+                                        <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                                            <p class="m-0">MAKER</p>
+                                            <span class="fa fa-chevron-down"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-material-group" id="listGroupJenisDetail">
+                                        <?php for ($k = 0; $k < 3; $k++) { ?>
+                                            <div class="card shadow-none mb-2 card-material small-text">
+                                                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                                                    <p class="m-0">MAKER 9 A</p>
+                                                </div>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
         </div>
         <!-- RIGHT PANEL -->
-        <div class="col-10 bg-white p-5" id="kerangkaProductDetail">
+        <div class="col-9 bg-white p-0 pt-5" id="kerangkaGudangDetail">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-none border-0">
+                        <div class="card-body p-0">
+                            <div class="row justify-content-between p-4 pb-3" style="margin-bottom: 5px;">
+                                <div class="col-12">
+                                    <div class="row ps-2 pe-2 pb-2" id="menuMaterial">
+                                        <div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Material</b><span class="ms-2 badge bg-primary">15</span></div>
+                                        <div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="statusLine()" id="colStatusLine' "><b>Bahan Produksi</b><span class="ms-2 badge bg-grey">15</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search..." id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;border-color:#c5ccd6;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle small-text">#</th>
+                                        <th class="align-middle small-text">Material</th>
+                                        <th class="align-middle small-text">Unit</th>
+                                        <th class="align-middle small-text"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listMaterial">
+                                    <?php for ($i = 0; $i < 5; $i++) { ?>
+                                        <tr>
+                                            <td class="align-middle small-text text-center">1</td>
+                                            <td class="align-middle small-text">
+                                                <p class="m-0 super-small-text fw-light">RM.03-406</p>
+                                                Etiket Armour Bold 20 SKM (Barcode Baru)
+                                            </td>
+                                            <td class="align-middle small-text text-center">Lembar</td>
+                                            <td class="align-middle small-text text-center">
+                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" style="width: 20px;height: 20px;">
+                                            </td>
+
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
+
+
+
 
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
@@ -1184,41 +1228,27 @@
 <?php $this->load->view('components/modal_static') ?>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script>
-    function emptyReturn(text, height = null) {
-        if (!height) {
-            height = '100%'
-        }
-        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
-        return html
-    }
-</script>
-<script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var job_spv_smd = '<?= job_spv_smd() ?>'
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
-    var machineId = '<?= $machine_id ?>'
-    var data_master
-    var data_machine_conversion
-    var indexLine = 0
-    var productId
-    var wasteGroupId
-    var dataMaterialGroup
-    var dataWaste
+    var dataListWarehouse
+    var dataDetail
+    var itemIdSelected = []
+    var choosenId
 
     $(document).ready(function() {
-        $('#kerangkaProductDetail').html(emptyReturn('Pilih Produk Terlebih Dahulu'))
         loadData()
     })
 
     function loadData() {
         var data = {
-            machineId: machineId,
+            employeeId: user_id,
         }
-        var url = "<?= api_produksi('loadPageMachineMaterialConversion'); ?>"
-        getData(data, url)
+        var url = "<?= api_produksi('loadPageStorageManage'); ?>"
+        // getData(data, url)
     }
 
     function getData(data, url) {
@@ -1240,221 +1270,8 @@
             },
             success: function(response) {
                 showOverlay('hide')
-                data_master = response.data
-                data_machine_conversion = data_master.machineConversion[0]
-                $('#machineName').html(data_machine_conversion.machine.name)
-                listProduct()
+                dataListWarehouse = response.data
             }
         })
-    }
-
-    function listProduct() {
-        var html = ''
-        data_machine_conversion.conversion_machine_products.forEach(e => {
-            html += '<div class="card shadow-none mb-2 small-text card-product" id="btnProduct' + e.id + '" onclick="chooseProduct(' + e.id + ')">'
-            html += '<div class="card-body p-3 d-flex justify-content-between align-items-center">'
-            html += '<p class="m-0"><b>' + e.item_product.alias + '</b></p>'
-            html += '<span class="fa fa-chevron-right"></span>'
-            html += '</div>'
-            html += '</div>'
-        });
-        $('#listProduct').html(html)
-    }
-
-    function chooseProduct(id) {
-        productId = id
-        wasteGroupId = ''
-        var data = data_machine_conversion.conversion_machine_products.find((v, k) => {
-            if (v.id == id) return true
-        })
-        dataMaterialGroup = data.conversion_machine_material_groups
-        dataWaste = data.conversion_machine_wastes
-        buttonProduct(id)
-        kerangkaProductDetail(data)
-    }
-
-    function buttonProduct(id) {
-        $('.card-product').removeClass('clicked')
-        $('#btnProduct' + id).addClass('clicked')
-    }
-
-    function kerangkaProductDetail(data) {
-        var html = ''
-        html += '<div class="row">'
-        html += '<div class="col-12">'
-        html += '<p class="m-0 small"><b>Product Material</b></p>'
-        html += '<h1 class="m-0 fw-bolder">' + data.item_product.name + '</h1>'
-        html += '</div>'
-        html += '<div class="col-12">'
-        html += '<div class="row ps-2 pe-2 pb-2 mt-5">'
-        html += '<div class="col-auto statusLine small-text pb-2 align-self-center fw-bold filter-border" style="cursor:pointer" onclick="chooseStatusLine(0)" id="colStatusLine0"><b>MATERIAL GROUP</b></div>'
-        html += '<div class="col-auto statusLine small-text pb-2 align-self-center text-grey" style="cursor:pointer" onclick="chooseStatusLine(1)" id="colStatusLine1"><b>WASTE</b></div>'
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="col-12 mt-3" id="isiLine">'
-        // isi
-
-        // isi
-        html += '</div>'
-        html += '</div>'
-        $('#kerangkaProductDetail').html(html)
-        statusLine()
-    }
-
-    function chooseStatusLine(e) {
-        indexLine = e
-        statusLine()
-    }
-
-    function statusLine() {
-        $('.statusLine').removeClass('fw-bold filter-border').addClass('text-grey')
-        $('#colStatusLine' + indexLine).addClass('fw-bold filter-border').removeClass('text-grey')
-        if (indexLine == 0) {
-            templateMaterialGroup()
-        } else {
-            templateWaste()
-        }
-    }
-
-    function templateMaterialGroup() {
-        var data = dataMaterialGroup
-        $('#isiLine').html(materialGroup(data))
-    }
-
-    function materialGroup(data) {
-        var html = ''
-        html += '<table class="table table-hover mt-3 w-100">'
-        html += '<thead>'
-        html += '<tr>'
-        html += '<th class="align-middle small-text">#</th>'
-        html += '<th class="align-middle small-text">Name</th>'
-        html += '<th class="align-middle small-text">Material Default</th>'
-        html += '<th class="align-middle small-text">Unit</th>'
-        html += '<th class="align-middle small-text">Height</th>'
-        html += '<th class="align-middle small-text">Length</th>'
-        html += '<th class="align-middle small-text">Weight</th>'
-        html += '<th class="align-middle small-text">DD</th>'
-        html += '<th class="align-middle small-text">DL</th>'
-        html += '<th class="align-middle small-text">Total Items</th>'
-        html += '</tr>'
-        html += '</thead>'
-        html += '<tbody>'
-        var a = 1
-        data.forEach(e => {
-            html += '<tr>'
-            html += '<td class="align-middle small text-center">' + a++ + '</td>'
-            html += '<td class="align-middle small text-center"><b>' + e.material_group.name + '</b></td>'
-            if (e.material_group.item_id_default) {
-                var dataDefaultItems = e.material_group.items.find((v, k) => {
-                    if (v.id == e.material_group.item_id_default) return true
-                })
-                var defaultItemName = dataDefaultItems.name
-            } else {
-                var defaultItemName = '<span class="small-text"><i>Belum Disetting </i><i class="fa fa-warning text-warning"></i></span>'
-            }
-            html += '<td class="align-middle small">' + defaultItemName + '</td>'
-            var namaUnit = '-'
-            if (e.unit) {
-                e.unit.name
-            }
-            html += '<td class="align-middle small text-center">' + namaUnit + '</td>'
-            if (!e.material_group.height) {
-                e.material_group.height = '-'
-            }
-            if (!e.material_group['length']) {
-                e.material_group['length'] = '-'
-            }
-            if (!e.material_group.weight) {
-                e.material_group.weight = '-'
-            }
-            if (!e.material_group.dd) {
-                e.material_group.dd = '-'
-            }
-            if (!e.material_group.dl) {
-                e.material_group.dl = '-'
-            }
-            html += '<td class="align-middle small text-center">' + e.material_group.height + '</td>'
-            html += '<td class="align-middle small text-center">' + e.material_group['length'] + '</td>'
-            html += '<td class="align-middle small text-center">' + e.material_group.weight + '</td>'
-            html += '<td class="align-middle small text-center">' + e.material_group.dd + '</td>'
-            html += '<td class="align-middle small text-center">' + e.material_group.dl + '</td>'
-            html += '<td class="align-middle small text-center"><span class="badge bg-warning fe-bolder">' + e.material_group.items.length + '</span></td>'
-            html += '</tr>'
-        });
-        html += '</tbody>'
-        return html
-    }
-
-    function templateWaste() {
-        var html = ''
-        html += '<div class="row">'
-        html += '<div class="col-3">'
-        html += '<button class="btn btn-outline-primary w-100 mb-2" style="border-style: dotted;border-width:2px;"><i class="fa fa-plus me-2"></i><span id="textLine"></span></button>'
-        html += '<div id="isiLineWaste">'
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="col-9">'
-        html += '<div class="card shadow-none" style="height:500px;">'
-        html += '<div class="card-body" id="kerangkaAllDetail">'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        $('#isiLine').html(html)
-        $('#kerangkaAllDetail').html(emptyReturn('Pilih Waste Group Terlebih Dahulu'))
-        waste()
-    }
-
-    function waste() {
-        $('#textLine').html('Waste')
-        var html = ''
-        dataWaste.forEach(e => {
-            html += '<div class="card shadow-sm card-waste mb-2" id="btnWaste' + e.id + '" onclick="chooseWasteGroup(' + e.id + ')">'
-            html += '<div class="card-body">'
-            html += '<div class="row">'
-            html += '<div class="col-12">'
-            html += '<p class="fw-bolder m-0">' + e.waste_groups.name + '<span class="badge bg-primary ms-2">' + e.waste_groups.waste_group_details.length + '</span></p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        })
-        $('#isiLineWaste').html(html)
-        if (wasteGroupId) {
-            chooseWasteGroup(wasteGroupId)
-        }
-    }
-
-    function chooseWasteGroup(id) {
-        wasteGroupId = id
-        var data = dataWaste.find((v, k) => {
-            if (v.id == id) return true
-        })
-        buttonWaste(id)
-        kerangkaAllDetail(data)
-    }
-
-    function buttonWaste(id) {
-        $('.card-waste').removeClass('clicked')
-        $('#btnWaste' + id).addClass('clicked')
-    }
-
-    function kerangkaAllDetail(data) {
-        var dataWaste = data.waste_groups.waste_group_details
-        $('#kerangkaAllDetail').html(materialGroup(dataWaste))
-    }
-
-    function addProductForm() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Entry Data</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        $('#modalBody').html(html_body)
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        $('#modalFooter').html(html_footer)
     }
 </script>
