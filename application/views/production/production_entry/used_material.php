@@ -829,7 +829,7 @@
             var value = event.target.value
             var total = 0
             if (jenis[0]) {
-                console.log(material.fraction_formula.formula)
+                // console.log(material.fraction_formula.formula)
                 var getFormula = removeSymbols(material.fraction_formula.formula)
                 // input data
                 var unfilled = 0

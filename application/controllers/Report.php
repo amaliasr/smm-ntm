@@ -366,6 +366,7 @@ class Report extends CI_Controller
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Tanggal');
             if ($groupingOption == 'WORKER') {
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'IED');
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No. Meja');
             }
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Worker');
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Product');
@@ -382,6 +383,7 @@ class Report extends CI_Controller
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->date);
                 if ($groupingOption == 'WORKER') {
                     $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->$nameVariable->eid);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->row_code);
                 }
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->$nameVariable->name);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $rowCount, $body[$k]->item->name);
@@ -417,12 +419,13 @@ class Report extends CI_Controller
                     ],
                 ],
             ];
-            $spreadsheet->getActiveSheet()->getStyle('A1:J1')->applyFromArray($styleArray);
+            $spreadsheet->getActiveSheet()->getStyle('A1:K1')->applyFromArray($styleArray);
         } else {
             $jumlahColumn = 1;
             $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No');
             if ($groupingOption == 'WORKER') {
                 $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'EID');
+                $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No. Meja');
             }
             $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', ucfirst($groupingOption));
             $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '' . $dataStructure->$periodOption->rowspan)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Product');
@@ -438,13 +441,14 @@ class Report extends CI_Controller
                 if ($jumlahRow == count($dataStructure->$periodOption->data) && count($dataStructure->$periodOption->data) >= 1) {
                     $jumlahLoop = count($this->groupDataByProperties($body, [$dataStructure->$periodOption->data[0]->variable]));
                 }
-                for ($j = 0; $j < $jumlahLoop; $j++) {
-                    for ($i = 0; $i < count($dataChild); $i++) {
-                        $endJumlahColumn = $jumlahColumn + $value->colspan - 1;
-                        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($endJumlahColumn) . $jumlahRow)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow, $dataChild[$i][0]);
-                        $jumlahColumn = $endJumlahColumn + 1;
-                    }
+                // for ($j = 0; $j < $jumlahLoop; $j++) {
+                for ($i = 0; $i < count($dataChild); $i++) {
+                    $endJumlahColumn = $jumlahColumn + $value->colspan - 1;
+                    // echo $dataChild[$i][0];
+                    $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow . ':' . Coordinate::stringFromColumnIndex($endJumlahColumn) . $jumlahRow)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . $jumlahRow, $dataChild[$i][0]);
+                    $jumlahColumn = $endJumlahColumn + 1;
                 }
+                // }
                 $jumlahRow++;
             }
             $jumlahColumn = $variableColumn;
@@ -467,11 +471,12 @@ class Report extends CI_Controller
                 $data_report_detail[$rowCount][$nameVariable . '_name'] = $body[$k]->$nameVariable->name;
                 if ($groupingOption == 'WORKER') {
                     $data_report_detail[$rowCount][$nameVariable . '_eid'] = $body[$k]->$nameVariable->eid;
+                    $data_report_detail[$rowCount][$nameVariable . '_row_code'] = $body[$k]->row_code;
                 }
                 $rowCount++;
             }
             if ($groupingOption == 'WORKER') {
-                $dataMachine = $this->groupAndSum($data_report_detail, [$nameVariable . '_id', $nameVariable . '_name', $nameVariable . '_eid', 'item_id', 'item_name', 'unit_name'], []);
+                $dataMachine = $this->groupAndSum($data_report_detail, [$nameVariable . '_id', $nameVariable . '_name', $nameVariable . '_eid', $nameVariable . '_row_code', 'item_id', 'item_name', 'unit_name'], []);
             } else {
                 $dataMachine = $this->groupAndSum($data_report_detail, [$nameVariable . '_id', $nameVariable . '_name', 'item_id', 'item_name', 'unit_name'], []);
             }
@@ -490,6 +495,7 @@ class Report extends CI_Controller
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
                 if ($groupingOption == 'WORKER') {
                     $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value[$nameVariable . '_eid']);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value[$nameVariable . '_row_code']);
                 }
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value[$nameVariable . '_name']);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value['item_name']);
@@ -618,7 +624,131 @@ class Report extends CI_Controller
         $epoch = strtotime($date_time);
 
         $writer = new Xlsx($spreadsheet);
-        $filename = 'REPORT PRODUCTION WORKER ' . $epoch;
+        $filename = 'REPORT PERSON SALARY SUMMARY' . $epoch;
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
+    public function excelPersonEarnDetail()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $date_start = date('Y-m-d', strtotime($explodedParams[1]));
+        $date_end = date('Y-m-d', strtotime($explodedParams[2]));
+        $machineId = $explodedParams[3];
+        $viewBy = $explodedParams[4];
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonEarn?dateStart=' . $date_start . '&dateEnd=' . $date_end . '&machineId=' . $machineId)))->data->reportResultPersonEarn;
+        $huruf = range('A', 'Z');
+        $extension = 'xlsx';
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->mergeCells('A1:A2')->setCellValue('A1', 'No');
+        $sheet->mergeCells('B1:B2')->setCellValue('B1', 'EID');
+        $sheet->mergeCells('C1:C2')->setCellValue('C1', 'Nama');
+        $sheet->mergeCells('D1:D2')->setCellValue('D1', 'No. Meja');
+        $jumlahColumn = 5;
+        $jumlahColumn2 = 5;
+        $keys = array_map(function ($item) {
+            return key($item);
+        }, $body[0]->data);
+        for ($i = 0; $i < count($keys); $i++) {
+            $startColumn = $jumlahColumn;
+            if ($viewBy) {
+                $num = 0;
+                foreach ($body[0]->data as $item) {
+                    $dateKey = key((array)$item);
+                    if ($dateKey == $keys[$i]) {
+                        $num = count($item->{$dateKey}->detail_total);
+                    }
+                }
+            } else {
+                $num = 0;
+            }
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($startColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 2 + ($num * 2)) . '1')->setCellValue(Coordinate::stringFromColumnIndex($startColumn) . '1', $keys[$i]);
+            if ($viewBy) {
+                if ($num) {
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'QTY Pokok');
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Earn Pokok');
+                    if ($num > 1) {
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'QTY Incentive');
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Earn Incentive');
+                    }
+                }
+            }
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total QTY');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total Earn');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total Setor');
+            $jumlahColumn++;
+        }
+        $jumlahRow = 3;
+        $jumlahColumn = 1;
+        $no = 1;
+        $styleArrayFormula = [
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'f9dfdf',
+                ],
+                'endColor' => [
+                    'argb' => 'f9dfdf',
+                ],
+            ],
+        ];
+        foreach ($body as $key => $value) {
+            $jumlahColumn = 1;
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $no++);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->eid);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->name);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->row_code);
+            // print_r($value->data);
+            foreach ($value->data as $item) {
+                $dateKey = key((array)$item);
+                $jumlahColumQty = $jumlahColumn;
+                if ($viewBy) {
+                    $num = 0;
+                    foreach ($body[0]->data as $items) {
+                        $dateKeys = key((array)$items);
+                        if ($dateKeys == $dateKey) {
+                            $num = count($items->{$dateKeys}->detail_total);
+                        }
+                    }
+                    for ($k = 0; $k < $num; $k++) {
+                        if (isset($item->{$dateKey}->detail_total[$k])) {
+                            $dataItem = $item->{$dateKey}->detail_total[$k];
+                            foreach ($dataItem as $k2 => $v2) {
+                                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $v2);
+                            }
+                        } else {
+                            for ($l = 0; $l < 2; $l++) {
+                                $jumlahColumn++;
+                            }
+                        }
+                    }
+                    // foreach ($item->{$dateKey}->detail_total as $v) {
+                    //     $detailKey = key((array)$v);
+                    //     $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $v->{$detailKey});
+                    // }
+                }
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_qty);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_earn);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_deliv);
+                if ($item->{$dateKey}->reject_left) {
+                    $sheet->getStyle(Coordinate::stringFromColumnIndex($jumlahColumQty) . $jumlahRow)->applyFromArray($styleArrayFormula);
+                }
+            }
+            $jumlahRow++;
+        }
+
+        // exit;
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'REPORT PERSON SALARY DETAIL ' . $epoch;
 
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
@@ -732,7 +862,7 @@ class Report extends CI_Controller
         $dateStart = date('Y-m-d', strtotime($explodedParams[1]));
         $dateEnd = date('Y-m-d', strtotime($explodedParams[2]));
         $machineId = $explodedParams[3];
-        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?dateStart=' . $dateStart . '&dateEnd=' . $dateEnd . '&machineId=' . $machineId)))->data->reportResultPersonQuality;
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonQuality?dateStart=' . $dateStart . '&dateEnd=' . $dateEnd . '&machineId=' . $machineId)))->data->reportResultPersonQuality;
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->mergeCells('A1:A2')->setCellValue('A1', 'No');
@@ -743,14 +873,17 @@ class Report extends CI_Controller
         }, $body[0]->data);
         $jumlahColumn = 4;
         $jumlahColumn2 = 4;
+        // print_r($keys);
+        // exit();
         for ($i = 0; $i < count($keys); $i++) {
             $startColumn = $jumlahColumn;
-            $sheet->mergeCells(Coordinate::stringFromColumnIndex($startColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 4) . '1')->setCellValue(Coordinate::stringFromColumnIndex($startColumn) . '1', ate("M Y", strtotime($keys[$i])));
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($startColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 5) . '1')->setCellValue(Coordinate::stringFromColumnIndex($startColumn) . '1', date("M Y", strtotime($keys[$i])));
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Quality');
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'AVG Deliv');
-            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total All');
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total Good');
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total Deliv');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total Reject');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Total All');
             $jumlahColumn++;
         }
         $jumlahRow = 3;
@@ -766,9 +899,10 @@ class Report extends CI_Controller
                 $dateKey = key((array)$item);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->quality);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->avg_deliv);
-                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_all);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_good);
                 $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_deliv);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_reject);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $item->{$dateKey}->total_all);
             }
             $jumlahRow++;
         }

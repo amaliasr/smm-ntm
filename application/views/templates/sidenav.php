@@ -224,8 +224,8 @@
                             <?php if (if_master_production()) { ?>
                                 <a class="nav-link" href="<?= base_url(); ?>master/machine">Machine</a>
                                 <a class="nav-link" href="<?= base_url(); ?>master/groupMaterial">Group Material</a>
+                                <a class="nav-link" href="<?= base_url(); ?>master/wasteGroup">Waste Group</a>
                                 <a class="nav-link" href="<?= base_url(); ?>master/billOfMaterial">Bill of Material</a>
-                                <a class="nav-link" href="<?= base_url(); ?>master/waste">Waste</a>
                             <?php } ?>
                         </nav>
                     </div>

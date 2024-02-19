@@ -427,9 +427,9 @@
                             'item_unit_multiplier': d.unit.multiplier,
                             // 'item_unit_operator': d.unit.operator,
                             'item_unit_compute_id': d.unit_compute.id,
-                            'item_unit_compute_name': d.unit_compute.name,
+                            'item_unit_compute_name': d.unit.name,
                             'item_unit_compute_multiplier': d.unit_compute.multiplier,
-                            'item_unit_compute_operator': d.unit_compute.operator,
+                            'item_unit_compute_operator': d.unit.operator,
                         })
                     });
                     indexMaterialGroup++
@@ -623,7 +623,7 @@
             html += '<div class="card rounded-0 shadow-none border-0 border-top border-bottom" style="background-color:transparent">'
             html += '<div class="card-body p-3">'
             html += '<div class="row">'
-            html += '<div class="col-9">'
+            html += '<div class="col-7">'
             html += '<p class="m-0 small-text fw-bolder">' + e.material_group_name + '</p>'
             var edit = ''
             if (e.item.length > 1) {
@@ -634,13 +634,15 @@
             html += '<div class="row g-3" id="item' + id + '' + waste_group_id + '' + e.material_group_id + '" hidden>'
             html += '<div class="col-sm-10">'
             html += '<select name="" class="form-control form-control-sm p-1 item small-text">'
+            var selectedUnit = ''
             if (e.item.length) {
-                e.item.forEach(e => {
+                e.item.forEach(el => {
                     var select = ""
-                    if (e.item_id == dataItem.item_id) {
+                    if (el.item_id == dataItem.item_id) {
                         select = 'selected'
+                        selectedUnit = el.item_unit_name
                     }
-                    html += '<option value="' + e.item_id + '" ' + select + ' data-name="' + e.item_name + '">' + e.item_name + '</option>'
+                    html += '<option value="' + el.item_id + '" ' + select + ' data-name="' + el.item_name + '">' + el.item_name + '</option>'
                 });
             } else {
                 html += '<option value="" selected disabled>Tidak Ada Item</option>'
@@ -682,6 +684,9 @@
                     statusText = true
                 }
             }
+            html += '</div>'
+            html += '<div class="col-2 align-self-center text-end">'
+            html += '<p class="m-0 small-text">' + selectedUnit + '</p>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -770,8 +775,8 @@
         } else {
             var data = variable_insert
         }
-        simpanData(data)
         // console.log(data)
+        simpanData(data)
     }
 
     function arrangeVariableInsertByProduct(id) {

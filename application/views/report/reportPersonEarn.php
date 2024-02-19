@@ -201,7 +201,14 @@
                                 <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangeVariable()">
                                 </select>
                             </div>
-                            <div class="col-auto p-0 d-flex align-items-end">
+                            <div class="col-auto p-0">
+                                <p class="fw-bolder small-text m-0">View By</p>
+                                <select class="selectpicker w-100" id="selectView" title="Pilih View By" onchange="arrangeVariable()">
+                                    <option value="false" selected>SUMMARY</option>
+                                    <option value="true">DETAIL</option>
+                                </select>
+                            </div>
+                            <div class="col-auto d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
@@ -214,7 +221,8 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel Summary</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',1)">Excel Detail</a></li>
                             </ul>
                         </div>
                     </div>
@@ -475,6 +483,7 @@
     var data_report = ""
     var date_start = getPreviousFriday()
     var date_end = currentDate()
+    var detailMode = false
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
@@ -551,6 +560,7 @@
         machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
+        detailMode = JSON.parse($('#selectView').val())
     }
 
     function simpanData() {
@@ -613,10 +623,23 @@
         html += '</tbody>'
         html += '</table>'
         $('#dataTable').html(html)
-        headTable()
+        nameDetail()
     }
 
-    function headTable() {
+    function nameDetail() {
+        var numberDetail = {}
+        data_report.reportResultPersonEarn[0].data.forEach(b => {
+            if (detailMode) {
+                var num = b[Object.keys(b)[0]].detail_total.length
+            } else {
+                var num = 0
+            }
+            numberDetail[Object.keys(b)[0]] = num
+        });
+        headTable(numberDetail)
+    }
+
+    function headTable(numberDetail) {
         var html = ''
         html += '<tr>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
@@ -634,7 +657,7 @@
                 bgOver = 'bg-orange-light'
                 badgeOver = '<span class="badge bg-orange ms-2" style="font-size:5px;vertical-align: middle;padding-top:3px;">OVERTIME</span>'
             }
-            html += '<th class="align-middle ' + bgOver + '" colspan="3">'
+            html += '<th class="align-middle ' + bgOver + '" colspan="' + (3 + (parseInt(numberDetail[dates[i]]) * 2)) + '">'
             html += '<p class="m-0 fw-bolder">' + formatJustDay(dates[i]) + '</p>'
             html += '<p class="m-0 super-small-text fw-normal">' + dates[i] + '' + badgeOver + '</p>'
             html += '</th>'
@@ -651,16 +674,27 @@
             if (dataDate.is_overtime) {
                 bgOver = 'bg-orange-light'
             }
-            html += '<th class="align-middle ' + bgOver + '">QTY</th>'
-            html += '<th class="align-middle ' + bgOver + '">Earn</th>'
-            html += '<th class="align-middle ' + bgOver + '">Total Setor</th>'
+            if (detailMode) {
+                if (numberDetail[dates[i]]) {
+                    html += '<th class="align-middle ' + bgOver + '">QTY<br>Pokok</th>'
+                    html += '<th class="align-middle ' + bgOver + '">Earn<br>Pokok</th>'
+                    if (numberDetail[dates[i]] > 1) {
+                        html += '<th class="align-middle ' + bgOver + '">QTY<br>Incentive</th>'
+                        html += '<th class="align-middle ' + bgOver + '">Earn<br>Incentive</th>'
+                    }
+                }
+
+            }
+            html += '<th class="align-middle ' + bgOver + '">Total<br>QTY</th>'
+            html += '<th class="align-middle ' + bgOver + '">Total<br>Earn</th>'
+            html += '<th class="align-middle ' + bgOver + '">Total<br>Setor</th>'
         }
         html += '</tr>'
         $('#headTable').html(html)
-        bodyTable()
+        bodyTable(numberDetail)
     }
 
-    function bodyTable() {
+    function bodyTable(numberDetail) {
         var html = ''
         var a = 1
         data_report.reportResultPersonEarn.forEach(e => {
@@ -682,8 +716,23 @@
                 if (el[Object.keys(el)[0]].reject_left) {
                     bgDanger = 'bg-light-danger'
                 }
-                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(el[Object.keys(el)[0]].qty) + '</td>'
-                html += '<td class="text-center small-text ' + bgOver + '">' + number_format(roundToTwo(el[Object.keys(el)[0]].earn)) + '</td>'
+                if (detailMode) {
+                    for (let i = 0; i < numberDetail[Object.keys(el)[0]]; i++) {
+                        var dataDetail = el[Object.keys(el)[0]].detail_total[i]
+                        if (dataDetail) {
+                            var valuesDataDetail = Object.values(dataDetail);
+                            for (let j = 0; j < valuesDataDetail.length; j++) {
+                                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(valuesDataDetail[j]) + '</td>'
+                            }
+                        } else {
+                            for (let j = 0; j < 2; j++) {
+                                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">-</td>'
+                            }
+                        }
+                    }
+                }
+                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(el[Object.keys(el)[0]].total_qty) + '</td>'
+                html += '<td class="text-center small-text ' + bgOver + '">' + number_format(roundToTwo(el[Object.keys(el)[0]].total_earn)) + '</td>'
                 html += '<td class="text-center small-text ' + bgOver + '">' + el[Object.keys(el)[0]].total_deliv + '</td>'
             });
             html += '<td class="text-end small-text">' + number_format(roundToTwo(e.total.earn)) + '</td>'
@@ -706,8 +755,12 @@
     }
 
     function cetakReport(x, y) {
-        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId;
+        var viewBy = ''
+        if (y == 1) {
+            viewBy = 'Detail'
+        }
+        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn' + viewBy + '"')
+        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + viewBy;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

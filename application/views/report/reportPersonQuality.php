@@ -206,7 +206,7 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li> -->
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF</a></li> -->
                             </ul>
                         </div>
@@ -607,9 +607,10 @@
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">EID</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">Nama</th>'
+        html += '<th class="align-middle" rowspan="2" style="background-color: white;">No. Meja</th>'
         const dates = data_report.reportResultPersonQuality[0].data.map(item => Object.keys(item)[0]);
         for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle" colspan="5">' + formatMonthYear(dates[i]) + '</th>'
+            html += '<th class="align-middle" colspan="6">' + formatMonthYear(dates[i]) + '</th>'
         }
         html += '</tr>'
 
@@ -618,8 +619,9 @@
             html += '<th class="align-middle">Quality (%)</th>'
             html += '<th class="align-middle">AVG Deliv<br>(per Day)</th>'
             html += '<th class="align-middle">Total<br>Delivery</th>'
-            html += '<th class="align-middle">Total<br>All</th>'
             html += '<th class="align-middle">Total<br>Good</th>'
+            html += '<th class="align-middle">Total<br>Reject</th>'
+            html += '<th class="align-middle">Total<br>All</th>'
         }
         html += '</tr>'
         $('#headTable').html(html)
@@ -634,12 +636,14 @@
             html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
             html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
+            html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.row_code + '</td>'
             e.data.forEach(el => {
                 html += '<td class="text-center small-text">' + number_format(roundToTwo(el[Object.keys(el)[0]].quality)) + '</td>'
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].avg_deliv) + '</td>'
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_deliv) + '</td>'
-                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_all) + '</td>'
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
+                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_reject) + '</td>'
+                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_all) + '</td>'
             });
             html += '</tr>'
         });

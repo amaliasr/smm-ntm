@@ -634,6 +634,7 @@
             eval(`data_report_detail[index].${groupingOption.toLowerCase()}_name = e.${groupingOption.toLowerCase()}.name`)
             if (groupingOption == 'WORKER') {
                 eval(`data_report_detail[index].${groupingOption.toLowerCase()}_eid = e.${groupingOption.toLowerCase()}.eid`)
+                eval(`data_report_detail[index].${groupingOption.toLowerCase()}_row_code = e.row_code`)
             }
             index++
         });
@@ -666,6 +667,7 @@
                 html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">#</th>'
                 if (groupingOption == 'WORKER') {
                     html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">EID</th>'
+                    html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">No. Meja</th>'
                 }
                 html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">' + toTitleCase(groupingOption) + '</th>'
                 html += '<th class="align-middle" rowspan="' + structureData[periodOption].rowspan + '" style="background-color: white;">Product</th>'
@@ -705,7 +707,7 @@
     function bodyTable() {
         if (groupingOption == 'WORKER') {
 
-            eval(`var dataMachine = groupAndSum(data_report_detail, ['${groupingOption.toLowerCase()}_id', '${groupingOption.toLowerCase()}_name','${groupingOption.toLowerCase()}_eid', 'item_id', 'item_name', 'unit_name'], [])`)
+            eval(`var dataMachine = groupAndSum(data_report_detail, ['${groupingOption.toLowerCase()}_id', '${groupingOption.toLowerCase()}_name','${groupingOption.toLowerCase()}_eid','${groupingOption.toLowerCase()}_row_code', 'item_id', 'item_name', 'unit_name'], [])`)
         } else [
 
             eval(`var dataMachine = groupAndSum(data_report_detail, ['${groupingOption.toLowerCase()}_id', '${groupingOption.toLowerCase()}_name', 'item_id', 'item_name', 'unit_name'], [])`)
@@ -719,6 +721,7 @@
             html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
             if (groupingOption == 'WORKER') {
                 eval(`html += '<td class="text-center small-text" style="background-color: white;">' + e.${groupingOption.toLowerCase()}_eid + '</td>'`)
+                eval(`html += '<td class="text-center small-text" style="background-color: white;">' + e.${groupingOption.toLowerCase()}_row_code + '</td>'`)
             }
             eval(`html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.${groupingOption.toLowerCase()}_name + '</td>'`)
             // html += '<td class="text-center small-text" style="background-color: white;">' + e.machine_name + '</td>'
