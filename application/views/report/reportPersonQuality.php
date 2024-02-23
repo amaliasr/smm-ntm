@@ -620,7 +620,7 @@
             html += '<th class="align-middle">AVG Deliv<br>(per Day)</th>'
             html += '<th class="align-middle">Total<br>Delivery</th>'
             html += '<th class="align-middle">Total<br>Good</th>'
-            html += '<th class="align-middle">Total<br>Reject</th>'
+            html += '<th class="align-middle">Total<br>Bad</th>'
             html += '<th class="align-middle">Total<br>All</th>'
         }
         html += '</tr>'
@@ -642,7 +642,7 @@
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].avg_deliv) + '</td>'
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_deliv) + '</td>'
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
-                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_reject) + '</td>'
+                html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_bad) + '</td>'
                 html += '<td class="text-center small-text">' + number_format(el[Object.keys(el)[0]].total_all) + '</td>'
             });
             html += '</tr>'

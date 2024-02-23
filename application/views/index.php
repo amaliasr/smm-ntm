@@ -217,8 +217,8 @@
                                             <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" onclick="changePencapaianTarget('chart')">
                                             <label class="btn btn-outline-switch-chart shadow-none" for="btnradio3"><i class="fa fa-bar-chart"></i></label>
                                         </div>
-                                        <button type="button" class="ms-1 shadow-none btn btn-sm btn-outline-switch-chart" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false"><i class="fa fa-filter"></i></button>
-                                        <div class="dropdown-menu" style="width: 200px;">
+                                        <button type="button" class="ms-1 shadow-none btn btn-sm btn-outline-switch-chart" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false" onclick="showDropdown()"><i class="fa fa-filter"></i></button>
+                                        <div class="dropdown-menu" id="dropdownFilter" style="width: 200px;">
                                             <div class="row">
                                                 <div class="col-12 text-center">
                                                     <p class="m-0 small fw-bolder">Filter</p>
@@ -568,6 +568,7 @@
         $('#dateStartTarget').val(dateStartTarget)
         $('#dateEndTarget').val(dateEndTarget)
         $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
+        setDaterange()
         $.ajax({
             url: "https://rest.pt-bks.com/hr_lr/smm/get-data-employee",
             method: "GET",
@@ -650,10 +651,20 @@
             },
             success: function(response) {
                 data_pencapaian = response['data'].planActual
-                setDaterange()
+                closeDropdown()
                 pencapaianTarget()
             }
         })
+    }
+
+    function closeDropdown() {
+        var dropdownMenu = document.querySelector('#dropdownFilter');
+        dropdownMenu.classList.remove('show');
+    }
+
+    function showDropdown() {
+        var dropdownMenu = document.querySelector('#dropdownFilter');
+        dropdownMenu.classList.add('show');
     }
 
     function setDaterange() {

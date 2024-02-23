@@ -1304,9 +1304,16 @@
         if (data_machine_conversion) {
             data_machine_conversion.conversion_machine_products.forEach(e => {
                 html += '<div class="card shadow-none mb-2 small-text card-product" id="btnProduct' + e.id + '" onclick="chooseProduct(' + e.id + ')">'
-                html += '<div class="card-body p-3 d-flex justify-content-between align-items-center">'
+                html += '<div class="card-body p-3">'
+                html += '<div class="row">'
+                html += '<div class="col align-slef-center">'
+                html += '<p class="m-0 super-small-text text-grey">' + e.item_product.code + '</p>'
                 html += '<p class="m-0"><b>' + e.item_product.alias + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-auto align-self-center">'
                 html += '<span class="fa fa-chevron-right"></span>'
+                html += '</div>'
+                html += '</div>'
                 html += '</div>'
                 html += '</div>'
             });
@@ -1316,6 +1323,8 @@
             afterSaveMaterialGroup()
         } else if (variable == 'conversionMachineWaste') {
             afterSaveWasteGroup()
+        } else if (variable == 'conversionMachineProduct') {
+            afterSaveMachineProduct()
         }
     }
 
@@ -1325,11 +1334,15 @@
         var data = data_machine_conversion.conversion_machine_products.find((v, k) => {
             if (v.id == id) return true
         })
-        dataProduct = data
-        dataMaterialGroup = data.conversion_machine_material_groups
-        dataWaste = data.conversion_machine_wastes
-        buttonProduct(id)
-        kerangkaProductDetail(data)
+        if (data) {
+            dataProduct = data
+            dataMaterialGroup = data.conversion_machine_material_groups
+            dataWaste = data.conversion_machine_wastes
+            buttonProduct(id)
+            kerangkaProductDetail(data)
+        } else {
+            $('#kerangkaProductDetail').html(emptyReturn('Pilih Produk Terlebih Dahulu'))
+        }
     }
 
     function buttonProduct(id) {
@@ -1382,8 +1395,8 @@
         var html = ''
         html += '<div class="row p-2">'
         html += '<div class="col-2 fw-bolder align-self-center">Select Unit</div>'
-        html += '<div class="col-2 fw-bolder">'
-        html += '<select class="form-control w-100" id="selectUnit" title="Pilih Unit">'
+        html += '<div class="col-2 fw-bolder align-self-center">'
+        html += '<select class="form-control w-100" id="selectUnitEdit" title="Pilih Unit" onchange="changeUnit()">'
         html += '<option value="">Pilih Unit</option>'
         data_unit.forEach(e => {
             var select = ''
@@ -1394,17 +1407,58 @@
         });
         html += '</select>'
         html += '</div>'
+        html += '<div class="col-1 p-0 fw-bolder">'
+        html += '<button class="btn btn-sm btn-success" hidden id="btnSaveProduct" onclick="saveUnit()"><i class="fa fa-save"></i></button>'
+        html += '</div>'
         html += '</div>'
         html += '<div class="row p-2">'
         html += '<div class="col-2 fw-bolder align-self-center">Delete Product</div>'
         html += '<div class="col-3 fw-bolder">'
-        html += '<button class="btn btn-danger">Delete This Product</button>'
+        html += '<button class="btn btn-danger" onclick="deleteProduct()">Delete This Product</button>'
         html += '</div>'
         html += '</div>'
         $('#isiLine').html(html)
-        $('#selectUnit').select2({
+        $('#selectUnitEdit').select2({
             closeOnSelect: true,
             width: '100%',
+        })
+    }
+
+    function changeUnit() {
+        var unit = $('#selectUnitEdit').val()
+        if (dataProduct.unit.id != unit) {
+            $('#btnSaveProduct').removeAttr('hidden', true)
+        } else {
+            $('#btnSaveProduct').attr('hidden', true)
+        }
+    }
+
+    function saveUnit() {
+        var data = [{
+            id: dataProduct.id,
+            unit_id: $('#selectUnitEdit').val()
+        }]
+        arrangeVariable('conversionMachineProduct', data)
+    }
+
+    function deleteProduct() {
+        var data = {
+            deletedId: {
+                conversionMachineProduct: [dataProduct.id]
+            }
+        }
+        Swal.fire({
+            text: 'Apakah Anda yakin ingin menghapus Produk ' + dataProduct.item_product.alias + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                simpanData(data, 'conversionMachineProduct')
+            }
         })
     }
 
@@ -1791,7 +1845,7 @@
         html += '</select>'
         html += '</div>'
         html += '<div class="col-12 text-end pt-5">'
-        html += '<button class="btn btn-outline-success w-100 small-text" onclick="addProduct(' + id + ')">Lanjut Tambahkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '<button class="btn btn-outline-success w-100 small-text btnSimpan" onclick="addProduct(' + id + ')">Lanjut Tambahkan<i class="fa fa-chevron-right ms-2"></i></button>'
         html += '</div>'
         html += '</div>'
         $('#selectUnit').selectpicker();
@@ -1871,7 +1925,9 @@
             },
             success: function(response) {
                 $(button).prop("disabled", false);
-                if (!variable == 'conversionMachineMaterialGroup' && !variable == 'conversionMachineWaste') {
+                console.log(variable)
+                if ((!variable == 'conversionMachineMaterialGroup' && !variable == 'conversionMachineWaste') || variable == 'conversionMachineProduct') {
+                    console.log('test')
                     $('#modal').modal('hide')
                 }
                 data_add_waste_group = []
@@ -1890,6 +1946,8 @@
         dataWaste = data.conversion_machine_wastes
         $('#listMaterialGroup').html('')
         listMaterialGroup()
+        chooseProduct(productId)
+        statusLine()
     }
 
     function onSearch(idKotakSearch, classCardSearch, idCardSearch) {
@@ -2058,9 +2116,13 @@
     }
 
     function formatMaterialGroup(data, idMaterialGroup = null) {
-        var dataEdit = dataMaterialGroup.find((v, k) => {
-            if (v.material_group_id == idMaterialGroup) return true
-        })
+        if (dataMaterialGroup) {
+            var dataEdit = dataMaterialGroup.find((v, k) => {
+                if (v.material_group_id == idMaterialGroup) return true
+            })
+        } else {
+            var dataEdit = ''
+        }
         var html = ''
 
         html += '<div class="row" id="cardIsiMaterialGroup' + data.id + '">'
@@ -2382,5 +2444,24 @@
         dataWaste = data.conversion_machine_wastes
         $('#kerangkaSelectedWaste').html('')
         listWasteGroup()
+        chooseProduct(productId)
+        statusLine()
+    }
+
+    function afterSaveMachineProduct() {
+        firstKlik = false
+        var data = data_machine_conversion.conversion_machine_products.find((v, k) => {
+            if (v.id == productId) return true
+        })
+        if (data) {
+            dataProduct = data
+            dataMaterialGroup = data.conversion_machine_material_groups
+            dataWaste = data.conversion_machine_wastes
+            $('#listMaterialGroup').html('')
+            chooseProduct(productId)
+            statusLine()
+        } else {
+            $('#kerangkaProductDetail').html(emptyReturn('Pilih Produk Terlebih Dahulu'))
+        }
     }
 </script>

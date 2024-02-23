@@ -1341,7 +1341,7 @@
                 if (dataListWarehouse.warehouse.length) {
                     // listGudang()
                 } else {
-                    emptyText('#kerangkaGudangDetail', 'Tidak Ada Data Tersedia')
+                    // emptyText('#kerangkaGudangDetail', 'Tidak Ada Data Tersedia')
                 }
             }
         })
@@ -1416,7 +1416,7 @@
 
         html += '<div class="col">'
         html += '<b class="m-0 ms-3 small-text">Detail Transaction</b>'
-        html += '<p class="m-0 ms-3 small-text">' + formatDateIndonesia(dataDetail.dateStart) + ' - ' + formatDateIndonesia(dataDetail.dateEnd) + '</p>'
+        html += '<p class="m-0 ms-3 small-text">' + formatDateIndonesia('2024-02-20') + ' - ' + formatDateIndonesia('2024-02-20') + '</p>'
         html += '</div>'
 
         html += '<div class="col text-end">'
@@ -1453,18 +1453,8 @@
         html += '</div>'
         $('#kerangkaGudangDetail').html(html)
         $('#dropdownMenuClickableInside').removeClass('shake-bottom')
-        if (dataDetail.mutationStockWaiting.length) {
-            $('#jumlahWaiting').removeClass('d-none')
-            $('#dropdownMenuClickableInside').addClass('shake-bottom')
-            if (dataDetail.mutationStockWaiting.length > 100) {
-                $('#jumlahWaiting').html('<p class="m-0">99+</p>')
-            } else {
-                $('#jumlahWaiting').html('<p class="m-0">' + dataDetail.mutationStockWaiting.length + '</p>')
-            }
-        } else {
-            $('#jumlahWaiting').addClass('d-none')
-        }
-        notifWaiting()
+        // notifWaiting()
+        listCurrentStock()
     }
 
     function notifWaiting() {
@@ -1516,90 +1506,80 @@
     function listCurrentStock() {
         var html = ''
         var a = 0
-        if (dataDetail.currentStock.length) {
-            dataDetail.currentStock.forEach(e => {
-                html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
-                html += '<div class="card-body">'
-                html += '<div class="row">'
-                html += '<div class="col">'
-                html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + e.item.code + '</p>'
-                html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + e.item.name + '</b></p>'
-                html += '</div>'
-                html += '<div class="col-auto text-end align-self-center">'
-                var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
-                html += '<h5 class="m-0 text-orange small-text"><b>' + nilaiConversi + '</b></h5>'
-                // html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                a++
-            })
-            $('#listCurrentStock').html(html)
-        } else {
-            emptyText('#listCurrentStock', 'Tidak Ada Data yang Tersedia')
+        for (let i = 0; i < 10; i++) {
+            html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+            html += '<div class="col">'
+            html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">123</p>'
+            html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">ABLF</b></p>'
+            html += '</div>'
+            html += '<div class="col-auto text-end align-self-center">'
+            // var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
+            html += '<h5 class="m-0 text-orange small-text"><b>100</b></h5>'
+            html += '<p class="m-0 small-text">Pack</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            a++
         }
+        $('#listCurrentStock').html(html)
         tableDetail()
     }
 
     function tableDetail() {
         var html = ''
-        if (dataDetail.mutationStock.length) {
-            var a = 1
-            dataDetail.mutationStock.forEach(e => {
-                // console.log(e)
-                var arrow = '<i class="fa fa-arrow-down text-success"></i>'
-                if (e.action == 'OUT') {
-                    arrow = '<i class="fa fa-arrow-up text-danger"></i>'
-                }
-                if (e.status == 'WAITING') {
-                    var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
-                } else if (e.status == 'RECEIVE') {
-                    var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
-                } else if (e.status == 'REJECTED') {
-                    var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
-                } else {
-                    var status = ''
-                }
-                var colorToday = ''
-                if (formatDate(e.time) == currentDate()) {
-                    colorToday = 'bg-light-primary'
-                }
-                var employeeName = '-'
-                if (e.employee) {
-                    employeeName = e.employee.name.split(' ')[0]
-                }
-                var employeeReferenceName = ''
-                if (e.employee_reference) {
-                    employeeReferenceName = e.employee_reference.name.split(' ')[0]
-                }
-                html += '<tr class="' + colorToday + '">'
-                html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
-                html += '<td class="small-text align-middle text-center">' + arrow + '</td>'
-                html += '<td class="small-text align-middle text-center">' + formatDateIndonesiaTanggalBulanSort(e.time) + ' ' + formatJamMenit(e.time) + '</td>'
-                html += '<td class="small-text align-middle text-center">' + employeeName + '</td>'
-                html += '<td class="small-text align-middle text-center bg-light">' + e.warehouse.name + '</td>'
-                html += '<td class="small-text align-middle text-center bg-light">'
-                html += '<p class="m-0">' + e.reference.name + '</p>'
-                html += '<p class="m-0 super-small-text fw-bolder">' + employeeReferenceName + '</p>'
-                html += '</td>'
-                var next = '-'
-                if (e.machine_next) {
-                    next = '<span class="text-success fw-bolder">' + e.machine_next.name + '</span>'
-                }
-                html += '<td class="small-text align-middle text-center">' + next + '</td>'
-                html += '<td class="small-text align-middle text-center">' + e.item.alias + '</td>'
-                var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
-                html += '<td class="small-text align-middle text-end fw-bolder text-orange text-nowrap">' + nilaiConversi + '</td>'
-                html += '<td class="small-text align-middle text-center">' + status + '</td>'
-                html += '<td class="small-text align-middle">'
-                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting(' + e.id + ')"><i class="fa fa-eye"></i></button>'
-                html += '</td>'
-                html += '</tr>'
-            });
-        } else {
-            html += '<tr>'
-            html += '<td class="text-center p-5" colspan="11"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
+        var a = 1
+        for (let i = 0; i < 100; i++) {
+            // console.log(e)
+            var arrow = '<i class="fa fa-arrow-down text-success"></i>'
+            // if (e.action == 'OUT') {
+            //     arrow = '<i class="fa fa-arrow-up text-danger"></i>'
+            // }
+            // if (e.status == 'WAITING') {
+            var status = '<span class="badge rounded-pill bg-light text-dark-grey">Waiting</span>'
+            // } else if (e.status == 'RECEIVE') {
+            //     var status = '<span class="badge rounded-pill bg-success">Diterima</span>'
+            // } else if (e.status == 'REJECTED') {
+            //     var status = '<span class="badge rounded-pill bg-danger">Ditolak</span>'
+            // } else {
+            //     var status = ''
+            // }
+            var colorToday = ''
+            // if (formatDate(e.time) == currentDate()) {
+            //     colorToday = 'bg-light-primary'
+            // }
+            // var employeeName = '-'
+            // if (e.employee) {
+            //     employeeName = e.employee.name.split(' ')[0]
+            // }
+            // var employeeReferenceName = ''
+            // if (e.employee_reference) {
+            //     employeeReferenceName = e.employee_reference.name.split(' ')[0]
+            // }
+            html += '<tr class="' + colorToday + '">'
+            html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
+            html += '<td class="small-text align-middle text-center">' + arrow + '</td>'
+            html += '<td class="small-text align-middle text-center">' + formatDateIndonesiaTanggalBulanSort('2024-02-20 20:00:00') + ' ' + formatJamMenit('2024-02-20 20:00:00') + '</td>'
+            html += '<td class="small-text align-middle text-center">Amalia</td>'
+            html += '<td class="small-text align-middle text-center bg-light">Gudang WIP</td>'
+            html += '<td class="small-text align-middle text-center bg-light">'
+            html += '<p class="m-0">HLP 20</p>'
+            html += '<p class="m-0 super-small-text fw-bolder">Indah</p>'
+            html += '</td>'
+            var next = '-'
+            // if (e.machine_next) {
+            // next = '<span class="text-success fw-bolder">' + e.machine_next.name + '</span>'
+            // }
+            html += '<td class="small-text align-middle text-center">' + next + '</td>'
+            html += '<td class="small-text align-middle text-center">ABLF</td>'
+            // var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
+            html += '<td class="small-text align-middle text-end fw-bolder text-orange text-nowrap">10</td>'
+            html += '<td class="small-text align-middle text-center">' + status + '</td>'
+            html += '<td class="small-text align-middle">'
+            html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>'
+            html += '</td>'
             html += '</tr>'
         }
         $('#tableDetail').html(html)
