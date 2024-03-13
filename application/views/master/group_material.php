@@ -1049,12 +1049,15 @@
                 item_ids: seelctItem,
                 created_at: getDateTime(currentDate()),
                 updated_at: getDateTime(currentDate()),
-                fraction_formula_id: selectFormula,
+                // fraction_formula_id: selectFormula,
                 item_id_default: itemDefaultId,
             }],
         }
-        for (let i = 0; i < variableFormula.length; i++) {
-            variableInsert.materialGroup[0][variableFormula[i]] = valueFormula[i]
+        if (selectFormula) {
+            variableInsert.materialGroup[0]['fraction_formula_id'] = selectFormula
+            for (let i = 0; i < variableFormula.length; i++) {
+                variableInsert.materialGroup[0][variableFormula[i]] = valueFormula[i]
+            }
         }
         simpanData(variableInsert)
     }

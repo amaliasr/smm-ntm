@@ -1002,6 +1002,20 @@
         border-color: #27374D !important;
     }
 
+    .card-add-product:active,
+    .clicked {
+        background-color: #27374D !important;
+        color: white;
+        border-color: #27374D !important;
+    }
+
+    .card-added-product:active,
+    .clicked {
+        background-color: #27374D !important;
+        color: white;
+        border-color: #27374D !important;
+    }
+
     .card-waste {
         background-color: transparent !important;
         cursor: pointer;
@@ -1026,12 +1040,6 @@
         border-color: #27374D !important;
     }
 
-    .card-add-product:active,
-    .clicked {
-        background-color: #27374D !important;
-        color: white;
-        border-color: #27374D !important;
-    }
 
     .card-material-group:active,
     .clicked {
@@ -1088,21 +1096,21 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 p-0 ps-4 pb-2 pe-4">
+                <div class="col-12 p-0 ps-4 pb-3 pe-4">
                     <div class="list-material-group">
                         <div class="form-group has-search">
                             <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control" placeholder="Search Product" id="search_nama">
+                            <input type="text" class="form-control" placeholder="Search Product" id="search_product" autocomplete="off" onkeyup="onSearch('#search_product','.textProduct','#btnProduct')">
                         </div>
                     </div>
                 </div>
-                <div class="col-12 p-0 ps-4 pb-2 pe-4" style="max-height: 400px;overflow-x: hidden;overflow-y: auto;">
-                    <div class="list-material-group" id="listProduct">
-                    </div>
-                </div>
-                <div class="col-12 p-2 ps-4 pb-2 pe-4">
+                <div class="col-12 p-0 ps-4 pe-4">
                     <div class="list-material-group">
                         <button class="btn btn-outline-primary w-100 mb-2" style="border-style: dotted;border-width:2px;" onclick="getItemProduct()"><i class="fa fa-plus me-2"></i>Tambah Produk</button>
+                    </div>
+                </div>
+                <div class="col-12 p-2 ps-4 pb-2 pe-4" style="max-height: 400px;overflow-x: hidden;overflow-y: auto;">
+                    <div class="list-material-group" id="listProduct">
                     </div>
                 </div>
             </div>
@@ -1204,6 +1212,7 @@
     var dataMaterialGroup
     var dataWaste
     var dataProduct
+    var dataSteps
     var dataInsert = {
         conversionMachine: [],
         conversionMachineProduct: [],
@@ -1217,6 +1226,7 @@
         }
     }
     var firstKlik = false
+    var variableProduct = []
 
     $(document).ready(function() {
         $('#kerangkaProductDetail').html(emptyReturn('Pilih Produk Terlebih Dahulu'))
@@ -1264,6 +1274,7 @@
                 showOverlay('hide')
                 data_master = response.data
                 data_machine_conversion = data_master.machineConversion[0]
+                dataSteps = data_master.machineStep
                 data_unit = data_master.unit
                 $('#machineName').html(data_master.currentMachine.name)
                 getMaterialGroup(variable)
@@ -1307,8 +1318,8 @@
                 html += '<div class="card-body p-3">'
                 html += '<div class="row">'
                 html += '<div class="col align-slef-center">'
-                html += '<p class="m-0 super-small-text text-grey">' + e.item_product.code + '</p>'
-                html += '<p class="m-0"><b>' + e.item_product.alias + '</b></p>'
+                html += '<p class="m-0 super-small-text text-grey" textProduct" data-id="' + e.id + '">' + e.item_product.code + '</p>'
+                html += '<p class="m-0"><b class="textProduct" data-id="' + e.id + '">' + e.item_product.alias + '</b></p>'
                 html += '</div>'
                 html += '<div class="col-auto align-self-center">'
                 html += '<span class="fa fa-chevron-right"></span>'
@@ -1348,6 +1359,16 @@
     function buttonProduct(id) {
         $('.card-product').removeClass('clicked')
         $('#btnProduct' + id).addClass('clicked')
+    }
+
+
+
+    function findNullThings(index) {
+        if (index) {
+
+        } else {
+
+        }
     }
 
     function kerangkaProductDetail(data) {
@@ -1411,6 +1432,26 @@
         html += '<button class="btn btn-sm btn-success" hidden id="btnSaveProduct" onclick="saveUnit()"><i class="fa fa-save"></i></button>'
         html += '</div>'
         html += '</div>'
+
+        html += '<div class="row p-2">'
+        html += '<div class="col-2 fw-bolder align-self-center">Select Steps</div>'
+        html += '<div class="col-2 fw-bolder align-self-center">'
+        html += '<select class="form-control w-100" id="selectStepsEdit" title="Pilih Steps" onchange="changeSteps()">'
+        html += '<option value="">Pilih Steps</option>'
+        dataSteps.forEach(e => {
+            var select = ''
+            if (e.id == dataProduct.machine_step_id) {
+                select = 'selected'
+            }
+            html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
+        });
+        html += '</select>'
+        html += '</div>'
+        html += '<div class="col-1 p-0 fw-bolder">'
+        html += '<button class="btn btn-sm btn-success" hidden id="btnSaveSteps" onclick="saveSteps()"><i class="fa fa-save"></i></button>'
+        html += '</div>'
+        html += '</div>'
+
         html += '<div class="row p-2">'
         html += '<div class="col-2 fw-bolder align-self-center">Delete Product</div>'
         html += '<div class="col-3 fw-bolder">'
@@ -1419,6 +1460,10 @@
         html += '</div>'
         $('#isiLine').html(html)
         $('#selectUnitEdit').select2({
+            closeOnSelect: true,
+            width: '100%',
+        })
+        $('#selectStepsEdit').select2({
             closeOnSelect: true,
             width: '100%',
         })
@@ -1433,6 +1478,15 @@
         }
     }
 
+    function changeSteps() {
+        var id = $('#selectStepsEdit').val()
+        if (dataProduct.machine_step_id != id) {
+            $('#btnSaveSteps').removeAttr('hidden', true)
+        } else {
+            $('#btnSaveSteps').attr('hidden', true)
+        }
+    }
+
     function saveUnit() {
         var data = [{
             id: dataProduct.id,
@@ -1441,14 +1495,31 @@
         arrangeVariable('conversionMachineProduct', data)
     }
 
-    function deleteProduct() {
+    function saveSteps() {
+        var data = [{
+            id: dataProduct.id,
+            machine_step_id: $('#selectStepsEdit').val()
+        }]
+        arrangeVariable('conversionMachineProduct', data)
+    }
+
+    function deleteProduct(id = null, idProduct = null) {
+        if (!id) {
+            id = dataProduct.id
+            var name = dataProduct.item_product.alias
+        } else {
+            var dataMaster = data_item.find((v, k) => {
+                if (v.id == idProduct) return true
+            })
+            var name = dataMaster.alias
+        }
         var data = {
             deletedId: {
-                conversionMachineProduct: [dataProduct.id]
+                conversionMachineProduct: [id]
             }
         }
         Swal.fire({
-            text: 'Apakah Anda yakin ingin menghapus Produk ' + dataProduct.item_product.alias + ' ?',
+            text: 'Apakah Anda yakin ingin menghapus Produk ' + name + ' ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -1759,22 +1830,22 @@
 
     function modalItemProduct() {
         $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
         html_header += '<h5 class="modal-title">Tambah Produk</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row p-0 m-0">'
-        html_body += '<div class="col-4 p-0 border-end">'
+        html_body += '<div class="col-2 p-0 border-end">'
         html_body += '<div class="p-3">'
-        html_body += '<p class="m-0 small-text fw-bolder">List Product</p>'
+        html_body += '<p class="m-0 small-text fw-bolder">List Machine Steps</p>'
         html_body += '</div>'
-        html_body += '<input type="text" class="form-control" placeholder="Cari Produk" id="search_list_product" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;" onkeyup="onSearch(' + "'#search_list_product'" + ',' + "'.textAddProduct'" + ',' + "'#btnAddProduct'" + ')">'
-        html_body += '<div class="m-0" style="height: 400px;overflow-x: hidden;overflow-y: auto;" id="listItemOut">'
+        html_body += '<input type="text" class="form-control" placeholder="Cari Machine Steps" id="search_list_machine_steps" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;" onkeyup="onSearch(' + "'#search_list_machine_steps'" + ',' + "'.textAddMachineSteps'" + ',' + "'#btnAddMachineSteps'" + ')">'
+        html_body += '<div class="m-0" style="height: 400px;overflow-x: hidden;overflow-y: auto;" id="listMachineSteps">'
         html_body += '</div>'
         html_body += '</div>'
-        html_body += '<div class="col-8 p-5" id="detailItemOut">'
+        html_body += '<div class="col-10 p-5" id="detailItemOut">'
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body).addClass('p-0')
@@ -1782,59 +1853,210 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
         $('#detailItemOut').html(emptyReturn('Pilih Produk Terlebih Dahulu'))
-        listItemOut()
+        listMachineSteps()
     }
 
-    function listItemOut() {
+    function listMachineSteps() {
         var html = ''
-        data_item.forEach(e => {
-            var ada = false
-            if (data_machine_conversion) {
-                data_machine_conversion.conversion_machine_products.forEach(el => {
-                    if (e.id == el.item_product.id) {
-                        ada = true
-                    }
-                });
-            }
-            if (!ada) {
-                html += '<div class="card shadow-none border-end-0 border-start-0 card-hoper pointer card-add-product" style="border-radius:0px;" id="btnAddProduct' + e.id + '" onclick="detailItemOut(' + e.id + ')">'
-                html += '<div class="card-body p-3">'
-                html += '<div class="row">'
-                html += '<div class="col-10">'
-                html += '<p class="m-0 super-small-text fw-bolder textAddProduct" data-id="' + e.id + '">' + e.alias + '</p>'
-                html += '<p class="m-0 small-text fw-bold textAddProduct" data-id="' + e.id + '">' + e.name + '</p>'
-                html += '</div>'
-                html += '<div class="col-2 text-center align-self-center">'
-                html += '<i class="fa fa-chevron-right text-grey"></i>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            }
-        })
-        $('#listItemOut').html(html)
+        dataSteps.forEach(e => {
+            html += '<div class="card shadow-none border-end-0 border-start-0 card-hoper pointer card-add-product" style="border-radius:0px;" id="btnAddMachineSteps' + e.id + '" onclick="detailMachineSteps(' + e.id + ')">'
+            html += '<div class="card-body p-3">'
+            html += '<div class="row">'
+            html += '<div class="col-10 align-self-center">'
+            html += '<p class="m-0 small-text fw-bolder textAddMachineSteps" data-id="' + e.id + '">' + e.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-2 text-center align-self-center">'
+            html += '<i class="fa fa-chevron-right text-grey"></i>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        // data_item.forEach(e => {
+        //     var ada = false
+        //     if (data_machine_conversion) {
+        //         data_machine_conversion.conversion_machine_products.forEach(el => {
+        //             if (e.id == el.item_product.id) {
+        //                 ada = true
+        //             }
+        //         });
+        //     }
+        //     if (!ada) {
+        //         html += '<div class="card shadow-none border-end-0 border-start-0 card-hoper pointer card-add-product" style="border-radius:0px;" id="btnAddProduct' + e.id + '" onclick="detailItemOut(' + e.id + ')">'
+        //         html += '<div class="card-body p-3">'
+        //         html += '<div class="row">'
+        //         html += '<div class="col-10">'
+        //         html += '<p class="m-0 super-small-text fw-bolder textAddProduct" data-id="' + e.id + '">' + e.alias + '</p>'
+        //         html += '<p class="m-0 small-text fw-bold textAddProduct" data-id="' + e.id + '">' + e.name + '</p>'
+        //         html += '</div>'
+        //         html += '<div class="col-2 text-center align-self-center">'
+        //         html += '<i class="fa fa-chevron-right text-grey"></i>'
+        //         html += '</div>'
+        //         html += '</div>'
+        //         html += '</div>'
+        //         html += '</div>'
+        //     }
+        // })
+        $('#listMachineSteps').html(html)
     }
 
-    function detailItemOut(id) {
-        var data = data_item.find((v, k) => {
+    function detailMachineSteps(id) {
+        if (variableProduct.length) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Data Belum Tersimpan',
+                text: 'Simpan data terlebih dahulu sebelum pindah ke Step Lainnya'
+            });
+        } else {
+            doDetailMachineSteps(id)
+        }
+    }
+
+    function doDetailMachineSteps(id) {
+        var data = dataSteps.find((v, k) => {
             if (v.id == id) return true
         })
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-12 pb-4">'
-        html += '<p class="m-0 small"><b>' + data.alias + '</b></p>'
         html += '<h1 class="m-0 fw-bolder">' + data.name + '</h1>'
         html += '</div>'
-        html += '<div class="col-4 small">Kategori</div>'
-        html += '<div class="col-8 small fw-bolder">' + data.category.name + '</div>'
-        html += '<div class="col-4 small">Item Type</div>'
-        html += '<div class="col-8 small fw-bolder">' + data.item_type.name + '</div>'
-        html += '<div class="col-4 small">Stok Type</div>'
-        html += '<div class="col-8 small fw-bolder">' + data.stok_type.name + '</div>'
-        html += '<div class="col-4 small align-self-center">Unit / Satuan</div>'
+        html += '<div class="col-12">'
+
+        html += '<div class="row">'
+
+        html += '<div class="col-4">'
+        html += '<p class="m-0 small-text fw-bolder">List Produk</p>'
+        html += '<input type="text" class="form-control mt-2" placeholder="Cari Produk" id="search_add_product" autocomplete="off" style="border-radius:0.35rem;" onkeyup="onSearch(' + "'#search_add_product'" + ',' + "'.textAddProduct'" + ',' + "'#btnAddedProduct'" + ')">'
+        html += '<div id="fieldProduct" class="mt-2 pe-2" style="height: 350px;overflow-x: hidden;overflow-y: auto;">'
+        html += '</div>'
+        html += '</div>'
+        
+        html += '<div class="col-8">'
+        html += '<p class="m-0 small-text fw-bolder">List Selected Produk (<span class="text-orange" id="totalSelectedProduct">0</span>)</p>'
+        html += '<input type="text" class="form-control mt-2" placeholder="Cari Produk yang Terpilih" id="search_selected_product" autocomplete="off" style="border-radius:0.35rem;" onkeyup="onSearch(' + "'#search_selected_product'" + ',' + "'.textSelectedProduct'" + ',' + "'#btnSelectedProduct'" + ')">'
+        html += '<div id="fieldSelectedProduct" class="mt-2 pe-3" style="height: 390px;overflow-x: hidden;overflow-y: auto;">'
+        html += emptyReturn('Tidak Ada Data yang Dipilih')
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+
+        html += '</div>'
+        html += '<div class="col-12 text-end pt-2">'
+        html += '<button class="btn btn-success small-text btnSimpan" onclick="addAllProduct(' + id + ')">Simpan Perubahan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        $('#detailItemOut').html(html)
+        $('#selectProduct').select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        buttonItemOut(id)
+        fieldProduct(id)
+        fieldSelectedProduct(id)
+    }
+
+    function fieldProduct(idSteps) {
+        var html = ''
+        data_item.forEach(e => {
+            var checkData = data_machine_conversion.conversion_machine_products.find((v, k) => {
+                if (v.item_product.id == e.id && v.machine_step_id == idSteps) return true
+            })
+            if (!checkData) {
+                html += '<div class="card shadow-none pointer card-hoper mb-2 card-added-product" id="btnAddedProduct' + e.id + '" onclick="insertVariableProduct(' + idSteps + ',' + e.id + ')">'
+                html += '<div class="card-body">'
+                html += '<div class="row">'
+                html += '<div class="col-10">'
+                html += '<p class="m-0 super-small-text fw-bolder textAddProduct" data-id="' + e.id + '">' + e.alias + '</p>'
+                html += '<p class="m-0 super-small-text fw-bold textAddProduct" data-id="' + e.id + '">' + e.name + '</p>'
+                html += '</div>'
+                html += '<div class="col-2 align-self-center text-center">'
+                html += '<i class="fa fa-plus text-grey"></i>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            }
+        })
+        $('#fieldProduct').html(html)
+    }
+
+
+    function insertVariableProduct(idSteps, idProduct) {
+        var checkProduct = variableProduct.find((v, k) => {
+            if (v.id == idProduct) return true
+        })
+        if (!checkProduct) {
+            // add product
+            $('#btnAddedProduct' + idProduct).addClass('clicked')
+            var dataProduct = data_item.find((v, k) => {
+                if (v.id == idProduct) return true
+            })
+            if (dataProduct) {
+                variableProduct.push(dataProduct)
+            }
+        } else {
+            // remove product
+            $('#btnAddedProduct' + idProduct).removeClass('clicked')
+            var availProduct = variableProduct.filter((v, k) => {
+                if (v.id != idProduct) return true
+            })
+            variableProduct = deepCopy(availProduct)
+        }
+        fieldSelectedProduct(idSteps)
+    }
+
+    function fieldSelectedProduct(idSteps) {
+        var dataProduct = data_machine_conversion.conversion_machine_products.filter((v, k) => {
+            if (v.machine_step_id == idSteps) return true
+        })
+        var total = 0
+        var html = ''
+        if (variableProduct.length) {
+            variableProduct.forEach(el => {
+                html += kerangkaSelectedProduct(el)
+                total++
+            });
+        }
+        if (dataProduct.length) {
+            dataProduct.forEach(el => {
+                var dataMaster = data_item.find((v, k) => {
+                    if (v.id == el.item_product.id) return true
+                })
+                html += kerangkaSelectedProduct(dataMaster, el)
+                total++
+            });
+        }
+        $('#totalSelectedProduct').html(total)
+        $('#fieldSelectedProduct').html(html)
+    }
+
+    function kerangkaSelectedProduct(data, dataEdit = null) {
+        var html = ''
+        html += '<div class="card shadow-none pointer card-hoper mb-2" id="btnSelectedProduct'+data.id+'">'
+        if (dataEdit) {
+            // console.log(dataEdit)
+            html += '<span class="position-absolute top-50 start-100 translate-middle bg-danger border border-light rounded-circle pointer" style="height: 25px;width: 25px;text-align: center;" onclick="deleteProduct(' + dataEdit.id + ',' + data.id + ')"><i class="fa fa-trash text-white small-text"></i></span>'
+        }
+        html += '<div class="card-body">'
+
+        html += '<div class="row">'
+        html += '<div class="col-12 pb-4">'
+        html += '<p class="m-0 super-small-text"><b class="textSelectedProduct" data-id="' + data.id + '">' + data.alias + '</b></p>'
+        html += '<h1 class="m-0 fw-bolder small-text textSelectedProduct" data-id="' + data.id + '">' + data.name + '</h1>'
+        html += '</div>'
+        html += '<div class="col-4 super-small-text">Kategori</div>'
+        html += '<div class="col-8 super-small-text fw-bolder">' + data.category.name + '</div>'
+        html += '<div class="col-4 super-small-text">Item Type</div>'
+        html += '<div class="col-8 super-small-text fw-bolder">' + data.item_type.name + '</div>'
+        html += '<div class="col-4 super-small-text">Stok Type</div>'
+        html += '<div class="col-8 super-small-text fw-bolder">' + data.stok_type.name + '</div>'
+        html += '<div class="col-4 super-small-text align-self-center">Unit / Satuan</div>'
         // ' + data.unit.name + '
-        html += '<div class="col-8 small fw-bolder">'
-        html += '<select class="form-select form-select-sm" id="selectUnit" title="Pilih Unit">'
+        html += '<div class="col-8 super-small-text fw-bolder">'
+        html += '<select class="form-select form-select-sm" id="selectUnit' + data.id + '" title="Pilih Unit">'
         data_unit.forEach(e => {
             var select = ''
             if (e.id == data.unit.id) {
@@ -1844,18 +2066,16 @@
         });
         html += '</select>'
         html += '</div>'
-        html += '<div class="col-12 text-end pt-5">'
-        html += '<button class="btn btn-outline-success w-100 small-text btnSimpan" onclick="addProduct(' + id + ')">Lanjut Tambahkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '</div>'
+
         html += '</div>'
         html += '</div>'
-        $('#selectUnit').selectpicker();
-        $('#detailItemOut').html(html)
-        buttonItemOut(id)
+        return html
     }
 
     function buttonItemOut(id) {
         $('.card-add-product').removeClass('clicked')
-        $('#btnAddProduct' + id).addClass('clicked')
+        $('#btnAddMachineSteps' + id).addClass('clicked')
     }
 
     function deepCopy(obj) {
@@ -1874,6 +2094,36 @@
             item_id_product: id,
             unit_id: $('#selectUnit').val()
         }]
+        arrangeVariable('conversionMachineProduct', data)
+    }
+
+    function addAllProduct(idSteps) {
+        var data = []
+        var a = 0
+        variableProduct.forEach(e => {
+            data.push({
+                id: createCodeId() + a,
+                conversion_machine_id: data_machine_conversion.id,
+                item_id_product: e.id,
+                unit_id: $('#selectUnit' + e.id).val(),
+                machine_step_id: idSteps,
+            })
+            a++
+        })
+        var dataProduct = data_machine_conversion.conversion_machine_products.filter((v, k) => {
+            if (v.machine_step_id == idSteps) return true
+        })
+        if (dataProduct.length) {
+            dataProduct.forEach(e => {
+                data.push({
+                    id: e.id,
+                    conversion_machine_id: data_machine_conversion.id,
+                    item_id_product: e.item_product.id,
+                    unit_id: $('#selectUnit' + e.item_product.id).val(),
+                    machine_step_id: idSteps,
+                })
+            })
+        }
         arrangeVariable('conversionMachineProduct', data)
     }
 
@@ -1925,12 +2175,11 @@
             },
             success: function(response) {
                 $(button).prop("disabled", false);
-                console.log(variable)
                 if ((!variable == 'conversionMachineMaterialGroup' && !variable == 'conversionMachineWaste') || variable == 'conversionMachineProduct') {
-                    console.log('test')
                     $('#modal').modal('hide')
                 }
                 data_add_waste_group = []
+                variableProduct = []
                 loadData(variable)
             }
         });
@@ -2151,13 +2400,25 @@
         if (dataEdit) {
             var qtyMaterialGroup = dataEdit.qty
             var selectUnit = dataEdit.unit_id
+            if (dataEdit.is_material_main) {
+                var checked = 'checked'
+            } else {
+                var checked = ''
+            }
         } else {
             var qtyMaterialGroup = ''
             var selectUnit = ''
+            var checked = ''
         }
         html += '<div class="row">'
-        html += '<div class="col-6 align-self-center"><input class="form-control form-control-sm qtyMaterialGroup" id="qtyMaterialGroup" data-idmaterial="' + data.id + '" value="' + qtyMaterialGroup + '" autocomplete="off"></div>'
-        html += '<div class="col-6 ps-0 align-self-center">'
+        html += '<div class="col-6">'
+        html += '<input class="form-control form-control-sm qtyMaterialGroup" id="qtyMaterialGroup" data-idmaterial="' + data.id + '" value="' + qtyMaterialGroup + '" autocomplete="off">'
+        html += '<div class="form-check d-flex align-items-center">'
+        html += '<input class="form-check-input is_material_main" style="width:10px;height:10px;" type="radio" name="is_material_main" id="is_material_main' + data.id + '" ' + checked + '>'
+        html += '<label class="form-check-label super-small-text mt-1 ms-2" for="is_material_main' + data.id + '">Material Utama</label>'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-6 ps-0">'
         html += '<select class="form-select form-select-sm selectUnit" id="selectUnit" title="Pilih Unit">'
         html += '<option value="">Pilih</option>'
         data_unit.forEach(e => {
@@ -2205,11 +2466,18 @@
         if (findNoData(qtyMaterialGroup) && findNoData(selectUnit)) {
             var data = []
             for (let i = 0; i < selectUnit.length; i++) {
+                var is_material_main = $('#is_material_main' + idMaterialGroup[i] + ':checked').val()
+                if (is_material_main) {
+                    is_material_main = 1
+                } else {
+                    is_material_main = 0
+                }
                 data.push({
                     conversion_machine_product_id: dataProduct.id,
                     material_group_id: idMaterialGroup[i],
                     qty: qtyMaterialGroup[i],
                     unit_id: selectUnit[i],
+                    is_material_main: is_material_main,
                     operator: '*',
                 })
             }

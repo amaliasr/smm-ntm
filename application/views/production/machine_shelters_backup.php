@@ -26,10 +26,6 @@
         color: #B2B2B2;
     }
 
-    .bg-dark-grey {
-        color: #D8D9CF !important;
-    }
-
     .bg-grey {
         background-color: #EDEDED !important;
         color: #B2B2B2;
@@ -295,10 +291,6 @@
 
     .super-small-text {
         font-size: 9px;
-    }
-
-    .pro-super-small-text {
-        font-size: 7px;
     }
 
     .has-search .form-control {
@@ -919,6 +911,10 @@
         background-color: #f0ad4e;
     }
 
+    .bg-dark-grey {
+        color: white;
+        background-color: #5C5470 !important;
+    }
 
     .circle-shape {
         width: 70px;
@@ -1050,61 +1046,6 @@
         width: 100%;
         position: absolute;
         background: transparent;
-    }
-
-    .scro::-webkit-scrollbar {
-        display: none;
-    }
-
-    .has-search .form-control {
-        padding-left: 2.375rem;
-        border-radius: 20px;
-    }
-
-    .has-search .form-control-feedback {
-        position: absolute;
-        z-index: 2;
-        display: block;
-        width: 2.4rem;
-        height: 2rem;
-        line-height: 2rem;
-        text-align: center;
-        pointer-events: none;
-        color: #aaa;
-    }
-
-    .card-item-stock {
-        transition: 0.5s;
-    }
-
-    .card-item-stock:hover {
-        transform: translateY(-20px);
-        z-index: 9999999;
-    }
-
-    .bd-callout {
-        padding: 1.25rem;
-        margin-top: 1.25rem;
-        margin-bottom: 1.25rem;
-        border: 1px solid #e9ecef;
-        border-left-width: 0.25rem;
-        border-radius: 0.25rem;
-    }
-
-    .bd-callout-warning {
-        border-left-color: #FF9843 !important;
-    }
-
-    .timeline.timeline-sm .timeline-item .timeline-item-content {
-        padding-bottom: 1rem;
-    }
-
-    .timeline .timeline-item .timeline-item-content {
-        border-left: solid 0.15rem #e5e5e5 !important;
-    }
-
-    .timeline-item-marker-indicator {
-        background-color: #e5e5e5 !important;
     }
 </style>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -1262,7 +1203,7 @@
     }
 
     function empty(location, text, height) {
-        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 150px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
     }
 
     function emptyText(location, text) {
@@ -1311,16 +1252,12 @@
         var nilai = ''
         if (remainingStik) {
             if (trays) {
-                if (satuanBesar != satuanKecil) {
-                    nilai = number_format(roundToTwo(trays)) + ' <span class="text-dark-grey">' + satuanBesar + '</span> ' + number_format(roundToTwo(remainingStik)) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
-                } else {
-                    nilai = number_format(roundToTwo(parseFloat(remainingStik) + parseFloat(trays))) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
-                }
+                nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span> ' + number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
             } else {
-                nilai = number_format(roundToTwo(remainingStik)) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
+                nilai = number_format(remainingStik) + ' <span class="text-dark-grey">' + satuanKecil + '</span>'
             }
         } else {
-            nilai = number_format(roundToTwo(trays)) + ' <span class="text-dark-grey">' + satuanBesar + '</span>'
+            nilai = number_format(trays) + ' <span class="text-dark-grey">' + satuanBesar + '</span>'
         }
         return nilai
     }
@@ -1366,42 +1303,7 @@
     var dataListWarehouse
     var dataDetail
     var itemIdSelected = []
-    var choosenId = 4
-    var menuKategoriTransaksi = [{
-        'index': 0,
-        'name': 'Ambil Material',
-        'text': 'Pekerja Verpack mengambil material pertama untuk setoran baru nya sesuai permintaan dari mandor',
-        'icon': 'send_box',
-    }, {
-        'index': 1,
-        'name': 'Tukar Material',
-        'text': 'Pekerja Verpack menukar material yang rusak dengan yang baru',
-        'icon': 'swap',
-    }]
-    // var variableSave = {
-    //     materialPickup: [{
-    //         id,
-    //         warehouse_id,
-    //         employee_id_pickup,
-    //         employee_id_admin,
-    //         is_pickup,
-    //         pickup_at,
-    //         note
-    //     }],
-    //     materialPickupDetail: [{
-    //         id,
-    //         material_pickup_id,
-    //         item_id,
-    //         unit_id_input,
-    //         qty_input,
-    //         unit_id,
-    //         qty
-    //     }],
-    //     deletedId: {
-    //         materialPickup: [],
-    //         materialPickupDetail: []
-    //     }
-    // }
+    var choosenId
 
     $(document).ready(function() {
         loadData()
@@ -1474,7 +1376,6 @@
         choosenId = id
         colorizedMenu(id)
         var data = {
-            // warehouseId: 1,
             warehouseId: id,
         }
         if (start || end) {
@@ -1525,7 +1426,6 @@
         html += '<b>' + data.name + '</b>'
         html += '</div>'
         html += '<div class="col-6 text-end align-self-center">'
-        html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none me-2" onclick="scanQR()"><i class="fa fa-qrcode me-2"></i>QR Scanner</button>'
         html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>'
         html += '<div class="btn-group">'
         html += '<button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false">'
@@ -1537,31 +1437,24 @@
         html += '</div>'
 
         html += '</div>'
-        html += '<div class="col-12 pt-3">'
+        html += '<div class="col-3 pt-3">'
         html += '<div class="card shadow-none">'
-        html += '<div class="card-body pt-3">'
+        html += '<div class="card-body p-0 pt-3">'
         html += '<div class="row">'
         html += '<div class="col align-self-center">'
-        html += '<b class="m-0 small-text">Item Stock</b>'
+        html += '<b class="m-0 ms-3 small-text">Item Stock</b>'
         html += '</div>'
-        html += '<div class="col-3 align-self-center text-end">'
-        html += ' <div class="form-group has-search me-2">'
-        html += '<span class="fa fa-search form-control-feedback"></span>'
-        html += '<input type="text" class="form-control-sm form-control" placeholder="Search Item" id="search_nama" autocomplete="off">'
+        html += '<div class="col align-self-center text-end">'
+        // html += '<b class="m-0 me-3 small-text">Item Stock</b>'
         html += '</div>'
         html += '</div>'
-        html += '</div>'
-        // html += '<div class="mt-2" id="listCurrentStock">'
-        html += '<div class="mt-0">'
-        // 
-        html += '<div class="d-flex scro" style="min-width: 1200px;overflow-x: auto;overflow-y: hidden;padding-top:20px;padding-bottom:5px;" id="listCurrentStock">'
-        html += '</div>'
-        // 
+        html += '<input type="text" class="form-control mt-3" placeholder="Search" id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">'
+        html += '<div class="m-0" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="listCurrentStock">'
         html += '</div>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-12 pt-3">'
+        html += '<div class="col-9 pt-3">'
         html += '<div class="card shadow-none h-100">'
         html += '<div class="card-body p-0 pt-3">'
         html += '<div class="row">'
@@ -1576,7 +1469,7 @@
         html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none me-2" onclick="filterCanvas()"><i class="fa fa-filter"></i></button>'
         html += '</div>'
 
-        html += '<div class="col-12 pt-3">'
+        html += '<div class="col-12 pt-5">'
         html += '<table class="table table-sm table-hover w-100" id="tableForm">'
         html += '<thead>'
         html += '<tr>'
@@ -1669,78 +1562,30 @@
     function listCurrentStock() {
         var html = ''
         var a = 0
-        if (dataDetail.mutationSummary.length) {
-            dataDetail.mutationSummary.forEach(e => {
-                html += listCurrentStock_cardModel(a, e)
+        if (dataDetail.currentStock.length) {
+            dataDetail.currentStock.forEach(e => {
+                html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
+                html += '<div class="card-body">'
+                html += '<div class="row">'
+                html += '<div class="col">'
+                html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + e.item.code + '</p>'
+                html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + e.item.name + '</b></p>'
+                html += '</div>'
+                html += '<div class="col-auto text-end align-self-center">'
+                var nilaiConversi = conversiToTarget(e.qty, e.unit_target.multiplier, e.unit_target.name, e.unit_input.name)
+                html += '<h5 class="m-0 text-orange small-text"><b>' + nilaiConversi + '</b></h5>'
+                // html += '<p class="m-0 small-text">' + e.unit.name + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
                 a++
             })
             $('#listCurrentStock').html(html)
-            draggableTables('listCurrentStock')
         } else {
             emptyText('#listCurrentStock', 'Tidak Ada Data yang Tersedia')
         }
         tableDetail()
-    }
-
-    function listCurrentStock_cardModel(a, data) {
-        var dataSummary = dataDetail.mutationSummary.find((v, k) => {
-            if (v.item.id == data.item.id) return true
-        })
-        var html = ''
-        html += '<div class="card shadow-sm me-2 card-item-stock" style="min-width:180px;max-width:180px;" id="card_search' + a + '">'
-        html += '<div class="card-body p-0 m-0">'
-        html += '<div class="row p-0 m-0">'
-        html += '<div class="col-12 p-3 border-bottom" style="height:80px;">'
-        var name = data.item.alias
-        if (!name) {
-            name = shortenText(data.item.name, 30)
-        }
-        html += '<p class="mb-1 fw-bolder small lh-1 text_search" data-id="' + a + '">' + name + '</p>'
-        html += '<p class="m-0 small-text">' + data.unit_target.name + '</p>'
-        html += '</div>'
-        html += '<div class="col-12 p-3">'
-
-        html += '<p class="m-0 super-small-text fw-bold">Detail</p>'
-        html += '<div class="row mt-1">'
-        html += '<div class="col-5 pe-0 super-small-text">S. Awal</div>'
-        var stockAwal = conversiToTarget(dataSummary.stok_awal, dataSummary.unit_target.multiplier, dataSummary.unit_target.name, dataSummary.unit_input.name)
-        html += '<div class="col-7 ps-0 align-self-center pro-super-small-text fw-bolder text-end">' + stockAwal + '</div>'
-        html += '<div class="col-5 pe-0 super-small-text"><i class="me-2 fa fa-caret-down text-success"></i>In</div>'
-        var stockIn = conversiToTarget(dataSummary.qty_in, dataSummary.unit_target.multiplier, dataSummary.unit_target.name, dataSummary.unit_input.name)
-        html += '<div class="col-7 ps-0 align-self-center pro-super-small-text fw-bolder text-end">' + stockIn + '</div>'
-        html += '<div class="col-5 pe-0 super-small-text"><i class="me-2 fa fa-caret-up text-danger"></i>Out</div>'
-        var stockOut = conversiToTarget(dataSummary.qty_out, dataSummary.unit_target.multiplier, dataSummary.unit_target.name, dataSummary.unit_input.name)
-        html += '<div class="col-7 ps-0 align-self-center pro-super-small-text fw-bolder text-end">' + stockOut + '</div>'
-        html += '<div class="col-5 pe-0 super-small-text">S. Akhir</div>'
-        var stockAkhir = conversiToTarget(dataSummary.stok_akhir, dataSummary.unit_target.multiplier, dataSummary.unit_target.name, dataSummary.unit_input.name)
-        html += '<div class="col-7 ps-0 align-self-center pro-super-small-text fw-bolder text-end">' + stockAkhir + '</div>'
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        return html
-    }
-
-    function listCurrentStock_oldModel(a, data) {
-        var html = ''
-        html += '<div class="card shadow-none border-end-0 border-start-0" style="border-radius:0px;" id="card_search' + a + '">'
-        html += '<div class="card-body">'
-        html += '<div class="row">'
-        html += '<div class="col">'
-        html += '<p class="m-0 super-small-text text_search" data-id="' + a + '">' + data.item.code + '</p>'
-        html += '<p class="m-0 super-small-text"><b class="text_search" data-id="' + a + '">' + data.item.name + '</b></p>'
-        html += '</div>'
-        html += '<div class="col-auto text-end align-self-center">'
-        var nilaiConversi = conversiToTarget(data.qty, data.unit_target.multiplier, data.unit_target.name, data.unit_input.name)
-        html += '<h5 class="m-0 text-orange small-text"><b>' + nilaiConversi + '</b></h5>'
-        // html += '<p class="m-0 small-text">' + data.unit.name + '</p>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        return html
     }
 
     function ubahTeks(input) {
@@ -1803,24 +1648,23 @@
                 html += '</td>'
                 html += '</tr>'
             });
-            $('#tableDetail').html(html)
-            $('#tableForm').DataTable({
-                ordering: false, // Menonaktifkan pengurutan
-                pageLength: 200,
-                scrollY: "500px",
-                scrollX: true,
-                scrollCollapse: true,
-                paging: false,
-                fixedHeader: true,
-                searching: false,
-                info: false,
-            })
         } else {
             html += '<tr>'
             html += '<td class="text-center p-5" colspan="11"><i class="small-text">Tidak Ada Data yang Tersedia</i></td>'
             html += '</tr>'
-            $('#tableDetail').html(html)
         }
+        $('#tableDetail').html(html)
+        $('#tableForm').DataTable({
+            ordering: false, // Menonaktifkan pengurutan
+            pageLength: 200,
+            scrollY: "500px",
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            fixedHeader: true,
+            searching: false,
+            info: false,
+        })
     }
 
     function viewDetail() {
@@ -1833,7 +1677,7 @@
         var html_body = '';
         html_body += '<div class="row p-3">'
         html_body += '</div>'
-        $('#modalBody').html(html_body).removeClass('pt-0 pb-0 p-0')
+        $('#modalBody').html(html_body)
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
@@ -1954,7 +1798,7 @@
 
         html_body += '</div>'
         html_body += '</div>'
-        $('#modalBody').html(html_body).addClass('pt-0 pb-0').removeClass('p-0')
+        $('#modalBody').html(html_body).addClass('pt-0 pb-0')
         $('.nominal').number(true);
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
@@ -2244,7 +2088,7 @@
         }
         html_body += '</div>'
         html_body += '</div>'
-        $('#modalBody').html(html_body).removeClass('pt-0 pb-0 p-0')
+        $('#modalBody').html(html_body).removeClass('pt-0 pb-0')
         $('.nominal').number(true);
         $('#dateTransaction').datepicker({
             format: "yyyy-mm-dd",
@@ -2584,7 +2428,7 @@
         html_body += '</div>'
 
         html_body += '</div>'
-        $('#modalBody').html(html_body).removeClass('pt-0 pb-0 p-0')
+        $('#modalBody').html(html_body)
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
@@ -2661,299 +2505,5 @@
         html += '</div>'
         html += '</div>'
         return html
-    }
-
-    function scanQR() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable').removeClass('modal-lg')
-        var html_header = '';
-        html_header += '<h5 class="modal-title">QR Scanner</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row p-3 pb-5">'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<p class="m-0 small" id="dateCurrent">Rabu, 28 Februari 2024</p>'
-        html_body += '</div>'
-        html_body += '<div class="col-12 p-5 text-center">'
-        html_body += '<img src="<?= base_url() ?>assets/image/svg/barcode.svg" style="width: 30%">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 pt-5 px-5">'
-        html_body += '<input class="form-control rounded-pill form-leave" style="text-align: center;" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 px-5 pt-2">'
-        html_body += '<button class="btn btn-primary rounded-pill w-100" onclick="scannedPerson()">Cari</button>'
-        html_body += '</div>'
-        html_body += '<div class="col-12 px-5">'
-        html_body += '<div class="bd-callout bd-callout-warning super-small-text">Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body).removeClass('pt-0 pb-0 p-0')
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        $('#modalFooter').html(html_footer).addClass('d-none');
-        setTimeout(function() {
-            $('#codeQR').focus();
-        }, 100);
-        $("#codeQR").keypress(function(event) {
-            // Periksa apakah tombol yang ditekan adalah 'Enter' (kode 13)
-            if (event.keyCode === 13) {
-                scannedPerson()
-            }
-        });
-    }
-
-    function scannedPerson() {
-        var eid = $('#codeQR').val()
-        if (dataDetail.employeeWorkerPickup.length && dataDetail.employeeWorkerPickup) {
-            var data = deepCopy(dataDetail.employeeWorkerPickup.find((v, k) => {
-                if (v.eid == eid) return true
-            }))
-            if (data) {
-                formScanPerson(data)
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Tidak Ada Data'
-                });
-            }
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Gudang ini tidak memiliki akses untuk Material Pickup Worker'
-            });
-        }
-    }
-
-    function formScanPerson(data) {
-        console.log(data)
-        $('#modalDialog').addClass('modal-xl')
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Scan QR - 28 Februari 2024</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = ''
-        html_body += '<div class="row p-0 m-0">'
-
-        html_body += '<div class="col-8 p-5" id="detailSteps">'
-
-        html_body += '</div>'
-        html_body += '<div class="col-4 p-5 border-start">'
-        html_body += '<div class="row">'
-
-        html_body += '<div class="col-3">'
-        html_body += '<div class="card shadow-none bg-orange">'
-        html_body += '<div class="card-body p-2 text-center">'
-        var rowcode = '-'
-        if (data.row_code) {
-            rowcode = data.row_code
-        }
-        html_body += '<p class="m-0 small text-white">' + rowcode + '</p>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '<div class="col-9">'
-        html_body += '<p class="m-0 small text-orange">' + data.job_title_name + '</p>'
-        html_body += '<p class="m-0 h1 fw-bolder">' + data.name + '</p>'
-        html_body += '</div>'
-
-        html_body += '<div class="col-12">'
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12 mt-5 mb-2">'
-        html_body += '<p class="m-0 fw-bolder small-text">History Transation</p>'
-        html_body += '</div>'
-        html_body += '<div class="col-12" style="height: 400px;overflow-x: hidden;overflow-y: auto;" id="historyPerson">'
-        html_body += '</div>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        $('#modalBody').html(html_body).addClass('pt-0 pb-0 p-0')
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        $('#modalFooter').html(html_footer).removeClass('d-none');
-        firstStep()
-        if (data.material_pickups) {
-            historyPerson(data)
-        } else {
-            empty('#historyPerson', 'Tidak Ada History')
-        }
-    }
-
-    function firstStep() {
-        var html = ''
-        html += '<div class="row">'
-        html += '<div class="col-12 pt-5">'
-        html += '<p class="fw-bolder">Kategori Transaksi</p>'
-        html += '</div>'
-        html += '<div class="col-12 pt-5">'
-
-        menuKategoriTransaksi.forEach(e => {
-            html += '<div class="card shadow-sm card-hoper mb-3" onclick="nextStep(' + e.index + ')">'
-            html += '<div class="card-body">'
-            html += '<div class="row">'
-            html += '<div class="col-2">'
-            html += '<img src="<?= base_url() ?>assets/image/svg/' + e.icon + '.svg" style="width: 100%">'
-            html += '</div>'
-            html += '<div class="col-9 px-5 align-self-center">'
-            html += '<p class="fw-bolder h2">' + e.name + '</p>'
-            html += '<p class="m-0 small-text">' + e.text + '</p>'
-            html += '</div>'
-            html += '<div class="col-1 align-self-center text-center">'
-            html += '<i class="fa fa-chevron-right fa-2x text-grey"></i>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        });
-
-        html += '</div>'
-        html += '</div>'
-        $('#detailSteps').html(html)
-    }
-
-    function nextStep(index) {
-        var dataKategori = menuKategoriTransaksi.find((v, k) => {
-            if (v.index == index) return true
-        })
-        secondStep(dataKategori)
-    }
-
-    function timeNow() {
-        var d = new Date();
-        var jam = d.getHours();
-        var menit = d.getMinutes();
-        if (menit < 10) {
-            menit = "0" + menit;
-        }
-        if (jam < 10) {
-            jam = "0" + jam;
-        }
-        var time = jam + ":" + menit;
-        return time;
-    }
-
-    function secondStep(dataKategori) {
-        var html = ''
-        html += '<div class="row">'
-
-        html += '<div class="col-2 text-center">'
-        html += '<img src="<?= base_url() ?>assets/image/svg/' + dataKategori.icon + '.svg" style="width: 50%">'
-        html += '</div>'
-        html += '<div class="col-8 align-self-center">'
-        html += '<p class="m-0 fw-bolder h2">' + dataKategori.name + '</p>'
-        html += '<p class="m-0 small-text">' + dataKategori.text + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-12 mt-5">'
-
-        html += '<div class="card shadow-sm">'
-        html += '<div class="card-body">'
-
-        html += '<div class="row justify-content-center">'
-        html += '<div class="col text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Brand</p>'
-        html += '<p class="m-0 text-orange fw-bolder">Armour Kretek 12</p>'
-        html += '</div>'
-        html += '<div class="col border-start border-end text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Bahan</p>'
-        html += '<p class="m-0 text-orange fw-bolder">Bandrol</p>'
-        html += '</div>'
-        html += '<div class="col text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Setoran</p>'
-        html += '<p class="m-0 text-orange fw-bolder">Setoran 1</p>'
-        html += '</div>'
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-
-        html += '</div>'
-
-        html += '<div class="col-12 mt-2">'
-        html += '<div class="card shadow-sm">'
-        html += '<div class="card-body">'
-
-        html += '<div class="row justify-content-end">'
-        html += '<div class="col-12 mb-5">'
-        html += '<p class="m-0 fw-bolder small-text">Form Pengisian</p>'
-        html += '</div>'
-        html += '<div class="col-6 mb-2 text-end align-self-center"><p class="m-0 fw-bolder">Jumlah</p></div>'
-        html += '<div class="col-6 mb-2">'
-        html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="" tabindex="1" role="dialog">'
-        html += '</div>'
-        html += '<div class="col-6 mb-2 text-end align-self-center"><p class="m-0 fw-bolder">Jam</p></div>'
-        html += '<div class="col-6 mb-2">'
-        var time = timeNow()
-        html += '<input class="form-control form-control-lg form-invisible-line" style="text-align:right" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
-        html += '</div>'
-        html += '<div class="col-6 align-self-end">'
-        html += '<p class="small-text m-0 text-danger pointer">Hapus Data ?</p>'
-        html += '</div>'
-        html += '<div class="col-6 text-end">'
-        html += '<button class="btn btn-success btn-lg">Simpan</button>'
-        html += '</div>'
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-
-        html += '</div>'
-        $('#detailSteps').html(html)
-        $('.nominal').on('keypress', handleNumericInput);
-        $('#jumlahGood').removeAttr('onblur', 'this.focus()')
-    }
-
-    function handleNumericInput(event) {
-        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
-        if (allowChars.indexOf(event.which) === -1) {
-            event.preventDefault();
-        }
-
-        var inputValue = $(this).val();
-        $(this).val(inputValue.replace(/[^\d]/g, ''));
-    }
-
-    function historyPerson(data) {
-
-        var html = ''
-        html += '<div class="timeline timeline-sm mt-2">'
-
-        data.material_pickups.forEach(e => {
-            e.material_pickup_details.forEach(el => {
-                html += '<div class="timeline-item">'
-                html += '<div class="timeline-item-marker">'
-                html += '<div class="timeline-item-marker-indicator"></div>'
-                html += '</div>'
-                html += '<div class="timeline-item-content" style="font-size: 11px;">'
-                html += '<b>' + formatJamMenit(e.pickup_at) + '</b>'
-                html += '<div class="card shadow-none">'
-                html += '<div class="card-body p-3">'
-                html += '<div class="row">'
-                html += '<div class="col-8">'
-                html += '<p class="small-text m-0"><span class="text-orange fw-bolder">AMBIL</span> - Setoran 1</p>'
-                html += '<p class="m-0 fw-bolder">' + el.item.name + '</p>'
-                html += '</div>'
-                html += '<div class="col-4 text-end">'
-                html += '<p class="m-0 small-text text-orange">' + el.qty + '</p>'
-                html += '<p class="m-0 small-text">' + el.unit.name + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            });
-        });
-
-        html += '</div>'
-        $('#historyPerson').html(html)
     }
 </script>

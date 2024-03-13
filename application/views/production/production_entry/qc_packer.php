@@ -216,6 +216,11 @@
         border-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
     }
 
+    .bg-outline-orange {
+        border: 1px solid #f76400 !important;
+        border-color: #f76400 !important;
+    }
+
     .bg-light-warning {
         background-color: #fdf5e5;
         border-color: #f4a100;
@@ -286,6 +291,91 @@
             padding: -100;
         }
     }
+
+    .bg-radius-orange {
+        border-top-left-radius: 50rem !important;
+        border-bottom-left-radius: 50rem !important;
+        background-color: #f76400 !important;
+        color: white !important;
+        border-color: #f76400 !important;
+    }
+
+    .bg-radius-primary {
+        border-top-left-radius: 50rem !important;
+        border-bottom-left-radius: 50rem !important;
+        background-color: #0061f2 !important;
+        color: white !important;
+        border-color: #0061f2 !important;
+    }
+
+    /* progress step */
+
+    #progress {
+        position: relative;
+    }
+
+    #progress-bar {
+        position: absolute;
+        background: green;
+        height: 5px;
+        width: 0%;
+        top: 50%;
+        left: 0;
+    }
+
+    #progress-num {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        /* justify-content: space-between; */
+    }
+
+    #progress-num::before {
+        content: "";
+        background-color: lightgray;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 5px;
+        width: 100%;
+        z-index: -1;
+    }
+
+    #progress-num .steps {
+        border: 1px solid lightgray;
+        border-radius: 100%;
+        width: 25px;
+        height: 25px;
+        line-height: 22px;
+        text-align: center;
+        background-color: #fff;
+        font-family: sans-serif;
+        font-size: 10px;
+        position: relative;
+        z-index: 1;
+        color: #69707a !important;
+        margin-right: 2px;
+    }
+
+    #progress-num .steps.active {
+        border-color: #87b972 !important;
+        background-color: #87b972 !important;
+        color: white !important;
+    }
+
+    .bd-callout {
+        padding: 1.25rem;
+        margin-top: 1.25rem;
+        margin-bottom: 1.25rem;
+        border: 1px solid #e9ecef;
+        border-left-width: 0.25rem;
+        border-radius: 0.25rem;
+    }
+
+    .bd-callout-warning {
+        border-left-color: #FF9843 !important;
+    }
 </style>
 <script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
 
@@ -303,7 +393,7 @@
                     <div class="col-auto text-end">
                         <div class="row">
                             <div class="col-auto pe-2">
-                                <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="triggerQR()" id="btnQR">CAMERA<i class="fa fa-camera ms-2 text-green"></i></button>
+                                <!-- <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="triggerQR()" id="btnQR">CAMERA<i class="fa fa-camera ms-2 text-green"></i></button> -->
                             </div>
                             <div class="col-auto ps-0 pe-0">
                                 <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="openModalScanner()">SCANNER<i class="fa fa-qrcode ms-2 text-green"></i></button>
@@ -357,7 +447,7 @@
                     </div>
                 </div>
                 <!-- <div> -->
-                <div style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="workerProgress">
+                <div style="height: 400px;overflow-x: hidden;overflow-y: auto;" id="workerProgress">
                 </div>
                 <!-- </div> -->
             </div>
@@ -374,6 +464,130 @@
                     </div>
                 </div>
                 <div class="row pt-4" id="detailWorker">
+                    <div class="col-9">
+                        <div class="row">
+                            <div class="col-2">
+                                <h1 class="m-0 fw-bolder"><span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">A1</span></h1>
+                            </div>
+                            <div class="col-10">
+                                <h1 class="m-0 fw-bolder">AMALIA SAFIRA</h1>
+                                <p class="m-0"><b class="text-dark-grey">Total Setoran </b><span class="text-warning fw-bold">2,000</span> Pack</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card bg-warning">
+                            <div class="card-body text-center text-white p-2">
+                                <p class="m-0 super-small-text">Setoran Ke</p>
+                                <h1 class="m-0 fw-bolder text-white"> 1 </h1>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 pt-4">
+                        <p class="super-small-text fw-bolder">Riwayat Setoran</p>
+                        <table class="table table-bordered table-hover small-text table-sm">
+                            <thead>
+                                <tr>
+                                    <th class="align-middle super-small-text" rowspan="2">#</th>
+                                    <th class="align-middle super-small-text" rowspan="2">Jam</th>
+                                    <th class="align-middle super-small-text" rowspan="2">Brand</th>
+                                    <th class="align-middle super-small-text" rowspan="2">Steps</th>
+                                    <th class="align-middle super-small-text" colspan="2">Quantity</th>
+                                    <th class="align-middle super-small-text" rowspan="2">Unit</th>
+                                    <th class="align-middle super-small-text" rowspan="2">Status</th>
+                                </tr>
+                                <tr>
+                                    <th class="super-small-text">Good</th>
+                                    <th class="super-small-text">Reject</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php for ($i = 0; $i < 5; $i++) { ?>
+                                    <tr class="table-hijau">
+                                        <td class="text-center align-middle" style="height: 30px;">1</td>
+                                        <td class="text-center align-middle" style="height: 30px;">09:00</td>
+                                        <td class="text-center align-middle" style="height: 30px;">AK</td>
+                                        <td class="text-center align-middle" style="height: 30px;">
+                                        </td>
+                                        <td class="text-center align-middle" style="height: 30px;">200</td>
+                                        <td class="text-center align-middle" style="height: 30px;">2</td>
+                                        <td class="text-center align-middle" style="height: 30px;">Pack</td>
+                                        <td class="text-center align-middle small-text" style="height: 30px;">Complete</td>
+                                    </tr>
+                                <?php } ?>
+
+                                <tr class="pointer" onclick="workProgress()">
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                    <td class="text-center align-middle" style="height: 30px;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 pt-3">
+        <div class="card shadow-none h-100">
+            <div class="card-body">
+                <div class="row justify-content-between">
+                    <div class="col-auto">
+                        <p class="m-0 super-small-text"><b>Detail Transaksi</b></p>
+                    </div>
+                </div>
+                <div class="row pt-4">
+                    <div class="col-12">
+                        <table class="table table-sm table-hover w-100" id="tableForm">
+                            <thead>
+                                <tr>
+                                    <th class="small-text text-center align-middle" style="height:40px;">#</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">Time</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">Worker</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">Brand</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">QTY</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">Unit</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">Steps</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;">Status</th>
+                                    <th class="small-text text-center align-middle" style="height:40px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableDetail">
+                                <?php for ($i = 0; $i < 100; $i++) { ?>
+                                    <tr class="">
+                                        <td class="small-text align-middle text-center">1</td>
+                                        <td class="small-text align-middle text-center">09:00</td>
+                                        <td class="small-text align-middle text-center">Amalia Safira</td>
+                                        <td class="small-text align-middle text-center">AK</td>
+                                        <td class="small-text align-middle text-center">200</td>
+                                        <td class="small-text align-middle text-center">Pack</td>
+                                        <td class="small-text align-middle text-center">
+                                            <div id="progress">
+                                                <ul id="progress-num">
+                                                    <li class="steps active">1</li>
+                                                    <li class="steps active">2</li>
+                                                    <li class="steps">3</li>
+                                                    <li class="steps">4</li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td class="small-text align-middle text-center"><span class="badge rounded-pill bg-success">Complete</span></td>
+                                        <td class="small-text align-middle">
+                                            <button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -409,71 +623,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script src="<?= base_url(); ?>assets/html5-qrcode.min.js"></script>
 <script>
-    function measureSpeed() {
-        var startTime, endTime;
-        var download = new Image();
-        download.onload = function() {
-            endTime = (new Date()).getTime();
-            var duration = (endTime - startTime) / 1000; // in seconds
-            var speed = (2.5 / duration).toFixed(2); // Assuming 2.5 MB file size
-
-            // Tampilkan kecepatan koneksi
-            $('#speed').text(speed + ' Mbps');
-        }
-
-        // Mulai waktu pengukuran
-        startTime = (new Date()).getTime();
-        var cacheBuster = '?t=' + startTime;
-        download.src = 'https://example.com/test-file.jpg' + cacheBuster;
-    }
-    // Fungsi yang akan dipanggil ketika koneksi terputus
-    function handleConnectionLost() {
-        console.log("Koneksi terputus. Melakukan sesuatu...");
-        // noConnection()
-        // Panggil fungsi atau lakukan sesuatu yang diinginkan ketika koneksi terputus di sini
-    }
-
-    // Memeriksa status koneksi secara teratur
-    function checkConnectionStatus() {
-        if (navigator.onLine) {
-            console.log("Koneksi aktif");
-        } else {
-            handleConnectionLost();
-        }
-    }
-
-    // Menambahkan event listener untuk event offline
-    window.addEventListener('offline', handleConnectionLost);
-
     // Memeriksa status koneksi setiap 60 detik (sesuaikan sesuai kebutuhan)
 
-    JSPM.JSPrintManager.auto_reconnect = true;
-    JSPM.JSPrintManager.start();
 
     function createCodeId(worker_id = '') {
         var date = (new Date).getTime() + '' + worker_id
-        // var day = date.getDate();
-        // var month = date.getMonth() + 1;
-        // var year = date.getFullYear();
-        // var jam = date.getHours();
-        // var menit = date.getMinutes();
-        // var detik = date.getSeconds();
-        // if (detik < 10) {
-        //     detik = "0" + detik;
-        // }
-        // if (menit < 10) {
-        //     menit = "0" + menit;
-        // }
-        // if (jam < 10) {
-        //     jam = "0" + jam;
-        // }
-        // if (day < 10) {
-        //     day = "0" + day;
-        // }
-        // if (month < 10) {
-        //     month = "0" + month;
-        // }
-        // var date = year + "" + month + "" + day + '' + jam + "" + menit + "" + detik;
         return date;
     }
 
@@ -669,6 +823,13 @@
     }
 </script>
 <script>
+    function emptyReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var label = '<?= $label ?>'
@@ -725,9 +886,19 @@
 
 
     $(document).ready(function() {
-        // loadData()
-        // scannerQR()
-        empty('#detailWorker', '<span class="small-text">Pilih Worker pada Panel Kiri untuk Melihat Detail</span>')
+        // $('#tableForm').DataTable({
+        //     ordering: false, // Menonaktifkan pengurutan
+        //     pageLength: 200,
+        //     scrollY: "500px",
+        //     scrollX: true,
+        //     scrollCollapse: true,
+        //     paging: false,
+        //     fixedHeader: true,
+        //     searching: false,
+        //     info: false,
+        // })
+        // empty('#detailWorker', '<span class="small-text">Pilih Worker pada Panel Kiri untuk Melihat Detail</span>')
+        // empty('#workerProgress', '<span class="small-text">Belum Tersedia Progress Worker</span>')
     })
 
     function loadData() {
@@ -737,7 +908,7 @@
         var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
         getData(data, url)
     }
-    setInterval(loadDataPeriodic, 60000);
+    // setInterval(loadDataPeriodic, 60000);
 
     function getData(data, url) {
         $.ajax({
@@ -789,30 +960,28 @@
                 if (v.product.id == e.item_id) return true
             })
             e.material_group.forEach(el => {
-                var itemDefault = el.items.find((v, k) => {
-                    if (v.item.id == el.item_id_default) return true
-                })
-                dataMaterial.push({
-                    work_plan_product_id: dataProducts.work_plan_product_id,
-                    item_id: e.item_id,
-                    item_name: e.name,
-                    item_code: e.code,
-                    item_name: e.name,
-                    material_group_id: el.material_group.id,
-                    material_group_name: el.material_group.name,
-                    material_id: itemDefault.item.id,
-                    material_code: itemDefault.item.code,
-                    material_alias: itemDefault.item.alias,
-                    material_name: itemDefault.item.name,
-                    unit_id: itemDefault.unit.id,
-                    unit_name: itemDefault.unit.name,
-                })
+                if (el) {
+                    var itemDefault = el.items.find((v, k) => {
+                        if (v.item.id == el.item_id_default) return true
+                    })
+                    dataMaterial.push({
+                        work_plan_product_id: dataProducts.work_plan_product_id,
+                        item_id: e.item_id,
+                        item_name: e.name,
+                        item_code: e.code,
+                        item_name: e.name,
+                        material_group_id: el.material_group.id,
+                        material_group_name: el.material_group.name,
+                        material_id: itemDefault.item.id,
+                        material_code: itemDefault.item.code,
+                        material_alias: itemDefault.item.alias,
+                        material_name: itemDefault.item.name,
+                        unit_id: itemDefault.unit.id,
+                        unit_name: itemDefault.unit.name,
+                    })
+                }
             })
         })
-        // console.log(dataDetailDelivery)
-        if (firstAddedResultProductPersonId) {
-            cetakQR(firstAddedResultProductPersonId)
-        }
         workerProgress()
     }
 
@@ -839,48 +1008,114 @@
 
     function formWorkerProgress() {
         var html = ''
-        dataEntry.productionDelivery.forEach(e => {
-            var badgeMeja = ''
-            if (e.employee_worker.row_code) {
-                badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.employee_worker.row_code + '</span>'
-            }
-            html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
+        if (dataEntry.productionDelivery.length) {
+            dataEntry.productionDelivery.forEach(e => {
+                var badgeMeja = ''
+                if (e.employee_worker.row_code) {
+                    badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.employee_worker.row_code + '</span>'
+                }
+                html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
+                html += '<div class="card-body p-0">'
+                html += '<div class="row">'
+                html += '<div class="col-10 card-hoper p-0" onclick="detailWorker(' + e.employee_worker.id + ')">'
+                html += '<div class="row p-3 px-4">'
+                html += '<div class="col-12 ps-3">'
+                html += '<p class="m-0 small fw-bolder">' + badgeMeja + '<span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
+                html += '<p class="m-0 mt-1 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> / --</span></p>'
+                html += '</div>'
+                html += '<div class="col-12 pt-1">'
+                html += '<div class="row ps-3">'
+                for (let i = 1; i <= defaultleSetoran; i++) {
+                    var check = e.data.find((v, k) => {
+                        if (v.number == i) return true
+                    })
+                    var bg = 'bg-outline-primary'
+                    var value = 0
+                    if (check) {
+                        var dataDelivery = findStatus(check.result_product_person_id)
+                        if (check.complete.is_process) {
+                            bg = 'bg-primary'
+                            value = check.good
+                        } else {
+                            bg = 'bg-orange'
+                        }
+                    } else {
+                        var dataDelivery = findStatus()
+                    }
+                    html += '<div class="col p-0 pe-1">'
+                    html += '<span class="badge rounded-pill super-small-text p-1 ' + bg + ' w-100">' + dataDelivery.qty.good + '</span>'
+                    html += '</div>'
+                }
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '<div class="col-2 card-hoper p-0" onclick="firstWorkProgress(' + e.employee_worker.id + ')">'
+                html += '<div class="row h-100">'
+                html += '<div class="col-12 align-self-center text-center p-0">'
+                html += '<i class="fa fa-pencil fa-1x text-grey"></i>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            })
+        } else {
+            // html += emptyReturn('Belum Ada Progress Worker')
+            html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search">'
             html += '<div class="card-body p-0">'
             html += '<div class="row">'
-            html += '<div class="col-10 card-hoper p-0" onclick="detailWorker(' + e.employee_worker.id + ')">'
+            html += '<div class="col-10 card-hoper p-0" onclick="detailWorker()">'
             html += '<div class="row p-3 px-4">'
             html += '<div class="col-12 ps-3">'
-            html += '<p class="m-0 small fw-bolder">' + badgeMeja + '<span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
-            html += '<p class="m-0 mt-1 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> / --</span></p>'
+            html += '<div class="row">'
+            html += '<div class="col-1">'
+            html += '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2 mt-1" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">A1</span>'
             html += '</div>'
-            html += '<div class="col-12 pt-1">'
+            html += '<div class="col-11 ps-4">'
+            html += '<p class="m-0 small fw-bolder"><span class="text_search" data-id="">AMALIA SAFIRA</span></p>'
+            html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">200</span> Pack</span></p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '<div class="col-12 pt-3">'
             html += '<div class="row ps-3">'
-            for (let i = 1; i <= defaultleSetoran; i++) {
-                var check = e.data.find((v, k) => {
-                    if (v.number == i) return true
-                })
-                var bg = 'bg-outline-primary'
-                var value = 0
-                if (check) {
-                    var dataDelivery = findStatus(check.result_product_person_id)
-                    if (check.complete.is_process) {
-                        bg = 'bg-primary'
-                        value = check.good
-                    } else {
-                        bg = 'bg-orange'
-                    }
-                } else {
-                    var dataDelivery = findStatus()
-                }
+
+            for (let i = 0; i < 4; i++) {
                 html += '<div class="col p-0 pe-1">'
-                html += '<span class="badge rounded-pill super-small-text p-1 ' + bg + ' w-100">' + dataDelivery.qty.good + '</span>'
+                html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-outline-primary" style="height: 20px;">'
+                html += '<div class="row p-0 m-0 w-100 h-100">'
+                html += '<div class="col p-0 bg-radius-primary d-flex align-content-center flex-wrap justify-content-center">'
+                html += '<p class="m-0">ARF</p>'
+                html += '</div>'
+                html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
+                html += '<p class="m-0 text-primary">200</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</span>'
                 html += '</div>'
             }
+            for (let i = 0; i < 2; i++) {
+                html += '<div class="col p-0 pe-1">'
+                html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-outline-orange" style="height: 20px;">'
+                html += '<div class="row p-0 m-0 w-100 h-100">'
+                html += '<div class="col p-0 bg-radius-orange d-flex align-content-center flex-wrap justify-content-center">'
+                html += '<p class="m-0 text-center">AK</p>'
+                html += '</div>'
+                html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
+                html += '<p class="m-0 text-orange">200</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</span>'
+                html += '</div>'
+            }
+
             html += '</div>'
             html += '</div>'
             html += '</div>'
             html += '</div>'
-            html += '<div class="col-2 card-hoper p-0" onclick="firstWorkProgress(' + e.employee_worker.id + ')">'
+            html += '<div class="col-2 card-hoper p-0" onclick="firstWorkProgress()">'
             html += '<div class="row h-100">'
             html += '<div class="col-12 align-self-center text-center p-0">'
             html += '<i class="fa fa-pencil fa-1x text-grey"></i>'
@@ -890,7 +1125,9 @@
             html += '</div>'
             html += '</div>'
             html += '</div>'
-        });
+
+        }
+
         return html
     }
 
@@ -1069,41 +1306,20 @@
     }
 
     function checkWorkerId(eid) {
-        let arrayOfNumbers = eid.split(',').map(Number);
-        if (arrayOfNumbers.length == 1) {
-            scanned = true
-            scanned2 = false
-            var dataProducts = dataEntry.productionDelivery.find((v, k) => {
-                if (v.employee_worker.eid == arrayOfNumbers[0]) return true
+        scanned = true
+        scanned2 = false
+        var dataProducts = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.eid == eid) return true
+        })
+        if (!dataProducts) {
+            dataProducts = dataEntry.employee.find((v, k) => {
+                if (v.eid == eid) return true
             })
-            if (!dataProducts) {
-                dataProducts = dataEntry.employee.find((v, k) => {
-                    if (v.eid == arrayOfNumbers[0]) return true
-                })
-                dataProducts = dataProducts.id
-                createNewWorker(dataProducts)
-            } else {
-                dataProducts = dataProducts.employee_worker.id
-                workProgress(dataProducts)
-            }
+            dataProducts = dataProducts.id
+            createNewWorker(dataProducts)
         } else {
-            scanned = false
-            scanned2 = true
-            var dataProducts = dataEntry.productionDelivery.find((v, k) => {
-                if (v.employee_worker.id == arrayOfNumbers[0]) return true
-            })
-            setoranIdClicked = arrayOfNumbers[1]
-            if (!afterScan) {
-                afterScan = true
-                if (offlineMode) {
-                    // jika offline
-                    afterScan = false
-                    workProgress(arrayOfNumbers[0])
-                } else {
-                    // jika online
-                    loadScanData(arrayOfNumbers[0])
-                }
-            }
+            dataProducts = dataProducts.employee_worker.id
+            workProgress(dataProducts)
         }
     }
 
@@ -2524,7 +2740,6 @@
             'complete': null,
         })
         buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
-        cetakQR(firstAddedResultProductPersonId)
     }
 
     function buttonSaveOfflineMode(data) {
@@ -2714,27 +2929,6 @@
         });
     }
 
-    function cetakQR(id) {
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == id) return true
-        })
-
-        $('#qrcode').empty()
-        var qrcode = new QRCode("qrcode", {
-            text: data.worker_id + ',' + id,
-            width: 128,
-            height: 128,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        $(".qrcode > img").css({
-            margin: 0,
-            padding: 0,
-        });
-        var image = qrcode._oDrawing._elCanvas.toDataURL("image/png")
-        doPrint(image, data, id)
-    }
 
     function getDateStringWithTimeReal(orginaldate) {
         var date = new Date(orginaldate);
@@ -2798,162 +2992,6 @@
         return date;
     }
 
-    function doPrint(image, data, id) {
-        firstAddedResultProductPersonId = ''
-        var dataEmployee = dataEntry.employee.find((v, k) => {
-            if (v.id == data.worker_id) return true
-        })
-        var nomorMeja = ''
-        if (dataEmployee) {
-            nomorMeja = dataEmployee.row_code + ' - '
-        }
-        var totalADay = 0;
-        var templateTotalADay = ''
-        if (fastMode) {
-            totalADay = number_format(totalSetoran(data.worker_id))
-            templateTotalADay = 'Total : ' + totalADay
-        }
-        var dataStatus = findStatus(id)
-
-        if (jspmWSStatus()) {
-            var b64Prefix = "data:image/png;base64,";
-            image = image.trim();
-            var imgBase64Content = image.substring(b64Prefix.length, image.length);
-            //Create a ClientPrintJob
-            var cpj = new JSPM.ClientPrintJob();
-            var cpj2 = new JSPM.ClientPrintJob();
-            var cpj3 = new JSPM.ClientPrintJob();
-            //Set Printer type (Refer to the help, there many of them!)
-            // cpj.clientPrinter = new JSPM.InstalledPrinter('POS-58(copy of 1)');
-            // cpj2.clientPrinter = new JSPM.InstalledPrinter('POS-58(copy of 1)');
-            cpj.clientPrinter = new JSPM.DefaultPrinter();
-            cpj2.clientPrinter = new JSPM.DefaultPrinter();
-            cpj3.clientPrinter = new JSPM.DefaultPrinter();
-            var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, "MyPicture-PX=0.4-PY=0.1-PW=1-PH=1-PO=P.jpg", 1);
-            myImageFile.printRotation = 'Rot90';
-            // var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, 'myFileToPrint.png', 1);
-            // printToBluetoothPrinter($('#installedPrinterName').val(), 'test')
-            var esc = '\x1B'; //ESC byte in hex notation
-            var newLine = '\x0A'; //LF byte in hex notation
-
-            var cmds = esc + "@"; //Initializes the printer (ESC @)
-            cmds += esc + '!' + '\x31' + '\x00'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
-            // cmds += newLine;
-            cmds += nomorMeja + 'Setoran ' + data.number; //text to print
-            // cmds += image
-            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
-            cmds += newLine;
-            cmds += data.worker_name
-            cmds += newLine;
-            cmds += getDateStringWithTimeReal(data.datetime);
-            cmds += newLine;
-            cmds += 'Good : ' + data.delivery.good + '  | Reject : '
-            cmds += newLine;
-            var cmds2 = ''
-            // cmds2 += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
-            // cmds2 += '________________________________'
-            // cmds2 += '                                '
-            // cmds2 += 'Bad Stock :                     '
-            // // cmds2 += '                                '
-            // cmds2 += '________________________________'
-            // cmds2 += newLine + newLine;
-            cmds2 += templateTotalADay
-            cmds2 += newLine + newLine
-            if (fastMode) {
-                cmds2 += newLine
-            }
-            // cmds2 += '----------- Potong -------------'
-            // cmds2 += newLine + newLine;
-            // cmds2 += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
-            // cmds2 += 'Setoran ' + data.number; //text to print
-            // // cmds2 += image
-            // cmds2 += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
-            // cmds2 += newLine;
-            // cmds2 += data.worker_name
-            // cmds2 += newLine;
-            // cmds2 += getDateStringWithTimeReal(data.datetime);
-            // cmds2 += newLine;
-            // cmds2 += 'Good : ' + data.delivery.good;
-            // cmds2 += newLine + newLine + newLine;
-
-            //add file to print job
-            cpj.printerCommands = cmds;
-            cpj2.files.push(myImageFile);
-            cpj3.printerCommands = cmds2;
-            var cpjg = new JSPM.ClientPrintJobGroup();
-            cpjg.jobs.push(cpj);
-            cpjg.jobs.push(cpj2);
-            cpjg.jobs.push(cpj3);
-            //Send print job to printer!
-            cpjg.sendToClient()
-            console.log(variableSaveOffline.resultProductPerson)
-            firstAddedResultProductPersonId = ''
-            scannerQR()
-        }
-    }
-
-    function jspmWSStatus() {
-        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
-            return true;
-        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
-            alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
-            return false;
-        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
-            alert('JSPM has blocked this website!');
-            return false;
-        }
-    }
-
-    function configurationPrinters() {
-        var data = ''
-        if (jspmWSStatus()) {
-            //get client installed printers
-            // console.log(JSPM.JSPrintManager.getPrinters())
-            JSPM.JSPrintManager.getPrinters().then(function(myPrinters) {
-                for (var i = 0; i < myPrinters.length; i++) {
-                    data += '<div class="col-12 mb-2">'
-
-                    data += '<div class="card card-hoper pointer shadow-sm">'
-                    data += '<div class="card-body">'
-
-                    data += '<div class="row">'
-                    data += '<div class="col-8 align-self-center">'
-                    data += '<p class="m-0 small">' + myPrinters[i] + '</p>'
-                    data += '</div>'
-                    data += '</div>'
-
-                    data += '</div>'
-                    data += '</div>'
-
-                    data += '</div>'
-                }
-            })
-        }
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Configuration Printers</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12">'
-        html_body += '<p class="m-0 small fw-bolder">Set your Default Printer : </p>'
-
-        html_body += '<div class="row mt-2">'
-
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body).removeClass('p-0')
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanDefaultPrinter()">Simpan</button>'
-        $('#modalFooter').html(html_footer)
-        // console.log(data)
-    }
-
     function openModalScanner() {
         $('#modal').modal('show')
         scannerQR()
@@ -2969,23 +3007,27 @@
         $('#modalFooter').html('');
         $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-centered');
         var html_header = '';
-        html_header += '<h5 class="modal-title">QR Scan | ' + formatDateIndonesia(dataEntry.workPlanMachine.date) + '</h5>';
+        html_header += '<h5 class="modal-title">QR Scan</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row justify-content-center">'
-        // html_body += '<div class="col-6 text-center">'
-
-        // html_body += '<lottie-player style="width: 100%;height:100%" src="<?= base_url() ?>assets/json/scanner.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
-
-        // html_body += '</div>'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<div class="row" style="height:200px;">'
-        html_body += '<div class="col-12 align-self-center"><p class="m-0 small fw-bolder">Running a Scanner</p></div>'
+        html_body += '<div class="col-12 text-center mt-5">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 align-self-center"><p class="m-0 fw-bolder">' + formatDateIndonesia(currentDate()) + '</p></div>'
         html_body += '</div>'
         html_body += '</div>'
-        html_body += '<div class="col-12 text-center">'
-        html_body += '<input class="form-control" type="text" id="codeQR" role="dialog" autocomplete="off">'
+        html_body += '<div class="col-6 text-center mb-5 mt-5">'
+
+        html_body += '<img src="<?= base_url() ?>assets/image/svg/barcode.svg" style="width: 50%;">'
+
+        html_body += '</div>'
+        html_body += '<div class="col-8 text-center">'
+        html_body += '<input class="form-control rounded-pill form-leave" style="text-align: center;" type="text" id="codeQR" role="dialog" autocomplete="off">'
+        html_body += '<button class="mt-2 w-100 btn btn-primary rounded-pill" onclick="changeScanner()"><i class="fa fa-search me-2"></i>Cari</button>'
+        html_body += '</div>'
+        html_body += '<div class="col-8">'
+        html_body += '<div class="bd-callout bd-callout-warning super-small-text">Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b></div>'
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body).removeClass('p-0')
@@ -3171,24 +3213,26 @@
                 if (v.product.id == e.item_id) return true
             })
             e.material_group.forEach(el => {
-                var itemDefault = el.items.find((v, k) => {
-                    if (v.item.id == el.item_id_default) return true
-                })
-                dataMaterial.push({
-                    work_plan_product_id: dataProducts.work_plan_product_id,
-                    item_id: e.item_id,
-                    item_name: e.name,
-                    item_code: e.code,
-                    item_name: e.name,
-                    material_group_id: el.material_group.id,
-                    material_group_name: el.material_group.name,
-                    material_id: itemDefault.item.id,
-                    material_code: itemDefault.item.code,
-                    material_alias: itemDefault.item.alias,
-                    material_name: itemDefault.item.name,
-                    unit_id: itemDefault.unit.id,
-                    unit_name: itemDefault.unit.name,
-                })
+                if (el) {
+                    var itemDefault = el.items.find((v, k) => {
+                        if (v.item.id == el.item_id_default) return true
+                    })
+                    dataMaterial.push({
+                        work_plan_product_id: dataProducts.work_plan_product_id,
+                        item_id: e.item_id,
+                        item_name: e.name,
+                        item_code: e.code,
+                        item_name: e.name,
+                        material_group_id: el.material_group.id,
+                        material_group_name: el.material_group.name,
+                        material_id: itemDefault.item.id,
+                        material_code: itemDefault.item.code,
+                        material_alias: itemDefault.item.alias,
+                        material_name: itemDefault.item.name,
+                        unit_id: itemDefault.unit.id,
+                        unit_name: itemDefault.unit.name,
+                    })
+                }
             })
         })
         listDataOfflineMode()

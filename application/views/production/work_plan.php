@@ -1561,6 +1561,9 @@
     }
 
     function showVariableForEmployee(d) {
+        // console.log(d)
+        var findMachineTypeId = findEntitiesByMachineId(data_work.machineType, d.machine.id)[0]
+        // console.log(findMachineTypeId)
         var data = []
         data_work.manPowerFrame.forEach(k => {
             if (type_name_production == 'skm') {
@@ -1580,6 +1583,7 @@
                 }
             } else {
                 // console.log(k)
+                // if (k != 'qc_verpack') {
                 eval(`var em${k} = []`)
                 eval(`var dataEmployee =  d.employee_${k}`)
                 if (dataEmployee.length > 0) {
@@ -1590,64 +1594,175 @@
                     name: 'em' + k,
                     data: eval(`em${k}`)
                 })
+                // }
             }
         });
+        // data_work.machineTypeManPowerFrame.forEach(val => {
+        //     if (val.id == findMachineTypeId) {
+        //         if (val.person_label_entry_acces) {
+        //             val.person_label_entry_acces.forEach(k => {
+        //                 eval(`var em${k} = []`)
+        //                 eval(`var dataEmployee =  d.employee_${k}`)
+        //                 if (dataEmployee.length > 0) {
+        //                     eval(`em${k} = dataEmployee.map(employee => employee.id)`)
+        //                 }
+        //                 data.push({
+        //                     variable: k,
+        //                     name: 'em' + k,
+        //                     data: eval(`em${k}`)
+        //                 })
+        //             })
+        //         } else {
+        //             data_work.manPowerFrame.forEach(k => {
+        //                 if (type_name_production == 'skm') {
+        //                     if (k != 'qc' && k != 'mechanic') {
+        //                         eval(`var em${k} = []`)
+        //                         eval(`var dataEmployee =  d.employee_${k}`)
+        //                         if (dataEmployee) {
+        //                             if (dataEmployee.length > 0) {
+        //                                 eval(`em${k} = dataEmployee.map(employee => employee.id)`)
+        //                             }
+        //                         }
+        //                         data.push({
+        //                             variable: k,
+        //                             name: 'em' + k,
+        //                             data: eval(`em${k}`)
+        //                         })
+        //                     }
+        //                 } else {
+        //                     // console.log(k)
+        //                     eval(`var em${k} = []`)
+        //                     eval(`var dataEmployee =  d.employee_${k}`)
+        //                     if (dataEmployee.length > 0) {
+        //                         eval(`em${k} = dataEmployee.map(employee => employee.id)`)
+        //                     }
+        //                     data.push({
+        //                         variable: k,
+        //                         name: 'em' + k,
+        //                         data: eval(`em${k}`)
+        //                     })
+        //                 }
+        //             });
+        //         }
+        //     }
+        // })
+
         return data
     }
 
     function showVariableForEmployeeForManpower(masterMachine, date, v, value) {
         var data = []
-        data_work.manPowerFrame.forEach(k => {
-            if (type_name_production == 'skm') {
-                if (k != 'qc' && k != 'mechanic') {
-                    eval(`var total${k} = 0`)
-                    $.each(masterMachine, function(keys, values) {
-                        var executorEmployee = manPowerFilter({
-                            key: 'date',
-                            value: date
-                        }, {
-                            key: 'shift_group_id',
-                            value: v.group_id
-                        }, {
-                            key: 'machine_type_id',
-                            value: value.id
-                        }, {
-                            key: 'machine_id',
-                            value: values.id
+        data_work.machineTypeManPowerFrame.forEach(val => {
+            if (val.id == value.id) {
+                if (val.person_label_entry_acces) {
+                    val.person_label_entry_acces.forEach(k => {
+                        // if (type_name_production == 'skm') {
+                        // if (k != 'qc' && k != 'mechanic') {
+                        eval(`var total${k} = 0`)
+                        $.each(masterMachine, function(keys, values) {
+                            var executorEmployee = manPowerFilter({
+                                key: 'date',
+                                value: date
+                            }, {
+                                key: 'shift_group_id',
+                                value: v.group_id
+                            }, {
+                                key: 'machine_type_id',
+                                value: value.id
+                            }, {
+                                key: 'machine_id',
+                                value: values.id
+                            })
+                            // console.log(k)
+                            // console.log(executorEmployee)
+                            eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
                         })
-                        eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
-                    })
-                    data.push({
-                        variable: k,
-                        name: 'total' + k,
-                        data: eval(`total${k}`)
-                    })
+                        data.push({
+                            variable: k,
+                            name: 'total' + k,
+                            data: eval(`total${k}`)
+                        })
+                        // }
+                        // } else {
+                        //     eval(`var total${k} = 0`)
+                        //     $.each(masterMachine, function(keys, values) {
+                        //         var executorEmployee = manPowerFilter({
+                        //             key: 'date',
+                        //             value: date
+                        //         }, {
+                        //             key: 'shift_group_id',
+                        //             value: v.group_id
+                        //         }, {
+                        //             key: 'machine_type_id',
+                        //             value: value.id
+                        //         }, {
+                        //             key: 'machine_id',
+                        //             value: values.id
+                        //         })
+                        //         eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
+                        //     })
+                        //     data.push({
+                        //         variable: k,
+                        //         name: 'total' + k,
+                        //         data: eval(`total${k}`)
+                        //     })
+                        // }
+                    });
+                } else {
+                    data_work.manPowerFrame.forEach(k => {
+                        // if (type_name_production == 'skm') {
+                        //     if (k != 'qc' && k != 'mechanic') {
+                        eval(`var total${k} = 0`)
+                        $.each(masterMachine, function(keys, values) {
+                            var executorEmployee = manPowerFilter({
+                                key: 'date',
+                                value: date
+                            }, {
+                                key: 'shift_group_id',
+                                value: v.group_id
+                            }, {
+                                key: 'machine_type_id',
+                                value: value.id
+                            }, {
+                                key: 'machine_id',
+                                value: values.id
+                            })
+                            eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
+                        })
+                        data.push({
+                            variable: k,
+                            name: 'total' + k,
+                            data: eval(`total${k}`)
+                        })
+                        // }
+                        // } else {
+                        //     eval(`var total${k} = 0`)
+                        //     $.each(masterMachine, function(keys, values) {
+                        //         var executorEmployee = manPowerFilter({
+                        //             key: 'date',
+                        //             value: date
+                        //         }, {
+                        //             key: 'shift_group_id',
+                        //             value: v.group_id
+                        //         }, {
+                        //             key: 'machine_type_id',
+                        //             value: value.id
+                        //         }, {
+                        //             key: 'machine_id',
+                        //             value: values.id
+                        //         })
+                        //         eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
+                        //     })
+                        //     data.push({
+                        //         variable: k,
+                        //         name: 'total' + k,
+                        //         data: eval(`total${k}`)
+                        //     })
+                        // }
+                    });
                 }
-            } else {
-                eval(`var total${k} = 0`)
-                $.each(masterMachine, function(keys, values) {
-                    var executorEmployee = manPowerFilter({
-                        key: 'date',
-                        value: date
-                    }, {
-                        key: 'shift_group_id',
-                        value: v.group_id
-                    }, {
-                        key: 'machine_type_id',
-                        value: value.id
-                    }, {
-                        key: 'machine_id',
-                        value: values.id
-                    })
-                    eval(`total${k} = total${k} + parseInt(executorEmployee[k].total)`)
-                })
-                data.push({
-                    variable: k,
-                    name: 'total' + k,
-                    data: eval(`total${k}`)
-                })
             }
-        });
+        })
         return data
     }
 
@@ -2008,9 +2123,9 @@
             if (v.id == product_id) return true
         })
         if (dataProduct) {
-            console.log(dataProduct.machine)
-            console.log(product_id)
-            console.log(machine_id)
+            // console.log(dataProduct.machine)
+            // console.log(dataProduct)
+            // console.log(machine_id)
             dataProduct = dataProduct.machine.find((v, k) => {
                 if (v.id == machine_id) return true
             }).item_id
@@ -2285,6 +2400,7 @@
                                 'work_plan_product_id': e.work_plan_product_id,
                             })
                             var dataEmployee = showVariableForEmployee(d)
+                            // console.log(dataEmployee)
                             dataEmployee.forEach(k => {
                                 // console.log(k.variable)
                                 eval(`data_work_plan[numIndexWorkPlan].employee_${k.variable} =  d.employee_${k.variable}`)
@@ -2803,9 +2919,11 @@
                     if (machine_type) {
                         if (machine_type.length) {
                             machine_type.forEach(e => {
-                                totalEmployeePositions += e.employee_catcher.length || 0;
-                                totalEmployeePositions += e.employee_helper.length || 0;
-                                totalEmployeePositions += e.employee_operator.length || 0;
+                                totalEmployeePositions += e.employee_qc_skt.length || 0;
+                                totalEmployeePositions += e.employee_foreman_ast.length || 0;
+                                // totalEmployeePositions += e.employee_catcher.length || 0;
+                                // totalEmployeePositions += e.employee_helper.length || 0;
+                                // totalEmployeePositions += e.employee_operator.length || 0;
                             });
 
                         }
@@ -3101,8 +3219,19 @@
                                 unavailableData = showTextUnavailable()
                                 changeShiftBtn = ''
                                 setBgAvailable = 'bg-unavailable'
-                                data_work.manPowerFrame.forEach(k => {
-                                    executorEmployee[k].class = 'bg-grey'
+                                // data_work.manPowerFrame.forEach(k => {
+                                data_work.machineTypeManPowerFrame.forEach(k => {
+                                    if (k.id == value.id) {
+                                        if (k.person_label_entry_acces) {
+                                            k.person_label_entry_acces.forEach(ke => {
+                                                executorEmployee[ke].class = 'bg-grey'
+                                            });
+                                        } else {
+                                            data_work.manPowerFrame.forEach(k => {
+                                                executorEmployee[k].class = 'bg-grey'
+                                            })
+                                        }
+                                    }
                                 })
                                 // executorEmployee['catcher'].class = 'bg-grey'
                                 // executorEmployee['helper'].class = 'bg-grey'
@@ -3126,18 +3255,46 @@
                             html += '<b class="super-small-text">' + findShift + unavailableData + '</b>'
                             html += '</div>'
                             html += '<div class="col text-end align-self-center pe-5">'
-
-                            data_work.manPowerFrame.forEach(k => {
-                                var statusShow = 'yes'
-                                if (type_name_production == 'skm') {
-                                    if (k == 'qc' || k == 'mechanic') {
-                                        statusShow = 'no'
+                            data_work.machineTypeManPowerFrame.forEach(ke => {
+                                if (ke.id == value.id) {
+                                    if (ke.person_label_entry_acces) {
+                                        ke.person_label_entry_acces.forEach(k => {
+                                            var statusShow = 'yes'
+                                            if (type_name_production == 'skm') {
+                                                if (k == 'qc' || k == 'mechanic') {
+                                                    statusShow = 'no'
+                                                }
+                                            }
+                                            if (statusShow == 'yes') {
+                                                html += '<span class="badge ' + executorEmployee[k].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'" + k + "'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee[k].total + ' ' + toTitleCase(k.slice(0, 3)) + '</span>'
+                                            }
+                                        });
+                                    } else {
+                                        data_work.manPowerFrame.forEach(k => {
+                                            var statusShow = 'yes'
+                                            if (type_name_production == 'skm') {
+                                                if (k == 'qc' || k == 'mechanic') {
+                                                    statusShow = 'no'
+                                                }
+                                            }
+                                            if (statusShow == 'yes') {
+                                                html += '<span class="badge ' + executorEmployee[k].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'" + k + "'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee[k].total + ' ' + toTitleCase(k.slice(0, 3)) + '</span>'
+                                            }
+                                        })
                                     }
                                 }
-                                if (statusShow == 'yes') {
-                                    html += '<span class="badge ' + executorEmployee[k].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'" + k + "'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee[k].total + ' ' + toTitleCase(k.slice(0, 3)) + '</span>'
-                                }
                             })
+                            // data_work.manPowerFrame.forEach(k => {
+                            //     var statusShow = 'yes'
+                            //     if (type_name_production == 'skm') {
+                            //         if (k == 'qc' || k == 'mechanic') {
+                            //             statusShow = 'no'
+                            //         }
+                            //     }
+                            //     if (statusShow == 'yes') {
+                            //         html += '<span class="badge ' + executorEmployee[k].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'" + k + "'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee[k].total + ' ' + toTitleCase(k.slice(0, 3)) + '</span>'
+                            //     }
+                            // })
                             // html += '<span class="badge ' + executorEmployee['catcher'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'catcher'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['catcher'].total + ' Cat</span>'
                             // html += '<span class="badge ' + executorEmployee['helper'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'helper'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['helper'].total + ' Hel</span>'
                             // html += '<span class="badge ' + executorEmployee['operator'].class + ' me-1 man-power" style="border:1px solid grey" style="cursor:pointer" onclick="chooseManPower(' + "'" + availableData + "'," + "'operator'" + ',' + "'" + date + "'" + ',' + v.group_id + ',' + value.id + ',' + values.id + ')">' + executorEmployee['operator'].total + ' Opr</span>'
@@ -3358,19 +3515,32 @@
             }
             return true;
         });
+        var findMachineTypeId = params.find((v, k) => {
+            if (v.key == 'machine_type_id') return true
+        })
         // console.log(dataMachine)
+        // console.log(findMachineTypeId)
         var varEmployee = {};
-        for (var nama in data_work.manPower) {
-            var findNama = data_work.manPowerFrame.find((v, k) => {
-                if (v == nama) return true
-            })
-            if (findNama) {
-                if (data_work.workPlan[0].work_plan[type_name_production].work_plan_id != null) {
-                    if (dataMachine.length > 0) {
-                        if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
-                            varEmployee[nama] = {};
-                            varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
-                            varEmployee[nama]['class'] = 'bg-position-filled';
+        if (!findMachineTypeId) {
+            for (var nama in data_work.manPower) {
+                // console.log(nama)
+                var findNama = data_work.manPowerFrame.find((v, k) => {
+                    if (v == nama) return true
+                })
+                if (findNama) {
+                    if (data_work.workPlan[0].work_plan[type_name_production].work_plan_id != null) {
+                        if (dataMachine.length > 0) {
+                            // if (nama != 'qc_verpack') {
+                            if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
+                                varEmployee[nama] = {};
+                                varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                                varEmployee[nama]['class'] = 'bg-position-filled';
+                            } else {
+                                varEmployee[nama] = {};
+                                varEmployee[nama]['total'] = 0;
+                                varEmployee[nama]['class'] = 'bg-position';
+                            }
+                            // }
                         } else {
                             varEmployee[nama] = {};
                             varEmployee[nama]['total'] = 0;
@@ -3381,12 +3551,69 @@
                         varEmployee[nama]['total'] = 0;
                         varEmployee[nama]['class'] = 'bg-position';
                     }
-                } else {
-                    varEmployee[nama] = {};
-                    varEmployee[nama]['total'] = 0;
-                    varEmployee[nama]['class'] = 'bg-position';
                 }
             }
+        } else {
+            data_work.machineTypeManPowerFrame.forEach(val => {
+                if (val.id == findMachineTypeId.value) {
+                    if (val.person_label_entry_acces) {
+                        val.person_label_entry_acces.forEach(nama => {
+                            if (nama) {
+                                if (data_work.workPlan[0].work_plan[type_name_production].work_plan_id != null) {
+                                    if (dataMachine.length > 0) {
+                                        if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
+                                            varEmployee[nama] = {};
+                                            varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                                            varEmployee[nama]['class'] = 'bg-position-filled';
+                                        } else {
+                                            varEmployee[nama] = {};
+                                            varEmployee[nama]['total'] = 0;
+                                            varEmployee[nama]['class'] = 'bg-position';
+                                        }
+                                    } else {
+                                        varEmployee[nama] = {};
+                                        varEmployee[nama]['total'] = 0;
+                                        varEmployee[nama]['class'] = 'bg-position';
+                                    }
+                                } else {
+                                    varEmployee[nama] = {};
+                                    varEmployee[nama]['total'] = 0;
+                                    varEmployee[nama]['class'] = 'bg-position';
+                                }
+                            }
+                        });
+                    } else {
+                        for (var nama in data_work.manPower) {
+                            var findNama = data_work.manPowerFrame.find((v, k) => {
+                                if (v == nama) return true
+                            })
+                            if (findNama) {
+                                if (data_work.workPlan[0].work_plan[type_name_production].work_plan_id != null) {
+                                    if (dataMachine.length > 0) {
+                                        if (eval('dataMachine[0].employee_' + nama + '.length') > 0) {
+                                            varEmployee[nama] = {};
+                                            varEmployee[nama]['total'] = eval('dataMachine[0].employee_' + nama + '.length');
+                                            varEmployee[nama]['class'] = 'bg-position-filled';
+                                        } else {
+                                            varEmployee[nama] = {};
+                                            varEmployee[nama]['total'] = 0;
+                                            varEmployee[nama]['class'] = 'bg-position';
+                                        }
+                                    } else {
+                                        varEmployee[nama] = {};
+                                        varEmployee[nama]['total'] = 0;
+                                        varEmployee[nama]['class'] = 'bg-position';
+                                    }
+                                } else {
+                                    varEmployee[nama] = {};
+                                    varEmployee[nama]['total'] = 0;
+                                    varEmployee[nama]['class'] = 'bg-position';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
         return varEmployee;
     }

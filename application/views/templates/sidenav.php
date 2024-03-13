@@ -155,16 +155,16 @@
                                 </div>
                             </a>
                         <?php } ?>
-                        <a class="nav-link" href="<?= base_url(); ?>production/productionOutTerminal">
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>production/productionOutTerminal">
                             <div class="row">
                                 <div class="col-2 pe-0">
                                     <i class="fa fa-database"></i>
                                 </div>
                                 <div class="col-10 ps-0">
-                                    Production Out Terminal
+                                    Pick Point
                                 </div>
                             </div>
-                        </a>
+                        </a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
                     </nav>

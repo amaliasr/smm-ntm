@@ -157,6 +157,26 @@
         border-spacing: 0px !important;
         border: 1px solid #dce0e6 !important;
     }
+
+    .bs-actionsbox {
+        float: none !important;
+    }
+
+    .bs-actionsbox .btn-group button {
+        font-size: 10px !important;
+        margin-bottom: 5px;
+    }
+
+    .actions-btn {
+        background-color: transparent;
+        border: 1px solid #c5ccd6;
+        border-radius: 20px !important;
+    }
+
+    .actions-btn:hover {
+        background-color: #c5ccd6;
+        color: white;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
@@ -190,7 +210,7 @@
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Machine</p>
-                                <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangeVariable()">
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangeVariable()">
                                 </select>
                             </div>
                             <div class="col-auto p-0 d-flex align-items-end">

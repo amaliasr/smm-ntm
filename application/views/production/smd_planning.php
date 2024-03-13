@@ -295,7 +295,7 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <?php if (job_spv_smd()) { ?>
+                                    <?php if (job_spv_smd() || job_kepala_operator()) { ?>
                                         <div class="btn-group">
                                             <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuClickableOutside" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span class="ms-2 d-none d-sm-block">Add New</span>
@@ -481,6 +481,7 @@
     var job_foreman = '<?= job_foreman() ?>'
     var job_logistik_warehouse = '<?= job_logistik_warehouse() ?>'
     var job_supply_sparepart = '<?= job_supply_sparepart() ?>'
+    var job_kepala_operator = '<?= job_kepala_operator() ?>'
     var data_user = ""
     var data_plan = ""
     var data_notif = ""
@@ -722,13 +723,13 @@
             html += '<button class="btn btn-sm float-end shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             html += '<a class="dropdown-item" onclick="linkToDetail(' + values.id + ')"><i class="fa fa-file-o me-2"></i> Detail Planning</a>'
-            if (job_spv_smd) {
+            if (job_spv_smd || job_kepala_operator) {
                 html += '<a class="dropdown-item" onclick="linkToRevisiPlan(' + values.id + ',' + values.production_type.id + ')"><i class="fa fa-pencil me-2"></i> Revisi Planning</a>'
             }
-            if (job_spv_smd || job_foreman) {
+            if (job_spv_smd || job_kepala_operator || job_foreman) {
                 html += '<a class="dropdown-item" onclick="linkToDraftForeman(' + values.id + ')"><i class="fa fa-eye me-2"></i> Lihat Draft Foreman</a>'
             }
-            if (job_spv_smd) {
+            if (job_spv_smd || job_kepala_operator) {
                 html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values.production_type.id + ',' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan SMD Planning</a>'
             }
             html += '<a class="dropdown-item" onclick="cetakSMDPlanning(' + values.id + ')"><i class="fa fa-print me-2"></i> Print</a>'
@@ -736,7 +737,7 @@
                 html += '<hr>'
                 html += '<a class="dropdown-item" onclick="createWorkPlanWeekly(' + values.id + ')"><i class="fa fa-file-text-o me-2"></i> Work Plan Weekly</a>'
             }
-            if (job_spv_smd) {
+            if (job_spv_smd || job_kepala_operator) {
                 html += '<hr>'
                 html += '<a class="dropdown-item"><button class="btn btn-danger w-100 btn-sm btnSimpan" onclick="deleteSMDPlanning(' + values.id + ',' + "'" + formatDateIndonesia(values['date_start']) + ' - ' + formatDateIndonesia(values['date_end']) + "'" + ')"><i class="fa fa-trash me-2"></i> Hapus Data</button></a>'
             }
