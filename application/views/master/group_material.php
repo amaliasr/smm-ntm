@@ -720,6 +720,13 @@
         }
         html_body += '<div class="col-9 small-text fw-bolder pb-2"><input class="form-control form-control-sm" id="nameMaterial" autocomplete="off" value="' + name + '" data-id="' + idMaterialGroup + '"></div>'
 
+        html_body += '<div class="col-3 small-text fw-bolder align-self-center pb-2"></div>'
+        html_body += '<div class="col-9 small-text fw-bolder pb-2">'
+        html_body += '<div class="form-check">'
+        html_body += '<input class="form-check-input small-text" type="checkbox" value="yes" id="checkboxIsAutoGive">'
+        html_body += '<label class="form-check-label" for="checkboxIsAutoGive">Pembuatan Material ini Harus Menyerahkan Bahan</label>'
+        html_body += '</div>'
+        html_body += '</div>'
         html_body += '<div class="col-3 small-text fw-bolder align-self-center pb-2">Material Category</div>'
         html_body += '<div class="col-9 small-text fw-bolder pb-2">'
         html_body += '<select class="form-control form-control-sm w-100" id="selectMaterialCategory" title="Pilih Item">'
@@ -944,7 +951,7 @@
                     select = 'selected'
                 }
             }
-            html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
+            html += '<option value="' + e.id + '" ' + select + '>' + e.code + ' - ' + e.name + '</option>'
         });
         html += '</select>'
         var checkIfDefault = ''
@@ -1040,6 +1047,12 @@
             return $(this).val();
         }).get()
         var itemDefaultId = $('.checkItemDefault:checked').val()
+        var is_auto_give = $('#checkboxIsAutoGive:checked').val()
+        if (is_auto_give) {
+            is_auto_give = 1
+        } else {
+            is_auto_give = 0
+        }
         var variableInsert = {
             materialGroup: [{
                 id: idMaterialGroup,
@@ -1051,6 +1064,7 @@
                 updated_at: getDateTime(currentDate()),
                 // fraction_formula_id: selectFormula,
                 item_id_default: itemDefaultId,
+                is_auto_give: is_auto_give,
             }],
         }
         if (selectFormula) {
@@ -1059,6 +1073,7 @@
                 variableInsert.materialGroup[0][variableFormula[i]] = valueFormula[i]
             }
         }
+        // console.log(variableInsert)
         simpanData(variableInsert)
     }
 

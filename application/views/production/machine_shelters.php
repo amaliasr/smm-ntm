@@ -1143,7 +1143,6 @@
 
 
 
-
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog" role="document" id="modalDialog">
@@ -1179,6 +1178,11 @@
     <div class="offcanvas-header p-5" id="canvasHeader">
     </div>
     <div class="offcanvas-body p-5" id="canvasBody">
+    </div>
+</div>
+<div class="fixed-top d-flex justify-content-center align-items-center" style="z-index: 99999;">
+    <div class="bg-gray-500 text-white super-small-text p-2 text-center m-1 rounded-pill top-0 start-100 d-none align-items-center align-self-center justify-content-center" style="width: 300px;min-height:40px;" id="offlineModePane" hidden>
+        <span class="m-0 align-middle"><i class="fa fa-wifi me-2"></i>Offline Mode</span><span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2 super-small-text" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2 super-small-text" onclick="autoSaveAtOfflineMode()"><i class="fa fa-save me-1"></i>Send All</button></span>
     </div>
 </div>
 <?php $this->load->view('components/modal_static') ?>
@@ -1298,7 +1302,11 @@
     }
 
     $('#modal').on('hidden.bs.modal', function(e) {
+        checkModalVisible()
         clearModal();
+    })
+    $('#modal').on('shown.bs.modal', function(e) {
+        checkModalVisible()
     })
     $('#modal2').on('hidden.bs.modal', function(e) {
         clearModal2();
@@ -1355,6 +1363,86 @@
             dataProductsDefault: dataProductsDefault,
         }
     }
+
+    function isModalVisible() {
+        return $("#modal").is(":visible");
+    }
+
+    function checkModalVisible() {
+        console.log(isModalVisible())
+        if (isModalVisible()) {
+            // jika muncul modal
+            noConnection()
+        } else {
+            // jika tidak
+            if (variableSaveMaterialOffline.materialPickup.length) {
+                noConnection()
+            } else [
+                yesConnection()
+            ]
+        }
+    }
+
+    function noConnection() {
+        offlineMode = true
+        $('#offlineModePane').prop("hidden", false).addClass('d-flex').removeClass('d-none')
+        setIntervalOfflineMode()
+    }
+
+    function yesConnection() {
+        offlineMode = false
+        $('#offlineModePane').prop("hidden", true).addClass('d-none').removeClass('d-flex')
+        setIntervalOfflineMode()
+    }
+    var intervalId
+
+    function setIntervalOfflineMode() {
+        if (!offlineMode) {
+            clearInterval(intervalId);
+        } else {
+            // tiap satu menit
+            intervalId = setInterval(autoSaveAtOfflineMode, 30 * 1000);
+        }
+    }
+
+    function getMaterialMain(idProduct, idStep, idUnit, qtyInput) {
+        // dataEntry.productMaterial
+        var data = dataEntry.machineStepProfile.find((v, k) => {
+            if (v.item_id_product == idProduct) return true
+        })
+        var item_ids_material_main = []
+        if (data) {
+            var dataMachineStep = data.machine_step_profiles.find((v, k) => {
+                if (v.id == idStep) return true
+            })
+            if (dataMachineStep) {
+                item_ids_material_main = dataMachineStep.item_ids_material_main
+            }
+        }
+        var dataCollect = []
+        dataEntry.productMaterial.forEach(e => {
+            e.material_group.forEach(el => {
+                if (el) {
+                    for (let i = 0; i < item_ids_material_main.length; i++) {
+                        if (item_ids_material_main[i] == el.item_id_default) {
+                            var dataUnit = el.item_default.unit_option.find((v, k) => {
+                                if (v.id == el.requirement.unit_id) return true
+                            })
+                            eval('var qty = qtyInput ' + dataUnit.operator + ' ' + dataUnit.multiplier)
+                            dataCollect.push({
+                                'item_id': item_ids_material_main[i],
+                                'unit_id_input': el.requirement.unit_id,
+                                'qty_input': qtyInput,
+                                'unit_id': el.item_default.unit.id,
+                                'qty': qty,
+                            })
+                        }
+                    }
+                }
+            });
+        });
+        return dataCollect
+    }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -1367,6 +1455,15 @@
     var dataDetail
     var itemIdSelected = []
     var choosenId = 4
+    var variableSaveMaterialOffline = {
+        materialPickup: [],
+        materialPickupDetail: [],
+        deletedId: {
+            materialPickup: [],
+            materialPickupDetail: [],
+        },
+    }
+    var offlineMode = false
     var menuKategoriTransaksi = [{
         'index': 0,
         'name': 'Ambil Material',
@@ -1470,7 +1567,7 @@
         chooseWarehouse(choosenId)
     }
 
-    function chooseWarehouse(id, start = null, end = null) {
+    function chooseWarehouse(id, start = '2024-03-28', end = '2024-03-28') {
         choosenId = id
         colorizedMenu(id)
         var data = {
@@ -1521,11 +1618,12 @@
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-6">'
-        html += '<p class="m-0 super-small-text" id="date">-</p>'
+        // html += '<p class="m-0 super-small-text" id="date">-</p>'
         html += '<b>' + data.name + '</b>'
+        html += '<p class="m-0 small-text">' + formatDateIndonesia(dataDetail.dateStart) + ' - ' + formatDateIndonesia(dataDetail.dateEnd) + '</p>'
         html += '</div>'
         html += '<div class="col-6 text-end align-self-center">'
-        html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none me-2" onclick="scanQR()"><i class="fa fa-qrcode me-2"></i>QR Scanner</button>'
+        html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none me-2" onclick="openModalScanner()"><i class="fa fa-qrcode me-2"></i>QR Scanner</button>'
         html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>'
         html += '<div class="btn-group">'
         html += '<button class="btn btn-sm btn-outline-dark shadow-none dropdown-toggle position-relative" type="button" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false">'
@@ -1535,6 +1633,7 @@
         html += '<ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuClickableInside" id="notifWaiting">'
         html += '</ul>'
         html += '</div>'
+        html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none ms-2" onclick="filterCanvas()"><i class="fa fa-filter"></i></button>'
 
         html += '</div>'
         html += '<div class="col-12 pt-3">'
@@ -1568,12 +1667,12 @@
 
         html += '<div class="col">'
         html += '<b class="m-0 ms-3 small-text">Detail Transaction</b>'
-        html += '<p class="m-0 ms-3 small-text">' + formatDateIndonesia(dataDetail.dateStart) + ' - ' + formatDateIndonesia(dataDetail.dateEnd) + '</p>'
+
         html += '</div>'
 
         html += '<div class="col text-end">'
-        html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-2" onclick="formTransaction()"><i class="fa fa-paper-plane-o me-2"></i>Transaction</button>'
-        html += '<button type="button" class="btn btn-primary shadow-none btn-sm shadow-none me-2" onclick="filterCanvas()"><i class="fa fa-filter"></i></button>'
+        html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-3" onclick="formTransaction()"><i class="fa fa-paper-plane-o me-2"></i>Transaction</button>'
+
         html += '</div>'
 
         html += '<div class="col-12 pt-3">'
@@ -2548,8 +2647,10 @@
             firstDay: 0,
             setup: (picker) => {
                 picker.on('selected', (date1, date2) => {
-                    dateStart = formatDate(date1['dateInstance'])
-                    dateEnd = formatDate(date2['dateInstance'])
+                    // dateStart = formatDate(date1['dateInstance'])
+                    // dateEnd = formatDate(date2['dateInstance'])
+                    dateStart = '2024-03-28'
+                    dateEnd = '2024-03-28'
                     chooseWarehouse(choosenId, dateStart, dateEnd)
                 });
             },
@@ -2663,8 +2764,13 @@
         return html
     }
 
-    function scanQR() {
+    function openModalScanner() {
         $('#modal').modal('show')
+        scannerQR()
+    }
+
+    function scannerQR() {
+        $('#modalDialog').removeClass('modal-xl')
         $('#modalDialog').addClass('modal-dialog modal-dialog-centered modal-dialog-scrollable').removeClass('modal-lg')
         var html_header = '';
         html_header += '<h5 class="modal-title">QR Scanner</h5>';
@@ -2729,7 +2835,6 @@
     }
 
     function formScanPerson(data) {
-        console.log(data)
         $('#modalDialog').addClass('modal-xl')
         var html_header = '';
         html_header += '<h5 class="modal-title">Scan QR - 28 Februari 2024</h5>';
@@ -2778,7 +2883,7 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
-        firstStep()
+        firstStep(data)
         if (data.material_pickups) {
             historyPerson(data)
         } else {
@@ -2786,7 +2891,7 @@
         }
     }
 
-    function firstStep() {
+    function firstStep(data) {
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-12 pt-5">'
@@ -2795,7 +2900,7 @@
         html += '<div class="col-12 pt-5">'
 
         menuKategoriTransaksi.forEach(e => {
-            html += '<div class="card shadow-sm card-hoper mb-3" onclick="nextStep(' + e.index + ')">'
+            html += '<div class="card shadow-sm card-hoper mb-3" onclick="nextStep(' + e.index + ',' + data.id + ')">'
             html += '<div class="card-body">'
             html += '<div class="row">'
             html += '<div class="col-2">'
@@ -2818,11 +2923,14 @@
         $('#detailSteps').html(html)
     }
 
-    function nextStep(index) {
+    function nextStep(index, idWorker) {
         var dataKategori = menuKategoriTransaksi.find((v, k) => {
             if (v.index == index) return true
         })
-        secondStep(dataKategori)
+        var dataEmployee = deepCopy(dataDetail.employeeWorkerPickup.find((v, k) => {
+            if (v.id == idWorker) return true
+        }))
+        secondStep(dataKategori, dataEmployee)
     }
 
     function timeNow() {
@@ -2839,7 +2947,8 @@
         return time;
     }
 
-    function secondStep(dataKategori) {
+    function secondStep(dataKategori, dataEmployee) {
+        console.log(dataEmployee)
         var html = ''
         html += '<div class="row">'
 
@@ -2859,15 +2968,15 @@
         html += '<div class="row justify-content-center">'
         html += '<div class="col text-center">'
         html += '<p class="m-0 small-text fw-bolder">Brand</p>'
-        html += '<p class="m-0 text-orange fw-bolder">Armour Kretek 12</p>'
+        html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.item_chain_material[0].item.name + '</p>'
         html += '</div>'
         html += '<div class="col border-start border-end text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Bahan</p>'
-        html += '<p class="m-0 text-orange fw-bolder">Bandrol</p>'
+        html += '<p class="m-0 small-text fw-bolder">Jumlah Target</p>'
+        html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.qty_target + '</p>'
         html += '</div>'
         html += '<div class="col text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Setoran</p>'
-        html += '<p class="m-0 text-orange fw-bolder">Setoran 1</p>'
+        html += '<p class="m-0 small-text fw-bolder">Unit</p>'
+        html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.item_chain_material[0].unit.name + '</p>'
         html += '</div>'
         html += '</div>'
 
@@ -2886,7 +2995,7 @@
         html += '</div>'
         html += '<div class="col-6 mb-2 text-end align-self-center"><p class="m-0 fw-bolder">Jumlah</p></div>'
         html += '<div class="col-6 mb-2">'
-        html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="" tabindex="1" role="dialog">'
+        html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + dataEmployee.open_deliv.qty_target + '" tabindex="1" role="dialog">'
         html += '</div>'
         html += '<div class="col-6 mb-2 text-end align-self-center"><p class="m-0 fw-bolder">Jam</p></div>'
         html += '<div class="col-6 mb-2">'
@@ -2894,10 +3003,10 @@
         html += '<input class="form-control form-control-lg form-invisible-line" style="text-align:right" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
         html += '</div>'
         html += '<div class="col-6 align-self-end">'
-        html += '<p class="small-text m-0 text-danger pointer">Hapus Data ?</p>'
+        // html += '<p class="small-text m-0 text-danger pointer">Hapus Data ?</p>'
         html += '</div>'
         html += '<div class="col-6 text-end">'
-        html += '<button class="btn btn-success btn-lg">Simpan</button>'
+        html += '<button class="btn btn-success btn-lg" onclick="arrangeVariableInsert(' + dataEmployee.id + ')">Simpan</button>'
         html += '</div>'
         html += '</div>'
 
@@ -2911,6 +3020,42 @@
         $('#jumlahGood').removeAttr('onblur', 'this.focus()')
     }
 
+    function arrangeVariableInsert(idWorker) {
+        var dataEmployee = deepCopy(dataDetail.employeeWorkerPickup.find((v, k) => {
+            if (v.id == idWorker) return true
+        }))
+        var materialPickup = []
+        dataEmployee.open_deliv.material_pickup.forEach(e => {
+            materialPickup.push({
+                id: e.id,
+                employee_id_admin: user_id,
+                is_pickup: 1,
+                pickup_at: currentDateTime()
+            })
+        });
+        var data = {
+            materialPickup: materialPickup
+        }
+        // console.log(data)
+        simpanVariableOffline(data)
+    }
+
+    function simpanVariableOffline(data) {
+        data.materialPickup.forEach(e => {
+            variableSaveMaterialOffline.materialPickup.push(e)
+        });
+        buttonSaveOfflineMode(variableSaveMaterialOffline.materialPickup)
+        scannerQR()
+    }
+
+    function buttonSaveOfflineMode(data) {
+        if (data.length) {
+            $('#buttonSaveOfflineMode').prop("hidden", false);
+        } else {
+            $('#buttonSaveOfflineMode').prop("hidden", true);
+        }
+    }
+
     function handleNumericInput(event) {
         var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
         if (allowChars.indexOf(event.which) === -1) {
@@ -2922,38 +3067,82 @@
     }
 
     function historyPerson(data) {
-
         var html = ''
+        var a = 0
         html += '<div class="timeline timeline-sm mt-2">'
-
         data.material_pickups.forEach(e => {
-            e.material_pickup_details.forEach(el => {
-                html += '<div class="timeline-item">'
-                html += '<div class="timeline-item-marker">'
-                html += '<div class="timeline-item-marker-indicator"></div>'
-                html += '</div>'
-                html += '<div class="timeline-item-content" style="font-size: 11px;">'
-                html += '<b>' + formatJamMenit(e.pickup_at) + '</b>'
-                html += '<div class="card shadow-none">'
-                html += '<div class="card-body p-3">'
-                html += '<div class="row">'
-                html += '<div class="col-8">'
-                html += '<p class="small-text m-0"><span class="text-orange fw-bolder">AMBIL</span> - Setoran 1</p>'
-                html += '<p class="m-0 fw-bolder">' + el.item.name + '</p>'
-                html += '</div>'
-                html += '<div class="col-4 text-end">'
-                html += '<p class="m-0 small-text text-orange">' + el.qty + '</p>'
-                html += '<p class="m-0 small-text">' + el.unit.name + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            });
+            if (e.is_pickup != null) {
+                a++
+                e.material_pickup_details.forEach(el => {
+                    html += '<div class="timeline-item">'
+                    html += '<div class="timeline-item-marker">'
+                    html += '<div class="timeline-item-marker-indicator"></div>'
+                    html += '</div>'
+                    html += '<div class="timeline-item-content" style="font-size: 11px;">'
+                    html += '<b>' + formatJamMenit(e.pickup_at) + '</b>'
+                    html += '<div class="card shadow-none">'
+                    html += '<div class="card-body p-3">'
+                    html += '<div class="row">'
+                    html += '<div class="col-8">'
+                    html += '<p class="small-text m-0"><span class="text-orange fw-bolder">AMBIL</span> - Amalia Safira</p>'
+                    html += '<p class="m-0 fw-bolder">' + el.item.name + '</p>'
+                    html += '</div>'
+                    html += '<div class="col-4 text-end">'
+                    html += '<p class="m-0 small-text text-orange">' + el.qty + '</p>'
+                    html += '<p class="m-0 small-text">' + el.unit.name + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</div>'
+                });
+            }
         });
-
         html += '</div>'
         $('#historyPerson').html(html)
+        if (a == 0) {
+            empty('#historyPerson', 'Tidak Ada History')
+        }
+    }
+
+    function autoSaveAtOfflineMode() {
+        var type = 'POST'
+        var button = '#btnSimpanOffline'
+        var url = '<?php echo api_produksi('setMaterialPickup'); ?>'
+        var data = deepCopy(variableSaveMaterialOffline)
+        if (data.materialPickup.length) {
+            kelolaDataSaveAutoMaterial(data, type, url, button)
+        }
+    }
+
+    function kelolaDataSaveAutoMaterial(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
+            },
+            success: function(response) {
+                // Buat salinan data agar data asli tidak berubah
+                var dataToDelete = deepCopy(data.materialPickup)
+                var newData = deepCopy(variableSaveMaterialOffline.materialPickup).slice();
+                dataToDelete.forEach(itemToDelete => {
+                    newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                });
+                variableSaveMaterialOffline.materialPickup = newData
+
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+                if (!variableSaveMaterialOffline.materialPickup.length) {
+                    $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
+                }
+                buttonSaveOfflineMode(variableSaveMaterialOffline.materialPickup)
+                loadData()
+            }
+        });
     }
 </script>

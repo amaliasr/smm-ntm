@@ -2914,16 +2914,28 @@
             if (shift_mechanic) {
                 shift_mechanic.forEach(shiftMechanicItem => {
                     totalEmployeePositions += shiftMechanicItem.employee_mechanic.length || 0;
-
                     const machine_type = shiftMechanicItem.shift_machine;
                     if (machine_type) {
                         if (machine_type.length) {
+                            // console.log(machine_type)
                             machine_type.forEach(e => {
-                                totalEmployeePositions += e.employee_qc_skt.length || 0;
-                                totalEmployeePositions += e.employee_foreman_ast.length || 0;
+                                var findMachineTypeId = findEntitiesByMachineId(data_work.machineType, e.machine.id)[0]
+                                // totalEmployeePositions += e.employee_qc_skt.length || 0;
+                                // totalEmployeePositions += e.employee_foreman_ast.length || 0;
                                 // totalEmployeePositions += e.employee_catcher.length || 0;
                                 // totalEmployeePositions += e.employee_helper.length || 0;
                                 // totalEmployeePositions += e.employee_operator.length || 0;
+                                data_work.machineTypeManPowerFrame.forEach(val => {
+                                    if (val.id == findMachineTypeId) {
+                                        if (val.person_label_entry_acces) {
+                                            val.person_label_entry_acces.forEach(k => {
+                                                if (k != 'qc' && k != 'mechanic') {
+                                                    eval(`totalEmployeePositions += e.employee_${k}.length || 0;`)
+                                                }
+                                            })
+                                        }
+                                    }
+                                })
                             });
 
                         }

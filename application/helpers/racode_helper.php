@@ -252,7 +252,7 @@ function job_security()
 // BUAT PER CONTROLLER
 function if_smd_planning()
 {
-    if (job_spv_smd() || job_kepala_operator() || job_foreman() || job_supply_sparepart() || job_spv_audit_internal() || job_administrasi_produksi()) {
+    if (job_spv_smd() || job_accounting_and_tax() || job_kepala_operator() || job_foreman() || job_supply_sparepart() || job_spv_audit_internal() || job_administrasi_produksi()) {
         return true;
     } else {
         return false;
@@ -284,7 +284,7 @@ function if_create_material_request()
 }
 function if_material_request()
 {
-    if (job_spv_smd() || job_kepala_operator() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal() || job_administrasi_produksi()) {
+    if (job_spv_smd() || job_accounting_and_tax() || job_kepala_operator() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal() || job_administrasi_produksi()) {
         return true;
     } else {
         return false;

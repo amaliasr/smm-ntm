@@ -225,6 +225,13 @@
                                 <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectCodeMeja" title="Pilih Kode Meja" onchange="arrangevariable()">
                                 </select>
                             </div>
+                            <div class="col-auto p-0">
+                                <p class="fw-bolder small-text m-0">Tipe Data</p>
+                                <select class="selectpicker w-100" data-live-search="true" id="selectTipeData" title="Pilih Grouping By" onchange="arrangevariable()">
+                                    <option value="DATA" selected>PAKAI DATA</option>
+                                    <option value="NODATA">TANPA DATA</option>
+                                </select>
+                            </div>
                             <!-- <div class="col-auto p-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div> -->
@@ -460,6 +467,7 @@
     var date_end = currentDate()
     var machineId
     var rowCode
+    var tipeData = 'DATA'
     var dataProfile = 'IGNORESORTIR'
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
@@ -571,6 +579,7 @@
             }
         })
         rowCode = arrayToString(row)
+        tipeData = $('#selectTipeData').val()
     }
 
     function simpanData() {
@@ -730,7 +739,7 @@
         } else {
             var url = "<?= base_url() ?>report/reportGilingPdf"
         }
-        var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode;
+        var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode + "*$" + tipeData;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

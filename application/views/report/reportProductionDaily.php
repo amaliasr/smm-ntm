@@ -242,10 +242,10 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
                                 <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','NORMAL')">Excel</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf','NORMAL')">PDF</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','IGNORESORTIR')">Excel (Ignore Sortir)</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf','IGNORESORTIR')">PDF (Ignore Sortir)</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','NORMAL')">Excel (Sortir)</a></li>
+                                <li><a class="dropdown-item fw-bolder" href="javascript:void(0);" onclick="cetakReport('pdf','NORMAL')">PDF (Sortir)</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','IGNORESORTIR')">Excel (Tanpa Sortir)</a></li>
+                                <li><a class="dropdown-item fw-bolder" href="javascript:void(0);" onclick="cetakReport('pdf','IGNORESORTIR')">PDF (Tanpa Sortir)</a></li>
                             </ul>
                         </div>
                     </div>

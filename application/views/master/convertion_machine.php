@@ -1277,6 +1277,30 @@
                 dataSteps = data_master.machineStep
                 data_unit = data_master.unit
                 $('#machineName').html(data_master.currentMachine.name)
+                getOutItem(variable)
+            }
+        })
+    }
+
+    function getOutItem(variable) {
+        $.ajax({
+            url: "<?= api_produksi('getItemOut'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                data_item = response.data.itemOut
                 getMaterialGroup(variable)
             }
         })
@@ -1318,7 +1342,7 @@
                 html += '<div class="card-body p-3">'
                 html += '<div class="row">'
                 html += '<div class="col align-slef-center">'
-                html += '<p class="m-0 super-small-text text-grey" textProduct" data-id="' + e.id + '">' + e.item_product.code + '</p>'
+                html += '<p class="m-0 super-small-text text-grey textProduct" data-id="' + e.id + '">' + e.item_product.code + '</p>'
                 html += '<p class="m-0"><b class="textProduct" data-id="' + e.id + '">' + e.item_product.alias + '</b></p>'
                 html += '</div>'
                 html += '<div class="col-auto align-self-center">'
@@ -1330,6 +1354,7 @@
             });
         }
         $('#listProduct').html(html)
+        onSearch('#search_product', '.textProduct', '#btnProduct')
         if (variable == 'conversionMachineMaterialGroup') {
             afterSaveMaterialGroup()
         } else if (variable == 'conversionMachineWaste') {
@@ -1408,11 +1433,47 @@
         } else if (indexLine == 1) {
             templateWaste()
         } else {
-            templateOption()
+            getItemOutWIthId()
         }
     }
 
-    function templateOption() {
+    function getItemOutWIthId() {
+        var data = {}
+
+        if (dataProduct.item_product.product_id) {
+            data = {
+                'productId': dataProduct.item_product.product_id
+            }
+        } else {
+            data = {
+                'productGroupId': dataProduct.item_product.product_group_id
+            }
+        }
+        $.ajax({
+            url: "<?= api_produksi('getItemOut'); ?>",
+            data: data,
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                var data_item_load = response.data.itemOut
+                templateOption(data_item_load)
+            }
+        })
+    }
+
+    function templateOption(data_item_load) {
         var html = ''
         html += '<div class="row p-2">'
         html += '<div class="col-2 fw-bolder align-self-center">Select Unit</div>'
@@ -1453,6 +1514,25 @@
         html += '</div>'
 
         html += '<div class="row p-2">'
+        html += '<div class="col-2 fw-bolder align-self-center">Select Final Product</div>'
+        html += '<div class="col-2 fw-bolder align-self-center">'
+        html += '<select class="form-control w-100" id="selectFinalEdit" title="Pilih Final Product" onchange="changeFinalProduct()">'
+        html += '<option value="">Pilih Final Product</option>'
+        data_item_load.forEach(e => {
+            var select = ''
+            if (e.id == dataProduct.item_id_product_final) {
+                select = 'selected'
+            }
+            html += '<option class="super-small-text" value="' + e.id + '" ' + select + '>' + e.code + ' - ' + e.name + '</option>'
+        });
+        html += '</select>'
+        html += '</div>'
+        html += '<div class="col-1 p-0 fw-bolder align-self-center">'
+        html += '<button class="btn btn-sm btn-success" hidden id="btnSaveFinal" onclick="saveFinalProduct()"><i class="fa fa-save"></i></button>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '<div class="row p-2">'
         html += '<div class="col-2 fw-bolder align-self-center">Delete Product</div>'
         html += '<div class="col-3 fw-bolder">'
         html += '<button class="btn btn-danger" onclick="deleteProduct()">Delete This Product</button>'
@@ -1464,6 +1544,10 @@
             width: '100%',
         })
         $('#selectStepsEdit').select2({
+            closeOnSelect: true,
+            width: '100%',
+        })
+        $('#selectFinalEdit').select2({
             closeOnSelect: true,
             width: '100%',
         })
@@ -1487,6 +1571,15 @@
         }
     }
 
+    function changeFinalProduct() {
+        var id = $('#selectFinalEdit').val()
+        if (dataProduct.item_id_product_final != id) {
+            $('#btnSaveFinal').removeAttr('hidden', true)
+        } else {
+            $('#btnSaveFinal').attr('hidden', true)
+        }
+    }
+
     function saveUnit() {
         var data = [{
             id: dataProduct.id,
@@ -1501,6 +1594,16 @@
             machine_step_id: $('#selectStepsEdit').val()
         }]
         arrangeVariable('conversionMachineProduct', data)
+    }
+
+    function saveFinalProduct() {
+        var id = $('#selectFinalEdit').val()
+        var data = [{
+            id: dataProduct.id,
+            item_id_product_final: id
+        }]
+        arrangeVariable('conversionMachineProduct', data)
+
     }
 
     function deleteProduct(id = null, idProduct = null) {
@@ -1553,6 +1656,7 @@
         html += '<th class="align-middle small-text">#</th>'
         html += '<th class="align-middle small-text">Name</th>'
         html += '<th class="align-middle small-text">Material Default</th>'
+        html += '<th class="align-middle small-text">Main<br>Material</th>'
         html += '<th class="align-middle small-text">Unit</th>'
         html += '<th class="align-middle small-text">Height</th>'
         html += '<th class="align-middle small-text">Length</th>'
@@ -1577,6 +1681,11 @@
                 var defaultItemName = '<span class="small-text"><i>Belum Disetting </i><i class="fa fa-warning text-warning"></i></span>'
             }
             html += '<td class="align-middle small">' + defaultItemName + '</td>'
+            var isMain = ''
+            if (e.is_material_main) {
+                isMain = '<i class="fa fa-check text-success"></i>'
+            }
+            html += '<td class="align-middle small text-center">' + isMain + '</td>'
             var namaUnit = '-'
             if (e.unit) {
                 e.unit.name
@@ -1802,27 +1911,27 @@
 
     function getItemProduct() {
         if (!data_item) {
-            $.ajax({
-                url: "<?= api_produksi('getItemOut'); ?>",
-                method: "GET",
-                dataType: 'JSON',
-                error: function(xhr) {
-                    showOverlay('hide')
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Error Data'
-                    });
-                },
-                beforeSend: function() {
-                    showOverlay('show')
-                },
-                success: function(response) {
-                    showOverlay('hide')
-                    data_item = response.data.itemOut
-                    modalItemProduct()
-                }
-            })
+            // $.ajax({
+            //     url: "<?= api_produksi('getItemOut'); ?>",
+            //     method: "GET",
+            //     dataType: 'JSON',
+            //     error: function(xhr) {
+            //         showOverlay('hide')
+            //         Swal.fire({
+            //             icon: 'error',
+            //             title: 'Oops...',
+            //             text: 'Error Data'
+            //         });
+            //     },
+            //     beforeSend: function() {
+            //         showOverlay('show')
+            //     },
+            //     success: function(response) {
+            //         showOverlay('hide')
+            //         data_item = response.data.itemOut
+            //         modalItemProduct()
+            //     }
+            // })
         } else {
             modalItemProduct()
         }
@@ -1931,7 +2040,7 @@
         html += '<div id="fieldProduct" class="mt-2 pe-2" style="height: 350px;overflow-x: hidden;overflow-y: auto;">'
         html += '</div>'
         html += '</div>'
-        
+
         html += '<div class="col-8">'
         html += '<p class="m-0 small-text fw-bolder">List Selected Produk (<span class="text-orange" id="totalSelectedProduct">0</span>)</p>'
         html += '<input type="text" class="form-control mt-2" placeholder="Cari Produk yang Terpilih" id="search_selected_product" autocomplete="off" style="border-radius:0.35rem;" onkeyup="onSearch(' + "'#search_selected_product'" + ',' + "'.textSelectedProduct'" + ',' + "'#btnSelectedProduct'" + ')">'
@@ -1969,7 +2078,7 @@
                 html += '<div class="card-body">'
                 html += '<div class="row">'
                 html += '<div class="col-10">'
-                html += '<p class="m-0 super-small-text fw-bolder textAddProduct" data-id="' + e.id + '">' + e.alias + '</p>'
+                html += '<p class="m-0 super-small-text fw-bolder textAddProduct" data-id="' + e.id + '">' + e.code + ' - ' + e.alias + '</p>'
                 html += '<p class="m-0 super-small-text fw-bold textAddProduct" data-id="' + e.id + '">' + e.name + '</p>'
                 html += '</div>'
                 html += '<div class="col-2 align-self-center text-center">'
@@ -2035,7 +2144,7 @@
 
     function kerangkaSelectedProduct(data, dataEdit = null) {
         var html = ''
-        html += '<div class="card shadow-none pointer card-hoper mb-2" id="btnSelectedProduct'+data.id+'">'
+        html += '<div class="card shadow-none pointer card-hoper mb-2" id="btnSelectedProduct' + data.id + '">'
         if (dataEdit) {
             // console.log(dataEdit)
             html += '<span class="position-absolute top-50 start-100 translate-middle bg-danger border border-light rounded-circle pointer" style="height: 25px;width: 25px;text-align: center;" onclick="deleteProduct(' + dataEdit.id + ',' + data.id + ')"><i class="fa fa-trash text-white small-text"></i></span>'
@@ -2308,6 +2417,7 @@
                 });
             }
             if (!avail) {
+
                 html += cardListMaterialGroup(e)
             }
         })

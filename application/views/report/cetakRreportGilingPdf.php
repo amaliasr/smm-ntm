@@ -433,7 +433,11 @@ function groupDataByRowCode($data)
                             <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"></td>
                             <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"></td>
                             <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"></td>
-                            <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"><?= $value->qty ?></td>
+                            <?php if ($tipeData == 'DATA') { ?>
+                                <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"><?= $value->qty ?></td>
+                            <?php } else { ?>
+                                <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"></td>
+                            <?php } ?>
                             <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"></td>
                             <?php $jumlahTotalGood = $jumlahTotalGood + $value->qty ?>
                         </tr>

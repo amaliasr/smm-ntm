@@ -166,6 +166,7 @@
                                 <img src="<?= base_url('assets/img/illustrations/profiles/profile-2.png') ?>" />
                             <?php } ?>
                             <div class="birthday-frame" id="birthdayFrame" hidden></div>
+                            <div id="eventFrame"></div>
                         </div>
                     </div>
                     <div class="col-6 ps-0">
@@ -531,14 +532,7 @@
         // $('#layoutSidenav_content').addClass('bg-rainbow')
         setInterval(updateTime, 1000);
         initialPageVisited()
-        if (!access) {
-            var textarea = document.getElementById("myTextarea");
-            textarea.focus();
-            $('#myTextarea').val(getCookie('myTextarea'))
-        } else {
-            // pencapaianTarget()
-            loadData()
-        }
+        loadData()
     });
     var data_machine
     var data_user
@@ -553,11 +547,44 @@
 
         // Mendapatkan tanggal ulang tahun pada tahun ini
         var ulangTahunTahunIni = new Date(hariIni.getFullYear(), tanggalLahir.getMonth(), tanggalLahir.getDate());
-
         // Memeriksa apakah hari ini adalah ulang tahun
         var hasil = (hariIni.toDateString() === ulangTahunTahunIni.toDateString());
-
         return hasil;
+    }
+    var eventDate = [{
+        'dateStart': '2024-03-11',
+        'dateEnd': '2024-04-11',
+        'eventName': 'Ramadan Mubarak',
+        'image': 'ramadan'
+    }]
+
+
+    function eventImage() {
+        var hariIni = new Date();
+        var image = ''
+        var hasil = false
+        eventDate.forEach(e => {
+            var dateStart = new Date(e.dateStart);
+            var dateEnd = new Date(e.dateEnd);
+            var eventDateStart = new Date(hariIni.getFullYear(), dateStart.getMonth(), dateStart.getDate());
+            var eventDateEnd = new Date(hariIni.getFullYear(), dateEnd.getMonth(), dateEnd.getDate());
+            var hasil = (hariIni >= eventDateStart && hariIni <= eventDateEnd);
+            if (hasil) {
+                image = e.image
+            }
+        });
+        if (image) {
+            // $("#eventFrame").css('')
+            $("#eventFrame").css({
+                'position': 'absolute',
+                'top': '0',
+                'left': '0',
+                'right': '0',
+                'bottom': '0',
+                'z-index': '1',
+                'background': "url('./assets/image/logo/" + image + ".png ') center/cover no-repeat",
+            });
+        }
     }
 
     function dateInformation() {
@@ -565,10 +592,6 @@
     }
 
     function loadData() {
-        $('#dateStartTarget').val(dateStartTarget)
-        $('#dateEndTarget').val(dateEndTarget)
-        $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
-        setDaterange()
         $.ajax({
             url: "https://rest.pt-bks.com/hr_lr/smm/get-data-employee",
             method: "GET",
@@ -592,14 +615,28 @@
                         $('#birthdayFrame').prop('hidden', false)
                     } else {
                         $('#birthdayFrame').prop('hidden', true)
+                        eventImage()
                     }
+                } else {
+                    eventImage()
                 }
-                loadMachine()
+                if (!access) {
+                    var textarea = document.getElementById("myTextarea");
+                    textarea.focus();
+                    $('#myTextarea').val(getCookie('myTextarea'))
+                } else {
+                    // Pencapaian Target
+                    loadMachine()
+                }
             }
         })
     }
 
     function loadMachine() {
+        $('#dateStartTarget').val(dateStartTarget)
+        $('#dateEndTarget').val(dateEndTarget)
+        $('#pencapaianTarget').html(loadingReturn('Sedang Diproses'))
+        setDaterange()
         $.ajax({
             url: "<?= api_produksi('loadPageMachineReport'); ?>",
             method: "GET",

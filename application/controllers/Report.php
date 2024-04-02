@@ -1001,6 +1001,7 @@ class Report extends CI_Controller
         $data['date'] = date('Y-m-d', strtotime($explodedParams[1]));
         $data['machineId'] = $explodedParams[2];
         $data['rowCode'] = $explodedParams[3];
+        $data['tipeData'] = $explodedParams[4];
         $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getResultProductWorkerTotalDaily?date=' . $data['date'] . '&machineId=' . $data['machineId'] . '&rowCode=' . $data['rowCode'])))->data;
         // $this->load->view('report/cetakRreportGilingPdf', $data);
         $html = $this->load->view('report/cetakRreportGilingPdf', $data, true);
@@ -1056,6 +1057,7 @@ class Report extends CI_Controller
         $date = date('Y-m-d', strtotime($explodedParams[1]));
         $machineId = $explodedParams[2];
         $rowCode = $explodedParams[3];
+        $tipeData = $explodedParams[4];
         $body = json_decode($this->curl->simple_get(api_produksi('getResultProductWorkerTotalDaily?date=' . $date . '&machineId=' . $machineId . '&rowCode=' . $rowCode)))->data->resultProductWorkerTotal;
         $spreadsheet = new Spreadsheet();
         $spreadsheet->getActiveSheet()->getProtection()->setSheet(true);
@@ -1140,7 +1142,11 @@ class Report extends CI_Controller
             $sheet->setCellValue(Coordinate::stringFromColumnIndex(9) . $jumlahRow, '=(' . Coordinate::stringFromColumnIndex(7) . $jumlahRow . '/' . Coordinate::stringFromColumnIndex(13) . $jumlahRow . ')');
             $sheet->setCellValue(Coordinate::stringFromColumnIndex(14) . $jumlahRow, '=(' . Coordinate::stringFromColumnIndex(10) . $jumlahRow . '+' . Coordinate::stringFromColumnIndex(11) . $jumlahRow . '-' . Coordinate::stringFromColumnIndex(12) . $jumlahRow . '-' . Coordinate::stringFromColumnIndex(13) . $jumlahRow . ')');
             $jumlahColumn += 8;
-            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->qty);
+            if ($tipeData == 'DATA') {
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->qty);
+            } else {
+                $jumlahColumn++;
+            }
             $jumlahRow++;
             $totalProduksi += $value->qty;
         }

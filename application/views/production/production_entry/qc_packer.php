@@ -1,74 +1,4 @@
 <style type="text/css">
-    .progress-bulat {
-        width: 80px;
-        height: 80px;
-        background: none;
-        position: relative;
-    }
-
-    .progress-bulat::after {
-        content: "";
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 10px solid #eee;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-
-    .progress-bulat>span {
-        width: 50%;
-        height: 100%;
-        overflow: hidden;
-        position: absolute;
-        top: 0;
-        z-index: 1;
-    }
-
-    .progress-bulat .progress-left {
-        left: 0;
-    }
-
-    .progress-bulat .progress-bar {
-        width: 100%;
-        height: 100%;
-        background: none;
-        border-width: 10px;
-        border-style: solid;
-        position: absolute;
-        top: 0;
-    }
-
-    .progress-bulat .progress-left .progress-bar {
-        left: 100%;
-        border-top-right-radius: 80px;
-        border-bottom-right-radius: 80px;
-        border-left: 0;
-        -webkit-transform-origin: center left;
-        transform-origin: center left;
-    }
-
-    .progress-bulat .progress-right {
-        right: 0;
-    }
-
-    .progress-bulat .progress-right .progress-bar {
-        left: -100%;
-        border-top-left-radius: 80px;
-        border-bottom-left-radius: 80px;
-        border-right: 0;
-        -webkit-transform-origin: center right;
-        transform-origin: center right;
-    }
-
-    .progress-bulat .progress-value {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-</style>
-<style type="text/css">
     .progress-kotak {
         height: 15px;
     }
@@ -211,6 +141,11 @@
         background: transparent;
     }
 
+    .bg-outline-grey {
+        border: 1px solid #e5e5e5 !important;
+        border-color: #e5e5e5 !important;
+    }
+
     .bg-outline-primary {
         border: 1px solid rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
         border-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
@@ -232,7 +167,9 @@
 
     .form-invisible-line {
         padding: 0px;
-        font-size: 2rem;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 1.8rem;
         font-weight: bolder;
         text-align: right;
     }
@@ -464,74 +401,6 @@
                     </div>
                 </div>
                 <div class="row pt-4" id="detailWorker">
-                    <div class="col-9">
-                        <div class="row">
-                            <div class="col-2">
-                                <h1 class="m-0 fw-bolder"><span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">A1</span></h1>
-                            </div>
-                            <div class="col-10">
-                                <h1 class="m-0 fw-bolder">AMALIA SAFIRA</h1>
-                                <p class="m-0"><b class="text-dark-grey">Total Setoran </b><span class="text-warning fw-bold">2,000</span> Pack</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="card bg-warning">
-                            <div class="card-body text-center text-white p-2">
-                                <p class="m-0 super-small-text">Setoran Ke</p>
-                                <h1 class="m-0 fw-bolder text-white"> 1 </h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 pt-4">
-                        <p class="super-small-text fw-bolder">Riwayat Setoran</p>
-                        <table class="table table-bordered table-hover small-text table-sm">
-                            <thead>
-                                <tr>
-                                    <th class="align-middle super-small-text" rowspan="2">#</th>
-                                    <th class="align-middle super-small-text" rowspan="2">Jam</th>
-                                    <th class="align-middle super-small-text" rowspan="2">Brand</th>
-                                    <th class="align-middle super-small-text" rowspan="2">Steps</th>
-                                    <th class="align-middle super-small-text" colspan="2">Quantity</th>
-                                    <th class="align-middle super-small-text" rowspan="2">Unit</th>
-                                    <th class="align-middle super-small-text" rowspan="2">Status</th>
-                                </tr>
-                                <tr>
-                                    <th class="super-small-text">Good</th>
-                                    <th class="super-small-text">Reject</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php for ($i = 0; $i < 5; $i++) { ?>
-                                    <tr class="table-hijau">
-                                        <td class="text-center align-middle" style="height: 30px;">1</td>
-                                        <td class="text-center align-middle" style="height: 30px;">09:00</td>
-                                        <td class="text-center align-middle" style="height: 30px;">AK</td>
-                                        <td class="text-center align-middle" style="height: 30px;">
-                                        </td>
-                                        <td class="text-center align-middle" style="height: 30px;">200</td>
-                                        <td class="text-center align-middle" style="height: 30px;">2</td>
-                                        <td class="text-center align-middle" style="height: 30px;">Pack</td>
-                                        <td class="text-center align-middle small-text" style="height: 30px;">Complete</td>
-                                    </tr>
-                                <?php } ?>
-
-                                <tr class="pointer" onclick="workProgress()">
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                    <td class="text-center align-middle" style="height: 30px;"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -561,30 +430,6 @@
                                 </tr>
                             </thead>
                             <tbody id="tableDetail">
-                                <?php for ($i = 0; $i < 100; $i++) { ?>
-                                    <tr class="">
-                                        <td class="small-text align-middle text-center">1</td>
-                                        <td class="small-text align-middle text-center">09:00</td>
-                                        <td class="small-text align-middle text-center">Amalia Safira</td>
-                                        <td class="small-text align-middle text-center">AK</td>
-                                        <td class="small-text align-middle text-center">200</td>
-                                        <td class="small-text align-middle text-center">Pack</td>
-                                        <td class="small-text align-middle text-center">
-                                            <div id="progress">
-                                                <ul id="progress-num">
-                                                    <li class="steps active">1</li>
-                                                    <li class="steps active">2</li>
-                                                    <li class="steps">3</li>
-                                                    <li class="steps">4</li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        <td class="small-text align-middle text-center"><span class="badge rounded-pill bg-success">Complete</span></td>
-                                        <td class="small-text align-middle">
-                                            <button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
@@ -593,9 +438,9 @@
         </div>
     </div>
 </div>
-<div class="fixed-top" style="z-index: 999999999;">
-    <div class="bg-danger text-white small p-3 text-center m-1 rounded-pill top-0 start-100" style="width: 350px;" id="offlineModePane" hidden>
-        <i class="fa fa-wifi me-2"></i>Offline Mode<span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2" onclick="simpanOfflineMode()"><i class="fa fa-save me-1"></i>Send All</button></span>
+<div class="fixed-top" style="z-index: 99999;width: fit-content;">
+    <div class="bg-orange text-white super-small-text p-2 text-center m-1 rounded-pill top-0 start-100 d-flex align-items-center align-self-center justify-content-center" style="width: 300px;min-height:40px;" id="offlineModePane" hidden>
+        <span class="m-0 align-middle"><i class="fa fa-wifi me-2"></i>Offline Mode</span><span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2 super-small-text" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2 super-small-text" onclick="autoSaveAtOfflineModeResult()"><i class="fa fa-save me-1"></i>Send All</button></span>
     </div>
 </div>
 <div aria-live="polite" aria-atomic="true" class="position-relative">
@@ -618,6 +463,7 @@
         </div>
     </div>
 </div>
+
 <div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
@@ -644,9 +490,35 @@
         var nextStatus
         var qty = {}
         var worker_id = null
+        var item = ''
+        var itemId = ''
+        var itemName = '-'
+        var step_status = ''
+        var step_status_id = ''
+        var warehouse_id
+        var machine_step_profile_id
+        var material_pickup_id
+        var material_pickup_details
         if (data) {
             worker_id = data.worker_id
-            qty = deepCopy(data[menu.toLowerCase()])
+            itemId = data.item.id
+            item = data.item.alias
+            itemName = data.item.name
+            step_status = lastStatusSteps(data.result_product_person_step, 'name')
+            step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
+            warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
+            machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
+            material_pickup_id = getMaterialPickup(data.material_pickup).id
+            material_pickup_details = getMaterialPickup(data.material_pickup).material_pickup_details
+            // console.log(step_status_id)
+            if (menu == 'NEWDELIVER') {
+                qty = {
+                    'good': getMaterialPickup(data.material_pickup).qty,
+                    'process_at': data.datetime
+                }
+            } else {
+                qty = deepCopy(data[menu.toLowerCase()])
+            }
             status = menu
             nextStatus = menu
         }
@@ -655,7 +527,104 @@
             status: status,
             nextStatus: nextStatus,
             qty: qty,
-            worker_id: worker_id
+            worker_id: worker_id,
+            item: item,
+            step_status: step_status,
+            step_status_id: step_status_id,
+            itemName: itemName,
+            itemId: itemId,
+            warehouse_id: warehouse_id,
+            machine_step_profile_id: machine_step_profile_id,
+            material_pickup_id: material_pickup_id,
+            material_pickup_details: material_pickup_details,
+        }
+    }
+
+    function lastStatusSteps(data, variable) {
+        var text = '-'
+        if (data.length) {
+            text = data[parseInt(data.length) - 1].machine_step[variable]
+            if (text == null) {
+                text = '-'
+            }
+        }
+        return text
+    }
+
+    function cekStatusProductPersonSteps(data) {
+        if (data) {
+            var cekData = data.find((v, k) => {
+                if (v.is_complete == 1) return true
+            })
+            if (cekData) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    }
+
+    function cekAmbilMaterial(data) {
+        if (data) {
+            var cekData = data.find((v, k) => {
+                if (v.is_pickup == 1) return true
+            })
+            if (cekData) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    }
+
+    function qtyMaterialPickup(data) {
+        var output = 0
+        if (data) {
+            data.forEach(e => {
+                e.material_pickup_details.forEach(el => {
+                    output = output + el.qty
+                });
+            });
+        }
+        return output
+    }
+
+    function getMaterialPickup(data) {
+        var qty = 0
+        var name = ''
+        var warehouse_id
+        var machine_step_profile_id
+        var id
+        var material_pickup_details = []
+        var pickup_at = ''
+        var unit_name = ''
+        if (data) {
+            data.forEach(e => {
+                material_pickup_details = deepCopy(e.material_pickup_details)
+                e.material_pickup_details.forEach(el => {
+                    qty = el.qty
+                    name = el.item.name
+                    unit_name = el.unit.name
+                });
+                warehouse_id = e.warehouse.id
+                machine_step_profile_id = e.machine_step_profile_id
+                id = e.id
+                pickup_at = e.pickup_at
+            });
+        }
+        return {
+            'qty': qty,
+            'name': name,
+            'warehouse_id': warehouse_id,
+            'machine_step_profile_id': machine_step_profile_id,
+            'id': id,
+            'material_pickup_details': material_pickup_details,
+            'pickup_at': pickup_at,
+            'unit_name': unit_name,
         }
     }
 
@@ -668,58 +637,70 @@
         var nextStatus
         var qty = {}
         var worker_id = null
+        var item = ''
+        var itemId = ''
+        var itemName = '-'
+        var step_status = ''
+        var step_status_id = ''
+        var warehouse_id
+        var machine_step_profile_id
         if (data) {
             worker_id = data.worker_id
-            if (data.delivery.is_process && !data.sortir.is_process && !data.fillup.is_process && !data.complete.is_process) {
+            itemId = data.item.id
+            item = data.item.alias
+            itemName = data.item.name
+            step_status = lastStatusSteps(data.result_product_person_step, 'name')
+            step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
+            warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
+            machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
+
+            if (!data.delivery.is_process && !cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                status = 'AMBIL MATERIAL'
+                nextStatus = 'SEDANG AMBIL MATERIAL'
+                qty = {
+                    good: qtyMaterialPickup(data.material_pickup),
+                }
+            } else if (!data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                status = 'TELAH AMBIL MATERIAL'
+                nextStatus = 'DELIVERY'
+                qty = {
+                    good: qtyMaterialPickup(data.material_pickup),
+                }
+
+            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
                 status = 'DELIVERY'
-                nextStatus = 'SORTIR'
+                nextStatus = 'MATERIAL'
                 qty = {
                     waste: data.delivery.waste,
                     good: data.delivery.good,
                 }
-            } else if (data.delivery.is_process && data.sortir.is_process && !data.fillup.is_process && !data.complete.is_process) {
-                status = 'SORTIR'
-                nextStatus = 'FILLUP'
-                qty = {
-                    reject: data.sortir.reject,
-                    good: data.sortir.good,
-                }
-            } else if (data.delivery.is_process && data.sortir.is_process && data.fillup.is_process && !data.complete.is_process) {
-                status = 'FILLUP'
+
+            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                status = 'MATERIAL'
                 nextStatus = 'COMPLETE'
                 qty = {
-                    waste: data.fillup.waste,
-                    good: data.fillup.good,
+                    waste: data.delivery.waste,
+                    good: data.delivery.good,
                 }
 
-            } else if (data.delivery.is_process && data.sortir.is_process && data.fillup.is_process && data.complete.is_process) {
+            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && data.complete.is_process) {
                 status = 'COMPLETE'
                 nextStatus = 'DONE'
                 qty = {
                     waste: data.complete.waste,
                     reject: data.complete.reject,
-
-                    good: data.complete.good,
-                }
-            } else if (data.delivery.is_process && data.sortir.is_process && !data.fillup.is_process && data.complete.is_process) {
-                status = 'COMPLETE'
-                nextStatus = 'DONE'
-                qty = {
-                    waste: data.complete.waste,
-                    reject: data.complete.reject,
-
                     good: data.complete.good,
                 }
             } else {
                 status = 'PROCESS'
-                nextStatus = 'DELIVERY'
+                nextStatus = 'DONE'
                 qty = {
                     good: 0
                 }
             }
         } else {
             status = 'NOT CREATED'
-            nextStatus = 'DELIVERY'
+            nextStatus = 'NEWDELIVER'
             qty = {
                 good: 0
             }
@@ -729,7 +710,14 @@
             status: status,
             nextStatus: nextStatus,
             qty: qty,
-            worker_id: worker_id
+            worker_id: worker_id,
+            item: item,
+            step_status: step_status,
+            step_status_id: step_status_id,
+            itemName: itemName,
+            itemId: itemId,
+            warehouse_id: warehouse_id,
+            machine_step_profile_id: machine_step_profile_id,
         }
     }
 
@@ -821,6 +809,90 @@
 
         return Object.values(hasilJumlah);
     }
+
+    function shortenTextNoDots(text, maxLength) {
+        if (text.length <= maxLength) {
+            return text; // Mengembalikan teks asli jika panjangnya kurang dari atau sama dengan maxLength
+        } else {
+            var shortenedText = text.substring(0, maxLength); // Memperpendek teks dan menambahkan tanda titik-titik
+            return shortenedText;
+        }
+    }
+
+    function findmachineStep(idProduct, idStep) {
+        var dataMaster = {
+            listMachineStep: [],
+            listMachineStepProduct: [],
+        }
+        var data = dataEntry.machineStepProfile.find((v, k) => {
+            if (v.item_id_product == idProduct) return true
+        })
+        if (data) {
+            var dataMachineStep = data.machine_step_profiles.find((v, k) => {
+                if (v.id == idStep) return true
+            })
+            if (dataMachineStep) {
+                dataMaster.listMachineStep = dataMachineStep.machine_step_profile_details
+                dataMaster.listMachineStepProduct = dataMachineStep.machine_steps_product
+            }
+        }
+        if (dataMaster.listMachineStep.length) {
+            var a = 0
+            dataMaster.listMachineStep.forEach(e => {
+                e['data_machine_steps'] = []
+                for (let i = 0; i < e.machine_step_ids.length; i++) {
+                    var findStep = dataEntry.machineStep.find((v, k) => {
+                        if (v.id == e.machine_step_ids[i]) return true
+                    })
+                    if (findStep) {
+                        dataMaster.listMachineStep[a].data_machine_steps.push(findStep)
+                    }
+                }
+                a++
+            });
+        }
+        return dataMaster
+    }
+
+    function getMaterialMain(idProduct, idStep, idUnit, qtyInput) {
+        // dataEntry.productMaterial
+        var data = dataEntry.machineStepProfile.find((v, k) => {
+            if (v.item_id_product == idProduct) return true
+        })
+        console.log(data)
+        var item_ids_material_main = []
+        if (data) {
+            var dataMachineStep = data.machine_step_profiles.find((v, k) => {
+                if (v.id == idStep) return true
+            })
+            if (dataMachineStep) {
+                item_ids_material_main = dataMachineStep.item_ids_material_main
+            }
+        }
+        var dataCollect = []
+        dataEntry.productMaterial.forEach(e => {
+            e.material_group.forEach(el => {
+                if (el) {
+                    for (let i = 0; i < item_ids_material_main.length; i++) {
+                        if (item_ids_material_main[i] == el.item_id_default) {
+                            var dataUnit = el.item_default.unit_option.find((v, k) => {
+                                if (v.id == el.requirement.unit_id) return true
+                            })
+                            eval('var qty = qtyInput ' + dataUnit.operator + ' ' + dataUnit.multiplier)
+                            dataCollect.push({
+                                'item_id': item_ids_material_main[i],
+                                'unit_id_input': el.requirement.unit_id,
+                                'qty_input': qtyInput,
+                                'unit_id': el.item_default.unit.id,
+                                'qty': qty,
+                            })
+                        }
+                    }
+                }
+            });
+        });
+        return dataCollect
+    }
 </script>
 <script>
     function emptyReturn(text, height = null) {
@@ -841,7 +913,7 @@
     var link = '<?= $link ?>'
     var dataEntry
     var itemIdSelected = []
-    var defaultleSetoran = 10
+    var defaultleSetoran = 6
     var dataDetailDelivery = []
     var dataMaterial = []
     var newSetoranBar = 1
@@ -858,21 +930,31 @@
     var scanned = false
     var fastMode = false
     var auto500 = true
-    var offlineMode = false
+    var offlineMode = true
     var variableSaveOffline = {
         resultProductPerson: [],
         deletedId: []
     }
+    var variableSaveMaterialOffline = {
+        materialPickup: [],
+        materialPickupDetail: [],
+        deletedId: {
+            materialPickup: [],
+            materialPickupDetail: [],
+        },
+    }
     var firstAddedResultProductPersonId = ''
     var accessMenu = {
-        deliver_goods: [{
+        qc_packer: [{
+            access_name: 'Create New',
+            name: 'NEWDELIVER'
+        }, {
             access_name: 'Delivered',
             name: 'DELIVERY'
         }, {
             access_name: 'Complete',
             name: 'DONE'
-        }],
-        sorting_goods: [{
+        }, {
             access_name: 'QC Sorting',
             name: 'SORTIR'
         }, {
@@ -897,7 +979,8 @@
         //     searching: false,
         //     info: false,
         // })
-        // empty('#detailWorker', '<span class="small-text">Pilih Worker pada Panel Kiri untuk Melihat Detail</span>')
+        empty('#detailWorker', '<span class="small-text">Pilih Worker pada Panel Kiri untuk Melihat Detail</span>')
+        offlineModeConnection()
         // empty('#workerProgress', '<span class="small-text">Belum Tersedia Progress Worker</span>')
     })
 
@@ -952,6 +1035,8 @@
                     'sortir': el.sortir,
                     'fillup': el.fillup,
                     'complete': el.complete,
+                    'result_product_person_step': el.result_product_person_step,
+                    'material_pickup': el.material_pickup,
                 })
             });
         })
@@ -964,21 +1049,23 @@
                     var itemDefault = el.items.find((v, k) => {
                         if (v.item.id == el.item_id_default) return true
                     })
-                    dataMaterial.push({
-                        work_plan_product_id: dataProducts.work_plan_product_id,
-                        item_id: e.item_id,
-                        item_name: e.name,
-                        item_code: e.code,
-                        item_name: e.name,
-                        material_group_id: el.material_group.id,
-                        material_group_name: el.material_group.name,
-                        material_id: itemDefault.item.id,
-                        material_code: itemDefault.item.code,
-                        material_alias: itemDefault.item.alias,
-                        material_name: itemDefault.item.name,
-                        unit_id: itemDefault.unit.id,
-                        unit_name: itemDefault.unit.name,
-                    })
+                    if (dataProducts) {
+                        dataMaterial.push({
+                            work_plan_product_id: dataProducts.work_plan_product_id,
+                            item_id: e.item_id,
+                            item_name: e.name,
+                            item_code: e.code,
+                            item_name: e.name,
+                            material_group_id: el.material_group.id,
+                            material_group_name: el.material_group.name,
+                            material_id: itemDefault.item.id,
+                            material_code: itemDefault.item.code,
+                            material_alias: itemDefault.item.alias,
+                            material_name: itemDefault.item.name,
+                            unit_id: itemDefault.unit.id,
+                            unit_name: itemDefault.unit.name,
+                        })
+                    }
                 }
             })
         })
@@ -988,22 +1075,55 @@
     function workerProgress() {
         $('#totalWorker').html(dataEntry.productionDelivery.length)
         $('#workerProgress').html(formWorkerProgress())
+        $('#tableDetail').html(detailTransaction())
         searching()
         if (stillOpenModal) {
             if (!JustOnCamAfterAdd) {
-                if (materialIdClicked) {
-                    newMaterial(workerIdClicked)
-                } else {
-                    modalWorkProgress()
-                }
+                modalWorkProgress()
             } else {
                 JustOnCamAfterAdd = false
-                // nanti buka kamera disini
                 firstAddedResultProductPersonId = ''
                 scannerQR()
             }
             detailWorker(workerIdClicked)
         }
+    }
+
+    function detailTransaction() {
+        var html = ''
+        var a = 1;
+        dataDetailDelivery.forEach(e => {
+            var dataDelivery = findStatus(e.result_product_person_id)
+            html += '<tr class="">'
+            html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
+            html += '<td class="small-text align-middle text-center">' + formatJamMenit(e.datetime) + '</td>'
+            html += '<td class="small-text align-middle text-center">' + e.worker_name + '</td>'
+            html += '<td class="small-text align-middle text-center">' + e.item.alias + '</td>'
+            html += '<td class="small-text align-middle text-center">' + dataDelivery.qty.good + '</td>'
+            html += '<td class="small-text align-middle text-center">' + e.unit.name + '</td>'
+            html += '<td class="small-text align-middle text-center" style="width:100px;">'
+            html += '<div id="progress">'
+            html += '<ul id="progress-num">'
+            dataEntry.machineStep.forEach(el => {
+                var active = ''
+                var data = e.result_product_person_step.find((v, k) => {
+                    if (v.machine_step.id == el.id) return true
+                })
+                if (data) {
+                    active = 'active'
+                }
+                html += '<li class="steps ' + active + '">' + el.index + '</li>'
+            });
+            html += '</ul>'
+            html += '</div>'
+            html += '</td>'
+            html += '<td class="small-text align-middle text-center"><span class="badge rounded-pill bg-success">' + toTitleCase(dataDelivery.status) + '</span></td>'
+            html += '<td class="small-text align-middle">'
+            html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>'
+            html += '</td>'
+            html += '</tr>'
+        });
+        return html
     }
 
     function formWorkerProgress() {
@@ -1012,7 +1132,7 @@
             dataEntry.productionDelivery.forEach(e => {
                 var badgeMeja = ''
                 if (e.employee_worker.row_code) {
-                    badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.employee_worker.row_code + '</span>'
+                    badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2 mt-1" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.employee_worker.row_code + '</span>'
                 }
                 html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search' + e.employee_worker.id + '">'
                 html += '<div class="card-body p-0">'
@@ -1020,32 +1140,80 @@
                 html += '<div class="col-10 card-hoper p-0" onclick="detailWorker(' + e.employee_worker.id + ')">'
                 html += '<div class="row p-3 px-4">'
                 html += '<div class="col-12 ps-3">'
-                html += '<p class="m-0 small fw-bolder">' + badgeMeja + '<span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
-                html += '<p class="m-0 mt-1 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> / --</span></p>'
+
+                html += '<div class="row">'
+                html += '<div class="col-1">'
+                html += badgeMeja
                 html += '</div>'
-                html += '<div class="col-12 pt-1">'
+                html += '<div class="col-11 ps-4">'
+                html += '<p class="m-0 small fw-bolder"><span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
+                html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> Pack</span></p>'
+                html += '</div>'
+                html += '</div>'
+
+                html += '</div>'
+                html += '<div class="col-12 pt-3">'
                 html += '<div class="row ps-3">'
                 for (let i = 1; i <= defaultleSetoran; i++) {
                     var check = e.data.find((v, k) => {
                         if (v.number == i) return true
                     })
-                    var bg = 'bg-outline-primary'
+                    var bg = 'bg-outline-grey'
+                    var bgBase = ''
+                    var textColor = ''
                     var value = 0
+                    var content = ''
+                    content += '<div class="row p-0 m-0 w-100 h-100">'
+                    content += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
+                    content += '-'
+                    content += '</div>'
+                    content += '</div>'
                     if (check) {
                         var dataDelivery = findStatus(check.result_product_person_id)
+                        // console.log(dataDelivery)
                         if (check.complete.is_process) {
-                            bg = 'bg-primary'
+                            bg = 'bg-outline-primary'
+                            bgBase = 'bg-radius-primary'
+                            textColor = 'text-primary'
                             value = check.good
                         } else {
-                            bg = 'bg-orange'
+                            bg = 'bg-outline-orange'
+                            bgBase = 'bg-radius-orange'
+                            textColor = 'text-orange'
                         }
+                        content = ''
+                        content += '<div class="row p-0 m-0 w-100 h-100">'
+                        content += '<div class="col-6 p-0 ' + bgBase + ' d-flex align-content-center h-100 align-items-center align-self-center flex-wrap justify-content-center">'
+                        content += '<p class="m-0" style="font-size:6px;">' + shortenTextNoDots(dataDelivery.item, 4) + '</p>'
+                        content += '</div>'
+                        content += '<div class="col-6 p-0 d-flex align-content-center h-100 flex-wrap justify-content-center align-items-center align-self-center">'
+                        content += '<p class="m-0 ' + textColor + ' super-small-text">' + dataDelivery.qty.good + '</p>'
+                        content += '</div>'
+                        content += '</div>'
+
                     } else {
                         var dataDelivery = findStatus()
                     }
                     html += '<div class="col p-0 pe-1">'
-                    html += '<span class="badge rounded-pill super-small-text p-1 ' + bg + ' w-100">' + dataDelivery.qty.good + '</span>'
+                    html += '<span class="badge rounded-pill super-small-text p-0 w-100 ' + bg + '" style="height: 20px;">'
+                    html += content
+                    html += '</span>'
                     html += '</div>'
+                    // html += '<div class="col p-0 pe-1">'
+                    // html += '<span class="badge rounded-pill super-small-text p-1 ' + bg + ' w-100">' + dataDelivery.qty.good + '</span>'
+                    // html += '</div>'
                 }
+                // kelebihan
+                html += '<div class="col-1 p-0 pe-1">'
+                html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-grey" style="height: 20px;">'
+                html += '<div class="row p-0 m-0 w-100 h-100">'
+                html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
+                html += '<p class="m-0">+1</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</span>'
+                html += '</div>'
+                // kelebihan
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
@@ -1062,72 +1230,8 @@
                 html += '</div>'
             })
         } else {
-            // html += emptyReturn('Belum Ada Progress Worker')
-            html += '<div class="card shadow-none border-end-0 border-start-0 pointer" style="border-radius:0px;" id="card_search">'
-            html += '<div class="card-body p-0">'
-            html += '<div class="row">'
-            html += '<div class="col-10 card-hoper p-0" onclick="detailWorker()">'
-            html += '<div class="row p-3 px-4">'
-            html += '<div class="col-12 ps-3">'
-            html += '<div class="row">'
-            html += '<div class="col-1">'
-            html += '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2 mt-1" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">A1</span>'
-            html += '</div>'
-            html += '<div class="col-11 ps-4">'
-            html += '<p class="m-0 small fw-bolder"><span class="text_search" data-id="">AMALIA SAFIRA</span></p>'
-            html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">200</span> Pack</span></p>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '<div class="col-12 pt-3">'
-            html += '<div class="row ps-3">'
-
-            for (let i = 0; i < 4; i++) {
-                html += '<div class="col p-0 pe-1">'
-                html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-outline-primary" style="height: 20px;">'
-                html += '<div class="row p-0 m-0 w-100 h-100">'
-                html += '<div class="col p-0 bg-radius-primary d-flex align-content-center flex-wrap justify-content-center">'
-                html += '<p class="m-0">ARF</p>'
-                html += '</div>'
-                html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
-                html += '<p class="m-0 text-primary">200</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</span>'
-                html += '</div>'
-            }
-            for (let i = 0; i < 2; i++) {
-                html += '<div class="col p-0 pe-1">'
-                html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-outline-orange" style="height: 20px;">'
-                html += '<div class="row p-0 m-0 w-100 h-100">'
-                html += '<div class="col p-0 bg-radius-orange d-flex align-content-center flex-wrap justify-content-center">'
-                html += '<p class="m-0 text-center">AK</p>'
-                html += '</div>'
-                html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
-                html += '<p class="m-0 text-orange">200</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</span>'
-                html += '</div>'
-            }
-
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '<div class="col-2 card-hoper p-0" onclick="firstWorkProgress()">'
-            html += '<div class="row h-100">'
-            html += '<div class="col-12 align-self-center text-center p-0">'
-            html += '<i class="fa fa-pencil fa-1x text-grey"></i>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-
+            html += emptyReturn('Belum Ada Progress Worker')
         }
-
         return html
     }
 
@@ -1145,9 +1249,16 @@
             badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + data.employee_worker.row_code + '</span>'
         }
         html += '<div class="col-9">'
-        html += '<h1 class="m-0 fw-bolder">' + badgeMeja + data.employee_worker.name.toUpperCase() + '</h1>'
-        html += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
-        html += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
+
+        html += '<div class="row">'
+        html += '<div class="col-2">'
+        html += '<h1 class="m-0 fw-bolder">' + badgeMeja + '</h1>'
+        html += '</div>'
+        html += '<div class="col-10">'
+        html += '<h1 class="m-0 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
+        html += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b><span class="text-warning fw-bold">' + number_format(totalSetoran(data.employee_worker.id)) + '</span> Pack</p>'
+        html += '</div>'
+        html += '</div>'
         html += '</div>'
         html += '<div class="col-3">'
         html += '<div class="card bg-warning">'
@@ -1157,39 +1268,6 @@
         html += '</div>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-12 pt-4">'
-        html += '<p class="super-small-text fw-bolder">Material Stock</p>'
-        if (data.remaining_material) {
-            data.remaining_material.forEach(e => {
-                html += '<div class="card shadow-sm mb-2">'
-                html += '<div class="card-body p-3">'
-                html += '<div class="row">'
-                html += '<div class="col align-self-center">'
-                html += '<p class="m-0 h2"><b>' + e.item.name + '</b></p>'
-                html += '</div>'
-                html += '<div class="col text-end">'
-                html += '<p class="m-0 small"><b>' + e.qty + ' ' + e.unit.name + '</b></p>'
-                html += '<p class="m-0 super-tiny-text">Added at ' + formatJamMenit(e.datetime) + '</p>'
-                html += '</div>'
-                html += '<div class="col-2 text-center align-self-center pointer" onclick="sisaStokMaterial(' + data.employee_worker.id + ')">'
-                html += '<i class="fa fa-pencil text-danger"></i>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            });
-        } else {
-            html += '<div class="mb-2">'
-            html += cardAlert('Tidak Ada Material Stock')
-            html += '</div>'
-        }
-
-        html += '</div>'
-        // if (data.remaining_material) {
-        html += '<div class="col-12 text-end">'
-        html += '<button type="button" class="btn btn-outline-dark btn-sm super-small-text" onclick="sisaStokMaterial(' + data.employee_worker.id + ')"><i class="fa fa-plus me-2"></i>Tambah Material</button>'
-        html += '</div>'
-        // }
 
         html += '<div class="col-12 pt-4">'
         html += '<p class="super-small-text fw-bolder">Riwayat Setoran</p>'
@@ -1197,15 +1275,15 @@
         html += '<thead>'
         html += '<tr>'
         html += '<th class="align-middle super-small-text" rowspan="2">#</th>'
-        html += '<th class="align-middle super-small-text" rowspan="2">Jam Setor</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Jam</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Brand</th>'
-        html += '<th class="align-middle super-small-text" colspan="3">Quantity</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Steps</th>'
+        html += '<th class="align-middle super-small-text" colspan="2">Quantity</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Unit</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Status</th>'
         html += '</tr>'
         html += '<tr>'
         html += '<th class="super-small-text">Good</th>'
-        html += '<th class="super-small-text">Bad</th>'
         html += '<th class="super-small-text">Reject</th>'
         html += '</tr>'
         html += '</thead>'
@@ -1218,9 +1296,6 @@
                 if (!dataDelivery.qty.good) {
                     dataDelivery.qty.good = '-'
                 }
-                if (!dataDelivery.qty.waste) {
-                    dataDelivery.qty.waste = '-'
-                }
                 if (!dataDelivery.qty.reject) {
                     dataDelivery.qty.reject = '-'
                 }
@@ -1231,8 +1306,8 @@
                 html += '<td class="text-center align-middle" style="height: 30px;">' + e.number + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + formatJamMenit(e.datetime) + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + e.item.alias + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.step_status + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.good + '</td>'
-                html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.waste + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.reject + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + e.unit.name + '</td>'
                 html += '<td class="text-center align-middle small-text" style="height: 30px;">' + toTitleCase(dataDelivery.status) + '</td>'
@@ -1368,6 +1443,8 @@
                             'sortir': el.sortir,
                             'fillup': el.fillup,
                             'complete': el.complete,
+                            'result_product_person_step': el.result_product_person_step,
+                            'material_pickup': el.material_pickup,
                         })
                     });
                 })
@@ -1468,31 +1545,29 @@
         html_body += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
         html_body += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
 
-        html_body += '<div class="mt-5" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
+        html_body += '<div class="mt-3" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
         html_body += '<div class="me-2">'
         // LIST SETORAN
 
         // add setoran
 
-        if (link == 'deliver_goods') {
-            html_body += '<div class="pb-2">'
-            html_body += '<div class="card card-hoper shadow-none" style="border: 1px dashed grey" onclick="setoranBaru(' + workerIdClicked + ')" id="btnNewSetoran">'
-            html_body += '<div class="card-body p-3">'
+        html_body += '<div class="">'
+        html_body += '<div class="card card-hoper shadow-none" style="border: 1px dashed grey" onclick="setoranBaru(' + workerIdClicked + ')" id="btnNewSetoran">'
+        html_body += '<div class="card-body p-3">'
 
-            html_body += '<div class="row">'
-            html_body += '<div class="col align-self-center text-center">'
-            html_body += '<p class="m-0 small-text"><i class="fa fa-plus me-2"></i>Setoran Baru</p>'
-            html_body += '</div>'
-            html_body += '</div>'
+        html_body += '<div class="row">'
+        html_body += '<div class="col align-self-center text-center">'
+        html_body += '<p class="m-0 small-text"><i class="fa fa-plus me-2"></i>Setoran Baru</p>'
+        html_body += '</div>'
+        html_body += '</div>'
 
-            html_body += '</div>'
-            html_body += '</div>'
-            html_body += '</div>'
-        }
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
         // add setoran
 
         // setoran semu
-        html_body += '<div class="" id="setoranSemu">'
+        html_body += '<div class="pt-3" id="setoranSemu">'
         html_body += '</div>'
         // setoran semu
         // LIST SETORAN
@@ -1500,6 +1575,7 @@
         html_body += '<div class="">'
         sortArrayOfObjectsDescending(data.data, 'number').forEach(e => {
             var dataDelivery = findStatus(e.result_product_person_id)
+            // console.log(dataDelivery)
             var bgColor = ''
             var deleteButton = ''
             var qty = dataDelivery.qty.good
@@ -1613,6 +1689,7 @@
 
     function setoranBar(e, deleteButton, bgColor, qty, icon) {
         var dataStatus = findStatus(e.result_product_person_id)
+        // console.log(dataStatus)
         var html = ''
         var time = '--'
         if (e.datetime) {
@@ -1621,18 +1698,23 @@
         // html += '<div class="col-12 pb-2">'
         html += '<div class="card card-hoper shadow-none ' + bgColor + ' cardProgress mb-2" onclick="isiWorkProgress(' + "'" + e.result_product_person_id + "'" + ')" id="cardProgress' + e.result_product_person_id + '">'
         html += deleteButton
-        html += '<div class="card-body p-3">'
+        html += '<div class="card-body p-2">'
 
         html += '<div class="row w-100">'
-        html += '<div class="col">'
-        html += '<p class="m-0 small-text fw-bolder">Setoran ' + e.number + '</p>'
-        html += '<p class="m-0 super-tiny-text"><i class="me-2">' + dataStatus.nextStatus + '</i>' + time + '</p>'
+        html += '<div class="col-2 text-center align-self-center">'
+        html += '<span class="badge bg-outline-primary text-dark-grey border fw-bold border-dark me-2 mt-1" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.number + '</span>'
+        html += '</div>'
+        html += '<div class="col-7">'
+        html += '<p class="m-0 super-tiny-text"><i class="me-2">' + dataStatus.nextStatus + '</i></p>'
+        html += '<p class="m-0 small-text fw-bolder lh-1">' + dataStatus.itemName + '</p>'
+        if (dataStatus.step_status == '-') {
+            dataStatus.step_status = '<span class="text-danger">Belum Ada Step</span>'
+        }
+        html += '<p class="m-0 super-tiny-text">' + dataStatus.step_status + ' - ' + time + '</p>'
         html += '</div>'
         html += '<div class="col align-self-center text-end">'
-        html += '<p class="m-0 fw-bolder">' + qty + '</p>'
-        html += '</div>'
-        html += '<div class="col-1 align-self-center text-end">'
-        html += icon
+        html += '<p class="m-0 fw-bolder small-text">' + qty + '</p>'
+        // html += '<p class="m-0 fw-bolder">' + qty + '</p>'
         html += '</div>'
         html += '</div>'
 
@@ -1654,7 +1736,6 @@
             if (v.result_product_person_id == result_product_person_id) return true
         })
         var dataStatus = findStatusEdit(result_product_person_id, menu)
-        // console.log(data, dataStatus)
         formWorkProgress(data, dataStatus, true)
     }
 
@@ -1664,6 +1745,8 @@
             if (v.result_product_person_id == result_product_person_id) return true
         })
         var dataStatus = findStatus(result_product_person_id)
+        // console.log(dataStatus)
+        var dataMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStep
         var html = ''
         html += '<div class="col-8 border-end" style="height:600px;" id="formWorkProgress">'
         html += '</div>'
@@ -1677,29 +1760,7 @@
         var text = ''
         var btnEdit = ''
         html += '<div class="timeline timeline-sm mt-5">'
-        html += '<div class="timeline-item">'
-        html += '<div class="timeline-item-marker">'
-
-        status = 'text-grey'
-        text = '<p>Belum Ada Proses</p>'
-        if (data) {
-            if (data.delivery.is_process) {
-                status = 'bg-success text-white'
-                text = '<p>Pukul ' + formatJamMenit(data.delivery.process_at) + ' Setoran ' + data.delivery.good + ' ' + data.unit.name + ' dengan Jumlah Bad ' + replaceNullWithZero(data.delivery.waste) + ' ' + data.unit.name + '</p>'
-                text += '<button class="btn btn-sm btn-outline-success" onclick="cetakQR(' + "'" + result_product_person_id + "'" + ')">Cetak QR</button>'
-                if (checkLabelEdit('DELIVERY')) {
-                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'DELIVERY' + "'" + ')"></span>'
-                }
-            }
-        }
-
-        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
-        html += '</div>'
-        html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>Delivered</b>' + btnEdit
-        html += text
-        html += '</div>'
-        html += '</div>'
+        // Setoran Baru
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
 
@@ -1707,11 +1768,14 @@
         text = '<p>Belum Ada Proses</p>'
         btnEdit = ''
         if (data) {
-            if (data.sortir.is_process) {
+            if (data.delivery.is_process == null) {
+                var dataSetoranBaru = getMaterialPickup(data.material_pickup)
+                // console.log(data)
+                // console.log(dataSetoranBaru)
                 status = 'bg-success text-white'
-                text = '<p>Pukul ' + formatJamMenit(data.sortir.process_at) + ' Item Good ' + data.sortir.good + ' Reject ' + replaceNullWithZero(data.sortir.reject) + ' ' + data.unit.name + '</p>'
-                if (checkLabelEdit('SORTIR')) {
-                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'SORTIR' + "'" + ')"></span>'
+                text = '<p>Pukul ' + formatJamMenit(data.datetime) + ' membuat Setoran Baru Produk ' + dataSetoranBaru.name + ' sejumlah ' + dataSetoranBaru.qty + '</p>'
+                if (checkLabelEdit('NEWDELIVER')) {
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'NEWDELIVER' + "'" + ')"></span>'
                 }
             }
         }
@@ -1719,42 +1783,62 @@
         html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>QC Sorting</b>' + btnEdit
+        html += '<b>Buat Setoran Baru</b>' + btnEdit
         html += text
         html += '</div>'
         html += '</div>'
-
-        var textColor = ''
-        text = '<p>Belum Ada Proses</p>'
-        btnEdit = ''
-        if (data) {
-            if (!data.fillup.is_process && data.complete.is_process) {
-                textColor = 'text-grey'
-                text = '<p>Tidak Ada Setor Reject</p>'
-            }
-        }
-        html += '<div class="timeline-item ' + textColor + '">'
+        // Setoran Baru
+        // Ambil Material
+        html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
 
         status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
         if (data) {
-            if (data.fillup.is_process) {
+            if (cekAmbilMaterial(data.material_pickup)) {
+                var dataPickup = getMaterialPickup(data.material_pickup)
                 status = 'bg-success text-white'
-                text = '<p>Pukul ' + formatJamMenit(data.fillup.process_at) + ' Reject ' + data.fillup.good + ' ' + data.unit.name + ' telah disetor</p>'
-                if (checkLabelEdit('FILLUP')) {
-                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'FILLUP' + "'" + ')"></span>'
-                }
+                text = '<p>Pukul ' + formatJamMenit(dataPickup.pickup_at) + ' telah menerima Material ' + dataPickup.name + ' sejumlah ' + dataPickup.qty + ' ' + dataPickup.unit_name + '</p>'
             }
         }
 
         html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>Setor Reject</b>' + btnEdit
+        html += '<b>Ambil Material</b>' + btnEdit
         html += text
         html += '</div>'
         html += '</div>'
+        // Ambil Material
+        // Step
+        dataMachineStep.forEach(k => {
+            html += '<div class="timeline-item">'
+            html += '<div class="timeline-item-marker">'
 
+            status = 'text-grey'
+            text = '<p>Belum Ada Proses</p>'
+            btnEdit = ''
+            if (data) {
+                if (data.sortir.is_process) {
+                    status = 'bg-success text-white'
+                    text = '<p>Pukul ' + formatJamMenit(data.sortir.process_at) + ' Item Good ' + data.sortir.good + ' Reject ' + replaceNullWithZero(data.sortir.reject) + ' ' + data.unit.name + '</p>'
+                    if (checkLabelEdit('SORTIR')) {
+                        btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'SORTIR' + "'" + ')"></span>'
+                    }
+                }
+            }
+
+            html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+            html += '</div>'
+            html += '<div class="timeline-item-content" style="font-size: 11px;">'
+            html += '<b>Setoran Tahap ' + k.name + '</b>' + btnEdit
+            html += text
+            html += '</div>'
+            html += '</div>'
+        });
+        // Step
+        // Complete
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
 
@@ -1774,6 +1858,7 @@
         html += text
         html += '</div>'
         html += '</div>'
+        // Complete
         // timeline
         html += '</div>'
         $('#isiWorkProgress').html(html)
@@ -2000,14 +2085,239 @@
         return time;
     }
 
+    function formNEWDELIVER(id = null, edit = false) {
+        var dataEdit
+        var good = ''
+        var bad = ''
+        if (edit) {
+            dataEdit = findStatusEdit(id, 'NEWDELIVER')
+            good = dataEdit.qty.good
+            bad = dataEdit.qty.waste
+        }
+        if (!edit) {
+            var html = ''
+            html += '<div class="row justify-content-end">'
+            // sesi input
+
+            // pilih produk
+            html += '<div class="col-8 text-end">'
+            html += '<p class="mb-1 small-text"><b>Brand</b></p>'
+            html += '<div class="mt-2">'
+
+            dataEntry.workPlanMachine.products.forEach(e => {
+                html += '<div class="card shadow-sm mb-2 pointer card-hoper" onclick="nextStepNewDeliver(' + e.product.id + ',' + "'" + id + "'" + ',' + edit + ')">'
+                html += '<div class="card-body">'
+                html += '<div class="row">'
+                html += '<div class="col-12 text-end">'
+                html += '<p class="m-0 fw-bolder small">' + e.product.alias + '</p>'
+                html += '<p class="m-0 fw-bold text-grey super-small-text">' + e.product.name + '</p>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+                html += '</div>'
+            });
+
+
+            html += '</div>'
+            html += '</div>'
+            // pilih produk
+
+            // sesi input
+            html += '</div>'
+            $('#formEntryData').html(html)
+        } else {
+            nextStepNewDeliver(dataEdit.itemId, dataEdit.id, true)
+        }
+    }
+
+    function nextStepNewDeliver(idProduct, id, edit) {
+        var dataEdit
+        var data = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == idProduct) return true
+        })
+        var time = timeNow()
+        if (edit) {
+            dataEdit = findStatusEdit(id, 'NEWDELIVER')
+            time = formatJamMenit(dataEdit.qty.process_at)
+        }
+        var dataMachineStepProfile = dataEntry.machineStepProfile.find((v, k) => {
+            if (v.item_id_product == idProduct) return true
+        })
+        var html = ''
+        html += '<div class="row justify-content-end">'
+        // sesi input
+
+        // nama produk
+        html += '<div class="col-8 text-end">'
+        html += '<p class="mb-1 small-text"><b>Brand</b></p>'
+        html += '<div class="mt-2">'
+        html += '<p class="m-0 h1 fw-bolder text-grey">' + data.product.name + '</p>'
+        html += '</div>'
+        html += '</div>'
+        // nama produk
+        // jumlah setoran
+        html += '<div class="col-12 mt-3 text-end">'
+
+        html += '<div class="row">'
+
+        html += '<div class="col-5" id="infoStepNewDeliver">'
+        html += '</div>'
+
+        html += '<div class="col-7">'
+        html += '<p class="mb-1 small-text"><b>Bahan</b></p>'
+        html += '<div class="mt-2">'
+        dataMachineStepProfile.machine_step_profiles.forEach(e => {
+            var qtyStep = ''
+            var material_pickup_id = ''
+            if (edit) {
+                if (e.id == dataEdit.machine_step_profile_id) {
+                    qtyStep = dataEdit.qty.good
+                    material_pickup_id = dataEdit.material_pickup_id
+                }
+            }
+            html += '<div class="card shadow-none mb-2 pointer card-hoper card-step-profiles" id="cardStepProfile' + e.id + '">'
+            html += '<div class="card-body p-0">'
+
+            html += '<div class="row p-0 m-0">'
+            html += '<div class="col-6 align-self-center">'
+            html += '<p class="m-0 small fw-bolder">' + e.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-6 border-start">'
+            html += '<input class="form-control form-control-sm nominal form-newdeliver form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood' + e.id + '" value="' + qtyStep + '" tabindex="1" role="dialog" data-material_pickup_id="' + material_pickup_id + '" data-work_plan_product_id="' + data.work_plan_product_id + '" data-unit_id="' + data.unit_input.id + '" data-warehouse_id="' + e.warehouse_id_material_pickup + '" data-id_product="' + idProduct + '" data-id_step="' + e.id + '" oninput="inputStepProfile(' + e.id + ')">'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+        });
+        html += '</div>'
+        html += '</div>'
+
+
+        html += '</div>'
+
+        html += '</div>'
+        // jumlah setoran
+        // jam setoran
+        html += '<div class="col-8 mt-3 text-end align-self-end">'
+        html += '<p class="mb-1 small-text"><b>Jam Setoran</b></p>'
+        html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
+        html += '<hr class="m-0">'
+        html += '</div>'
+
+        html += '<div class="col-12 text-end">'
+        html += '<div class="row pt-2 justify-content-end">'
+        html += '<div class="col-4">'
+        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoJamSetoran()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+        // jam setoran
+
+        html += '<div class="col-12 text-end pt-3">'
+        html += '<div class="row justify-content-between">'
+        html += '<div class="col-auto">'
+        html += '<button class="btn btn-outline-primary btn-sm" id="btnKembali" onclick="formNEWDELIVER(' + "'" + id + "'" + ',' + edit + ')" tabindex="3"><i class="fa fa-chevron-left me-2"></i>Kembali</button>'
+        html += '</div>'
+        html += '<div class="col-auto">'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertNewDeliver()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        html += '</div>'
+
+        // sesi input
+        html += '</div>'
+        $('#formEntryData').html(html)
+        if (edit) {
+            inputStepProfile(dataEdit.machine_step_profile_id)
+        }
+        $('.form-newdeliver').on('keypress', function(event) {
+            if (event.which === 13) { // Tombol Enter ditekan
+                event.preventDefault();
+                insertNewDeliver()
+            }
+        });
+    }
+
+    function infoStepNewDeliver(id) {
+        var html = ''
+        html += '<p class="m-0 small-text fw-bolder">Info</p>'
+        html += '<div class="mt-2 card shadow-none bg-light-success">'
+        html += '<div class="card-body p-3">'
+        html += '<ol class="text-start small-text fw-bold" style="padding-left: 20px;">'
+        html += '<li>Pada sesi ini anda dapat memberikan material <b>ABOF20</b> Bandrol kepada Worker</li>'
+        html += '<li>Arahkan Worker untuk mengambil material <b>ABOF</b> dibagian <b>WIP</b></li>'
+        html += '<li>Tahapan yang dapat dilalui Worker adalah</li>'
+        html += '<ol type="a" class="text-start small-text fw-bold">'
+        html += '<li>OPP Dalam</li>'
+        html += '<li>OPP Dalam</li>'
+        html += '</ol>'
+        html += '</ol>'
+        html += '</div>'
+        html += '</div>'
+        $('#infoStepNewDeliver').html(html)
+    }
+
+    function insertNewDeliver() {
+        JustOnCamAfterAdd = true
+        arrangeVariableInsert()
+    }
+
+    function inputStepProfile(id) {
+        var input = $('#jumlahGood' + id).val()
+        $('.form-newdeliver').prop('readonly', true)
+        // readonly
+        if (input) {
+            $('#cardStepProfile' + id).addClass('border-success border-3')
+            $('#jumlahGood' + id).prop('readonly', false)
+            infoStepNewDeliver(id)
+        } else {
+            $('#cardStepProfile' + id).removeClass('border-success border-3')
+        }
+        senseOfStepProfile()
+    }
+
+    function senseOfStepProfile() {
+        var value = $('.form-newdeliver').map(function() {
+            return $(this).val();
+        }).get();
+        var anyFilled = false
+        for (var i = 0; i < value.length; i++) {
+            if (value[i]) {
+                anyFilled = true
+            }
+        }
+        if (!anyFilled) {
+            $('.form-newdeliver').prop('readonly', false)
+            $('#infoStepNewDeliver').html('')
+        }
+    }
+
     function formDELIVERY(id = null, edit = false) {
+        var dataStatus = findStatus(dataSaveSetoran.result_product_person_id)
+        var dataMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStep
+        var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
+        var currentMachineStep
+        var currentIndex = 0
+        var choosenCurrentIndex = 0
+        if (dataStatus.step_status_id == '-') {
+            currentMachineStep = dataMachineStep[currentIndex]
+            choosenCurrentIndex = currentIndex
+        } else {
+            var index = 0
+            dataMachineStep.forEach(e => {
+                if (e.id == dataStatus.step_status_id) {
+                    currentIndex = index
+                }
+                index++
+            });
+            choosenCurrentIndex = currentIndex + 1
+            currentMachineStep = dataMachineStep[choosenCurrentIndex]
+        }
         var dataEdit
         var good = ''
         var bad = ''
         var time = timeNow()
-        if (auto500) {
-            good = '500'
-        }
         if (edit) {
             dataEdit = findStatusEdit(id, 'DELIVERY')
             good = dataEdit.qty.good
@@ -2019,161 +2329,51 @@
         // sesi input
 
         // jumlah setoran
-
-        html += '<div class="col-8 text-end">'
-        html += '<p class="mb-1 small-text"><b>Jumlah Setoran</b></p>'
-        html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + good + '" tabindex="1" role="dialog">'
-        html += '<hr class="m-0 text-danger">'
-        html += '</div>'
         html += '<div class="col-12 text-end">'
-        html += '<div class="row pt-2 justify-content-end">'
-        for (let i = 0; i < 3; i++) {
-            html += '<div class="col-2 ps-0">'
-            html += '<button class="btn btn-outline-dark btn-sm w-100 shadow-none" onclick="autoJumlahGood(500)">500</button>'
-            html += '</div>'
-        }
+        html += '<div class="card shadow-sm">'
+        html += '<div class="card-body">'
+        html += '<div class="row">'
+
+        html += '<div class="col">'
+        html += '<p class="m-0 small-text fw-bolder">Review Setoran</p>'
+        html += '<p class="m-0 small-text">Slop</p>'
+        html += '</div>'
+
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Total Setoran</p>'
+        html += '<h1 class="fw-bolder">' + dataStatus.qty.good + '</h1>'
+        html += '</div>'
+
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Good Setoran</p>'
+        html += '<h1 class="fw-bolder" id="goodSorting">' + dataStatus.qty.good + '</h1>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
         html += '</div>'
         html += '</div>'
         // jumlah setoran
 
         // jumlah bad
-        if (!fastMode) {
-            html += '<div class="col-8 text-end">'
-            html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Bad</b></p>'
-            html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" value="' + bad + '" tabindex="2">'
-            html += '<hr class="m-0">'
-            html += '</div>'
-            html += '<div class="col-12 text-end pe-4">'
-            html += '<div class="row pt-2 justify-content-end">'
-            for (let i = 0; i <= 6; i++) {
-                html += '<div class="col-1 pe-0">'
-                html += '<button class="btn btn-outline-dark btn-sm w-100 shadow-none" onclick="autoJumlahBad(' + i + ')">' + i + '</button>'
-                html += '</div>'
-            }
-            html += '</div>'
-            html += '</div>'
-        }
-        // jumlah bad
-
-        // jam setoran
-        html += '<div class="col-4 text-end align-self-end">'
-        html += '<p class="mb-1 pt-3 small-text"><b>Jam Setoran</b></p>'
-        html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
+        html += '<div class="col-7 text-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Good</b></p>'
+        html += '<input class="form-control  nominal form-delivery form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + dataStatus.qty.good + '" tabindex="1" oninput="goodSortingFill()">'
         html += '<hr class="m-0">'
         html += '</div>'
-
-        html += '<div class="col-12 text-end">'
-        html += '<div class="row pt-2 justify-content-end">'
-        html += '<div class="col-4">'
-        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoJamSetoran()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        // jam setoran
-
-        html += '<div class="col-12 text-end pt-3">'
-        // html += '<button class="btn btn-outline-primary btn-sm me-1" onclick="AddedResultProductPersonId(),arrangeVariableInsert()" tabindex="4">Simpan</button>'
-        // if (!edit) {
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertWithNextPerson()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
-        // }
-        html += '</div>'
-        // sesi input
-        html += '</div>'
-        $('#formEntryData').html(html)
-        // $('#modal').on('shown.bs.modal', function() {
-        setTimeout(function() {
-            if (auto500) {
-                $('#jumlahBad').focus();
-            } else {
-                $('#jumlahGood').focus();
-            }
-        }, 100);
-        // })
-        $('.nominal').on('keypress', handleNumericInput);
-        $('.form-delivery').on('keypress', function(event) {
-            if (event.which === 13) { // Tombol Enter ditekan
-                event.preventDefault();
-                // AddedResultProductPersonId()
-                insertWithNextPerson()
-            }
-        });
-    }
-
-    function handleNumericInput(event) {
-        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
-        if (allowChars.indexOf(event.which) === -1) {
-            event.preventDefault();
-        }
-
-        var inputValue = $(this).val();
-        $(this).val(inputValue.replace(/[^\d]/g, ''));
-    }
-
-    function formSORTIR(id = null, edit = false) {
-        firstAddedResultProductPersonId = ''
-        var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
-        var dataEdit
-        var good = ''
-        var bad = ''
-        var time = timeNow()
-        if (edit) {
-            dataEdit = findStatusEdit(id, 'SORTIR')
-            good = dataEdit.qty.good
-            bad = dataEdit.qty.reject
-            time = formatJamMenit(dataEdit.qty.process_at)
-        }
-        var html = ''
-        html += '<div class="row justify-content-end">'
-        // sesi input
-
-        // view
-        html += '<div class="col-12">'
-        html += '<div class="card bg-light-grey shadow-sm">'
-        html += '<div class="card-body">'
-
-        html += '<div class="row">'
-        html += '<div class="col-4">'
-        html += '<p class="fw-bolder m-0 small">Review Setoran</p>'
-        html += '<p class="m-0 small-text">Delivery</p>'
-        html += '</div>'
-
-        html += '<div class="col-4">'
-        html += '<p class="m-0 super-small-text fw-bolder">Stock Tersedia</p>'
-        html += '<h1 class="fw-bolder">' + dataDelivery.qty.good + '</h1>'
-        html += '</div>'
-        html += '<div class="col-4">'
-        html += '<p class="m-0 super-small-text fw-bolder">Good Sorting</p>'
-        html += '<h1 class="fw-bolder" id="goodSorting">--</h1>'
-        html += '</div>'
-
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        // view
-
         // jumlah bad
-        html += '<div class="col-8 text-end">'
+        // jumlah bad
+        html += '<div class="col-7 text-end">'
         html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Bad</b></p>'
-        html += '<input class="form-control form-control-lg nominal form-sortir form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" oninput="goodSortingFill()" value="' + bad + '" tabindex="1" role="dialog">'
+        html += '<input class="form-control  nominal form-delivery form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" value="' + bad + '" tabindex="2" oninput="goodSortingFill()">'
         html += '<hr class="m-0">'
-        html += '</div>'
-        html += '<div class="col-12 text-end pe-4">'
-        html += '<div class="row pt-2 justify-content-end">'
-        for (let i = 0; i <= 6; i++) {
-            html += '<div class="col-1 pe-0">'
-            html += '<button class="btn btn-outline-dark btn-sm w-100 shadow-none" onclick="autoJumlahBad(' + i + '),goodSortingFill()">' + i + '</button>'
-            html += '</div>'
-        }
-        html += '</div>'
         html += '</div>'
         // jumlah bad
 
         // jam setoran
-        html += '<div class="col-4 text-end align-self-end">'
+        html += '<div class="col-7 text-end align-self-end">'
         html += '<p class="mb-1 pt-3 small-text"><b>Jam Setoran</b></p>'
-        html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
+        html += '<input class="form-control  form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
         html += '<hr class="m-0">'
         html += '</div>'
 
@@ -2185,9 +2385,29 @@
         html += '</div>'
         html += '</div>'
         // jam setoran
+        // custom steps
+        html += '<div class="col-12 text-end align-self-end">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Custom Steps</b></p>'
 
-        html += '<div class="col-12 text-end pt-3">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir()" tabindex="2">Simpan</button>'
+        html += '<div class="" role="group" aria-label="Basic checkbox toggle button group">'
+        var no = 1
+        if (currentMachineStep.data_machine_steps) {
+            currentMachineStep.data_machine_steps.forEach(e => {
+                var dataFindMachineStepProduct = dataMachineStepProduct.find((v, k) => {
+                    if (v.machine_step_id == e.id) return true
+                })
+                html += '<input type="checkbox" class="btn-check check-steps" id="btncheck' + e.id + '" onclick="checkSteps(' + e.id + ',' + choosenCurrentIndex + ',' + dataStatus.itemId + ',' + dataStatus.machine_step_profile_id + ')" autocomplete="off" value="' + e.id + '" data-item_id="' + dataFindMachineStepProduct.item_id_product + '" data-unit_id="' + dataFindMachineStepProduct.unit_id + '" checked>'
+                html += '<label class="btn btn-outline-success small-text p-2 ms-2 shadow-none" for="btncheck' + e.id + '"><span class="badge bg-light text-success me-1">' + no + '</span>' + e.name + '</label>'
+                no++
+            });
+        }
+        html += '</div>'
+
+        html += '</div>'
+        // custom steps
+
+        html += '<div class="col-12 text-end pt-4">'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
         html += '</div>'
         // sesi input
         html += '</div>'
@@ -2198,13 +2418,41 @@
         }, 100);
         // })
         $('.nominal').on('keypress', handleNumericInput);
-        $('.form-sortir').on('keypress', function(e) {
-            if (e.which == 13) { // Tombol Enter ditekan
-                e.preventDefault();
+        $('.form-delivery').on('keypress', function(event) {
+            if (event.which === 13) { // Tombol Enter ditekan
+                event.preventDefault();
+                // AddedResultProductPersonId()
                 filteredSortir()
             }
         });
         goodSortingFill()
+    }
+
+    function checkSteps(idStep, index, idProduct, idMachineStepProfile) {
+        $('.check-steps').prop('checked', false)
+        var dataMachineStep = findmachineStep(idProduct, idMachineStepProfile).listMachineStep
+        var data = dataMachineStep[index]
+        var continues = true
+        if (data.data_machine_steps) {
+            data.data_machine_steps.forEach(e => {
+                if (continues) {
+                    $('#btncheck' + e.id).prop('checked', true)
+                }
+                if (e.id == idStep) {
+                    continues = false
+                }
+            })
+        }
+    }
+
+    function handleNumericInput(event) {
+        var allowChars = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 37, 39];
+        if (allowChars.indexOf(event.which) === -1) {
+            event.preventDefault();
+        }
+
+        var inputValue = $(this).val();
+        $(this).val(inputValue.replace(/[^\d]/g, ''));
     }
 
     function filteredSortir() {
@@ -2396,7 +2644,6 @@
     }
 
     function formWorkProgress(dataDetail, dataStatus, edit = false) {
-        // console.log(dataStatus)
         if (!dataDetail) {
             dataDetail = dataSaveSetoran
         } else {
@@ -2409,7 +2656,8 @@
                 qty_reject: dataStatus.qty.reject,
                 qty_delivery_good: dataDetail.delivery.good,
                 qty_sortir_good: dataDetail.sortir.good,
-                worker_id: dataStatus.worker_id
+                worker_id: dataStatus.worker_id,
+                item_id: dataDetail.item.id
             }
         }
         var html = ''
@@ -2421,11 +2669,17 @@
         html += '</div>'
         html += '<div class="col-5 pb-3">'
         // select
-        html += '<select class="form-select shadow-none text-dark" id="productSetoran" style="border:none">'
-        dataEntry.workPlanMachine.products.forEach(e => {
-            html += '<option value="' + e.product.id + '" data-unit="' + e.unit_input.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '">' + e.product.name + '</option>'
-        });
-        html += '<select>'
+        if (dataStatus.itemId) {
+            html += '<select class="form-select shadow-none text-dark" id="productSetoran" style="border:none">'
+            dataEntry.workPlanMachine.products.forEach(e => {
+                var select = ''
+                if (dataStatus.itemId == e.product.id) {
+                    select = 'selected'
+                }
+                html += '<option value="' + e.product.id + '" data-unit="' + e.unit_input.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '" ' + select + '>' + e.product.name + '</option>'
+            });
+            html += '<select>'
+        }
         // select
         html += '</div>'
         // ---
@@ -2461,10 +2715,11 @@
             qty_good: dataStatus.qty.good,
             qty_sortir_good: 0,
             qty_delivery_good: 0,
-            worker_id: worker_id
+            worker_id: worker_id,
+            item_id: null,
         }
         dataSaveSetoran = e
-        html += setoranBar(e, deleteAndCloseButton('setoran', worker_id, result_product_person_id), '', '--', '<i class="fa fa-clock-o text-grey"></i>')
+        html += setoranBar(e, deleteAndCloseButton('setoran', worker_id, result_product_person_id), '', '-', '<i class="fa fa-clock-o text-grey"></i>')
         $('#setoranSemu').append(html)
         $('#btnNewSetoran').attr('hidden', true)
         isiWorkProgress(result_product_person_id)
@@ -2521,12 +2776,13 @@
     }
 
     function goodSortingFill() {
+        var valueGood = $('#jumlahGood').val()
         var value = $('#jumlahBad').val()
         if (!value) {
             value = 0
         }
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
-        var goodStock = parseInt(dataDelivery.qty.good) - parseInt(value)
+        var goodStock = parseInt(valueGood) - parseInt(value)
         $('#goodSorting').html('<span class="text-success">' + goodStock + '</span>')
     }
 
@@ -2594,29 +2850,82 @@
         if (autoComplete) {
             dataSaveSetoran.qty_sortir_good = dataDelivery.qty.good
         }
+
+        var id_product = $("#productSetoran").val()
+        var machine_step_profile_id = ''
+        var warehouse_id = ''
+        var material_pickup_id = ''
+        var valuePersonStep = []
+        if (dataSaveSetoran.next_status != 'NEWDELIVER') {
+            var unit_product = $("#productSetoran").find(':selected').data('unit')
+            var work_plan_product_id = $("#productSetoran").find(':selected').data('work_plan_product_id')
+            if (dataSaveSetoran.next_status == 'DELIVER') {
+                var valuePersonStep = $('.check-steps:checked').map(function() {
+                    return $(this).val();
+                }).get();
+                var itemPersonStep = $('.check-steps:checked').map(function() {
+                    return $(this).data('item_id');
+                }).get()
+                id_product = itemPersonStep[itemPersonStep.length - 1]
+                var unitPersonStep = $('.check-steps:checked').map(function() {
+                    return $(this).data('unit_id');
+                }).get()
+                unit_product = unitPersonStep[unitPersonStep.length - 1]
+            }
+        } else {
+            var value = $('.form-newdeliver').map(function() {
+                return $(this).val();
+            }).get();
+            var idProducts = $('.form-newdeliver').map(function() {
+                return $(this).data('id_product');
+            }).get();
+            var idStep = $('.form-newdeliver').map(function() {
+                return $(this).data('id_step');
+            }).get();
+            var idMaterialPickup = $('.form-newdeliver').map(function() {
+                return $(this).data('material_pickup_id');
+            }).get();
+            var work_plan_product_id = $('.form-newdeliver').map(function() {
+                return $(this).data('work_plan_product_id');
+            }).get()[0]
+            var unit_product = $('.form-newdeliver').map(function() {
+                return $(this).data('unit_id');
+            }).get()[0]
+            warehouse_id = $('.form-newdeliver').map(function() {
+                return $(this).data('warehouse_id');
+            }).get()[0]
+            // console.log(warehouse_id)
+            for (let i = 0; i < value.length; i++) {
+                if (value[i]) {
+                    jumlahInput = value[i]
+                    id_product = idProducts[i]
+                    machine_step_profile_id = idStep[i]
+                    material_pickup_id = idMaterialPickup[i]
+                }
+            }
+        }
+        var item_ids_material_main = getMaterialMain(id_product, machine_step_profile_id, unit_product, jumlahInput)
+        var item_ids_chain_material = []
+        if (item_ids_material_main.length) {
+            item_ids_material_main.forEach(e => {
+                item_ids_chain_material.push(e.item_id)
+            });
+        }
         var variableInsert = {
+            NEWDELIVER: {
+                datetime: jamSetoran,
+                machine_step_profile_id: machine_step_profile_id,
+                item_id_target: id_product,
+                unit_id_target: unit_product,
+                qty_target: jumlahInput,
+                item_ids_chain_material: item_ids_chain_material,
+            },
             DELIVERY: {
                 datetime: jamSetoran,
                 employee_id_deliv: user_id,
                 qty_good_deliv: jumlahInput,
                 qty_waste_deliv: jumlahBad,
                 note_deliv: '',
-            },
-            SORTIR: {
-                is_sortir: 1,
-                sortir_at: jamSetoran,
-                employee_id_sortir: user_id,
-                qty_good_sortir: parseInt(dataSaveSetoran.qty_delivery_good) - parseInt(jumlahBad),
-                qty_reject_sortir: jumlahBad,
-                note_sortir: ''
-            },
-            FILLUP: {
-                is_fillup: 1,
-                fillup_at: jamSetoran,
-                employee_id_fillup: user_id,
-                qty_good_fillup: jumlahBad,
-                qty_waste_fillup: 0,
-                note_fillup: '',
             },
             COMPLETE: {
                 is_complete: 1,
@@ -2626,9 +2935,6 @@
                 note_complete: '',
             }
         }
-        var id_product = $("#productSetoran").val()
-        var unit_product = $("#productSetoran").find(':selected').data('unit')
-        var work_plan_product_id = $("#productSetoran").find(':selected').data('work_plan_product_id')
         var dataMentah = {
             id: dataSaveSetoran.result_product_person_id,
             number: dataSaveSetoran.number,
@@ -2642,76 +2948,144 @@
             unit_id: unit_product,
             work_plan_product_id: work_plan_product_id,
         }
-
         var data = {
             resultProductPerson: {
                 ...dataMentah,
                 ...variableInsert[dataSaveSetoran.next_status],
+            },
+        }
+
+        if (dataSaveSetoran.next_status == 'DELIVER') {
+            var qtyDeliver = parseInt(jumlahInput) - parseInt(jumlahBad)
+            var dataReject = {
+                is: 0,
+                at: currentDateTime(),
+                employee_id: user_id,
+            }
+            data.resultProductPersonStep = []
+            var dataDeliver = {
+                reject: {
+                    is: null,
+                    at: null,
+                    employee_id: null,
+                    qty: null,
+                    note: null,
+                },
+                complete: {
+                    is: null,
+                    at: null,
+                    employee_id: null,
+                    qty: null,
+                    note: null,
+                },
+            }
+            if (qtyDeliver == jumlahInput) {
+                // jika complete
+                dataDeliver = {
+                    complete: {
+                        is: 1,
+                        at: currentDateTime(),
+                        employee_id: user_id,
+                        qty: qtyDeliver,
+                        note: '',
+                    },
+                }
+            } else {
+                // jika reject
+                dataDeliver = {
+                    reject: {
+                        is: 1,
+                        at: currentDateTime(),
+                        employee_id: user_id,
+                        qty: qtyDeliver,
+                        note: '',
+                    },
+                }
+            }
+            for (let i = 0; i < valuePersonStep.length; i++) {
+                data.resultProductPersonStep.push({
+                    id: createCodeId() + '' + i,
+                    result_product_person_id: dataSaveSetoran.result_product_person_id,
+                    datetime: jamSetoran,
+                    machine_step_id: valuePersonStep[i],
+                    item_id_product: itemPersonStep[i],
+                    qty: qtyDeliver,
+                    unit_id: unitPersonStep[i],
+                    is_reject: dataDeliver.reject.is,
+                    reject_at: dataDeliver.reject.at,
+                    employee_id_reject: dataDeliver.reject.employee_id,
+                    qty_reject: dataDeliver.reject.qty,
+                    note_reject: dataDeliver.reject.note,
+                    is_complete: dataDeliver.complete.is,
+                    complete_at: dataDeliver.complete.at,
+                    employee_id_complete: dataDeliver.complete.employee_id,
+                    qty_complete: dataDeliver.complete.qty,
+                    note: '',
+                    index: '',
+                    machine_step_profile_detail_id: '',
+                })
             }
         }
-        if (autoComplete || dataSaveSetoran.next_status == 'FILLUP') {
-            var dataNext = variableInsert['COMPLETE']
-            data.resultProductPerson = {
-                ...data.resultProductPerson,
-                ...dataNext
-            };
-        }
-        if (dataSaveSetoran.qty_delivery_good > 0 && jumlahInput != dataSaveSetoran.qty_delivery_good) {
-            // edit DELIVERY FULL
-            var dataEdit = {
-                // datetime: jamSetoran,
-                // employee_id_deliv: user_id,
-                qty_good_deliv: jumlahInput,
-                qty_waste_deliv: jumlahBad,
+
+        // data material
+        if (dataSaveSetoran.next_status == 'NEWDELIVER') {
+            var deleteMaterialPickup = []
+            var deleteMaterialPickupDetail = []
+            var dataEdit = findStatusEdit(dataSaveSetoran.result_product_person_id, dataSaveSetoran.next_status)
+            var idPickup = createCodeId()
+            if (dataEdit.material_pickup_id) {
+                idPickup = dataEdit.material_pickup_id
             }
-            if (dataDelivery.status == 'SORTIR') {
-                // console.log(dataDelivery)
-                dataEdit = {
-                    ...dataEdit,
-                    ...{
-                        qty_good_sortir: parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject),
-                        qty_reject_sortir: parseInt(dataDelivery.qty.reject),
+            var materialPickup = [{
+                id: idPickup,
+                warehouse_id: warehouse_id,
+                employee_id_pickup: dataSaveSetoran.worker_id,
+                result_product_person_id: dataSaveSetoran.result_product_person_id,
+                note: '',
+            }]
+            var materialPickupDetail = []
+            var selectedPickupDetailId = []
+            item_ids_material_main.forEach(e => {
+                var idMaterialPickupDetail = createCodeId()
+                if (dataEdit.material_pickup_details) {
+                    var findDataMaterialPickupDetail = dataEdit.material_pickup_details.find((v, k) => {
+                        if (v.item.id == e.item_id) return true
+                    })
+                    if (findDataMaterialPickupDetail) {
+                        idMaterialPickupDetail = findDataMaterialPickupDetail.id
                     }
                 }
-            } else if (dataDelivery.status == 'COMPLETE' && dataDelivery.qty.reject == 0) {
-                dataEdit = {
-                    ...dataEdit,
-                    ...{
-                        qty_good_sortir: parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject),
-                        qty_reject_sortir: parseInt(dataDelivery.qty.reject),
-                        qty_final: (parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject)) + parseInt(dataDelivery.qty.reject),
+                materialPickupDetail.push({
+                    id: idMaterialPickupDetail,
+                    material_pickup_id: idPickup,
+                    item_id: e.item_id,
+                    unit_id_input: e.unit_id_input,
+                    qty_input: e.qty_input,
+                    unit_id: e.unit_id,
+                    qty: e.qty,
+                })
+                selectedPickupDetailId.push(idMaterialPickupDetail)
+            });
+            // cek apakah material pickup detail nya ada yg dihapus apa engga
+            if (dataEdit.material_pickup_details) {
+                dataEdit.material_pickup_details.forEach(e => {
+                    var cekMaterialPickupDetail = selectedPickupDetailId.find((v, k) => {
+                        if (v == e.id) return true
+                    })
+                    if (!cekMaterialPickupDetail) {
+                        deleteMaterialPickupDetail.push(e.id)
                     }
-                }
-            } else if (dataDelivery.status == 'COMPLETE' && dataDelivery.qty.reject > 0) {
-                dataEdit = {
-                    ...dataEdit,
-                    ...{
-                        qty_good_sortir: parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject),
-                        qty_reject_sortir: parseInt(dataDelivery.qty.reject),
-                        qty_final: (parseInt(jumlahInput) - parseInt(dataDelivery.qty.reject)) + parseInt(dataDelivery.qty.reject),
-                        qty_good_fillup: parseInt(dataDelivery.qty.reject),
-                    }
-                }
+                });
             }
-            var data = {
-                resultProductPerson: {
-                    ...dataMentah,
-                    ...dataEdit,
-                }
+            data['materialPickup'] = materialPickup
+            data['materialPickupDetail'] = materialPickupDetail
+            data['deletedId'] = {
+                materialPickup: deleteMaterialPickup,
+                materialPickupDetail: deleteMaterialPickupDetail
             }
-            // edit DELIVERY FULL
         }
-        if (offlineMode) {
-            // mode offline
-            simpanVariableOffline(data, dataDelivery)
-        } else {
-            // mode online
-            // console.log(dataSaveSetoran)
-            // console.log(jumlahInput)
-            // console.log(dataDelivery)
-            // console.log(data)
-            simpanData(data)
-        }
+        // console.log(data)
+        // simpanVariableOffline(data, dataDelivery)
     }
 
     function simpanVariableOffline(data, dataDelivery) {
@@ -2720,6 +3094,15 @@
             if (v.id == data.resultProductPerson.employee_id) return true
         })
         variableSaveOffline.resultProductPerson.push(data.resultProductPerson)
+        data.materialPickup.forEach(e => {
+            variableSaveMaterialOffline.materialPickup.push(e)
+        });
+        data.materialPickupDetail.forEach(e => {
+            variableSaveMaterialOffline.materialPickupDetail.push(e)
+        });
+        data.deletedId.materialPickupDetail.forEach(e => {
+            variableSaveMaterialOffline.deletedId.materialPickupDetail.push(e)
+        });
         dataDetailDelivery.push({
             'worker_id': data.resultProductPerson.employee_id,
             'worker_name': dataEmployee.name,
@@ -2738,12 +3121,17 @@
             'sortir': null,
             'fillup': null,
             'complete': null,
+            'result_product_person_step': null,
+            'material_pickup': null,
         })
-        buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
+        // console.log(variableSaveMaterialOffline)
+        firstAddedResultProductPersonId = ''
+        buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
+        scannerQR()
     }
 
-    function buttonSaveOfflineMode(data) {
-        if (data.length) {
+    function buttonSaveOfflineMode(data, data2, data3) {
+        if (data.length && data2.length && data3.length) {
             $('#buttonSaveOfflineMode').prop("hidden", false);
         } else {
             $('#buttonSaveOfflineMode').prop("hidden", true);
@@ -2760,8 +3148,6 @@
         var html_body = '';
         html_body += '<div class="row">'
         html_body += '<div class="col-12" id="listDataOfflineMode">'
-
-
 
         html_body += '</div>'
         html_body += '</div>'
@@ -2879,7 +3265,7 @@
         }
         materialIdClicked = false
         if (offlineMode) {
-            buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
+            buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
         }
         loadData()
     }
@@ -3073,13 +3459,13 @@
 
     function offlineModeOn() {
         if ($('#checkOfflineMode').is(':checked')) {
-            noConnection()
+            offlineModeConnection()
         } else {
             yesConnection()
         }
     }
 
-    function noConnection() {
+    function offlineModeConnection() {
         offlineMode = true
         $('#offlineModePane').prop("hidden", false);
         setIntervalOfflineMode()
@@ -3105,7 +3491,7 @@
             clearInterval(intervalId);
         } else {
             // tiap satu menit
-            intervalId = setInterval(autoSaveAtOfflineMode, 30 * 1000);
+            intervalId = setInterval(autoSaveAtOfflineModeResult, 30 * 1000);
         }
     }
 
@@ -3113,14 +3499,20 @@
         return JSON.parse(JSON.stringify(obj));
     }
 
-    function autoSaveAtOfflineMode() {
+    function autoSaveAtOfflineModeResult() {
         var type = 'POST'
         var button = '#btnSimpanOffline'
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
         var data = deepCopy(variableSaveOffline)
+        var dataMaterial = deepCopy(variableSaveMaterialOffline)
         if (data.resultProductPerson.length) {
             kelolaDataSaveAuto(data, type, url, button)
+        } else {
+            if (dataMaterial.materialPickup.length || dataMaterial.materialPickupDetail.length) {
+                autoSaveAtOfflineModeMaterial()
+            }
         }
+
     }
 
     function kelolaDataSaveAuto(data, type, url, button) {
@@ -3135,13 +3527,6 @@
                 $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
             },
             success: function(response) {
-                console.log('Auto Save')
-                console.log(data)
-                console.log('============')
-                // variableSaveOffline = {
-                //     resultProductPerson: [],
-                //     deletedId: []
-                // }
                 // Buat salinan data agar data asli tidak berubah
                 var dataToDelete = deepCopy(data.resultProductPerson)
                 var newData = deepCopy(variableSaveOffline.resultProductPerson).slice();
@@ -3151,10 +3536,69 @@
                 });
                 variableSaveOffline.resultProductPerson = newData
                 $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
-                if (!variableSaveOffline.resultProductPerson.length) {
+                // if (!variableSaveOffline.resultProductPerson.length) {
+                //     $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
+                // }
+                // buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
+                autoSaveAtOfflineModeMaterial()
+            }
+        });
+    }
+
+    function autoSaveAtOfflineModeMaterial() {
+        var type = 'POST'
+        var button = '#btnSimpanOffline'
+        var url = '<?php echo api_produksi('setMaterialPickup'); ?>'
+        var data = deepCopy(variableSaveMaterialOffline)
+        var dataResult = deepCopy(variableSaveOffline)
+        if (data.materialPickup.length || data.materialPickupDetail.length) {
+            kelolaDataSaveAutoMaterial(data, type, url, button)
+        } else {
+            if (dataResult.resultProductPerson.length) {
+                autoSaveAtOfflineModeResult()
+            }
+        }
+    }
+
+    function kelolaDataSaveAutoMaterial(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
+            },
+            success: function(response) {
+                // Buat salinan data agar data asli tidak berubah
+                var dataToDelete = deepCopy(data.materialPickup)
+                var newData = deepCopy(variableSaveMaterialOffline.materialPickup).slice();
+                dataToDelete.forEach(itemToDelete => {
+                    newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                });
+                variableSaveMaterialOffline.materialPickup = newData
+
+                var dataToDelete = deepCopy(data.materialPickupDetail)
+                var newData = deepCopy(variableSaveMaterialOffline.materialPickupDetail).slice();
+                dataToDelete.forEach(itemToDelete => {
+                    newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                });
+                variableSaveMaterialOffline.materialPickupDetail = newData
+
+
+                var dataToDelete = deepCopy(data.deletedId.materialPickupDetail)
+                var newData = deepCopy(variableSaveMaterialOffline.deletedId.materialPickupDetail).slice();
+                dataToDelete.forEach(itemToDelete => {
+                    newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                });
+                variableSaveMaterialOffline.deletedId.materialPickupDetail = newData
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+                if (!variableSaveMaterialOffline.materialPickup.length && !variableSaveMaterialOffline.materialPickupDetail.length && !variableSaveMaterialOffline.deletedId.materialPickupDetail.length) {
                     $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
                 }
-                buttonSaveOfflineMode(variableSaveOffline.resultProductPerson)
+                buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
                 loadDataAfterAutoSave()
             }
         });
@@ -3205,6 +3649,8 @@
                     'sortir': el.sortir,
                     'fillup': el.fillup,
                     'complete': el.complete,
+                    'result_product_person_step': el.result_product_person_step,
+                    'material_pickup': el.material_pickup,
                 })
             });
         })
@@ -3212,26 +3658,29 @@
             var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                 if (v.product.id == e.item_id) return true
             })
+            // console.log(dataProducts)
             e.material_group.forEach(el => {
-                if (el) {
-                    var itemDefault = el.items.find((v, k) => {
-                        if (v.item.id == el.item_id_default) return true
-                    })
-                    dataMaterial.push({
-                        work_plan_product_id: dataProducts.work_plan_product_id,
-                        item_id: e.item_id,
-                        item_name: e.name,
-                        item_code: e.code,
-                        item_name: e.name,
-                        material_group_id: el.material_group.id,
-                        material_group_name: el.material_group.name,
-                        material_id: itemDefault.item.id,
-                        material_code: itemDefault.item.code,
-                        material_alias: itemDefault.item.alias,
-                        material_name: itemDefault.item.name,
-                        unit_id: itemDefault.unit.id,
-                        unit_name: itemDefault.unit.name,
-                    })
+                if (dataProducts) {
+                    if (el) {
+                        var itemDefault = el.items.find((v, k) => {
+                            if (v.item.id == el.item_id_default) return true
+                        })
+                        dataMaterial.push({
+                            work_plan_product_id: dataProducts.work_plan_product_id,
+                            item_id: e.item_id,
+                            item_name: e.name,
+                            item_code: e.code,
+                            item_name: e.name,
+                            material_group_id: el.material_group.id,
+                            material_group_name: el.material_group.name,
+                            material_id: itemDefault.item.id,
+                            material_code: itemDefault.item.code,
+                            material_alias: itemDefault.item.alias,
+                            material_name: itemDefault.item.name,
+                            unit_id: itemDefault.unit.id,
+                            unit_name: itemDefault.unit.name,
+                        })
+                    }
                 }
             })
         })
@@ -3298,6 +3747,8 @@
                     'sortir': el.sortir,
                     'fillup': el.fillup,
                     'complete': el.complete,
+                    'result_product_person_step': el.result_product_person_step,
+                    'material_pickup': el.material_pickup,
                 })
             });
         })
