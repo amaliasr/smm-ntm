@@ -996,7 +996,7 @@
         html += '</div>'
         html += '</div>'
         $('#listFormItem').append(html)
-        $('.nominal').number(true);
+        $('.nominal').number(true, 2);
         $('#itemStok' + numberItem).select2({
             closeOnSelect: true,
             dropdownParent: $('#modal'),

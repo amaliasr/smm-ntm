@@ -1464,6 +1464,8 @@
         },
     }
     var offlineMode = false
+    var dateStart = '2024-03-28'
+    var dateEnd = '2024-03-28'
     var menuKategoriTransaksi = [{
         'index': 0,
         'name': 'Ambil Material',
@@ -2788,7 +2790,14 @@
         html_body += '<input class="form-control rounded-pill form-leave" style="text-align: center;" role="dialog" placeholder="ID Pekerja" id="codeQR" autocomplete="off">'
         html_body += '</div>'
         html_body += '<div class="col-12 px-5 pt-2">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-9 pe-0">'
         html_body += '<button class="btn btn-primary rounded-pill w-100" onclick="scannedPerson()">Cari</button>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<button class="w-100 btn btn-outline-primary rounded-pill" onclick="chooseWarehouse(' + choosenId + ',' + "'" + dateStart + "'" + ',' + "'" + dateEnd + "'" + ')"><i class="fa fa-refresh"></i></button>'
+        html_body += '</div>'
+        html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-12 px-5">'
         html_body += '<div class="bd-callout bd-callout-warning super-small-text">Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b>'

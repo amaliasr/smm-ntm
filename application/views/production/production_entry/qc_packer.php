@@ -551,6 +551,17 @@
         return text
     }
 
+    function lastStatusMachineProfileSteps(data, variable) {
+        var text = '-'
+        if (data.length) {
+            text = data[parseInt(data.length) - 1].machine_step_profile_detail_id
+            if (text == null) {
+                text = '-'
+            }
+        }
+        return text
+    }
+
     function cekStatusProductPersonSteps(data) {
         if (data) {
             var cekData = data.find((v, k) => {
@@ -632,7 +643,6 @@
         var data = dataDetailDelivery.find((v, k) => {
             if (v.result_product_person_id == id) return true
         })
-        // console.log(data)
         var status
         var nextStatus
         var qty = {}
@@ -644,6 +654,7 @@
         var step_status_id = ''
         var warehouse_id
         var machine_step_profile_id
+        var machine_step_profile_detail_id
         if (data) {
             worker_id = data.worker_id
             itemId = data.item.id
@@ -653,8 +664,16 @@
             step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
             warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
             machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
-
+            machine_step_profile_detail_id = lastStatusMachineProfileSteps(data.result_product_person_step)
+            // if (data.worker_id == 1422) {
+            //     console.log(data)
+            //     console.log(data.delivery.is_process)
+            //     console.log(cekAmbilMaterial(data.material_pickup))
+            //     console.log(cekStatusProductPersonSteps(data.result_product_person_step))
+            //     console.log(data.complete.is_process)
+            // }
             if (!data.delivery.is_process && !cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                // sedang ambil material
                 status = 'AMBIL MATERIAL'
                 nextStatus = 'SEDANG AMBIL MATERIAL'
                 qty = {
@@ -667,20 +686,46 @@
                     good: qtyMaterialPickup(data.material_pickup),
                 }
 
-            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                // masih ngambag di delivery (karena ada reject)
                 status = 'DELIVERY'
-                nextStatus = 'MATERIAL'
+                nextStatus = 'FILLUP'
                 qty = {
-                    waste: data.delivery.waste,
-                    good: data.delivery.good,
+                    waste: getWaste(data.result_product_person_id),
+                    good: qtyMaterialPickup(data.material_pickup),
                 }
 
             } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
-                status = 'MATERIAL'
-                nextStatus = 'COMPLETE'
-                qty = {
-                    waste: data.delivery.waste,
-                    good: data.delivery.good,
+                var checkAnyReject = checkIfAllStepIsReject(data.result_product_person_id)
+                var checkCompleteProfileStep = checkCompletedProfileStepsAll(data.result_product_person_id, machine_step_profile_id, itemId)
+                if (!checkCompleteProfileStep) {
+                    // jika semua step belum complete
+                    if (checkAnyReject.status == 'complete') {
+                        // jika tidak ada reject
+                        status = 'TELAH AMBIL MATERIAL'
+                        nextStatus = 'DELIVERY'
+                        qty = {
+                            good: qtyMaterialPickup(data.material_pickup),
+                        }
+                    } else {
+                        // jika ada reject
+                        status = 'DELIVERY'
+                        nextStatus = 'FILLUP'
+                        qty = {
+                            waste: data.delivery.waste,
+                            total_waste: getWaste(data.result_product_person_id),
+                            good: qtyMaterialPickup(data.material_pickup),
+                        }
+                    }
+                } else {
+                    // console.log(checkCompleteProfileStep)
+                    status = 'COMPLETE'
+                    nextStatus = 'DONE'
+                    qty = {
+                        waste: data.complete.waste,
+                        reject: data.complete.reject,
+                        good: qtyMaterialPickup(data.material_pickup),
+                    }
                 }
 
             } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && data.complete.is_process) {
@@ -718,6 +763,93 @@
             itemId: itemId,
             warehouse_id: warehouse_id,
             machine_step_profile_id: machine_step_profile_id,
+            machine_step_profile_detail_id: machine_step_profile_detail_id,
+        }
+    }
+
+    function findDataResultPerson(result_product_person_id, machine_step_profile_detail_id) {
+        var master = []
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        if (data) {
+            var dataDetail = data.result_product_person_step.filter((v, k) => {
+                if (v.machine_step_profile_detail_id == machine_step_profile_detail_id) return true
+            })
+            if (dataDetail.length) {
+                master = dataDetail
+            }
+        }
+        return master
+    }
+
+    function getWaste(result_product_person_id) {
+        var qty = 0
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        if (data) {
+            qty = data.delivery.waste
+            if (qty == null) {
+                qty = 0
+            }
+        }
+        return qty
+    }
+
+    function checkIfStepIsDone(profile_step_id, result_product_person_id) {
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        var good = 0
+        var reject = 0
+        var process_at = 0
+        var status = ''
+        if (data) {
+            // console.log(profile_step_id)
+            // console.log(data.result_product_person_step)
+            if (data.result_product_person_step) {
+                var check = data.result_product_person_step.find((v, k) => {
+                    if (v.machine_step_profile_detail_id == profile_step_id) return true
+                })
+                if (check) {
+                    good = check.qty
+                    reject = check.qty_reject
+                    process_at = check.datetime
+                    if (check.is_complete) {
+                        status = 'complete'
+                    } else {
+                        if (check.is_reject) {
+                            status = 'reject'
+                        }
+                    }
+                }
+            }
+        }
+        return {
+            good: good,
+            reject: reject,
+            process_at: process_at,
+            status: status
+        }
+    }
+
+    function checkIfAllStepIsReject(result_product_person_id) {
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        var status = 'complete'
+        if (data) {
+            if (data.result_product_person_step) {
+                data.result_product_person_step.forEach(e => {
+                    if (e.is_reject) {
+                        status = 'reject'
+                    }
+                });
+            }
+        }
+        return {
+            status: status
         }
     }
 
@@ -823,10 +955,13 @@
         var dataMaster = {
             listMachineStep: [],
             listMachineStepProduct: [],
+            index: '',
+            machine_step_profile_detail_id: '',
         }
         var data = dataEntry.machineStepProfile.find((v, k) => {
             if (v.item_id_product == idProduct) return true
         })
+        // console.log(data)
         if (data) {
             var dataMachineStep = data.machine_step_profiles.find((v, k) => {
                 if (v.id == idStep) return true
@@ -839,6 +974,8 @@
         if (dataMaster.listMachineStep.length) {
             var a = 0
             dataMaster.listMachineStep.forEach(e => {
+                dataMaster.index = e.index
+                dataMaster.machine_step_profile_detail_id = e.id
                 e['data_machine_steps'] = []
                 for (let i = 0; i < e.machine_step_ids.length; i++) {
                     var findStep = dataEntry.machineStep.find((v, k) => {
@@ -859,7 +996,7 @@
         var data = dataEntry.machineStepProfile.find((v, k) => {
             if (v.item_id_product == idProduct) return true
         })
-        console.log(data)
+        // console.log(data)
         var item_ids_material_main = []
         if (data) {
             var dataMachineStep = data.machine_step_profiles.find((v, k) => {
@@ -869,6 +1006,8 @@
                 item_ids_material_main = dataMachineStep.item_ids_material_main
             }
         }
+        // console.log(idProduct)
+        // console.log(item_ids_material_main)
         var dataCollect = []
         dataEntry.productMaterial.forEach(e => {
             e.material_group.forEach(el => {
@@ -891,7 +1030,22 @@
                 }
             });
         });
-        return dataCollect
+
+        return removeDuplicates(dataCollect)
+    }
+
+    function removeDuplicates(arr) {
+        var uniqueArray = [];
+        var uniqueItemIds = [];
+
+        $.each(arr, function(index, obj) {
+            if (uniqueItemIds.indexOf(obj.item_id) === -1) {
+                uniqueItemIds.push(obj.item_id);
+                uniqueArray.push(obj);
+            }
+        });
+
+        return uniqueArray;
     }
 </script>
 <script>
@@ -924,7 +1078,7 @@
     }
     var workerIdClicked
     var setoranIdClicked
-    var materialIdClicked
+    // var materialIdClicked
     var cameraOn
     var JustOnCamAfterAdd = false
     var scanned = false
@@ -933,6 +1087,7 @@
     var offlineMode = true
     var variableSaveOffline = {
         resultProductPerson: [],
+        resultProductPersonStep: [],
         deletedId: []
     }
     var variableSaveMaterialOffline = {
@@ -1029,7 +1184,7 @@
                     'result_product_person_id': el.result_product_person_id,
                     'number': el.number,
                     'datetime': el.datetime,
-                    'item': el.item,
+                    'item': el.item_target,
                     'unit': el.unit,
                     'delivery': el.delivery,
                     'sortir': el.sortir,
@@ -1094,6 +1249,7 @@
         var a = 1;
         dataDetailDelivery.forEach(e => {
             var dataDelivery = findStatus(e.result_product_person_id)
+            // console.log(dataDelivery)
             html += '<tr class="">'
             html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
             html += '<td class="small-text align-middle text-center">' + formatJamMenit(e.datetime) + '</td>'
@@ -1387,14 +1543,54 @@
             if (v.employee_worker.eid == eid) return true
         })
         if (!dataProducts) {
+            // baru dari setoran ke 1
             dataProducts = dataEntry.employee.find((v, k) => {
                 if (v.eid == eid) return true
             })
             dataProducts = dataProducts.id
             createNewWorker(dataProducts)
         } else {
-            dataProducts = dataProducts.employee_worker.id
-            workProgress(dataProducts)
+            // setoran selanjutnya
+            var availSteps = checkAvailableSteps(eid)
+            var statusAvailSteps = availSteps.status
+            // console.log(statusAvailSteps)
+            if (statusAvailSteps) {
+                var result_product_person_id = availSteps.result_product_person_id
+                // jika masih ada step yg masih belum selesai
+                workerIdClicked = dataProducts.employee_worker.id
+                setoranIdClicked = result_product_person_id
+                modalWorkProgress()
+                // isiWorkProgress(result_product_person_id)
+            } else {
+                // jika sudah selesai semua
+                dataProducts = dataProducts.employee_worker.id
+                workProgress(dataProducts)
+            }
+        }
+    }
+
+    function checkAvailableSteps(eid) {
+        var status = false
+        var data = {}
+        var dataDelivery = dataEntry.productionDelivery.find((v, k) => {
+            if (v.employee_worker.eid == eid) return true
+        })
+        var result_product_person_id = ''
+        if (dataDelivery) {
+            if (dataDelivery.data) {
+                var resulPersonStep = dataDelivery.data[dataDelivery.data.length - 1]
+                if (resulPersonStep) {
+                    result_product_person_id = resulPersonStep.result_product_person_id
+                    var findId = findStatus(resulPersonStep.result_product_person_id)
+                    if (findId.nextStatus != 'DONE') {
+                        status = true
+                    }
+                }
+            }
+        }
+        return {
+            status: status,
+            result_product_person_id: result_product_person_id,
         }
     }
 
@@ -1437,7 +1633,7 @@
                             'result_product_person_id': el.result_product_person_id,
                             'number': el.number,
                             'datetime': el.datetime,
-                            'item': el.item,
+                            'item': el.item_target,
                             'unit': el.unit,
                             'delivery': el.delivery,
                             'sortir': el.sortir,
@@ -1518,7 +1714,7 @@
     }
 
     function modalWorkProgress() {
-        materialIdClicked = false
+        // materialIdClicked = false
         var data = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.id == workerIdClicked) return true
         })
@@ -1621,9 +1817,13 @@
         if (setoranIdClicked) {
             isiWorkProgress(setoranIdClicked)
         }
-        if (scanned) {
+        var availSteps = checkAvailableSteps(data.employee_worker.eid).status
+        if (!availSteps) {
             setoranBaru(data.employee_worker.id)
+
         }
+        // if (scanned) {
+        // }
     }
 
     function deleteAndCloseButton(jenis, worker_id, id) {
@@ -1768,7 +1968,7 @@
         text = '<p>Belum Ada Proses</p>'
         btnEdit = ''
         if (data) {
-            if (data.delivery.is_process == null) {
+            if (dataStatus.status != 'NOT CREATED') {
                 var dataSetoranBaru = getMaterialPickup(data.material_pickup)
                 // console.log(data)
                 // console.log(dataSetoranBaru)
@@ -1812,23 +2012,24 @@
         html += '</div>'
         // Ambil Material
         // Step
+        // console.log(dataMachineStep)
         dataMachineStep.forEach(k => {
+            // console.log(k)
             html += '<div class="timeline-item">'
             html += '<div class="timeline-item-marker">'
 
             status = 'text-grey'
             text = '<p>Belum Ada Proses</p>'
             btnEdit = ''
-            if (data) {
-                if (data.sortir.is_process) {
-                    status = 'bg-success text-white'
-                    text = '<p>Pukul ' + formatJamMenit(data.sortir.process_at) + ' Item Good ' + data.sortir.good + ' Reject ' + replaceNullWithZero(data.sortir.reject) + ' ' + data.unit.name + '</p>'
-                    if (checkLabelEdit('SORTIR')) {
-                        btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'SORTIR' + "'" + ')"></span>'
-                    }
+            var checkSteps = checkIfStepIsDone(k.id, result_product_person_id)
+            // console.log(checkSteps)
+            if (checkSteps.status) {
+                status = 'bg-success text-white'
+                text = '<p>Pukul ' + formatJamMenit(checkSteps.process_at) + ' Item Good ' + checkSteps.good + ' Reject ' + replaceNullWithZero(checkSteps.reject) + ' ' + data.unit.name + '</p>'
+                if (checkLabelEdit('SORTIR')) {
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'SORTIR' + "'" + ')"></span>'
                 }
             }
-
             html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
             html += '</div>'
             html += '<div class="timeline-item-content" style="font-size: 11px;">'
@@ -1874,7 +2075,7 @@
     function sisaStokMaterial(worker_id) {
         workerIdClicked = worker_id
         setoranIdClicked = null
-        materialIdClicked = true
+        // materialIdClicked = true
         stillOpenModal = true
         dataSaveMaterial = {
             remainingMaterialPerson: [],
@@ -2085,7 +2286,7 @@
         return time;
     }
 
-    function formNEWDELIVER(id = null, edit = false) {
+    function formNEWDELIVER(id = null, edit = false, step_profile_id = null) {
         var dataEdit
         var good = ''
         var bad = ''
@@ -2293,10 +2494,14 @@
         }
     }
 
-    function formDELIVERY(id = null, edit = false) {
+    function formDELIVERY(id = null, edit = false, step_profile_id = null) {
         var dataStatus = findStatus(dataSaveSetoran.result_product_person_id)
-        var dataMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStep
-        var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
+        var masterMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id)
+        // console.log(masterMachineStep)
+        var dataMachineStep = masterMachineStep.listMachineStep
+        // console.log(dataMachineStep)
+        var indexMachineStep = masterMachineStep.index
+        var dataMachineStepProduct = masterMachineStep.listMachineStepProduct
         var currentMachineStep
         var currentIndex = 0
         var choosenCurrentIndex = 0
@@ -2340,13 +2545,14 @@
         html += '</div>'
 
         html += '<div class="col">'
-        html += '<p class="m-0 super-small-text fw-bolder">Total Setoran</p>'
+        html += '<p class="m-0 super-small-text fw-bolder">Target Setoran</p>'
         html += '<h1 class="fw-bolder">' + dataStatus.qty.good + '</h1>'
         html += '</div>'
 
         html += '<div class="col">'
-        html += '<p class="m-0 super-small-text fw-bolder">Good Setoran</p>'
+        html += '<p class="m-0 super-small-text fw-bolder">Setoran Good</p>'
         html += '<h1 class="fw-bolder" id="goodSorting">' + dataStatus.qty.good + '</h1>'
+        html += '<p class="m-0 super-small-text text-danger" id="goodSortingText"></p>'
         html += '</div>'
 
         html += '</div>'
@@ -2357,7 +2563,7 @@
 
         // jumlah bad
         html += '<div class="col-7 text-end">'
-        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Good</b></p>'
+        html += '<p class="mb-1 pt-3 small-text"><b>Total Setoran</b></p>'
         html += '<input class="form-control  nominal form-delivery form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + dataStatus.qty.good + '" tabindex="1" oninput="goodSortingFill()">'
         html += '<hr class="m-0">'
         html += '</div>'
@@ -2392,12 +2598,13 @@
         html += '<div class="" role="group" aria-label="Basic checkbox toggle button group">'
         var no = 1
         if (currentMachineStep.data_machine_steps) {
+            // console.log(currentMachineStep)
             currentMachineStep.data_machine_steps.forEach(e => {
                 var dataFindMachineStepProduct = dataMachineStepProduct.find((v, k) => {
                     if (v.machine_step_id == e.id) return true
                 })
-                html += '<input type="checkbox" class="btn-check check-steps" id="btncheck' + e.id + '" onclick="checkSteps(' + e.id + ',' + choosenCurrentIndex + ',' + dataStatus.itemId + ',' + dataStatus.machine_step_profile_id + ')" autocomplete="off" value="' + e.id + '" data-item_id="' + dataFindMachineStepProduct.item_id_product + '" data-unit_id="' + dataFindMachineStepProduct.unit_id + '" checked>'
-                html += '<label class="btn btn-outline-success small-text p-2 ms-2 shadow-none" for="btncheck' + e.id + '"><span class="badge bg-light text-success me-1">' + no + '</span>' + e.name + '</label>'
+                html += '<input type="checkbox" class="btn-check check-steps" id="btncheck' + e.id + '" onclick="checkSteps(' + e.id + ',' + choosenCurrentIndex + ',' + dataStatus.itemId + ',' + dataStatus.machine_step_profile_id + ')" autocomplete="off" value="' + e.id + '" data-item_id="' + dataFindMachineStepProduct.item_id_product + '" data-unit_id="' + dataFindMachineStepProduct.unit_id + '" data-machine_step_profile_id="' + dataStatus.machine_step_profile_id + '" data-machine_step_profile_detail_id="' + currentMachineStep.id + '" data-index="' + currentMachineStep.index + '" checked>'
+                html += '<label class="btn btn-outline-success super-small-text p-2 ms-2 shadow-none" for="btncheck' + e.id + '"><span class="badge bg-light text-success me-1">' + no + '</span>' + e.name + '</label>'
                 no++
             });
         }
@@ -2478,19 +2685,20 @@
         }
     }
 
-    function formFILLUP(id = null, edit = false) {
+    function formFILLUP(id = null, edit = false, step_profile_id = null) {
         firstAddedResultProductPersonId = ''
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
         var dataEdit
         var good = ''
-        var bad = dataDelivery.qty.reject
+        var bad = dataDelivery.qty.waste
         var time = timeNow()
         if (edit) {
             dataEdit = findStatusEdit(id, 'FILLUP')
             good = dataEdit.qty.good
-            bad = dataEdit.qty.good
+            bad = dataEdit.qty.waste
             time = formatJamMenit(dataEdit.qty.process_at)
         }
+        // console.log(dataDelivery)
         var html = ''
         html += '<div class="row justify-content-end">'
         // sesi input
@@ -2507,16 +2715,18 @@
         html += '</div>'
 
         html += '<div class="col-4">'
-        html += '<p class="m-0 super-small-text fw-bolder">QC Reject</p>'
-        if (!dataDelivery.qty.reject) {
-            dataDelivery.qty.reject = 0
+        html += '<p class="m-0 super-small-text fw-bolder">Total Setoran</p>'
+        if (!dataDelivery.qty.good) {
+            dataDelivery.qty.good = 0
         }
-        html += '<h1 class="fw-bolder">' + dataDelivery.qty.reject + '</h1>'
+        html += '<h1 class="fw-bolder">' + dataDelivery.qty.good + '</h1>'
         html += '</div>'
         html += '<div class="col-4">'
-        html += '<p class="m-0 super-small-text fw-bolder">Setoran Reject</p>'
-        html += '<h1 class="m-0 fw-bolder" id="showSetoranReject">--</h1>'
-        html += '<p class="m-0 super-tiny-text" id="textSetoranReject"></p>'
+        html += '<p class="m-0 super-small-text fw-bolder">Total Reject</p>'
+        if (!dataDelivery.qty.waste) {
+            dataDelivery.qty.waste = 0
+        }
+        html += '<h1 class="fw-bolder">' + dataDelivery.qty.waste + '</h1>'
         html += '</div>'
 
         html += '</div>'
@@ -2528,17 +2738,9 @@
 
         // jumlah setoran
         html += '<div class="col-8 text-end">'
-        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Setoran Reject</b></p>'
-        html += '<input class="form-control form-control-lg nominal form-fillup form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" oninput="setoranRejectFill()" value="' + bad + '" tabindex="1" role="dialog">'
+        html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Reject Ulang</b></p>'
+        html += '<input class="form-control form-control-lg nominal form-fillup form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" value="" data-bad="' + bad + '" tabindex="1" role="dialog">'
         html += '<hr class="m-0 text-danger">'
-        html += '</div>'
-
-        html += '<div class="col-12 text-end">'
-        html += '<div class="row pt-2 justify-content-end">'
-        html += '<div class="col-4">'
-        html += '<button class="btn btn-outline-dark btn-sm shadow-none" onclick="autoSetoranReject(),setoranRejectFill()">Auto <i class="fa fa-clock-o ms-2"></i></button>'
-        html += '</div>'
-        html += '</div>'
         html += '</div>'
         // jumlah setoran
 
@@ -2559,7 +2761,7 @@
         // jam setoran
 
         html += '<div class="col-12 text-end pt-3">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertFillup()" tabindex="2">Simpan dan Selesaikan</button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir()" tabindex="2">Simpan dan Selesaikan</button>'
         html += '</div>'
         // sesi input
         html += '</div>'
@@ -2574,26 +2776,12 @@
         $('.form-fillup').on('keypress', function(event) {
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
-                insertFillup()
+                filteredSortir()
             }
         });
-        setoranRejectFill()
     }
 
-    function insertFillup() {
-        if (checkNotEmpty('form-fillup')) {
-            JustOnCamAfterAdd = true
-            arrangeVariableInsert()
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Tidak Lengkap',
-                text: 'Data yang dimasukkan Tidak Lengkap'
-            });
-        }
-    }
-
-    function formDONE(id = null, edit = false) {
+    function formDONE(id = null, edit = false, step_profile_id = null) {
         firstAddedResultProductPersonId = ''
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
         var html = ''
@@ -2777,13 +2965,18 @@
 
     function goodSortingFill() {
         var valueGood = $('#jumlahGood').val()
-        var value = $('#jumlahBad').val()
-        if (!value) {
-            value = 0
+        if (!valueGood) {
+            valueGood = 0
         }
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
-        var goodStock = parseInt(valueGood) - parseInt(value)
-        $('#goodSorting').html('<span class="text-success">' + goodStock + '</span>')
+        var color = ''
+        var textGood = ''
+        if (valueGood < dataDelivery.qty.good) {
+            color = 'text-danger'
+            textGood = '*) Setoran kurang dari target'
+        }
+        $('#goodSorting').html('<span class="' + color + '">' + valueGood + '</span>')
+        $('#goodSortingText').html(textGood)
     }
 
     function AddedResultProductPersonId() {
@@ -2840,6 +3033,7 @@
 
     function arrangeVariableInsert(autoComplete = null) {
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        // console.log(dataDelivery)
         var jamSetoran = dataEntry.workPlanMachine.date + ' ' + $('#jamSetoran').val() + ':00'
         var jumlahBad = $('#jumlahBad').val()
         var jumlahInput = $('#jumlahGood').val()
@@ -2853,13 +3047,16 @@
 
         var id_product = $("#productSetoran").val()
         var machine_step_profile_id = ''
+        var machine_step_profile_detail_id = ''
+        var machine_step_profile_index = ''
         var warehouse_id = ''
         var material_pickup_id = ''
         var valuePersonStep = []
+        var dataResultProductPerson = []
         if (dataSaveSetoran.next_status != 'NEWDELIVER') {
             var unit_product = $("#productSetoran").find(':selected').data('unit')
             var work_plan_product_id = $("#productSetoran").find(':selected').data('work_plan_product_id')
-            if (dataSaveSetoran.next_status == 'DELIVER') {
+            if (dataSaveSetoran.next_status == 'DELIVERY') {
                 var valuePersonStep = $('.check-steps:checked').map(function() {
                     return $(this).val();
                 }).get();
@@ -2871,8 +3068,24 @@
                     return $(this).data('unit_id');
                 }).get()
                 unit_product = unitPersonStep[unitPersonStep.length - 1]
+                machine_step_profile_id = $('.check-steps:checked').map(function() {
+                    return $(this).data('machine_step_profile_id');
+                }).get()[0]
+                machine_step_profile_detail_id = $('.check-steps:checked').map(function() {
+                    return $(this).data('machine_step_profile_detail_id');
+                }).get()[0]
+                machine_step_profile_index = $('.check-steps:checked').map(function() {
+                    return $(this).data('index');
+                }).get()[0]
+            } else if (dataSaveSetoran.next_status == 'FILLUP') {
+                dataResultProductPerson = findDataResultPerson(dataSaveSetoran.result_product_person_id, dataDelivery.machine_step_profile_detail_id)
+                // console.log(dataDelivery)
+                var dataFillup = {
+                    qty_waste_deliv: parseInt(dataDelivery.qty.waste) + parseInt(jumlahBad),
+                }
             }
         } else {
+            // NEW DELIVER
             var value = $('.form-newdeliver').map(function() {
                 return $(this).val();
             }).get();
@@ -2885,6 +3098,7 @@
             var idMaterialPickup = $('.form-newdeliver').map(function() {
                 return $(this).data('material_pickup_id');
             }).get();
+
             var work_plan_product_id = $('.form-newdeliver').map(function() {
                 return $(this).data('work_plan_product_id');
             }).get()[0]
@@ -2917,7 +3131,7 @@
                 machine_step_profile_id: machine_step_profile_id,
                 item_id_target: id_product,
                 unit_id_target: unit_product,
-                qty_target: jumlahInput,
+                qty_target: parseInt(jumlahInput) - parseInt(jumlahBad),
                 item_ids_chain_material: item_ids_chain_material,
             },
             DELIVERY: {
@@ -2927,11 +3141,12 @@
                 qty_waste_deliv: jumlahBad,
                 note_deliv: '',
             },
+            FILLUP: dataFillup,
             COMPLETE: {
                 is_complete: 1,
                 complete_at: jamSetoran,
                 employee_id_complete: user_id,
-                qty_final: parseInt(dataSaveSetoran.qty_sortir_good) + parseInt(jumlahBad),
+                qty_final: jumlahInput,
                 note_complete: '',
             }
         }
@@ -2955,79 +3170,7 @@
             },
         }
 
-        if (dataSaveSetoran.next_status == 'DELIVER') {
-            var qtyDeliver = parseInt(jumlahInput) - parseInt(jumlahBad)
-            var dataReject = {
-                is: 0,
-                at: currentDateTime(),
-                employee_id: user_id,
-            }
-            data.resultProductPersonStep = []
-            var dataDeliver = {
-                reject: {
-                    is: null,
-                    at: null,
-                    employee_id: null,
-                    qty: null,
-                    note: null,
-                },
-                complete: {
-                    is: null,
-                    at: null,
-                    employee_id: null,
-                    qty: null,
-                    note: null,
-                },
-            }
-            if (qtyDeliver == jumlahInput) {
-                // jika complete
-                dataDeliver = {
-                    complete: {
-                        is: 1,
-                        at: currentDateTime(),
-                        employee_id: user_id,
-                        qty: qtyDeliver,
-                        note: '',
-                    },
-                }
-            } else {
-                // jika reject
-                dataDeliver = {
-                    reject: {
-                        is: 1,
-                        at: currentDateTime(),
-                        employee_id: user_id,
-                        qty: qtyDeliver,
-                        note: '',
-                    },
-                }
-            }
-            for (let i = 0; i < valuePersonStep.length; i++) {
-                data.resultProductPersonStep.push({
-                    id: createCodeId() + '' + i,
-                    result_product_person_id: dataSaveSetoran.result_product_person_id,
-                    datetime: jamSetoran,
-                    machine_step_id: valuePersonStep[i],
-                    item_id_product: itemPersonStep[i],
-                    qty: qtyDeliver,
-                    unit_id: unitPersonStep[i],
-                    is_reject: dataDeliver.reject.is,
-                    reject_at: dataDeliver.reject.at,
-                    employee_id_reject: dataDeliver.reject.employee_id,
-                    qty_reject: dataDeliver.reject.qty,
-                    note_reject: dataDeliver.reject.note,
-                    is_complete: dataDeliver.complete.is,
-                    complete_at: dataDeliver.complete.at,
-                    employee_id_complete: dataDeliver.complete.employee_id,
-                    qty_complete: dataDeliver.complete.qty,
-                    note: '',
-                    index: '',
-                    machine_step_profile_detail_id: '',
-                })
-            }
-        }
-
-        // data material
+        // NEW DELIVER
         if (dataSaveSetoran.next_status == 'NEWDELIVER') {
             var deleteMaterialPickup = []
             var deleteMaterialPickupDetail = []
@@ -3084,8 +3227,163 @@
                 materialPickupDetail: deleteMaterialPickupDetail
             }
         }
-        // console.log(data)
-        // simpanVariableOffline(data, dataDelivery)
+
+        // DELIVERY
+        if (dataSaveSetoran.next_status == 'DELIVERY') {
+            var qtyDeliver = parseInt(jumlahInput)
+            var qtyDeliverMinus = parseInt(jumlahInput) - parseInt(jumlahBad)
+            data.resultProductPersonStep = []
+            var dataDeliver = {
+                reject: {
+                    is: null,
+                    at: null,
+                    employee_id: null,
+                    qty: null,
+                    note: null,
+                },
+                complete: {
+                    is: null,
+                    at: null,
+                    employee_id: null,
+                    qty: null,
+                    note: null,
+                },
+            }
+            if (qtyDeliverMinus == jumlahInput) {
+                // jika complete
+                dataDeliver.complete.is = 1
+                dataDeliver.complete.at = currentDateTime()
+                dataDeliver.complete.employee_id = user_id
+                dataDeliver.complete.qty = qtyDeliver
+                dataDeliver.complete.note = ''
+                dataDeliver.reject.is = 0
+                var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, valuePersonStep)
+                if (checkComplete) {
+                    var dataNext = variableInsert['COMPLETE']
+                    data.resultProductPerson = {
+                        ...data.resultProductPerson,
+                        ...dataNext
+                    };
+                }
+            } else {
+                // jika reject
+                dataDeliver.reject.is = 1
+                dataDeliver.reject.at = currentDateTime()
+                dataDeliver.reject.employee_id = user_id
+                dataDeliver.reject.qty = jumlahBad
+                dataDeliver.reject.note = ''
+            }
+            // console.log(valuePersonStep)
+            for (let i = 0; i < valuePersonStep.length; i++) {
+                data.resultProductPersonStep.push({
+                    id: createCodeId() + '' + i,
+                    result_product_person_id: dataSaveSetoran.result_product_person_id,
+                    datetime: jamSetoran,
+                    machine_step_id: valuePersonStep[i],
+                    item_id_product: itemPersonStep[i],
+                    qty: qtyDeliver,
+                    unit_id: unitPersonStep[i],
+                    note: '',
+                    index: machine_step_profile_index,
+                    machine_step_profile_detail_id: machine_step_profile_detail_id,
+                })
+                if (qtyDeliverMinus == jumlahInput) {
+                    // jika complete
+                    data.resultProductPersonStep[i].is_complete = dataDeliver.complete.is
+                    data.resultProductPersonStep[i].complete_at = dataDeliver.complete.at
+                    data.resultProductPersonStep[i].employee_id_complete = dataDeliver.complete.employee_id
+                    data.resultProductPersonStep[i].qty_complete = dataDeliver.complete.qty
+                    data.resultProductPersonStep[i].is_reject = dataDeliver.reject.is
+                } else {
+                    // jika reject
+                    data.resultProductPersonStep[i].is_reject = dataDeliver.reject.is
+                    data.resultProductPersonStep[i].reject_at = dataDeliver.reject.at
+                    data.resultProductPersonStep[i].employee_id_reject = dataDeliver.reject.employee_id
+                    data.resultProductPersonStep[i].qty_reject = dataDeliver.reject.qty
+                    data.resultProductPersonStep[i].note_reject = ''
+                }
+            }
+        }
+
+        // FILLUP
+        if (dataSaveSetoran.next_status == 'FILLUP') {
+            var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, [])
+            if (jumlahBad == 0 && checkComplete) {
+                var dataNext = variableInsert['COMPLETE']
+                data.resultProductPerson = {
+                    ...data.resultProductPerson,
+                    ...dataNext
+                };
+            }
+            data.resultProductPersonStep = []
+            var index = 0
+            if (dataResultProductPerson.length) {
+                dataResultProductPerson.forEach(e => {
+                    var qtyFillup = parseInt(jumlahInput) - parseInt(jumlahBad)
+                    data.resultProductPersonStep.push({
+                        id: e.id,
+                        result_product_person_id: dataSaveSetoran.result_product_person_id,
+                        datetime: jamSetoran,
+                        machine_step_id: e.machine_step.id,
+                        qty: jumlahBad,
+                        unit_id: e.unit.id,
+                    })
+                    if (jumlahBad == 0) {
+                        data.resultProductPersonStep[index].is_complete = 1
+                        data.resultProductPersonStep[index].is_reject = 0
+                        data.resultProductPersonStep[index].complete_at = currentDateTime()
+                        data.resultProductPersonStep[index].employee_id_complete = user_id
+                        data.resultProductPersonStep[index].qty_complete = dataDelivery.qty.good
+                    }
+                    index++
+                });
+            }
+        }
+
+
+        console.log(data)
+        simpanVariableOffline(data, dataDelivery)
+    }
+
+    function checkCompletedProfileSteps(result_product_person_id, data_step) {
+        var status = false
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        }).result_product_person_step
+        var dataStatus = findStatus(result_product_person_id)
+        var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
+        var totalSebenarnya = dataMachineStepProduct.length
+        var jumlahSedangBerjalan = 0
+        if (data[0].id) {
+            jumlahSedangBerjalan = data.length
+        }
+        var jumlahInput = data_step.length
+        var totalInput = parseInt(jumlahInput) + parseInt(jumlahSedangBerjalan)
+        if (totalSebenarnya == totalInput) {
+            status = true
+        }
+        return status
+    }
+
+    function checkCompletedProfileStepsAll(result_product_person_id, machine_step_profile_id, item_id) {
+        var status = false
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        // var resultProductPersonStep = data.result_product_person_step
+        var resultProductPersonStep = data.result_product_person_step.filter((v, k) => {
+            if (v.is_complete == 1) return true
+        })
+        var dataMachineStepProduct = findmachineStep(item_id, machine_step_profile_id).listMachineStepProduct
+        var totalSebenarnya = dataMachineStepProduct.length
+        var totalSedangBerjalan = 0
+        if (resultProductPersonStep[0].id) {
+            totalSedangBerjalan = resultProductPersonStep.length
+        }
+        if (totalSebenarnya == totalSedangBerjalan) {
+            status = true
+        }
+        return status
     }
 
     function simpanVariableOffline(data, dataDelivery) {
@@ -3094,15 +3392,22 @@
             if (v.id == data.resultProductPerson.employee_id) return true
         })
         variableSaveOffline.resultProductPerson.push(data.resultProductPerson)
-        data.materialPickup.forEach(e => {
-            variableSaveMaterialOffline.materialPickup.push(e)
-        });
-        data.materialPickupDetail.forEach(e => {
-            variableSaveMaterialOffline.materialPickupDetail.push(e)
-        });
-        data.deletedId.materialPickupDetail.forEach(e => {
-            variableSaveMaterialOffline.deletedId.materialPickupDetail.push(e)
-        });
+        variableSaveOffline.resultProductPersonStep = data.resultProductPersonStep
+        if (data.materialPickup) {
+            data.materialPickup.forEach(e => {
+                variableSaveMaterialOffline.materialPickup.push(e)
+            });
+        }
+        if (data.materialPickupDetail) {
+            data.materialPickupDetail.forEach(e => {
+                variableSaveMaterialOffline.materialPickupDetail.push(e)
+            });
+        }
+        if (data.deletedId) {
+            data.deletedId.materialPickupDetail.forEach(e => {
+                variableSaveMaterialOffline.deletedId.materialPickupDetail.push(e)
+            });
+        }
         dataDetailDelivery.push({
             'worker_id': data.resultProductPerson.employee_id,
             'worker_name': dataEmployee.name,
@@ -3131,7 +3436,10 @@
     }
 
     function buttonSaveOfflineMode(data, data2, data3) {
-        if (data.length && data2.length && data3.length) {
+        // console.log(data)
+        // console.log(data2)
+        // console.log(data3)
+        if (data.length || data2.length || data3.length) {
             $('#buttonSaveOfflineMode').prop("hidden", false);
         } else {
             $('#buttonSaveOfflineMode').prop("hidden", true);
@@ -3261,9 +3569,10 @@
         }
         variableSaveOffline = {
             resultProductPerson: [],
+            resultProductPersonStep: [],
             deletedId: []
         }
-        materialIdClicked = false
+        // materialIdClicked = false
         if (offlineMode) {
             buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
         }
@@ -3410,7 +3719,14 @@
         html_body += '</div>'
         html_body += '<div class="col-8 text-center">'
         html_body += '<input class="form-control rounded-pill form-leave" style="text-align: center;" type="text" id="codeQR" role="dialog" autocomplete="off">'
-        html_body += '<button class="mt-2 w-100 btn btn-primary rounded-pill" onclick="changeScanner()"><i class="fa fa-search me-2"></i>Cari</button>'
+        html_body += '<div class="row mt-2">'
+        html_body += '<div class="col-9 pe-0">'
+        html_body += '<button class="w-100 btn btn-primary rounded-pill" onclick="changeScanner()"><i class="fa fa-search me-2"></i>Cari</button>'
+        html_body += '</div>'
+        html_body += '<div class="col-3">'
+        html_body += '<button class="w-100 btn btn-outline-primary rounded-pill" onclick="loadDataClick()"><i class="fa fa-refresh"></i></button>'
+        html_body += '</div>'
+        html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-8">'
         html_body += '<div class="bd-callout bd-callout-warning super-small-text">Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b></div>'
@@ -3431,6 +3747,13 @@
                 changeScanner()
             }
         });
+    }
+
+    function loadDataClick() {
+        setoranIdClicked = null
+        stillOpenModal = true
+        JustOnCamAfterAdd = true
+        loadData()
     }
     var scannedId = ''
 
@@ -3530,22 +3853,31 @@
                 // Buat salinan data agar data asli tidak berubah
                 var dataToDelete = deepCopy(data.resultProductPerson)
                 var newData = deepCopy(variableSaveOffline.resultProductPerson).slice();
-                // Loop melalui setiap elemen di dataToDelete dan hapus dari newData
                 dataToDelete.forEach(itemToDelete => {
                     newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
                 });
                 variableSaveOffline.resultProductPerson = newData
+
+                if (data.resultProductPersonStep) {
+                    var dataToDelete = deepCopy(data.resultProductPersonStep)
+                    var newData = deepCopy(variableSaveOffline.resultProductPersonStep).slice();
+                    dataToDelete.forEach(itemToDelete => {
+                        newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                    });
+                    variableSaveOffline.resultProductPersonStep = newData
+                }
                 $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
                 // if (!variableSaveOffline.resultProductPerson.length) {
                 //     $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
                 // }
-                // buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
+                buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
                 autoSaveAtOfflineModeMaterial()
             }
         });
     }
 
     function autoSaveAtOfflineModeMaterial() {
+        // material pickup
         var type = 'POST'
         var button = '#btnSimpanOffline'
         var url = '<?php echo api_produksi('setMaterialPickup'); ?>'
@@ -3556,6 +3888,10 @@
         } else {
             if (dataResult.resultProductPerson.length) {
                 autoSaveAtOfflineModeResult()
+            } else {
+                setoranIdClicked = null
+                JustOnCamAfterAdd = true
+                loadData()
             }
         }
     }
@@ -3599,7 +3935,10 @@
                     $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
                 }
                 buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
-                loadDataAfterAutoSave()
+                // loadDataAfterAutoSave()
+                setoranIdClicked = null
+                JustOnCamAfterAdd = true
+                loadData()
             }
         });
     }
@@ -3643,7 +3982,7 @@
                     'result_product_person_id': el.result_product_person_id,
                     'number': el.number,
                     'datetime': el.datetime,
-                    'item': el.item,
+                    'item': el.item_target,
                     'unit': el.unit,
                     'delivery': el.delivery,
                     'sortir': el.sortir,
@@ -3741,7 +4080,7 @@
                     'result_product_person_id': el.result_product_person_id,
                     'number': el.number,
                     'datetime': el.datetime,
-                    'item': el.item,
+                    'item': el.item_target,
                     'unit': el.unit,
                     'delivery': el.delivery,
                     'sortir': el.sortir,

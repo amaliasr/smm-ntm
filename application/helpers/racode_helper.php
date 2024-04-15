@@ -388,7 +388,7 @@ function if_report_po()
 }
 function if_report_mutasi_gudang()
 {
-    if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm() || job_spv_audit_internal() || job_spv_tax() || job_atasan()) {
+    if (is_accounting() || is_direktur() || is_logistik() || is_purchasing() || job_admin_ntm() || job_spv_audit_internal() || job_spv_tax() || job_atasan() || job_spv_smd()) {
         return true;
     } else {
         return false;

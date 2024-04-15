@@ -582,7 +582,11 @@
     function formMachine() {
         var html = ''
         data_user.dataMachine.forEach(e => {
-            html += '<option value="' + e.id + '" selected>' + e.code + '</option>'
+            var select = ''
+            if (e.id == 15) {
+                select = 'selected'
+            }
+            html += '<option value="' + e.id + '" ' + select + '>' + e.code + '</option>'
         });
         $('#selectMachine').html(html)
         $('#selectMachine').selectpicker('refresh');
