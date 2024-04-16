@@ -313,6 +313,10 @@
     .bd-callout-warning {
         border-left-color: #FF9843 !important;
     }
+
+    .bg-dark-grey {
+        background-color: #999999;
+    }
 </style>
 <script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
 
@@ -1310,6 +1314,11 @@
                 html += '</div>'
                 html += '<div class="col-12 pt-3">'
                 html += '<div class="row ps-3">'
+                var jumlahSetoran = e.data.length
+                var iskelebihan = false
+                if (jumlahSetoran > defaultleSetoran) {
+                    iskelebihan = true
+                }
                 for (let i = 1; i <= defaultleSetoran; i++) {
                     var check = e.data.find((v, k) => {
                         if (v.number == i) return true
@@ -1360,15 +1369,17 @@
                     // html += '</div>'
                 }
                 // kelebihan
-                html += '<div class="col-1 p-0 pe-1">'
-                html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-grey" style="height: 20px;">'
-                html += '<div class="row p-0 m-0 w-100 h-100">'
-                html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
-                html += '<p class="m-0">+1</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</span>'
-                html += '</div>'
+                if (iskelebihan) {
+                    html += '<div class="col-1 p-0 pe-1">'
+                    html += '<span class="badge rounded-pill super-small-text p-0 w-100 bg-dark-grey" style="height: 20px;">'
+                    html += '<div class="row p-0 m-0 w-100 h-100">'
+                    html += '<div class="col p-0 d-flex align-content-center flex-wrap justify-content-center">'
+                    html += '<p class="m-0 text-white">+' + (parseInt(jumlahSetoran) - parseInt(defaultleSetoran)) + '</p>'
+                    html += '</div>'
+                    html += '</div>'
+                    html += '</span>'
+                    html += '</div>'
+                }
                 // kelebihan
                 html += '</div>'
                 html += '</div>'
@@ -3342,7 +3353,7 @@
 
 
         console.log(data)
-        simpanVariableOffline(data, dataDelivery)
+        // simpanVariableOffline(data, dataDelivery)
     }
 
     function checkCompletedProfileSteps(result_product_person_id, data_step) {

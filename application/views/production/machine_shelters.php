@@ -2818,9 +2818,11 @@
             }
         });
     }
+    var eidGlobal = ''
 
     function scannedPerson() {
         var eid = $('#codeQR').val()
+        eidGlobal = eid
         if (dataDetail.employeeWorkerPickup.length && dataDetail.employeeWorkerPickup) {
             var data = deepCopy(dataDetail.employeeWorkerPickup.find((v, k) => {
                 if (v.eid == eid) return true
@@ -2846,7 +2848,7 @@
     function formScanPerson(data) {
         $('#modalDialog').addClass('modal-xl')
         var html_header = '';
-        html_header += '<h5 class="modal-title">Scan QR - 28 Februari 2024</h5>';
+        html_header += '<h5 class="modal-title">Scan QR - ' + formatDateIndonesia(dataDetail.dateEnd) + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = ''
@@ -2892,12 +2894,27 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
-        firstStep(data)
+        console.log(data)
+        checkStep(data)
         if (data.material_pickups) {
             historyPerson(data)
         } else {
             empty('#historyPerson', 'Tidak Ada History')
         }
+    }
+
+    function checkStep(data) {
+        if (data.open_deliv) {
+            firstStep(data)
+        } else {
+            unkownStep()
+        }
+    }
+
+    function unkownStep() {
+        emptyText('#detailSteps', 'Sedang Tidak Ada Permintaan dari Mandor')
+        // var html = ''
+        // $('#detailSteps').html(html)
     }
 
     function firstStep(data) {
@@ -2957,7 +2974,7 @@
     }
 
     function secondStep(dataKategori, dataEmployee) {
-        console.log(dataEmployee)
+        // console.log(dataEmployee)
         var html = ''
         html += '<div class="row">'
 
@@ -3013,6 +3030,7 @@
         html += '</div>'
         html += '<div class="col-6 align-self-end">'
         // html += '<p class="small-text m-0 text-danger pointer">Hapus Data ?</p>'
+        html += '<button class="btn btn-outline-danger btn-lg" onclick="backMenu()">< Kembali</button>'
         html += '</div>'
         html += '<div class="col-6 text-end">'
         html += '<button class="btn btn-success btn-lg" onclick="arrangeVariableInsert(' + dataEmployee.id + ')">Simpan</button>'
@@ -3027,6 +3045,13 @@
         $('#detailSteps').html(html)
         $('.nominal').on('keypress', handleNumericInput);
         $('#jumlahGood').removeAttr('onblur', 'this.focus()')
+    }
+
+    function backMenu() {
+        var data = deepCopy(dataDetail.employeeWorkerPickup.find((v, k) => {
+            if (v.eid == eidGlobal) return true
+        }))
+        firstStep(data)
     }
 
     function arrangeVariableInsert(idWorker) {
@@ -3081,6 +3106,7 @@
         html += '<div class="timeline timeline-sm mt-2">'
         data.material_pickups.forEach(e => {
             if (e.is_pickup != null) {
+                // console.log(e)
                 a++
                 e.material_pickup_details.forEach(el => {
                     html += '<div class="timeline-item">'
@@ -3093,7 +3119,7 @@
                     html += '<div class="card-body p-3">'
                     html += '<div class="row">'
                     html += '<div class="col-8">'
-                    html += '<p class="small-text m-0"><span class="text-orange fw-bolder">AMBIL</span> - Amalia Safira</p>'
+                    html += '<p class="small-text m-0"><span class="text-orange fw-bolder">AMBIL</span> - ' + shortenName(e.employee_admin.name, 2) + '</p>'
                     html += '<p class="m-0 fw-bolder">' + el.item.name + '</p>'
                     html += '</div>'
                     html += '<div class="col-4 text-end">'
