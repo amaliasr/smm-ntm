@@ -317,6 +317,10 @@
     .bg-dark-grey {
         background-color: #999999;
     }
+
+    .bg-light-primary {
+        background-color: #e5effd !important;
+    }
 </style>
 <script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
 
@@ -340,44 +344,42 @@
                                 <button type="button" class="btn btn-sm btn-outline-dark shadow-none small-text" onclick="openModalScanner()">SCANNER<i class="fa fa-qrcode ms-2 text-green"></i></button>
                             </div>
                             <div class="col-auto ps-2 align-self-center">
-                                <?php if ($link == 'deliver_goods') { ?>
-                                    <div class="btn-group float-end">
-                                        <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                            Option
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <form class="px-3">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" value="" id="checkFastMode" onclick="fastModeOn()">
-                                                        <label class="form-check-label small" for="checkFastMode">
-                                                            Fast Mode
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" value="" id="checkAuto500" onclick="auto500On()" checked>
-                                                        <label class="form-check-label small" for="checkAuto500">
-                                                            Auto 500
-                                                        </label>
-                                                    </div>
-                                                    <hr>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" value="" id="checkOfflineMode" onclick="offlineModeOn()">
-                                                        <label class="form-check-label small" for="checkOfflineMode">
-                                                            Offline Mode
-                                                        </label>
-                                                    </div>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <!-- <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="checkFastMode" onclick="fastModeOn()">
-                                        <label class="form-check-label small" for="checkFastMode">
-                                            Fast Mode
-                                        </label>
-                                    </div> -->
-                                <?php } ?>
+                                <div class="btn-group float-end">
+                                    <button class="btn btn-outline-dark btn-sm dropdown-toggle" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                        Option
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2" style="width: 200px;">
+                                        <li>
+                                            <form class="px-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="" id="checkAutoNext" onclick="autoNextOn()" checked>
+                                                    <label class="form-check-label small" for="checkAutoNext">
+                                                        Auto Next Setoran
+                                                    </label>
+                                                </div>
+                                                <hr>
+                                                <div class="form-check">
+                                                    <input class="form-check-input selectModes" type="radio" value="" name="selectModes" id="checkMode" onclick="selectMode()" checked>
+                                                    <label class="form-check-label small" for="checkMode">
+                                                        Mode Manual
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input selectModes" type="radio" value="100" name="selectModes" id="checkMode100" onclick="selectMode()">
+                                                    <label class="form-check-label small" for="checkMode100">
+                                                        Mode 100
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input selectModes" type="radio" value="50" name="selectModes" id="checkMode50" onclick="selectMode()">
+                                                    <label class="form-check-label small" for="checkMode50">
+                                                        Mode 50
+                                                    </label>
+                                                </div>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -741,6 +743,11 @@
                     good: data.complete.good,
                 }
             } else {
+                // console.log(data)
+                // console.log(data.delivery.is_process)
+                // console.log(cekAmbilMaterial(data.material_pickup))
+                // console.log(cekStatusProductPersonSteps(data.result_product_person_step))
+                // console.log(data.complete.is_process)
                 status = 'PROCESS'
                 nextStatus = 'DONE'
                 qty = {
@@ -1087,7 +1094,7 @@
     var JustOnCamAfterAdd = false
     var scanned = false
     var fastMode = false
-    var auto500 = true
+    var autoNext = true
     var offlineMode = true
     var variableSaveOffline = {
         resultProductPerson: [],
@@ -1102,6 +1109,9 @@
             materialPickupDetail: [],
         },
     }
+    var memorySelectedBrand
+    var memorySelectedProfile
+    var modalProgress = false
     var firstAddedResultProductPersonId = ''
     var accessMenu = {
         qc_packer: [{
@@ -1124,6 +1134,7 @@
             name: 'DONE'
         }],
     }
+    var variableMode = ''
 
 
     $(document).ready(function() {
@@ -1150,7 +1161,7 @@
         var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
         getData(data, url)
     }
-    // setInterval(loadDataPeriodic, 60000);
+    setInterval(loadDataPeriodic, 60000); // 1 menit
 
     function getData(data, url) {
         $.ajax({
@@ -1236,16 +1247,20 @@
         $('#workerProgress').html(formWorkerProgress())
         $('#tableDetail').html(detailTransaction())
         searching()
-        if (stillOpenModal) {
-            if (!JustOnCamAfterAdd) {
-                modalWorkProgress()
-            } else {
-                JustOnCamAfterAdd = false
-                firstAddedResultProductPersonId = ''
-                scannerQR()
-            }
-            detailWorker(workerIdClicked)
+        if (modalProgress) {
+            modalWorkProgress()
         }
+        // if (stillOpenModal) {
+        //     if (!JustOnCamAfterAdd) {
+        //         console.log('test')
+        //         modalWorkProgress()
+        //     } else {
+        // JustOnCamAfterAdd = false
+        // firstAddedResultProductPersonId = ''
+        // scannerQR()
+        //     }
+        //     detailWorker(workerIdClicked)
+        // }
     }
 
     function detailTransaction() {
@@ -1708,6 +1723,21 @@
         workProgress(id)
     }
 
+    function selectMode() {
+        variableMode = $('#selectModes').val()
+        if (!variableMode) {
+            variableMode = $('.selectModes:checked').val()
+        }
+        var color = 'text-grey'
+        if (variableMode) {
+            color = 'text-success'
+        }
+        $('#iconMode').attr('class', 'fa fa-circle ' + color)
+        $('.selectModes').removeAttr('checked', true)
+        $('#checkMode' + variableMode).attr('checked', true)
+        qtyStepFill()
+    }
+
     function firstWorkProgress(worker_id) {
         $('#modal').modal('show')
         workProgress(worker_id)
@@ -1720,12 +1750,45 @@
             setoranIdClicked = null
         }
         newSetoranBar = 1
-        // detailWorker(worker_id)
         modalWorkProgress()
     }
 
+    function viewSelectMode() {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-auto pe-0 align-self-center">'
+        var color = 'text-grey'
+        if (variableMode) {
+            color = 'text-success'
+        }
+        html += '<i class="fa fa-circle ' + color + '" id="iconMode"></i>'
+        html += '</div>'
+        html += '<div class="col-auto">'
+        html += '<select class="form-control form-control-sm fw-bolder" style="width:auto;text-align:center" id="selectModes" onchange="selectMode()">'
+        var select = ''
+        if (variableMode == '') {
+            select = 'selected'
+        }
+        html += '<option value="" ' + select + '>Mode Manual</option>'
+        select = ''
+        if (variableMode == 100) {
+            select = 'selected'
+        }
+        html += '<option value="100" ' + select + '>Mode 100</option>'
+        select = ''
+        if (variableMode == 50) {
+            select = 'selected'
+        }
+        html += '<option value="50" ' + select + '>Mode 50</option>'
+        html += '</select>'
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+    var holdRefreshData = false
+
     function modalWorkProgress() {
-        // materialIdClicked = false
+        modalProgress = true
         var data = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.id == workerIdClicked) return true
         })
@@ -1736,11 +1799,16 @@
         // $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
-        var textFast = ''
-        if (fastMode) {
-            textFast = '<span class="text-danger fw-bolder">FAST MODE <i class="ms-1 fa fa-bolt"></i></span>'
-        }
-        html_header += '<h5 class="modal-title">Entry Data ' + textFast + '</h5>';
+        html_header += '<div class="row justify-content-between w-100 align-items-center">'
+        html_header += '<div class="col-auto">'
+        html_header += '<h5 class="modal-title">Entry Data</h5>';
+        html_header += '</div>'
+        html_header += '<div class="col-auto">'
+        html_header += viewSelectMode()
+        html_header += '</div>'
+        html_header += '<div class="col-auto">'
+        html_header += '</div>'
+        html_header += '</div>'
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
@@ -1757,7 +1825,6 @@
         // LIST SETORAN
 
         // add setoran
-
         html_body += '<div class="">'
         html_body += '<div class="card card-hoper shadow-none" style="border: 1px dashed grey" onclick="setoranBaru(' + workerIdClicked + ')" id="btnNewSetoran">'
         html_body += '<div class="card-body p-3">'
@@ -1824,17 +1891,15 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
         empty('#isiWorkProgress', '<span class="small-text">Pilih Setoran pada Panel Kiri untuk Melihat Detail</span>', '500px')
-        // console.log(setoranIdClicked)
-        if (setoranIdClicked) {
-            isiWorkProgress(setoranIdClicked)
+        if (!holdRefreshData) {
+            if (setoranIdClicked) {
+                isiWorkProgress(setoranIdClicked)
+            }
+            var availSteps = checkAvailableSteps(data.employee_worker.eid).status
+            if (!availSteps) {
+                setoranBaru(data.employee_worker.id)
+            }
         }
-        var availSteps = checkAvailableSteps(data.employee_worker.eid).status
-        if (!availSteps) {
-            setoranBaru(data.employee_worker.id)
-
-        }
-        // if (scanned) {
-        // }
     }
 
     function deleteAndCloseButton(jenis, worker_id, id) {
@@ -2296,53 +2361,106 @@
         var time = jam + ":" + menit;
         return time;
     }
+    var nextNewDeliverStatus = false
+    var langsungNextNewDeliver = false
 
     function formNEWDELIVER(id = null, edit = false, step_profile_id = null) {
         var dataEdit
-        var good = ''
-        var bad = ''
         if (edit) {
             dataEdit = findStatusEdit(id, 'NEWDELIVER')
-            good = dataEdit.qty.good
-            bad = dataEdit.qty.waste
         }
         if (!edit) {
-            var html = ''
-            html += '<div class="row justify-content-end">'
-            // sesi input
-
-            // pilih produk
-            html += '<div class="col-8 text-end">'
-            html += '<p class="mb-1 small-text"><b>Brand</b></p>'
-            html += '<div class="mt-2">'
-
-            dataEntry.workPlanMachine.products.forEach(e => {
-                html += '<div class="card shadow-sm mb-2 pointer card-hoper" onclick="nextStepNewDeliver(' + e.product.id + ',' + "'" + id + "'" + ',' + edit + ')">'
-                html += '<div class="card-body">'
-                html += '<div class="row">'
-                html += '<div class="col-12 text-end">'
-                html += '<p class="m-0 fw-bolder small">' + e.product.alias + '</p>'
-                html += '<p class="m-0 fw-bold text-grey super-small-text">' + e.product.name + '</p>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            });
-
-
-            html += '</div>'
-            html += '</div>'
-            // pilih produk
-
-            // sesi input
-            html += '</div>'
-            $('#formEntryData').html(html)
+            if (!nextNewDeliverStatus) {
+                langsungNextNewDeliver = false
+                actionNewDeliver(id, edit, step_profile_id, dataEdit)
+            } else {
+                if (memorySelectedBrand) {
+                    langsungNextNewDeliver = true
+                    nextStepNewDeliver(memorySelectedBrand, id, false)
+                } else {
+                    langsungNextNewDeliver = false
+                    actionNewDeliver(id, edit, step_profile_id, dataEdit)
+                }
+            }
         } else {
+            langsungNextNewDeliver = true
             nextStepNewDeliver(dataEdit.itemId, dataEdit.id, true)
         }
     }
 
+    function actionNewDeliver(id, edit, step_profile_id, dataEdit) {
+        var good = ''
+        var bad = ''
+        if (edit) {
+            good = dataEdit.qty.good
+            bad = dataEdit.qty.waste
+        }
+        var html = ''
+        html += '<div class="row justify-content-end">'
+        // sesi input
+
+        // pilih produk
+        html += '<div class="col-8 text-end">'
+        html += '<p class="mb-1 small-text"><b>Brand</b></p>'
+        html += '<div class="mt-2" id="fieldNewDeliver">'
+
+        dataEntry.workPlanMachine.products.forEach(e => {
+            html += '<div class="card shadow-sm mb-2 pointer card-hoper" onclick="nextStepNewDeliver(' + e.product.id + ',' + "'" + id + "'" + ',' + edit + ')">'
+            html += '<div class="card-body">'
+            html += '<div class="row">'
+            html += '<div class="col-12 text-end">'
+            html += '<p class="m-0 fw-bolder small">' + e.product.alias + '</p>'
+            html += '<p class="m-0 fw-bold text-grey super-small-text">' + e.product.name + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+
+
+        html += '</div>'
+        html += '</div>'
+        // pilih produk
+
+        // sesi input
+        html += '</div>'
+        $('#formEntryData').html(html)
+        $(document).on('keypress', function(event) {
+            // Check if the key pressed is '1' (key code 49)
+            if (event.which == 49) {
+                // console.log('1')
+            } else if (event.which == 50) {
+                // console.log('2')
+            }
+        })
+    }
+
+    function changeNominalStepProfile(id, idProduct) {
+        var value = $('.form-newdeliver').map(function() {
+            return $(this).val();
+        }).get();
+        var idStep = $('.form-newdeliver').map(function() {
+            return $(this).data('id_step');
+        }).get();
+        var good = 0
+        for (let i = 0; i < value.length; i++) {
+            if (!good) {
+                if (value[i]) {
+                    good = parseInt(value[i])
+                }
+            }
+        }
+        $('.form-newdeliver').val('')
+        for (let i = 0; i < idStep.length; i++) {
+            $('#cardStepProfile' + idStep[i]).removeClass('border-success border-3')
+        }
+        memorySelectedProfile = id
+        $('#jumlahGood' + id).val(good)
+        fieldInputStepProfile(good, id, idProduct)
+    }
+
     function nextStepNewDeliver(idProduct, id, edit) {
+        nextNewDeliverStatus = true
         var dataEdit
         var data = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.product.id == idProduct) return true
@@ -2367,17 +2485,20 @@
         html += '</div>'
         html += '</div>'
         // nama produk
-        // jumlah setoran
+        // grup jumlah setoran
         html += '<div class="col-12 mt-3 text-end">'
-
         html += '<div class="row">'
-
+        // info
         html += '<div class="col-5" id="infoStepNewDeliver">'
         html += '</div>'
-
+        // info
+        // isi
         html += '<div class="col-7">'
+        html += '<div class="row">'
+        html += '<div class="col-12">'
         html += '<p class="mb-1 small-text"><b>Bahan</b></p>'
         html += '<div class="mt-2">'
+        var index = 0
         dataMachineStepProfile.machine_step_profiles.forEach(e => {
             var qtyStep = ''
             var material_pickup_id = ''
@@ -2391,32 +2512,34 @@
             html += '<div class="card-body p-0">'
 
             html += '<div class="row p-0 m-0">'
-            html += '<div class="col-6 align-self-center">'
+            html += '<div class="col-6 align-self-center" onclick="changeNominalStepProfile(' + e.id + ',' + idProduct + ')">'
             html += '<p class="m-0 small fw-bolder">' + e.name + '</p>'
             html += '</div>'
             html += '<div class="col-6 border-start">'
-            html += '<input class="form-control form-control-sm nominal form-newdeliver form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood' + e.id + '" value="' + qtyStep + '" tabindex="1" role="dialog" data-material_pickup_id="' + material_pickup_id + '" data-work_plan_product_id="' + data.work_plan_product_id + '" data-unit_id="' + data.unit_input.id + '" data-warehouse_id="' + e.warehouse_id_material_pickup + '" data-id_product="' + idProduct + '" data-id_step="' + e.id + '" oninput="inputStepProfile(' + e.id + ')">'
+            html += '<input class="form-control form-control-sm nominal form-newdeliver form-invisible-line cardStepProfile-' + index + '" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood' + e.id + '" value="' + qtyStep + '" tabindex="1" role="dialog" data-material_pickup_id="' + material_pickup_id + '" data-work_plan_product_id="' + data.work_plan_product_id + '" data-unit_id="' + data.unit_input.id + '" data-warehouse_id="' + e.warehouse_id_material_pickup + '" data-id_product="' + idProduct + '" data-id_step="' + e.id + '" oninput="inputStepProfile(' + e.id + ',' + idProduct + ')">'
             html += '</div>'
             html += '</div>'
 
             html += '</div>'
             html += '</div>'
+            if (!memorySelectedProfile) {
+                if (index == 0) {
+                    index = e.id
+                    memorySelectedProfile = index
+                }
+            } else {
+                index = memorySelectedProfile
+            }
         });
         html += '</div>'
         html += '</div>'
 
-
-        html += '</div>'
-
-        html += '</div>'
-        // jumlah setoran
         // jam setoran
-        html += '<div class="col-8 mt-3 text-end align-self-end">'
+        html += '<div class="col-12 mt-3 text-end align-self-end">'
         html += '<p class="mb-1 small-text"><b>Jam Setoran</b></p>'
         html += '<input class="form-control form-control-lg form-invisible-line" style="background-color:transparent;border:0px;" type="time" placeholder="0" autocomplete="off" id="jamSetoran" value="' + time + '">'
         html += '<hr class="m-0">'
         html += '</div>'
-
         html += '<div class="col-12 text-end">'
         html += '<div class="row pt-2 justify-content-end">'
         html += '<div class="col-4">'
@@ -2425,11 +2548,19 @@
         html += '</div>'
         html += '</div>'
         // jam setoran
+        html += '</div>'
+        html += '</div>'
+        // isi
+
+        html += '</div>'
+        html += '</div>'
+        // grup jumlah setoran
+
 
         html += '<div class="col-12 text-end pt-3">'
         html += '<div class="row justify-content-between">'
         html += '<div class="col-auto">'
-        html += '<button class="btn btn-outline-primary btn-sm" id="btnKembali" onclick="formNEWDELIVER(' + "'" + id + "'" + ',' + edit + ')" tabindex="3"><i class="fa fa-chevron-left me-2"></i>Kembali</button>'
+        html += '<button class="btn btn-outline-primary btn-sm" id="btnKembali" onclick="actionFormNewDeliver(' + "'" + id + "'" + ',' + edit + ')" tabindex="3"><i class="fa fa-chevron-left me-2"></i>Kembali</button>'
         html += '</div>'
         html += '<div class="col-auto">'
         html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertNewDeliver()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
@@ -2440,8 +2571,21 @@
         // sesi input
         html += '</div>'
         $('#formEntryData').html(html)
+        $('.nominal').on('keypress', handleNumericInput);
+        qtyStepFill()
+        if (langsungNextNewDeliver) {
+            $('#modal').on('shown.bs.modal', function() {
+                setTimeout(function() {
+                    $('#jumlahGood' + index).focus();
+                }, 100);
+            });
+        } else {
+            setTimeout(function() {
+                $('#jumlahGood' + index).focus();
+            }, 100);
+        }
         if (edit) {
-            inputStepProfile(dataEdit.machine_step_profile_id)
+            inputStepProfile(dataEdit.machine_step_profile_id, idProduct)
         }
         $('.form-newdeliver').on('keypress', function(event) {
             if (event.which === 13) { // Tombol Enter ditekan
@@ -2451,18 +2595,71 @@
         });
     }
 
-    function infoStepNewDeliver(id) {
+    function actionFormNewDeliver(id, edit) {
+        nextNewDeliverStatus = false
+        formNEWDELIVER(id, edit)
+    }
+
+    function qtyStepFill() {
+        // variableMode
+        var value = $('.form-newdeliver').map(function() {
+            return $(this).val();
+        }).get();
+        var idStep = $('.form-newdeliver').map(function() {
+            return $(this).data('id_step');
+        }).get();
+        var idProduct = $('.form-newdeliver').map(function() {
+            return $(this).data('id_product');
+        }).get();
+        var findId
+        var findIdProduct
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] != 0) {
+                findId = idStep[i]
+                findIdProduct = idProduct[i]
+            }
+        }
+        // console.log(memorySelectedProfile)
+        if (memorySelectedProfile) {
+            findId = memorySelectedProfile
+        }
+        if (memorySelectedBrand) {
+            findIdProduct = memorySelectedBrand
+        }
+        if (findIdProduct) {
+            $('#jumlahGood' + findId).val(variableMode)
+            $('#jumlahGood' + findId).focus();
+        } else {
+            findId = idStep[0]
+            findIdProduct = idProduct[0]
+            $('.cardStepProfile-0').val(variableMode)
+            $('.cardStepProfile-0').focus();
+        }
+        inputStepProfile(findId, findIdProduct)
+    }
+
+    function infoStepNewDeliver(id, idProduct) {
+        // console.log(idProduct)
+        var dataProduct = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == idProduct) return true
+        })
+        var dataProfile = dataEntry.machineStepProfile.find((v, k) => {
+            if (v.item_id_product == idProduct) return true
+        }).machine_step_profiles.find((v, k) => {
+            if (v.id == id) return true
+        })
         var html = ''
         html += '<p class="m-0 small-text fw-bolder">Info</p>'
-        html += '<div class="mt-2 card shadow-none bg-light-success">'
+        html += '<div class="mt-2 card shadow-none bg-light-primary">'
         html += '<div class="card-body p-3">'
         html += '<ol class="text-start small-text fw-bold" style="padding-left: 20px;">'
-        html += '<li>Pada sesi ini anda dapat memberikan material <b>ABOF20</b> Bandrol kepada Worker</li>'
-        html += '<li>Arahkan Worker untuk mengambil material <b>ABOF</b> dibagian <b>WIP</b></li>'
+        html += '<li>Pada sesi ini anda dapat memberikan material <b>' + dataProduct.product.alias + '</b> Bandrol kepada Worker</li>'
+        html += '<li>Arahkan Worker untuk mengambil material <b>' + dataProduct.product.alias + '</b> dibagian <b>' + dataProfile.name.replace("Pack Filter ", "") + '</b></li>'
         html += '<li>Tahapan yang dapat dilalui Worker adalah</li>'
         html += '<ol type="a" class="text-start small-text fw-bold">'
-        html += '<li>OPP Dalam</li>'
-        html += '<li>OPP Dalam</li>'
+        dataProfile.machine_step_profile_details.forEach(e => {
+            html += '<li>' + e.name + '</li>'
+        });
         html += '</ol>'
         html += '</ol>'
         html += '</div>'
@@ -2471,18 +2668,39 @@
     }
 
     function insertNewDeliver() {
-        JustOnCamAfterAdd = true
-        arrangeVariableInsert()
+        var value = $('.form-newdeliver').map(function() {
+            return $(this).val();
+        }).get();
+        var anyFill = false
+        for (let i = 0; i < value.length; i++) {
+            if (value[i]) {
+                anyFill = true
+            }
+        }
+        if (anyFill) {
+            JustOnCamAfterAdd = true
+            arrangeVariableInsert()
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Data Belum Lengkap',
+                text: 'Data yang dimasukkan Tidak Lengkap'
+            });
+        }
     }
 
-    function inputStepProfile(id) {
+    function inputStepProfile(id, idProduct) {
         var input = $('#jumlahGood' + id).val()
+        fieldInputStepProfile(input, id, idProduct)
+    }
+
+    function fieldInputStepProfile(input, id, idProduct) {
         $('.form-newdeliver').prop('readonly', true)
         // readonly
         if (input) {
             $('#cardStepProfile' + id).addClass('border-success border-3')
             $('#jumlahGood' + id).prop('readonly', false)
-            infoStepNewDeliver(id)
+            infoStepNewDeliver(id, idProduct)
         } else {
             $('#cardStepProfile' + id).removeClass('border-success border-3')
         }
@@ -3043,19 +3261,17 @@
     }
 
     function arrangeVariableInsert(autoComplete = null) {
+        nextNewDeliverStatus = true
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
-        // console.log(dataDelivery)
         var jamSetoran = dataEntry.workPlanMachine.date + ' ' + $('#jamSetoran').val() + ':00'
         var jumlahBad = $('#jumlahBad').val()
         var jumlahInput = $('#jumlahGood').val()
         if (!jumlahBad) {
             jumlahBad = 0
         }
-
         if (autoComplete) {
             dataSaveSetoran.qty_sortir_good = dataDelivery.qty.good
         }
-
         var id_product = $("#productSetoran").val()
         var machine_step_profile_id = ''
         var machine_step_profile_detail_id = ''
@@ -3128,6 +3344,9 @@
                     material_pickup_id = idMaterialPickup[i]
                 }
             }
+            memorySelectedBrand = id_product
+            memorySelectedProfile = machine_step_profile_id
+            // console.log(memorySelectedProfile)
         }
         var item_ids_material_main = getMaterialMain(id_product, machine_step_profile_id, unit_product, jumlahInput)
         var item_ids_chain_material = []
@@ -3135,6 +3354,9 @@
             item_ids_material_main.forEach(e => {
                 item_ids_chain_material.push(e.item_id)
             });
+        }
+        if (!jumlahInput) {
+            jumlahInput = dataDelivery.qty.good
         }
         var variableInsert = {
             NEWDELIVER: {
@@ -3196,6 +3418,10 @@
                 employee_id_pickup: dataSaveSetoran.worker_id,
                 result_product_person_id: dataSaveSetoran.result_product_person_id,
                 note: '',
+                is_pickup: 1,
+                pickup_at: currentDateTime(),
+                material_pickup_type_id: 1,
+                employee_id_admin: user_id,
             }]
             var materialPickupDetail = []
             var selectedPickupDetailId = []
@@ -3217,6 +3443,7 @@
                     qty_input: e.qty_input,
                     unit_id: e.unit_id,
                     qty: e.qty,
+
                 })
                 selectedPickupDetailId.push(idMaterialPickupDetail)
             });
@@ -3350,10 +3577,9 @@
                 });
             }
         }
-
-
-        console.log(data)
-        // simpanVariableOffline(data, dataDelivery)
+        // console.log(data)
+        // console.log(dataDelivery)
+        simpanVariableOffline(data, dataDelivery)
     }
 
     function checkCompletedProfileSteps(result_product_person_id, data_step) {
@@ -3399,11 +3625,18 @@
 
     function simpanVariableOffline(data, dataDelivery) {
         $('#textAutoSave').html('')
+        var dataSaved = deepCopy(dataDetailDelivery).find((v, k) => {
+            if (v.result_product_person_id == data.resultProductPerson.id) return true
+        })
         var dataEmployee = dataEntry.employee.find((v, k) => {
             if (v.id == data.resultProductPerson.employee_id) return true
         })
         variableSaveOffline.resultProductPerson.push(data.resultProductPerson)
-        variableSaveOffline.resultProductPersonStep = data.resultProductPersonStep
+        if (data.resultProductPersonStep) {
+            deepCopy(data.resultProductPersonStep).forEach(e => {
+                variableSaveOffline.resultProductPersonStep.push(e)
+            });
+        }
         if (data.materialPickup) {
             data.materialPickup.forEach(e => {
                 variableSaveMaterialOffline.materialPickup.push(e)
@@ -3419,8 +3652,81 @@
                 variableSaveMaterialOffline.deletedId.materialPickupDetail.push(e)
             });
         }
+        var material_pickup = []
+        var result_product_person_step = []
+        if (dataSaved) {
+            if (dataSaved.material_pickup) {
+                material_pickup = dataSaved.material_pickup
+            }
+            if (dataSaved.result_product_person_step) {
+                result_product_person_step = dataSaved.result_product_person_step
+            }
+        }
+        if (data.resultProductPersonStep) {
+            data.resultProductPersonStep.forEach(e => {
+                result_product_person_step.push({
+                    "id": e.id,
+                    "machine_step_profile_detail_id": e.machine_step_profile_detail_id,
+                    "datetime": e.datetime,
+                    "machine_step": {
+                        "id": e.machine_step_id,
+                        "name": null
+                    },
+                    "item": {
+                        "id": e.item_id_product,
+                        "code": null,
+                        "alias": null,
+                        "name": null
+                    },
+                    "unit": {
+                        "id": e.unit_id,
+                        "name": null
+                    },
+                    "qty": e.qty,
+                    "is_reject": e.is_reject,
+                    "reject_at": e.reject_at,
+                    "employee_reject": {
+                        "id": e.employee_id_reject,
+                        "eid": null,
+                        "name": null
+                    },
+                    "qty_reject": e.qty_reject,
+                    "note_reject": e.note_reject,
+                    "is_complete": e.is_complete,
+                    "complete_at": e.complete_at,
+                    "employee_complete": {
+                        "id": e.employee_id_complete,
+                        "eid": null,
+                        "name": null
+                    },
+                    "qty_complete": e.qty_complete,
+                    "note": e.note
+                })
+            })
+        }
+        if (data.materialPickup) {
+            data.materialPickup.forEach(e => {
+                material_pickup.push({
+                    "result_product_person_id": data.resultProductPerson.id,
+                    "id": e.id,
+                    "warehouse": {
+                        "id": e.warehouse_id,
+                        "name": null
+                    },
+                    "machine_step_profile_id": null,
+                    "is_pickup": e.is_pickup,
+                    "pickup_at": e.pickup_at,
+                    "created_at": null,
+                    "employee_admin": {
+                        "id": e.employee_id_admin,
+                        "name": "Febi Nadia Paramita"
+                    },
+                })
+            });
+        }
+
         dataDetailDelivery.push({
-            'worker_id': data.resultProductPerson.employee_id,
+            'worker_id': data.resultProductPerson.ewmployee_id,
             'worker_name': dataEmployee.name,
             'result_product_person_id': data.resultProductPerson.id,
             'number': data.resultProductPerson.number,
@@ -3437,13 +3743,73 @@
             'sortir': null,
             'fillup': null,
             'complete': null,
-            'result_product_person_step': null,
-            'material_pickup': null,
+            'result_product_person_step': result_product_person_step,
+            'material_pickup': material_pickup,
         })
         // console.log(variableSaveMaterialOffline)
         firstAddedResultProductPersonId = ''
         buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
-        scannerQR()
+        // jika setoran akan berakhir
+        if (data.resultProductPerson.is_complete == 1) {
+            if (autoNext) {
+                holdRefreshData = true
+                var namaBrand = ''
+                var dataproducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                    if (v.product.id == data.resultProductPerson.item_id) return true
+                })
+                if (dataproducts) {
+                    namaBrand = dataproducts.product.alias
+                }
+                var dataSwal = {
+                    text: 'Apakah Dilanjutkan Pemberian Pita ' + namaBrand + ' untuk Setoran Berikutnya ?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    showConfirmButton: true,
+                    showDenyButton: true,
+                    denyButtonColor: '#3085d6',
+                    confirmButtonColor: '#5cb85c',
+                    denyButtonText: 'Ganti Brand Lain',
+                    cancelButtonText: 'Batal',
+                    customClass: 'swal-wide',
+                    confirmButtonText: 'Ya',
+                }
+                Swal.fire(dataSwal).then((result) => {
+                    if (result.isConfirmed) {
+                        // jika setoran berikutnya
+                        holdRefreshData = false
+                        setoranBaru(workerIdClicked)
+                    } else if (result.isDenied) {
+                        // jika ganti brand
+                        nextNewDeliverStatus = false
+                        holdRefreshData = false
+                        setoranBaru(workerIdClicked)
+                    } else {
+                        holdRefreshData = false
+                        scannerQR()
+                    }
+                })
+                // Swal.fire({
+                //     text: 'Apakah Diteruskan ke Setoran Selanjutnya ?',
+                //     icon: 'warning',
+                //     showCancelButton: true,
+                //     confirmButtonColor: '#3085d6',
+                //     cancelButtonColor: '#d33',
+                //     confirmButtonText: 'Ya',
+                //     cancelButtonText: 'Batal',
+                // }).then((result) => {
+                //     if (result.isConfirmed) {
+                //         setoranBaru(workerIdClicked)
+                //     } else {
+                //         scannerQR()
+                //     }
+                // })
+            } else {
+                scannerQR()
+            }
+
+        } else {
+            scannerQR()
+        }
     }
 
     function buttonSaveOfflineMode(data, data2, data3) {
@@ -3697,13 +4063,16 @@
         var date = day + " " + month + " " + year + ' ' + jam + ":" + menit + ":" + detik;
         return date;
     }
+    var openedModal = false
 
     function openModalScanner() {
+        openedModal = true
         $('#modal').modal('show')
         scannerQR()
     }
 
     function scannerQR() {
+        modalProgress = false
         firstAddedResultProductPersonId = ''
         // $('#modal').modal('show')
         $('#modalDialog').removeClass();
@@ -3713,14 +4082,24 @@
         $('#modalFooter').html('');
         $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-centered');
         var html_header = '';
+        html_header += '<div class="row justify-content-between w-100 align-items-center">'
+        html_header += '<div class="col-auto">'
         html_header += '<h5 class="modal-title">QR Scan</h5>';
+        html_header += '</div>'
+        html_header += '<div class="col-auto">'
+        html_header += viewSelectMode()
+        html_header += '</div>'
+        html_header += '<div class="col-auto">'
+        html_header += '</div>'
+        html_header += '</div>'
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
+
         html_body += '<div class="row justify-content-center">'
         html_body += '<div class="col-12 text-center mt-5">'
         html_body += '<div class="row">'
-        html_body += '<div class="col-12 align-self-center"><p class="m-0 fw-bolder">' + formatDateIndonesia(currentDate()) + '</p></div>'
+        html_body += '<div class="col-12 align-self-center"><p class="m-0 fw-bolder">' + formatDateIndonesia(dataEntry.workPlanMachine.date) + '</p></div>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-6 text-center mb-5 mt-5">'
@@ -3747,11 +4126,21 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
-        // $('#modal').on('shown.bs.modal', function() {
-        setTimeout(function() {
-            $('#codeQR').focus();
-        }, 100);
-        // });
+        // setTimeout(function() {
+        //     $('#codeQR').focus();
+        // }, 100);
+        if (!openedModal) {
+            setTimeout(function() {
+                $('#codeQR').focus();
+            }, 100);
+        } else {
+            $('#modal').on('shown.bs.modal', function() {
+                setTimeout(function() {
+                    $('#codeQR').focus();
+                }, 100);
+            });
+        }
+        openedModal = false
         $("#codeQR").keypress(function(event) {
             // Periksa apakah tombol yang ditekan adalah 'Enter' (kode 13)
             if (event.keyCode === 13) {
@@ -3783,11 +4172,11 @@
         }
     }
 
-    function auto500On() {
-        if ($('#checkAuto500').is(':checked')) {
-            auto500 = true
+    function autoNextOn() {
+        if ($('#checkAutoNext').is(':checked')) {
+            autoNext = true
         } else {
-            auto500 = false
+            autoNext = false
         }
     }
 
@@ -4107,28 +4496,35 @@
                 if (v.product.id == e.item_id) return true
             })
             e.material_group.forEach(el => {
-                var itemDefault = el.items.find((v, k) => {
-                    if (v.item.id == el.item_id_default) return true
-                })
-                dataMaterial.push({
-                    work_plan_product_id: dataProducts.work_plan_product_id,
-                    item_id: e.item_id,
-                    item_name: e.name,
-                    item_code: e.code,
-                    item_name: e.name,
-                    material_group_id: el.material_group.id,
-                    material_group_name: el.material_group.name,
-                    material_id: itemDefault.item.id,
-                    material_code: itemDefault.item.code,
-                    material_alias: itemDefault.item.alias,
-                    material_name: itemDefault.item.name,
-                    unit_id: itemDefault.unit.id,
-                    unit_name: itemDefault.unit.name,
-                })
+                if (el) {
+                    var itemDefault = el.items.find((v, k) => {
+                        if (v.item.id == el.item_id_default) return true
+                    })
+                    if (dataProducts) {
+                        dataMaterial.push({
+                            work_plan_product_id: dataProducts.work_plan_product_id,
+                            item_id: e.item_id,
+                            item_name: e.name,
+                            item_code: e.code,
+                            item_name: e.name,
+                            material_group_id: el.material_group.id,
+                            material_group_name: el.material_group.name,
+                            material_id: itemDefault.item.id,
+                            material_code: itemDefault.item.code,
+                            material_alias: itemDefault.item.alias,
+                            material_name: itemDefault.item.name,
+                            unit_id: itemDefault.unit.id,
+                            unit_name: itemDefault.unit.name,
+                        })
+                    }
+                }
             })
         })
         $('#totalWorker').html(dataEntry.productionDelivery.length)
         $('#workerProgress').html(formWorkerProgress())
         searching()
+        // if (modalProgress) {
+        //     modalWorkProgress()
+        // }
     }
 </script>

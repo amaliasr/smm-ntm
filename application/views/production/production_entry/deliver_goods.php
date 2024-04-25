@@ -2385,6 +2385,9 @@
                 qty_good_deliv: jumlahInput,
                 qty_waste_deliv: jumlahBad,
                 note_deliv: '',
+                // item_id_target: dataEntry.workPlanMachine,
+                // unit_id_target: '',
+                // qty_target: '',
             },
             SORTIR: {
                 is_sortir: 1,
@@ -3004,6 +3007,7 @@
             }
         });
     }
+
     var scannedId = ''
 
     function changeScanner() {

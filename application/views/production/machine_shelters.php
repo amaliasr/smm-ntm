@@ -1468,14 +1468,20 @@
     var dateEnd = '2024-03-28'
     var menuKategoriTransaksi = [{
         'index': 0,
+        'id': 1,
         'name': 'Ambil Material',
         'text': 'Pekerja Verpack mengambil material pertama untuk setoran baru nya sesuai permintaan dari mandor',
         'icon': 'send_box',
+        'label': 'AMBIL',
+        'color': 'orange',
     }, {
         'index': 1,
+        'id': 2,
         'name': 'Tukar Material',
         'text': 'Pekerja Verpack menukar material yang rusak dengan yang baru',
         'icon': 'swap',
+        'label': 'TUKAR',
+        'color': 'primary',
     }]
     // var variableSave = {
     //     materialPickup: [{
@@ -2894,7 +2900,7 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer).removeClass('d-none');
-        console.log(data)
+        // console.log(data)
         checkStep(data)
         if (data.material_pickups) {
             historyPerson(data)
@@ -2905,16 +2911,22 @@
 
     function checkStep(data) {
         if (data.open_deliv) {
-            firstStep(data)
+            // jika open deliv
+            if (data.open_deliv.material_pickup) {
+                // choosenId
+                var check = data.open_deliv.material_pickup.find((v, k) => {
+                    if (v.warehouse.id == choosenId) return true
+                })
+                if (check) {
+                    // jika item ada di warehouse ini
+                    firstStep(data)
+                } else {
+                    emptyText('#detailSteps', 'Bukan Warehouse Tujuan')
+                }
+            }
         } else {
-            unkownStep()
+            emptyText('#detailSteps', 'Sedang Tidak Ada Permintaan dari Mandor')
         }
-    }
-
-    function unkownStep() {
-        emptyText('#detailSteps', 'Sedang Tidak Ada Permintaan dari Mandor')
-        // var html = ''
-        // $('#detailSteps').html(html)
     }
 
     function firstStep(data) {
@@ -2974,7 +2986,11 @@
     }
 
     function secondStep(dataKategori, dataEmployee) {
-        // console.log(dataEmployee)
+        console.log(dataEmployee)
+        var target = ''
+        if (dataKategori.id == 1) {
+            target = dataEmployee.open_deliv.qty_target
+        }
         var html = ''
         html += '<div class="row">'
 
@@ -2987,7 +3003,6 @@
         html += '</div>'
 
         html += '<div class="col-12 mt-5">'
-
         html += '<div class="card shadow-sm">'
         html += '<div class="card-body">'
 
@@ -2996,19 +3011,20 @@
         html += '<p class="m-0 small-text fw-bolder">Brand</p>'
         html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.item_chain_material[0].item.name + '</p>'
         html += '</div>'
-        html += '<div class="col border-start border-end text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Jumlah Target</p>'
-        html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.qty_target + '</p>'
-        html += '</div>'
-        html += '<div class="col text-center">'
-        html += '<p class="m-0 small-text fw-bolder">Unit</p>'
-        html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.item_chain_material[0].unit.name + '</p>'
-        html += '</div>'
+        if (dataKategori.id == 1) {
+            html += '<div class="col border-start border-end text-center">'
+            html += '<p class="m-0 small-text fw-bolder">Jumlah Target</p>'
+            html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.qty_target + '</p>'
+            html += '</div>'
+            html += '<div class="col text-center">'
+            html += '<p class="m-0 small-text fw-bolder">Unit</p>'
+            html += '<p class="m-0 text-orange fw-bolder">' + dataEmployee.open_deliv.item_chain_material[0].unit.name + '</p>'
+            html += '</div>'
+        }
         html += '</div>'
 
         html += '</div>'
         html += '</div>'
-
         html += '</div>'
 
         html += '<div class="col-12 mt-2">'
@@ -3021,7 +3037,7 @@
         html += '</div>'
         html += '<div class="col-6 mb-2 text-end align-self-center"><p class="m-0 fw-bolder">Jumlah</p></div>'
         html += '<div class="col-6 mb-2">'
-        html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + dataEmployee.open_deliv.qty_target + '" tabindex="1" role="dialog">'
+        html += '<input class="form-control form-control-lg nominal form-delivery form-invisible-line" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + target + '" tabindex="1" role="dialog">'
         html += '</div>'
         html += '<div class="col-6 mb-2 text-end align-self-center"><p class="m-0 fw-bolder">Jam</p></div>'
         html += '<div class="col-6 mb-2">'
@@ -3033,7 +3049,7 @@
         html += '<button class="btn btn-outline-danger btn-lg" onclick="backMenu()">< Kembali</button>'
         html += '</div>'
         html += '<div class="col-6 text-end">'
-        html += '<button class="btn btn-success btn-lg" onclick="arrangeVariableInsert(' + dataEmployee.id + ')">Simpan</button>'
+        html += '<button class="btn btn-success btn-lg" onclick="arrangeVariableInsertVerpack(' + dataEmployee.id + ',' + dataKategori.id + ')">Simpan</button>'
         html += '</div>'
         html += '</div>'
 
@@ -3054,7 +3070,7 @@
         firstStep(data)
     }
 
-    function arrangeVariableInsert(idWorker) {
+    function arrangeVariableInsertVerpack(idWorker, idKategori) {
         var dataEmployee = deepCopy(dataDetail.employeeWorkerPickup.find((v, k) => {
             if (v.id == idWorker) return true
         }))
@@ -3064,7 +3080,8 @@
                 id: e.id,
                 employee_id_admin: user_id,
                 is_pickup: 1,
-                pickup_at: currentDateTime()
+                pickup_at: currentDateTime(),
+                material_pickup_type_id: idKategori,
             })
         });
         var data = {
@@ -3109,6 +3126,9 @@
                 // console.log(e)
                 a++
                 e.material_pickup_details.forEach(el => {
+                    var dataKategori = menuKategoriTransaksi.find((v, k) => {
+                        if (v.label == e.pickup_label) return true
+                    })
                     html += '<div class="timeline-item">'
                     html += '<div class="timeline-item-marker">'
                     html += '<div class="timeline-item-marker-indicator"></div>'
@@ -3119,11 +3139,11 @@
                     html += '<div class="card-body p-3">'
                     html += '<div class="row">'
                     html += '<div class="col-8">'
-                    html += '<p class="small-text m-0"><span class="text-orange fw-bolder">AMBIL</span> - ' + shortenName(e.employee_admin.name, 2) + '</p>'
+                    html += '<p class="small-text m-0"><span class="text-' + dataKategori.color + ' fw-bolder">' + e.pickup_label + '</span> - ' + shortenName(e.employee_admin.name, 2) + '</p>'
                     html += '<p class="m-0 fw-bolder">' + el.item.name + '</p>'
                     html += '</div>'
                     html += '<div class="col-4 text-end">'
-                    html += '<p class="m-0 small-text text-orange">' + el.qty + '</p>'
+                    html += '<p class="m-0 small-text text-' + dataKategori.color + '">' + el.qty + '</p>'
                     html += '<p class="m-0 small-text">' + el.unit.name + '</p>'
                     html += '</div>'
                     html += '</div>'
