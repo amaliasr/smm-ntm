@@ -1132,6 +1132,7 @@
     }
     var variableMode = ''
     var firstSetoranMode = false
+    var fillupAutoNextSetoran = false
 
 
     $(document).ready(function() {
@@ -1561,7 +1562,7 @@
         var dataProducts = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.eid == eid) return true
         })
-        // console.log(dataProducts)
+        console.log(eid)
         if (!dataProducts) {
             // baru dari setoran ke 1
             dataProducts = dataEntry.employee.find((v, k) => {
@@ -3450,6 +3451,7 @@
                 }).get()[0]
             } else if (dataSaveSetoran.next_status == 'FILLUP') {
                 dataResultProductPerson = findDataResultPerson(dataSaveSetoran.result_product_person_id, dataDelivery.machine_step_profile_detail_id)
+
                 // console.log(dataDelivery)
                 var dataFillup = {
                     qty_waste_deliv: parseInt(dataDelivery.qty.waste) + parseInt(jumlahBad),
@@ -3705,6 +3707,7 @@
             var index = 0
             if (dataResultProductPerson.length) {
                 dataResultProductPerson.forEach(e => {
+                    // console.log(e)
                     var qtyFillup = parseInt(jumlahInput) - parseInt(jumlahBad)
                     data.resultProductPersonStep.push({
                         id: e.id,
@@ -3713,6 +3716,7 @@
                         machine_step_id: e.machine_step.id,
                         qty: jumlahBad,
                         unit_id: e.unit.id,
+                        item_id_product: e.item.id
                     })
                     if (jumlahBad == 0) {
                         data.resultProductPersonStep[index].is_complete = 1
@@ -3772,8 +3776,11 @@
                 }
             }
 
+
             var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, jumlahStepTambahan)
             if (jumlahBad == 0 && checkComplete) {
+                // jika complete semua
+                fillupAutoNextSetoran = true
                 var dataNext = variableInsert['COMPLETE']
                 data.resultProductPerson = {
                     ...data.resultProductPerson,
@@ -3875,6 +3882,7 @@
                 var dataProductss = dataEntry.productMaterial.find((v, k) => {
                     if (v.item_id == e.item_id_product) return true
                 })
+                // console.log(e)
                 result_product_person_step.push({
                     "id": e.id,
                     "machine_step_profile_detail_id": e.machine_step_profile_detail_id,
@@ -3913,6 +3921,7 @@
                     "qty_complete": e.qty_complete,
                     "note": e.note
                 })
+
             })
         }
 
@@ -4094,9 +4103,13 @@
             }
 
         } else {
-            if (firstSetoranMode && dataDelivery.nextStatus == 'NEWDELIVER') {
+            if ((firstSetoranMode && dataDelivery.nextStatus == 'NEWDELIVER') || fillupAutoNextSetoran) {
+                fillupAutoNextSetoran = false
                 holdRefreshData = false
-                checkWorkerId(scannedId)
+                var dataEmployee = dataEntry.employee.find((v, k) => {
+                    if (v.id == workerIdClicked) return true
+                })
+                checkWorkerId(dataEmployee.eid)
             } else [
                 scannerQR()
             ]
