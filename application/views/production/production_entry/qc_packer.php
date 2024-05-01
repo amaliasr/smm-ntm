@@ -1713,7 +1713,7 @@
             remaining_material: null,
             data: []
         })
-        arrangeVariable()
+        // arrangeVariable()
         workProgress(id)
     }
 
@@ -1832,8 +1832,6 @@
             dataEntry.productionDelivery.push(dataInputBaru)
             data = dataInputBaru
         }
-        // console.log(mustOpenModal)
-        // console.log(holdRefreshData)
         if (mustOpenModal == false) {
             if (!holdRefreshData) {
                 // jika tidak hold, maka refresh data
@@ -2913,12 +2911,15 @@
         html += '<div class="" role="group" aria-label="Basic checkbox toggle button group">'
         var no = 1
         if (currentMachineStep.data_machine_steps) {
-            // console.log(currentMachineStep)
+            var ifAutoBad = false
+            if (currentMachineStep.machine_step_ids_bad_auto_complete) {
+                ifAutoBad = true
+            }
             currentMachineStep.data_machine_steps.forEach(e => {
                 var dataFindMachineStepProduct = dataMachineStepProduct.find((v, k) => {
                     if (v.machine_step_id == e.id) return true
                 })
-                html += '<input type="checkbox" class="btn-check check-steps" id="btncheck' + e.id + '" onclick="checkSteps(' + e.id + ',' + choosenCurrentIndex + ',' + dataStatus.itemId + ',' + dataStatus.machine_step_profile_id + ')" autocomplete="off" value="' + e.id + '" data-item_id="' + dataFindMachineStepProduct.item_id_product + '" data-unit_id="' + dataFindMachineStepProduct.unit_id + '" data-machine_step_profile_id="' + dataStatus.machine_step_profile_id + '" data-machine_step_profile_detail_id="' + currentMachineStep.id + '" data-index="' + currentMachineStep.index + '" checked>'
+                html += '<input type="checkbox" class="btn-check check-steps" id="btncheck' + e.id + '" onclick="checkSteps(' + e.id + ',' + choosenCurrentIndex + ',' + dataStatus.itemId + ',' + dataStatus.machine_step_profile_id + ')" autocomplete="off" value="' + e.id + '" data-item_id="' + dataFindMachineStepProduct.item_id_product + '" data-unit_id="' + dataFindMachineStepProduct.unit_id + '" data-machine_step_profile_id="' + dataStatus.machine_step_profile_id + '" data-machine_step_profile_detail_id="' + currentMachineStep.id + '" data-index="' + currentMachineStep.index + '" data-auto_bad="' + ifAutoBad + '" checked>'
                 html += '<label class="btn btn-outline-success super-small-text p-2 ms-2 shadow-none" for="btncheck' + e.id + '"><span class="badge bg-light text-success me-1">' + no + '</span>' + e.name + '</label>'
                 no++
             });
@@ -3418,6 +3419,7 @@
         var warehouse_id = ''
         var material_pickup_id = ''
         var valuePersonStep = []
+        var valuePersonStepIsBad = false
         var dataResultProductPerson = []
         if (dataSaveSetoran.next_status != 'NEWDELIVER') {
             var unit_product = $("#productSetoran").find(':selected').data('unit')
@@ -3426,6 +3428,9 @@
                 var valuePersonStep = $('.check-steps:checked').map(function() {
                     return $(this).val();
                 }).get();
+                var valuePersonStepIsBad = $('.check-steps:checked').map(function() {
+                    return $(this).data('auto_bad');
+                }).get()[0]
                 var itemPersonStep = $('.check-steps:checked').map(function() {
                     return $(this).data('item_id');
                 }).get()
@@ -3541,7 +3546,6 @@
                 ...variableInsert[dataSaveSetoran.next_status],
             },
         }
-
         // NEW DELIVER
         if (dataSaveSetoran.next_status == 'NEWDELIVER') {
             var deleteMaterialPickup = []
@@ -3635,7 +3639,6 @@
                 dataDeliver.complete.note = ''
                 dataDeliver.reject.is = 0
                 var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, valuePersonStep)
-                // console.log(checkComplete)
                 if (checkComplete) {
                     var dataNext = variableInsert['COMPLETE']
                     data.resultProductPerson = {
@@ -3650,8 +3653,15 @@
                 dataDeliver.reject.employee_id = user_id
                 dataDeliver.reject.qty = jumlahBad
                 dataDeliver.reject.note = ''
+                if (valuePersonStepIsBad) {
+                    dataDeliver.reject.is = 0
+                    dataDeliver.complete.is = 1
+                    dataDeliver.complete.at = currentDateTime()
+                    dataDeliver.complete.employee_id = user_id
+                    dataDeliver.complete.qty = qtyDeliver
+                    dataDeliver.complete.note = ''
+                }
             }
-            // console.log(valuePersonStep)
             for (let i = 0; i < valuePersonStep.length; i++) {
                 data.resultProductPersonStep.push({
                     id: createCodeId() + '' + i,
@@ -3679,6 +3689,12 @@
                     data.resultProductPersonStep[i].employee_id_reject = dataDeliver.reject.employee_id
                     data.resultProductPersonStep[i].qty_reject = dataDeliver.reject.qty
                     data.resultProductPersonStep[i].note_reject = ''
+                    if (valuePersonStepIsBad) {
+                        data.resultProductPersonStep[i].is_complete = dataDeliver.complete.is
+                        data.resultProductPersonStep[i].complete_at = dataDeliver.complete.at
+                        data.resultProductPersonStep[i].employee_id_complete = dataDeliver.complete.employee_id
+                        data.resultProductPersonStep[i].qty_complete = dataDeliver.complete.qty
+                    }
                 }
             }
         }
@@ -3780,8 +3796,10 @@
         var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
         var totalSebenarnya = dataMachineStepProduct.length
         var jumlahSedangBerjalan = 0
-        if (data[0].id) {
-            jumlahSedangBerjalan = data.length
+        if (data.length) {
+            if (data[0].id) {
+                jumlahSedangBerjalan = data.length
+            }
         }
         var jumlahInputs = data_step.length
         var totalInput = parseInt(jumlahInputs) + parseInt(jumlahSedangBerjalan)
@@ -3813,6 +3831,7 @@
     }
 
     function simpanVariableOffline(data, dataDelivery) {
+        // console.log(dataDelivery)
         $('#textAutoSave').html('')
         var dataSaved = deepCopy(dataDetailDelivery).find((v, k) => {
             if (v.result_product_person_id == data.resultProductPerson.id) return true
@@ -3853,6 +3872,9 @@
         }
         if (data.resultProductPersonStep) {
             data.resultProductPersonStep.forEach(e => {
+                var dataProductss = dataEntry.productMaterial.find((v, k) => {
+                    if (v.item_id == e.item_id_product) return true
+                })
                 result_product_person_step.push({
                     "id": e.id,
                     "machine_step_profile_detail_id": e.machine_step_profile_detail_id,
@@ -3863,9 +3885,9 @@
                     },
                     "item": {
                         "id": e.item_id_product,
-                        "code": null,
-                        "alias": null,
-                        "name": null
+                        "code": dataProductss.code,
+                        "alias": dataProductss.alias,
+                        "name": dataProductss.name
                     },
                     "unit": {
                         "id": e.unit_id,
@@ -3893,6 +3915,7 @@
                 })
             })
         }
+
         if (data.materialPickup) {
             var indexMaterialPickup = 0
             data.materialPickup.forEach(e => {
@@ -3940,17 +3963,26 @@
             completeProcess = 1
             completeProcess = data.qty_good_deliv
         }
-        dataDetailDelivery.push({
+        var dataProducts = dataEntry.productMaterial.find((v, k) => {
+            if (v.item_id == data.resultProductPerson.item_id) return true
+        })
+        var dataInputDetailDelivery = {
             'worker_id': data.resultProductPerson.employee_id,
             'worker_name': dataEmployee.name,
             'result_product_person_id': data.resultProductPerson.id,
             'number': data.resultProductPerson.number,
             'datetime': data.resultProductPerson.datetime,
             'item': {
-                id: data.resultProductPerson.item_id,
+                "id": data.resultProductPerson.item_id,
+                "code": dataProducts.code,
+                "name": dataProducts.name,
+                "alias": dataProducts.alias
             },
             'item_target': {
                 id: data.resultProductPerson.item_id,
+                "code": dataProducts.code,
+                "name": dataProducts.name,
+                "alias": dataProducts.alias
             },
             'unit': {
                 id: data.resultProductPerson.unit_id
@@ -3971,7 +4003,20 @@
             },
             'result_product_person_step': result_product_person_step,
             'material_pickup': material_pickup,
+        }
+        // console.log(dataInputDetailDelivery)
+        var findDetailDelivery = deepCopy(dataDetailDelivery).find((v, k) => {
+            if (v.result_product_person_id == data.resultProductPerson.id) return true
         })
+        if (findDetailDelivery) {
+            var testDetail = dataDetailDelivery.filter((v, k) => {
+                if (v.result_product_person_id != data.resultProductPerson.id) return true
+            })
+            dataDetailDelivery = testDetail
+            dataDetailDelivery.push(dataInputDetailDelivery)
+        } else {
+            dataDetailDelivery.push(dataInputDetailDelivery)
+        }
         // add kerangka entry
         var kerangkaEntryData = deepCopy(dataEntry.productionDelivery)
         var dataKerangkaEntryData = kerangkaEntryData.find((v, k) => {
@@ -3997,11 +4042,11 @@
         var dataDetailDeliveryByWorker = dataDetailDelivery.filter((v, k) => {
             if (v.worker_id == data.resultProductPerson.employee_id) return true
         })
+        dataKerangkaEntryData.data = []
         dataDetailDeliveryByWorker.forEach(e => {
             dataKerangkaEntryData.data.push(e)
         });
         dataEntry.productionDelivery = kerangkaEntryData
-        // console.log(dataDetailDeliveryByWorker)
         // add kerangka entry
         firstAddedResultProductPersonId = ''
         buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
@@ -4049,7 +4094,7 @@
             }
 
         } else {
-            if (firstSetoranMode) {
+            if (firstSetoranMode && dataDelivery.nextStatus == 'NEWDELIVER') {
                 holdRefreshData = false
                 checkWorkerId(scannedId)
             } else [
@@ -4475,6 +4520,7 @@
         var data = deepCopy(variableSaveOffline)
         var dataMaterial = deepCopy(variableSaveMaterialOffline)
         if (data.resultProductPerson.length) {
+            // insert_data
             kelolaDataSaveAuto(data, type, url, button)
         } else {
             if (dataMaterial.materialPickup.length || dataMaterial.materialPickupDetail.length) {
@@ -4530,6 +4576,7 @@
         var data = deepCopy(variableSaveMaterialOffline)
         var dataResult = deepCopy(variableSaveOffline)
         if (data.materialPickup.length || data.materialPickupDetail.length) {
+            // insert_data
             kelolaDataSaveAutoMaterial(data, type, url, button)
         } else {
             if (dataResult.resultProductPerson.length) {
