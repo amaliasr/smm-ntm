@@ -505,6 +505,7 @@
         var machine_step_profile_id
         var material_pickup_id
         var material_pickup_details
+        var result_product_person_step = []
         if (data) {
             worker_id = data.worker_id
             itemId = data.item.id
@@ -516,7 +517,7 @@
             machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
             material_pickup_id = getMaterialPickup(data.material_pickup).id
             material_pickup_details = getMaterialPickup(data.material_pickup).material_pickup_details
-            // console.log(step_status_id)
+            result_product_person_step = data.result_product_person_step
             if (menu == 'NEWDELIVER') {
                 qty = {
                     'good': getMaterialPickup(data.material_pickup).qty,
@@ -543,6 +544,7 @@
             machine_step_profile_id: machine_step_profile_id,
             material_pickup_id: material_pickup_id,
             material_pickup_details: material_pickup_details,
+            result_product_person_step: result_product_person_step
         }
     }
 
@@ -671,13 +673,11 @@
             warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
             machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
             machine_step_profile_detail_id = lastStatusMachineProfileSteps(data.result_product_person_step)
-            // if (data.worker_id == 1422) {
-            //     console.log(data)
-            //     console.log(data.delivery.is_process)
-            //     console.log(cekAmbilMaterial(data.material_pickup))
-            //     console.log(cekStatusProductPersonSteps(data.result_product_person_step))
-            //     console.log(data.complete.is_process)
-            // }
+            // console.log(data)
+            // console.log(data.delivery.is_process)
+            // console.log(cekAmbilMaterial(data.material_pickup))
+            // console.log(cekStatusProductPersonSteps(data.result_product_person_step))
+            // console.log(data.complete.is_process)
             if (!data.delivery.is_process && !cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
                 // sedang ambil material
                 status = 'AMBIL MATERIAL'
@@ -743,11 +743,6 @@
                     good: data.complete.good,
                 }
             } else {
-                // console.log(data)
-                // console.log(data.delivery.is_process)
-                // console.log(cekAmbilMaterial(data.material_pickup))
-                // console.log(cekStatusProductPersonSteps(data.result_product_person_step))
-                // console.log(data.complete.is_process)
                 status = 'PROCESS'
                 nextStatus = 'DONE'
                 qty = {
@@ -977,6 +972,7 @@
             var dataMachineStep = data.machine_step_profiles.find((v, k) => {
                 if (v.id == idStep) return true
             })
+            // console.log(dataMachineStep)
             if (dataMachineStep) {
                 dataMaster.listMachineStep = dataMachineStep.machine_step_profile_details
                 dataMaster.listMachineStepProduct = dataMachineStep.machine_steps_product
@@ -1135,20 +1131,10 @@
         }],
     }
     var variableMode = ''
+    var firstSetoranMode = false
 
 
     $(document).ready(function() {
-        // $('#tableForm').DataTable({
-        //     ordering: false, // Menonaktifkan pengurutan
-        //     pageLength: 200,
-        //     scrollY: "500px",
-        //     scrollX: true,
-        //     scrollCollapse: true,
-        //     paging: false,
-        //     fixedHeader: true,
-        //     searching: false,
-        //     info: false,
-        // })
         empty('#detailWorker', '<span class="small-text">Pilih Worker pada Panel Kiri untuk Melihat Detail</span>')
         offlineModeConnection()
         // empty('#workerProgress', '<span class="small-text">Belum Tersedia Progress Worker</span>')
@@ -1246,27 +1232,34 @@
         $('#totalWorker').html(dataEntry.productionDelivery.length)
         $('#workerProgress').html(formWorkerProgress())
         $('#tableDetail').html(detailTransaction())
+        $('#tableForm').DataTable().destroy();
+        $('#tableForm').DataTable({
+            ordering: false, // Menonaktifkan pengurutan
+            pageLength: 200,
+            scrollY: "400px",
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            fixedHeader: true,
+            fixedFooter: true,
+            paging: false,
+            searching: false
+        })
         searching()
         if (modalProgress) {
             modalWorkProgress()
         }
-        // if (stillOpenModal) {
-        //     if (!JustOnCamAfterAdd) {
-        //         console.log('test')
-        //         modalWorkProgress()
-        //     } else {
-        // JustOnCamAfterAdd = false
-        // firstAddedResultProductPersonId = ''
-        // scannerQR()
-        //     }
-        //     detailWorker(workerIdClicked)
-        // }
+    }
+
+    function sortByDateTimeDesc(a, b) {
+        return new Date(b.datetime) - new Date(a.datetime);
     }
 
     function detailTransaction() {
         var html = ''
         var a = 1;
-        dataDetailDelivery.forEach(e => {
+        const sortedData = [...deepCopy(dataDetailDelivery)].sort(sortByDateTimeDesc);
+        sortedData.forEach(e => {
             var dataDelivery = findStatus(e.result_product_person_id)
             // console.log(dataDelivery)
             html += '<tr class="">'
@@ -1568,6 +1561,7 @@
         var dataProducts = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.eid == eid) return true
         })
+        // console.log(dataProducts)
         if (!dataProducts) {
             // baru dari setoran ke 1
             dataProducts = dataEntry.employee.find((v, k) => {
@@ -1737,8 +1731,10 @@
         $('#checkMode' + variableMode).attr('checked', true)
         qtyStepFill()
     }
+    var mustOpenModal = false
 
     function firstWorkProgress(worker_id) {
+        mustOpenModal = true
         $('#modal').modal('show')
         workProgress(worker_id)
     }
@@ -1763,7 +1759,7 @@
         }
         html += '<i class="fa fa-circle ' + color + '" id="iconMode"></i>'
         html += '</div>'
-        html += '<div class="col-auto">'
+        html += '<div class="col-auto pe-0">'
         html += '<select class="form-control form-control-sm fw-bolder" style="width:auto;text-align:center" id="selectModes" onchange="selectMode()">'
         var select = ''
         if (variableMode == '') {
@@ -1782,16 +1778,80 @@
         html += '<option value="50" ' + select + '>Mode 50</option>'
         html += '</select>'
         html += '</div>'
+        html += '<div class="col-auto">'
+        if (firstSetoranMode) {
+            html += '<button class="btn btn-sm btn-success shadow-none" id="btnFirstSetoran" onclick="changeFirstSetoranMode()">Setoran Pertama</button>'
+        } else {
+            html += '<button class="btn btn-sm btn-outline-success shadow-none" id="btnFirstSetoran" onclick="changeFirstSetoranMode()">Setoran Normal</button>'
+        }
+        html += '</div>'
         html += '</div>'
         return html
+    }
+
+
+    function changeFirstSetoranMode() {
+        if (firstSetoranMode) {
+            firstSetoranView(firstSetoranMode)
+            firstSetoranMode = false
+        } else {
+            firstSetoranView(firstSetoranMode)
+            firstSetoranMode = true
+        }
+    }
+
+    function firstSetoranView(index) {
+        if (index) {
+            $('#btnFirstSetoran').removeClass('btn-success').addClass('btn-outline-success').html('Setoran Normal')
+        } else {
+            $('#btnFirstSetoran').addClass('btn-success').removeClass('btn-outline-success').html('Setoran Pertama')
+        }
     }
     var holdRefreshData = false
 
     function modalWorkProgress() {
         modalProgress = true
-        var data = dataEntry.productionDelivery.find((v, k) => {
+        var data = deepCopy(dataEntry.productionDelivery).find((v, k) => {
             if (v.employee_worker.id == workerIdClicked) return true
         })
+        if (!data) {
+            // jika data ga ada / belum terdaftar
+            var dataEmployee = dataEntry.employee.find((v, k) => {
+                if (v.id == workerIdClicked) return true
+            })
+            var dataInputBaru = {
+                employee_worker: {
+                    "id": dataEmployee.id,
+                    "eid": dataEmployee.eid,
+                    "name": dataEmployee.name,
+                    "row_code": dataEmployee.row_code,
+                },
+                remaining_material: null,
+                data: []
+            }
+            dataEntry.productionDelivery.push(dataInputBaru)
+            data = dataInputBaru
+        }
+        // console.log(mustOpenModal)
+        // console.log(holdRefreshData)
+        if (mustOpenModal == false) {
+            if (!holdRefreshData) {
+                // jika tidak hold, maka refresh data
+                holdRefreshData = false
+                actionModalWorkProgress(data)
+            } else {
+                // jika hold, maka skip
+                setoranList(data)
+            }
+        } else {
+            holdRefreshData = false
+            mustOpenModal = false
+            actionModalWorkProgress(data)
+        }
+    }
+
+    function actionModalWorkProgress(data) {
+        // console.log(data)
         var badgeMeja = ''
         if (data.employee_worker.row_code) {
             badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + data.employee_worker.row_code + '</span>'
@@ -1845,8 +1905,41 @@
         html_body += '</div>'
         // setoran semu
         // LIST SETORAN
+        html_body += '<div class="" id="setoranList">'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        // LIST SETORAN
+
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-9 p-0">'
+        html_body += '<div class="row" id="isiWorkProgress">'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+        empty('#isiWorkProgress', '<span class="small-text">Pilih Setoran pada Panel Kiri untuk Melihat Detail</span>', '500px')
+        setoranList(data)
+        if (setoranIdClicked) {
+            isiWorkProgress(setoranIdClicked)
+        }
+        var availSteps = checkAvailableSteps(data.employee_worker.eid).status
+        if (!availSteps) {
+            setoranBaru(data.employee_worker.id)
+        }
+    }
+
+    function setoranList(data) {
         var a = 0
-        html_body += '<div class="">'
+        var html = ''
         sortArrayOfObjectsDescending(data.data, 'number').forEach(e => {
             var dataDelivery = findStatus(e.result_product_person_id)
             // console.log(dataDelivery)
@@ -1868,38 +1961,10 @@
                 bgColor = 'bg-light-warning'
                 icon = '<span class="fa fa-exclamation fa-1x text-warning"></span>'
             }
-            html_body += setoranBar(e, deleteButton, bgColor, qty, icon)
+            html += setoranBar(e, deleteButton, bgColor, qty, icon)
             a++
         })
-        html_body += '</div>'
-        html_body += '</div>'
-        // LIST SETORAN
-
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '<div class="col-9 p-0">'
-        html_body += '<div class="row" id="isiWorkProgress">'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body).addClass('p-0')
-        $('.nominal').number(true);
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
-        $('#modalFooter').html(html_footer)
-        empty('#isiWorkProgress', '<span class="small-text">Pilih Setoran pada Panel Kiri untuk Melihat Detail</span>', '500px')
-        if (!holdRefreshData) {
-            if (setoranIdClicked) {
-                isiWorkProgress(setoranIdClicked)
-            }
-            var availSteps = checkAvailableSteps(data.employee_worker.eid).status
-            if (!availSteps) {
-                setoranBaru(data.employee_worker.id)
-            }
-        }
+        $('#setoranList').html(html)
     }
 
     function deleteAndCloseButton(jenis, worker_id, id) {
@@ -2007,12 +2072,12 @@
         return data
     }
 
-    function editSortir(result_product_person_id, menu) {
+    function editSortir(result_product_person_id, menu, step_profile_id = null) {
         var data = dataDetailDelivery.find((v, k) => {
             if (v.result_product_person_id == result_product_person_id) return true
         })
         var dataStatus = findStatusEdit(result_product_person_id, menu)
-        formWorkProgress(data, dataStatus, true)
+        formWorkProgress(data, dataStatus, true, step_profile_id)
     }
 
     function isiWorkProgress(result_product_person_id = null) {
@@ -2102,8 +2167,8 @@
             if (checkSteps.status) {
                 status = 'bg-success text-white'
                 text = '<p>Pukul ' + formatJamMenit(checkSteps.process_at) + ' Item Good ' + checkSteps.good + ' Reject ' + replaceNullWithZero(checkSteps.reject) + ' ' + data.unit.name + '</p>'
-                if (checkLabelEdit('SORTIR')) {
-                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'SORTIR' + "'" + ')"></span>'
+                if (checkLabelEdit('DELIVERY')) {
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'DELIVERY' + "'" + ',' + k.id + ')"></span>'
                 }
             }
             html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
@@ -2365,6 +2430,7 @@
     var langsungNextNewDeliver = false
 
     function formNEWDELIVER(id = null, edit = false, step_profile_id = null) {
+        holdRefreshData = true
         var dataEdit
         if (edit) {
             dataEdit = findStatusEdit(id, 'NEWDELIVER')
@@ -2481,7 +2547,7 @@
         html += '<div class="col-8 text-end">'
         html += '<p class="mb-1 small-text"><b>Brand</b></p>'
         html += '<div class="mt-2">'
-        html += '<p class="m-0 h1 fw-bolder text-grey">' + data.product.name + '</p>'
+        html += '<p class="m-0 h1 fw-bolder text-orange">' + data.product.name + '</p>'
         html += '</div>'
         html += '</div>'
         // nama produk
@@ -2668,6 +2734,7 @@
     }
 
     function insertNewDeliver() {
+        var nilai = 0
         var value = $('.form-newdeliver').map(function() {
             return $(this).val();
         }).get();
@@ -2675,11 +2742,20 @@
         for (let i = 0; i < value.length; i++) {
             if (value[i]) {
                 anyFill = true
+                nilai = value[i]
             }
         }
         if (anyFill) {
-            JustOnCamAfterAdd = true
-            arrangeVariableInsert()
+            if (checkNotLong('form-newdeliver')) {
+                JustOnCamAfterAdd = true
+                arrangeVariableInsert()
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terlalu Panjang',
+                    text: 'Data yang dimasukkan Terlalu Panjang'
+                });
+            }
         } else {
             Swal.fire({
                 icon: 'error',
@@ -2724,11 +2800,10 @@
     }
 
     function formDELIVERY(id = null, edit = false, step_profile_id = null) {
+        holdRefreshData = true
         var dataStatus = findStatus(dataSaveSetoran.result_product_person_id)
         var masterMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id)
-        // console.log(masterMachineStep)
         var dataMachineStep = masterMachineStep.listMachineStep
-        // console.log(dataMachineStep)
         var indexMachineStep = masterMachineStep.index
         var dataMachineStepProduct = masterMachineStep.listMachineStepProduct
         var currentMachineStep
@@ -2740,14 +2815,25 @@
         } else {
             var index = 0
             dataMachineStep.forEach(e => {
-                if (e.id == dataStatus.step_status_id) {
-                    currentIndex = index
+                if (step_profile_id) {
+                    if (e.id == step_profile_id) {
+                        currentIndex = index
+                    }
+                } else {
+                    if (e.id == dataStatus.step_status_id) {
+                        currentIndex = index
+                    }
                 }
                 index++
             });
-            choosenCurrentIndex = currentIndex + 1
+            if (step_profile_id) {
+                choosenCurrentIndex = currentIndex
+            } else {
+                choosenCurrentIndex = currentIndex + 1
+            }
             currentMachineStep = dataMachineStep[choosenCurrentIndex]
         }
+        // console.log(currentIndex)
         var dataEdit
         var good = ''
         var bad = ''
@@ -2893,30 +2979,64 @@
 
     function filteredSortir() {
         var jumlahBad = $('#jumlahBad').val()
-        if (jumlahBad == 0 || jumlahBad == '0' || !jumlahBad) {
-            Swal.fire({
-                text: 'Setoran Tidak ada jumlah Bad, apakah anda ingin menyelesaikan Sortir ke ' + dataSaveSetoran.number + ' ?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yakin',
-                cancelButtonText: 'Batal',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    JustOnCamAfterAdd = true
-                    arrangeVariableInsert(1)
-                }
-            })
+        if (checkNotLong('form-delivery')) {
+            if (jumlahBad == 0 || jumlahBad == '0' || !jumlahBad) {
+                Swal.fire({
+                    text: 'Setoran Tidak ada jumlah Bad, apakah anda ingin menyelesaikan Sortir ke ' + dataSaveSetoran.number + ' ?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yakin',
+                    cancelButtonText: 'Batal',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        JustOnCamAfterAdd = true
+                        arrangeVariableInsert(1)
+                    }
+                })
+            } else {
+                JustOnCamAfterAdd = true
+                arrangeVariableInsert()
+            }
         } else {
-            JustOnCamAfterAdd = true
-            arrangeVariableInsert()
+            Swal.fire({
+                icon: 'error',
+                title: 'Terlalu Panjang',
+                text: 'Data yang dimasukkan Terlalu Panjang'
+            });
         }
     }
 
+    function listCurrentMachineStep(result_product_person_id, item_id, machine_step_profile_id, machine_step_profile_detail_id) {
+        var masterMachineStep = findmachineStep(item_id, machine_step_profile_id).listMachineStep
+        var data = dataDetailDelivery.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        var findDataStep = []
+        var findDataStepMaster = []
+        if (data) {
+            findDataStep = data.result_product_person_step.filter((v, k) => {
+                if (v.machine_step_profile_detail_id == machine_step_profile_detail_id) return true
+            })
+        }
+        if (masterMachineStep) {
+            findDataStepMaster = masterMachineStep.find((v, k) => {
+                if (v.id == machine_step_profile_detail_id) return true
+            }).data_machine_steps
+        }
+        var dataReturn = {
+            masterMachineStep: findDataStepMaster,
+            cuutentListMachineStep: findDataStep,
+        }
+        return dataReturn
+    }
+
     function formFILLUP(id = null, edit = false, step_profile_id = null) {
+        holdRefreshData = true
         firstAddedResultProductPersonId = ''
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
+        var listMachineStep = listCurrentMachineStep(dataSaveSetoran.result_product_person_id, dataDelivery.itemId, dataDelivery.machine_step_profile_id, dataDelivery.machine_step_profile_detail_id)
         var dataEdit
         var good = ''
         var bad = dataDelivery.qty.waste
@@ -2939,8 +3059,17 @@
 
         html += '<div class="row">'
         html += '<div class="col-4">'
-        html += '<p class="fw-bolder m-0 small">Review QC</p>'
-        html += '<p class="m-0 small-text">QC Sorting</p>'
+        html += '<p class="m-0 super-small-text fw-bolder">Available Step</p>'
+        listMachineStep.masterMachineStep.forEach(e => {
+            var checkMachineStep = listMachineStep.cuutentListMachineStep.find((v, k) => {
+                if (v.machine_step.id == e.id) return true
+            })
+            if (checkMachineStep) {
+                html += '<p class="m-0 super-small-text fw-bolder text-success">' + e.name + '<i class="fa fa-check text-success ms-1"></i></p>'
+            } else {
+                html += '<p class="m-0 super-small-text">' + e.name + '<i class="fa fa-times text-danger ms-1"></i></p>'
+            }
+        });
         html += '</div>'
 
         html += '<div class="col-4">'
@@ -2970,6 +3099,7 @@
         html += '<p class="mb-1 pt-3 small-text"><b>Jumlah Reject Ulang</b></p>'
         html += '<input class="form-control form-control-lg nominal form-fillup form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahBad" value="" data-bad="' + bad + '" tabindex="1" role="dialog">'
         html += '<hr class="m-0 text-danger">'
+        html += '<p class="m-0 small-text text-danger">*) Jika tidak ada reject ulang, maka Reject Sebelumnya dianggap telah selesai</p>'
         html += '</div>'
         // jumlah setoran
 
@@ -3011,6 +3141,7 @@
     }
 
     function formDONE(id = null, edit = false, step_profile_id = null) {
+        holdRefreshData = true
         firstAddedResultProductPersonId = ''
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
         var html = ''
@@ -3060,7 +3191,7 @@
         $('.nominal').on('keypress', handleNumericInput);
     }
 
-    function formWorkProgress(dataDetail, dataStatus, edit = false) {
+    function formWorkProgress(dataDetail, dataStatus, edit = false, step_profile_id = null) {
         if (!dataDetail) {
             dataDetail = dataSaveSetoran
         } else {
@@ -3072,7 +3203,6 @@
                 qty_good: dataStatus.qty.good,
                 qty_reject: dataStatus.qty.reject,
                 qty_delivery_good: dataDetail.delivery.good,
-                qty_sortir_good: dataDetail.sortir.good,
                 worker_id: dataStatus.worker_id,
                 item_id: dataDetail.item.id
             }
@@ -3112,7 +3242,7 @@
         $('#badgeStatusEdit').html(badge)
         var check = checkLabelEdit(dataStatus.nextStatus)
         if (check) {
-            eval(`form${dataStatus.nextStatus}(dataDetail.result_product_person_id,edit)`)
+            eval(`form${dataStatus.nextStatus}(dataDetail.result_product_person_id,edit,step_profile_id)`)
         } else {
             $('#formEntryData').html(emptyReturn('Anda Tidak Memiliki Akses'))
         }
@@ -3130,7 +3260,6 @@
             number: parseInt(numSetoran) + parseInt(newSetoranBar),
             next_status: dataStatus.nextStatus,
             qty_good: dataStatus.qty.good,
-            qty_sortir_good: 0,
             qty_delivery_good: 0,
             worker_id: worker_id,
             item_id: null,
@@ -3261,6 +3390,19 @@
     }
 
     function arrangeVariableInsert(autoComplete = null) {
+        var jam = $('#jamSetoran').val()
+        if (!jam) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Terlalu Cepat',
+                text: 'Anda Terlalu Cepat sehingga data Tidak Terinput dengan Baik'
+            });
+        } else {
+            doArrangeVariableInsert(autoComplete)
+        }
+    }
+
+    function doArrangeVariableInsert(autoComplete = null) {
         nextNewDeliverStatus = true
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
         var jamSetoran = dataEntry.workPlanMachine.date + ' ' + $('#jamSetoran').val() + ':00'
@@ -3268,9 +3410,6 @@
         var jumlahInput = $('#jumlahGood').val()
         if (!jumlahBad) {
             jumlahBad = 0
-        }
-        if (autoComplete) {
-            dataSaveSetoran.qty_sortir_good = dataDelivery.qty.good
         }
         var id_product = $("#productSetoran").val()
         var machine_step_profile_id = ''
@@ -3496,6 +3635,7 @@
                 dataDeliver.complete.note = ''
                 dataDeliver.reject.is = 0
                 var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, valuePersonStep)
+                // console.log(checkComplete)
                 if (checkComplete) {
                     var dataNext = variableInsert['COMPLETE']
                     data.resultProductPerson = {
@@ -3545,14 +3685,6 @@
 
         // FILLUP
         if (dataSaveSetoran.next_status == 'FILLUP') {
-            var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, [])
-            if (jumlahBad == 0 && checkComplete) {
-                var dataNext = variableInsert['COMPLETE']
-                data.resultProductPerson = {
-                    ...data.resultProductPerson,
-                    ...dataNext
-                };
-            }
             data.resultProductPersonStep = []
             var index = 0
             if (dataResultProductPerson.length) {
@@ -3576,7 +3708,64 @@
                     index++
                 });
             }
+            // sisanya(jika ada)
+            var masterStep = findmachineStep(id_product, dataDelivery.machine_step_profile_id)
+            var masterMachineStep = masterStep.listMachineStep
+            var masterMachineStepProduct = masterStep.listMachineStepProduct
+            var jumlahStepTambahan = []
+            if (jumlahBad == 0) {
+                if (masterMachineStep) {
+                    var findDataStepMaster = masterMachineStep.find((v, k) => {
+                        if (v.id == dataDelivery.machine_step_profile_detail_id) return true
+                    }).data_machine_steps
+                    if (findDataStepMaster) {
+                        var a = 0
+                        findDataStepMaster.forEach(e => {
+                            // console.log(e)
+                            if (dataResultProductPerson.length) {
+                                var checkResultProductPerson = dataResultProductPerson.find((v, k) => {
+                                    if (v.machine_step.id == e.id) return true
+                                })
+                                if (!checkResultProductPerson) {
+                                    // jika belum input, maka masuk variable buat di insert
+                                    var checkUnitIdStep = masterMachineStepProduct.find((v, k) => {
+                                        if (v.machine_step_id == e.id) return true
+                                    })
+                                    jumlahStepTambahan.push(1)
+                                    data.resultProductPersonStep.push({
+                                        id: createCodeId() + '' + a,
+                                        result_product_person_id: dataSaveSetoran.result_product_person_id,
+                                        datetime: jamSetoran,
+                                        machine_step_id: e.id,
+                                        qty: jumlahBad,
+                                        unit_id: checkUnitIdStep.unit_id,
+                                        item_id_product: checkUnitIdStep.item_id_product,
+                                        note: '',
+                                        index: e.index,
+                                        machine_step_profile_detail_id: dataDelivery.machine_step_profile_detail_id,
+                                        is_complete: 1,
+                                        complete_at: currentDateTime(),
+                                        employee_id_complete: user_id,
+                                        qty_complete: dataDelivery.qty.good
+                                    })
+                                    a++
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, jumlahStepTambahan)
+            if (jumlahBad == 0 && checkComplete) {
+                var dataNext = variableInsert['COMPLETE']
+                data.resultProductPerson = {
+                    ...data.resultProductPerson,
+                    ...dataNext
+                };
+            }
         }
+        // console.log(dataResultProductPerson)
         // console.log(data)
         // console.log(dataDelivery)
         simpanVariableOffline(data, dataDelivery)
@@ -3594,9 +3783,9 @@
         if (data[0].id) {
             jumlahSedangBerjalan = data.length
         }
-        var jumlahInput = data_step.length
-        var totalInput = parseInt(jumlahInput) + parseInt(jumlahSedangBerjalan)
-        if (totalSebenarnya == totalInput) {
+        var jumlahInputs = data_step.length
+        var totalInput = parseInt(jumlahInputs) + parseInt(jumlahSedangBerjalan)
+        if (totalSebenarnya <= totalInput) {
             status = true
         }
         return status
@@ -3705,6 +3894,7 @@
             })
         }
         if (data.materialPickup) {
+            var indexMaterialPickup = 0
             data.materialPickup.forEach(e => {
                 material_pickup.push({
                     "result_product_person_id": data.resultProductPerson.id,
@@ -3713,7 +3903,7 @@
                         "id": e.warehouse_id,
                         "name": null
                     },
-                    "machine_step_profile_id": null,
+                    "machine_step_profile_id": data.resultProductPerson.machine_step_profile_id,
                     "is_pickup": e.is_pickup,
                     "pickup_at": e.pickup_at,
                     "created_at": null,
@@ -3721,12 +3911,37 @@
                         "id": e.employee_id_admin,
                         "name": "Febi Nadia Paramita"
                     },
+                    'material_pickup_details': []
                 })
+                if (data.materialPickupDetail) {
+                    data.materialPickupDetail.forEach(el => {
+                        material_pickup[indexMaterialPickup].material_pickup_details.push({
+                            "id": el.id,
+                            'item': {
+                                'id': el.item_id,
+                            },
+                            'unit': {
+                                'id': el.unit_id
+                            },
+                            'qty': el.qty
+                        })
+                    });
+                }
+                indexMaterialPickup++
             });
         }
-
+        var completeProcess = null
+        var deliveryProcess = null
+        var completeGood = 0
+        if (data.is_complete) {
+            completeProcess = data.is_complete
+        }
+        if (data.qty_good_deliv) {
+            completeProcess = 1
+            completeProcess = data.qty_good_deliv
+        }
         dataDetailDelivery.push({
-            'worker_id': data.resultProductPerson.ewmployee_id,
+            'worker_id': data.resultProductPerson.employee_id,
             'worker_name': dataEmployee.name,
             'result_product_person_id': data.resultProductPerson.id,
             'number': data.resultProductPerson.number,
@@ -3734,19 +3949,60 @@
             'item': {
                 id: data.resultProductPerson.item_id,
             },
+            'item_target': {
+                id: data.resultProductPerson.item_id,
+            },
             'unit': {
                 id: data.resultProductPerson.unit_id
             },
-            'delivery': {
-                good: data.resultProductPerson.qty_good_deliv
+            'unit_target': {
+                id: data.resultProductPerson.unit_id
             },
+            'delivery': {
+                is_process: deliveryProcess,
+                good: data.resultProductPerson.qty_target
+            },
+            'qty_target': data.resultProductPerson.qty_target,
             'sortir': null,
             'fillup': null,
-            'complete': null,
+            'complete': {
+                "is_process": completeProcess,
+                "good": completeGood,
+            },
             'result_product_person_step': result_product_person_step,
             'material_pickup': material_pickup,
         })
-        // console.log(variableSaveMaterialOffline)
+        // add kerangka entry
+        var kerangkaEntryData = deepCopy(dataEntry.productionDelivery)
+        var dataKerangkaEntryData = kerangkaEntryData.find((v, k) => {
+            if (v.employee_worker.id == data.resultProductPerson.employee_id) return true
+        })
+        if (!dataKerangkaEntryData) {
+            dataKerangkaEntryData = []
+            dataKerangkaEntryData.push({
+                employee_worker: {
+                    "id": dataEmployee.id,
+                    "eid": dataEmployee.eid,
+                    "name": dataEmployee.name,
+                    "row_code": dataEmployee.row_code,
+                },
+                remaining_material: null,
+                data: []
+            })
+        } else {
+            if (!dataKerangkaEntryData.data) {
+                dataKerangkaEntryData.data = []
+            }
+        }
+        var dataDetailDeliveryByWorker = dataDetailDelivery.filter((v, k) => {
+            if (v.worker_id == data.resultProductPerson.employee_id) return true
+        })
+        dataDetailDeliveryByWorker.forEach(e => {
+            dataKerangkaEntryData.data.push(e)
+        });
+        dataEntry.productionDelivery = kerangkaEntryData
+        // console.log(dataDetailDeliveryByWorker)
+        // add kerangka entry
         firstAddedResultProductPersonId = ''
         buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
         // jika setoran akan berakhir
@@ -3788,27 +4044,17 @@
                         scannerQR()
                     }
                 })
-                // Swal.fire({
-                //     text: 'Apakah Diteruskan ke Setoran Selanjutnya ?',
-                //     icon: 'warning',
-                //     showCancelButton: true,
-                //     confirmButtonColor: '#3085d6',
-                //     cancelButtonColor: '#d33',
-                //     confirmButtonText: 'Ya',
-                //     cancelButtonText: 'Batal',
-                // }).then((result) => {
-                //     if (result.isConfirmed) {
-                //         setoranBaru(workerIdClicked)
-                //     } else {
-                //         scannerQR()
-                //     }
-                // })
             } else {
                 scannerQR()
             }
 
         } else {
-            scannerQR()
+            if (firstSetoranMode) {
+                holdRefreshData = false
+                checkWorkerId(scannedId)
+            } else [
+                scannerQR()
+            ]
         }
     }
 
@@ -4072,6 +4318,7 @@
     }
 
     function scannerQR() {
+        holdRefreshData = false
         modalProgress = false
         firstAddedResultProductPersonId = ''
         // $('#modal').modal('show')
@@ -4126,9 +4373,6 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
-        // setTimeout(function() {
-        //     $('#codeQR').focus();
-        // }, 100);
         if (!openedModal) {
             setTimeout(function() {
                 $('#codeQR').focus();
@@ -4159,6 +4403,7 @@
 
     function changeScanner() {
         if ($('#codeQR').val()) {
+            mustOpenModal = true
             scannedId = $('#codeQR').val()
             checkWorkerId(scannedId)
         }
@@ -4223,6 +4468,7 @@
     }
 
     function autoSaveAtOfflineModeResult() {
+        // holdRefreshData = true
         var type = 'POST'
         var button = '#btnSimpanOffline'
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
@@ -4291,6 +4537,7 @@
             } else {
                 setoranIdClicked = null
                 JustOnCamAfterAdd = true
+                holdRefreshData = true
                 loadData()
             }
         }

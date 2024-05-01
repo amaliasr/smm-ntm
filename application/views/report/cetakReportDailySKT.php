@@ -233,7 +233,7 @@ function shortenText($text, $length = 20)
             <table style="width:100%;margin-top:10px;font-size:10px;" class="table_main">
                 <tr style="text-align: center;">
                     <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;" rowspan="2">No</th>
-                    <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:60px;" rowspan="2">EID</th>
+                    <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:40px;" rowspan="2">EID</th>
                     <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:150xpx;" rowspan="2">Nama</th>
                     <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:30px;" rowspan="2">Group</th>
                     <?php foreach ($datas->reportResultPersonDaily[0]->data as $key => $value) {
@@ -268,7 +268,7 @@ function shortenText($text, $length = 20)
                 ?>
                         <tr>
                             <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:10px;"><?= $a++ ?></td>
-                            <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:10px;"><?= $value->employee->eid ?></td>
+                            <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:7px;"><?= $value->employee->eid ?></td>
                             <td class="td_main <?= $classMain ?>" style="text-align: left;font-size:10px;padding-left:5px;"><b><?= shortenText(strtoupper($value->employee->name)) ?></b></td>
                             <?php if ($trueNumber == 1) { ?>
                                 <td class="td_main" style="text-align: center;font-size:12px;" rowspan="<?= $v['count'] ?>"><?= $v['row_code'] ?></td>
@@ -313,7 +313,7 @@ function shortenText($text, $length = 20)
                                 } ?>
                                 <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:10px;"><?= $time ?></td>
                             <?php } ?>
-                            <td class="td_main <?= $classMain ?>" style="text-align: left;font-size:10px;"><b><?= $value->total_good ?></b></td>
+                            <td class="td_main <?= $classMain ?>" style="text-align: center;font-size:10px;"><b><?= $value->total_good ?></b></td>
                             <?php $jumlahTotalGood = $jumlahTotalGood + $value->total_good ?>
                         </tr>
                 <?php
@@ -332,7 +332,7 @@ function shortenText($text, $length = 20)
                 ?>
                 <tr style="text-align: center;">
                     <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;" colspan="4">Total</th>
-                    <?php for ($i = 1; $i <= 10; $i++) { ?>
+                    <?php for ($i = 1; $i <= count($datas->reportResultPersonDaily[0]->data); $i++) { ?>
                         <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;" colspan="2"><b><?= $jumlahSetoranArray[$i] ?></b></th>
                     <?php } ?>
                     <th class="th_main" style="width: 10%;padding:2px;font-size:10px;width:20px;"><b><?= $jumlahTotalGood ?></b></th>

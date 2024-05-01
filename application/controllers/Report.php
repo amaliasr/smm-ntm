@@ -843,7 +843,7 @@ class Report extends CI_Controller
         $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonDaily?date=' . $data['date'] . '&machineId=' . $data['machineId'] . '&rowCode=' . $data['rowCode'] . '&dataProfile=' . $data['dataProfile'])))->data;
         // $this->load->view('report/cetakReportDailySKT', $data);
         $html = $this->load->view('report/cetakReportDailySKT', $data, true);
-        $this->pdf->setPaper('A4', 'landscape');
+        $this->pdf->setPaper(array(0, 0, 609.4488, 935.433), 'landscape');
         $this->pdf->filename = "REPORT PRODUCTION DAILY.pdf";
         $this->pdf->loadHtml($html);
         $this->pdf->render();
