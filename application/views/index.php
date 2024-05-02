@@ -218,6 +218,7 @@
                                             <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" onclick="changePencapaianTarget('chart')">
                                             <label class="btn btn-outline-switch-chart shadow-none" for="btnradio3"><i class="fa fa-bar-chart"></i></label>
                                         </div>
+                                        <button class="btn btn-sm btn-success ms-1" onclick="downloadExcel()"><i class="fa fa-download"></i></button>
                                         <button type="button" class="ms-1 shadow-none btn btn-sm btn-outline-switch-chart" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false" onclick="showDropdown()"><i class="fa fa-filter"></i></button>
                                         <div class="dropdown-menu" id="dropdownFilter" style="width: 200px;">
                                             <div class="row">
@@ -844,7 +845,6 @@
             html += '<td class="fw-bolder bg-light" style="border-right:0px;">' + d.machineTypeName + '</td>'
             for (let i = 0; i < ((parseInt(data_pencapaian[0].data[0].data.length) * 3) + 1); i++) {
                 html += '<td class="bg-light" style="border-left:0px;border-right:0px;"></td>'
-
             }
             html += '</tr>'
             d.data.forEach(e => {
@@ -882,6 +882,12 @@
             paging: false,
             searching: false,
         })
+    }
+
+    function downloadExcel() {
+        var url = "<?= base_url() ?>report/reportDashboardTable"
+        var params = "*$" + dateStartTarget + "*$" + dateEndTarget + "*$" + machineId + "*$" + periodOption;
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 
     function targetChart() {

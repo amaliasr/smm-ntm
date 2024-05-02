@@ -1275,4 +1275,76 @@ class Report extends CI_Controller
         $this->pdf->render();
         $this->pdf->stream('REPORT LEAVE PASS', array("Attachment" => 0));
     }
+    public function reportDashboardTable()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $dateStart = date('Y-m-d', strtotime($explodedParams[1]));
+        $dateEnd = date('Y-m-d', strtotime($explodedParams[2]));
+        $machineId = $explodedParams[3];
+        $periodOption = $explodedParams[4];
+        $body = json_decode($this->curl->simple_get(api_produksi('getDashboardPlanActual?dateStart=' . $dateStart . '&dateEnd=' . $dateEnd . '&machineId=' . $machineId . '&periodOption=' . $periodOption)))->data->planActual;
+        $heading = $body[0]->data[0]->data;
+        // print_r($heading);
+        $periodtext = '';
+        if ($periodOption == 'WEEKLY') {
+            $periodtext = 'Minggu ';
+        }
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $jumlahColumn = 1;
+        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '2')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Produk');
+        $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn) . '2')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Unit');
+        $jumlahColumn2 = $jumlahColumn;
+        foreach ($heading as $key => $value) {
+            // echo $jumlahColumn;
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumn) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumn = $jumlahColumn + 2) . '1')->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2) . '1', $periodtext . '' . $value->index);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Plan');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Aktual');
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn2++) . '2', 'Persentase');
+            $jumlahColumn++;
+        }
+        $jumlahRow = 3;
+        $jumlahColumn = 1;
+        $jumlahColumnHead = 1;
+        $jumlahRowHead = 3;
+        $no = 1;
+        foreach ($body as $key => $value) {
+            $jumlahRowHead = $jumlahRow;
+            $panjangKolom = (count($body[0]->data[0]->data) * 3) + 2;
+            $sheet->mergeCells(Coordinate::stringFromColumnIndex($jumlahColumnHead) . $jumlahRowHead . ':' . Coordinate::stringFromColumnIndex($panjangKolom) . $jumlahRowHead)->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumnHead) . $jumlahRowHead, $value->machineTypeName);
+            $jumlahRow++;
+            foreach ($value->data as $k => $v) {
+                $jumlahColumn = 1;
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $v->item->name);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $v->unit->name);
+                foreach ($v->data as $k2 => $v2) {
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, number_format(round($v2->data->qty_plan, 2)));
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, number_format(round($v2->data->qty_actual, 2)));
+                    $percen = 0;
+                    if (!($v2->data->qty_plan) || !($v2->data->qty_actual)) {
+                        $percen = 0;
+                    } else {
+                        $percen = round($v2->data->qty_actual / $v2->data->qty_plan * 100, 2);
+                    }
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $percen . '%');
+                }
+                $jumlahRowHead++;
+                $jumlahRow++;
+            }
+        }
+        // exit;
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'DASHBOARD REPORT ' . $epoch;
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
 }
