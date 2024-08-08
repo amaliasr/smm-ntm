@@ -828,7 +828,11 @@
         html += '<th class="align-middle" rowspan="2">Produk</th>'
         html += '<th class="align-middle" rowspan="2">Unit</th>'
         heading.forEach(e => {
-            html += '<th class="align-middle" colspan="3">' + periodtext + '' + e.index + '</th>'
+            var textDate = ''
+            if (periodtext) {
+                textDate = '<br><span class="small-text text-grey">' + formatDateText(e.date.start) + ' - ' + formatDateText(e.date.end) + '</span>'
+            }
+            html += '<th class="align-middle" colspan="3">' + periodtext + '' + e.index + '' + textDate + '</th>'
         });
         html += '</tr>'
         html += '<tr>'
@@ -1094,6 +1098,7 @@
         if (periodOption == 'WEEKLY') {
             periodText = 'Minggu '
         }
+        // console.loh(dataToday)
         $('#titleTime').html(periodText + '' + dataToday.index)
         $('#periodTime').html(formatDateText(dataToday.date.start) + ' - ' + formatDateText(dataToday.date.end))
         settingChart(actualData, targetData, brandList)

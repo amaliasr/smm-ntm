@@ -207,7 +207,7 @@
         <div class="row justify-content-between mb-2">
             <div class="col pb-2">
                 <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PRODUCTION DAILY</h1>
-                <h5 class="fw-bolder m-0 text-orange mb-2">GILING</h5>
+                <h5 class="fw-bolder m-0 text-primary mb-2">VERPACK</h5>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
             <div class="col pb-2">
@@ -250,53 +250,6 @@
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel','IGNORESORTIR')">Excel (Tanpa Sortir)</a></li>
                                 <li><a class="dropdown-item fw-bolder" href="javascript:void(0);" onclick="cetakReport('pdf','IGNORESORTIR')">PDF (Tanpa Sortir)</a></li>
                             </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 pe-1">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body p-3">
-                        <div class="row">
-                            <div class="col-4 align-self-center text-center">
-                                <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/trolley_full.svg" alt="Icon" />
-                            </div>
-                            <div class="col-8">
-                                <p class="m-0 lh-2 fw-bold super-text-small">Setoran Terbanyak</p>
-                                <p class="m-0 lh-1 fw-bolder h3" id="namaSetoranTerbanyak">-</p>
-                                <p class="m-0 lh-2 fw-bold super-text-small">Jumlah <span class="text-success" id="jumlahSetoranTerbanyak">-</span> Btg</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 ps-1 pe-1">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body p-3">
-                        <div class="row">
-                            <div class="col-4 align-self-center text-center">
-                                <img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/trolley_less.svg" alt="Icon" />
-                            </div>
-                            <div class="col-8">
-                                <p class="m-0 lh-2 fw-bold super-text-small">Setoran Terendah</p>
-                                <p class="m-0 lh-1 fw-bolder h3" id="namaSetoranTersedikit">-</p>
-                                <p class="m-0 lh-2 fw-bold super-text-small">Jumlah <span class="text-danger" id="jumlahSetoranTersedikit">-</span> Btg</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 ps-1">
-                <div class="card shadow-none border-radius-20 h-100">
-                    <div class="card-body p-3">
-                        <div class="row h-100">
-                            <div class="col-3">
-
-                            </div>
-                            <div class="col-9 align-self-center">
-                                <p class="m-0 lh-2 fw-bold small">Total Setoran</p>
-                                <p class="m-0 lh-1 fw-bolder h2"><span id="totalAllSetoran" class="text-primary">-</span> Btg</p>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -515,7 +468,7 @@
             dataType: 'JSON',
             data: {
                 employeeId: user_id,
-                dataProfile: 'GILING'
+                dataProfile: 'VERPACK'
             },
             error: function(xhr) {
                 showOverlay('hide')
@@ -587,7 +540,7 @@
         var html = ''
         data_user.dataMachine.forEach(e => {
             var select = ''
-            if (e.id == 15) {
+            if (e.id == 14) {
                 select = 'selected'
             }
             html += '<option value="' + e.id + '" ' + select + '>' + e.code + '</option>'
@@ -624,7 +577,7 @@
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResultPersonDaily'); ?>'
+        var url = '<?php echo api_produksi('getReportResultPersonStepDaily'); ?>'
         var data = {
             date: date_start,
             machineId: machineId,
@@ -659,7 +612,7 @@
                 data_report = response.data
                 if (data_report.reportResultPersonDaily.length) {
                     updatedStructure()
-                    setoranTerbanyak()
+                    // setoranTerbanyak()
                 } else {
                     // tidak ada data
                     $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
@@ -700,7 +653,7 @@
 
     function dataTable() {
         var html = ''
-        html += '<table class="table table-bordered table-hover table-sm small" style="overflow-x: hidden;" id="tableDetail">'
+        html += '<table class="table table-bordered table-hover table-sm small w-100" style="overflow-x: hidden;" id="tableDetail">'
         html += '<thead id="headTable">'
         html += '</thead>'
         html += '<tbody id="bodyTable">'
@@ -715,22 +668,22 @@
     function headTable() {
         var html = ''
         html += '<tr>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">EID</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Nama</th>'
-        html += '<th class="align-middle" rowspan="2" style="background-color: white;">Group</th>'
-        const dates = data_report.reportResultPersonDaily[0].data.map(item => Object.keys(item)[0]);
-        for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle text-center" colspan="2">Setoran ' + dates[i] + '</th>'
-        }
-        html += '<th class="align-middle" rowspan="2">Total</th>'
-        html += '</tr>'
-
-        html += '<tr>'
-        for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle">Jumlah Setoran</th>'
-            html += '<th class="align-middle">Jam</th>'
-        }
+        html += '<th class="align-middle" style="background-color: white;height:50px">#</th>'
+        html += '<th class="align-middle" style="background-color: white;height:50px">EID</th>'
+        html += '<th class="align-middle" style="background-color: white;height:50px">Nama</th>'
+        html += '<th class="align-middle" style="background-color: white;height:50px">No. Meja</th>'
+        data_report.reportResultPersonDaily[0].results.forEach(e => {
+            var elabel = e.item_product.label + ' '
+            if (!e.item_product.label) {
+                elabel = ''
+            }
+            if (!e.label) {
+                e.label = ' ' + elabel + '<br>' + e.machine_step_label
+            } else {
+                e.label = ' ' + elabel + '<br>' + e.label
+            }
+            html += '<th class="align-middle text-center">' + e.product.code + '' + e.label + '</th>'
+        });
         html += '</tr>'
         $('#headTable').html(html)
         bodyTable()
@@ -740,57 +693,58 @@
         var html = ''
         var a = 1
         var footMenu = []
-        var totalDaily = 0
         data_report.reportResultPersonDaily.forEach(e => {
             html += '<tr>'
             html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
             html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
+            if (!e.row_code) {
+                e.row_code = '-'
+            }
             html += '<td class="text-center small-text" style="background-color: white;">' + e.row_code + '</td>'
-            e.data.forEach(el => {
+            var b = 0
+            e.results.forEach(el => {
                 var bg = ''
-                if (el[Object.keys(el)[0]].reject_left) {
+                if (el.reject_left) {
                     bg = 'bg-light-danger'
                 }
-                html += '<td class="text-center small-text ' + bg + '">' + number_format(el[Object.keys(el)[0]].total_good) + '</td>'
-                var time = ''
-                if (el[Object.keys(el)[0]].time) {
-                    time = convertTimeFormat2(el[Object.keys(el)[0]].time[0])
+                if (!el.qty_rpp) {
+                    el.qty_rpp = 0
                 }
-                html += '<td class="text-center small-text">' + time + '</td>'
-                if (!footMenu[Object.keys(el)[0]]) {
-                    footMenu[Object.keys(el)[0]] = el[Object.keys(el)[0]].total_good
+                // console.log(el.product.id + '' + el.result_earn_step_profile_detail_id)
+                html += '<td class="text-center small-text ' + bg + '">' + number_format(el.qty_rpp) + '</td>'
+                if (!footMenu[el.product.id + '' + b]) {
+                    footMenu[el.product.id + '' + b] = el.qty_rpp
                 } else {
-                    footMenu[Object.keys(el)[0]] = footMenu[Object.keys(el)[0]] + el[Object.keys(el)[0]].total_good
+                    footMenu[el.product.id + '' + b] = footMenu[el.product.id + '' + b] + el.qty_rpp
                 }
+                b++
             });
-            html += '<td class="text-center small-text">' + e.total_good + '</td>'
             html += '</tr>'
-            totalDaily += e.total_good
         });
         $('#bodyTable').html(html)
-        footTable(footMenu, totalDaily)
+        footTable(footMenu)
 
     }
 
-    function footTable(footMenu, totalDaily) {
+    function footTable(footMenu) {
         var html = ''
         html += '<tr>'
         html += '<th class="align-middle" style="background-color: white;"></th>'
         html += '<th class="align-middle" style="background-color: white;"></th>'
         html += '<th class="align-middle" style="background-color: white;"></th>'
         html += '<th class="align-middle" style="background-color: white;">Total</th>'
-        const dates = data_report.reportResultPersonDaily[0].data.map(item => Object.keys(item)[0]);
-        for (let i = 0; i < dates.length; i++) {
-            html += '<th class="align-middle" colspan="2">' + number_format(footMenu[dates[i]]) + '</th>'
-        }
-        html += '<th class="align-middle">' + number_format(totalDaily) + '</th>'
+        var b = 0
+        data_report.reportResultPersonDaily[0].results.forEach(e => {
+            html += '<th class="align-middle">' + number_format(footMenu[e.product.id + '' + b]) + '</th>'
+            b++
+        })
         html += '</tr>'
         $('#footTable').html(html)
         $('#tableDetail').DataTable({
             ordering: false, // Menonaktifkan pengurutan
             pageLength: 200,
-            scrollY: "400px",
+            scrollY: "300px",
             scrollX: true,
             scrollCollapse: true,
             paging: false,
@@ -805,9 +759,9 @@
 
     function cetakReport(x, y) {
         if (x == 'excel') {
-            var url = "<?= base_url() ?>report/reportDailySKT"
+            var url = "<?= base_url() ?>report/reportDailySKTVerpack"
         } else {
-            var url = "<?= base_url() ?>report/reportDailySKTPdf"
+            var url = "<?= base_url() ?>report/reportDailySKTPdfVerpack"
         }
         var params = "*$" + date_start + "*$" + machineId + "*$" + rowCode + "*$" + y;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');

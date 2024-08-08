@@ -1,34 +1,12 @@
-<style>
-    html {
-        scroll-behavior: smooth;
-    }
-
-    #overlay {
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 999999;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-    }
-
-    .nominal {
-        text-align: right;
-    }
-</style>
+<link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <header class="page-header page-header-dark">
         <div class="container-xl px-4">
-            <div class="page-header-content pt-4">
-                <div class="row align-items-center justify-content-between">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-center">
                     <div class="col-auto mt-4">
-                        <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-truck"></i></div>
-                            Approval PO
-                        </h1>
+
                     </div>
 
                 </div>
@@ -36,10 +14,17 @@
         </div>
     </header>
     <!-- Main page content-->
-    <div class="container-xl px-4 mt-n10">
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="card h-100">
+    <div class="container-xl mt-n10">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center mb-3">
+                <h1 class="text-grey fw-bolder">
+                    Approval<br>Purchase Order
+                </h1>
+            </div>
+            <div class="col-xl-4 col-lg-6 col-md-7 col-sm-12 mb-4">
+                <div class="card shadow-none h-100">
+                    <div class="card-header" id="tampilHeader">
+                    </div>
                     <div class="card-body" id="tampilData">
                         <h4 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h4>
                     </div>
@@ -146,6 +131,7 @@
         })
     }
     var level = 0
+    var isCanApprove = true
 
     function masterPR() {
         $.ajax({
@@ -160,83 +146,84 @@
             success: function(response) {
                 data_po = response['data'][0]
                 // console.log(data_po)
-                if (data_po['state'] != 'APPROVED') {
-                    // var data_approval = JSON.parse(data_po['data_approval'])
-                    var data_po_approval = response['data_approval']
 
-                    // approval
-                    var ttd_pending = ""
-                    var pending = []
-                    var ttd_all = []
-                    for (let k = 0; k < data_po_approval.length; k++) {
-                        for (let i = 0; i < data_po_approval[k].length; i++) {
-                            for (let j = 0; j < data_po_approval[k][i].length; j++) {
-                                ttd_all.push(JSON.parse(data_po_approval[k][i][j]['data_approval'])[0])
+                // var data_approval = JSON.parse(data_po['data_approval'])
+                var data_po_approval = response['data_approval']
+
+                // approval
+                var ttd_pending = ""
+                var pending = []
+                var ttd_all = []
+                for (let k = 0; k < data_po_approval.length; k++) {
+                    for (let i = 0; i < data_po_approval[k].length; i++) {
+                        for (let j = 0; j < data_po_approval[k][i].length; j++) {
+                            ttd_all.push(JSON.parse(data_po_approval[k][i][j]['data_approval'])[0])
+                            if (data_po['state'] == 'APPROVED') {
+                                ttd_pending = JSON.parse(data_po_approval[k][i][j]['data_approval'])
+                            } else {
                                 ttd_pending = JSON.parse(data_po_approval[k][i][j]['data_approval']).filter((value, key) => {
                                     if (value.is_accept === 'Pending') return true
                                 })
-                                if (ttd_pending.length > 0) {
-                                    pending.push({
-                                        'approval': ttd_pending[0],
-                                        'keys': i,
-                                    })
-                                }
+                            }
+                            if (ttd_pending.length > 0) {
+                                pending.push({
+                                    'approval': ttd_pending[0],
+                                    'keys': i,
+                                })
                             }
                         }
                     }
-                    // console.log(ttd_all)
-                    var key = pending[0]['keys']
-                    var loop = []
-                    $.each(pending, function(keys, values) {
-                        if (values['keys'] == key) {
-                            loop.push(values['approval'])
-                        }
-                    })
-                    // console.log(pending)
-                    // BUAT NEXT WHATSAPP
-                    key_next = parseInt(key) + 1
-                    loop_next = []
-                    phone_next = []
-                    name_next = []
-                    $.each(pending, function(keys, values) {
-                        if (values['keys'] == key_next) {
-                            loop_next.push(values['approval'])
-                        }
-                    })
-                    $.each(loop_next, function(keys, values) {
-                        phone_next.push(values['phone'])
-                        name_next.push(values['user_name'])
-                    })
-                    // console.log(loop_next)
-                    // BUAT NEXT WHATSAPP
-
-                    var data_approval = loop
-
-                    var ada = "tidak"
-
-                    $.each(data_approval, function(keys, values) {
-                        if (user_id == values['user_id']) {
-                            if (values['is_accept'] == 'Pending') {
-                                ada = "ya"
-                                level = values['id_approval']
-                            }
-                        }
-                    })
-                    if (data_po['state'] == 'APPROVED') {
-                        ada = 'tidak'
-                    }
-                    if (ada == "tidak") {
-                        var html = ""
-                        html += '<h4 class="text-center mt-5 mb-5"><i>Anda Tidak Memiliki Hak Akses pada Halaman Ini</i></h4>'
-                        $('#tampilData').html(html);
-                    } else {
-                        formDetail(ttd_all)
-                    }
-                } else {
-                    var html = ""
-                    html += '<h4 class="text-center mt-5 mb-5"><i>Anda Tidak Memiliki Hak Akses pada Halaman Ini</i></h4>'
-                    $('#tampilData').html(html);
                 }
+                // console.log(ttd_all)
+                var key = pending[0]['keys']
+                var loop = []
+                $.each(pending, function(keys, values) {
+                    if (values['keys'] == key) {
+                        loop.push(values['approval'])
+                    }
+                })
+                // console.log(pending)
+                // BUAT NEXT WHATSAPP
+                key_next = parseInt(key) + 1
+                loop_next = []
+                phone_next = []
+                name_next = []
+                $.each(pending, function(keys, values) {
+                    if (values['keys'] == key_next) {
+                        loop_next.push(values['approval'])
+                    }
+                })
+                $.each(loop_next, function(keys, values) {
+                    phone_next.push(values['phone'])
+                    name_next.push(values['user_name'])
+                })
+                // console.log(loop_next)
+                // BUAT NEXT WHATSAPP
+
+                var data_approval = loop
+
+                var ada = "tidak"
+
+                $.each(data_approval, function(keys, values) {
+                    if (user_id == values['user_id']) {
+                        if (values['is_accept'] == 'Pending') {
+                            ada = "ya"
+                            level = values['id_approval']
+                        }
+                    }
+                })
+                if (data_po['state'] == 'APPROVED') {
+                    ada = 'tidak'
+                }
+                if (ada == "tidak") {
+                    // tidak ada akses
+                    isCanApprove = false
+                }
+                if (data_po['state'] == 'APPROVED') {
+                    isCanApprove = false
+                }
+
+                formDetail(ttd_all)
             }
         })
     }
@@ -255,41 +242,75 @@
         html += '<div class="container-fluid small">'
         html += '<div class="row">'
 
-        html += '<div class="col-12 col-md-6 mb-3">'
+        html += '<div class="col-12 mb-4">'
         html += '<div class="row">'
-        html += '<div class="col-5 col-md-3">Created By</div>'
-        html += '<div class="col-7 col-md-9 fw-bold">' + data_po['name'] + '</div>'
-        html += '<div class="col-5 col-md-3">No. PO</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['no_po'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Tanggal</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['date_po'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Supplier</div>'
-        html += '<div class="col-7 col-md-9"><span class="fw-bold">' + data_po['supplier_name'] + '</span></div>'
-        html += '<div class="col-5 col-md-3">Status</div>'
-        html += '<div class="col-7 col-md-9"><i><span class="fw-bold text-warning">' + data_po['state'] + '</span></i></div>'
-        html += '</div>'
+        html += '<div class="col-5 small col-md-3">Created By</div>'
+        html += '<div class="col-7 small col-md-9 fw-bold">' + data_po['name'] + '</div>'
+        html += '<div class="col-5 small col-md-3">Tanggal</div>'
+        html += '<div class="col-7 small col-md-9"><span class="fw-bold">' + data_po['date_po'] + '</span></div>'
+        html += '<div class="col-5 small col-md-3">Supplier</div>'
+        html += '<div class="col-7 small col-md-9"><span class="fw-bold">' + data_po['supplier_name'] + '</span></div>'
         html += '</div>'
 
-        html += '<div class="col-12 col-md-6 mb-2">'
-        html += '<b>List Item</b>'
-        html += '<div id="bodyPR" class="mt-2 mb-3">'
+        html += '<div class="col-12 mb-2">'
+        html += '<div class="mt-3 mb-2">'
+        // item list
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-header py-2">'
+        html += '<p class="m-0 small-text fw-bold text-grey-light fw-bolder">List Item</p>'
         html += '</div>'
-        html += '<table style="width:100%" class="fw-bold mt-2 mb-2">'
+        html += '<div class="card-body p-0">'
+        // body
+        html += '<table class="table table-sm table-hover m-0 w-100">'
         html += '<tr>'
-        html += '<td class="text-end" style="width:65%">Subtotal</td>'
-        html += '<td class="text-end" style="width:35%">' + number_format(data_po['total_harga']) + '</td>'
+        html += '<th class="text-center align-middle small-text" style="width:5%">No</th>'
+        html += '<th class="text-center align-middle" style="font-size:10px;">Item</th>'
+        html += '<th class="text-center align-middle" style="font-size:10px;">Unit</th>'
+        html += '<th class="text-center align-middle" style="font-size:10px;">QTY</th>'
+        html += '<th class="text-center align-middle" style="font-size:10px;">Price</th>'
+        html += '<th class="text-center align-middle" style="font-size:10px;">Subprice</th>'
+        html += '<th class="text-center align-middle" style="font-size:10px;">Tgl. Pengiriman</th>'
+        html += '</tr>'
+        $.each(JSON.parse(data_po['data_detail']), function(keys, values) {
+            html += '<tr>'
+            html += '<td class="text-center align-middle small-text">' + last_number + '</td>'
+            html += '<td class="align-middle" style="font-size:8px;">' + values['item_name'] + '</td>'
+            html += '<td class="text-center align-middle" style="font-size:8px;">' + values['satuan_name'] + '</td>'
+            html += '<td class="text-center align-middle" style="font-size:8px;">' + values['qty'] + '</td>'
+            html += '<td class="text-center align-middle" style="font-size:8px;">' + number_format(values['harga']) + '</td>'
+            html += '<td class="text-center align-middle" style="font-size:8px;">' + number_format(values['subtotal']) + '</td>'
+            html += '<td class="text-center align-middle" style="font-size:8px;">' + values['tanggal_pengiriman'] + '</td>'
+            html += '</tr>'
+            last_number++
+        })
+        html += '</table>'
+        // body
+        html += '</div>'
+        html += '<div class="card-footer bg-white py-2">'
+        html += '<table style="width:100%" class="fw-bold">'
+        html += '<tr>'
+        html += '<td class="text-end small-text" style="width:65%">Subtotal</td>'
+        html += '<td class="text-end small-text fw-bold" style="width:35%">' + number_format(data_po['total_harga']) + '</td>'
         html += '</tr>'
         html += '<tr>'
-        html += '<td class="text-end" style="width:65%">PPN</td>'
-        html += '<td class="text-end" style="width:35%">' + number_format(data_po['ppn']) + '</td>'
+        html += '<td class="text-end small-text" style="width:65%">PPN</td>'
+        html += '<td class="text-end small-text fw-bold" style="width:35%">' + number_format(data_po['ppn']) + '</td>'
         html += '</tr>'
         html += '<tr>'
-        html += '<td class="text-end" style="width:65%">Total</td>'
-        html += '<td class="text-end" style="width:35%">' + number_format(data_po['grand_total']) + '</td>'
+        html += '<td class="text-end small-text" style="width:65%">Total</td>'
+        html += '<td class="text-end small-text fw-bolder" style="width:35%">' + number_format(data_po['grand_total']) + '</td>'
         html += '</tr>'
         html += '</table>'
+        html += '</div>'
+        html += '</div>'
+        // item list
+        html += '</div>'
         html += '<div class="mt-3">'
-        html += '<button class="btn btn-primary w-100" onclick="approvalForm(' + "'" + data_po['no_po'] + "'" + ',' + data_po['po_id'] + ')">Approval</button>'
+        if (isCanApprove) {
+            html += '<button class="btn btn-primary w-100 p-3 rounded-pill small-text" onclick="approvalForm(' + "'" + data_po['no_po'] + "'" + ',' + data_po['po_id'] + ')">Approval</button>'
+        } else {
+            html += '<button class="btn btn-dark-light w-100 p-3 rounded-pill small-text" disabled><i>Cant Do Approval</i></button>'
+        }
         html += '</div>'
 
         html += '<div class="col-12 mt-3 mb-2">'
@@ -297,42 +318,50 @@
         html += '<div class="row mt-2">'
 
         $.each(data_approval, function(keys, values) {
-            // var success = "fa-check text-light"
-            // if (values['is_accept'] == 'Accepted') {
-            //     success = 'fa-check text-success'
-            // } else if (values['is_accept'] == 'Rejected') {
-            //     success = 'fa-times text-danger'
-            // }
-            // html += '<div class="col-6">'
-            // html += '<div class="card shadow-none h-100">'
-            // html += '<div class="card-body text-center">'
-            // html += '<i class="fa ' + success + ' fa-2x mb-2"></i>'
-            // html += '<p class="fw-bold mb-0 small" style="font-size:10px;">' + values['user_name'] + '</p>'
-            // html += '</div>'
-            // html += '</div>'
-            // html += '</div>'
             var success = "fa-check text-light"
+            var border = ''
+            var bgApproval = ''
             if (values['is_accept'] == 'Accepted') {
                 success = 'fa-check text-success'
+                border = 'border border-success'
+                bgApproval = 'bg-success-light'
             } else if (values['is_accept'] == 'Rejected') {
                 success = 'fa-times text-danger'
+                border = 'border border-danger'
+                bgApproval = 'bg-danger-light'
+            } else {
+                if (data_po['state'] == 'REJECTED' || data_po['state'] == 'CANCEL') {
+                    success = 'fa-times text-danger'
+                    border = 'border border-danger'
+                    bgApproval = 'bg-danger-light'
+                }
             }
-
-            html += '<div class="col-12 col-sm-12 m-0 p-1">'
-            html += '<div class="card shadow-sm m-0 w-100">'
-            html += '<div class="card-body p-2">'
-            html += '<div class="row align-self-center">'
-            html += '<div class="col-3">'
-            html += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+            html += '<div class="col-12 col-sm-12 m-0 mb-2">'
+            html += '<div class="card shadow-none ' + bgApproval + ' rounded-pill m-0 w-100 ' + border + '">'
+            html += '<div class="card-body" style="padding:15px;">'
+            html += '<div class="row h-100">'
+            html += '<div class="col-3 text-center align-self-center">'
+            html += '<i class="fa ' + success + ' fa-2x me-2"></i>'
             html += '</div>'
-            html += '<div class="col-9">'
+            html += '<div class="col-9 align-self-center">'
             if (keys == 0) {
                 var name = 'Checked'
             } else {
                 var name = 'Approved'
             }
-            html += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
-            html += '<p class="m-0"><span class="small" style="font-size:10px;">' + values['user_name'] + '</span></p>'
+            var at = ''
+            if (values['date_approval']) {
+                at = '<p class="m-0 lh-2 super-duper-small-text fw-bold">' + name + ' <span class="text-success">at ' + values['date_approval'] + '</span></p>'
+            } else {
+                if (data_po['state'] == 'REJECTED' || data_po['state'] == 'CANCEL') {
+                    at = '<p class="m-0 lh-2 super-duper-small-text text-danger"><i>Cancelled</i></p>'
+                } else {
+                    at = '<p class="m-0 lh-2 super-duper-small-text text-grey"><i>Still Waiting</i></p>'
+                }
+            }
+            html += '<p class="m-0 lh-1 fw-bolder small">' + values['user_name'] + '</p>'
+            html += '<p class="m-0 lh-1 fw-bold"><span class="small-text">' + values['job_title'] + '</span></p>'
+            html += at
             html += '</div>'
             html += '</div>'
             html += '</div>'
@@ -347,46 +376,31 @@
         html += '</div>'
         html += '</div>'
         $('#tampilData').html(html);
-        $.each(JSON.parse(data_po['data_detail']), function(keys, values) {
-            formRowPR(last_number, JSON.parse(data_po['data_detail'])[keys])
-            last_number++
-        })
+        tampilHeader()
     }
 
-    function formRowPR(i, data) {
-        var html = ""
-        html += '<div class="card w-100 shadow-sm mb-2 p-0">'
-        html += '<div class="card-body p-2">'
-        html += '<div class="row d-flex align-items-center ">'
-
-        html += '<div class="col-12 col-md-6 align-self-center">'
-        html += '<span class="fw-bold text-primary">' + data['item_name'] + '</span><br>'
-        html += '<span class="small">Tanggal Kirim : <span class="text-grey">' + data['tanggal_pengiriman'] + '</span></span>'
+    function tampilHeader() {
+        var html = ''
+        var colorBadge = 'bg-grey-light'
+        if (data_po['state'] == 'CHECKED') {
+            colorBadge = 'bg-orange'
+        } else if (data_po['state'] == 'DONE') {
+            colorBadge = 'bg-success'
+        } else if (data_po['state'] == 'APPROVED') {
+            colorBadge = 'bg-success'
+        } else if (data_po['state'] == 'REJECTED' || data_po['state'] == 'CANCEL') {
+            colorBadge = 'bg-danger'
+        }
+        html += '<div class="row h-100">'
+        html += '<div class="col-auto">'
+        html += '<p class="m-0 small-text lh-1 text-grey-light">PO Number :</p>'
+        html += '<p class="m-0 small fw-bolder text-grey-light">' + data_po['no_po'] + '</p>'
         html += '</div>'
-
-        html += '<div class="col-12 col-md-6 text-right">'
-        html += '<table class="table small mt-2 align-self-center border-none">'
-        html += '<tr>'
-        html += '<td class="p-0 m-0">QTY</td>'
-        html += '<td class="fw-bold p-0 m-0">' + data['qty'] + ' ' + data['satuan_name'] + '</td>'
-        html += '</tr>'
-        html += '<tr>'
-        html += '<td class="p-0 m-0">Harga Satuan</td>'
-        html += '<td class="fw-bold p-0 m-0">' + number_format(data['harga']) + '</td>'
-        html += '</tr>'
-        html += '<tr>'
-        html += '<td class="p-0 m-0">Harga Total</td>'
-        html += '<td class="fw-bold p-0 m-0">' + number_format(data['subtotal']) + '</td>'
-        html += '</tr>'
-        html += '</table>'
-        html += '</div>'
-
+        html += '<div class="col text-end align-middle">'
+        html += '<span class="badge ' + colorBadge + ' text-white small-text px-2 py-1">' + data_po['state'] + '</span>'
         html += '</div>'
         html += '</div>'
-        html += '</div>'
-
-        $('#bodyPR').append(html)
-        return true;
+        $('#tampilHeader').html(html)
     }
 
     function approvalForm(no_po, id) {

@@ -16,7 +16,7 @@
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
             <div class="col pb-2">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT MUTASI GUDANG</h1>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">HISTORY MATERIAL REQUEST</h1>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
@@ -30,30 +30,34 @@
                                 <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
                             </div>
                             <div class="col-auto ps-0">
-                                <p class="fw-bolder small-text m-0">Item</p>
-                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItem" title="Pilih Mesin" onchange="arrangeVariable()">
+                                <p class="fw-bolder small-text m-0">Machine</p>
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectMachine" title="Pilih Mesin" onchange="arrangeVariable()">
                                 </select>
                             </div>
-                            <div class="col-auto d-flex align-items-end">
-                                <div class="form-check float-start small-text">
-                                    <input class="form-check-input" type="checkbox" value="1" id="checkMutasiCutoff">
-                                    <label class="form-check-label" for="checkMutasiCutoff">Hanya Mutasi</label>
-                                </div>
+                            <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Approval Status</p>
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectApprovalStatus" title="Pilih Approval Status" onchange="arrangeVariable()">
+                                </select>
                             </div>
-                            <div class="col-auto d-flex align-items-end">
+                            <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Shipment Status</p>
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectShipmentStatus" title="Pilih Shipment Status" onchange="arrangeVariable()">
+                                </select>
+                            </div>
+                            <div class="col-auto ps-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-auto d-flex align-items-end">
-                        <div class="dropdown">
+                        <!-- <div class="dropdown">
                             <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="exportExcel()">Excel</a></li>
                             </ul>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -69,7 +73,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </main>
@@ -290,12 +293,17 @@
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
-    var data_item = ""
+    var data_machine = []
+    var data_shipment_status = []
+    var data_approval_status = []
     var data_report = ""
     var date_start = getFirstDate()
     var date_end = currentDate()
     var detailMode = false
     var is_mutation_only = 0
+    var shipmentStatus = []
+    var approvalStatus = []
+    var machineId = []
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
@@ -316,9 +324,12 @@
 
     function loadData() {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            url: "<?= api_url('loadPageMaterialRequestHistory'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                employeeId: user_id,
+            },
             error: function(xhr) {
                 showOverlay('hide')
                 Swal.fire({
@@ -332,9 +343,11 @@
             },
             success: function(response) {
                 showOverlay('hide')
-                data_item = response['data']['item'];
+                data_machine = response['data']['machine'];
+                data_shipment_status = response['data']['shipmentStatus'];
+                data_approval_status = response['data']['approvalStatus'];
                 setDaterange()
-                formItem()
+                formMachine()
                 dateRangeString()
             }
         })
@@ -362,44 +375,74 @@
         })
     }
 
-    function formItem() {
+    function formMachine() {
         var html = ''
-        data_item.forEach(e => {
+        data_machine.forEach(e => {
             var select = ''
             select = 'selected'
             html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
         });
-        $('#selectItem').html(html)
-        $('#selectItem').selectpicker('refresh');
-        $('#selectItem').selectpicker({
+        $('#selectMachine').html(html)
+        $('#selectMachine').selectpicker('refresh');
+        $('#selectMachine').selectpicker({
 
         });
-        // autoSave()
-        // simpanData()
+        formApprovalStatus()
+    }
+
+    function formApprovalStatus() {
+        var html = ''
+        data_approval_status.forEach(e => {
+            var select = ''
+            select = 'selected'
+            html += '<option value="' + e + '" ' + select + '>' + e + '</option>'
+        });
+        $('#selectApprovalStatus').html(html)
+        $('#selectApprovalStatus').selectpicker('refresh');
+        $('#selectApprovalStatus').selectpicker({
+
+        });
+        formShipmentStatus()
+    }
+
+    function formShipmentStatus() {
+        var html = ''
+        data_shipment_status.forEach(e => {
+            var select = ''
+            select = 'selected'
+            html += '<option value="' + e + '" ' + select + '>' + e + '</option>'
+        });
+        $('#selectShipmentStatus').html(html)
+        $('#selectShipmentStatus').selectpicker('refresh');
+        $('#selectShipmentStatus').selectpicker({
+
+        });
         arrangeVariable()
     }
 
-    function arrangeVariable() {}
-
-    function simpanData() {
-        itemId = $('#selectItem').map(function() {
+    function arrangeVariable() {
+        machineId = $('#selectMachine').map(function() {
             return $(this).val();
         }).get();
-        var mutasi = $('#checkMutasiCutoff:checked').val()
-        if (mutasi == undefined) {
-            is_mutation_only = 0
-        } else {
-            is_mutation_only = mutasi
-        }
-        // ----------------------------------------- //
+        approvalStatus = $('#selectApprovalStatus').map(function() {
+            return $(this).val();
+        }).get();
+        shipmentStatus = $('#selectShipmentStatus').map(function() {
+            return $(this).val();
+        }).get();
+    }
+
+    function simpanData() {
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_url('Api_Warehouse/mutasiStock'); ?>'
+        var url = '<?php echo api_url('getMaterialRequestHistory'); ?>'
         var data = {
-            date_start: date_start,
-            date_end: date_end,
-            item_id: itemId,
-            is_mutation_only: is_mutation_only,
+            employeeId: user_id,
+            dateStart: date_start,
+            dateEnd: date_end,
+            shipmentStatus: shipmentStatus,
+            approvalStatus: approvalStatus,
+            machineId: machineId,
         }
         kelolaData(data, type, url, button)
     }
@@ -426,11 +469,16 @@
                 showOverlay('hide')
                 dateRangeString()
                 $(button).prop("disabled", false);
-                data_report = response.data
-                if (data_report.length) {
-                    updatedStructure()
+                data_report = response.data.materialRequestHistory
+                // console.log(data_report)
+                if (data_report) {
+                    if (data_report.length) {
+                        updatedStructure()
+                    } else {
+                        // tidak ada data
+                        $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
+                    }
                 } else {
-                    // tidak ada data
                     $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
                 }
             }
@@ -456,35 +504,37 @@
     function headTable() {
         var html = ''
         html += '<tr>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">#</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Nama</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Satuan</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Stock<br>Awal</th>'
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            html += '<th class=" align-middle text-center small-text" colspan="' + (value['data_perhari'].length * 4) + '">' + value['bulan'] + '</th>'
-        })
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>IN</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>IN OTHER</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>OUT</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>OUT OTHER</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Stock<br>Akhir</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" rowspan="2">#</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" rowspan="2">Date</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" rowspan="2">Code</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" rowspan="2">Item</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" rowspan="2">Machine</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" rowspan="2">Warehouse</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" colspan="5">Request</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" colspan="5">Approve</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;" colspan="3">Receive</th>'
         html += '</tr>'
+
         html += '<tr>'
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            $.each(value['data_perhari'], function(keys, values) {
-                html += '<th class="align-middle text-center small-text" style="width:200px" colspan="4">' + values['perhari'] + '</th>'
-            })
-        })
-        html += '</tr>'
-        html += '<tr>'
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            $.each(value['data_perhari'], function(keys, values) {
-                html += '<th class="align-middle text-center small-text">IN</th>'
-                html += '<th class="align-middle text-center small-text">IN<br>OTHERS</th>'
-                html += '<th class="align-middle text-center small-text">OUT</th>'
-                html += '<th class="align-middle text-center small-text">OUT<br>OTHERS</th>'
-            })
-        })
+        // process
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Qty</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Unit</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Status</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">At</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">By</th>'
+        // process
+        // approve
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Qty</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Unit</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Status</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">At</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">By</th>'
+        // approve
+        // receive
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Status</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">At</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">By</th>'
+        // receive
         html += '</tr>'
         $('#headTable').html(html)
         bodyTable()
@@ -493,39 +543,84 @@
     function bodyTable() {
         var html = ''
         $.each(data_report, function(key, value) {
+            if (value.qty_request == null) {
+                value.qty_request = 0
+            }
+            if (value.qty_approve == null) {
+                value.qty_approve = 0
+            }
+            var badgeProcess = ''
+            if (value.is_process == 1) {
+                badgeProcess = '<span class="badge bg-success"><i class="fa fa-check"></i></span>'
+            } else if (value.is_process == 0) {
+                badgeProcess = '<span class="badge bg-danger"><i class="fa fa-times"></i></span>'
+            }
+            var badgeApprove = ''
+            if (value.is_approve == 1) {
+                badgeApprove = '<span class="badge bg-success"><i class="fa fa-check"></i></span>'
+            } else if (value.is_approve == 0) {
+                badgeApprove = '<span class="badge bg-danger"><i class="fa fa-times"></i></span>'
+            }
+            var badgeReceive = ''
+            if (value.is_receive == 1) {
+                badgeReceive = '<span class="badge bg-success"><i class="fa fa-check"></i></span>'
+            } else if (value.is_receive == 0) {
+                badgeReceive = '<span class="badge bg-danger"><i class="fa fa-times"></i></span>'
+            }
             html += '<tr>'
             html += '<td style="background-color: white;" class="align-middle small-text">' + (parseInt(key) + 1) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text wrap-text">' + shortenText(value['name'], 80) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['satuan_name'] + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(value['stok_awal'])) + '</td>'
-            var total_in = 0
-            var total_inother = 0
-            var total_out = 0
-            var total_outother = 0
-            $.each(JSON.parse(value['datas']), function(key2, value2) {
-                $.each(value2['data_perhari'], function(key3, value3) {
-                    total_in += parseFloat(value3['total_mutasi']['jumlah_in'])
-                    total_inother += parseFloat(value3['total_mutasi']['jumlah_in_other'])
-                    total_out += parseFloat(value3['total_mutasi']['jumlah_out'])
-                    total_outother += parseFloat(value3['total_mutasi']['jumlah_out_other'])
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_in']) + '</td>'
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_in_other']) + '</td>'
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_out']) + '</td>'
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_out_other']) + '</td>'
-                })
-            })
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_in)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_inother)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_out)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_outother)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(value['stok_akhir'])) + '</td>'
-            html += '</tr>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.date + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.item.code + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text" title="' + value.item.name + '">' + shortenText(value.item.name, 50) + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.machine.name + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.warehouse.name + '</td>'
+            // process
+            if (value.process_at) {
+                html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value.qty_request) + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.unit_request.name + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + badgeProcess + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + getDateTime(value.process_at) + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + shortenName(value.employee_id_processed.name, 2) + '</td>'
+            } else {
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+            }
+            // process
+            // approve
+            if (value.approve_at) {
+                html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value.qty_approve) + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.unit_approve.name + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + badgeApprove + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + getDateTime(value.approve_at) + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + shortenName(value.employee_id_approved.name, 2) + '</td>'
+            } else {
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+            }
+            // approve
+            // receive
+            if (value.receive_at) {
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + badgeReceive + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + getDateTime(value.receive_at) + '</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">' + shortenName(value.employee_id_received.name, 2) + '</td>'
+            } else {
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+                html += '<td style="background-color: white;" class="align-middle small-text text-center">-</td>'
+            }
+            // receive
         })
         $('#bodyTable').html(html)
         $('#tableDetail').DataTable({
             ordering: false, // Menonaktifkan pengurutan
             pageLength: 200,
-            scrollY: "400px",
+            scrollY: "700px",
             scrollX: true,
             scrollCollapse: true,
             paging: false,
@@ -544,7 +639,7 @@
             viewBy = 'Detail'
         }
         eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn' + viewBy + '"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + itemId + "*$" + viewBy + "*$" + merge;
+        var params = "*$" + date_start + "*$" + date_end + "*$" + supplierId + "*$" + viewBy + "*$" + merge;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 
@@ -585,11 +680,9 @@
     }
 
     function exportExcel() {
-        itemId = $('#selectItem').map(function() {
-            return $(this).val();
-        }).get().toString()
-        var url = '<?= base_url('report/exportLaporanGudang') ?>';
-        var params = "*$" + itemId + "*$" + date_start + "*$" + date_end;
+        supplier_id = $('#selectMachine').val()
+        var url = '<?= base_url('report/exportReportPO') ?>';
+        var params = "*$" + supplier_id + "*$" + date_start + "*$" + date_end;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 

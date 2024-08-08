@@ -29,6 +29,37 @@ class Order extends CI_Controller
         $data['title'] = 'Request & Order';
         $this->template->views('order/purchase_order', $data);
     }
+    public function managePR()
+    {
+        $data['title'] = 'PR - Purchase Requisition';
+        $this->template->views('order/manage_pr', $data);
+    }
+    public function managePO()
+    {
+        $data['title'] = 'PO - Purchase Order';
+        $this->template->views('order/manage_po', $data);
+    }
+    public function addNewPR($id = '')
+    {
+        $data['title'] = 'Add New PR';
+        $data['id'] = $id;
+        $this->template->views('order/add_new_pr', $data);
+    }
+    public function addNewPO($idPr = '', $id = '')
+    {
+        $data['title'] = 'Add New PO';
+        if ($idPr == 'default') {
+            $idPr = '';
+        }
+        $data['idPr'] = $idPr;
+        $data['id'] = $id;
+        $this->template->views('order/add_new_po', $data);
+    }
+    public function transactionSuratJalan()
+    {
+        $data['title'] = 'Tracking Surat Jalan';
+        $this->template->views('order/transaction_sj', $data);
+    }
     public function transaction()
     {
         $data['title'] = 'Transaction';
@@ -39,10 +70,20 @@ class Order extends CI_Controller
         $data['title'] = 'Logistic';
         $this->template->views('order/logistic', $data);
     }
+    public function logisticNew()
+    {
+        $data['title'] = 'Logistic';
+        $this->template->views('order/logistic_new', $data);
+    }
     public function payments()
     {
         $data['title'] = 'Payments';
         $this->template->views('order/payments', $data);
+    }
+    public function po_payments()
+    {
+        $data['title'] = 'PO Payments';
+        $this->template->views('order/po_payments', $data);
     }
     public function detailPR($id)
     {

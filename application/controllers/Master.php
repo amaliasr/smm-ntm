@@ -47,4 +47,9 @@ class Master extends CI_Controller
         $data['title'] = 'Master Waste Group';
         $this->template->views('master/waste_group', $data);
     }
+    public function generalLedger()
+    {
+        $data['title'] = 'Master General Ledger';
+        $this->template->views('master/general_ledger', $data);
+    }
 }

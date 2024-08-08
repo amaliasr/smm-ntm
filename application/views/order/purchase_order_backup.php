@@ -1481,10 +1481,10 @@
         $('#unit_pr' + key).empty()
         var id = $(this).val()
         let obj = data_item.find((value, key) => {
-            if (value.id == id) return true
+            if (value.id === id) return true
         })['data_konversi']
         var satuan_tetap = data_item.find((value, key) => {
-            if (value.id == id) return true
+            if (value.id === id) return true
         });
         // console.log(satuan_tetap)
         var html_body = ""

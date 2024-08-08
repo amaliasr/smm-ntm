@@ -16,7 +16,7 @@
     <div class="container-xl mt-n10">
         <div class="row justify-content-center mb-2">
             <div class="col pb-2">
-                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT MUTASI GUDANG</h1>
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">HISTORY PAYMENTS</h1>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
@@ -29,31 +29,20 @@
                                 <p class="fw-bolder small-text m-0">Tanggal</p>
                                 <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
                             </div>
-                            <div class="col-auto ps-0">
-                                <p class="fw-bolder small-text m-0">Item</p>
-                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItem" title="Pilih Mesin" onchange="arrangeVariable()">
-                                </select>
-                            </div>
-                            <div class="col-auto d-flex align-items-end">
-                                <div class="form-check float-start small-text">
-                                    <input class="form-check-input" type="checkbox" value="1" id="checkMutasiCutoff">
-                                    <label class="form-check-label" for="checkMutasiCutoff">Hanya Mutasi</label>
-                                </div>
-                            </div>
-                            <div class="col-auto d-flex align-items-end">
+                            <div class="col-auto ps-0 d-flex align-items-end">
                                 <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-auto d-flex align-items-end">
-                        <div class="dropdown">
+                        <!-- <div class="dropdown">
                             <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="exportExcel()">Excel</a></li>
                             </ul>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -69,7 +58,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </main>
@@ -290,7 +278,7 @@
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
-    var data_item = ""
+    var data_supplier = ""
     var data_report = ""
     var date_start = getFirstDate()
     var date_end = currentDate()
@@ -315,29 +303,8 @@
     }
 
     function loadData() {
-        $.ajax({
-            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
-            },
-            beforeSend: function() {
-                showOverlay('show')
-            },
-            success: function(response) {
-                showOverlay('hide')
-                data_item = response['data']['item'];
-                setDaterange()
-                formItem()
-                dateRangeString()
-            }
-        })
+        setDaterange()
+        dateRangeString()
     }
 
     function dateRangeString() {
@@ -362,44 +329,16 @@
         })
     }
 
-    function formItem() {
-        var html = ''
-        data_item.forEach(e => {
-            var select = ''
-            select = 'selected'
-            html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
-        });
-        $('#selectItem').html(html)
-        $('#selectItem').selectpicker('refresh');
-        $('#selectItem').selectpicker({
-
-        });
-        // autoSave()
-        // simpanData()
-        arrangeVariable()
-    }
-
-    function arrangeVariable() {}
 
     function simpanData() {
-        itemId = $('#selectItem').map(function() {
-            return $(this).val();
-        }).get();
-        var mutasi = $('#checkMutasiCutoff:checked').val()
-        if (mutasi == undefined) {
-            is_mutation_only = 0
-        } else {
-            is_mutation_only = mutasi
-        }
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_url('Api_Warehouse/mutasiStock'); ?>'
+        var url = '<?php echo api_url('getPaymentHistory'); ?>'
         var data = {
-            date_start: date_start,
-            date_end: date_end,
-            item_id: itemId,
-            is_mutation_only: is_mutation_only,
+            dateStart: date_start,
+            dateEnd: date_end,
+            userId: user_id,
         }
         kelolaData(data, type, url, button)
     }
@@ -426,11 +365,15 @@
                 showOverlay('hide')
                 dateRangeString()
                 $(button).prop("disabled", false);
-                data_report = response.data
-                if (data_report.length) {
-                    updatedStructure()
+                data_report = response.data.paymentHistory
+                if (data_report) {
+                    if (data_report.length) {
+                        updatedStructure()
+                    } else {
+                        // tidak ada data
+                        $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
+                    }
                 } else {
-                    // tidak ada data
                     $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
                 }
             }
@@ -456,35 +399,15 @@
     function headTable() {
         var html = ''
         html += '<tr>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">#</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Nama</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Satuan</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Stock<br>Awal</th>'
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            html += '<th class=" align-middle text-center small-text" colspan="' + (value['data_perhari'].length * 4) + '">' + value['bulan'] + '</th>'
-        })
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>IN</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>IN OTHER</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>OUT</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Total<br>OUT OTHER</th>'
-        html += '<th class="align-middle text-center small-text" rowspan="3" style="background-color: white;">Stock<br>Akhir</th>'
-        html += '</tr>'
-        html += '<tr>'
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            $.each(value['data_perhari'], function(keys, values) {
-                html += '<th class="align-middle text-center small-text" style="width:200px" colspan="4">' + values['perhari'] + '</th>'
-            })
-        })
-        html += '</tr>'
-        html += '<tr>'
-        $.each(JSON.parse(data_report[0]['datas']), function(key, value) {
-            $.each(value['data_perhari'], function(keys, values) {
-                html += '<th class="align-middle text-center small-text">IN</th>'
-                html += '<th class="align-middle text-center small-text">IN<br>OTHERS</th>'
-                html += '<th class="align-middle text-center small-text">OUT</th>'
-                html += '<th class="align-middle text-center small-text">OUT<br>OTHERS</th>'
-            })
-        })
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">#</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">No. Invoice</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Tgl. Bayar</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Supplier</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">No. PO</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Nominal</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Type</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Created By</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Note</th>'
         html += '</tr>'
         $('#headTable').html(html)
         bodyTable()
@@ -493,33 +416,19 @@
     function bodyTable() {
         var html = ''
         $.each(data_report, function(key, value) {
+            if (value['nominal'] == null) {
+                value['nominal'] = 0
+            }
             html += '<tr>'
-            html += '<td style="background-color: white;" class="align-middle small-text">' + (parseInt(key) + 1) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text wrap-text">' + shortenText(value['name'], 80) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['satuan_name'] + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(value['stok_awal'])) + '</td>'
-            var total_in = 0
-            var total_inother = 0
-            var total_out = 0
-            var total_outother = 0
-            $.each(JSON.parse(value['datas']), function(key2, value2) {
-                $.each(value2['data_perhari'], function(key3, value3) {
-                    total_in += parseFloat(value3['total_mutasi']['jumlah_in'])
-                    total_inother += parseFloat(value3['total_mutasi']['jumlah_in_other'])
-                    total_out += parseFloat(value3['total_mutasi']['jumlah_out'])
-                    total_outother += parseFloat(value3['total_mutasi']['jumlah_out_other'])
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_in']) + '</td>'
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_in_other']) + '</td>'
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_out']) + '</td>'
-                    html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value3['total_mutasi']['jumlah_out_other']) + '</td>'
-                })
-            })
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_in)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_inother)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_out)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(total_outother)) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(roundToOne(value['stok_akhir'])) + '</td>'
-            html += '</tr>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + (parseInt(key) + 1) + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['doc_number'] + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + formatDate(value['datetime']) + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['supplier'].name + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['po'].no_po + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value['nominal']) + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['type'] + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['employee_creator'].name + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value['note'] + '</td>'
         })
         $('#bodyTable').html(html)
         $('#tableDetail').DataTable({
@@ -530,12 +439,9 @@
             scrollCollapse: true,
             paging: false,
             fixedHeader: true,
-            fixedColumns: {
-                left: 4
-            },
             paging: false,
         })
-        table_scroll('tableDetail')
+        // table_scroll('tableDetail')
     }
 
     function cetakReport(x, y, merge) {
@@ -544,7 +450,7 @@
             viewBy = 'Detail'
         }
         eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn' + viewBy + '"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + itemId + "*$" + viewBy + "*$" + merge;
+        var params = "*$" + date_start + "*$" + date_end + "*$" + supplierId + "*$" + viewBy + "*$" + merge;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 
@@ -585,11 +491,9 @@
     }
 
     function exportExcel() {
-        itemId = $('#selectItem').map(function() {
-            return $(this).val();
-        }).get().toString()
-        var url = '<?= base_url('report/exportLaporanGudang') ?>';
-        var params = "*$" + itemId + "*$" + date_start + "*$" + date_end;
+        supplier_id = $('#selectItem').val()
+        var url = '<?= base_url('report/exportReportPO') ?>';
+        var params = "*$" + supplier_id + "*$" + date_start + "*$" + date_end;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 

@@ -185,6 +185,51 @@
         background-color: #c5ccd6;
         color: white;
     }
+
+    .bg-body-0 {
+        background-color: #eff9fc !important;
+    }
+
+    .bg-body-1 {
+        background-color: #f3fcf6 !important;
+    }
+
+    .bg-body-2 {
+        background-color: #fdfdf7 !important;
+    }
+
+    .bg-body-3 {
+        background-color: #fdf9f9 !important;
+    }
+
+    .bg-head-0 {
+        background-color: #CAEDF6 !important;
+    }
+
+    .bg-head-1 {
+        background-color: #D9F8E4 !important;
+    }
+
+    .bg-head-2 {
+        background-color: #FBFBE7 !important;
+    }
+
+    .bg-head-3 {
+        background-color: #FBEEEE !important;
+    }
+
+    .dtfc-right-top-blocker {
+        background-color: white;
+    }
+
+    .bg-head-total {
+        background-color: #6DC5D1 !important;
+        color: white;
+    }
+
+    .bg-body-total {
+        background-color: #b6e2e8 !important;
+    }
 </style>
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
@@ -204,7 +249,7 @@
         <div class="row justify-content-center mb-2">
             <div class="col pb-2">
                 <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REPORT PERSON SALARY</h1>
-                <h5 class="fw-bolder m-0 text-orange mb-2">GILING</h5>
+                <h5 class="fw-bolder m-0 text-primary mb-2">VERPACK</h5>
                 <p class="m-0 small" id="dateRangeString">-</p>
             </div>
         </div>
@@ -223,10 +268,10 @@
                                 </select>
                             </div>
                             <div class="col-auto p-0">
-                                <p class="fw-bolder small-text m-0">View By</p>
-                                <select class="selectpicker w-100" id="selectView" title="Pilih View By" onchange="arrangeVariable()">
-                                    <option value="false" selected>SUMMARY</option>
-                                    <option value="true">DETAIL</option>
+                                <p class="fw-bolder small-text m-0">Data Profile</p>
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectTipeData" title="Pilih Tipe Data" onchange="arrangeVariable()">
+                                    <option value="SMM">SMM</option>
+                                    <option value="OTHER">Other</option>
                                 </select>
                             </div>
                             <div class="col-auto d-flex align-items-end">
@@ -240,14 +285,8 @@
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',0)">PDF (Raw)</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('pdf',1)">PDF (Formatted)</a></li> -->
-                                <li class="ps-3"><b class="small-text text-grey">Date Merged</b></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0,1)">Excel Summary</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',1,1)">Excel Detail</a></li>
-                                <li class="ps-3"><b class="small-text text-grey">Date Splited</b></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0,0)">Excel Summary</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',1,0)">Excel Detail</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',1)">Excel Extra<span class="badge bg-orange ms-2 p-1" style="font-size: 6px;">1 Sheet</span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -257,29 +296,12 @@
             <div class="col-12 mb-2">
                 <div class="card shadow-none border-radius-20">
                     <div class="card-body">
-                        <p class="fw-bolder m-0">Detail</p>
+                        <div id="listDate">
+                        </div>
                         <div class="table-responsible" id="dataTable">
 
                         </div>
 
-                    </div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
-                    </div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
-                    </div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card shadow-none border-radius-20">
-                    <div class="card-body">
                     </div>
                 </div>
             </div>
@@ -570,7 +592,7 @@
         var html = ''
         data_user.machine.forEach(e => {
             var select = ''
-            if (e.id == 15) {
+            if (e.id == 14) {
                 select = 'selected'
             }
             html += '<option value="' + e.id + '" ' + select + '>' + e.code + '</option>'
@@ -589,19 +611,21 @@
         machineId = arrayToString($('#selectMachine').map(function() {
             return $(this).val();
         }).get())
-        detailMode = JSON.parse($('#selectView').val())
+        dataProfile = arrayToString($('#selectTipeData').map(function() {
+            return $(this).val();
+        }).get())
     }
 
     function simpanData() {
-
         // ----------------------------------------- //
         var type = 'GET'
         var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResultPersonEarn'); ?>'
+        var url = '<?php echo api_produksi('getReportResultPersonEarnStep'); ?>'
         var data = {
             dateStart: date_start,
             dateEnd: date_end,
-            machineId: machineId
+            machineId: machineId,
+            dataProfile: dataProfile,
         }
         kelolaData(data, type, url, button)
     }
@@ -629,7 +653,8 @@
                 dateRangeString()
                 $(button).prop("disabled", false);
                 data_report = response.data
-                if (data_report.reportResultPersonEarn.length) {
+                // console.log(data_report)
+                if (data_report.reportResultPersonEarn.result.length) {
                     updatedStructure()
                 } else {
                     // tidak ada data
@@ -638,153 +663,324 @@
             }
         });
     }
+    var dataFiltered
+    var showDataSetoran = false
+    var showFitData = true
+    var dateClicked
+    var findAvailableBrand = []
+    var uniqueAvailableBrand = {}
+    var listDate = []
 
     function updatedStructure() {
-        dataTable()
-    }
-
-    function dataTable() {
         var html = ''
-        html += '<table class="table table-bordered table-hover table-sm small w-100" id="tableDetail">'
-        html += '<thead id="headTable">'
-        html += '</thead>'
-        html += '<tbody id="bodyTable">'
-        html += '</tbody>'
-        html += '</table>'
-        $('#dataTable').html(html)
-        nameDetail()
+        listDate = data_report.reportResultPersonEarn.headerDate
+        html += '<div class="row mb-2">'
+        html += '<div class="col">'
+        listDate.forEach(e => {
+            html += '<button class="btn btn-sm btn-outline-success small-text border-radius-20 shadow-none btnSlide me-2" type="button" id="btnSlide' + e.date + '" onclick="dataTable(' + "'" + e.date + "'" + ')">' + e.date + '</button>'
+        });
+        html += '</div>'
+        html += '<div class="col text-end">'
+        html += '<button class="btn btn-sm btn-outline-primary small-text border-radius-20 shadow-none" id="btnTotalSetoran" onclick="tampilTotalSetoran()">Tampil Total <span class="ms-1" id="namaTotalSetoran">Setoran</span></button>'
+        html += '<button class="btn btn-sm btn-primary small-text border-radius-20 shadow-none ms-2" id="btnFitData" onclick="onFitData()">Fit Data<i class="ms-2 fa fa-check text-success" id="checkFitData"></i></button>'
+        html += '</div>'
+        $('#listDate').html(html)
+        if (!dataFiltered) {
+            chooseDate(listDate[0].date)
+        }
     }
 
-    function nameDetail() {
-        var numberDetail = {}
-        data_report.reportResultPersonEarn.forEach(a => {
-            a.data.forEach(b => {
-                if (detailMode) {
-                    var num = b[Object.keys(b)[0]].detail_total.length
-                } else {
-                    var num = 0
-                }
-                if (numberDetail[Object.keys(b)[0]]) {
-                    if (num > numberDetail[Object.keys(b)[0]]) {
-                        numberDetail[Object.keys(b)[0]] = num
+    function tampilTotalSetoran() {
+        if (showDataSetoran) {
+            showDataSetoran = false
+            $('#btnTotalSetoran').removeClass('btn-primary').addClass('btn-outline-primary')
+            $('#namaTotalSetoran').html('Setoran')
+        } else {
+            showDataSetoran = true
+            $('#btnTotalSetoran').removeClass('btn-outline-primary').addClass('btn-primary')
+            $('#namaTotalSetoran').html('Upah')
+        }
+        chooseDate(dateClicked)
+    }
+
+    function onFitData() {
+        if (showFitData) {
+            showFitData = false
+            $('#checkFitData').prop('hidden', true)
+            $('#btnFitData').removeClass('btn-primary').addClass('btn-outline-primary')
+        } else {
+            showFitData = true
+            $('#checkFitData').prop('hidden', false)
+            $('#btnFitData').removeClass('btn-outline-primary').addClass('btn-primary')
+        }
+        dataTable(dateClicked)
+    }
+
+    var dataDetail = []
+
+    function chooseDate(date) {
+        findAvailableBrand = []
+        dataDetail = []
+        uniqueAvailableBrand = {}
+        listDate.forEach(d => {
+            findAvailableBrand = []
+            data_report.reportResultPersonEarn.result.forEach(e => {
+                var detail = []
+                if (e.dates) {
+                    var dataDate = e.dates.find((v, k) => {
+                        if (v[d.date]) return true
+                    })
+                    if (dataDate) {
+                        dataDate = dataDate[d.date]
+                    } else {
+                        dataDate = undefined
                     }
                 } else {
-                    numberDetail[Object.keys(b)[0]] = num
+                    var dataDate = undefined
                 }
-            });
+                var totalEarn = 0
+                var a = 0
+                data_report.reportResultPersonEarn.headerStepProduct.forEach(ek => {
+                    if (dataDate) {
+                        var dataStepProfile = dataDate.result_earn_step_profiles.find((v, k) => {
+                            if (v[ek.id]) return true
+                        })
+                        if (dataStepProfile) {
+                            dataStepProfile = dataStepProfile[ek.id]
+                        } else {
+                            dataStepProfile = undefined
+                        }
+                    } else {
+                        var dataStepProfile = undefined
+                    }
+                    ek.products.forEach(el => {
+                        if (dataStepProfile) {
+                            var dataProducts = dataStepProfile.products.find((v, k) => {
+                                if (v[el.id]) return true
+                            })
+                            if (dataProducts) {
+                                dataProducts = dataProducts[el.id]
+                            } else {
+                                dataProducts = undefined
+                            }
+                        } else {
+                            var dataProducts = undefined
+                        }
+
+                        var jumlahQty = '-'
+                        if (dataProducts) {
+                            findAvailableBrand.push({
+                                'step_id': ek.id,
+                                'product_id': el.id,
+                                'date': d.date
+                            })
+                            if (!dataProducts.earn) {
+                                dataProducts.earn = 0
+                            }
+                            var qty = dataProducts.earn
+                            if (showDataSetoran) {
+                                if (!dataProducts.qty_rpp) {
+                                    dataProducts.qty_rpp = 0
+                                }
+                                qty = dataProducts.qty_rpp
+                            }
+                            totalEarn += qty
+                            jumlahQty = qty
+                        }
+                        detail.push({
+                            'a': a,
+                            'step_id': ek.id,
+                            'product_id': el.id,
+                            'qty': jumlahQty
+                        })
+
+                    })
+                    a++
+                })
+                dataDetail.push({
+                    'date': d.date,
+                    'worker_id': e.employee.id,
+                    'worker_eid': e.employee.eid,
+                    'worker_name': e.employee.name,
+                    'row_code': e.row_code,
+                    'totalEarn': totalEarn,
+                    'detail': detail,
+                })
+            })
+            uniqueAvailableBrand[d.date] = removeDuplicates(findAvailableBrand)
         });
-        // data_report.reportResultPersonEarn[0].data.forEach(b => {
-        //     if (detailMode) {
-        //         var num = b[Object.keys(b)[0]].detail_total.length
-        //     } else {
-        //         var num = 0
-        //     }
-        //     numberDetail[Object.keys(b)[0]] = num
-        // });
-        // console.log(numberDetail)
-        headTable(numberDetail)
+        // console.log(dataDetail)
+        // console.log(uniqueAvailableBrand)
+        dataTable(date)
     }
 
-    function headTable(numberDetail) {
+    function loadingReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/loading.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function dataTable(date) {
+        dateClicked = date
+        // var filterDataDetail = dataDetail.filter((v, k) => {
+        //     if (v.date == date) return true
+        // })
+        var checkDate = uniqueAvailableBrand[date]
+        $('.btnSlide').removeClass('btn-success text-white').addClass('btn-outline-success')
+        $('#btnSlide' + date + '').addClass('btn-success text-white')
+        var html = ''
+        if (checkDate.length) {
+            html += '<table class="table table-bordered table-hover table-sm small w-100 mt-3" id="tableDetail">'
+            html += '<thead id="headTable">'
+            html += '</thead>'
+            html += '<tbody id="bodyTable">'
+            html += '</tbody>'
+            html += '<tfoot id="footTable">'
+            html += '</tfoot>'
+            html += '</table>'
+        } else {
+            html += '<div class="m-5">'
+            html += '<p class="text-center"><i>Tidak ada data</i></p>'
+            html += '</div>'
+        }
+        $('#dataTable').html(html)
+        nameDetail(date)
+    }
+
+    function nameDetail(date) {
+        var dataDetail = {}
+        headTable(date)
+    }
+
+
+    function headTable(date) {
         var html = ''
         html += '<tr>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">EID</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">Nama</th>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">No. Meja</th>'
-        const dates = data_report.reportResultPersonEarn[0].data.map(item => Object.keys(item)[0]);
-        for (let i = 0; i < dates.length; i++) {
-            var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
-                if (v.date == dates[i]) return true
-            })
-            var bgOver = ''
-            var badgeOver = ''
-            if (dataDate.is_overtime) {
-                bgOver = 'bg-orange-light'
-                badgeOver = '<span class="badge bg-orange ms-2" style="font-size:5px;vertical-align: middle;padding-top:3px;">OVERTIME</span>'
-            }
-            html += '<th class="align-middle ' + bgOver + '" colspan="' + (3 + (parseInt(numberDetail[dates[i]]) * 2)) + '">'
-            html += '<p class="m-0 fw-bolder">' + formatJustDay(dates[i]) + '</p>'
-            html += '<p class="m-0 super-small-text fw-normal">' + dates[i] + '' + badgeOver + '</p>'
-            html += '</th>'
-        }
-        html += '<th class="align-middle" rowspan="2">Total Salary</th>'
+        var a = 0
+        var html_below = ''
+        // console.log(uniqueAvailableBrand)
+        data_report.reportResultPersonEarn.headerStepProduct.forEach(e => {
+            e.products.forEach(el => {
+                if (showFitData) {
+                    var findAvailableBrands = uniqueAvailableBrand[date].find((v, k) => {
+                        if (e.id == v.step_id && el.id == v.product_id) return true
+                    })
+                } else {
+                    var findAvailableBrands = true
+                }
+                if (findAvailableBrands) {
+                    html += '<th class="align-middle px-2 bg-head-' + a + '">' + e.name + '</th>'
+                    html_below += '<th class="align-middle bg-head-' + a + '">' + el.name + '</th>'
+                }
+            });
+            a++
+        });
+        html += '<th class="align-middle bg-head-total" rowspan="2">Jumlah<br>Total</th>'
         html += '</tr>'
 
         html += '<tr>'
-        for (let i = 0; i < dates.length; i++) {
-            var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
-                if (v.date == dates[i]) return true
-            })
-            var bgOver = ''
-            if (dataDate.is_overtime) {
-                bgOver = 'bg-orange-light'
-            }
-            if (detailMode) {
-                if (numberDetail[dates[i]]) {
-                    html += '<th class="align-middle ' + bgOver + '">QTY<br>Pokok</th>'
-                    html += '<th class="align-middle ' + bgOver + '">Earn<br>Pokok</th>'
-                    if (numberDetail[dates[i]] > 1) {
-                        html += '<th class="align-middle ' + bgOver + '">QTY<br>Incentive</th>'
-                        html += '<th class="align-middle ' + bgOver + '">Earn<br>Incentive</th>'
-                    }
-                }
-
-            }
-            html += '<th class="align-middle ' + bgOver + '">Total<br>QTY</th>'
-            html += '<th class="align-middle ' + bgOver + '">Total<br>Earn</th>'
-            html += '<th class="align-middle ' + bgOver + '">Total<br>Setor</th>'
-        }
+        html += html_below
         html += '</tr>'
         $('#headTable').html(html)
-        bodyTable(numberDetail)
+        bodyTable(date)
     }
 
-    function bodyTable(numberDetail) {
+    function bodyTable(date) {
+        findAvailableBrand = []
+        var footData = {}
+        var footTotal = 0
         var html = ''
-        var a = 1
-        data_report.reportResultPersonEarn.forEach(e => {
-
+        var no = 1
+        var filterDataDetail = dataDetail.filter((v, k) => {
+            if (v.date == date) return true
+        })
+        filterDataDetail.forEach(e => {
             html += '<tr>'
-            html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
-            html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
-            html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.employee.name + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + no++ + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">' + e.worker_eid + '</td>'
+            html += '<td class="text-center small-text text-nowrap" style="background-color: white;">' + e.worker_name + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.row_code + '</td>'
-            e.data.forEach(el => {
-                var dataDate = data_report.reportResultPersonEarnDate.find((v, k) => {
-                    if (v.date == Object.keys(el)[0]) return true
-                })
-                var bgOver = ''
-                if (dataDate.is_overtime) {
-                    bgOver = 'bg-orange-light'
+            e.detail.forEach(el => {
+                var qtyName = el.qty
+                if (qtyName != '-') {
+                    qtyName = number_format(roundToTwo(el.qty))
                 }
-                var bgDanger = ''
-                if (el[Object.keys(el)[0]].reject_left) {
-                    bgDanger = 'bg-light-danger'
-                }
-                if (detailMode) {
-                    for (let i = 0; i < numberDetail[Object.keys(el)[0]]; i++) {
-                        var dataDetail = el[Object.keys(el)[0]].detail_total[i]
-                        if (dataDetail) {
-                            var valuesDataDetail = Object.values(dataDetail);
-                            for (let j = 0; j < valuesDataDetail.length; j++) {
-                                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(valuesDataDetail[j]) + '</td>'
-                            }
+                if (showFitData) {
+                    var findFitData = uniqueAvailableBrand[date].find((v, k) => {
+                        if (el.step_id == v.step_id && el.product_id == v.product_id) return true
+                    })
+                    if (findFitData) {
+                        html += '<td class="text-end small-text bg-body-' + el.a + '">' + qtyName + '</td>'
+                        if (el.qty == '-') {
+                            el.qty = 0
+                        }
+                        if (!footData[el.step_id + '' + el.product_id]) {
+                            footData[el.step_id + '' + el.product_id] = parseFloat(el.qty)
                         } else {
-                            for (let j = 0; j < 2; j++) {
-                                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">-</td>'
-                            }
+                            footData[el.step_id + '' + el.product_id] += parseFloat(el.qty)
                         }
                     }
+                } else {
+                    html += '<td class="text-end small-text bg-body-' + el.a + '">' + qtyName + '</td>'
+                    if (el.qty == '-') {
+                        el.qty = 0
+                    }
+                    if (!footData[el.step_id + '' + el.product_id]) {
+                        footData[el.step_id + '' + el.product_id] = parseFloat(el.qty)
+                    } else {
+                        footData[el.step_id + '' + el.product_id] += parseFloat(el.qty)
+                    }
                 }
-                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(el[Object.keys(el)[0]].total_qty) + '</td>'
-                html += '<td class="text-center small-text ' + bgOver + '">' + number_format(roundToTwo(el[Object.keys(el)[0]].total_earn)) + '</td>'
-                html += '<td class="text-center small-text ' + bgOver + '">' + el[Object.keys(el)[0]].total_deliv + '</td>'
             });
-            html += '<td class="text-end small-text">' + number_format(roundToTwo(e.total.earn)) + '</td>'
+            footTotal += parseFloat(e.totalEarn)
+            html += '<td class="text-end small-text bg-body-total">' + number_format(roundToTwo(e.totalEarn)) + '</td>'
             html += '</tr>'
         });
+        console.log(footData)
+        let values = Object.values(footData);
+        const desiredLength = Object.keys(footData).length;
+        const resultArray = values.concat(Array(desiredLength).fill(0)).slice(0, desiredLength);
         $('#bodyTable').html(html)
+        footTable(date, footData, footTotal)
+    }
+
+    function footTable(date, footData, footTotal) {
+        var html = ''
+        html += '<tr>'
+        html += '<th class="align-middle" style="background-color: white;"></th>'
+        html += '<th class="align-middle" style="background-color: white;"></th>'
+        html += '<th class="align-middle" style="background-color: white;"></th>'
+        html += '<th class="align-middle" style="background-color: white;">Total</th>'
+        data_report.reportResultPersonEarn.headerStepProduct.forEach(e => {
+            e.products.forEach(el => {
+                if (showFitData) {
+                    var findAvailableBrands = uniqueAvailableBrand[date].find((v, k) => {
+                        if (e.id == v.step_id && el.id == v.product_id) return true
+                    })
+                } else {
+                    var findAvailableBrands = true
+                }
+                if (findAvailableBrands) {
+                    console.log(e.id + '' + el.id)
+                    if (footData[e.id + '' + el.id]) {
+                        // html += '<th class="align-middle px-2 bg-head-' + a + '">' + e.name + '</th>'
+                        html += '<th class="align-middle small-text text-end" style="background-color: white;">' + number_format(footData[e.id + '' + el.id]) + '</th>'
+                    }
+                }
+            });
+        });
+        // for (let i = 0; i < footData.length; i++) {
+        //     html += '<th class="align-middle text-end" style="background-color: white;">' + number_format(footData[i]) + '</th>'
+        // }
+        html += '<th class="align-middle small-text text-end" style="background-color: white;">' + number_format(footTotal) + '</th>'
+        html += '</tr>'
+        $('#footTable').html(html)
         $('#tableDetail').DataTable({
             ordering: false, // Menonaktifkan pengurutan
             pageLength: 200,
@@ -794,19 +990,33 @@
             paging: false,
             fixedHeader: true,
             fixedColumns: {
-                left: 4
+                left: 4,
+                right: 1,
             },
-            paging: false,
         })
     }
 
-    function cetakReport(x, y, merge) {
-        var viewBy = ''
-        if (y == 1) {
-            viewBy = 'Detail'
-        }
-        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn' + viewBy + '"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + viewBy + "*$" + merge;
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function removeDuplicates(arr) {
+        const seen = {}; // Objek untuk melacak kombinasi yang sudah muncul
+
+        return arr.filter(item => {
+            const key = `${item.step_id}-${item.product_id}`; // Buat kunci unik dari kombinasi step_id dan product_id
+            if (seen[key]) {
+                return false; // Jika kombinasi ini sudah muncul, abaikan item ini
+            } else {
+                seen[key] = true; // Tandai kombinasi ini sebagai sudah muncul
+                return true; // Simpan item ini
+            }
+        });
+    }
+
+    function cetakReport(x, y) {
+        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarnVerpack"')
+        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + dataProfile + "*$" + y;
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

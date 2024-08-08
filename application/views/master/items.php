@@ -1,22 +1,13 @@
+<link href="<?= base_url(); ?>assets/smm/report.css" rel="stylesheet" type="text/css">
 <style>
-    html {
-        scroll-behavior: smooth;
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #69707a !important;
+        font-size: 0.75rem !important;
+        padding-left: 0.75rem !important;
     }
 
-    #overlay {
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 999999;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-    }
-</style>
-<style>
-    .text-small {
-        font-size: 11px;
+    .select2-container--default .select2-selection--single {
+        border-color: #c5ccd6 !important;
     }
 
     .filter-border {
@@ -46,7 +37,6 @@
                     <div class="col-auto mt-4">
                         <div class="float-end">
                             <div class="row">
-
                                 <div class="col-auto">
                                     <button type="button" class="btn btn-outline-light" onclick="formGrouping()"><i class="fa fa-check-square-o"></i> <span class="ms-2 d-none d-sm-block">Item Grouping</span></button>
                                     <button type="button" class="btn btn-light" onclick="formItemBaru()"><i class="fa fa-plus"></i> <span class="ms-2 d-none d-sm-block">Item Baru</span></button>
@@ -68,7 +58,7 @@
                     <div class="card-header d-none">
                         <div class="row">
                             <div class="col-md-auto col-12 mb-1 p-1">
-                                <input type="text" name="" id="input" class="form-control form-control-sm datepicker" placeholder="Tanggal">
+                                <input type="text" name="" id="input" autocomplete="off" class="form-control form-control-sm datepicker" placeholder="Tanggal">
                             </div>
                             <div class="col-md-auto col-12 mb-1 p-1">
                                 <select class="form-select form-select-sm" aria-label=".form-select-sm example">
@@ -146,8 +136,14 @@
 </div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+<!-- autocomplete -->
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <script>
     var groupedDataItem = []
     var dataListIdSatuan = [{
@@ -206,6 +202,7 @@
         clearModal();
         no_satuan = 1
         deletedKonversi = []
+        numCostCenter = 0
     })
 
     function loadingTable(divID) {
@@ -240,8 +237,12 @@
     var data_global
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var data_satuan_selected = []
-
+    var formCostCenter = ''
     $(document).ready(function() {
+        // $('#selectItem').selectpicker({
+
+        // });
+        // formCostCenter = $('#selectForm').html()
         getData()
     })
     var all_data_item = []
@@ -403,7 +404,7 @@
                 }
                 var satuan = ""
                 if (values['data_konversi'] != null) {
-                    $.each(JSON.parse(values['data_konversi']), function(keys2, values2) {
+                    $.each(values['data_konversi'], function(keys2, values2) {
                         satuan += '<span class="small">1 ' + values2['satuan_name'] + ' = <span class="text-success">' + values2['jumlah_konversi'] + '</span> ' + values['satuan_name'] + '</span><br>'
                     })
                 }
@@ -446,6 +447,7 @@
     }
 
     var getId = ''
+    var numCostCenter = 0
 
     function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null) {
         getId = id
@@ -472,13 +474,13 @@
         html_body += '<b class="mb-2">Informasi Dasar</b>'
         html_body += '<div class="row">'
         html_body += '<div class="col-12 col-md-4 text-end">Kode</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="code" class="form-control form-control-sm p-1" value="' + code + '"></div>'
+        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="code" autocomplete="off" class="form-control form-control-sm p-1" value="' + code + '"></div>'
 
         html_body += '<div class="col-12 col-md-4 text-end">Nama</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="nama" class="form-control form-control-sm p-1" value="' + name + '"></div>'
+        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="nama" autocomplete="off" class="form-control form-control-sm p-1" value="' + name + '"></div>'
 
         html_body += '<div class="col-12 col-md-4 text-end">Alias</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="alias" class="form-control form-control-sm p-1" value="' + alias + '"></div>'
+        html_body += '<div class="col-12 col-md-8 mb-2"><input type="text" id="alias" autocomplete="off" class="form-control form-control-sm p-1" value="' + alias + '"></div>'
 
         html_body += '<div class="col-12 col-md-4 text-end">Satuan Terkecil</div>'
         html_body += '<div class="col-12 col-md-8 mb-2">'
@@ -494,6 +496,14 @@
             html_body += '<option value="' + values['id'] + '" ' + select + ' data-name="' + values['name'] + '">' + values['name'] + '</option>'
         })
         html_body += '</select>'
+        html_body += '</div>'
+
+        html_body += '<div class="col-12 col-md-4 text-end">Cost Center</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
+        html_body += '<div id="fieldCostCenterAdd">'
+        html_body += '</div>'
+        html_body += '<div id="fieldCostCenter">'
+        html_body += '</div>'
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-4 text-end">Konversi</div>'
@@ -580,8 +590,17 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
-
-
+        if (!dataFilter) {
+            addFieldCostCenter()
+        } else {
+            if (dataFilter.cost_center_ids) {
+                dataFilter.cost_center_ids.forEach(e => {
+                    addFieldCostCenter(e)
+                });
+            } else {
+                addFieldCostCenter()
+            }
+        }
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" data-id="' + id + '">Simpan</button>'
@@ -589,9 +608,9 @@
         if (id == null) {
             tambahFormSatuan()
         } else {
-            var data_satuan = JSON.parse(data_global['item'].filter((value, key) => {
-                if (value.id === id.toString()) return true
-            })[0]['data_konversi'])
+            var data_satuan = data_global['item'].filter((value, key) => {
+                if (value.id == id) return true
+            })[0]['data_konversi']
             $.each(data_satuan, function(keys, values) {
                 tambahFormSatuan(data_satuan[keys])
             })
@@ -637,10 +656,10 @@
         html_body += '</div>'
         html_body += '<div class="col-4 mb-2">'
         if (data == "") {
-            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi" data-id_konversi="">'
+            html_body += '<input type="text" id="konversi' + no_satuan + '" autocomplete="off" class="form-control form-control-sm p-1 konversi" value="" placeholder="Nilai Konversi" data-id_konversi="">'
         } else {
             html_body += '<div class="input-group">'
-            html_body += '<input type="text" id="konversi' + no_satuan + '" class="form-control form-control-sm p-1 konversi" value="' + data['jumlah_konversi'] + '" placeholder="Nilai Konversi" data-id_konversi="' + data['konversi_id'] + '">'
+            html_body += '<input type="text" id="konversi' + no_satuan + '" autocomplete="off" class="form-control form-control-sm p-1 konversi" value="' + data['jumlah_konversi'] + '" placeholder="Nilai Konversi" data-id_konversi="' + data['konversi_id'] + '">'
             html_body += '<button class="btn btn-sm btn-outline-danger" type="button" onclick="clickDeleteKonversi(' + no_satuan + ',' + data['konversi_id'] + ')"><i class="fa fa-trash"></i></button>'
             html_body += '</div>'
 
@@ -841,6 +860,9 @@
 
     $(document).on('click', "#btnSimpan", function() {
         var satuan_tetap = $('#satuan_tetap').val()
+        var cost_center = $('.cost_center').map(function() {
+            return $(this).val();
+        }).get();
         var id_satuan = $('.satuan').map(function() {
             return $(this).val();
         }).get();
@@ -858,6 +880,12 @@
                 'id_konversi': id_konversi[i],
             })
         }
+        var costCenterIds = []
+        for (let i = 0; i < cost_center.length; i++) {
+            if (cost_center[i]) {
+                costCenterIds.push(cost_center[i])
+            }
+        }
         var type = 'POST'
         var button = '#btnSimpan'
         var data = {
@@ -874,6 +902,7 @@
             unitIdWarehouse: $('#satuanGudang').val(),
             unitIdMachineRequest: $('#satuanRequest').val(),
             unitIdWarehouseReturn: $('#satuanReturGudang').val(),
+            costCenterIds: costCenterIds,
         }
         if ($(this).data('id') == null) {
             var url = '<?php echo api_url('MasterNtm/insertItem'); ?>'
@@ -939,7 +968,7 @@
 
         html_body += '<div class="col-12 col-md-6 mb-2">'
         html_body += '<div class="input-group input-group-joined">'
-        html_body += '<input class="form-control pe-0" type="text" placeholder="Cari Item" aria-label="Search" id="search_item">'
+        html_body += '<input autocomplete="off" class="form-control pe-0" type="text" placeholder="Cari Item" aria-label="Search" id="search_item">'
         html_body += '<span class="input-group-text">'
         html_body += '<i class="fa fa-search"></i>'
         html_body += '</span>'
@@ -1045,4 +1074,46 @@
         var url = '<?php echo api_url('Api_Warehouse/updateItemtoUnit'); ?>'
         kelolaData(data, type, url, button)
     })
+
+    function addFieldCostCenter(idCostCenter = null) {
+        var html = ''
+        html += '<div class="row mb-1" id="fieldCostCenter' + numCostCenter + '">'
+        html += '<div class="col-11 pe-1">'
+        html += '<select name="" id="cost_center' + numCostCenter + '" class="form-select form-select-sm cost_center super-small-text" required="required">'
+        html += '<option value="" selected disabled>Pilih Cost Center</option>'
+        $.each(data_global['costCenter'], function(keys, values) {
+            var select = ''
+            if (idCostCenter != null) {
+                if (values['id'] == idCostCenter) {
+                    select = 'selected'
+                }
+            }
+            html += '<option value="' + values['id'] + '" data-name="' + values['name'] + '" ' + select + '>' + values['name'] + '</option>'
+        })
+        html += '</select>'
+        html += '</div>'
+        if (numCostCenter == 0) {
+            html += '<div class="col-1 ps-0">'
+            html += '<button type="button" class="btn btn-sm btn-success px-2 shadow-none" onclick="addFieldCostCenter()"><i class="fa fa-plus"></i></button>'
+            html += '</div>'
+            html += '</div>'
+            $('#fieldCostCenterAdd').html(html)
+        } else {
+            html += '<div class="col-1 ps-0">'
+            html += '<button type="button" class="btn btn-sm btn-danger px-2 shadow-none" onclick="hapusFieldCostCenter(' + numCostCenter + ')"><i class="fa fa-trash"></i></button>'
+            html += '</div>'
+            html += '</div>'
+            $('#fieldCostCenter').append(html)
+        }
+        $('#cost_center' + numCostCenter).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        numCostCenter++
+    }
+
+    function hapusFieldCostCenter(id) {
+        $('#fieldCostCenter' + id).remove()
+    }
 </script>

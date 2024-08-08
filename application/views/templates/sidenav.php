@@ -197,14 +197,21 @@
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
                         <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
+                        <a class="nav-link" href="<?= base_url(); ?>order/managePR">Purchase Requisition (PR) <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
+                        <?php if (if_po()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>order/managePO">Purchase Order (PO) <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
+                        <?php } ?>
                         <?php if (if_payments()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a>
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>order/payments">Payments</a> -->
+                            <a class="nav-link" href="<?= base_url(); ?>order/po_payments">Invoices & Payments <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
                         <?php } ?>
                         <?php if (if_transaction()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>order/transactionSuratJalan">Tracking Surat Jalan <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
                             <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
                         <?php } ?>
                         <?php if (if_logistik()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
+                            <a class="nav-link" href="<?= base_url(); ?>order/logisticNew">Logistic <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
                         <?php } ?>
                     </nav>
                 </div>
@@ -226,6 +233,9 @@
                                 <a class="nav-link" href="<?= base_url(); ?>master/groupMaterial">Group Material</a>
                                 <a class="nav-link" href="<?= base_url(); ?>master/wasteGroup">Waste Group</a>
                                 <a class="nav-link" href="<?= base_url(); ?>master/billOfMaterial">Bill of Material</a>
+                            <?php } ?>
+                            <?php if (if_master_fat()) { ?>
+                                <a class="nav-link" href="<?= base_url(); ?>master/generalLedger">General Ledger</a>
                             <?php } ?>
                         </nav>
                     </div>
@@ -252,6 +262,9 @@
                 </a>
                 <div class="collapse show" id="collapseDashboards4" data-bs-parent="#accordionSidenav4">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav4Pages">
+                        <?php if (if_report_pr()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportPR">Report PR</a>
+                        <?php } ?>
                         <?php if (if_report_po()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportPO">Report PO</a>
                         <?php } ?>
@@ -265,7 +278,7 @@
                                         <a class="nav-link" href="<?= base_url(); ?>report/reportMachine">Report Machine</a>
                                         <?php } ?> -->
                         <?php if (if_so_production()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">SO Production</a>
+                            <a class="nav-link" href="<?= base_url(); ?>production/stockOpnameProduction">Report SO Production</a>
                         <?php } ?>
                         <!-- <?php if (if_report_production()) { ?>
                                                 <a class="nav-link" href="<?= base_url(); ?>report/reportProduction">Report Production</a>
@@ -273,46 +286,13 @@
                         <?php if (if_report_result_production()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportResultProduction">Report Result Production</a>
                         <?php } ?>
-                        <p class="nav-link m-0 small-text fw-bolder" style="color: #cccccc">Verpack</p>
-                        <?php if (if_report_production_daily()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionDaily">
-                                <div class="row">
-                                    <div class="col-2 pe-0">
-                                        <i class="fa fa-calendar"></i>
-                                    </div>
-                                    <div class="col-10 ps-0">
-                                        Report Production Daily
-                                    </div>
-                                </div>
-                                <!-- <i class="fa fa-calendar me-1"></i>Report Production Daily -->
-                            </a>
+                        <?php if (if_history_po_payment()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/historyPayment">History Payments</a>
                         <?php } ?>
-                        <?php if (if_report_person_earn()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportPersonEarn">
-                                <div class="row">
-                                    <div class="col-2 pe-0">
-                                        <i class="fa fa-dollar"></i>
-                                    </div>
-                                    <div class="col-10 ps-0">
-                                        Report Person Salary
-                                    </div>
-                                </div>
-                                <!-- <i class="fa fa-dollar me-1"></i>Report Person Salary -->
-                            </a>
+                        <?php if (if_history_material_request()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/historyMaterialRequest">History Material Request</a>
                         <?php } ?>
                         <p class="nav-link m-0 small-text fw-bolder" style="color: #cccccc">Giling</p>
-                        <?php if (if_report_production_worker()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionWorker">
-                                <div class="row">
-                                    <div class="col-2 pe-0">
-                                        <i class="fa fa-male"></i>
-                                    </div>
-                                    <div class="col-10 ps-0">
-                                        Report Prod.Worker
-                                    </div>
-                                </div>
-                            </a>
-                        <?php } ?>
                         <?php if (if_report_production_daily()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportProductionDaily">
                                 <div class="row">
@@ -342,6 +322,57 @@
                         <?php if (if_report_incomplete()) { ?>
                             <!-- <a class="nav-link" href="<?= base_url(); ?>report/reportIncomplete">Report Incomplete</a> -->
                         <?php } ?>
+                        <?php if (if_report_production_skt()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionGiling">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Form Report Giling
+                                    </div>
+                                </div>
+                                <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->
+                            </a>
+                        <?php } ?>
+                        <p class="nav-link m-0 small-text fw-bolder" style="color: #cccccc">Verpack</p>
+                        <?php if (if_report_production_daily()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionDailyVerpack">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Production Daily
+                                    </div>
+                                </div>
+                            </a>
+                        <?php } ?>
+                        <?php if (if_report_person_earn()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportPersonEarnVerpack">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-dollar"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Person Salary
+                                    </div>
+                                </div>
+                            </a>
+                        <?php } ?>
+                        <p class="nav-link m-0 small-text fw-bolder" style="color: #cccccc">Other</p>
+                        <?php if (if_report_production_worker()) { ?>
+                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionWorker">
+                                <div class="row">
+                                    <div class="col-2 pe-0">
+                                        <i class="fa fa-male"></i>
+                                    </div>
+                                    <div class="col-10 ps-0">
+                                        Report Prod.Worker
+                                    </div>
+                                </div>
+                            </a>
+                        <?php } ?>
                         <?php if (if_report_person_quality()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>report/reportPersonQuality">
                                 <div class="row">
@@ -363,19 +394,6 @@
                                     </div>
                                     <div class="col-10 ps-0">
                                         Report Leave Pass
-                                    </div>
-                                </div>
-                                <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->
-                            </a>
-                        <?php } ?>
-                        <?php if (if_report_production_skt()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>report/reportProductionGiling">
-                                <div class="row">
-                                    <div class="col-2 pe-0">
-                                        <i class="fa fa-file-pdf-o"></i>
-                                    </div>
-                                    <div class="col-10 ps-0">
-                                        Form Report Giling
                                     </div>
                                 </div>
                                 <!-- <i class="fa fa-check-circle-o me-1"></i>Report Person Quality -->

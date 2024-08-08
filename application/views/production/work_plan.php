@@ -35,6 +35,10 @@
         background-color: #f7f7f7 !important;
     }
 
+    .bg-lembur {
+        background-color: #FBF1ED !important;
+    }
+
     .bg-light-grey {
         background-color: #fafafa;
     }
@@ -946,7 +950,7 @@
                     </div>
                 </div>
                 <div class="col-6 ps-0 pe-1">
-                    <button type="button" class="btn btn-success shadow-none btn-sm w-100 h-100" style="text-align: left;" onclick="saveAndShare()">
+                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm w-100 h-100" style="text-align: left;" onclick="saveAndShare()">
                         <div class="row">
                             <div class="col-auto p-0 pe-1 align-self-center">
                                 <i class="fa fa-share-alt fa-1x"></i>
@@ -958,7 +962,7 @@
                     </button>
                 </div>
                 <div class="col-6 pe-0 ps-1">
-                    <button type="button" class="btn btn-outline-dark shadow-none btn-sm w-100 h-100" style="text-align: left;" id="btnSimpan">
+                    <button type="button" class="btn btn-success  shadow-none btn-sm w-100 h-100" style="text-align: left;" id="btnSimpan">
                         <div class="row">
                             <div class="col-auto p-0 pe-1 align-self-center">
                                 <i class="fa fa-save fa-1x"></i>
@@ -985,14 +989,23 @@
         </div>
         <!-- RIGHT PANEL -->
         <div class="col-9 bg-white p-4">
-            <div class="row">
+            <div class="row justify-content-between">
                 <div class="col">
                     <button type="button" class="btn btn-outline-dark btn-sm shadow-none" onclick="managementManPower(event)"><i class="fa fa-user-plus me-2"></i>Man Power & Shift</button>
                 </div>
                 <div class="col text-end">
-                    <button type="button" class="btn btn-outline-dark btn-sm shadow-none" onclick="seeDetails()"><i class="fa fa-eye me-2"></i>View Detail</button>
-                    <button type="button" class="btn btn-outline-danger btn-sm shadow-none" onclick="cetakPDF()"><i class="fa fa-download me-2"></i>PDF</button>
-                    <!-- <button type="button" class="btn btn-primary btn-sm shadow-none" onclick="filterCanvas()"><i class="fa fa-filter me-2"></i>Filter</button> -->
+                    <div class="row justify-content-end">
+                        <div class="col-auto pe-0 align-self-center draftedMenu" hidden>
+                            <p class="m-0 small-text"><i>Data Still Drafted</i></p>
+                            <p class="m-0 small-text text-danger fw-bolder pointer" onclick="batalSimpan()"><u>Batalkan</u></p>
+                        </div>
+                        <div class="col-auto align-self-center">
+                            <button type="button" class="btn btn-success btn-sm shadow-none draftedMenu" onclick="simpan()" hidden><i class="fa fa-save me-2"></i>Save</button>
+                            <button type="button" class="btn btn-outline-dark btn-sm shadow-none" onclick="seeDetails()"><i class="fa fa-eye me-2"></i>View Detail</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm shadow-none" onclick="cetakPDF()"><i class="fa fa-download me-2"></i>PDF</button>
+
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12 pt-3">
                     <div class="h-100">
@@ -1000,6 +1013,8 @@
                             <table class="table table-hover table-bordered" style="width: 100%;white-space:nowrap;">
                                 <thead>
                                     <tr id="date_list">
+                                    </tr>
+                                    <tr id="lembur_list">
                                     </tr>
                                     <tr id="qc_list">
                                     </tr>
@@ -1067,6 +1082,14 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <!-- AVATAR -->
 <script>
+    function hideSave() {
+        $('.draftedMenu').attr('hidden', true);
+    }
+
+    function showSave() {
+        $('.draftedMenu').attr('hidden', false);
+    }
+
     function getInitials(name) {
         const nameArray = name.split(' ');
         return nameArray.map(word => word[0].toUpperCase()).join('');
@@ -1971,6 +1994,7 @@
                 })
                 data_work_converted[indexDate].work_plan[type_name_production] = {
                     work_plan_id: new Date().getTime() + '' + indexDate,
+                    is_overtime: 0,
                     shift_qc: []
                 }
                 // data_work_converted[indexDate].work_plan[type_name_production].work_plan_id = new Date().getTime() + '' + indexDate
@@ -2223,9 +2247,11 @@
 
     var jumlahLoad = 0
     var variableOfShift = {}
+    var variableLembur = {}
 
     function arrangeVariable() {
         // console.log(data_work.workPlan)
+        variableLembur = {}
         reset()
         // ARRANGE SHIFT
         data_work.shift[0].shift_list.forEach(e => {
@@ -2239,11 +2265,19 @@
             // date
             // kalau ada work plan
             // SET VARIABLE PRODUCTION PLAN
+            var is_overtime = a.work_plan[type_name_production].is_overtime
+            if (a.date) {
+                if (formatJustDay(a.date) == 'Minggu') {
+                    is_overtime = 1
+                }
+            }
+            variableLembur[a.date] = is_overtime
             set_work_plan['workPlan'].push({
                 id: a.work_plan[type_name_production].work_plan_id,
                 production_plan_id: data_work.productionPlan.id,
                 production_type_id: data_work.productionTypeForeman.id,
                 date: a.date,
+                is_overtime: is_overtime,
                 note: a.note,
             })
             a.work_plan[type_name_production].shift_qc.forEach(b => {
@@ -2431,7 +2465,8 @@
         var dateList = dateRangeComplete(data_work.workPlan[0].date, data_work.workPlan[parseInt(data_work.workPlan.length) - 1].date)
         var html = ''
         var html_qc = ''
-        html += '<th class="" rowspan="2" style="vertical-align: middle;"><b>Machine | Date</b></th>'
+        var html_lembur = ''
+        html += '<th class="" rowspan="3" style="vertical-align: middle;"><b>Machine | Date</b></th>'
         for (let i = 0; i < dateList.length; i++) {
             var qcEmployee = manPowerFilter({
                 key: 'date',
@@ -2446,7 +2481,10 @@
                 bgToday = 'bg-ijo-polos'
                 badgeToday = '<span class="badge bg-primary ms-2">Today</span>'
             }
-            if (formatJustDay(dateList[i]) == 'Minggu') {
+            var checkLembur = ''
+            if (variableLembur[dateList[i]]) {
+                bgToday = 'bg-lembur'
+                checkLembur = 'checked'
                 badgeLembur = '<span class="badge bg-orange ms-2">Lembur</span>'
             }
             html += '<th class="small-text align-middle p-2 ' + classToday + ' ' + bgToday + '">'
@@ -2473,9 +2511,15 @@
                 html_qc += '<p class="m-0 small-text ' + textColor + '">' + qcEmployee['qc'].total + ' Quality Control</p></a>'
                 html_qc += '</th>'
             }
+            html_lembur += '<th class="' + bgToday + '">'
+
+            html_lembur += '<input class="form-check-input" type="checkbox" value="1" id="checkHariLembur' + dateList[i] + '" ' + checkLembur + ' onclick="addHariLembur(event,' + "'date'" + ",'" + dateList[i] + "'" + ')">'
+            html_lembur += '<label class="form-check-label ms-1 small-text" for="checkHariLembur' + dateList[i] + '">Hari Lembur</label>'
+            html_lembur += '</th>'
         }
         $('#date_list').html(html)
         $('#qc_list').html(html_qc)
+        $('#lembur_list').html(html_lembur)
         $('.dropdown-date').dropdown();
         draggableTables('table-product-trend-wrapper')
         createBodyPlanner()
@@ -2493,6 +2537,9 @@
                 var bgToday = ''
                 if (dateList[i] == hariIni) {
                     bgToday = 'bg-ijo-polos'
+                }
+                if (variableLembur[dateList[i]]) {
+                    bgToday = 'bg-lembur'
                 }
                 var mekanikEmployee = manPowerFilter({
                     key: 'date',
@@ -2522,6 +2569,9 @@
                         var bgToday = ''
                         if (dateList[i] == hariIni) {
                             bgToday = 'bg-ijo-polos'
+                        }
+                        if (variableLembur[dateList[i]]) {
+                            bgToday = 'bg-lembur'
                         }
                         var data = data_work_plan_bar.machine.filter((v, k) => {
                             if (v.resource == e.id && v.start == dateList[i]) return true
@@ -4510,6 +4560,7 @@
     }
 
     function insertDataAll(date, machine_id, shift_id, group_shift_id, dataInsert, position = null) {
+        showSave()
         var machine_type_id = findEntitiesByMachineId(data_work.machineType, machine_id)[0]
         var data = data_work.workPlan
         const foundDate = data.find(item => item.date == date);
@@ -4655,7 +4706,8 @@
         const inputValue = event.target.value;
         var data = searchDataAll(date, machine_id, null, shift_id, group_shift_id).products
         var index = findIndexByWorkPlanProductId(data, work_plan_product_id)
-        data[index].qty = inputValue
+        // console.log(inputValue.replace(',', ''))
+        data[index].qty = inputValue.replace(',', '')
         insertDataAll(date, machine_id, shift_id, group_shift_id, data, 'edit_product')
     }
 
@@ -4685,6 +4737,17 @@
         var positionOfTemplate = searchDataAll(date, machine_id, machine_type_id, shift_id, group_shift_id, target, product_id)
         positionOfTemplate.note = inputValue
         insertDataAll(date, machine_id, shift_id, group_shift_id, positionOfTemplate, target)
+    }
+
+    function addHariLembur(event, target, date) {
+        var value = $('#checkHariLembur' + date + ':checked').val()
+        if (!value) {
+            value = 0
+        }
+        var positionOfTemplate = searchDataAll(date, null, null, null, null, 'date')
+        positionOfTemplate.work_plan[type_name_production].is_overtime = value
+        insertDataAll(date, null, null, null, positionOfTemplate, 'date')
+        // console.log(positionOfTemplate)
     }
 
     function tambahShiftBaru(date, group_id) {
@@ -4867,6 +4930,11 @@
         simpan()
     })
 
+    function batalSimpan() {
+        hideSave()
+        loadDataPlanning(plan_id)
+    }
+
     function simpan() {
         var type = 'POST'
         var button = '#btnSimpan'
@@ -4921,6 +4989,7 @@
             success: function(response) {
                 $(button).prop("disabled", false);
                 $('#modal').modal('hide')
+                hideSave()
                 loadDataPlanning(plan_id)
             }
         });

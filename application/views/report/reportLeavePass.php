@@ -641,6 +641,7 @@
         html += '<th class="align-middle text-center" rowspan="2" style="background-color: white;">No. Meja</th>'
         html += '<th class="align-middle text-center" colspan="5">ISTIRAHAT</th>'
         html += '<th class="align-middle text-center" colspan="5">IBADAH</th>'
+        html += '<th class="align-middle text-center" rowspan="2" style="background-color: white;">Notes</th>'
         html += '</tr>'
 
         html += '<tr>'
@@ -670,11 +671,17 @@
             html += '<td class="text-center small-text" style="background-color: white;">' + e.freq_istirahat + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.freq_over_istirahat + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.total_day_over_istirahat + '</td>'
+
             html += '<td class="text-center small-text" style="background-color: white;">' + e.minute_usage_ibadah + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.minutes_over_ibadah + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.freq_ibadah + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.freq_over_ibadah + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.total_day_over_ibadah + '</td>'
+            html += '<td class="text-center small-text" style="background-color: white;">'
+            if (e.freq_over_istirahat > 0) {
+                html += '<span class="badge bg-danger pointer" onclick="seeLate(' + e.id + ')">Lihat</span>'
+            }
+            html += '</td>'
             html += '</tr>'
         });
         $('#bodyTable').html(html)
@@ -691,6 +698,42 @@
             },
             paging: false,
         })
+    }
+
+    function seeLate(id) {
+        var data = data_report.reportLeavePassLog.find((v, k) => {
+            if (v.id == id) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">History Keterlambatan</h5>';
+        html_header += '<button type="button" class="btn-close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<table class="table">'
+        var a = 0
+        if (data.notes) {
+            data.notes.forEach(e => {
+                if (e) {
+                    html_body += '<tr>'
+                    // html_body += '<td class="text-center small-text" style="background-color: white;">' + e.date + '</td>'
+                    html_body += '<td class="small-text" style="background-color: white;">' + e + '</td>'
+                    html_body += '</tr>'
+                    a++
+                }
+            })
+        }
+        if (a == 0) {
+            html_body += '<tr>'
+            html_body += '<td class="text-center small-text" style="background-color: white;">Tidak Ada Notes</td>'
+            html_body += '</tr>'
+        }
+        html_body += '</table>'
+        $('#modalBody').html(html_body)
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
+        $('#modalFooter').html(html_footer)
     }
 
     function cetakReport(x, y) {

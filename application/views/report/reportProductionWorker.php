@@ -111,18 +111,18 @@
         background-color: #F7F7F7;
     }
 
-    .is-select-picker {
-        background-color: white !important;
-        border: 1px solid #c5ccd6 !important;
-        text-align: left !important;
-    }
-
     .formFilter {
         border-radius: 20px;
         width: 200px;
         padding-left: 30px;
         padding: 10px;
         padding-right: 45px;
+    }
+
+    .is-select-picker {
+        background-color: white !important;
+        border: 1px solid #c5ccd6 !important;
+        text-align: left !important;
     }
 
     .is-select-picker {

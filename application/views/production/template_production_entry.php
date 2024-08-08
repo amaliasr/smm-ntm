@@ -960,7 +960,7 @@
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-1" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                         <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="configurationPrinters()"><i class="fa fa-print me-2"></i>Config Printer</button> -->
                         <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none small me-1" onclick="loadIncomplete('DATA')"><span class="badge rounded-pill bg-danger me-2" style="padding-top:1px;padding-bottom:1px;padding-left:5px;padding-right:5px;font-size:10px;" id="jumlahIncomplete">0</span>Incomplete Data
-                        </button> -->
+                    </button> -->
                         <div class="btn-group float-end">
                             <button class="btn btn-outline-dark btn-sm dropdown-toggle shadow-none" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                 More
@@ -974,6 +974,9 @@
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" id="btnChooseBrand" onclick="chooseBrandTemplate()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
                         <button type="button" class="btn shadow-none btn-sm shadow-none btn-danger" id="btnCloseBrand" onclick="closeBrand()" hidden><i class="fa fa-times me-2"></i>Closing</button>
+                    <?php } ?>
+                    <?php if ($link == 'qc_packer') { ?>
+                        <button type="button" class="btn btn-outline-danger shadow-none btn-sm shadow-none me-1" id="btnBrokenData" onclick="modalBrokenData()" hidden>Broken Data ( <span id="textBrokenData"></span> )</button>
                     <?php } ?>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
                 </div>

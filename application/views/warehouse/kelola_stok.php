@@ -941,11 +941,11 @@
         var key = $(this).data('id')
         $('#satuanStok' + key).empty()
         var id = $(this).val()
-        let obj = JSON.parse(data_item.find((value, key) => {
-            if (value.id === id) return true
-        })['data_konversi'])
+        let obj = data_item.find((value, key) => {
+            if (value.id == id) return true
+        })['data_konversi']
         var satuan_tetap = data_item.find((value, key) => {
-            if (value.id === id) return true
+            if (value.id == id) return true
         });
         var html_body = ""
         html_body += '<option value="' + satuan_tetap['satuan_id'] + '">' + satuan_tetap['satuan_name'] + '</option>'

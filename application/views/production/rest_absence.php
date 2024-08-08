@@ -288,7 +288,10 @@
                         <div class="mt-3" id="dataBelumKembaliLebih">
 
                         </div>
-                        <div class="mt-3 pt-2 pe-2" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="dataBelumKembali">
+                        <div class="mt-3 mb-2">
+                            <input type="text" class="form-control form-control-sm shadow-none mt-3" placeholder="Search" id="search_nama" autocomplete="off" placeholder="Cari Nama" onclick="offBlurWhenModalOn(),this.focus()" onblur="onBlurWhenModalOff()">
+                        </div>
+                        <div class="pt-2 pe-2" style="height: 500px;overflow-x: hidden;overflow-y: auto;" id="dataBelumKembali">
                         </div>
                     </div>
                 </div>
@@ -369,6 +372,7 @@
         $('#modalBody').html('');
         $('#modalFooter').html('');
         $('#codeQR').val('')
+        isClickedRest = false
     }
     // var codeQRInput = $('#codeQR');
     // codeQRInput.on('blur', handleBlurEvent);
@@ -438,11 +442,11 @@
                 if (firstAccess) {
                     showOverlay('hide')
                 }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
+                // Swal.fire({
+                //     icon: 'error',
+                //     title: 'Oops...',
+                //     text: 'Error Data'
+                // });
             },
             beforeSend: function() {
                 if (firstAccess) {
@@ -625,6 +629,7 @@
 
     function hitungMinutesOver(minutes_max, input, eid, jenisIstirahat) {
         var data = 0
+        var sisaWaktuSebelumnya = 0
         if (minutes_max == null) {
             // IBADAH
             data = 0
@@ -633,14 +638,51 @@
                 data = 1
             }
         } else {
+            // ISTIRAHAT
             if (input > minutes_max) {
                 data = parseFloat(input) - parseInt(minutes_max)
             }
             if (eid) {
                 var sisa = sisaWaktu(eid, jenisIstirahat)
                 if (sisa <= 0) {
+                    // jika sudah tidak ada sisa waktu
                     data = input
                 }
+            }
+        }
+        return data
+    }
+
+    function hitungMinutesOverAll(minutes_max, input, eid, jenisIstirahat, data_leave, datetime_out) {
+        var data = {
+            'jumlah': 0,
+            'status': 0,
+        }
+        var sisaWaktuSebelumnya = 0
+        if (minutes_max == null) {
+            // IBADAH
+            data.jumlah = 0
+            data.status = 0
+            var sisa = sisaWaktu(eid, jenisIstirahat)
+            if (sisa <= 0) {
+                data.jumlah = 1
+                data.status = 1
+            }
+        } else {
+            // ISTIRAHAT
+            var total_menit = 0
+            var total_overtime = 0
+            data_leave.forEach(e => {
+                if (e.datetime_out) {
+                    total_menit = total_menit + e.minutes_usage
+                    total_overtime = total_overtime + e.minutes_over
+                } else {
+                    total_menit = total_menit + selisihMenit(datetime_out, e.datetime_in)
+                }
+            });
+            if (total_menit > minutes_max) {
+                data.jumlah = total_menit - (total_overtime + parseInt(minutes_max))
+                data.status = 1
             }
         }
         return data
@@ -670,6 +712,7 @@
     function changeScanner() {
         if ($('#codeQR').val()) {
             if (checkNotLong('form-leave')) {
+                isClickedRest = false
                 scannedId = $('#codeQR').val()
                 showrestMode(scannedId)
                 findIDPekerja(scannedId)
@@ -763,10 +806,13 @@
     }
 
     function showrestMode(eid) {
-        var dataMaster = deepCopy(data_user.employeeLeavePass)
-        var data = dataMaster.find((v, k) => {
-            if (v.eid == eid) return true
-        })
+        var dataMaster = data_user.employeeLeavePass
+        var data = null
+        if (dataMaster) {
+            data = deepCopy(dataMaster).find((v, k) => {
+                if (v.eid == eid) return true
+            })
+        }
         if (data) {
             if (!data.data_leave) {
                 // jika leave nya null (belum pernah istirahat)
@@ -786,7 +832,7 @@
             $('#codeQR').val('')
             Swal.fire({
                 icon: 'error',
-                title: 'Data Tidak Ditemukan',
+                title: 'Data Tidak Ditemukan, Scan Ulang',
                 text: 'Coba Lagi'
             });
         }
@@ -922,6 +968,7 @@
 
     var idnya
     var idSaved
+    var isClickedRest = false
 
     function chooseRest(id) {
         var data = data_user.employeeLeavePass.find((v, k) => {
@@ -996,22 +1043,53 @@
         var data = data_user.employeeLeavePass.find((v, k) => {
             if (v.id == id) return true
         })
-        let timerIntervalSwal;
+        var dataBreak = data_user.leavePassType.find((v, k) => {
+            if (v.id == dataLeave.leave_pass_type_id) return true
+        })
+        var datetime_out = currentDateTime()
+        var selisih = selisihMenit(getDateTime(dataLeave.datetime_in), datetime_out)
+        var minutesOver = hitungMinutesOverAll(dataBreak.minutes_max, selisih, data.eid, dataLeave.leave_pass_type_id, data.data_leave, datetime_out)
+        var textOver = 'Telah melakukan ' + dataBreak.name + ' selama ' + selisih + ' menit'
+        var icon = 'success'
+        if (minutesOver.status == 1) {
+            // terlambat
+            textOver = 'Anda terlambat ' + dataBreak.name + ' dengan akumulasi keterlambatan ' + minutesOver.jumlah + ' menit'
+            icon = 'error'
+        }
+        offBlurWhenModalOn()
         Swal.fire({
-            title: data.name,
-            html: "Telah Checkout Istirahat",
-            timer: 500,
-            timerProgressBar: true,
-            didOpen: () => {},
-            willClose: () => {
-                clearInterval(timerIntervalSwal);
-            }
+            title: "Checkin " + data.name,
+            icon: icon,
+            html: textOver,
+            showCloseButton: false,
+            showCancelButton: false,
+            focusConfirm: true,
+            confirmButtonText: 'Yes !',
         }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-                insertMode = false
-                saveBreak(id, dataLeave.leave_pass_type_id, dataLeave.id)
-            }
+            onBlurWhenModalOff()
+            // if (result.isConfirmed) {
+            insertMode = false
+            isClickedRest = false
+            saveBreak(id, dataLeave.leave_pass_type_id, dataLeave.id)
+            // }
         });
+        // let timerIntervalSwal;
+        // Swal.fire({
+        //     title: data.name,
+        //     html: "Telah Checkout Istirahat",
+        //     timer: 500,
+        //     timerProgressBar: true,
+        //     didOpen: () => {},
+        //     willClose: () => {
+        //         clearInterval(timerIntervalSwal);
+        //     }
+        // }).then((result) => {
+        //     if (result.dismiss === Swal.DismissReason.timer) {
+        //         insertMode = false
+        //         isClickedRest = false
+        //         saveBreak(id, dataLeave.leave_pass_type_id, dataLeave.id)
+        //     }
+        // });
     }
 
     function selisihMenit(datetime1, datetime2) {
@@ -1028,6 +1106,7 @@
         return selisih;
     }
 
+
     function saveBreak(employee_id, jenisIstirahat, id_leave = null) {
         var dataUser = data_user.employeeLeavePass.find((v, k) => {
             if (v.id == employee_id) return true
@@ -1037,22 +1116,21 @@
         } else {
             var sisa = sisaWaktu(dataUser.eid, jenisIstirahat)
             if (sisa <= 0) {
-                var dataBreak = data_user.leavePassType.find((v, k) => {
-                    if (v.id == jenisIstirahat) return true
-                })
-                Swal.fire({
-                    text: 'Jam ' + toTitleCase(dataBreak.name) + ' Sudah Habis, Apakah tetap ingin melanjutkan ?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Batal',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        actionSaveBreak(employee_id, jenisIstirahat, id_leave)
-                    }
-                })
+                // var dataBreak = data_user.leavePassType.find((v, k) => {
+                //     if (v.id == jenisIstirahat) return true
+                // })
+                // Swal.fire({
+                //     text: 'Jam ' + toTitleCase(dataBreak.name) + ' Sudah Habis, Apakah tetap ingin melanjutkan ?',
+                //     icon: 'warning',
+                //     showCancelButton: true,
+                //     confirmButtonColor: '#3085d6',
+                //     cancelButtonColor: '#d33',
+                //     confirmButtonText: 'Ya',
+                //     cancelButtonText: 'Batal',
+                // }).then((result) => {
+                //     if (result.isConfirmed) {}
+                // })
+                actionSaveBreak(employee_id, jenisIstirahat, id_leave)
             } else {
                 actionSaveBreak(employee_id, jenisIstirahat, id_leave)
             }
@@ -1060,54 +1138,81 @@
     }
 
     function actionSaveBreak(employee_id, jenisIstirahat, id_leave = null) {
-        if (id_leave) {
-            // edit (closing)
-            var dataUser = data_user.employeeLeavePass.find((v, k) => {
-                if (v.id == employee_id) return true
-            })
-            var data = dataUser.data_leave.find((v, k) => {
-                if (v.id == id_leave) return true
-            })
-            var dataBreak = data_user.leavePassType.find((v, k) => {
-                if (v.id == data.leave_pass_type_id) return true
-            })
-            var datetime_out = currentDateTime()
-            var selisih = selisihMenit(getDateTime(data.datetime_in), datetime_out)
-            var minutesOver = hitungMinutesOver(dataBreak.minutes_max, selisih, dataUser.eid, jenisIstirahat)
-            var is_over = 0
-            if (minutesOver) {
-                is_over = 1
+        if (isClickedRest == false) {
+            if (id_leave) {
+                // edit (closing)
+                var dataUser = data_user.employeeLeavePass.find((v, k) => {
+                    if (v.id == employee_id) return true
+                })
+                var dataUserLeave = dataUser.data_leave.find((v, k) => {
+                    if (v.id == id_leave) return true
+                })
+                var dataBreak = data_user.leavePassType.find((v, k) => {
+                    if (v.id == dataUserLeave.leave_pass_type_id) return true
+                })
+                var datetime_out = currentDateTime()
+                var selisih = selisihMenit(getDateTime(dataUserLeave.datetime_in), datetime_out)
+                var minutesOver = hitungMinutesOverAll(dataBreak.minutes_max, selisih, dataUser.eid, jenisIstirahat, dataUser.data_leave, datetime_out)
+                var data = {
+                    id: id_leave,
+                    employee_id: employee_id,
+                    leave_pass_type_id: jenisIstirahat,
+                    datetime_in: getDateTime(dataUserLeave.datetime_in),
+                    datetime_out: datetime_out,
+                    minutes_usage: selisih,
+                    is_over: minutesOver.status,
+                    minutes_over: minutesOver.jumlah,
+                    employee_id_check: user_id,
+                }
+                if (notes) {
+                    data['note'] = notes
+                }
+            } else {
+                isClickedRest = true
+                // tambah
+                var idLeave = createCodeId(employee_id)
+                var data = {
+                    id: idLeave,
+                    employee_id: employee_id,
+                    leave_pass_type_id: jenisIstirahat,
+                    datetime_in: currentDateTime(),
+                    employee_id_check: user_id,
+                    minutes_over: 0,
+                }
             }
-            var data = {
-                id: id_leave,
-                employee_id: employee_id,
-                leave_pass_type_id: jenisIstirahat,
-                datetime_in: getDateTime(data.datetime_in),
-                datetime_out: datetime_out,
-                minutes_usage: selisih,
-                is_over: is_over,
-                minutes_over: minutesOver,
-                employee_id_check: user_id,
-            }
-            if (notes) {
-                data['note'] = notes
-            }
-        } else {
-            // tambah
-            var idLeave = createCodeId(employee_id)
-            var data = {
-                id: idLeave,
-                employee_id: employee_id,
-                leave_pass_type_id: jenisIstirahat,
-                datetime_in: currentDateTime(),
-                employee_id_check: user_id,
-                minutes_over: 0,
-            }
+            console.log(data)
+            dataSave.leavePassLog.push(data)
         }
-        // console.log(data)
-        dataSave.leavePassLog.push(data)
         ifDataEmpty()
         afterSaveBreak()
+    }
+
+    function sisaWaktuSimpan(eid, id_break) {
+        var data = data_user.employeeLeavePass.find((v, k) => {
+            if (v.eid == eid) return true
+        })
+        var dataBreak = data_user.leavePassType.find((v, k) => {
+            if (v.id == id_break) return true
+        })
+        // console.log(id_break)
+        if (dataBreak.minutes_max) {
+            // ISTIRAHAT
+            var dataReturn = dataBreak.minutes_max
+            if (!data.data_leave) {
+                // jika leva nya belum ada sebelumnya
+                dataReturn = dataBreak.minutes_max
+            } else {
+                // rumus
+                var totalMinutes = findTotalMinutes(data.data_leave)
+                if (totalMinutes > dataBreak.minutes_max) {
+                    dataReturn = 0
+                } else {
+                    // jika total menit kurang dari max
+                    dataReturn = parseInt(dataBreak.minutes_max) - parseInt(totalMinutes)
+                }
+            }
+        }
+        return dataReturn
     }
 
     function afterSaveBreak() {
@@ -1124,8 +1229,8 @@
         var type = 'POST'
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setLeavePassLog'); ?>'
-        var data = deepCopy(dataSave)
         if (dataSave.leavePassLog.length) {
+            var data = deepCopy(dataSave)
             kelolaData(data, type, url, button)
         }
     }
@@ -1202,19 +1307,19 @@
         data_detail.forEach(e => {
             if (!e.datetime_out) {
                 var selisih = selisihMenit(e.datetime_in, currentDateTime())
-                html += '<div class="card shadow-none mb-2 pointer card-hoper" onclick="forceStopRest(' + "'" + e.eid + "'" + ',' + "'" + e.id_leave + "'" + ')">'
+                html += '<div class="card shadow-none mb-2 pointer card-hoper" onclick="forceStopRest(' + "'" + e.eid + "'" + ',' + "'" + e.id_leave + "'" + ')" id="card_search' + a + '">'
                 html += '<span class="position-absolute top-0 start-90 translate-middle badge rounded-pill bg-dark-' + e.leave_pass_type_icon.toLowerCase() + ' super-small-text">' + selisih + ' menit</span>'
                 html += '<div class="card-body p-3">'
                 html += '<div class="row justify-content-between">'
 
                 html += '<div class="col-auto align-self-center">'
-                html += '<p class="m-0 fw-bold super-small-text">No. Meja ' + e.row_code + '</p>'
-                html += '<p class="m-0 fw-bolder small">' + shortenText(e.name, 20) + '</p>'
+                html += '<p class="m-0 fw-bold super-small-text">No. Meja <span class="text_search" data-id="' + a + '">' + e.row_code + '</span></p>'
+                html += '<p class="m-0 fw-bolder small text_search" data-id="' + a + '">' + shortenText(e.name, 20) + '</p>'
                 html += '<p class="m-0 lh-1 fw-bold small-text">Waktu ' + toTitleCase(e.leave_pass_type_name) + '</p>'
                 html += '</div>'
 
                 html += '<div class="col-auto align-self-center">'
-                html += '<p class="m-0 ssmall">' + formatJamMenit(e.datetime_in) + '</p>'
+                html += '<p class="m-0 small">' + formatJamMenit(e.datetime_in) + '</p>'
                 html += '</div>'
 
                 html += '</div>'
@@ -1232,6 +1337,7 @@
         $('#jumlahBelumKembali').html(a)
         $('#dataBelumKembali').html(html)
         overtimeData(overTime)
+        searching()
     }
 
     function overtimeData(data) {
@@ -1304,5 +1410,37 @@
     function offBlurWhenModalOn() {
         $('#codeQR').removeAttr('onblur', 'this.focus()')
         $('#notes').focus();
+    }
+
+    $(document).on('keyup', '#search_nama', function(e) {
+        searching()
+    })
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
+    }
+
+    function searching() {
+        var value = $('#search_nama').val().toLowerCase();
+        var cards = $('.text_search').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

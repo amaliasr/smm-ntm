@@ -187,7 +187,7 @@ function job_administrasi_produksi()
     // DELYA
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 90) {
+    if ($job_title_id == 90 || $job_title_id == 204) {
         return true;
     } else {
         return false;
@@ -248,6 +248,17 @@ function job_security()
         return false;
     }
 }
+function job_mandor()
+{
+    // FEBI
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 127) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // BUAT PER CONTROLLER
 function if_smd_planning()
@@ -282,6 +293,14 @@ function if_create_material_request()
         return false;
     }
 }
+function if_history_material_request()
+{
+    if (job_spv_smd() || job_accounting_and_tax() || job_kepala_operator() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal() || job_administrasi_produksi()) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function if_material_request()
 {
     if (job_spv_smd() || job_accounting_and_tax() || job_kepala_operator() || job_foreman() || job_supply_sparepart() || job_logistik_warehouse() || job_spv_audit_internal() || job_administrasi_produksi()) {
@@ -292,7 +311,7 @@ function if_material_request()
 }
 function if_manage_material_request()
 {
-    if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd() || job_kepala_operator() || job_spv_audit_internal()) {
+    if (job_logistik_warehouse() || job_foreman() || job_supply_sparepart() || job_spv_smd() || job_kepala_operator() || job_spv_audit_internal() || job_administrasi_produksi()) {
         return true;
     } else {
         return false;
@@ -338,6 +357,14 @@ function if_transaction()
         return false;
     }
 }
+function if_po()
+{
+    if (is_purchasing() || is_direktur() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function if_logistik()
 {
     if (is_logistik() || job_spv_audit_internal()) {
@@ -348,7 +375,7 @@ function if_logistik()
 }
 function if_master()
 {
-    if (is_purchasing() || is_direktur() || job_spv_audit_internal() || job_spv_smd() ||  job_foreman()) {
+    if (is_purchasing() || is_direktur() || job_spv_audit_internal() || job_spv_smd() ||  job_foreman() || job_accounting_and_tax()) {
         return true;
     } else {
         return false;
@@ -370,6 +397,14 @@ function if_master_production()
         return false;
     }
 }
+function if_master_fat()
+{
+    if (job_accounting_and_tax() ||  is_direktur()) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function if_rekap()
 {
     if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal()) {
@@ -379,6 +414,14 @@ function if_rekap()
     }
 }
 function if_report_po()
+{
+    if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal() || job_atasan()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_report_pr()
 {
     if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal() || job_atasan()) {
         return true;
@@ -436,7 +479,7 @@ function if_report_result_production()
 }
 function if_report_production_daily()
 {
-    if (job_spv_smd() || job_kepala_operator() || job_foreman_skt() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan()) {
+    if (job_spv_smd() || job_kepala_operator() || job_foreman_skt() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan() || job_mandor()) {
         return true;
     } else {
         return false;
@@ -525,6 +568,14 @@ function if_dashboard_report()
 function if_extras()
 {
     if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_smd() || job_kepala_operator() || job_foreman()  || job_spv_tax() || job_atasan() || job_logistik_warehouse()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_history_po_payment()
+{
+    if (is_accounting() || is_fat() || job_spv_audit_internal()) {
         return true;
     } else {
         return false;

@@ -1,173 +1,81 @@
-<style>
-    html {
-        scroll-behavior: smooth;
-    }
+<link href="<?= base_url(); ?>assets/smm/report.css" rel="stylesheet" type="text/css">
+<link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
+<link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
 
-    #overlay {
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 999999;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-    }
 
-    .nominal {
-        text-align: right;
-    }
-
-    .text-grey {
-        color: #D8D9CF;
-    }
-
-    .text-dark-grey {
-        color: #B2B2B2;
-    }
-
-    .bg-grey {
-        background-color: #EDEDED;
-        color: #B2B2B2;
-    }
-
-    .bg-light-grey {
-        background-color: #FAF7F0;
-    }
-
-    .text-random {
-        color: #425F57;
-    }
-
-    .bg-random {
-        background-color: #425F57;
-    }
-
-    /* .card-hoper:hover {
-        background-color: #F7F7F7;
-    } */
-
-    input.bawahaja {
-        outline: 0;
-        border-width: 0 0 2px;
-        border-color: #00ABB3;
-    }
-
-    #profileImage {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: rgb(25, 128, 194);
-        background: linear-gradient(66deg, rgba(25, 128, 194, 1) 0%, rgba(215, 15, 232, 1) 100%);
-        font-size: 15px;
-        color: #fff;
-        text-align: center;
-        padding: 2px;
-        line-height: 39px;
-        vertical-align: middle;
-        margin: 0 auto;
-    }
-
-    .dots-lead {
-        display: flex;
-    }
-
-    .dots-lead::after {
-        background-image: radial-gradient(circle, currentcolor 1px, transparent 1.5px);
-        background-position: bottom;
-        background-size: 1ex 4.5px;
-        background-repeat: space no-repeat;
-        content: "";
-        flex-grow: 1;
-        height: 1em;
-        order: 2;
-    }
-
-    .gambar-miring {
-        -ms-transform: rotate(20deg);
-        /* IE 9 */
-        transform: rotate(20deg);
-        opacity: 0.3;
-    }
-
-    .litepicker .container__months .month-item {
-        box-sizing: content-box !important;
-        width: 280px !important;
-    }
-
-    .container__months {
-        width: 280px !important;
-    }
-</style>
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
-        <div class="container-xl px-4">
-            <div class="page-header-content pt-4">
-                <div class="row align-items-center justify-content-between">
-                    <div class="col-auto mt-4">
-                        <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-book"></i></div>
-                            Rekap PO
-                        </h1>
-                    </div>
-                    <div class="col-auto mt-4">
-                    </div>
-
-                </div>
-            </div>
+    <header class="page-header page-header-dark pb-10">
+        <div class="container-xl px-4 mb-5">
         </div>
     </header>
     <!-- Main page content-->
-    <div class="container-xl px-4 mt-n10">
+    <div class="container-xl mt-n10">
+        <div class="row justify-content-center mb-2">
+            <div class="col pb-2">
+                <h1 class="text-dark fw-bolder m-0" style="font-weight: 900 !important">REKAP PO</h1>
+                <p class="m-0 small" id="dateRangeString">-</p>
+            </div>
+        </div>
         <div class="row">
-            <div class="col-12 col-md-12">
-                <div class="row">
-                    <div class="col-12 col-md-12 mb-2">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col mb-3">
-                                        <span class="small">Date : <b id="showDate"></b></span>
-                                    </div>
-                                    <div class="col mb-3">
-                                        <button type="button" class="btn btn-primary btn-sm float-end" onclick="tampilFilter()"><i class="fa fa-filter me-2"></i> Filter</button>
-                                    </div>
-                                    <div class="col-12 mb-3" id="tampilReport">
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-hover table-sm small" id="example" style="width: 100%;white-space:nowrap;">
-                                                <thead class="align-self-center">
-                                                    <tr class="align-self-center">
-                                                        <th class="text-center" rowspan="2">No</th>
-                                                        <th class="text-center" rowspan="2">Tanggal</th>
-                                                        <th class="text-center" rowspan="2" id="namaSubject">-</th>
-                                                        <th class="text-center" style="width:auto;" colspan="2">Dokumen</th>
-                                                        <th class="text-center" style="width:auto;" colspan="2">Pengiriman</th>
-                                                        <th class="text-center" style="width:auto;" colspan="3">Barang</th>
-                                                        <th class="text-center" rowspan="2">Transaksi<br>Diterima</th>
-                                                    </tr>
-                                                    <tr class="align-self-center" style="width:100%;">
-                                                        <th class="text-center">Batal</th>
-                                                        <th class="text-center">Revisi</th>
-                                                        <th class="text-center">Tepat Waktu</th>
-                                                        <th class="text-center">Terlambat</th>
-                                                        <th class="text-center">Barang Sesuai</th>
-                                                        <th class="text-center">Barang Kurang</th>
-                                                        <th class="text-center">Barang Lebih</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="contentTable">
-
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="col-12 mb-4">
+                <div class="row justify-content-between">
+                    <div class="col-auto">
+                        <div class="row">
+                            <div class="col-auto">
+                                <p class="fw-bolder small-text m-0">Tanggal</p>
+                                <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
+                            </div>
+                            <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Periode</p>
+                                <select class="selectpicker w-100" id="selectPeriode" title="Pilih View By" onchange="arrangeVariable()">
+                                    <option value="daily" selected>Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                            <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Subject</p>
+                                <select class="selectpicker w-100" id="selectSubject" title="Pilih View By" onchange="arrangeVariable()">
+                                    <option value="user" selected>User</option>
+                                    <option value="costcenter">Cost Center</option>
+                                    <option value="supplier">Supplier</option>
+                                    <option value="department">Department</option>
+                                </select>
+                            </div>
+                            <div class="col-auto d-flex align-items-end ps-0">
+                                <button type="button" class="btn btn-primary btn-sm btnSimpan" style="border-radius: 20px;padding: 10px;" onclick="simpanData()">Search</button>
                             </div>
                         </div>
                     </div>
+                    <div class="col-auto d-flex align-items-end">
+                        <!-- <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="fa fa-download me-2"></span>Downloads
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="exportExcel()">Excel</a></li>
+                            </ul>
+                        </div> -->
+                    </div>
                 </div>
             </div>
+
+            <div class="col-12 mb-2">
+                <div class="card shadow-none border-radius-20">
+                    <div class="card-body">
+                        <p class="fw-bolder m-0">Detail</p>
+                        <div class="table-responsible" id="dataTable">
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </main>
@@ -191,7 +99,7 @@
 
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
@@ -199,9 +107,151 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script>
+    function notFoundReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/nodata.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function empty(location, text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        $(location).html('<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+    }
+
+    function emptyReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function emptyText(location, text) {
+        $(location).html('<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>')
+    }
+
+    function emptyTextReturn(text) {
+        var html = '<div class="row h-100"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:100%;background-color:transparent"><div class="card-body h-100 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function arrayToString(arr) {
+        var resultString = arr.join(',');
+        return resultString;
+    }
+
+    function groupDataByProperties(data, propertyNames) {
+        // Menggunakan Set untuk menyimpan nilai unik dari kombinasi properti
+        var uniqueValuesSet = new Set();
+
+        // Loop melalui data untuk mendapatkan nilai unik dari kombinasi properti
+        data.forEach(function(item) {
+
+            // Membuat array yang berisi nilai properti yang diinginkan
+            var propertyValues = propertyNames.map(function(propertyName) {
+                if (item[propertyName].name) {
+                    return item[propertyName].name
+                } else {
+                    return item[propertyName];
+                }
+            });
+
+            // Menambahkan array nilai properti ke dalam Set
+            uniqueValuesSet.add(JSON.stringify(propertyValues));
+        });
+
+        // Mengonversi Set menjadi array dan mengembalikan hasilnya
+        var uniqueValuesArray = Array.from(uniqueValuesSet).map(function(stringifiedArray) {
+            return JSON.parse(stringifiedArray);
+        });
+
+        return uniqueValuesArray;
+    }
+
+    function findQty(data, criteria) {
+        for (let i = 0; i < data.length; i++) {
+            let match = true;
+
+            for (let key in criteria) {
+                // Mengatasi properti dengan hierarki
+                const keys = key.split('.');
+                let currentValue = data[i];
+
+                for (let j = 0; j < keys.length; j++) {
+                    if (currentValue.hasOwnProperty(keys[j])) {
+                        currentValue = currentValue[keys[j]];
+                    } else {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    break;
+                }
+                if (currentValue != criteria[key]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                if (data[i].qty_waste == null) {
+                    data[i].qty_waste = 0
+                }
+                if (data[i].qty_goods == null) {
+                    data[i].qty_goods = 0
+                }
+                if (data[i].qty_reject == null) {
+                    data[i].qty_reject = 0
+                }
+                return {
+                    qty_goods: number_format(data[i].qty_goods),
+                    qty_reject: number_format(data[i].qty_reject),
+                    qty_waste: number_format(data[i].qty_waste),
+                }
+            }
+        }
+        return null;
+    }
+
+    function formatJustDay(orginaldate) {
+        var date = new Date(orginaldate);
+        var hari = date.getDay();
+        switch (hari) {
+            case 0:
+                hari = "Minggu";
+                break;
+            case 1:
+                hari = "Senin";
+                break;
+            case 2:
+                hari = "Selasa";
+                break;
+            case 3:
+                hari = "Rabu";
+                break;
+            case 4:
+                hari = "Kamis";
+                break;
+            case 5:
+                hari = "Jumat";
+                break;
+            case 6:
+                hari = "Sabtu";
+                break;
+        }
+        return hari;
+    }
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -210,250 +260,347 @@
         $('#modalFooter').html('');
     }
 
+    function getFirstDateOfCurrentMonth() {
+        const currentDate = new Date();
+        const firstDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+
+        const year = firstDate.getFullYear();
+        const month = (firstDate.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+        const day = firstDate.getDate().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function getPreviousFriday() {
+        // Mendapatkan tanggal hari ini
+        const today = new Date();
+
+        // Mendapatkan hari dalam bentuk angka (0: Minggu, 1: Senin, ..., 6: Sabtu)
+        const dayOfWeek = today.getDay();
+
+        // Menghitung selisih hari untuk kembali ke hari Jumat
+        const daysUntilFriday = (dayOfWeek + 2) % 7;
+
+        // Menghitung tanggal Jumat sebelumnya
+        const previousFriday = new Date(today);
+        previousFriday.setDate(today.getDate() - daysUntilFriday);
+
+        // Format tanggal menjadi string 'YYYY-MM-DD'
+        const formattedDate = previousFriday.toISOString().split('T')[0];
+
+        return formattedDate;
+    }
+
     $('#modal').on('hidden.bs.modal', function(e) {
         clearModal();
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
-    var data_user = ""
-    var data_report = ""
     var data_item = ""
-    var data_satuan = ""
-    var data_supplier = ""
-    var data_gudang = ""
-    var periode = ""
-    var subject = ""
-    var date_start = ""
-    var date_end = ""
-
+    var data_report = ""
+    var date_start = getFirstDate()
+    var date_end = currentDate()
+    var detailMode = false
+    var periode = 'daily'
+    var subject = 'user'
+    var is_mutation_only = 0
     $(document).ready(function() {
-        // tampilFilter()
-        $.ajax({
-            url: "<?= api_url('Api_Warehouse/getUser'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            error: function(xhr) {},
-            beforeSend: function() {},
-            success: function(response) {
-                data_user = response['data']
-                getData()
-            }
-        })
+        $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
+        $('select').selectpicker();
+        loadData()
     })
 
-    function getData() {
+    function getFirstDate() {
+        // Mendapatkan tanggal hari ini
+        const today = new Date();
+        var month = today.getMonth() + 1;
+        var year = today.getFullYear();
+
+        // Format tanggal menjadi string 'YYYY-MM-DD'
+        const formattedDate = year + "-" + month + "-01";
+
+        return formattedDate;
+    }
+
+    function loadData() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
             method: "GET",
             dataType: 'JSON',
-            error: function(xhr) {},
-            beforeSend: function() {},
-            success: function(response) {
-                data_item = response['data']['item'];
-                data_satuan = response['data']['itemSatuan'];
-                data_supplier = response['data']['supplier'];
-                data_gudang = response['data']['gudang'];
-                // getDataReport()
-                tampilFilter()
-            }
-        })
-    }
-
-    function tampilFilter() {
-        $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-centered');
-        var html_header = '';
-        html_header += '<h5 class="modal-title">Filter</h5>';
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-
-        var html_body = '';
-        html_body += '<div class="container small">'
-
-        html_body += '<div class="row">'
-        html_body += '<b class="small">Tanggal</b>'
-        html_body += '<div class="col pe-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateStart" placeholder="Tanggal Mulai" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_start + '">'
-        html_body += '</div>'
-        html_body += '<div class="col-auto align-self-center">-</div>'
-        html_body += '<div class="col ps-0">'
-        html_body += '<input class="form-control datepicker" type="text" id="dateEnd" placeholder="Tanggal Akhir" style="padding:0.875rem 3.375rem 0.875rem 1.125rem" value="' + date_end + '">'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '<div class="row pt-2">'
-        html_body += '<b class="small">Periode</b>'
-        html_body += '<div class="col">'
-        html_body += '<select class="form-control w-100 selectPeriode" id="selectPeriode">'
-        var select_d = ""
-        var select_w = ""
-        var select_m = ""
-        if (periode == 'daily') {
-            select_d = "selected"
-            select_w = ""
-            select_m = ""
-        } else if (periode == 'weekly') {
-            select_d = ""
-            select_w = "selected"
-            select_m = ""
-        } else if (periode == 'monthly') {
-            select_d = ""
-            select_w = ""
-            select_m = "selected"
-        }
-        html_body += '<option value="daily" ' + select_d + '>Daily</option>'
-        html_body += '<option value="weekly" ' + select_w + '>Weekly</option>'
-        html_body += '<option value="monthly" ' + select_m + '>Monthly</option>'
-        html_body += '</select>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '<div class="row pt-2">'
-        html_body += '<b class="small">Subject</b>'
-        html_body += '<div class="col">'
-        html_body += '<select class="form-control w-100 selectSubject" id="selectSubject">'
-        var select_u = ""
-        var select_c = ""
-        var select_s = ""
-        var select_d = ""
-        if (subject == 'user') {
-            select_u = "selected"
-            select_c = ""
-            select_s = ""
-            select_d = ""
-        } else if (subject == 'costcenter') {
-            select_u = ""
-            select_c = "selected"
-            select_s = ""
-            select_d = ""
-        } else if (subject == 'supplier') {
-            select_u = ""
-            select_c = ""
-            select_s = "selected"
-            select_d = ""
-        } else if (subject == 'department') {
-            select_u = ""
-            select_c = ""
-            select_s = ""
-            select_d = "selected"
-        }
-        html_body += '<option value="user" ' + select_u + '>User</option>'
-        html_body += '<option value="costcenter" ' + select_c + '>Cost Center</option>'
-        html_body += '<option value="supplier" ' + select_s + '>Supplier</option>'
-        html_body += '<option value="department" ' + select_d + '>Department</option>'
-        html_body += '</select>'
-        html_body += '</div>'
-        html_body += '</div>'
-
-        html_body += '</div>'
-        $('#modalBody').html(html_body);
-        new Litepicker({
-            element: document.getElementById('dateStart'),
-            elementEnd: document.getElementById('dateEnd'),
-            singleMode: false,
-            allowRepick: true,
-            firstDay: 0,
-        })
-
-        var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>'
-        html_footer += '<button type="button" class="btn btn-primary btn-sm" id="btnFilter" onclick="getDataReport()">Simpan</button>'
-        $('#modalFooter').html(html_footer);
-    }
-
-    function getDataReport() {
-        date_start = $('#dateStart').val()
-        date_end = $('#dateEnd').val()
-        periode = $('#selectPeriode').val()
-        subject = $('#selectSubject').val()
-        $.ajax({
-            url: "<?= api_url('Api_Warehouse/rekapPo'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                periode: periode,
-                subject: subject,
-                date_start: date_start,
-                date_end: date_end,
-            },
             error: function(xhr) {
-                $('#btnFilter').removeAttr('disabled', true)
+                showOverlay('hide')
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error Data',
-                    text: 'Please Refresh This Page'
+                    title: 'Oops...',
+                    text: 'Error Data'
                 });
             },
             beforeSend: function() {
-                $('#btnFilter').attr('disabled', true)
+                showOverlay('show')
             },
             success: function(response) {
-                $('#contentTable').empty()
-                $('#namaSubject').html(toTitleCase(subject))
-                $('#btnFilter').removeAttr('disabled', true)
-                $('#modal').modal('hide')
-                data_report = response['data']
-                $('#showDate').html(formatDate($('#dateStart').val()) + ' - ' + formatDate($('#dateEnd').val()))
-                dataTampilReport()
-
+                showOverlay('hide')
+                data_item = response['data']['item'];
+                setDaterange()
+                formItem()
+                dateRangeString()
             }
         })
     }
 
-    function dataTampilReport() {
+    function dateRangeString() {
+        $('#dateRangeString').html(formatDateIndonesiaShort(date_start) + ' - ' + formatDateIndonesiaShort(date_end))
+    }
+
+    function setDaterange() {
+        new Litepicker({
+            element: document.getElementById('dateRange'),
+            singleMode: false,
+            firstDay: 0,
+            startDate: date_start,
+            endDate: date_end,
+            format: "DD MMMM YYYY",
+            autoRefresh: true,
+            setup: (picker) => {
+                picker.on('selected', (date1, date2) => {
+                    date_start = formatDate(date1['dateInstance'])
+                    date_end = formatDate(date2['dateInstance'])
+                });
+            },
+        })
+    }
+
+    function formItem() {
+        var html = ''
+        data_item.forEach(e => {
+            var select = ''
+            select = 'selected'
+            html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
+        });
+        $('#selectItem').html(html)
+        $('#selectItem').selectpicker('refresh');
+        $('#selectItem').selectpicker({
+
+        });
+        // autoSave()
+        // simpanData()
+        arrangeVariable()
+    }
+
+    function arrangeVariable() {}
+
+    function simpanData() {
+        periode = $('#selectPeriode').val()
+        subject = $('#selectSubject').val()
+        // ----------------------------------------- //
+        var type = 'GET'
+        var button = '.btnSimpan'
+        var url = '<?php echo api_url('Api_Warehouse/rekapPo'); ?>'
+        var data = {
+            periode: periode,
+            subject: subject,
+            date_start: date_start,
+            date_end: date_end,
+        }
+        kelolaData(data, type, url, button)
+    }
+
+    function kelolaData(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                dateRangeString()
+                $(button).prop("disabled", false);
+                data_report = response.data
+                if (data_report.length) {
+                    updatedStructure()
+                } else {
+                    // tidak ada data
+                    $('#dataTable').html(notFoundReturn('Data Tidak Ditemukan'))
+                }
+            }
+        });
+    }
+
+    function updatedStructure() {
+        dataTable()
+    }
+
+    function dataTable() {
+        var html = ''
+        html += '<table class="table table-bordered table-hover table-sm small w-100 tableDetail" id="tableDetail" style="width: 100%;white-space:nowrap;cursor: grab;overflow:auto;">'
+        html += '<thead id="headTable">'
+        html += '</thead>'
+        html += '<tbody id="bodyTable">'
+        html += '</tbody>'
+        html += '</table>'
+        $('#dataTable').html(html)
+        headTable()
+    }
+
+    function headTable() {
+        var html = ''
+        html += '<tr>'
+        html += '<th class="align-middle text-center small-text" rowspan="2">No</th>'
+        html += '<th class="align-middle text-center small-text" rowspan="2">Tanggal</th>'
+        html += '<th class="align-middle text-center small-text" rowspan="2" id="namaSubject">' + toTitleCase(subject) + '</th>'
+        html += '<th class="align-middle text-center small-text" style="width:auto;" colspan="2">Dokumen</th>'
+        html += '<th class="align-middle text-center small-text" style="width:auto;" colspan="2">Pengiriman</th>'
+        html += '<th class="align-middle text-center small-text" style="width:auto;" colspan="3">Barang</th>'
+        html += '<th class="align-middle text-center small-text" rowspan="2">Transaksi<br>Diterima</th>'
+        html += '</tr>'
+        html += '<tr style="width:100%;">'
+        html += '<th class="align-middle text-center small-text">Batal</th>'
+        html += '<th class="align-middle text-center small-text">Revisi</th>'
+        html += '<th class="align-middle text-center small-text">Tepat Waktu</th>'
+        html += '<th class="align-middle text-center small-text">Terlambat</th>'
+        html += '<th class="align-middle text-center small-text">Barang Sesuai</th>'
+        html += '<th class="align-middle text-center small-text">Barang Kurang</th>'
+        html += '<th class="align-middle text-center small-text">Barang Lebih</th>'
+        html += '</tr>'
+        $('#headTable').html(html)
+        bodyTable()
+    }
+
+    function bodyTable() {
         var html = ""
-        var html_date = ""
-        var html_ket = ""
         $.each(data_report, function(key, value) {
             var laporan = JSON.parse(value['data_laporan'])
             $.each(laporan, function(keys, values) {
                 if (keys == 0) {
-                    fieldContentDetail(laporan[keys], laporan.length, key, value['date'], 'parent', data_report[key])
+                    html += fieldContentDetail(laporan[keys], laporan.length, key, value['date'], 'parent', data_report[key])
                 }
             })
 
             if (laporan.length > 1) {
                 $.each(laporan, function(keys, values) {
                     if (keys > 0) {
-                        fieldContentDetail(laporan[keys], laporan.length, key, value['date'], 'child', data_report[key])
+                        html += fieldContentDetail(laporan[keys], laporan.length, key, value['date'], 'child', data_report[key])
                     }
                 })
             }
         })
+        $('#bodyTable').html(html)
+        $('#tableDetail').DataTable({
+            ordering: false, // Menonaktifkan pengurutan
+            pageLength: 200,
+            scrollY: "400px",
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            fixedHeader: true,
+            fixedColumns: {
+                left: 4
+            },
+            paging: false,
+            rowGroup: {
+                dataSrc: 'group'
+            }
+        })
+        table_scroll('tableDetail')
     }
 
     function fieldContentDetail(laporan, jumlah, key, date, jenis, data) {
         var html = ""
         html += '<tr>'
         if (jenis == 'parent') {
-            html += '<td rowspan="' + jumlah + '">' + (key + 1) + '</td>'
+            html += '<td class="text-center smal-text" rowspan="' + jumlah + '">' + (key + 1) + '</td>'
             var param_lain = ""
             if (periode == 'weekly') {
                 param_lain = 'Minggu ke-' + data['minggu_ke'] + '<br>'
             } else if (periode == 'monthly') {
                 param_lain = data['bulan'] + '<br>'
             }
-            html += '<td class="text-center" rowspan="' + jumlah + '">' + param_lain + date + '</td>'
+            html += '<td class="text-center small-text" rowspan="' + jumlah + '">' + param_lain + date + '</td>'
         }
         if (laporan['subject_name'] == null) {
             laporan['subject_name'] = "-"
         }
-        html += '<td>' + laporan['subject_name'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_batal'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_revisi'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_tepat_waktu'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_telat_kirim'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_barang_sesuai'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_barang_kurang'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_barang_lebih'] + '</td>'
-        html += '<td class="text-center">' + laporan['total_transaksi_diterima'] + '</td>'
+        html += '<td class="small-text">' + laporan['subject_name'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_batal'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_revisi'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_tepat_waktu'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_telat_kirim'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_barang_sesuai'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_barang_kurang'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_barang_lebih'] + '</td>'
+        html += '<td class="text-center small-text">' + laporan['total_transaksi_diterima'] + '</td>'
         html += '</tr>'
-        $('#contentTable').append(html)
+        return html
+    }
+
+    function cetakReport(x, y, merge) {
+        var viewBy = ''
+        if (y == 1) {
+            viewBy = 'Detail'
+        }
+        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn' + viewBy + '"')
+        var params = "*$" + date_start + "*$" + date_end + "*$" + itemId + "*$" + viewBy + "*$" + merge;
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
+    }
+
+    function table_scroll(className) {
+        const slider = document.querySelector("." + className);
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener("mousedown", (e) => {
+            document.querySelector("." + className).style.cursor = "grabbing";
+            isDown = true;
+            slider.classList.add("active");
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener("mouseleave", () => {
+            isDown = false;
+            document.querySelector("." + className).style.cursor = "grab";
+            slider.classList.remove("active");
+        });
+
+        slider.addEventListener("mouseup", () => {
+            isDown = false;
+            document.querySelector("." + className).style.cursor = "grab";
+            slider.classList.remove("active");
+        });
+
+        slider.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            document.querySelector("." + className).style.cursor = "grabbing";
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 3; // scroll-fast
+            slider.scrollLeft = scrollLeft - walk;
+        });
     }
 
     function exportExcel() {
+        itemId = $('#selectItem').map(function() {
+            return $(this).val();
+        }).get().toString()
         var url = '<?= base_url('report/exportLaporanGudang') ?>';
-        var params = "item_id=" + item_id + "&date_start=" + $('#dateStart').val() + "&date_end=" + $('#dateEnd').val()
-        window.open(url + '?' + params, '_blank');
+        var params = "*$" + itemId + "*$" + date_start + "*$" + date_end;
+        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
+    }
+
+    function roundToOne(num) {
+        return +(Math.round(num + "e+1") + "e-1");
     }
 </script>

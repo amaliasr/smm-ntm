@@ -181,10 +181,11 @@
     .form-select,
     .dataTable-selector {
         text-align: right !important;
-        background-position: left 1.125rem center !important;
+        background-position: left 2.125rem center !important;
+        background-image: none;
         padding-right: 0px;
         font-weight: bolder;
-        font-size: large;
+        font-size: small;
     }
 </style>
 <style>
@@ -321,6 +322,10 @@
     .bg-light-primary {
         background-color: #e5effd !important;
     }
+
+    .custom-popover {
+        width: 200px !important;
+    }
 </style>
 <script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
 
@@ -351,17 +356,23 @@
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2" style="width: 200px;">
                                         <li>
                                             <form class="px-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="checkAutoNext" onclick="autoNextOn()" checked>
+                                                <!-- <div class="form-check">
+                                                    <input class="form-check-input checkAutoNext" type="checkbox" value="" id="checkAutoNext" onclick="autoNextOn()" checked>
                                                     <label class="form-check-label small" for="checkAutoNext">
                                                         Auto Next Setoran
                                                     </label>
                                                 </div>
-                                                <hr>
+                                                <hr> -->
                                                 <div class="form-check">
                                                     <input class="form-check-input selectModes" type="radio" value="" name="selectModes" id="checkMode" onclick="selectMode()" checked>
                                                     <label class="form-check-label small" for="checkMode">
                                                         Mode Manual
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input selectModes" type="radio" value="150" name="selectModes" id="checkMode150" onclick="selectMode()">
+                                                    <label class="form-check-label small" for="checkMode150">
+                                                        Mode 150
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
@@ -449,6 +460,21 @@
         <span class="m-0 align-middle"><i class="fa fa-wifi me-2"></i>Offline Mode</span><span><i id="textAutoSave"></i></span><span id="buttonSaveOfflineMode" hidden><span id="" class="ms-2 btn btn-outline-dark text-white p-2 super-small-text" onclick="loadSimpanOfflineMode()"><i class="fa fa-eye me-1"></i>View</span><button id="btnSimpanOffline" class="ms-2 btn btn-dark p-2 super-small-text" onclick="autoSaveAtOfflineModeResult()"><i class="fa fa-save me-1"></i>Send All</button></span>
     </div>
 </div>
+<div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog" role="document" id="modalDialog">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+
+            </div>
+            <div class="modal-body" id="modalBody">
+
+            </div>
+            <div class="modal-footer" id="modalFooter">
+
+            </div>
+        </div>
+    </div>
+</div>
 <div aria-live="polite" aria-atomic="true" class="position-relative">
     <!-- Position it: -->
     <!-- - `.toast-container` for spacing between toasts -->
@@ -479,7 +505,7 @@
 
 
     function createCodeId(worker_id = '') {
-        var date = (new Date).getTime() + '' + worker_id
+        var date = worker_id + '' + (new Date).getTime()
         return date;
     }
 
@@ -488,9 +514,10 @@
     }
 
     function findStatusEdit(id, menu) {
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == id) return true
-        })
+        var data = arrayDataDetailDelivery[id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == id) return true
+        // })
         // console.log(data)
         var status
         var nextStatus
@@ -506,28 +533,32 @@
         var material_pickup_id
         var material_pickup_details
         var result_product_person_step = []
+        var number = ''
         if (data) {
-            worker_id = data.worker_id
-            itemId = data.item.id
-            item = data.item.alias
-            itemName = data.item.name
-            step_status = lastStatusSteps(data.result_product_person_step, 'name')
-            step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
-            warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
-            machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
-            material_pickup_id = getMaterialPickup(data.material_pickup).id
-            material_pickup_details = getMaterialPickup(data.material_pickup).material_pickup_details
-            result_product_person_step = data.result_product_person_step
-            if (menu == 'NEWDELIVER') {
-                qty = {
-                    'good': getMaterialPickup(data.material_pickup).qty,
-                    'process_at': data.datetime
+            number = data.number
+            if (data.item_target) {
+                worker_id = data.worker_id
+                itemId = data.item.id
+                item = data.item.alias
+                itemName = data.item.name
+                step_status = lastStatusSteps(data.result_product_person_step, 'name')
+                step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
+                warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
+                machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
+                material_pickup_id = getMaterialPickup(data.material_pickup).id
+                material_pickup_details = getMaterialPickup(data.material_pickup).material_pickup_details
+                result_product_person_step = data.result_product_person_step
+                if (menu == 'NEWDELIVER') {
+                    qty = {
+                        'good': getMaterialPickup(data.material_pickup).qty,
+                        'process_at': data.datetime
+                    }
+                } else {
+                    qty = deepCopy(data[menu.toLowerCase()])
                 }
-            } else {
-                qty = deepCopy(data[menu.toLowerCase()])
+                status = menu
+                nextStatus = menu
             }
-            status = menu
-            nextStatus = menu
         }
         return {
             id: id,
@@ -544,16 +575,26 @@
             machine_step_profile_id: machine_step_profile_id,
             material_pickup_id: material_pickup_id,
             material_pickup_details: material_pickup_details,
-            result_product_person_step: result_product_person_step
+            result_product_person_step: result_product_person_step,
+            number: number
         }
     }
 
     function lastStatusSteps(data, variable) {
-        var text = '-'
-        if (data.length) {
-            text = data[parseInt(data.length) - 1].machine_step[variable]
-            if (text == null) {
-                text = '-'
+        if (variable != 'all_steps') {
+            var text = '-'
+            if (data.length) {
+                text = data[parseInt(data.length) - 1].machine_step[variable]
+                if (text == null) {
+                    text = '-'
+                }
+            }
+        } else {
+            var text = []
+            if (data.length) {
+                data.forEach(e => {
+                    text.push(e.machine_step['name'])
+                });
             }
         }
         return text
@@ -604,8 +645,9 @@
         var output = 0
         if (data) {
             data.forEach(e => {
+                // console.log(e)
                 e.material_pickup_details.forEach(el => {
-                    output = output + el.qty
+                    output = el.qty
                 });
             });
         }
@@ -647,10 +689,16 @@
         }
     }
 
+    function findNumberNewBar(worker_id) {
+
+    }
+
     function findStatus(id = null) {
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == id) return true
-        })
+        var data = arrayDataDetailDelivery[id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == id) return true
+        // })
+        // console.log(data)
         var status
         var nextStatus
         var qty = {}
@@ -658,93 +706,112 @@
         var item = ''
         var itemId = ''
         var itemName = '-'
+        var itemAlias = '-'
         var step_status = ''
         var step_status_id = ''
         var warehouse_id
         var machine_step_profile_id
         var machine_step_profile_detail_id
+        var allSteps = []
+        var number = ''
         if (data) {
-            worker_id = data.worker_id
-            itemId = data.item.id
-            item = data.item.alias
-            itemName = data.item.name
-            step_status = lastStatusSteps(data.result_product_person_step, 'name')
-            step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
-            warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
-            machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
-            machine_step_profile_detail_id = lastStatusMachineProfileSteps(data.result_product_person_step)
-            // console.log(data)
-            // console.log(data.delivery.is_process)
-            // console.log(cekAmbilMaterial(data.material_pickup))
-            // console.log(cekStatusProductPersonSteps(data.result_product_person_step))
-            // console.log(data.complete.is_process)
-            if (!data.delivery.is_process && !cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
-                // sedang ambil material
-                status = 'AMBIL MATERIAL'
-                nextStatus = 'SEDANG AMBIL MATERIAL'
-                qty = {
-                    good: qtyMaterialPickup(data.material_pickup),
-                }
-            } else if (!data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
-                status = 'TELAH AMBIL MATERIAL'
-                nextStatus = 'DELIVERY'
-                qty = {
-                    good: qtyMaterialPickup(data.material_pickup),
-                }
+            number = data.number
+            if (data.item_target) {
+                worker_id = data.worker_id
+                itemId = data.item_target.id
+                item = data.item_target.alias
+                itemName = data.item_target.name
+                itemAlias = data.item_target.alias
+                step_status = lastStatusSteps(data.result_product_person_step, 'name')
+                step_status_id = lastStatusSteps(data.result_product_person_step, 'id')
+                allSteps = lastStatusSteps(data.result_product_person_step, 'all_steps')
+                warehouse_id = getMaterialPickup(data.material_pickup).warehouse_id
+                machine_step_profile_id = getMaterialPickup(data.material_pickup).machine_step_profile_id
+                machine_step_profile_detail_id = lastStatusMachineProfileSteps(data.result_product_person_step)
+                // console.log(data)
+                // console.log(data.delivery.is_process)
+                // console.log(cekAmbilMaterial(data.material_pickup))
+                // console.log(cekStatusProductPersonSteps(data.result_product_person_step))
+                // console.log(data.complete.is_process)
+                if (!data.delivery.is_process && !cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                    // sedang ambil material
+                    status = 'AMBIL MATERIAL'
+                    nextStatus = 'SEDANG AMBIL MATERIAL'
+                    qty = {
+                        good: qtyMaterialPickup(data.material_pickup),
+                    }
+                } else if (!data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                    status = 'TELAH AMBIL MATERIAL'
+                    nextStatus = 'DELIVERY'
+                    qty = {
+                        good: qtyMaterialPickup(data.material_pickup),
+                    }
 
-            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
-                // masih ngambag di delivery (karena ada reject)
-                status = 'DELIVERY'
-                nextStatus = 'FILLUP'
-                qty = {
-                    waste: getWaste(data.result_product_person_id),
-                    good: qtyMaterialPickup(data.material_pickup),
-                }
+                } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && !cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                    // masih ngambag di delivery (karena ada reject)
+                    status = 'DELIVERY'
+                    nextStatus = 'FILLUP'
+                    qty = {
+                        waste: getWaste(data.result_product_person_id),
+                        good: qtyMaterialPickup(data.material_pickup),
+                    }
 
-            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
-                var checkAnyReject = checkIfAllStepIsReject(data.result_product_person_id)
-                var checkCompleteProfileStep = checkCompletedProfileStepsAll(data.result_product_person_id, machine_step_profile_id, itemId)
-                if (!checkCompleteProfileStep) {
-                    // jika semua step belum complete
-                    if (checkAnyReject.status == 'complete') {
-                        // jika tidak ada reject
-                        status = 'TELAH AMBIL MATERIAL'
-                        nextStatus = 'DELIVERY'
-                        qty = {
-                            good: qtyMaterialPickup(data.material_pickup),
+                } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && !data.complete.is_process) {
+                    var checkAnyReject = checkIfAllStepIsReject(data.result_product_person_id)
+                    var checkCompleteProfileStep = checkCompletedProfileStepsAll(data.result_product_person_id, machine_step_profile_id, itemId)
+                    if (!checkCompleteProfileStep) {
+                        // jika semua step belum complete
+                        if (checkAnyReject.status == 'complete') {
+                            // jika tidak ada reject
+                            status = 'TELAH AMBIL MATERIAL'
+                            nextStatus = 'DELIVERY'
+                            qty = {
+                                good: qtyMaterialPickup(data.material_pickup),
+                            }
+                        } else {
+                            // jika ada reject
+                            status = 'DELIVERY'
+                            nextStatus = 'FILLUP'
+                            qty = {
+                                waste: data.delivery.waste,
+                                total_waste: getWaste(data.result_product_person_id),
+                                good: qtyMaterialPickup(data.material_pickup),
+                            }
                         }
                     } else {
-                        // jika ada reject
-                        status = 'DELIVERY'
-                        nextStatus = 'FILLUP'
+                        // console.log(checkCompleteProfileStep)
+                        status = 'COMPLETE'
+                        nextStatus = 'DONE'
                         qty = {
-                            waste: data.delivery.waste,
-                            total_waste: getWaste(data.result_product_person_id),
+                            waste: data.complete.waste,
+                            reject: data.complete.reject,
                             good: qtyMaterialPickup(data.material_pickup),
                         }
                     }
-                } else {
-                    // console.log(checkCompleteProfileStep)
+
+                } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && data.complete.is_process) {
                     status = 'COMPLETE'
                     nextStatus = 'DONE'
                     qty = {
                         waste: data.complete.waste,
                         reject: data.complete.reject,
-                        good: qtyMaterialPickup(data.material_pickup),
+                        good: data.complete.good,
+                    }
+                } else {
+                    // console.log(data)
+                    // console.log(data.delivery.is_process)
+                    // console.log(cekAmbilMaterial(data.material_pickup))
+                    // console.log(cekStatusProductPersonSteps(data.result_product_person_step))
+                    // console.log(data.complete.is_process)
+                    status = 'PROCESS'
+                    nextStatus = 'DONE'
+                    qty = {
+                        good: 0
                     }
                 }
-
-            } else if (data.delivery.is_process && cekAmbilMaterial(data.material_pickup) && cekStatusProductPersonSteps(data.result_product_person_step) && data.complete.is_process) {
-                status = 'COMPLETE'
-                nextStatus = 'DONE'
-                qty = {
-                    waste: data.complete.waste,
-                    reject: data.complete.reject,
-                    good: data.complete.good,
-                }
             } else {
-                status = 'PROCESS'
-                nextStatus = 'DONE'
+                status = 'NOT CREATED'
+                nextStatus = 'NEWDELIVER'
                 qty = {
                     good: 0
                 }
@@ -766,18 +833,22 @@
             step_status: step_status,
             step_status_id: step_status_id,
             itemName: itemName,
+            itemAlias: itemAlias,
             itemId: itemId,
             warehouse_id: warehouse_id,
             machine_step_profile_id: machine_step_profile_id,
             machine_step_profile_detail_id: machine_step_profile_detail_id,
+            allSteps: allSteps,
+            number: number,
         }
     }
 
     function findDataResultPerson(result_product_person_id, machine_step_profile_detail_id) {
         var master = []
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         if (data) {
             var dataDetail = data.result_product_person_step.filter((v, k) => {
                 if (v.machine_step_profile_detail_id == machine_step_profile_detail_id) return true
@@ -791,9 +862,10 @@
 
     function getWaste(result_product_person_id) {
         var qty = 0
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         if (data) {
             qty = data.delivery.waste
             if (qty == null) {
@@ -804,9 +876,10 @@
     }
 
     function checkIfStepIsDone(profile_step_id, result_product_person_id) {
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         var good = 0
         var reject = 0
         var process_at = 0
@@ -841,9 +914,10 @@
     }
 
     function checkIfAllStepIsReject(result_product_person_id) {
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         var status = 'complete'
         if (data) {
             if (data.result_product_person_step) {
@@ -860,9 +934,7 @@
     }
 
     function totalSetoran(worker_id) {
-        var dataWorker = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        })
+        var dataWorker = arrayDataDEntryProductionEntry[worker_id]
         var total = 0
         if (dataWorker) {
             if (dataWorker.data.length) {
@@ -907,12 +979,14 @@
     }
 
     function findNumberofSetoran(worker_id) {
-        var data = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        })
+        var data = arrayDataDEntryProductionEntry[worker_id]
         var numSetoran = 1
-        if (data.data.length) {
-            numSetoran = data.data[parseInt(data.data.length) - 1].number
+        if (data) {
+            if (data.data.length) {
+                numSetoran = data.data[parseInt(data.data.length) - 1].number
+            } else {
+                numSetoran = 0
+            }
         } else {
             numSetoran = 0
         }
@@ -957,6 +1031,10 @@
         }
     }
 
+    function filterDataMachineSteps(data, criteria) {
+        return data.filter(item => criteria.includes(item.machine_step_id));
+    }
+
     function findmachineStep(idProduct, idStep) {
         var dataMaster = {
             listMachineStep: [],
@@ -972,10 +1050,20 @@
             var dataMachineStep = data.machine_step_profiles.find((v, k) => {
                 if (v.id == idStep) return true
             })
+            // console.log(idProduct)
             // console.log(dataMachineStep)
             if (dataMachineStep) {
-                dataMaster.listMachineStep = dataMachineStep.machine_step_profile_details
-                dataMaster.listMachineStepProduct = dataMachineStep.machine_steps_product
+                var machineStepProduct = dataMachineStep.machine_step_profile_details
+                dataMaster.listMachineStep = machineStepProduct
+                var stepProductDetail = dataMachineStep.machine_steps_product
+                var totalStepProductDetail = []
+                machineStepProduct.forEach(e => {
+                    var array = filterDataMachineSteps(stepProductDetail, e.machine_step_ids)
+                    array.forEach(el => {
+                        totalStepProductDetail.push(el)
+                    });
+                });
+                dataMaster.listMachineStepProduct = totalStepProductDetail
             }
         }
         if (dataMaster.listMachineStep.length) {
@@ -1013,12 +1101,14 @@
                 item_ids_material_main = dataMachineStep.item_ids_material_main
             }
         }
-        // console.log(idProduct)
-        // console.log(item_ids_material_main)
         var dataCollect = []
         dataEntry.productMaterial.forEach(e => {
             e.material_group.forEach(el => {
                 if (el) {
+                    // console.log(e)
+                    // console.log(el.item_id_default)
+                    // console.log(idProduct)
+                    // console.log(item_ids_material_main)
                     for (let i = 0; i < item_ids_material_main.length; i++) {
                         if (item_ids_material_main[i] == el.item_id_default) {
                             var dataUnit = el.item_default.unit_option.find((v, k) => {
@@ -1060,7 +1150,15 @@
         if (!height) {
             height = '100%'
         }
-        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/lf20_s8pbrcfw.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>'
+        return html
+    }
+
+    function LoadingReturn(text, height = null) {
+        if (!height) {
+            height = '100%'
+        }
+        var html = '<div class="row"><div class="col-12 align-self-center text-center"><div class="card shadow-none" style="border:0px;height:' + height + ';"><div class="card-body h-100 p-5 m-5"><p class="small"><i>' + text + '</i></p></div></div></div></div>'
         return html
     }
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -1085,17 +1183,20 @@
     }
     var workerIdClicked
     var setoranIdClicked
-    // var materialIdClicked
+    var itemIdClicked
     var cameraOn
     var JustOnCamAfterAdd = false
     var scanned = false
     var fastMode = false
-    var autoNext = true
+    var autoNext = false
     var offlineMode = true
     var variableSaveOffline = {
         resultProductPerson: [],
         resultProductPersonStep: [],
-        deletedId: []
+        deletedId: {
+            resultProductPersonStep: [],
+            resultProductPerson: [],
+        }
     }
     var variableSaveMaterialOffline = {
         materialPickup: [],
@@ -1131,8 +1232,11 @@
         }],
     }
     var variableMode = ''
-    var firstSetoranMode = false
+    var firstSetoranMode = true
+    var totalFirstSetoranMode = 0
     var fillupAutoNextSetoran = false
+    var lastSetoranMode = false
+    var is_product_final_other = '0'
 
 
     $(document).ready(function() {
@@ -1140,6 +1244,109 @@
         offlineModeConnection()
         // empty('#workerProgress', '<span class="small-text">Belum Tersedia Progress Worker</span>')
     })
+    var loadDataDetailDelivery = []
+
+    function getDataDetailDelivery() {
+        var dataLoad = loadDataDetailDelivery
+        if (dataLoad.length) {
+            if (dataLoad.result_product_person_id != setoranIdClicked) {
+                dataLoad = deepCopy(dataDetailDelivery).find((v, k) => {
+                    if (v.result_product_person_id == setoranIdClicked) return true
+                })
+            }
+        } else {
+            dataLoad = deepCopy(dataDetailDelivery).find((v, k) => {
+                if (v.result_product_person_id == setoranIdClicked) return true
+            })
+        }
+        return dataLoad
+    }
+
+    function groupByUnique(array, key) {
+        const grouped = array.reduce((result, currentValue) => {
+            // Tentukan nilai dari properti yang akan digunakan sebagai grup
+            const groupKey = currentValue[key];
+
+            // Jika grup belum ada dalam hasil, atau jika sudah ada, periksa apakah objek dengan nilai yang sama sudah ada
+            if (!result[groupKey]) {
+                result[groupKey] = currentValue;
+            }
+
+            return result;
+        }, {}); // Inisialisasi hasil dengan objek kosong
+
+        // Mengambil nilai unik dari objek yang dikelompokkan
+        return Object.values(grouped);
+    }
+
+    function totalSetoranAll(worker_id) {
+        var dataWorker = arrayDataDEntryProductionEntry[worker_id]
+        var total = 0
+        var totalAll = {}
+        var brand = []
+        if (dataWorker) {
+            if (dataWorker.data.length) {
+                // console.log(dataWorker.data)
+                dataWorker.data.forEach(e => {
+                    var total_step = 0
+                    if (e.result_product_person_step) {
+                        total_step = e.result_product_person_step.length
+                    }
+                    brand.push({
+                        'id': e.item.id,
+                        'alias': e.item.alias,
+                        // 'total_step': total_step
+                    })
+                })
+                dataWorker.data.forEach(e => {
+                    var qty = 0
+                    if (e.complete.is_process) {
+                        qty = e.complete.good
+                    }
+                    if (totalAll[e.item.id]) {
+                        totalAll[e.item.id] = totalAll[e.item.id] + parseFloat(qty)
+                    } else {
+                        totalAll[e.item.id] = parseFloat(qty)
+                    }
+                });
+            }
+        }
+        var dataOffline = deepCopy(variableSaveOffline.resultProductPerson)
+        if (dataOffline.length) {
+            var dataWorker = dataOffline.filter((v, k) => {
+                if (v.employee_id == worker_id) return true
+            })
+            if (dataWorker.length) {
+                dataWorker.forEach(e => {
+                    if (totalAll[e.item_id]) {
+                        totalAll[e.item_id] = totalAll[e.item_id] + parseFloat(e.qty_good_deliv)
+                    } else {
+                        totalAll[e.item_id] = parseFloat(e.qty_good_deliv)
+                    }
+                });
+            }
+        }
+        // var showData = []
+        // console.log(brand)
+        brand = groupByUnique(brand, 'alias')
+        // brand = groupByUnique(brand, 'id')
+        // console.log(brand)
+        var html = ''
+        html += '<p class="m-0 small-text text-dark-grey"><span class="fw-bold me-2">Total</span>'
+        var badge = ''
+        brand.forEach(e => {
+            if (totalAll[e.id]) {
+                var showTotal = ''
+                badge += '<span class="badge rounded-pill bg-warning text-dark me-2 small-text"><b class="me-1">' + totalAll[e.id] + '</b><span class="fw-light">' + e.alias + '' + showTotal + '</span></span>'
+            }
+        });
+        if (!badge) {
+            badge = '<i class="text-grey">( None )</i>'
+        }
+        html += badge
+        html += '</p>'
+        return html
+    }
 
     function loadData() {
         var data = {
@@ -1148,7 +1355,7 @@
         var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
         getData(data, url)
     }
-    setInterval(loadDataPeriodic, 60000); // 1 menit
+    // setInterval(loadDataPeriodic, 60000); // 1 menit
 
     function getData(data, url) {
         $.ajax({
@@ -1164,7 +1371,7 @@
                 });
             },
             beforeSend: function() {
-                $('#workerProgress').html(loadingDataReturn())
+                $('#workerProgress').html(LoadingReturn('Loading...'))
             },
             success: function(response) {
                 showOverlay('hide')
@@ -1173,20 +1380,29 @@
             }
         })
     }
+    var arrayDataDetailDelivery = {}
+    var arrayDataDEntryProductionEntry = {}
 
     function arrangeVariable() {
+        var dataDeliveryBefore = deepCopy(dataDetailDelivery)
+        var resultProductIdAfter = []
         dataDetailDelivery = []
         dataMaterial = []
+        arrayDataDetailDelivery = {}
+        arrayDataDEntryProductionEntry = {}
         $('#workerProgress').html('')
         dataEntry.productionDelivery.forEach(e => {
             e.data.forEach(el => {
-                dataDetailDelivery.push({
+                // console.log(el)
+                resultProductIdAfter.push(el.result_product_person_id)
+                var dataDel = {
                     'worker_id': e.employee_worker.id,
                     'worker_name': e.employee_worker.name,
                     'result_product_person_id': el.result_product_person_id,
                     'number': el.number,
                     'datetime': el.datetime,
                     'item': el.item_target,
+                    'item_target': el.item_target,
                     'unit': el.unit,
                     'delivery': el.delivery,
                     'sortir': el.sortir,
@@ -1194,9 +1410,20 @@
                     'complete': el.complete,
                     'result_product_person_step': el.result_product_person_step,
                     'material_pickup': el.material_pickup,
-                })
+                    'updated_at': el.updated_at
+                }
+                dataDetailDelivery.push(dataDel)
+                arrayDataDetailDelivery[el.result_product_person_id] = dataDel
             });
+            arrayDataDEntryProductionEntry[e.employee_worker.id] = e
+            // arrayDataDEntryProductionEntry[e.employee_worker.eid] = e
         })
+        dataDeliveryBefore.forEach(e => {
+            if (!resultProductIdAfter.includes(e.result_product_person_id)) {
+                dataDetailDelivery.push(e)
+                arrayDataDetailDelivery[e.result_product_person_id] = e
+            }
+        });
         dataEntry.productMaterial.forEach(e => {
             var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                 if (v.product.id == e.item_id) return true
@@ -1226,6 +1453,7 @@
                 }
             })
         })
+        brokenData()
         workerProgress()
     }
 
@@ -1261,36 +1489,38 @@
         var a = 1;
         const sortedData = [...deepCopy(dataDetailDelivery)].sort(sortByDateTimeDesc);
         sortedData.forEach(e => {
-            var dataDelivery = findStatus(e.result_product_person_id)
-            // console.log(dataDelivery)
-            html += '<tr class="">'
-            html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
-            html += '<td class="small-text align-middle text-center">' + formatJamMenit(e.datetime) + '</td>'
-            html += '<td class="small-text align-middle text-center">' + e.worker_name + '</td>'
-            html += '<td class="small-text align-middle text-center">' + e.item.alias + '</td>'
-            html += '<td class="small-text align-middle text-center">' + dataDelivery.qty.good + '</td>'
-            html += '<td class="small-text align-middle text-center">' + e.unit.name + '</td>'
-            html += '<td class="small-text align-middle text-center" style="width:100px;">'
-            html += '<div id="progress">'
-            html += '<ul id="progress-num">'
-            dataEntry.machineStep.forEach(el => {
-                var active = ''
-                var data = e.result_product_person_step.find((v, k) => {
-                    if (v.machine_step.id == el.id) return true
-                })
-                if (data) {
-                    active = 'active'
-                }
-                html += '<li class="steps ' + active + '">' + el.index + '</li>'
-            });
-            html += '</ul>'
-            html += '</div>'
-            html += '</td>'
-            html += '<td class="small-text align-middle text-center"><span class="badge rounded-pill bg-success">' + toTitleCase(dataDelivery.status) + '</span></td>'
-            html += '<td class="small-text align-middle">'
-            html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>'
-            html += '</td>'
-            html += '</tr>'
+            if (e.item) {
+                var dataDelivery = findStatus(e.result_product_person_id)
+                // console.log(dataDelivery)
+                html += '<tr class="">'
+                html += '<td class="small-text align-middle text-center">' + a++ + '</td>'
+                html += '<td class="small-text align-middle text-center">' + formatJamMenit(e.datetime) + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.worker_name + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.item.alias + '</td>'
+                html += '<td class="small-text align-middle text-center">' + dataDelivery.qty.good + '</td>'
+                html += '<td class="small-text align-middle text-center">' + e.unit.name + '</td>'
+                html += '<td class="small-text align-middle text-center" style="width:100px;">'
+                html += '<div id="progress">'
+                html += '<ul id="progress-num">'
+                dataEntry.machineStep.forEach(el => {
+                    var active = ''
+                    var data = e.result_product_person_step.find((v, k) => {
+                        if (v.machine_step.id == el.id) return true
+                    })
+                    if (data) {
+                        active = 'active'
+                    }
+                    html += '<li class="steps ' + active + '">' + el.index + '</li>'
+                });
+                html += '</ul>'
+                html += '</div>'
+                html += '</td>'
+                html += '<td class="small-text align-middle text-center"><span class="badge rounded-pill bg-success">' + toTitleCase(dataDelivery.status) + '</span></td>'
+                html += '<td class="small-text align-middle">'
+                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>'
+                html += '</td>'
+                html += '</tr>'
+            }
         });
         return html
     }
@@ -1299,6 +1529,7 @@
         var html = ''
         if (dataEntry.productionDelivery.length) {
             dataEntry.productionDelivery.forEach(e => {
+                totalSetoranAll(e.employee_worker.id)
                 var badgeMeja = ''
                 if (e.employee_worker.row_code) {
                     badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2 mt-1" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + e.employee_worker.row_code + '</span>'
@@ -1316,7 +1547,8 @@
                 html += '</div>'
                 html += '<div class="col-11 ps-4">'
                 html += '<p class="m-0 small fw-bolder"><span class="text_search" data-id="' + e.employee_worker.id + '">' + e.employee_worker.name.toUpperCase() + '</span></p>'
-                html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> Pack</span></p>'
+                // html += '<p class="m-0 super-small-text text-dark-grey"><span class="fw-bold">Total Setoran <span class="text-orange">' + number_format(totalSetoran(e.employee_worker.id)) + '</span> Pack</span></p>'
+                html += totalSetoranAll(e.employee_worker.id)
                 html += '</div>'
                 html += '</div>'
 
@@ -1344,7 +1576,6 @@
                     content += '</div>'
                     if (check) {
                         var dataDelivery = findStatus(check.result_product_person_id)
-                        // console.log(dataDelivery)
                         if (check.complete.is_process) {
                             bg = 'bg-outline-primary'
                             bgBase = 'bg-radius-primary'
@@ -1394,7 +1625,7 @@
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
-                html += '<div class="col-2 card-hoper p-0" onclick="firstWorkProgress(' + e.employee_worker.id + ')">'
+                html += '<div class="col-2 card-hoper p-0" onclick="chooseFromList(' + e.employee_worker.id + ')">'
                 html += '<div class="row h-100">'
                 html += '<div class="col-12 align-self-center text-center p-0">'
                 html += '<i class="fa fa-pencil fa-1x text-grey"></i>'
@@ -1411,10 +1642,16 @@
         return html
     }
 
+    function chooseFromList(worker_id) {
+        scannerStatus = false
+        firstWorkProgress(worker_id)
+    }
+
     function detailWorker(worker_id) {
-        var data = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        })
+        var data = arrayDataDEntryProductionEntry[worker_id]
+        // var data = dataEntry.productionDelivery.find((v, k) => {
+        //     if (v.employee_worker.id == worker_id) return true
+        // })
         templateDetailWorker(data)
     }
 
@@ -1432,7 +1669,8 @@
         html += '</div>'
         html += '<div class="col-10">'
         html += '<h1 class="m-0 fw-bolder">' + data.employee_worker.name.toUpperCase() + '</h1>'
-        html += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b><span class="text-warning fw-bold">' + number_format(totalSetoran(data.employee_worker.id)) + '</span> Pack</p>'
+        // html += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b><span class="text-warning fw-bold">' + number_format(totalSetoran(data.employee_worker.id)) + '</span> Pack</p>'
+        html += totalSetoranAll(data.employee_worker.id)
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -1453,6 +1691,7 @@
         html += '<th class="align-middle super-small-text" rowspan="2">#</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Jam</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Brand</th>'
+        html += '<th class="align-middle super-small-text" rowspan="2">Total<br>Step</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Steps</th>'
         html += '<th class="align-middle super-small-text" colspan="2">Quantity</th>'
         html += '<th class="align-middle super-small-text" rowspan="2">Unit</th>'
@@ -1468,6 +1707,7 @@
         if (data.data.length) {
             data.data.forEach(e => {
                 var dataDelivery = findStatus(e.result_product_person_id)
+                // console.log(dataDelivery)
                 var bgColor = ''
                 if (!dataDelivery.qty.good) {
                     dataDelivery.qty.good = '-'
@@ -1482,6 +1722,7 @@
                 html += '<td class="text-center align-middle" style="height: 30px;">' + e.number + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + formatJamMenit(e.datetime) + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + e.item.alias + '</td>'
+                html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.allSteps.length + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.step_status + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.good + '</td>'
                 html += '<td class="text-center align-middle" style="height: 30px;">' + dataDelivery.qty.reject + '</td>'
@@ -1557,12 +1798,14 @@
     }
 
     function checkWorkerId(eid) {
+
         scanned = true
         scanned2 = false
+        // var dataProducts = arrayDataDEntryProductionEntry[eid]
         var dataProducts = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.eid == eid) return true
         })
-        console.log(eid)
+        // console.log(eid)
         if (!dataProducts) {
             // baru dari setoran ke 1
             dataProducts = dataEntry.employee.find((v, k) => {
@@ -1593,6 +1836,7 @@
     function checkAvailableSteps(eid) {
         var status = false
         var data = {}
+        // var dataDelivery = arrayDataDEntryProductionEntry[eid]
         var dataDelivery = dataEntry.productionDelivery.find((v, k) => {
             if (v.employee_worker.eid == eid) return true
         })
@@ -1613,88 +1857,6 @@
             status: status,
             result_product_person_id: result_product_person_id,
         }
-    }
-
-    function loadScanData(worker_id) {
-        showOverlay('show')
-        $.ajax({
-            url: "<?= api_produksi('getProductionDeliv'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                resultProductPersonId: setoranIdClicked
-            },
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                });
-            },
-            beforeSend: function() {},
-            success: function(response) {
-                showOverlay('hide')
-                var dataLoadProductionDeliv = response.data.productionDelivery
-                var findEntry = dataEntry.productionDelivery.filter((v, k) => {
-                    if (v.employee_worker.id == worker_id) return true
-                })
-                if (!findEntry.length) {
-                    findEntry.push(dataLoadProductionDeliv[0])
-                } else {
-                    findEntry[0].data = dataLoadProductionDeliv[0].data
-                }
-                dataDetailDelivery = []
-                dataMaterial = []
-                dataEntry.productionDelivery.forEach(e => {
-                    e.data.forEach(el => {
-                        dataDetailDelivery.push({
-                            'worker_id': e.employee_worker.id,
-                            'worker_name': e.employee_worker.name,
-                            'result_product_person_id': el.result_product_person_id,
-                            'number': el.number,
-                            'datetime': el.datetime,
-                            'item': el.item_target,
-                            'unit': el.unit,
-                            'delivery': el.delivery,
-                            'sortir': el.sortir,
-                            'fillup': el.fillup,
-                            'complete': el.complete,
-                            'result_product_person_step': el.result_product_person_step,
-                            'material_pickup': el.material_pickup,
-                        })
-                    });
-                })
-                dataEntry.productMaterial.forEach(e => {
-                    var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                        if (v.product.id == e.item_id) return true
-                    })
-                    e.material_group.forEach(el => {
-                        var itemDefault = el.items.find((v, k) => {
-                            if (v.item.id == el.item_id_default) return true
-                        })
-                        dataMaterial.push({
-                            work_plan_product_id: dataProducts.work_plan_product_id,
-                            item_id: e.item_id,
-                            item_name: e.name,
-                            item_code: e.code,
-                            item_name: e.name,
-                            material_group_id: el.material_group.id,
-                            material_group_name: el.material_group.name,
-                            material_id: itemDefault.item.id,
-                            material_code: itemDefault.item.code,
-                            material_alias: itemDefault.item.alias,
-                            material_name: itemDefault.item.name,
-                            unit_id: itemDefault.unit.id,
-                            unit_name: itemDefault.unit.name,
-                        })
-                    })
-                })
-                afterScan = false
-                workProgress(worker_id)
-                workerProgress()
-            }
-        })
     }
 
     function createNewWorker(id) {
@@ -1720,9 +1882,10 @@
 
     function selectMode() {
         variableMode = $('#selectModes').val()
-        if (!variableMode) {
+        if (variableMode == undefined) {
             variableMode = $('.selectModes:checked').val()
         }
+        // console.log(variableMode)
         var color = 'text-grey'
         if (variableMode) {
             color = 'text-success'
@@ -1753,7 +1916,7 @@
     function viewSelectMode() {
         var html = ''
         html += '<div class="row">'
-        html += '<div class="col-auto pe-0 align-self-center">'
+        html += '<div class="col-auto pe-0 align-self-center" hidden>'
         var color = 'text-grey'
         if (variableMode) {
             color = 'text-success'
@@ -1768,6 +1931,10 @@
         }
         html += '<option value="" ' + select + '>Mode Manual</option>'
         select = ''
+        if (variableMode == 150) {
+            select = 'selected'
+        }
+        html += '<option value="150" ' + select + '>Mode 150</option>'
         if (variableMode == 100) {
             select = 'selected'
         }
@@ -1779,17 +1946,49 @@
         html += '<option value="50" ' + select + '>Mode 50</option>'
         html += '</select>'
         html += '</div>'
-        html += '<div class="col-auto">'
+        html += '<div class="col-auto pe-0">'
         if (firstSetoranMode) {
-            html += '<button class="btn btn-sm btn-success shadow-none" id="btnFirstSetoran" onclick="changeFirstSetoranMode()">Setoran Pertama</button>'
+            html += '<button class="btn btn-sm btn-success shadow-none" id="btnFirstSetoran" onclick="changeFirstSetoranMode()">Setoran Langsung</button>'
         } else {
-            html += '<button class="btn btn-sm btn-outline-success shadow-none" id="btnFirstSetoran" onclick="changeFirstSetoranMode()">Setoran Normal</button>'
+            html += '<button class="btn btn-sm btn-outline-success shadow-none" id="btnFirstSetoran" onclick="changeFirstSetoranMode()">Setoran Tdk Langsung</button>'
         }
+        html += '</div>'
+        html += '<div class="col-auto pe-0">'
+        var iconDaily = '<i class="fa fa-sun-o text-warning me-1"></i>Daily'
+        if (lastSetoranMode) {
+            iconDaily = '<i class="fa fa-moon-o text-blue me-1"></i>Last'
+        }
+        html += '<button class="btn btn-sm btn-dark shadow-none" onclick="changeLastSetoranMode()" id="btnLastSetoran">' + iconDaily + '</button>'
+        html += '</div>'
+        html += '<div class="col-auto">'
+        html += '<div class="form-check">'
+        var check = ''
+        if (autoNext) {
+            check = 'checked'
+        }
+        html += '<input class="form-check-input checkAutoNext" type="checkbox" value="" id="checkAutoNexts" onclick="autoNextOn()" ' + check + '>'
+        html += '<label class="form-check-label small" for="checkAutoNexts">Auto Next Setoran</label>'
+        html += '</div>'
         html += '</div>'
         html += '</div>'
         return html
     }
 
+    function changeLastSetoranMode() {
+        if (lastSetoranMode) {
+            lastSetoranMode = false
+            autoNext = true
+            $('#btnLastSetoran').html('<i class="fa fa-sun-o text-warning me-1"></i>Daily')
+            $('.goodDelivery').val($('.goodDelivery').data('values'))
+            $('#jumlahBad').focus();
+        } else {
+            lastSetoranMode = true
+            autoNext = false
+            $('#btnLastSetoran').html('<i class="fa fa-moon-o text-blue me-1"></i>Last')
+            $('.goodDelivery').val('')
+            $('#jumlahGood').focus();
+        }
+    }
 
     function changeFirstSetoranMode() {
         if (firstSetoranMode) {
@@ -1803,15 +2002,16 @@
 
     function firstSetoranView(index) {
         if (index) {
-            $('#btnFirstSetoran').removeClass('btn-success').addClass('btn-outline-success').html('Setoran Normal')
+            $('#btnFirstSetoran').removeClass('btn-success').addClass('btn-outline-success').html('Setoran Tdk Langsung')
         } else {
-            $('#btnFirstSetoran').addClass('btn-success').removeClass('btn-outline-success').html('Setoran Pertama')
+            $('#btnFirstSetoran').addClass('btn-success').removeClass('btn-outline-success').html('Setoran Langsung')
         }
     }
     var holdRefreshData = false
 
     function modalWorkProgress() {
         modalProgress = true
+        // var data = arrayDataDEntryProductionEntry[workerIdClicked]
         var data = deepCopy(dataEntry.productionDelivery).find((v, k) => {
             if (v.employee_worker.id == workerIdClicked) return true
         })
@@ -1856,7 +2056,7 @@
             badgeMeja = '<span class="badge bg-light text-dark-grey border fw-bold border-dark me-2" style="vertical-align: middle !important;padding-top:5px;padding-bottom:5px;">' + data.employee_worker.row_code + '</span>'
         }
         // $('#modal').modal('show')
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-xl');
+        $('#modalDialog').removeClass('modal-lg').addClass('modal-dialog modal-dialog-scrollable modal-xl');
         var html_header = '';
         html_header += '<div class="row justify-content-between w-100 align-items-center">'
         html_header += '<div class="col-auto">'
@@ -1868,7 +2068,7 @@
         html_header += '<div class="col-auto">'
         html_header += '</div>'
         html_header += '</div>'
-        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        html_header += '<button type="button" class="btn-close" onclick="scannerQR()"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row w-100">'
@@ -1876,8 +2076,9 @@
         html_body += '<div class="col-3 p-5 pt-4 pe-2 border-end">'
         html_body += '<h1 class="mb-1 fw-bolder">' + badgeMeja + data.employee_worker.name.toUpperCase() + '</h1>'
         // html_body += '<p class="m-0">2,490 / <b class="text-dark-grey">3,000</b></p>'
-        html_body += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
-        html_body += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
+        // html_body += '<p class="m-0"><b class="text-dark-grey">Total Setoran </b>' + number_format(totalSetoran(data.employee_worker.id)) + ' / <b class="text-dark-grey">--</b></p>'
+        html_body += totalSetoranAll(data.employee_worker.id)
+        // html_body += '<p class="m-0 super-small-text text-warning"><i class="fa fa-circle me-2"></i>Still Working</p>'
 
         html_body += '<div class="mt-3" style="height: 400px;overflow-x: hidden;overflow-y: auto;">'
         html_body += '<div class="me-2">'
@@ -1930,13 +2131,16 @@
         if (setoranIdClicked) {
             isiWorkProgress(setoranIdClicked)
         }
-        var availSteps = checkAvailableSteps(data.employee_worker.eid).status
-        if (!availSteps) {
-            setoranBaru(data.employee_worker.id)
+        if (scannerStatus) {
+            var availSteps = checkAvailableSteps(data.employee_worker.eid).status
+            if (!availSteps) {
+                setoranBaru(data.employee_worker.id)
+            }
         }
     }
 
     function setoranList(data) {
+        // console.log(data)
         var a = 0
         var html = ''
         sortArrayOfObjectsDescending(data.data, 'number').forEach(e => {
@@ -1978,15 +2182,14 @@
     }
 
     function deleteSetoran(worker_id, id) {
-        var datas = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        }).data.find((v, k) => {
+        var datas = arrayDataDEntryProductionEntry[worker_id].data.find((v, k) => {
             if (v.result_product_person_id == id) return true
         })
         if (!datas) {
             // jika datanya setoran baru
             $('#setoranSemu').html('')
             $('#btnNewSetoran').removeAttr('hidden', true)
+            newSetoranBar--
         } else {
             Swal.fire({
                 text: 'Apakah anda ingin menghapus data setoran ke ' + datas.number + ' ?',
@@ -1997,13 +2200,39 @@
                 confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    var data = {
-                        deletedId: {
-                            resultProductPerson: []
-                        }
-                    }
-                    data.deletedId.resultProductPerson.push(id)
-                    simpanData(data)
+                    //online
+                    // var data = {
+                    //     deletedId: {
+                    //         resultProductPerson: []
+                    //     }
+                    // }
+                    // data.deletedId.resultProductPerson.push(id)
+                    // simpanData(data)
+
+                    //offline
+                    variableSaveOffline.deletedId.resultProductPerson.push(id)
+                    // console.log('test')
+                    buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail, variableSaveOffline.deletedId.resultProductPerson)
+                    var kerangkaEntryData = deepCopy(dataEntry.productionDelivery)
+                    var dataKerangkaEntryData = kerangkaEntryData.find((v, k) => {
+                        if (v.employee_worker.id == worker_id) return true
+                    })
+                    var dataSelainFilter = dataKerangkaEntryData.data.filter((v, k) => {
+                        if (v.result_product_person_id != id) return true
+                    })
+                    dataKerangkaEntryData.data = dataSelainFilter
+                    var dataKerangkaEntryDataExp = kerangkaEntryData.filter((v, k) => {
+                        if (v.employee_worker.id != worker_id) return true
+                    })
+                    dataKerangkaEntryDataExp.push(dataKerangkaEntryData)
+                    dataEntry.productionDelivery = dataKerangkaEntryDataExp
+                    // modalWorkProgress()
+                    var dataEmployee = dataEntry.employee.find((v, k) => {
+                        if (v.id == worker_id) return true
+                    })
+                    holdRefreshData = true
+                    mustOpenModal = false
+                    modalWorkProgress()
                 }
             })
         }
@@ -2012,9 +2241,7 @@
     function deleteMaterial(worker_id, id) {
         // console.log(dataSaveMaterial.remainingMaterialPerson)
         dataSaveMaterial.deletedId.remainingMaterialPerson.push(id)
-        var data = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        }).remaining_material
+        var data = arrayDataDEntryProductionEntry[worker_id].remaining_material
         var dataFiltered = data.filter(p => p.remaining_material_person_id != id);
         // var materialFiltered = dataSaveMaterial.remainingMaterialPerson.filter(p => p.id != id);
         // dataSaveMaterial.remainingMaterialPerson = materialFiltered
@@ -2046,7 +2273,7 @@
         html += '</div>'
         html += '<div class="col-7">'
         html += '<p class="m-0 super-tiny-text"><i class="me-2">' + dataStatus.nextStatus + '</i></p>'
-        html += '<p class="m-0 small-text fw-bolder lh-1">' + dataStatus.itemName + '</p>'
+        html += '<p class="m-0 small-text fw-bolder lh-1">' + dataStatus.itemAlias + '</p>'
         if (dataStatus.step_status == '-') {
             dataStatus.step_status = '<span class="text-danger">Belum Ada Step</span>'
         }
@@ -2072,19 +2299,23 @@
     }
 
     function editSortir(result_product_person_id, menu, step_profile_id = null) {
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         var dataStatus = findStatusEdit(result_product_person_id, menu)
         formWorkProgress(data, dataStatus, true, step_profile_id)
     }
 
     function isiWorkProgress(result_product_person_id = null) {
         setoranIdClicked = result_product_person_id
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         var dataStatus = findStatus(result_product_person_id)
+        dataSaveSetoran.next_status = dataStatus.nextStatus
+        dataSaveSetoran.result_product_person_id = result_product_person_id
         // console.log(dataStatus)
         var dataMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStep
         var html = ''
@@ -2115,7 +2346,7 @@
                 status = 'bg-success text-white'
                 text = '<p>Pukul ' + formatJamMenit(data.datetime) + ' membuat Setoran Baru Produk ' + dataSetoranBaru.name + ' sejumlah ' + dataSetoranBaru.qty + '</p>'
                 if (checkLabelEdit('NEWDELIVER')) {
-                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'NEWDELIVER' + "'" + ')"></span>'
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + "'" + result_product_person_id + "'" + ',' + "'" + 'NEWDELIVER' + "'" + ')"></span>'
                 }
             }
         }
@@ -2167,7 +2398,7 @@
                 status = 'bg-success text-white'
                 text = '<p>Pukul ' + formatJamMenit(checkSteps.process_at) + ' Item Good ' + checkSteps.good + ' Reject ' + replaceNullWithZero(checkSteps.reject) + ' ' + data.unit.name + '</p>'
                 if (checkLabelEdit('DELIVERY')) {
-                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + result_product_person_id + ',' + "'" + 'DELIVERY' + "'" + ',' + k.id + ')"></span>'
+                    btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + "'" + result_product_person_id + "'" + ',' + "'" + 'DELIVERY' + "'" + ',' + k.id + ')"></span>'
                 }
             }
             html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
@@ -2248,9 +2479,10 @@
     function newMaterial(worker_id) {
         var html = ''
         dataSaveMaterial.remainingMaterialPerson = []
-        var data = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        })
+        var data = arrayDataDEntryProductionEntry[worker_id]
+        // var data = dataEntry.productionDelivery.find((v, k) => {
+        //     if (v.employee_worker.id == worker_id) return true
+        // })
         // console.log(data)
         dataMaterial.forEach(e => {
             if (data.remaining_material) {
@@ -2292,9 +2524,7 @@
     function fillToMaterialEntry(worker_id, item_id, material_id) {
         var jumlahMaterial = $('#jumlahMaterial' + worker_id + item_id + material_id).val()
         var jamMaterial = $('#jamMaterial' + worker_id + item_id + material_id).val()
-        var data = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        }).remaining_material.find((v, k) => {
+        var data = arrayDataDEntryProductionEntry[worker_id].remaining_material.find((v, k) => {
             if (v.item.id == material_id) return true
         })
         data.qty = jumlahMaterial
@@ -2322,9 +2552,7 @@
             "work_plan_product_id": dataMaterials.work_plan_product_id,
             "remaining_material_person_id": createCodeId(worker_id)
         }
-        var dataAll = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        }).remaining_material
+        var dataAll = arrayDataDEntryProductionEntry[worker_id].remaining_material
         if (!dataAll) {
             dataEntry.productionDelivery.find((v, k) => {
                 if (v.employee_worker.id == worker_id) return true
@@ -2386,9 +2614,7 @@
     }
 
     function saveDataMaterial(worker_id, item_id, material_id) {
-        var data = dataEntry.productionDelivery.find((v, k) => {
-            if (v.employee_worker.id == worker_id) return true
-        }).remaining_material.find((v, k) => {
+        var data = arrayDataDEntryProductionEntry[worker_id].remaining_material.find((v, k) => {
             if (v.item.id == material_id) return true
         })
         var dataMaterials = dataMaterial.find((v, k) => {
@@ -2429,6 +2655,7 @@
     var langsungNextNewDeliver = false
 
     function formNEWDELIVER(id = null, edit = false, step_profile_id = null) {
+        badgeModeChangeSetoran()
         holdRefreshData = true
         var dataEdit
         if (edit) {
@@ -2439,7 +2666,9 @@
                 langsungNextNewDeliver = false
                 actionNewDeliver(id, edit, step_profile_id, dataEdit)
             } else {
+                // jika langsung next
                 if (memorySelectedBrand) {
+                    // jika ada memorySelectedBrand
                     langsungNextNewDeliver = true
                     nextStepNewDeliver(memorySelectedBrand, id, false)
                 } else {
@@ -2474,7 +2703,12 @@
             html += '<div class="card-body">'
             html += '<div class="row">'
             html += '<div class="col-12 text-end">'
-            html += '<p class="m-0 fw-bolder small">' + e.product.alias + '</p>'
+            if (e.product.label) {
+                e.product.label = ' ' + e.product.label
+            } else {
+                e.product.label = ''
+            }
+            html += '<p class="m-0 fw-bolder small">' + e.product.alias + '' + e.product.label + '</p>'
             html += '<p class="m-0 fw-bold text-grey super-small-text">' + e.product.name + '</p>'
             html += '</div>'
             html += '</div>'
@@ -2530,8 +2764,12 @@
         var data = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.product.id == idProduct) return true
         })
+        if (data) {
+            // console.log(data)
+            is_product_final_other = data.product.is_product_final_other
+        }
         var time = timeNow()
-        if (edit) {
+        if (edit || modeChangeSetoran) {
             dataEdit = findStatusEdit(id, 'NEWDELIVER')
             time = formatJamMenit(dataEdit.qty.process_at)
         }
@@ -2539,11 +2777,28 @@
             if (v.item_id_product == idProduct) return true
         })
         var html = ''
-        html += '<div class="row justify-content-end">'
+        html += '<div class="row justify-content-between">'
         // sesi input
-
+        html += '<div class="col-4 mt-3">'
+        // pilih brand
+        html += '<p class="mb-1 small-text"><b>Item</b></p>'
+        dataEntry.workPlanMachine.products.forEach(e => {
+            var select = 'btn-outline-dark'
+            if (e.product.id == idProduct) {
+                select = 'btn-warning'
+            }
+            if (e.product.label) {
+                e.product.label = ' ' + e.product.label
+            } else {
+                e.product.label = ''
+            }
+            html += '<button class="btn ' + select + ' small-text text-start shadow-none w-100 mb-1 px-1" onclick="nextStepNewDeliver(' + e.product.id + ',' + "'" + id + "'" + ',' + edit + ')">' + e.product.alias + '' + e.product.label + '</button>'
+        })
+        // pilih brand
+        html += '</div>'
+        html += '<div class="col-8 p-4 pt-0" style="border-radius: 10px;background-color: #fdf8ec;">'
         // nama produk
-        html += '<div class="col-8 text-end">'
+        html += '<div class="col-12 mt-3 text-end">'
         html += '<p class="mb-1 small-text"><b>Brand</b></p>'
         html += '<div class="mt-2">'
         html += '<p class="m-0 h1 fw-bolder text-orange">' + data.product.name + '</p>'
@@ -2553,17 +2808,14 @@
         // grup jumlah setoran
         html += '<div class="col-12 mt-3 text-end">'
         html += '<div class="row">'
-        // info
-        html += '<div class="col-5" id="infoStepNewDeliver">'
-        html += '</div>'
-        // info
         // isi
-        html += '<div class="col-7">'
+        html += '<div class="col-12">'
         html += '<div class="row">'
         html += '<div class="col-12">'
         html += '<p class="mb-1 small-text"><b>Bahan</b></p>'
         html += '<div class="mt-2">'
         var index = 0
+        var a = 0
         dataMachineStepProfile.machine_step_profiles.forEach(e => {
             var qtyStep = ''
             var material_pickup_id = ''
@@ -2576,26 +2828,39 @@
             html += '<div class="card shadow-none mb-2 pointer card-hoper card-step-profiles" id="cardStepProfile' + e.id + '">'
             html += '<div class="card-body p-0">'
 
-            html += '<div class="row p-0 m-0">'
-            html += '<div class="col-6 align-self-center" onclick="changeNominalStepProfile(' + e.id + ',' + idProduct + ')">'
-            html += '<p class="m-0 small fw-bolder">' + e.name + '</p>'
+            html += '<div class="row p-0 m-0" onclick="changeNominalStepProfile(' + e.id + ',' + idProduct + ')">'
+            html += '<div class="col-6 align-self-center">'
+            html += '<p class="m-0 small-text fw-bolder">' + e.name + '<span class="ms-1 iconInfo" id="iconInfo' + e.id + '"></span></p>'
             html += '</div>'
             html += '<div class="col-6 border-start">'
-            html += '<input class="form-control form-control-sm nominal form-newdeliver form-invisible-line cardStepProfile-' + index + '" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood' + e.id + '" value="' + qtyStep + '" tabindex="1" role="dialog" data-material_pickup_id="' + material_pickup_id + '" data-work_plan_product_id="' + data.work_plan_product_id + '" data-unit_id="' + data.unit_input.id + '" data-warehouse_id="' + e.warehouse_id_material_pickup + '" data-id_product="' + idProduct + '" data-id_step="' + e.id + '" oninput="inputStepProfile(' + e.id + ',' + idProduct + ')">'
+            html += '<input class="form-control form-control-sm nominal form-newdeliver form-invisible-line cardStepProfile-' + a + '" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood' + e.id + '" value="' + qtyStep + '" tabindex="1" role="dialog" data-material_pickup_id="' + material_pickup_id + '" data-work_plan_product_id="' + data.work_plan_product_id + '" data-unit_id="' + data.unit_input.id + '" data-warehouse_id="' + e.warehouse_id_material_pickup + '" data-id_product="' + idProduct + '" data-id_step="' + e.id + '" oninput="inputStepProfile(' + e.id + ',' + idProduct + ')">'
             html += '</div>'
             html += '</div>'
 
             html += '</div>'
             html += '</div>'
             if (!memorySelectedProfile) {
-                if (index == 0) {
+                if (a == 0) {
                     index = e.id
                     memorySelectedProfile = index
                 }
             } else {
                 index = memorySelectedProfile
             }
+            a++
         });
+        var checkProfile = dataMachineStepProfile.machine_step_profiles.find((v, k) => {
+            if (v.id == index) return true
+        })
+        if (!checkProfile) {
+            index = dataMachineStepProfile.machine_step_profiles[0].id
+            memorySelectedProfile = index
+            memorySelectedBrand = idProduct
+        }
+        if (edit) {
+            index = dataEdit.machine_step_profile_id
+        }
+        // console.log(memorySelectedProfile)
         html += '</div>'
         html += '</div>'
 
@@ -2621,18 +2886,20 @@
         html += '</div>'
         // grup jumlah setoran
 
-
+        // button
         html += '<div class="col-12 text-end pt-3">'
         html += '<div class="row justify-content-between">'
         html += '<div class="col-auto">'
         html += '<button class="btn btn-outline-primary btn-sm" id="btnKembali" onclick="actionFormNewDeliver(' + "'" + id + "'" + ',' + edit + ')" tabindex="3"><i class="fa fa-chevron-left me-2"></i>Kembali</button>'
         html += '</div>'
         html += '<div class="col-auto">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertNewDeliver()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertNewDeliver(' + edit + ')" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
-
+        // button
+        html += '</div>'
+        html += '</div>'
         // sesi input
         html += '</div>'
         $('#formEntryData').html(html)
@@ -2655,7 +2922,7 @@
         $('.form-newdeliver').on('keypress', function(event) {
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
-                insertNewDeliver()
+                insertNewDeliver(edit)
             }
         });
     }
@@ -2715,8 +2982,6 @@
         })
         var html = ''
         html += '<p class="m-0 small-text fw-bolder">Info</p>'
-        html += '<div class="mt-2 card shadow-none bg-light-primary">'
-        html += '<div class="card-body p-3">'
         html += '<ol class="text-start small-text fw-bold" style="padding-left: 20px;">'
         html += '<li>Pada sesi ini anda dapat memberikan material <b>' + dataProduct.product.alias + '</b> Bandrol kepada Worker</li>'
         html += '<li>Arahkan Worker untuk mengambil material <b>' + dataProduct.product.alias + '</b> dibagian <b>' + dataProfile.name.replace("Pack Filter ", "") + '</b></li>'
@@ -2727,12 +2992,19 @@
         });
         html += '</ol>'
         html += '</ol>'
-        html += '</div>'
-        html += '</div>'
-        $('#infoStepNewDeliver').html(html)
+        var popoverTriggerEl = document.getElementById('popoverHover')
+        // var popover = bootstrap.Popover.getOrCreateInstance(exampleTriggerEl)
+        var popover = new bootstrap.Popover(popoverTriggerEl, {
+            placement: 'bottom', // Menentukan posisi popover
+            trigger: 'hover focus', // Menentukan trigger popover (dalam contoh ini, hover)
+            html: true,
+            content: html,
+            customClass: 'custom-popover',
+        });
+        // $('#infoStepNewDeliver').html(html)
     }
 
-    function insertNewDeliver() {
+    function insertNewDeliver(edit = false) {
         var nilai = 0
         var value = $('.form-newdeliver').map(function() {
             return $(this).val();
@@ -2747,7 +3019,7 @@
         if (anyFill) {
             if (checkNotLong('form-newdeliver')) {
                 JustOnCamAfterAdd = true
-                arrangeVariableInsert()
+                arrangeVariableInsert(edit)
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -2775,8 +3047,11 @@
         if (input) {
             $('#cardStepProfile' + id).addClass('border-success border-3')
             $('#jumlahGood' + id).prop('readonly', false)
+            $('.iconInfo').html('')
+            $('#iconInfo' + id).html('<i class="fa fa-info-circle text-dark" id="popoverHover" data-bs-toggle="popover" data-bs-trigger="hover focus"></i>')
             infoStepNewDeliver(id, idProduct)
         } else {
+            $('.iconInfo').html('')
             $('#cardStepProfile' + id).removeClass('border-success border-3')
         }
         senseOfStepProfile()
@@ -2802,6 +3077,7 @@
         holdRefreshData = true
         var dataStatus = findStatus(dataSaveSetoran.result_product_person_id)
         var masterMachineStep = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id)
+        // console.log(dataStatus)
         var dataMachineStep = masterMachineStep.listMachineStep
         var indexMachineStep = masterMachineStep.index
         var dataMachineStepProduct = masterMachineStep.listMachineStepProduct
@@ -2832,16 +3108,20 @@
             }
             currentMachineStep = dataMachineStep[choosenCurrentIndex]
         }
-        // console.log(currentIndex)
+        // console.log(currentMachineStep)
+        $('#namaStatusHalaman').html('SETOR ' + currentMachineStep.name)
         var dataEdit
         var good = ''
         var bad = ''
         var time = timeNow()
+        var checkSteps = null
         if (edit) {
             dataEdit = findStatusEdit(id, 'DELIVERY')
             good = dataEdit.qty.good
             bad = dataEdit.qty.waste
             time = formatJamMenit(dataEdit.qty.process_at)
+            checkSteps = checkIfStepIsDone(step_profile_id, dataEdit.id)
+            // console.log(checkSteps)
         }
         var html = ''
         html += '<div class="row justify-content-end">'
@@ -2865,7 +3145,14 @@
 
         html += '<div class="col">'
         html += '<p class="m-0 super-small-text fw-bolder">Setoran Good</p>'
-        html += '<h1 class="fw-bolder" id="goodSorting">' + dataStatus.qty.good + '</h1>'
+        var goodStep = dataStatus.qty.good
+        if (!lastSetoranMode) {
+            goodStep = dataStatus.qty.good
+        }
+        if (checkSteps) {
+            goodStep = checkSteps.good
+        }
+        html += '<h1 class="fw-bolder" id="goodSorting">' + goodStep + '</h1>'
         html += '<p class="m-0 super-small-text text-danger" id="goodSortingText"></p>'
         html += '</div>'
 
@@ -2878,7 +3165,12 @@
         // jumlah bad
         html += '<div class="col-7 text-end">'
         html += '<p class="mb-1 pt-3 small-text"><b>Total Setoran</b></p>'
-        html += '<input class="form-control  nominal form-delivery form-invisible-line" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + dataStatus.qty.good + '" tabindex="1" oninput="goodSortingFill()">'
+        // console.log(dataStatus)
+        var qtyGood = ''
+        if (!lastSetoranMode) {
+            qtyGood = dataStatus.qty.good
+        }
+        html += '<input class="form-control  nominal form-delivery form-invisible-line goodDelivery" style="background-color:transparent;border:0px;" type="text" placeholder="0" autocomplete="off" id="jumlahGood" value="' + goodStep + '" tabindex="1" oninput="goodSortingFill()" data-values="' + goodStep + '">'
         html += '<hr class="m-0">'
         html += '</div>'
         // jumlah bad
@@ -2931,14 +3223,18 @@
         // custom steps
 
         html += '<div class="col-12 text-end pt-4">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir()" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir(' + edit + ')" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
         html += '</div>'
         // sesi input
         html += '</div>'
         $('#formEntryData').html(html)
         // $('#modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            $('#jumlahBad').focus();
+            if (lastSetoranMode) {
+                $('#jumlahGood').focus();
+            } else {
+                $('#jumlahBad').focus();
+            }
         }, 100);
         // })
         $('.nominal').on('keypress', handleNumericInput);
@@ -2946,7 +3242,7 @@
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
                 // AddedResultProductPersonId()
-                filteredSortir()
+                filteredSortir(edit)
             }
         });
         goodSortingFill()
@@ -2967,6 +3263,7 @@
                 }
             })
         }
+        $('#jumlahBad').focus();
     }
 
     function handleNumericInput(event) {
@@ -2979,27 +3276,38 @@
         $(this).val(inputValue.replace(/[^\d]/g, ''));
     }
 
-    function filteredSortir() {
+    function filteredSortir(edit = false) {
         var jumlahBad = $('#jumlahBad').val()
+        var jumlahGood = $('#jumlahGood').val()
         if (checkNotLong('form-delivery')) {
-            if (jumlahBad == 0 || jumlahBad == '0' || !jumlahBad) {
-                Swal.fire({
-                    text: 'Setoran Tidak ada jumlah Bad, apakah anda ingin menyelesaikan Sortir ke ' + dataSaveSetoran.number + ' ?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yakin',
-                    cancelButtonText: 'Batal',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        JustOnCamAfterAdd = true
-                        arrangeVariableInsert(1)
-                    }
-                })
+            if (jumlahGood > 0 || jumlahGood == undefined) {
+                if (jumlahBad == 0 || jumlahBad == '0' || !jumlahBad) {
+                    JustOnCamAfterAdd = true
+                    arrangeVariableInsert(edit)
+                    // Swal.fire({
+                    //     text: 'Setoran Tidak ada jumlah Bad, apakah anda ingin menyelesaikan Sortir ke ' + dataSaveSetoran.number + ' ?',
+                    //     icon: 'warning',
+                    //     showCancelButton: true,
+                    //     confirmButtonColor: '#3085d6',
+                    //     cancelButtonColor: '#d33',
+                    //     confirmButtonText: 'Yakin',
+                    //     cancelButtonText: 'Batal',
+                    // }).then((result) => {
+                    //     if (result.isConfirmed) {
+                    //         JustOnCamAfterAdd = true
+                    //         arrangeVariableInsert(1)
+                    //     }
+                    // })
+                } else {
+                    JustOnCamAfterAdd = true
+                    arrangeVariableInsert(edit)
+                }
             } else {
-                JustOnCamAfterAdd = true
-                arrangeVariableInsert()
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tidak Lengkap',
+                    text: 'Data yang dimasukkan Tidak Lengkap'
+                });
             }
         } else {
             Swal.fire({
@@ -3012,9 +3320,10 @@
 
     function listCurrentMachineStep(result_product_person_id, item_id, machine_step_profile_id, machine_step_profile_detail_id) {
         var masterMachineStep = findmachineStep(item_id, machine_step_profile_id).listMachineStep
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         var findDataStep = []
         var findDataStepMaster = []
         if (data) {
@@ -3156,7 +3465,8 @@
         html += '<div class="row">'
 
         html += '<div class="col-12 pb-5">'
-        html += '<lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/success.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
+        html += '<div class="alert alert-success" role="alert">Setoran Complete !</div>'
+        // html += '<lottie-player style="margin:auto;width: 200px; height: 100%;" src="<?= base_url() ?>assets/json/success.json" mode="bounce" background="transparent" speed="2" loop autoplay></lottie-player>'
         html += '</div>'
 
         html += '<div class="col-3">'
@@ -3194,6 +3504,7 @@
     }
 
     function formWorkProgress(dataDetail, dataStatus, edit = false, step_profile_id = null) {
+        itemIdClicked = dataStatus.itemId
         if (!dataDetail) {
             dataDetail = dataSaveSetoran
         } else {
@@ -3212,14 +3523,14 @@
         var html = ''
         html += '<div class="row w-100 p-3 pe-1 pt-4">'
 
-        html += '<div class="col-7 pb-3">'
-        html += '<h2 class="m-0 fw-bolder">' + dataStatus.nextStatus + ' <span id="badgeStatusEdit"></span></h2>'
+        html += '<div class="col-6 pb-3">'
+        html += '<h2 class="m-0 fw-bolder"><span id="namaStatusHalaman">' + dataStatus.nextStatus + '</span> <span id="badgeStatusEdit" class="me-1"></span><span id="badgeModeChangeSetoran"></span></h2>'
         html += '<p class="m-0 fw-bolder small-text">SETORAN ' + dataDetail.number + '</p>'
         html += '</div>'
-        html += '<div class="col-5 pb-3">'
+        html += '<div class="col-6 pb-3">'
         // select
         if (dataStatus.itemId) {
-            html += '<select class="form-select shadow-none text-dark" id="productSetoran" style="border:none">'
+            html += '<select class="form-select shadow-none text-dark" id="productSetoran" style="border:none" onchange="changeItemSetoran()">'
             dataEntry.workPlanMachine.products.forEach(e => {
                 var select = ''
                 if (dataStatus.itemId == e.product.id) {
@@ -3250,16 +3561,56 @@
         }
     }
 
+    var modeChangeSetoran = false
+
+    function changeItemSetoran() {
+        var itemId = $('#productSetoran').val()
+        if (itemIdClicked != itemId) {
+            // jika ada yg berubah, maka mengubah setorannya
+            modeChangeSetoran = true
+            nextNewDeliverStatus = true
+            memorySelectedBrand = itemId
+            formNEWDELIVER(setoranIdClicked)
+        }
+    }
+
+    function badgeModeChangeSetoran() {
+        if (modeChangeSetoran) {
+            $('#badgeModeChangeSetoran').html('<span class="badge bg-warning ms-2 super-small-text">Ubah Brand</span>')
+        } else {
+            $('#badgeModeChangeSetoran').html('')
+        }
+    }
+
     function setoranBaru(worker_id) {
         dataSaveSetoran = {}
         var html = ''
         var numSetoran = findNumberofSetoran(worker_id)
         var result_product_person_id = createCodeId(worker_id)
+        var number = parseInt(numSetoran) + parseInt(newSetoranBar)
+        var dataDel = {
+            'worker_id': worker_id,
+            'worker_name': '',
+            'result_product_person_id': result_product_person_id,
+            'number': number,
+            'datetime': null,
+            'item': null,
+            'item_target': null,
+            'unit': null,
+            'delivery': null,
+            'sortir': null,
+            'fillup': null,
+            'complete': null,
+            'result_product_person_step': null,
+            'material_pickup': null,
+            'updated_at': null
+        }
+        dataDetailDelivery.push(dataDel)
         var dataStatus = findStatus(result_product_person_id)
         var e = {
             result_product_person_id: result_product_person_id,
             datetime: currentDateTime(),
-            number: parseInt(numSetoran) + parseInt(newSetoranBar),
+            number: number,
             next_status: dataStatus.nextStatus,
             qty_good: dataStatus.qty.good,
             qty_delivery_good: 0,
@@ -3269,9 +3620,8 @@
         dataSaveSetoran = e
         html += setoranBar(e, deleteAndCloseButton('setoran', worker_id, result_product_person_id), '', '-', '<i class="fa fa-clock-o text-grey"></i>')
         $('#setoranSemu').append(html)
-        $('#btnNewSetoran').attr('hidden', true)
         isiWorkProgress(result_product_person_id)
-        // newSetoranBar++
+        newSetoranBar++
     }
 
     function currentTimeTitikDua() {
@@ -3391,7 +3741,7 @@
         return stillNormal
     }
 
-    function arrangeVariableInsert(autoComplete = null) {
+    function arrangeVariableInsert(edit = false) {
         var jam = $('#jamSetoran').val()
         if (!jam) {
             Swal.fire({
@@ -3400,11 +3750,11 @@
                 text: 'Anda Terlalu Cepat sehingga data Tidak Terinput dengan Baik'
             });
         } else {
-            doArrangeVariableInsert(autoComplete)
+            doArrangeVariableInsert(edit)
         }
     }
 
-    function doArrangeVariableInsert(autoComplete = null) {
+    function doArrangeVariableInsert(edit) {
         nextNewDeliverStatus = true
         var dataDelivery = findStatus(dataSaveSetoran.result_product_person_id)
         var jamSetoran = dataEntry.workPlanMachine.date + ' ' + $('#jamSetoran').val() + ':00'
@@ -3414,6 +3764,7 @@
             jumlahBad = 0
         }
         var id_product = $("#productSetoran").val()
+        var id_product_target = $("#productSetoran").val()
         var machine_step_profile_id = ''
         var machine_step_profile_detail_id = ''
         var machine_step_profile_index = ''
@@ -3422,10 +3773,16 @@
         var valuePersonStep = []
         var valuePersonStepIsBad = false
         var dataResultProductPerson = []
+        if (modeChangeSetoran) {
+            dataSaveSetoran.next_status = 'NEWDELIVER'
+        }
         if (dataSaveSetoran.next_status != 'NEWDELIVER') {
             var unit_product = $("#productSetoran").find(':selected').data('unit')
             var work_plan_product_id = $("#productSetoran").find(':selected').data('work_plan_product_id')
             if (dataSaveSetoran.next_status == 'DELIVERY') {
+                var valuePersonStepAll = $('.check-steps').map(function() {
+                    return $(this).val();
+                }).get();
                 var valuePersonStep = $('.check-steps:checked').map(function() {
                     return $(this).val();
                 }).get();
@@ -3465,6 +3822,7 @@
             var idProducts = $('.form-newdeliver').map(function() {
                 return $(this).data('id_product');
             }).get();
+            // console.log(idProducts)
             var idStep = $('.form-newdeliver').map(function() {
                 return $(this).data('id_step');
             }).get();
@@ -3491,9 +3849,16 @@
                 }
             }
             memorySelectedBrand = id_product
+            if (!id_product_target) {
+                id_product_target = id_product
+            }
+            if (!id_product) {
+                id_product = id_product_target
+            }
             memorySelectedProfile = machine_step_profile_id
-            // console.log(memorySelectedProfile)
+
         }
+        // console.log(id_product)
         var item_ids_material_main = getMaterialMain(id_product, machine_step_profile_id, unit_product, jumlahInput)
         var item_ids_chain_material = []
         if (item_ids_material_main.length) {
@@ -3530,6 +3895,7 @@
             }
         }
         var dataMentah = {
+            item_id_target: id_product_target,
             id: dataSaveSetoran.result_product_person_id,
             number: dataSaveSetoran.number,
             employee_id: dataSaveSetoran.worker_id,
@@ -3541,6 +3907,7 @@
             item_id: id_product,
             unit_id: unit_product,
             work_plan_product_id: work_plan_product_id,
+            // is_product_final_other: is_product_final_other,
         }
         var data = {
             resultProductPerson: {
@@ -3550,12 +3917,16 @@
         }
         // NEW DELIVER
         if (dataSaveSetoran.next_status == 'NEWDELIVER') {
+            var dataEdit = findStatusEdit(dataSaveSetoran.result_product_person_id, dataSaveSetoran.next_status)
             var deleteMaterialPickup = []
             var deleteMaterialPickupDetail = []
-            var dataEdit = findStatusEdit(dataSaveSetoran.result_product_person_id, dataSaveSetoran.next_status)
+            // console.log(dataEdit)
             var idPickup = createCodeId()
-            if (dataEdit.material_pickup_id) {
-                idPickup = dataEdit.material_pickup_id
+            if (dataEdit) {
+                if (dataEdit.material_pickup_id && dataEdit.machine_step_profile_id == data.resultProductPerson.machine_step_profile_id && dataEdit.itemId == data.resultProductPerson.item_id) {
+                    // jika tidak ada yg berubah maka edit saja
+                    idPickup = dataEdit.material_pickup_id
+                }
             }
             var materialPickup = [{
                 id: idPickup,
@@ -3568,11 +3939,19 @@
                 material_pickup_type_id: 1,
                 employee_id_admin: user_id,
             }]
+            if (edit) {
+                if (dataEdit.machine_step_profile_id != data.resultProductPerson.machine_step_profile_id || dataEdit.itemId != data.resultProductPerson.item_id) {
+                    deleteMaterialPickup.push(dataEdit.material_pickup_id)
+                    dataEdit.material_pickup_details.forEach(el => {
+                        deleteMaterialPickupDetail.push(el.id)
+                    });
+                }
+            }
             var materialPickupDetail = []
             var selectedPickupDetailId = []
             item_ids_material_main.forEach(e => {
                 var idMaterialPickupDetail = createCodeId()
-                if (dataEdit.material_pickup_details) {
+                if (dataEdit.material_pickup_details && dataEdit.machine_step_profile_id == data.resultProductPerson.machine_step_profile_id && dataEdit.itemId == data.resultProductPerson.item_id) {
                     var findDataMaterialPickupDetail = dataEdit.material_pickup_details.find((v, k) => {
                         if (v.item.id == e.item_id) return true
                     })
@@ -3607,12 +3986,30 @@
             data['materialPickupDetail'] = materialPickupDetail
             data['deletedId'] = {
                 materialPickup: deleteMaterialPickup,
-                materialPickupDetail: deleteMaterialPickupDetail
+                materialPickupDetail: deleteMaterialPickupDetail,
+                resultProductPersonStep: []
             }
+            if (modeChangeSetoran || (edit && (dataEdit.machine_step_profile_id != data.resultProductPerson.machine_step_profile_id || dataEdit.itemId != data.resultProductPerson.item_id))) {
+                var dataResult = getDataDetailDelivery().result_product_person_step
+                dataResult.forEach(e => {
+                    if (e.id) {
+                        data.deletedId.resultProductPersonStep.push(e.id)
+                    }
+                });
+                data.resultProductPerson.employee_id_deliv = null
+                data.resultProductPerson.qty_good_deliv = null
+                data.resultProductPerson.qty_waste_deliv = null
+                data.resultProductPerson.is_complete = null
+                data.resultProductPerson.complete_at = null
+                data.resultProductPerson.employee_id_complete = null
+                data.resultProductPerson.qty_final = null
+            }
+            data.resultProductPerson.is_product_final_other = is_product_final_other
         }
 
         // DELIVERY
         if (dataSaveSetoran.next_status == 'DELIVERY') {
+            var dataEdit = findStatusEdit(dataSaveSetoran.result_product_person_id, dataSaveSetoran.next_status)
             var qtyDeliver = parseInt(jumlahInput)
             var qtyDeliverMinus = parseInt(jumlahInput) - parseInt(jumlahBad)
             data.resultProductPersonStep = []
@@ -3640,7 +4037,8 @@
                 dataDeliver.complete.qty = qtyDeliver
                 dataDeliver.complete.note = ''
                 dataDeliver.reject.is = 0
-                var checkComplete = checkCompletedProfileSteps(dataSaveSetoran.result_product_person_id, valuePersonStep)
+                var checkComplete = checkCompletedProfileStepsDelivery(dataSaveSetoran.result_product_person_id, valuePersonStep, valuePersonStepAll)
+                // console.log(checkComplete)
                 if (checkComplete) {
                     var dataNext = variableInsert['COMPLETE']
                     data.resultProductPerson = {
@@ -3665,8 +4063,17 @@
                 }
             }
             for (let i = 0; i < valuePersonStep.length; i++) {
+                var idStepDetail = createCodeId() + '' + i
+                if (edit) {
+                    var findEditedId = dataEdit.result_product_person_step.find((v, k) => {
+                        if (v.machine_step.id == valuePersonStep[i]) return true
+                    })
+                    if (findEditedId) {
+                        idStepDetail = findEditedId.id
+                    }
+                }
                 data.resultProductPersonStep.push({
-                    id: createCodeId() + '' + i,
+                    id: idStepDetail,
                     result_product_person_id: dataSaveSetoran.result_product_person_id,
                     datetime: jamSetoran,
                     machine_step_id: valuePersonStep[i],
@@ -3796,31 +4203,70 @@
 
     function checkCompletedProfileSteps(result_product_person_id, data_step) {
         var status = false
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        }).result_product_person_step
-        var dataStatus = findStatus(result_product_person_id)
-        var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
-        var totalSebenarnya = dataMachineStepProduct.length
-        var jumlahSedangBerjalan = 0
-        if (data.length) {
-            if (data[0].id) {
-                jumlahSedangBerjalan = data.length
+        var filterDelivery = arrayDataDetailDelivery[result_product_person_id]
+        // var filterDelivery = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
+        if (filterDelivery) {
+            var data = filterDelivery.result_product_person_step
+            var dataStatus = findStatus(result_product_person_id)
+            var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
+            var totalSebenarnya = dataMachineStepProduct.length
+            var jumlahSedangBerjalan = 0
+            if (data.length) {
+                var findAnyIdFilled = data.find((v, k) => {
+                    if (v.id) return true
+                })
+                if (findAnyIdFilled) {
+                    jumlahSedangBerjalan = data.length
+                }
+            }
+            var jumlahInputs = data_step.length
+            var totalInput = parseInt(jumlahInputs) + parseInt(jumlahSedangBerjalan)
+            // console.log(dataMachineStepProduct)
+            if (totalSebenarnya <= totalInput) {
+                status = true
             }
         }
-        var jumlahInputs = data_step.length
-        var totalInput = parseInt(jumlahInputs) + parseInt(jumlahSedangBerjalan)
-        if (totalSebenarnya <= totalInput) {
-            status = true
+        return status
+    }
+
+    function checkCompletedProfileStepsDelivery(result_product_person_id, data_step, data_step_all) {
+        var status = false
+        var filterDelivery = arrayDataDetailDelivery[result_product_person_id]
+        // var filterDelivery = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
+        if (filterDelivery) {
+            var data = filterDelivery.result_product_person_step
+            var dataStatus = findStatus(result_product_person_id)
+            var dataMachineStepProduct = findmachineStep(dataStatus.itemId, dataStatus.machine_step_profile_id).listMachineStepProduct
+            var totalSebenarnya = dataMachineStepProduct.length
+            var jumlahSedangBerjalan = 0
+            if (data.length) {
+                var findAnyIdFilled = data.find((v, k) => {
+                    if (v.id) return true
+                })
+                if (findAnyIdFilled) {
+                    jumlahSedangBerjalan = data.length
+                }
+            }
+            var jumlahInputs = data_step_all.length
+            var totalInput = parseInt(jumlahInputs) + parseInt(jumlahSedangBerjalan)
+            // console.log(dataMachineStepProduct)
+            if (totalSebenarnya <= totalInput) {
+                status = true
+            }
         }
         return status
     }
 
     function checkCompletedProfileStepsAll(result_product_person_id, machine_step_profile_id, item_id) {
         var status = false
-        var data = dataDetailDelivery.find((v, k) => {
-            if (v.result_product_person_id == result_product_person_id) return true
-        })
+        var data = arrayDataDetailDelivery[result_product_person_id]
+        // var data = dataDetailDelivery.find((v, k) => {
+        //     if (v.result_product_person_id == result_product_person_id) return true
+        // })
         // var resultProductPersonStep = data.result_product_person_step
         var resultProductPersonStep = data.result_product_person_step.filter((v, k) => {
             if (v.is_complete == 1) return true
@@ -3839,6 +4285,7 @@
 
     function simpanVariableOffline(data, dataDelivery) {
         // console.log(dataDelivery)
+        scannerStatus = false
         $('#textAutoSave').html('')
         var dataSaved = deepCopy(dataDetailDelivery).find((v, k) => {
             if (v.result_product_person_id == data.resultProductPerson.id) return true
@@ -3847,6 +4294,7 @@
             if (v.id == data.resultProductPerson.employee_id) return true
         })
         variableSaveOffline.resultProductPerson.push(data.resultProductPerson)
+
         if (data.resultProductPersonStep) {
             deepCopy(data.resultProductPersonStep).forEach(e => {
                 variableSaveOffline.resultProductPersonStep.push(e)
@@ -3866,6 +4314,9 @@
             data.deletedId.materialPickupDetail.forEach(e => {
                 variableSaveMaterialOffline.deletedId.materialPickupDetail.push(e)
             });
+            data.deletedId.resultProductPersonStep.forEach(e => {
+                variableSaveOffline.deletedId.resultProductPersonStep.push(e)
+            });
         }
         var material_pickup = []
         var result_product_person_step = []
@@ -3882,6 +4333,9 @@
                 var dataProductss = dataEntry.productMaterial.find((v, k) => {
                     if (v.item_id == e.item_id_product) return true
                 })
+                var findStepName = dataEntry.machineStep.find((v, k) => {
+                    if (v.id == e.machine_step_id) return true
+                })
                 // console.log(e)
                 result_product_person_step.push({
                     "id": e.id,
@@ -3889,7 +4343,7 @@
                     "datetime": e.datetime,
                     "machine_step": {
                         "id": e.machine_step_id,
-                        "name": null
+                        "name": findStepName.name
                     },
                     "item": {
                         "id": e.item_id_product,
@@ -3963,18 +4417,34 @@
             });
         }
         var completeProcess = null
-        var deliveryProcess = null
         var completeGood = 0
-        if (data.is_complete) {
-            completeProcess = data.is_complete
+        var deliveryProcess = null
+        var deliveryGood = 0
+        if (data.resultProductPerson.qty_good_deliv) {
+            deliveryProcess = 1
+            deliveryGood = data.resultProductPerson.qty_good_deliv
         }
-        if (data.qty_good_deliv) {
+        if (data.resultProductPerson.qty_final) {
             completeProcess = 1
-            completeProcess = data.qty_good_deliv
+            completeGood = data.resultProductPerson.qty_final
         }
+        // console.log(data.resultProductPerson.item_id_target)
         var dataProducts = dataEntry.productMaterial.find((v, k) => {
-            if (v.item_id == data.resultProductPerson.item_id) return true
+            if (v.item_id == data.resultProductPerson.item_id_target) return true
         })
+        if (!dataProducts) {
+            dataProducts = dataEntry.productMaterial.find((v, k) => {
+                if (v.item_id == data.resultProductPerson.item_id_product) return true
+            })
+            if (!dataProducts) {
+                dataProducts = {
+                    code: '-',
+                    name: '-',
+                    alias: '-',
+                }
+            }
+        }
+        // console.log(is_product_final_other)
         var dataInputDetailDelivery = {
             'worker_id': data.resultProductPerson.employee_id,
             'worker_name': dataEmployee.name,
@@ -3982,13 +4452,13 @@
             'number': data.resultProductPerson.number,
             'datetime': data.resultProductPerson.datetime,
             'item': {
-                "id": data.resultProductPerson.item_id,
+                "id": data.resultProductPerson.item_id_product,
                 "code": dataProducts.code,
                 "name": dataProducts.name,
                 "alias": dataProducts.alias
             },
             'item_target': {
-                id: data.resultProductPerson.item_id,
+                id: data.resultProductPerson.item_id_target,
                 "code": dataProducts.code,
                 "name": dataProducts.name,
                 "alias": dataProducts.alias
@@ -4001,9 +4471,10 @@
             },
             'delivery': {
                 is_process: deliveryProcess,
-                good: data.resultProductPerson.qty_target
+                good: deliveryGood
             },
             'qty_target': data.resultProductPerson.qty_target,
+            'is_product_final_other': data.resultProductPerson.is_product_final_other,
             'sortir': null,
             'fillup': null,
             'complete': {
@@ -4012,6 +4483,7 @@
             },
             'result_product_person_step': result_product_person_step,
             'material_pickup': material_pickup,
+            'updated_at': data.resultProductPerson.updated_at
         }
         // console.log(dataInputDetailDelivery)
         var findDetailDelivery = deepCopy(dataDetailDelivery).find((v, k) => {
@@ -4026,6 +4498,7 @@
         } else {
             dataDetailDelivery.push(dataInputDetailDelivery)
         }
+        arrayDataDetailDelivery[data.resultProductPerson.id] = dataInputDetailDelivery
         // add kerangka entry
         var kerangkaEntryData = deepCopy(dataEntry.productionDelivery)
         var dataKerangkaEntryData = kerangkaEntryData.find((v, k) => {
@@ -4055,72 +4528,106 @@
         dataDetailDeliveryByWorker.forEach(e => {
             dataKerangkaEntryData.data.push(e)
         });
-        dataEntry.productionDelivery = kerangkaEntryData
+        // console.log(dataKerangkaEntryData)
+        var dataSelainItu = kerangkaEntryData.filter((v, k) => {
+            if (v.employee_worker.id != data.resultProductPerson.employee_id) return true
+        })
+        dataSelainItu.push(dataKerangkaEntryData)
+        dataEntry.productionDelivery = dataSelainItu
         // add kerangka entry
         firstAddedResultProductPersonId = ''
+        is_product_final_other = '0'
         buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
         // jika setoran akan berakhir
-        if (data.resultProductPerson.is_complete == 1) {
-            if (autoNext) {
-                holdRefreshData = true
-                var namaBrand = ''
-                var dataproducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                    if (v.product.id == data.resultProductPerson.item_id) return true
-                })
-                if (dataproducts) {
-                    namaBrand = dataproducts.product.alias
-                }
-                var dataSwal = {
-                    text: 'Apakah Dilanjutkan Pemberian Pita ' + namaBrand + ' untuk Setoran Berikutnya ?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    showConfirmButton: true,
-                    showDenyButton: true,
-                    denyButtonColor: '#3085d6',
-                    confirmButtonColor: '#5cb85c',
-                    denyButtonText: 'Ganti Brand Lain',
-                    cancelButtonText: 'Batal',
-                    customClass: 'swal-wide',
-                    confirmButtonText: 'Ya',
-                }
-                Swal.fire(dataSwal).then((result) => {
-                    if (result.isConfirmed) {
-                        // jika setoran berikutnya
-                        holdRefreshData = false
-                        setoranBaru(workerIdClicked)
-                    } else if (result.isDenied) {
-                        // jika ganti brand
-                        nextNewDeliverStatus = false
-                        holdRefreshData = false
-                        setoranBaru(workerIdClicked)
-                    } else {
-                        holdRefreshData = false
-                        scannerQR()
+        // var findOpenSetoran = findOpenedSetoran(data.resultProductPerson.employee_id)
+        var findOpenSetoran = {
+            status: false
+        }
+        // console.log(findOpenSetoran)
+        if (!findOpenSetoran.status) {
+            // jika setoran sudah close semua
+            if (data.resultProductPerson.is_complete == 1) {
+                if (autoNext) {
+                    holdRefreshData = true
+                    var namaBrand = ''
+                    var dataproducts = dataEntry.workPlanMachine.products.find((v, k) => {
+                        if (v.product.id == data.resultProductPerson.item_id) return true
+                    })
+                    if (dataproducts) {
+                        namaBrand = dataproducts.product.alias
                     }
-                })
+                    holdRefreshData = false
+                    setoranBaru(workerIdClicked)
+                    // var dataSwal = {
+                    //     text: 'Apakah Dilanjutkan Pemberian Pita ' + namaBrand + ' untuk Setoran Berikutnya ?',
+                    //     icon: 'warning',
+                    //     showCancelButton: true,
+                    //     showConfirmButton: true,
+                    //     showDenyButton: true,
+                    //     denyButtonColor: '#3085d6',
+                    //     confirmButtonColor: '#5cb85c',
+                    //     denyButtonText: 'Ganti Brand Lain',
+                    //     cancelButtonText: 'Batal',
+                    //     customClass: 'swal-wide',
+                    //     confirmButtonText: 'Ya',
+                    // }
+                    // Swal.fire(dataSwal).then((result) => {
+                    //     if (result.isConfirmed) {
+                    //         // jika setoran berikutnya
+                    //         holdRefreshData = false
+                    //         setoranBaru(workerIdClicked)
+                    //     } else if (result.isDenied) {
+                    //         // jika ganti brand
+                    //         nextNewDeliverStatus = false
+                    //         holdRefreshData = false
+                    //         setoranBaru(workerIdClicked)
+                    //     } else {
+                    //         holdRefreshData = false
+                    //         scannerQR()
+                    //     }
+                    // })
+                } else {
+                    scannerQR()
+                }
             } else {
-                scannerQR()
+                if ((firstSetoranMode && dataDelivery.nextStatus == 'NEWDELIVER' && totalFirstSetoranMode < 1) || fillupAutoNextSetoran) {
+                    fillupAutoNextSetoran = false
+                    holdRefreshData = false
+                    var dataEmployee = dataEntry.employee.find((v, k) => {
+                        if (v.id == workerIdClicked) return true
+                    })
+                    if (firstSetoranMode) {
+                        totalFirstSetoranMode++
+                    }
+                    checkWorkerId(dataEmployee.eid)
+                } else [
+                    scannerQR()
+                ]
             }
-
         } else {
-            if ((firstSetoranMode && dataDelivery.nextStatus == 'NEWDELIVER') || fillupAutoNextSetoran) {
-                fillupAutoNextSetoran = false
-                holdRefreshData = false
-                var dataEmployee = dataEntry.employee.find((v, k) => {
-                    if (v.id == workerIdClicked) return true
-                })
-                checkWorkerId(dataEmployee.eid)
-            } else [
-                scannerQR()
-            ]
+            // jika ada setoran yg masih open
+            Swal.fire({
+                text: 'Terdapat Setoran lainnya yang masih buka, apakah membuka setoran yang masih buka ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    isiWorkProgress(findOpenSetoran.result_product_person_id)
+                } else {
+                    scannerQR()
+                }
+            })
         }
     }
 
-    function buttonSaveOfflineMode(data, data2, data3) {
+    function buttonSaveOfflineMode(data = [], data2 = [], data3 = [], data4 = []) {
         // console.log(data)
         // console.log(data2)
         // console.log(data3)
-        if (data.length || data2.length || data3.length) {
+        if (data.length || data2.length || data3.length || data4.length) {
             $('#buttonSaveOfflineMode').prop("hidden", false);
         } else {
             $('#buttonSaveOfflineMode').prop("hidden", true);
@@ -4129,7 +4636,7 @@
 
     function loadSimpanOfflineMode() {
         $('#modal').modal('show')
-        $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-scrollable');
+        $('#modalDialog').removeClass('modal-xl').removeClass('modal-lg').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Data Offline Mode</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -4251,7 +4758,10 @@
         variableSaveOffline = {
             resultProductPerson: [],
             resultProductPersonStep: [],
-            deletedId: []
+            deletedId: {
+                resultProductPersonStep: [],
+                resultProductPerson: [],
+            }
         }
         // materialIdClicked = false
         if (offlineMode) {
@@ -4376,16 +4886,18 @@
     }
 
     function scannerQR() {
+        newSetoranBar = 1
+        totalFirstSetoranMode = 0
         holdRefreshData = false
         modalProgress = false
+        modeChangeSetoran = false
         firstAddedResultProductPersonId = ''
-        // $('#modal').modal('show')
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
         $('#modalHeader').html('');
         $('#modalBody').html('');
         $('#modalFooter').html('');
-        $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-dialog-centered');
+        $('#modalDialog').removeClass('modal-xl').addClass('modal-dialog modal-lg modal-dialog-centered');
         var html_header = '';
         html_header += '<div class="row justify-content-between w-100 align-items-center">'
         html_header += '<div class="col-auto">'
@@ -4401,7 +4913,18 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
 
+        html_body += '<div class="row p-0 m-0">'
+
+        html_body += '<div class="col-4 border-end">'
+
+        html_body += '<p class="m-0 super-small-text text-dark-grey fw-bolder">History</p>'
+        html_body += '<div class="mt-2" id="listHistoryInsert">'
+        html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '<div class="col-8">'
         html_body += '<div class="row justify-content-center">'
+
         html_body += '<div class="col-12 text-center mt-5">'
         html_body += '<div class="row">'
         html_body += '<div class="col-12 align-self-center"><p class="m-0 fw-bolder">' + formatDateIndonesia(dataEntry.workPlanMachine.date) + '</p></div>'
@@ -4427,10 +4950,14 @@
         html_body += '<div class="bd-callout bd-callout-warning super-small-text">Pastikan text scanner berada pada isi kolom diatas. Jika scanner sedang dalam masalah, anda dapat mengetikkan ID Pekerja kemudian klik <b>Cari</b></div>'
         html_body += '</div>'
         html_body += '</div>'
+
+        html_body += '</div>'
+        html_body += '</div>'
         $('#modalBody').html(html_body).removeClass('p-0')
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
+        shortHistory()
         if (!openedModal) {
             setTimeout(function() {
                 $('#codeQR').focus();
@@ -4451,6 +4978,61 @@
         });
     }
 
+    function filterUniqueNames(data) {
+        const uniqueNames = new Set(); // Membuat Set kosong untuk menyimpan nama unik
+        const filteredData = []; // Membuat array kosong untuk menyimpan data yang telah difilter
+
+        data.forEach(item => {
+            if (!uniqueNames.has(item.name)) {
+                uniqueNames.add(item.name); // Menambahkan nama baru ke Set jika belum ada
+                filteredData.push(item); // Menambahkan data ke array jika nama belum pernah muncul
+            }
+        });
+
+        return filteredData;
+    }
+
+    function shortHistory() {
+        var dataTime = []
+        var data = deepCopy(dataDetailDelivery)
+        data.forEach(e => {
+            if (e.datetime) {
+                dataTime.push({
+                    'datetime': e.updated_at,
+                    'name': e.worker_name,
+                    'id': e.worker_id,
+                    'item_target': e.item_target.id
+                })
+            }
+        });
+        dataTime.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+        if (dataTime.length) {
+            memorySelectedBrand = dataTime[0].item_target
+        }
+        if (memorySelectedBrand) {
+            nextNewDeliverStatus = true
+        }
+        dataTime = filterUniqueNames(dataTime)
+        const top10Data = dataTime.slice(0, 11);
+        var html = ''
+        top10Data.forEach(e => {
+            html += '<div class="card card-hoper shadow-none mb-2" onclick="firstWorkProgress(' + e.id + ')">'
+            html += '<div class="card-body p-2">'
+            html += '<div class="row justify-content-center">'
+            html += '<div class="col-auto">'
+            html += '<p class="m-0 small-text"><b>' + shortenName(e.name, 3) + '</b></p>'
+            // html += '<p class="m-0 super-small-text">' + e.to_do + '</p>'
+            html += '</div>'
+            html += '<div class="col text-end align-self-center">'
+            html += '<p class="m-0 super-small-text">' + formatJamMenit(e.datetime) + '</p>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        });
+        $('#listHistoryInsert').html(html)
+    }
+
     function loadDataClick() {
         setoranIdClicked = null
         stillOpenModal = true
@@ -4458,9 +5040,11 @@
         loadData()
     }
     var scannedId = ''
+    var scannerStatus = false
 
     function changeScanner() {
         if ($('#codeQR').val()) {
+            scannerStatus = true
             mustOpenModal = true
             scannedId = $('#codeQR').val()
             checkWorkerId(scannedId)
@@ -4476,10 +5060,12 @@
     }
 
     function autoNextOn() {
-        if ($('#checkAutoNext').is(':checked')) {
+        if ($('.checkAutoNext').is(':checked')) {
             autoNext = true
+            $('.checkAutoNext').attr('checked', true)
         } else {
             autoNext = false
+            $('.checkAutoNext').removeAttr('checked', true)
         }
     }
 
@@ -4532,7 +5118,7 @@
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
         var data = deepCopy(variableSaveOffline)
         var dataMaterial = deepCopy(variableSaveMaterialOffline)
-        if (data.resultProductPerson.length) {
+        if (data.resultProductPerson.length || data.deletedId.resultProductPersonStep.length || data.deletedId.resultProductPerson.length) {
             // insert_data
             kelolaDataSaveAuto(data, type, url, button)
         } else {
@@ -4571,10 +5157,23 @@
                     });
                     variableSaveOffline.resultProductPersonStep = newData
                 }
+                if (data.deletedId.resultProductPersonStep) {
+                    var dataToDelete = deepCopy(data.deletedId.resultProductPersonStep)
+                    var newData = deepCopy(variableSaveOffline.deletedId.resultProductPersonStep).slice();
+                    dataToDelete.forEach(itemToDelete => {
+                        newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                    });
+                    variableSaveOffline.deletedId.resultProductPersonStep = newData
+                }
+                if (data.deletedId.resultProductPerson) {
+                    var dataToDelete = deepCopy(data.deletedId.resultProductPerson)
+                    var newData = deepCopy(variableSaveOffline.deletedId.resultProductPerson).slice();
+                    dataToDelete.forEach(itemToDelete => {
+                        newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+                    });
+                    variableSaveOffline.deletedId.resultProductPerson = newData
+                }
                 $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
-                // if (!variableSaveOffline.resultProductPerson.length) {
-                //     $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
-                // }
                 buttonSaveOfflineMode(variableSaveOffline.resultProductPerson, variableSaveMaterialOffline.materialPickup, variableSaveMaterialOffline.materialPickupDetail)
                 autoSaveAtOfflineModeMaterial()
             }
@@ -4650,89 +5249,6 @@
         });
     }
 
-    function loadDataAfterAutoSave() {
-        var data = {
-            workPlanMachineId: workPlanMachineId,
-        }
-        var url = "<?= api_produksi('loadPageProductionDelivEntry'); ?>"
-        getDataAfterAutoSave(data, url)
-    }
-
-    function getDataAfterAutoSave(data, url) {
-        $.ajax({
-            url: url,
-            method: "GET",
-            dataType: 'JSON',
-            data: data,
-            error: function(xhr) {
-                // $('#textAutoSave').html('<span class="ms-2 super-small-text">Gagal Memuat Data, Refresh Data</span>')
-            },
-            beforeSend: function() {
-                // $('#textAutoSave').html('<span class="ms-2 super-small-text">Memuat Data...</span>')
-            },
-            success: function(response) {
-                // $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
-                dataEntry = response.data
-                arrangeVariableAutoSave()
-            }
-        })
-    }
-
-    function arrangeVariableAutoSave() {
-        dataDetailDelivery = []
-        dataMaterial = []
-        dataEntry.productionDelivery.forEach(e => {
-            e.data.forEach(el => {
-                dataDetailDelivery.push({
-                    'worker_id': e.employee_worker.id,
-                    'worker_name': e.employee_worker.name,
-                    'result_product_person_id': el.result_product_person_id,
-                    'number': el.number,
-                    'datetime': el.datetime,
-                    'item': el.item_target,
-                    'unit': el.unit,
-                    'delivery': el.delivery,
-                    'sortir': el.sortir,
-                    'fillup': el.fillup,
-                    'complete': el.complete,
-                    'result_product_person_step': el.result_product_person_step,
-                    'material_pickup': el.material_pickup,
-                })
-            });
-        })
-        dataEntry.productMaterial.forEach(e => {
-            var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
-                if (v.product.id == e.item_id) return true
-            })
-            // console.log(dataProducts)
-            e.material_group.forEach(el => {
-                if (dataProducts) {
-                    if (el) {
-                        var itemDefault = el.items.find((v, k) => {
-                            if (v.item.id == el.item_id_default) return true
-                        })
-                        dataMaterial.push({
-                            work_plan_product_id: dataProducts.work_plan_product_id,
-                            item_id: e.item_id,
-                            item_name: e.name,
-                            item_code: e.code,
-                            item_name: e.name,
-                            material_group_id: el.material_group.id,
-                            material_group_name: el.material_group.name,
-                            material_id: itemDefault.item.id,
-                            material_code: itemDefault.item.code,
-                            material_alias: itemDefault.item.alias,
-                            material_name: itemDefault.item.name,
-                            unit_id: itemDefault.unit.id,
-                            unit_name: itemDefault.unit.name,
-                        })
-                    }
-                }
-            })
-        })
-        listDataOfflineMode()
-    }
-
     function loadDataPeriodic() {
         var data = {
             workPlanMachineId: workPlanMachineId,
@@ -4747,16 +5263,8 @@
             method: "GET",
             dataType: 'JSON',
             data: data,
-            error: function(xhr) {
-                // Swal.fire({
-                //     icon: 'error',
-                //     title: 'Oops...',
-                //     text: 'Error Data'
-                // });
-            },
-            beforeSend: function() {
-                // $('#workerProgress').html(loadingDataReturn())
-            },
+            error: function(xhr) {},
+            beforeSend: function() {},
             success: function(response) {
                 // showSuccessToast()
                 $('#textAutoSave').html('<span class="ms-2 super-small-text">Tersimpan Otomatis</span>')
@@ -4777,17 +5285,23 @@
     }
 
     function arrangeVariablePeriodic() {
+        var dataDeliveryBefore = deepCopy(dataDetailDelivery)
+        var resultProductIdAfter = []
         dataDetailDelivery = []
         dataMaterial = []
+        arrayDataDetailDelivery = {}
+        arrayDataDEntryProductionEntry = {}
         dataEntry.productionDelivery.forEach(e => {
             e.data.forEach(el => {
-                dataDetailDelivery.push({
+                resultProductIdAfter.push(el.result_product_person_id)
+                var dataDel = {
                     'worker_id': e.employee_worker.id,
                     'worker_name': e.employee_worker.name,
                     'result_product_person_id': el.result_product_person_id,
                     'number': el.number,
                     'datetime': el.datetime,
                     'item': el.item_target,
+                    'item_target': el.item_target,
                     'unit': el.unit,
                     'delivery': el.delivery,
                     'sortir': el.sortir,
@@ -4795,9 +5309,20 @@
                     'complete': el.complete,
                     'result_product_person_step': el.result_product_person_step,
                     'material_pickup': el.material_pickup,
-                })
+                    'updated_at': el.updated_at
+                }
+                dataDetailDelivery.push(dataDel)
+                arrayDataDetailDelivery[el.result_product_person_id] = dataDel
             });
+            arrayDataDEntryProductionEntry[e.employee_worker.id] = e
+            // arrayDataDEntryProductionEntry[e.employee_worker.eid] = e
         })
+        dataDeliveryBefore.forEach(e => {
+            if (!resultProductIdAfter.includes(e.result_product_person_id)) {
+                dataDetailDelivery.push(e)
+                arrayDataDetailDelivery[e.result_product_person_id] = e
+            }
+        });
         dataEntry.productMaterial.forEach(e => {
             var dataProducts = dataEntry.workPlanMachine.products.find((v, k) => {
                 if (v.product.id == e.item_id) return true
@@ -4833,5 +5358,209 @@
         // if (modalProgress) {
         //     modalWorkProgress()
         // }
+    }
+    document.addEventListener('keydown', handleEscapeKey);
+
+    function handleEscapeKey(event) {
+        // Periksa apakah tombol yang ditekan adalah 'esc'
+        if (event.key === "Escape") {
+            // Lakukan sesuatu di sini, misalnya menutup sebuah modal atau melakukan tindakan lainnya
+            scannerQR()
+        }
+    }
+
+    function findOpenedSetoran(worker_id) {
+        var data = {
+            status: false,
+            result_product_person_id: null
+        }
+        var dataDelivery = deepCopy(dataDetailDelivery).filter((v, k) => {
+            if (v.worker_id == worker_id) return true
+        })
+        var totalUnComplete = 0
+        var findUncomplete = []
+        if (dataDelivery.length > 0) {
+            findUncomplete = dataDelivery.filter((v, k) => {
+                if (v.complete.is_process == null) return true
+            })
+            // console.log(dataDelivery)
+            totalUnComplete = findUncomplete.length
+        }
+        if (totalUnComplete > 0) {
+            data.status = true
+            data.result_product_person_id = findUncomplete[0].result_product_person_id
+        }
+        return data
+    }
+
+    var dataBroken = []
+
+    function brokenData() {
+        dataBroken = []
+        deepCopy(dataDetailDelivery).filter((v, k) => {
+            if (v.result_product_person_step && v.complete.is_process != null) {
+                var status = checkQtyDifference(v.result_product_person_step, v.complete.good)
+                if (status) {
+                    dataBroken.push(v)
+                }
+
+            }
+        })
+        countBrokenData(dataBroken)
+    }
+
+    function countBrokenData(dataBroken) {
+        if (dataBroken.length > 0) {
+            $('#textBrokenData').html(dataBroken.length)
+            $('#btnBrokenData').prop('hidden', false)
+        } else {
+            $('#textBrokenData').html(0)
+            $('#btnBrokenData').prop('hidden', true)
+        }
+        isiBrokenData()
+    }
+
+    function modalBrokenData() {
+        // console.log(dataBroken)
+        $('#modal').modal('show')
+        $('#modalDialog').removeClass('modal-xl').removeClass('modal-lg').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Fix Broken Data</h5>';
+        html_header += '<button type="button" class="btn-close" onclick="scannerQR()"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row" id="isiBrokenData">'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('p-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+        isiBrokenData()
+    }
+
+    function isiBrokenData() {
+        var html_body = '';
+        deepCopy(dataBroken).forEach(e => {
+            var data = checkQty(e.result_product_person_step, e.complete.good)
+            html_body += '<div class="col-12" id=""fieldFixAllSetoran' + e.result_product_person_id + '>'
+            html_body += '<div class="card shadow-none mb-2 card-hoper">'
+            html_body += '<div class="card-body">'
+            html_body += '<div class="row">'
+
+            html_body += '<div class="col-4">'
+            html_body += '<p class="m-0 fw-bolder">' + e.worker_name + '</p>'
+            html_body += '<p class="m-0 small">Setoran ke ' + e.number + '</p>'
+            html_body += '</div>'
+            html_body += '<div class="col-8 align-self-center ps-0">'
+            html_body += '<p class="m-0 super-small-text text-danger mb-2">*) ' + data + '</p>'
+            html_body += '<button class="btn btn-sm btn-outline-orange small-text me-2 btnSeeDetail" onclick="clickedBroken(' + "'" + e.result_product_person_id + "'" + ',' + e.worker_id + ')">Lihat Detail</button>'
+            html_body += '<button class="btn btn-sm btn-danger small-text btnFixAllBroker" onclick="fixAllBroker(' + "'" + e.result_product_person_id + "'" + ',' + e.complete.good + ')">Fix This Setoran</button>'
+            html_body += '</div>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        });
+        $('#isiBrokenData').html(html_body)
+    }
+
+    function checkQty(data, inputQty) {
+        var differentQtySteps = [];
+        $.each(data, function(index, item) {
+            if (item.qty !== inputQty) {
+                differentQtySteps.push(item.machine_step.name);
+            }
+        });
+
+        if (differentQtySteps.length > 0) {
+            return differentQtySteps.join(', ') + ' jumlahnya tidak sama dengan <b>' + inputQty + '</b>';
+        } else {
+            return 'Semua machine step memiliki qty yang sama dengan ' + inputQty;
+        }
+    }
+
+    function clickedBroken(result_product_person_id, worker_id) {
+        workerIdClicked = worker_id
+        setoranIdClicked = result_product_person_id
+        var data = deepCopy(dataEntry.productionDelivery).find((v, k) => {
+            if (v.employee_worker.id == workerIdClicked) return true
+        })
+        actionModalWorkProgress(data)
+    }
+
+    function checkQtyDifference(data, qty) {
+        var initialQty = qty;
+        for (var i = 1; i < data.length; i++) {
+            if (data[i].qty != initialQty) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function fixAllBroker(result_product_person_id, qty) {
+        var data = dataBroken.find((v, k) => {
+            if (v.result_product_person_id == result_product_person_id) return true
+        })
+        var resultProductPersonStep = []
+        data.result_product_person_step.forEach(e => {
+            resultProductPersonStep.push({
+                id: e.id,
+                qty: qty,
+                qty_complete: qty
+            })
+        });
+        var inputData = {
+            resultProductPerson: [{
+                id: result_product_person_id,
+                qty_target: qty
+            }],
+            resultProductPersonStep: resultProductPersonStep
+        }
+        Swal.fire({
+            text: 'Apakah anda yakin untuk mengubah data setoran ini ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                simpanData(inputData, result_product_person_id)
+            }
+        })
+    }
+
+    function simpanData(data, result_product_person_id) {
+        var type = 'POST'
+        var button = '.btnFixAllBroker'
+        var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
+        kelolaData(data, type, url, button, result_product_person_id)
+    }
+
+    function kelolaData(data, type, url, button, result_product_person_id) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+                $(button).prop("disabled", false);
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true);
+            },
+            success: function(response) {
+                $(button).prop("disabled", false);
+                $('#fieldFixAllSetoran' + result_product_person_id).remove()
+                loadData()
+            }
+        });
     }
 </script>

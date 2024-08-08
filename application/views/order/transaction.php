@@ -409,7 +409,7 @@
             success: function(response) {
                 $('#tampilDetailSuratJalan').empty()
                 data_suratjalan = response['data']
-                console.log(data_suratjalan)
+                // console.log(data_suratjalan)
                 if (data_suratjalan != undefined) {
                     var pending = 0
                     var delivered = 0

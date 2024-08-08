@@ -1,68 +1,41 @@
-<style>
-    html {
-        scroll-behavior: smooth;
-    }
-
-    #overlay {
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 999999;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-    }
-
-    .nominal {
-        text-align: right;
-    }
-</style>
+<link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
 <main>
     <!-- Main page content-->
-    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <header class="page-header page-header-dark">
         <div class="container-xl px-4">
-            <div class="page-header-content pt-4">
-                <div class="row align-items-center justify-content-between">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-center">
                     <div class="col-auto mt-4">
-                        <h1 class="page-header-title">
-                            <div class="page-header-icon"><i class="fa fa-truck"></i></div>
-                            Informasi Detail Surat Jalan
-                        </h1>
                     </div>
-
                 </div>
             </div>
         </div>
     </header>
     <!-- Main page content-->
-    <div class="container-xl px-4 mt-n10">
-        <div class="row">
-            <div class="col-12 col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        List Surat Jalan
+    <div class="container-xl mt-n10">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center mb-3">
+                <h1 class="fw-bolder">
+                    Surat Jalan
+                    <br>
+                    <p class="m-0">No. SJ <span class="text-orange" id="namaSuratJalan">--</span></p>
+                </h1>
+            </div>
+            <div class="col-xl-6 col-lg-7 col-md-7 col-sm-12 mb-4">
+                <div class="card shadow-none mb-2">
+                    <div class="card-header" id="tampilHeader">
                     </div>
-                    <div class="card-body">
-                        <div id="tampilSJ">
-                            <h6 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h6>
-                        </div>
+                    <div class="card-body p-0" id="tampilData">
+                        <p class="m-0 text-center text-grey"><i>Memuat Data ...</i></p>
                     </div>
                 </div>
-            </div>
-            <div class="col-12 col-md-8 mb-4">
-                <div class="card h-100">
-                    <div class="card-header">
-                        Detail Surat Jalan
-                    </div>
-                    <div class="card-body" id="tampilData">
-                        <h4 class="text-center text-grey mt-5 mb-5"><i>Memuat Data ...</i></h4>
-                    </div>
+                <div class="row" id="kerangkaSJLainnya">
                 </div>
             </div>
         </div>
     </div>
 </main>
+
 <!-- Modal -->
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog" role="document" id="modalDialog">
@@ -192,12 +165,13 @@
             method: "GET",
             dataType: 'JSON',
             data: {
-                no_sj: suratJalan
+                no_sj: suratJalan,
             },
             error: function(xhr) {},
             beforeSend: function() {},
             success: function(response) {
                 detailSJPenerimaan = response['data']
+                $('#namaSuratJalan').html(suratJalan)
                 masterSuratJalan()
             }
         })
@@ -217,105 +191,101 @@
             },
             success: function(response) {
                 data_sj = response['data']
-                var html = ""
-                if (data_po != "") {
-                    html += '<div class="row pb-2">'
-                    html += '<div class="col-4 align-self-center">'
-                    html += '<p class="m-0" style="font-size:11px;">No. PO</p>'
-                    html += '</div>'
-                    html += '<div class="col-8">'
-                    html += '<p class="m-0 fw-bold" style="font-size:11px;">' + data_po['no_po'] + '</p>'
-                    html += '</div>'
-                    html += '<div class="col-4 align-self-center">'
-                    html += '<p class="m-0" style="font-size:11px;">Tgl. PO</p>'
-                    html += '</div>'
-                    html += '<div class="col-8">'
-                    html += '<p class="m-0 fw-bold" style="font-size:11px;">' + data_po['date_po'] + '</p>'
-                    html += '</div>'
-                    html += '</div>'
-                    var sj = JSON.parse(data_po['no_sj_luar'])
-                    for (let i = 0; i < sj.length; i++) {
-                        var bg = ""
-                        if (sj[i] == suratJalan) {
-                            bg = 'bg-light'
-                        }
-                        html += '<div class="card shadow-none mb-2 ' + bg + '" style="cursor:pointer;" onclick="changePR(' + "'" + sj[i] + "'" + ')">'
-                        html += '<div class="card-body p-2">'
-                        html += '<b style="font-size:11px;">' + sj[i] + '</b>'
-                        html += '</div>'
-                        html += '</div>'
-                    }
-                } else {
-                    html += '<div class="card shadow-none mb-2 bg-light" style="cursor:pointer;">'
-                    html += '<div class="card-body p-2">'
-                    html += '<b style="font-size:11px;">' + suratJalan + '</b>'
-                    html += '</div>'
-                    html += '</div>'
-                }
-                $('#tampilSJ').html(html)
-                formDetail()
+                kerangkaSJLainnya()
             }
         })
     }
 
-    function formDetail() {
-        let obj = data_sj.filter((value, key) => {
-            if (value.no_sj === suratJalan) return true
-        })[0]
-        let objDetailItem = JSON.parse(detailSJPenerimaan.filter((value, key) => {
-            if (value.no_sj === suratJalan && value.po_id === id_po.toString()) return true
-        })[0]['data_penerimaan'])
-        // console.log(objDetailItem)
-        var html = '';
-        html += '<div class="container-fluid small">'
+    function kerangkaSJLainnya() {
+        var html = ''
+        html += '<div class="col-12 py-3">'
+        html += '<p class="m-0 small-text fw-bolder">Surat Jalan Lainnya</p>'
+        html += '</div>'
+        html += '<div class="col-12" id="tampilListSJ">'
+        html += '</div>'
+        $('#kerangkaSJLainnya').html(html)
+        isiKerangkaLainnya()
+    }
+
+    function isiKerangkaLainnya() {
+        var html = ""
+        var listSJ = ''
         html += '<div class="row">'
-        $.each(JSON.parse(obj['data_order']), function(key, value) {
-            // let objPenerimaan = detailSJPenerimaan.filter((value, key) => {
-            //     if (value.no_sj === suratJalan && value.po_id === id_po.toString()) return true
-            // })[0]['data_penerimaan'].filter((value, key) => {
-            //     if (value.item_id === suratJalan && value.po_id === id_po.toString()) return true
-            // })
-            // console.log(objPenerimaan)
+        html += '<div class="col-2 align-self-center">'
+        html += '<p class="m-0 text-dark-grey" style="font-size:11px;">No. PO</p>'
+        html += '</div>'
+        html += '<div class="col-10">'
+        html += '<p class="m-0 text-dark fw-bold" style="font-size:11px;">' + data_po['no_po'] + '</p>'
+        html += '</div>'
+        html += '<div class="col-2 align-self-center">'
+        html += '<p class="m-0 text-dark-grey" style="font-size:11px;">Tgl. PO</p>'
+        html += '</div>'
+        html += '<div class="col-10">'
+        html += '<p class="m-0 text-dark fw-bold" style="font-size:11px;">' + data_po['date_po'] + '</p>'
+        html += '</div>'
+        html += '</div>'
+        var sj = JSON.parse(data_po['no_sj_luar'])
+        for (let i = 0; i < sj.length; i++) {
             var bg = ""
-            if (value['state_order'] == 'DONE') {
+            if (sj[i] == suratJalan) {
                 bg = 'bg-light'
             }
-            html += '<div class="col-12">'
-            html += '<div class="card shadow-none mb-2 ' + bg + '">'
-            html += '<div class="card-body">'
-            html += '<div class="row">'
+            listSJ += '<div class="card shadow-none rounded-pill mb-2 ' + bg + '" style="cursor:pointer;" onclick="changePR(' + "'" + sj[i] + "'" + ')">'
+            listSJ += '<div class="card-body p-2 px-3">'
+            listSJ += '<b style="font-size:11px;">' + sj[i] + '</b>'
+            listSJ += '</div>'
+            listSJ += '</div>'
+        }
 
-            html += '<div class="col-12 col-md-5">'
-            html += '<p class="m-0"><b>' + value['item_name'] + '</b></p>'
-            html += '</div>'
-            html += '<div class="col-12 col-md-7">'
-            html += '<div class="row">'
-            html += '<div class="col-5">'
-            html += '<p class="m-0" style="font-size:11px;">Tanggal Create</p>'
-            html += '</div>'
-            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + formatDate(value['tanggal_sj']) + '</p></div>'
-            html += '<div class="col-5">'
-            html += '<p class="m-0" style="font-size:11px;">Jumlah Order</p>'
-            html += '</div>'
-            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + number_format(value['jumlah_order']) + ' ' + value['item_satuan'] + '</p></div>'
-            html += '<div class="col-5">'
-            html += '<p class="m-0" style="font-size:11px;">Jumlah Dikirim</p>'
-            html += '</div>'
-            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + number_format(value['jumlah_dikirim']) + ' ' + value['item_satuan'] + '</p></div>'
-            html += '<div class="col-5">'
-            html += '<p class="m-0" style="font-size:11px;">Status</p>'
-            html += '</div>'
-            html += '<div class="col-7 text-end"><p class="m-0" style="font-size:11px;">' + value['state_order'] + '</p></div>'
-            html += '</div>'
+        $('#tampilListSJ').html(listSJ)
+        $('#tampilHeader').html(html)
+        formDetail()
+    }
 
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
+    function formDetail() {
+        let obj = data_sj.find((value, key) => {
+            if (value.no_sj === suratJalan) return true
         })
-        html += '</div>'
-        html += '</div>'
-        $('#tampilData').html(html);
+        var html = ''
+        if (obj) {
+            let objDetailItem = JSON.parse(detailSJPenerimaan.filter((value, key) => {
+                if (value.no_sj === suratJalan && value.po_id === id_po.toString()) return true
+            })[0]['data_penerimaan'])
+            html += '<table class="table table-hover m-0">'
+            html += '<tr>'
+            html += '<th class="text-center align-middle small-text" style="width:5%">No</th>'
+            html += '<th class="text-center align-middle small-text">Date</th>'
+            html += '<th class="text-center align-middle small-text">Item</th>'
+            html += '<th class="text-center align-middle small-text">Unit</th>'
+            html += '<th class="text-center align-middle small-text">Jumlah<br>Order</th>'
+            html += '<th class="text-center align-middle small-text">Jumlah<br>Dikirim</th>'
+            html += '<th class="text-center align-middle small-text">Status</th>'
+            html += '</tr>'
+            var a = 1
+            $.each(JSON.parse(obj['data_order']), function(key, value) {
+                var bg = ""
+                if (value['state_order'] == 'DONE') {
+                    bg = 'bg-light'
+                }
+                html += '<tr>'
+                html += '<td class="text-center align-middle small-text">' + a++ + '</td>'
+                html += '<td class="text-center align-middle small-text">' + formatDate(value['tanggal_sj']) + '</td>'
+                html += '<td class="text-center align-middle small-text">' + value['item_name'] + '</td>'
+                html += '<td class="text-center align-middle small-text">' + value['item_satuan'] + '</td>'
+                html += '<td class="text-center align-middle small-text">' + number_format(value['jumlah_order']) + '</td>'
+                html += '<td class="text-center align-middle small-text">' + number_format(value['jumlah_dikirim']) + '</td>'
+                html += '<td class="text-center align-middle small-text">' + value['state_order'] + '</td>'
+                html += '</tr>'
+                last_number++
+            })
+            html += '</table>'
+        } else {
+            html += '<div class="my-5 align-middle text-center">'
+            html += '<p class="m-0 small fw-bolder">No Data</p>'
+            html += '<p class="m-0 small-text">Data tidak tersedia dikarenakan data telah terhapus</p>'
+            html += '</div>'
+        }
+        $('#tampilData').html(html)
     }
 
     function loading(image, text) {

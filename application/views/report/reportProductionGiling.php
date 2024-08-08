@@ -482,6 +482,7 @@
             dataType: 'JSON',
             data: {
                 employeeId: user_id,
+                dataProfile: 'GILING'
             },
             error: function(xhr) {
                 showOverlay('hide')

@@ -33,8 +33,9 @@ Silahkan klik link dibawah ini untuk melanjutkan proses tanda tangan
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
-                'number' => $no_telp[$i],
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
+                // 'number' => $no_telp[$i],
+                'number' => '081944946015',
                 'message' => $message,
             );
             $payload = $data;
@@ -86,7 +87,7 @@ Informasi Tambahan, Link dapat digunakan ketika sudah waktunya melakukan SO (ses
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -115,7 +116,7 @@ Silahkan klik link dibawah ini untuk melihat detail Planning Produksi mingguan
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -146,7 +147,7 @@ Silahkan klik link dibawah ini untuk melakukan persetujuan
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -176,7 +177,7 @@ Silahkan klik link dibawah ini untuk melakukan proses Material *" . $type_name .
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -205,7 +206,7 @@ Silahkan klik link dibawah ini untuk melakukan penerimaan Material
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -230,7 +231,7 @@ Teruntuk Bpk/Ibu *" . $nama[$i] . "* , Material Request *" . $kode . "* telah di
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $no_telp[$i],
                 'message' => $message,
             );
@@ -259,7 +260,7 @@ Link Kerja : " . $value['link'] . "";
             $url = 'https://app.whacenter.com/api/send';
             $ch = curl_init($url);
             $data = array(
-                'device_id' => '62f7862faf676f2df774958b88241e51',
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
                 'number' => $value['phone'],
                 'message' => $message,
             );
@@ -276,7 +277,7 @@ Link Kerja : " . $value['link'] . "";
         $url = 'https://app.whacenter.com/api/send';
         $ch = curl_init($url);
         $data = array(
-            'device_id' => '62f7862faf676f2df774958b88241e51',
+            'device_id' => '24dcb02247b3e46597329e21a48e13ee',
             'number' => '081944946015',
             'message' => 'test WA',
         );
