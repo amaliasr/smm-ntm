@@ -136,78 +136,6 @@
         </div>
     </div>
 </div>
-<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="z-index: 9999;width: 400px;">
-    <div class="offcanvas-header border-bottom">
-        <p class="m-0 small" id="offcanvasRightLabel">Purchase Orders tanpa Invoices</p>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body px-4">
-        <div class="row">
-            <div class="col-12 p-0">
-                <!-- cari -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="form-group has-search">
-                            <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari No. PO" id="search_id_po" autocomplete="off">
-                        </div>
-                    </div>
-                    <div class="col-2 ps-1" hidden>
-                        <button class="btn btn-sm btn-outline-primary w-100" style="border-radius: 10px !important;"><i class="fa fa-filter"></i></button>
-                    </div>
-                </div>
-                <!-- cari -->
-            </div>
-            <div class="col-12 mt-2 p-0" hidden>
-                <!-- filter -->
-                <div class="row">
-                    <div class="col-12">
-                        <p class="m-0 super-small-text text-dark">Filter :</p>
-                    </div>
-                    <div class="col-3 mt-2 align-self-center">
-                        <P class="m-0 small-text text-dark-grey">Supplier</P>
-                    </div>
-                    <div class="col-9 mt-2 align-self-center">
-                        <!-- form -->
-                        <!-- form -->
-                    </div>
-                    <div class="col-3 mt-2 align-self-center">
-                        <P class="m-0 small-text text-dark-grey">Date Range</P>
-                    </div>
-                    <div class="col-9 mt-2 align-self-center">
-                        <!-- form -->
-                        <!-- form -->
-                    </div>
-                    <div class="col-12 mt-2 text-end">
-                        <button class="btn btn-sm btn-outline-primary shadow-none" style="border-radius: 10px !important;">Cari</button>
-                    </div>
-                </div>
-                <!-- filter -->
-            </div>
-            <div class="col-12 mt-2 p-0 pe-1" style="max-height: 620px;overflow-x: hidden;overflow-y: auto;" id="listDataWithoutInvoice">
-                <!-- list data -->
-                <!-- list data -->
-            </div>
-            <div class="col-12" id="fieldListPOManage" hidden>
-                <div class="row mt-2">
-                    <div class="col-3 pe-0 ps-0">
-                        <button class="btn btn-sm btn-outline-primary w-100" style="border-radius: 10px !important;height:40px;" onclick="resetDataListPO()">Reset</button>
-                    </div>
-                    <div class="col-9 ps-1 pe-0">
-                        <button class="btn btn-sm btn-primary w-100" style="border-radius: 10px !important;height:40px;" onclick="addNewInvoiceFromSide()"><i class="fa fa-plus me-2"></i>Invoice Baru</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12" id="alertListPOManage">
-                <div class="card shadow-none border-0">
-                    <div class="card-body text-center">
-                        <i class="text-grey small-text">Pilih PO Terlebih Dahulu untuk Mendapatkan Aksi</i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <div id="qrcode" style="width:100px; height:100px; margin-top:15px;text-align:center;margin:0 auto;display:none;"></div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
@@ -330,7 +258,8 @@
         currentIndexStep = 0
         code_invoice = ''
         code_payment = ''
-        invoice_id_clicked = null
+        department_id_clicked = null
+        cost_center_id_clicked = null
         payment_id_clicked = null
         supplier_id_clicked = null
         invoice_po_id_clicked = []
@@ -356,7 +285,8 @@
     var date_start = getFirstDate()
     var date_end = currentDate()
     var account = []
-    var po_id_clicked
+    var department_id_clicked = null
+    var cost_center_id_clicked = null
     var statusLineVariableTemplate = {
         id: 0,
         name: 'Semua Data',
@@ -365,23 +295,29 @@
         getData: 'chooseDataAllData()'
     }
     var statusLineVariable = []
-    var currentIndexStep = 0
+    var currentIndexStep = 1
     var stepCreateNew = [{
         index: 0,
+        selected: true,
+        finished: false,
         name: 'Pilih Departemen',
-        function: 'firstStepInvoice(id)',
+        function: 'firstStepInvoice(department_id,cost_center_id)',
         text: 'Pilih Departemen',
         button: ['btnCancel()', 'btnNext()'],
     }, {
         index: 1,
+        selected: false,
+        finished: false,
         name: 'Buat Cost Center',
-        function: 'secondStepInvoice(id)',
+        function: 'secondStepInvoice(department_id,cost_center_id)',
         text: 'Buat Cost Center',
         button: ['btnBack()', 'btnCancel()', 'btnNext()'],
     }, {
         index: 2,
+        selected: false,
+        finished: false,
         name: 'Buat Pilih Item',
-        function: 'secondStepInvoice(id)',
+        function: 'thirdStepInvoice(department_id,cost_center_id)',
         text: 'Buat Pilih Item',
         button: ['btnBack()', 'btnCancel()', 'btnSave()'],
     }]
@@ -665,15 +601,17 @@
     }
 
 
-    function addNewData(id = null) {
-        invoice_id_clicked = id
+    function addNewData(department_id = null, cost_center_id = null) {
+        department_id_clicked = department_id
+        cost_center_id_clicked = cost_center_id
         $('#modal').modal('show')
-        kerangkaNewData(id)
+        kerangkaNewData(department_id, cost_center_id)
     }
 
-    function kerangkaNewData(id = null) {
+    function kerangkaNewData(department_id = null, cost_center_id = null) {
         openKerangkaAfterLoad = 'view'
-        invoice_id_clicked = id
+        department_id_clicked = department_id
+        cost_center_id_clicked = cost_center_id
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
         var html_header = '';
         html_header += '<p class="m-0 fw-bold">Create New</p>';
@@ -692,7 +630,7 @@
         var html_footer = '';
         html_footer += btnCancel()
         $('#modalFooter').html(html_footer);
-        headerData(id)
+        headerData(department_id, cost_center_id)
     }
 
     function btnCancel() {
@@ -711,207 +649,83 @@
     }
 
     function btnSave() {
-        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanData(invoice_id_clicked)" disabled>Simpan</button>'
+        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanData(department_id_clicked)" disabled>Simpan</button>'
         return html
     }
 
     function btnSavePayment() {
-        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPayment" onclick="simpanDataPayment(invoice_id_clicked,payment_id_clicked)" disabled>Simpan</button>'
+        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPayment" onclick="simpanDataPayment(department_id_clicked,cost_center_id_clicked)" disabled>Simpan</button>'
         return html
     }
 
-    function countCurrentMonthData(data, currentDate) {
-        var count = 0;
-        var currentYear = currentDate.getFullYear();
-        var currentMonth = currentDate.getMonth() + 1;
-
-        $.each(data, function(index, record) {
-            var createdAt = new Date(record.datetime);
-            var createdYear = createdAt.getFullYear();
-            var createdMonth = createdAt.getMonth() + 1;
-
-            if (createdYear === currentYear && createdMonth === currentMonth) {
-                count++;
-            }
-        });
-
-        return count;
-    }
-
-    function padNumber(num) {
-        return num.toString().padStart(5, '0');
-    }
-
-    function generateAutoInvoiceNumber() {
-        var date = new Date(currentDate());
-        var tahun = date.getFullYear();
-        var bulan = date.getMonth();
-        switch (bulan) {
-            case 0:
-                bulan = "I";
-                break;
-            case 1:
-                bulan = "II";
-                break;
-            case 2:
-                bulan = "III";
-                break;
-            case 3:
-                bulan = "IV";
-                break;
-            case 4:
-                bulan = "V";
-                break;
-            case 5:
-                bulan = "VI";
-                break;
-            case 6:
-                bulan = "VII";
-                break;
-            case 7:
-                bulan = "VIII";
-                break;
-            case 8:
-                bulan = "IX";
-                break;
-            case 9:
-                bulan = "X";
-                break;
-            case 10:
-                bulan = "XI";
-                break;
-            case 11:
-                bulan = "XII";
-                break;
-        }
-        var jumlah = countCurrentMonthData(data_gl, date);
-        var code = 'INV/SMM/' + tahun + '/' + bulan + '/' + padNumber(jumlah + 1)
-        // check available code
-        var checkInvoice = data_gl.filter((record) => record.doc_number == code);
-        if (checkInvoice) {
-            code
-        }
-        code_invoice = code
-        return code
-    }
-
-    function createCodeInvoice(tahun, bulan, jumlah) {
-        var code = 'INV/SMM/' + tahun + '/' + bulan + '/' + padNumber(jumlah + 1)
-        return code
-    }
-
-    function checkAvailableCodeInvoice(code, tahun, bulan, jumlah) {
-        var checkInvoice = data_gl.filter((record) => record.doc_number == code);
-        if (checkInvoice) {
-            jumlah++
-            checkAvailableCode(code)
-        }
-    }
-
-    function generateAutoPaymentNumber(invoice_id) {
-        var date = new Date(currentDate());
-        var tahun = date.getFullYear();
-        var bulan = date.getMonth();
-        switch (bulan) {
-            case 0:
-                bulan = "I";
-                break;
-            case 1:
-                bulan = "II";
-                break;
-            case 2:
-                bulan = "III";
-                break;
-            case 3:
-                bulan = "IV";
-                break;
-            case 4:
-                bulan = "V";
-                break;
-            case 5:
-                bulan = "VI";
-                break;
-            case 6:
-                bulan = "VII";
-                break;
-            case 7:
-                bulan = "VIII";
-                break;
-            case 8:
-                bulan = "IX";
-                break;
-            case 9:
-                bulan = "X";
-                break;
-            case 10:
-                bulan = "XI";
-                break;
-            case 11:
-                bulan = "XII";
-                break;
-        }
-        var paymentsFiltered = []
-        data_gl.forEach(e => {
-
-        });
-        var data_payment = deepCopy(data_gl_payment)
-        var jumlah = countCurrentMonthData(data_payment, date);
-        var code = 'PAY/SMM/' + tahun + '/' + bulan + '/' + padNumber(jumlah + 1)
-        code_payment = code
-        return code
-    }
-
-    function headerData(id) {
+    function headerData(department_id, cost_center_id) {
         var html = ''
-        html += '<p class="m-0 fw-bolder h5">General Ledger Item</p>'
+        html += '<div class="row">'
+        html += '<div class="col-12 px-3">'
+        html += '<p class="m-0 fw-bolder h5 d-flex align-self-center">General Ledger Item <span class="badge bg-info text-white ms-2 small-text p-1 px-2">Draft</span></p>'
+        html += '</div>'
+        html += '</div>'
         $('#headerData').html(html)
-        // contentData(id)
+        tabData(department_id, cost_center_id)
     }
 
-    function returnHeaderData(text, badge, btnRefresh, invoiceDate) {
+    function tabData(department_id, cost_center_id) {
         var html = ''
-        html += '<div class="p-2 pb-3">'
-        html += '<div class="d-flex align-items-center">'
-        html += '<p class="m-0 fw-bold text-grey-dark h3 d-flex align-items-center gap-2">'
-        html += badge
-        html += text
-        // input
-        html += '<div class="ms-2" id="fieldEditInvoiceNumber">'
+        html += '<div class="row px-3 mt-4">'
+        stepCreateNew.forEach(e => {
+            var text = 'text-grey border-bottom'
+            if (e.index == currentIndexStep) {
+                text = 'fw-bold filter-border'
+            }
+            html += '<div class="col-auto h-100 statusLine text-small pb-2 align-self-center mb-2 ' + text + '" style="cursor:pointer" id="statusTabe' + e.id + '">'
+            html += e.name + '<span id="iconField' + e.index + '">' + changeIcon(e.finished) + '</span>'
+            html += ' </div>'
+
+        });
+        html += '<div class="col w-100 border-bottom pb-2 mb-2">'
         html += '</div>'
-        // input
-        html += btnRefresh
-        html += '</p>'
         html += '</div>'
-        html += '<p class="m-0 small text-dark-grey">Created At ' + invoiceDate + '</p>'
-        html += '</div>'
-        return html
+        $('#tabData').html(html)
+        contentData(currentIndexStep, department_id, cost_center_id)
     }
 
-    function editNumberInvoice(invoiceNumber) {
-        var html = ''
-        if (newNumberInvoice) {
-            invoiceNumber = newNumberInvoice
+    function changeIcon(status) {
+        if (status) {
+            var icon = '<i class="fa fa-check-circle text-success ms-2"></i>'
+        } else {
+            var icon = '<i class="fa fa-check-circle-o text-grey ms-2"></i>'
         }
-        html += '<input class="form-control form-control-lg p-0 border-0 shadow-none w-100 h3 fw-bold" type="text" autocomplete="off" id="nomorInvoiceManual" value="' + invoiceNumber + '" style="min-height:0px;border-radius:0px;min-width:210px;" oninput="inputNewInvoiceNumber()" onblur="disabledEditNumberInvoice(' + "'" + invoiceNumber + "'" + ')">'
-        html += '<hr class="m-0 mt-1">'
-        $('#fieldEditInvoiceNumber').html(html)
-        $('#nomorInvoiceManual').focus();
-        $('#btnEditInvoiceNumber').addClass('d-none');
+        return icon
     }
 
-    function inputNewInvoiceNumber() {
-        var invoiceNumber = $('#nomorInvoiceManual').val()
-        newNumberInvoice = invoiceNumber
+    function chooseTabData(index, department_id, cost_center_id) {
+        currentIndexStep = index
+        tabData(department_id, cost_center_id)
     }
 
-    function contentData(id) {
-        // if (id) {
-        //     currentIndexStep = 1
-        //     var invoiceFiltered = data_gl.find((value, key) => {
-        //         if (value.id == id) return true
-        //     });
-        //     supplier_id_clicked = invoiceFiltered.supplier.id
-        // }
+    function statusTabeSwitch(index, department_id, cost_center_id) {
+        currentIndexStep = index
+        let updatedData = stepCreateNew.map(item => {
+            return {
+                ...item,
+                selected: false
+            };
+        });
+        let updatedData2 = updatedData.map(item => {
+            if (item.index == index) {
+                return {
+                    ...item,
+                    selected: true
+                };
+            }
+            return item;
+        });
+        stepCreateNew = updatedData2
+        contentData(index, department_id, cost_center_id)
+    }
+
+    function contentData(index, department_id, cost_center_id) {
+        // pusat change tab
         var data = stepCreateNew[currentIndexStep]
         eval(data.function)
         var html = ''
@@ -919,29 +733,41 @@
             eval('html += ' + data.button[i])
         }
         $('#modalFooter').html(html);
-        if (id) {
-            btnSimpanRemoveDisabled(true)
+        if (department_id) {
+            btnNextRemoveDisabled(true)
+            if (cost_center_id) {
+                btnNextRemoveDisabled(true)
+                btnSimpanRemoveDisabled(true)
+            }
         }
     }
 
-    function firstStepInvoice(id) {
-        if (id) {
-            var invoiceFiltered = data_gl.find((value, key) => {
-                if (value.id == id) return true
-            });
-            supplier_id_clicked = invoiceFiltered.supplier.id
-        }
+    function changeStatusFinished(index, status) {
+        let updatedData = stepCreateNew.map(item => {
+            if (item.index == index) {
+                return {
+                    ...item,
+                    finished: status
+                };
+            }
+            return item;
+        });
+        stepCreateNew = updatedData
+        $('#iconField' + index).html(changeIcon(status))
+    }
+
+    function firstStepInvoice(department_id, cost_center_id) {
         var html = ''
-        html += '<div class="row p-2">'
+        html += '<div class="row p-2 pt-0">'
         html += '<div class="col-12">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Choose a Supplier ' + redSmallText() + '</p>'
-        html += '<select class="form-control w-100" id="selectSupplier" title="PILIH SUPPLIER" onchange="changePurchaseOrder(' + "'" + id + "'" + ')">'
-        html += '<option value="" selected disabled>PILIH SUPPLIER</option>'
-        data_master.supplier.forEach(e => {
-            if (supplier_id_clicked == e.id) {
-                html += '<option value="' + e.id + '" selected>' + e.kode_baru + ' ' + e.name + '</option>'
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Nama Departemen ' + redSmallText() + '</p>'
+        html += '<select class="form-control w-100" id="selectDepartment" title="PILIH DEPARTEMENT" onchange="changeDepartment(' + "'" + department_id + "'" + ',' + "'" + cost_center_id + "'" + ')">'
+        html += '<option value="" selected disabled>PILIH DEPARTEMENT</option>'
+        data_department.forEach(e => {
+            if (department_id_clicked == e.department.id) {
+                html += '<option value="' + e.department.id + '" selected>' + e.department.name + '</option>'
             } else {
-                html += '<option value="' + e.id + '">' + e.kode_baru + ' ' + e.name + '</option>'
+                html += '<option value="' + e.department.id + '">' + e.department.name + '</option>'
             }
         });
         html += '</select>'
@@ -950,246 +776,29 @@
         html += '</div>'
         html += '</div>'
         $('#contentData').html(html)
-        $('#selectSupplier').select2({
+        $('#selectDepartment').select2({
             closeOnSelect: true,
             dropdownParent: $('#modal'),
             width: '100%',
         })
-        changePurchaseOrder(id)
+        getStatusOfPilihDepartment()
     }
 
-    function beforeChooseSupplier() {
-        var html = ''
-        html += '<div class="card shadow-none bg-light-orange-payment border-light-orange-payment">'
-        html += '<div class="card-body p-3">'
-        html += '<div class="row">'
-        html += '<div class="col-2 text-end">'
-        html += '<img class="" style="width: 50px;" src="<?= base_url() ?>assets/image/svg/dino.svg" alt="Icon" />'
-        html += '</div>'
-        html += '<div class="col-5 align-self-center text-start">'
-        html += '<p class="m-0 small-text text-orange-payment fw-bolder">Pilih Supplier Terlebih Dahulu</p>'
-        html += '<p class="m-0 small-text text-orange-payment fw-light">Anda dapat informasi detail terkait dengan supplier dan list Purchase Order ketika sudah memilih supplier</p>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        $('#showPurchaseOrder').html(html)
+
+    function changeDepartment(department_id, cost_center_id) {
+        getStatusOfPilihDepartment()
     }
 
-    function destringNull(value) {
-        if (value === 'null') {
-            return null;
-        }
-        return value;
-    }
 
-    function changePurchaseOrder(id) {
-        id = destringNull(id)
-        var value = $('#selectSupplier').val()
-        if (value != supplier_id_clicked) {
-            invoice_po_id_clicked = []
-        }
+    function getStatusOfPilihDepartment() {
+        var value = $('#selectDepartment').val()
+        var status = false
         if (value) {
-            supplier_id_clicked = value
-            showPurchaseOrder(id, value)
-        } else {
-            beforeChooseSupplier()
+            department_id_clicked = value
+            status = true
         }
-        getStatusOfButtonNext()
-    }
-
-    function showPurchaseOrder(id, supplier_id) {
-        var data = data_master.supplier.find((value, key) => {
-            if (value.id == supplier_id) return true
-        });
-        var html = ''
-        //card
-        html += '<div class="card shadow-none bg-light-primary-payment border-light-primary-payment">'
-        html += '<div class="card-body p-3">'
-        html += '<div class="row">'
-
-        html += '<div class="col-12 mb-2">'
-        html += '<p class="m-0 super-small-text text-primary-payment fw-bolder">Supplier Information</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Name</p>'
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.name + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Address</p>'
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.address + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Notes</p>'
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.note + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Include Pajak</p>'
-        if (data.is_pajak == 'Y') {
-            data.is_pajak = 'YES'
-        } else {
-            data.is_pajak = 'NO'
-        }
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.is_pajak + '</p>'
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        //card
-        html += '<div id="fieldListPO">'
-        html += loadingReturn('Sedang Mencari Data PO')
-        html += '</div>'
-        $('#showPurchaseOrder').html(html)
-        getDataPurchaseOrder(id, supplier_id, data)
-    }
-
-    function getDataPurchaseOrder(id, supplier_id, data_supplier) {
-        $.ajax({
-            url: "<?= api_url('getPOInvoice'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                supplierId: supplier_id,
-            },
-            error: function(xhr) {
-                empty('#fieldListPO', 'Data Error')
-            },
-            beforeSend: function() {},
-            success: function(response) {
-                data_po = response.data.POInvoice
-                if (data_po.length) {
-                    fieldListPO(id, data_po, data_supplier)
-                } else {
-                    empty('#fieldListPO', 'Tidak Ada Data yang Tersedia')
-                }
-            }
-        })
-    }
-
-    function fieldListPO(id, data, data_supplier) {
-        var html = ''
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text my-2">Purchase Order (' + data.length + ')</p>'
-        // alert
-        html += '<div class="alert alert-primary d-flex align-items-center py-2 small mb-2" role="alert">'
-        html += '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">'
-        html += '<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>'
-        html += '</svg>'
-        html += '<div class="ms-2">Purchase order yang dipilih akan berdasarkan supplier yang terkait dari <span class="fw-bold">' + data_supplier.name + '</span></div>'
-        html += '</div>'
-        // alert
-        // search
-        html += '<div class="form-group has-search">'
-        html += '<span class="fa fa-search form-control-feedback"></span>'
-        html += '<input type="text" class="form-control-sm form-control" style="border-radius: 0.35rem !important;" placeholder="Cari No. PO" id="search_id_po" autocomplete="off">'
-        html += '</div>'
-        // search
-        // list PO
-        html += '<div class="mt-2" style="max-height: 230px;overflow-x: hidden;overflow-y: auto;">'
-        data.forEach(e => {
-            html += cardListPO(id, e)
-        });
-        html += '</div>'
-        // list PO
-        $('#fieldListPO').html(html)
-        if (id) {
-            var invoiceFiltered = data_gl.find((value, key) => {
-                if (value.id == id) return true
-            });
-            invoiceFiltered.invoice_details.forEach(e => {
-                invoice_po_id_clicked.push(e.po_id)
-            });
-        }
-        data.forEach(e => {
-            var data_po_clicked = invoice_po_id_clicked.find((value, key) => {
-                if (value == e.id) return true
-            });
-            if (data_po_clicked) {
-                clickListPO(id, e.id)
-            }
-        })
-    }
-
-    function cardListPO(id, data) {
-        var html = ''
-        if (data.invoice_doc_numbers[0] == null) {
-            // jika tidak ada invoice
-            var textNumberInvoice = '<span class="text-grey ms-2"><i>No Invoice Created</i></span>'
-            var textSisa = ''
-            var bgSisa = ''
-        } else {
-            var textNumberInvoice = '<span class="fw-bold text-primary-payment ms-2"><i class="fa fa-file-text-o me-1"></i> ' + data.invoice_doc_numbers.length + ' Invoice telah dibuat</span>'
-            var textSisa = '<p class="m-0 super-small-text text-danger fw-bolder">Sisa Rp. ' + number_format(data.nominal_left) + '</p>'
-            var bgSisa = 'bg-light-orange-payment border-light-orange-payment'
-        }
-        // penerimaan barang
-        if (data.is_receive) {
-            // jika diterima
-            if (data.is_receive_all) {
-                // jika diterima utuh
-                var badgeInvoice = '<span class="badge rounded-pill border border-success bg-success-light py-2 px-2 super-small-text text-success w-100">Barang Diterima</span>'
-            } else {
-                // jika diterima sebagian
-                var badgeInvoice = '<span class="badge rounded-pill border border-orange bg-light-orange py-2 px-2 super-small-text text-orange w-100">Diterima Partial</span>'
-            }
-        } else {
-            // jika belum diterima
-            var badgeInvoice = '<span class="badge rounded-pill bg-light-grey border border-dark-grey py-2 px-2 super-small-text text-dark-grey w-100">Barang On Going</span>'
-        }
-        // penerimaan barang
-        html += '<div class="card shadow-none pointer card-hoper mb-2" id="cardListPO' + data.id + '" onclick="clickListPO(' + "'" + id + "'" + ',' + data.id + ')">'
-        html += '<div class="card-body p-3">'
-        html += '<div class="row">'
-
-        html += '<div class="col-1 text-center align-self-center">'
-        html += '<input class="form-check-input" type="checkbox" value="" id="checkListPO' + data.id + '">'
-        html += '</div>'
-
-        html += '<div class="col-5 align-self-center">'
-        html += '<p class="m-0 small fw-bolder">#<span class="text_search" data-id="' + data.id + '">' + data.no_po + '</span></p>'
-        html += '<p class="m-0 super-small-text text-grey-dark">' + data.supplier.name + ' ' + textNumberInvoice + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-4 align-self-center ps-0">'
-        html += '<p class="m-0 small text-dark-grey">Rp. ' + number_format((data.grand_total - data.nominal_left)) + ' <span class="fw-bold text-dark small-text">/ Rp. ' + number_format(data.grand_total) + '</span></p>'
-        html += textSisa
-        html += '</div>'
-
-        html += '<div class="col-2 text-end align-self-center">'
-        html += badgeInvoice
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-
-        return html
-    }
-
-    function clickListPO(id, id_po) {
-        var check = $('#checkListPO' + id_po).is(':checked')
-        if (check) {
-            // remove
-            invoice_po_id_clicked.splice(invoice_po_id_clicked.indexOf(id_po), 1)
-            $('#checkListPO' + id_po).prop('checked', false)
-            $('#cardListPO' + id_po).removeClass('bg-light-primary-payment border-light-primary-payment')
-        } else {
-            // add
-            invoice_po_id_clicked.push(id_po)
-            invoice_po_id_clicked = [...new Set(invoice_po_id_clicked)]
-            $('#checkListPO' + id_po).prop('checked', true)
-            $('#cardListPO' + id_po).addClass('bg-light-primary-payment border-light-primary-payment')
-        }
-        getStatusOfButtonNext()
-    }
-
-    function getStatusOfButtonNext() {
-        var length_po_id = invoice_po_id_clicked.length
-        if (length_po_id > 0) {
-            btnNextRemoveDisabled(true)
-        } else {
-            btnNextRemoveDisabled(false)
-        }
+        btnNextRemoveDisabled(status)
+        changeStatusFinished(currentIndexStep, status)
     }
 
     function btnNextRemoveDisabled(status) {
@@ -1200,323 +809,48 @@
         }
     }
 
-    function secondStepInvoice(id) {
-        if (id) {
-            var invoiceFiltered = data_gl.find((value, key) => {
-                if (value.id == id) return true
-            });
-        }
-        var data = data_master.supplier.find((value, key) => {
-            if (value.id == supplier_id_clicked) return true
-        });
-        // console.log(data)
+    function secondStepInvoice(department_id, cost_center_id) {
         var html = ''
-        html += '<div class="row p-2">'
-        html += '<div class="col-12 mb-1">'
-        html += '<p class="m-0 super-small-text text-primary-payment fw-bolder">Supplier Information</p>'
+        html += '<div class="row p-2 pt-0">'
+        html += '<div class="col-12" id="badgeTabInfo">'
+        html += badgeTabInfo(department_id, cost_center_id)
         html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Name</p>'
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.kode_baru + ' - ' + data.name + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Address</p>'
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.address + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Notes</p>'
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.note + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark fw-bolder">Include Pajak</p>'
-        if (data.is_pajak == 'Y') {
-            data.is_pajak = 'YES'
-        } else {
-            data.is_pajak = 'NO'
-        }
-        html += '<p class="m-0 super-small-text text-grey-dark fw-bolder">' + data.is_pajak + '</p>'
-        html += '</div>'
-        html += '<div class="col-12 mb-1 mt-2">'
-        html += '<p class="m-0 super-small-text text-primary-payment fw-bolder">PO Information (' + invoice_po_id_clicked.length + ')</p>'
-        html += '</div>'
-        html += '<div class="col-12 mb-1">'
-        // card
-        var no = 1
-        data_po.forEach(e => {
-            var show = false
-            for (let i = 0; i < invoice_po_id_clicked.length; i++) {
-                if (e.id == invoice_po_id_clicked[i]) {
-                    show = true
-                }
-            }
-            if (show) {
-                if (e.invoice_doc_numbers[0] == null) {
-                    var textNumberInvoice = '<span class="text-grey ms-2"><i>No Invoice Created</i></span>'
-                } else {
-                    var textNumberInvoice = '<span class="fw-bold text-primary-payment ms-2"><i class="fa fa-file-text-o me-1"></i> ' + e.invoice_doc_numbers.length + ' Invoice telah dibuat</span>'
-                }
-                var nominalValue = ''
-                if (id) {
-                    var dataEdit = invoiceFiltered.invoice_details.find((value, key) => {
-                        if (value.po_id == e.id) return true
-                    });
-                    if (dataEdit) {
-                        nominalValue = dataEdit.nominal
-                    } else {
-                        nominalValue = ''
-                    }
-                }
-                html += '<div class="card shadow-none mb-1">'
-                html += '<div class="card-body py-3 px-2">'
-                html += '<div class="row w-100">'
-                html += '<div class="col-1 align-self-center text-center">'
-                html += '<p class="m-0 small-text">#' + no++ + '</p>'
-                html += '</div>'
-                html += '<div class="col-3 align-self-center">'
-                html += '<p class="m-0 small-text fw-bolder">' + e.no_po + '</p>'
-                html += '</div>'
-                html += '<div class="col-3 align-self-center">'
-                html += '<p class="m-0 small-text text-grey">' + textNumberInvoice + '</p>'
-                html += '</div>'
-                html += '<div class="col-2 align-self-center p-0">'
-                html += '<p class="m-0 small-text text-orange">Sisa Rp. ' + number_format(e.nominal_left) + '</p>'
-                html += '</div>'
-                html += '<div class="col-2 align-self-center p-0">'
-                // input
-                html += '<input class="form-control form-control-sm p-0 border-0 shadow-none formInvoice nominal nominalPerPO" type="text" name="" placeholder="Isi Nominal (Rp)" autocomplete="off" id="nominalPerPO' + e.id + '" oninput="totalNominalPOtoNominalInvoice()" value="' + nominalValue + '">'
-                html += '<hr class="m-0">'
-                // input
-                html += '</div>'
-                html += '<div class="col-1 align-self-center text-center">'
-                html += '<button class="btn btn-sm border-primary-payment text-primary-payment shadow-none p-1" onclick="copyNominal(' + e.id + ',' + e.nominal_left + ')"><span class="fa fa-copy small-text"></span></button>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-                html += '</div>'
-            }
-        });
-        // card
-        html += '</div>'
-        html += '<div class="col-12 mb-1">'
-        // form isi
-        html += '<div class="card shadow-none mb-1">'
-        html += '<div class="card-header p-2 px-3 bg-primary-payment text-white">'
-        html += '<p class="m-0 small-text fw-bolder">General Form Fill</p>'
-        html += '</div>'
-        html += '<div class="card-body" id="generalFormFill">'
-        html += '</div>'
-        html += '</div>'
-        // form isi
-        // taxes
-        html += '<div class="card shadow-none mb-1">'
-        html += '<div class="card-body" id="taxesFill">'
-        html += '</div>'
-        html += '</div>'
-        // taxes
+        html += '<div class="col-12" id="dataCostCenter">'
         html += '</div>'
         html += '</div>'
         $('#contentData').html(html)
-        $('.nominal').number(true);
-        generalFormFill(id)
     }
 
-    function generalFormFill(id) {
+    function badgeTabInfo(department_id, cost_center_id) {
         var html = ''
-        // input
+        html += '<div class="alert bg-light-primary-payment border-light-primary-payment py-3" role="alert">'
         html += '<div class="row">'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">No. Supplier Invoices ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none formInvoice" type="text" name="" placeholder="" autocomplete="off" id="no_supplier_invoice" oninput="formInvoice()">'
-        html += '<hr class="m-0">'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Tanggal Invoice Terima ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none formInvoice datepicker" type="text" name="" placeholder="" autocomplete="off" id="date_supplier_invoice" onchange="formInvoice()">'
-        html += '<hr class="m-0">'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Tanggal Jatuh Tempo Invoice ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none formInvoice datepicker" type="text" name="" placeholder="" autocomplete="off" id="date_jatuh_tempo" onchange="formInvoice()">'
-        html += '<hr class="m-0">'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Nominal Invoices (Rp) ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none formInvoice nominal" type="text" name="" placeholder="" autocomplete="off" id="nominal_invoice" onchange="formInvoice()">'
-        html += '<hr class="m-0">'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Jenis PPh</p>'
-        html += '<select class="form-select form-select-sm w-100" id="selectJenisPph" title="PILIH PPH" onchange="changePPhNominal()">'
-        html += '<option value="" data-hitung="" selected>Tanpa PPH</option>'
-        data_master.tax.forEach(e => {
-            if (e.category == 'PPH') {
-                html += '<option value="' + e.id + '" data-hitung="' + e.value + '" data-operator="' + e.operator + '" data-autofill="' + e.is_auto_fill + '">' + e.name + '</option>'
-            }
-        });
-        html += '</select>'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Jenis PPN</p>'
-        html += '<select class="form-select form-select-sm w-100" id="selectJenisPpn" title="PILIH PPN" onchange="changePPnNominal()">'
-        html += '<option value="" data-hitung="" selected>Tanpa PPN</option>'
-        data_master.tax.forEach(e => {
-            if (e.category == 'PPN') {
-                html += '<option value="' + e.id + '" data-hitung="' + e.value + '" data-operator="' + e.operator + '" data-autofill="' + e.is_auto_fill + '">' + e.name + '</option>'
-            }
-        });
-        html += '</select>'
-        html += '</div>'
-
-        html += '<div class="col-12 mb-2">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Notes</p>'
-        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none" type="text" name="" placeholder="" autocomplete="off" id="notes">'
-        html += '<hr class="m-0">'
-        html += '</div>'
-
-        html += '</div>'
-        // input
-        $('#generalFormFill').html(html)
-        $('.nominal').number(true);
-        $('.datepicker').datepicker({
-            format: "yyyy-mm-dd",
-            orientation: "auto",
-            autoclose: true
-        });
-        taxesFill(id)
-    }
-
-    function taxesFill(id) {
-        var html = ''
-        html += '<div class="row justify-content-end">'
-
-        // html += '<div class="col-8 mb-2" id="fieldNominalPph" hidden>'
-        // html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Nominal PPh (Rp) ' + redSmallText('( Auto )') + '</p>'
-        // html += '<input class="form-control form-control-sm p-1 border-0 shadow-none nominal" type="text" name="" placeholder="" autocomplete="off" id="nominal_pph_invoice" oninput="totalAmount()">'
-        // html += '<hr class="m-0">'
-        // html += '</div>'
-
-
-        html += '<div class="col-12">'
-
-        // subtotal
-        html += '<div class="row">'
-        html += '<div class="col-9 text-end align-self-center">'
-        html += '<p class="m-0 fw-bold text-dark-grey">Subtotal</p>'
-        html += '</div>'
-        html += '<div class="col-3 align-self-center text-end">'
-        html += '<p class="m-0 text-dark-grey fw-bolder">Rp. <span id="subtotal"></span></p>'
-        html += '</div>'
-        html += '</div>'
-        // subtotal
-
-        // pph
-        html += '<div class="row" id="fieldNominalPph" hidden>'
-        html += '<div class="col-9 text-end align-self-center">'
-        html += '<p class="m-0 fw-bold text-dark-grey">PPh ( <span id="inputoperatorPPH"></span> )</p>'
-        html += '</div>'
-        html += '<div class="col-3 align-self-center text-end">'
-        html += '<input class="form-control form-control-sm p-0 border-0 shadow-none nominal text-orange" type="text" name="" placeholder="isi PPh" autocomplete="off" id="nominal_pph_invoice" oninput="totalAmount()">'
-        html += '</div>'
-        html += '</div>'
-        // pph
-
-        // ppn
-        html += '<div class="row" id="fieldNominalPpn" hidden>'
-        html += '<div class="col-9 text-end align-self-center">'
-        html += '<p class="m-0 fw-bold text-dark-grey">PPN ( <span id="inputoperatorPPN"></span> )</p>'
-        html += '</div>'
-        html += '<div class="col-3 align-self-center text-end">'
-        html += '<input class="form-control form-control-sm p-0 border-0 shadow-none nominal text-orange" type="text" name="" placeholder="isi PPN" autocomplete="off" id="nominal_ppn_invoice" oninput="totalAmount()">'
-        html += '</div>'
-        html += '</div>'
-        // ppn
-
-        // total amount
-        html += '<div class="row">'
-        html += '<div class="col-9 text-end align-self-center mt-1">'
-        html += '<p class="m-0 fw-bolder text-dark">Total Amount</p>'
-        html += '</div>'
-        html += '<div class="col-3 align-self-center text-end mt-1">'
-        html += '<p class="m-0 text-dark fw-bolder">Rp. <span id="total_amount"></span></p>'
-        html += '</div>'
-        html += '</div>'
-        // total amount
-
-        html += '</div>'
-
-        html += '</div>'
-        $('#taxesFill').html(html)
-        $('.nominal').number(true);
-        paymentList(id)
-    }
-
-    function kerangkaTaxes() {
-
-    }
-
-    function paymentList(id) {
-        var html = ''
-        // input
-        html += returnPaymentEmpty(id)
-        // input
-        $('#paymentList').html(html)
-        if (id) {
-            filledEditValue(id)
+        html += '<div class="col-auto">'
+        html += '<p class="m-0 fw-bold text-dark-grey small-text">Nama</p>'
+        if (department_id) {
+            var dataDep = data_department.find(item => item.department.id == department_id)
+            html += '<p class="m-0 fw-bolder text-grey-dark">' + dataDep.department.name + '</p>'
+        } else {
+            html += '<p class="m-0 fw-bolder text-grey-dark">--</p>'
         }
-    }
-
-    function returnPaymentEmpty(id) {
-        var html = ''
-        html += '<div class="row justify-content-center">'
-        html += '<div class="col-1 text-end">'
-        html += '<img class="" style="width: 25px;" src="<?= base_url() ?>assets/image/svg/bill.svg" alt="Icon" />'
         html += '</div>'
-        html += '<div class="col-auto align-self-center text-start ps-0">'
-        html += '<p class="m-0 small text-dark-grey fw-light"><i>Belum Memiliki Riwayat Pembayaran</i></p>'
+        html += '<div class="col-auto">'
+        html += '<p class="m-0 fw-bold text-dark-grey small-text">Cost Center</p>'
+        if (cost_center_id) {
+            var dataCost = data_cost_center.find(item => item.cost_center.id == cost_center_id)
+            html += '<p class="m-0 fw-bolder text-grey-dark">' + dataCost.cost_center.code + ' - ' + dataCost.cost_center.name + '</p>'
+        } else {
+            html += '<p class="m-0 fw-bolder text-grey-dark">--</p>'
+        }
         html += '</div>'
-        html += '<div class="col-12 mt-2 text-center">'
-        html += '<button class="btn btn-sm shadow-none border-primary-payment text-primary-payment small-text" style="border-radius: 10px !important;" onclick="addNewPayment(' + "'" + id + "'" + ')">Tambah Payment Baru</button>'
         html += '</div>'
         html += '</div>'
         return html
     }
 
-    function filledEditValue(id) {
-        var invoiceFiltered = data_gl.find((value, key) => {
-            if (value.id == id) return true
-        });
-        $('#no_supplier_invoice').val(invoiceFiltered.doc_number_manual)
-        $('#date_supplier_invoice').val(formatDate(invoiceFiltered.datetime))
-        $('#date_jatuh_tempo').val(formatDate(invoiceFiltered.date_overdue))
-        $('#nominal_invoice').val(invoiceFiltered.sub_total)
-        if (invoiceFiltered.tax_nominal) {
-            $('#nominal_pph_invoice').val(invoiceFiltered.tax_nominal)
-            $('#selectJenisPph').val(invoiceFiltered.tax.id)
-        }
-        $('#notes').val(invoiceFiltered.note)
-        totalNominalPOtoNominalInvoice()
-    }
-
-    function formInvoice() {
-        var value = $('.formInvoice').map(function() {
-            return $(this).val();
-        }).get();
-        const hasEmptyElement = $.inArray('', value) !== -1;
-        if (hasEmptyElement) {
-            // jika ada yg kosong
-            btnSimpanRemoveDisabled(false)
-        } else {
-            // jika tidak ada yg kosong
-            btnSimpanRemoveDisabled(true)
-        }
-        changePPhNominal()
-        changePPnNominal()
+    function thirdStepInvoice(department_id, cost_center_id) {
+        var html = ''
+        $('#contentData').html(html)
     }
 
     function btnSimpanRemoveDisabled(status) {
@@ -1524,91 +858,6 @@
             $('#btnSimpan').prop('disabled', false)
         } else {
             $('#btnSimpan').prop('disabled', true)
-        }
-    }
-
-    function changePPhNominal() {
-        var value = $('#selectJenisPph').val();
-        if (value) {
-            $('#fieldNominalPph').prop("hidden", false)
-            fillPPh()
-        } else {
-            $('#nominal_pph_invoice').val(0)
-            $('#fieldNominalPph').prop("hidden", true)
-            totalAmount()
-        }
-    }
-
-    function changePPnNominal() {
-        var value = $('#selectJenisPpn').val();
-        if (value) {
-            $('#fieldNominalPpn').prop("hidden", false)
-            fillPPn()
-        } else {
-            $('#nominal_ppn_invoice').val(0)
-            $('#fieldNominalPpn').prop("hidden", true)
-            totalAmount()
-        }
-    }
-
-    function fillPPh() {
-        var value = $('#selectJenisPph').val();
-        var nominal = $('#nominal_invoice').val();
-        var hitung = $('#selectJenisPph option:selected').attr('data-hitung');
-        var operator = $('#selectJenisPph option:selected').attr('data-operator');
-        var autofill = $('#selectJenisPph option:selected').attr('data-autofill');
-        if (autofill == 1) {
-            $('#nominal_pph_invoice').val(roundToTwo(parseFloat(nominal) * parseFloat(hitung) / 100))
-        } else {
-            $('#nominal_pph_invoice').val(0)
-        }
-        totalAmount()
-    }
-
-    function fillPPn() {
-        var value = $('#selectJenisPpn').val();
-        var nominal = $('#nominal_invoice').val();
-        var hitung = $('#selectJenisPpn option:selected').attr('data-hitung');
-        var operator = $('#selectJenisPpn option:selected').attr('data-operator');
-        var autofill = $('#selectJenisPpn option:selected').attr('data-autofill');
-        if (autofill == 1) {
-            $('#nominal_ppn_invoice').val(roundToTwo(parseFloat(nominal) * parseFloat(hitung) / 100))
-        } else {
-            $('#nominal_ppn_invoice').val(0)
-        }
-        totalAmount()
-    }
-
-    function totalAmount() {
-        var nominal = $('#nominal_invoice').val();
-        $('#subtotal').html(number_format(roundToTwo(nominal)))
-        if (nominal) {
-            var pph = parseFloat($('#nominal_pph_invoice').val())
-            var ppn = parseFloat($('#nominal_ppn_invoice').val())
-            if (!pph) {
-                pph = 0
-            }
-            if (!ppn) {
-                ppn = 0
-            }
-            var operatorpph = $('#selectJenisPph option:selected').attr('data-operator');
-            var operatorppn = $('#selectJenisPpn option:selected').attr('data-operator');
-            if (!operatorpph) {
-                operatorpph = '+'
-            }
-            if (!operatorppn) {
-                operatorppn = '+'
-            }
-            $('#inputoperatorPPH').html(operatorpph)
-            $('#inputoperatorPPN').html(operatorppn)
-            if (pph || ppn) {
-                eval('var jumlah_tax = parseFloat(nominal) ' + operatorpph + ' parseFloat(pph)' + operatorppn + ' parseFloat(ppn)');
-                $('#total_amount').html(number_format(roundToTwo(jumlah_tax)))
-            } else {
-                $('#total_amount').html(number_format(roundToTwo(parseFloat(nominal))))
-            }
-        } else {
-            $('#total_amount').html(0)
         }
     }
 
@@ -1623,26 +872,7 @@
     }
 
     function changePositionPageModal() {
-        contentData(invoice_id_clicked)
-    }
-
-    function copyNominal(id_po, nominal) {
-        $('#nominalPerPO' + id_po).val(nominal)
-        totalNominalPOtoNominalInvoice()
-    }
-
-    function sumArray(arr) {
-        return arr.reduce((accumulator, currentValue) => {
-            return accumulator + (currentValue === '' ? 0 : Number(currentValue));
-        }, 0);
-    }
-
-    function totalNominalPOtoNominalInvoice() {
-        var value = $('.nominalPerPO').map(function() {
-            return $(this).val();
-        }).get();
-        $('#nominal_invoice').val(sumArray(value))
-        formInvoice()
+        tabData(department_id_clicked, cost_center_id_clicked)
     }
 
     function simpanData(invoice_id) {
@@ -1774,7 +1004,7 @@
                     }).then((responses) => {
                         $(button).prop("disabled", false);
                         if (data.invoice) {
-                            invoice_id_clicked = data.invoice[0].id
+                            department_id_clicked = data.invoice[0].id
                         }
                         currentIndexStep = 0
                         code_invoice = ''
@@ -1787,548 +1017,6 @@
                 }
             }
         });
-    }
-
-    function iconEdit() {
-        var html = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>'
-        return html
-    }
-
-    function showViewInvoice(id) {
-        invoice_id_clicked = id
-        $('#modal').modal('show')
-        kerangkaViewInvoice(id)
-    }
-
-    function kerangkaViewInvoice(id) {
-        openKerangkaAfterLoad = 'view'
-        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
-        var html_header = '';
-        html_header += '<p class="m-0 fw-bold">View Invoice</p>';
-        html_header += '<button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-        html_body += '<div class="col-10" id="viewHeaderData">'
-        html_body += '</div>'
-        html_body += '<div class="col-2 text-center align-self-center">'
-        html_body += '<button class="btn btn-sm shadow-none" style="border-color: #69707a;" onclick="kerangkaNewData(' + id + ')">' + iconEdit() + '</button>'
-        html_body += '</div>'
-        html_body += '<div class="col-12 border-bottom">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 py-3" id="supplierInformationInvoice">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 border-bottom">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 py-3" id="generalFormFillInvoice">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 border-bottom">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 py-3" id="paymentListInvoice">'
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body);
-        var html_footer = '';
-        html_footer += btnCancel()
-        $('#modalFooter').html(html_footer);
-        viewHeaderData(id)
-    }
-
-    function viewHeaderData(id) {
-        var html = ''
-        var invoiceFiltered = data_gl.find((value, key) => {
-            if (value.id == id) return true
-        });
-        html += returnHeaderData('Invoice', '', '', formatDateIndonesia(invoiceFiltered.created_at))
-        $('#viewHeaderData').html(html)
-        disabledEditNumberInvoice(invoiceFiltered.doc_number)
-        supplierInformationInvoice(invoiceFiltered)
-    }
-
-    function supplierInformationInvoice(data) {
-        var dataSupplier = data_master.supplier.find((value, key) => {
-            if (value.id == data.supplier.id) return true
-        });
-        var html = ''
-        html += '<div class="row p-2">'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 fw-bolder text-primary-payment small-text mb-2">Purchase Order</p>'
-        data.invoice_details.forEach(e => {
-            html += '<p class="m-0 small">' + e.doc_number_po + '</p>'
-        });
-        html += '</div>'
-        html += '<div class="col-9">'
-        html += '<p class="m-0 fw-bolder text-primary-payment small-text mb-2">Supplier Information</p>'
-        html += '<div class="row">'
-        // supplier
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Name</p>'
-        html += '<p class="m-0 small-text fw-bolder">' + dataSupplier.name + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Address</p>'
-        html += '<p class="m-0 small-text fw-bolder">' + dataSupplier.address + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Notes</p>'
-        html += '<p class="m-0 small-text fw-bolder">' + dataSupplier.note + '</p>'
-        html += '</div>'
-        html += '<div class="col-3">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Include Pajak</p>'
-        if (dataSupplier.is_pajak == 'Y') {
-            dataSupplier.is_pajak = 'YES'
-        } else {
-            dataSupplier.is_pajak = 'NO'
-        }
-        html += '<p class="m-0 small-text fw-bolder">' + dataSupplier.is_pajak + '</p>'
-        html += '</div>'
-        // supplier
-        html += '</div>'
-        html += '</div>'
-        $('#supplierInformationInvoice').html(html)
-        generalFormFillInvoice(data)
-    }
-
-    function generalFormFillInvoice(data) {
-        var html = ''
-        html += '<div class="row p-2">'
-        html += '<div class="col-12">'
-        html += '<p class="m-0 fw-bolder text-primary-payment small-text mb-2">General Information</p>'
-        html += '<div class="row">'
-        // general
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">No. Supplier Invoices</p>'
-        html += '<p class="m-0 small-text fw-bolder">' + data.doc_number_manual + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Tanggal Invoice Terima</p>'
-        html += '<p class="m-0 small-text fw-bolder">' + formatDate(data.datetime) + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Tanggal Jatuh Tempo Invoice</p>'
-        if (data.date_overdue) {
-            var dateOverdue = formatDate(data.date_overdue)
-        } else {
-            var dateOverdue = '<i class="text-grey">( Tidak Ada )</i>'
-        }
-        html += '<p class="m-0 small-text fw-bolder">' + dateOverdue + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Tanggal Pelunasan</p>'
-        if (data.paid_off_at) {
-            var paidOffAt = formatDate(data.paid_off_at)
-        } else {
-            var paidOffAt = '<i class="text-grey">( Belum Lunas )</i>'
-        }
-        html += '<p class="m-0 small-text fw-bolder">' + paidOffAt + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Notes</p>'
-        if (data.note) {
-            var note = shortenText(data.note, 20)
-        } else {
-            var note = '<i class="text-grey">( Tidak Ada )</i>'
-        }
-        html += '<p class="m-0 small-text fw-bolder">' + note + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">PPH</p>'
-        if (data.tax_nominal) {
-            var taxNominal = data.tax_nominal
-        } else {
-            var taxNominal = 0
-        }
-        html += '<p class="m-0 small-text fw-bolder">Rp. ' + number_format(taxNominal) + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Total Amount (+pph)</p>'
-        if (data.grand_total) {
-            var grandTotal = data.grand_total
-        } else {
-            var grandTotal = 0
-        }
-        html += '<p class="m-0 small-text fw-bolder">Rp. ' + number_format(grandTotal) + '</p>'
-        html += '</div>'
-        html += '<div class="col-3 mb-2">'
-        html += '<p class="m-0 super-small-text text-dark-grey fw-bolder mb-1">Status Invoice</p>'
-        var badge = '<span class="text-grey-dark super-small-text">PROSES</span>'
-        if (data.is_paid_off) {
-            badge = '<span class="text-success super-small-text">PAID</span>'
-        }
-        html += '<p class="m-0 small-text fw-bolder">' + badge + '</p>'
-        html += '</div>'
-        // general
-        html += '</div>'
-        html += '</div>'
-        $('#generalFormFillInvoice').html(html)
-        paymentListInvoice(data)
-    }
-
-    function paymentListInvoice(data) {
-        // console.log(data)
-        var html = ''
-        html += '<div class="row p-2">'
-        html += '<div class="col-12">'
-
-        html += '<div class="row">'
-        html += '<div class="col-6 align-self-center">'
-        html += '<p class="m-0 fw-bolder text-primary-payment small-text mb-2">Payment List</p>'
-        html += '</div>'
-        html += '<div class="col-6 align-self-center text-end" id="fieldAddPayment" hidden>'
-        html += '<button class="btn btn-sm super-small-text text-primary-payment border-primary-payment p-2" onclick="addNewPayment(' + "'" + data.id + "'" + ')"><i class="fa fa-plus me-2"></i>Tambah Payment</button>'
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="row" id="paymentList">'
-        // general
-        html += '<div class="col-12 py-3">'
-        html += returnPaymentEmpty(data.id)
-        html += '</div>'
-        // general
-        html += '</div>'
-        html += '</div>'
-        $('#paymentListInvoice').html(html)
-        if (data.payments) {
-            paymentListData(data)
-        }
-    }
-
-    function paymentListData(data) {
-        $('#fieldAddPayment').prop("hidden", false);
-        var html = ''
-        html += '<div class="table-responsive p-2">'
-        html += '<table class="table table-hover table-bordered table-sm small w-100" style="overflow-x: hidden;">'
-        html += '<thead>'
-        html += '<tr class="py-2">'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">#</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">Code</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">Tipe Pembayaran</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">Tgl. Bayar</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">Sumber Dana</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">Nominal</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white">Notes</th>'
-        html += '<th class="align-middle bg-light p-2 small-text bg-white"></th>'
-        html += '</tr>'
-        html += '</thead>'
-        html += '<tbody>'
-        var a = 1
-        var b = 1
-        data.payments.forEach(e => {
-            html += '<tr>'
-            html += '<td class="align-middle small-text text-center">' + a++ + '</td>'
-            html += '<td class="align-middle small-text text-center">' + e.doc_number + '</td>'
-            var tipe = data_master_payment.paymentMethod.find(x => x.id == e.is_dp).name
-            if (e.is_dp != 1) {
-                tipe = tipe + ' #' + b++
-            }
-            html += '<td class="align-middle small-text text-center">' + tipe + '</td>'
-            html += '<td class="align-middle small-text text-center">' + formatDate(e.datetime) + '</td>'
-            html += '<td class="align-middle small-text text-center">' + e.account.name + '</td>'
-            html += '<td class="align-middle small-text text-end">' + number_format(e.nominal) + '</td>'
-            if (!e.note) {
-                e.note = ''
-            }
-            html += '<td class="align-middle small-text text-center" title="' + e.note + '">' + shortenText(e.note, 30) + '</td>'
-            html += '<td class="align-middle small-text text-center"><i class="fa fa-pencil pointer" onclick="addNewPayment(' + data.id + ', ' + e.id + ')"></i></td>'
-        });
-        html += '</tbody>'
-        html += '<tfoot>'
-        html += '<tr>'
-        html += '<th colspan="5" class="align-middle small-text bg-white text-end pe-2">Total Bayar</th>'
-        html += '<th class="align-middle small-text text-end">' + number_format(data.payment_total) + '</th>'
-        html += '<th class="align-middle small-text text-end"></th>'
-        html += '<th class="align-middle small-text text-end"></th>'
-        html += '</tr>'
-        var selisih = data.grand_total - data.payment_total
-        if (selisih > 0) {
-            html += '<tr>'
-            html += '<th colspan="5" class="align-middle small-text bg-white text-end pe-2">Sisa Bayar</th>'
-            html += '<th class="align-middle small-text text-end text-orange">' + number_format(selisih) + '</th>'
-            html += '<th class="align-middle small-text text-end"></th>'
-            html += '<th class="align-middle small-text text-end"></th>'
-            html += '</tr>'
-        }
-        html += '</tfoot>'
-        html += '</table>'
-        html += '</div>'
-        $('#paymentList').html(html)
-        if (selisih <= 0) {
-            $('#fieldAddPayment').prop("hidden", true);
-        }
-    }
-
-    function addNewPayment(invoice_id, id = null) {
-        payment_id_clicked = id
-        kerangkaAddNewPayment(invoice_id, id)
-    }
-
-    function kerangkaAddNewPayment(invoice_id, id) {
-        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
-        $('#modalDialog').removeClass('modal-lg');
-        var html_header = '';
-        html_header += '<p class="m-0 fw-bold">Create New Payment</p>';
-        html_header += '<button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>';
-        $('#modalHeader').html(html_header);
-        var html_body = '';
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12" id="headerPayment">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 border-bottom">'
-        html_body += '</div>'
-        html_body += '<div class="col-12 py-3" id="bodyPayment">'
-        html_body += '</div>'
-        html_body += '</div>'
-        $('#modalBody').html(html_body);
-        var html_footer = '';
-        html_footer += btnCancel()
-        html_footer += btnSavePayment()
-        $('#modalFooter').html(html_footer);
-        headerPayment(invoice_id, id)
-    }
-
-    function headerPayment(invoice_id, id) {
-        var html = ''
-        var paymentNumber = ''
-        var badge = ''
-        var invoiceFiltered = data_gl.find((value, key) => {
-            if (value.id == invoice_id) return true
-        });
-        if (id) {
-            var paymentFiltered = invoiceFiltered.payments.find((value, key) => {
-                if (value.id == id) return true
-            })
-            paymentNumber = paymentFiltered.doc_number
-        } else {
-            badge = '<span class="badge bg-orange-payment small-text">NEW</span>'
-            paymentNumber = generateAutoPaymentNumber(invoice_id)
-        }
-        code_payment = paymentNumber
-        html += returnHeaderData('Payment', badge, '', formatDateIndonesia(invoiceFiltered.created_at))
-        $('#headerPayment').html(html)
-        disabledEditNumberInvoice(paymentNumber)
-        bodyPayment(invoice_id, id)
-    }
-
-    function bodyPayment(invoice_id, id) {
-        var html = ''
-        html += '<div class="row p-2">'
-        html += '<div class="col-12 mb-1">'
-        // form isi
-        html += '<div class="card shadow-none mb-1">'
-        html += '<div class="card-header p-2 px-3 bg-primary-payment text-white">'
-        html += '<p class="m-0 small-text fw-bolder">Form Payment</p>'
-        html += '</div>'
-        html += '<div class="card-body" id="formPayment">'
-        html += '</div>'
-        html += '</div>'
-        // form isi
-        html += '</div>'
-        if (!id) {
-            html += '<div class="col-12">'
-            html += '<div class="alert alert-success small-text py-2 mb-2" id="alertLunas" hidden role="alert">Tidak Ada Nominal Sisa, maka akan auto Lunas pada sistem</div>'
-            html += '</div>'
-        } else {
-            html += '<div class="col-12 mb-2">'
-            html += '<button class="btn btn-danger small-text w-100 shadow-none" onclick="deletePayment(' + id + ',1)">Hapus Payment</button>'
-            html += '</div>'
-        }
-        html += '</div>'
-        $('#bodyPayment').html(html)
-        formPayment(invoice_id, id)
-    }
-
-    function formPayment(invoice_id, id) {
-        var html = ''
-        var invoiceFiltered = data_gl.find((value, key) => {
-            if (value.id == invoice_id) return true
-        });
-        html += '<div class="row justify-content-end">'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-1">Kode Invoice</p>'
-        html += '<p class="m-0 fw-bolder super-small-text">#' + invoiceFiltered.doc_number + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-1">Dibuat Oleh</p>'
-        html += '<p class="m-0 fw-bolder super-small-text">' + invoiceFiltered.employee.name + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-1">Supplier</p>'
-        html += '<p class="m-0 fw-bolder super-small-text">' + invoiceFiltered.supplier.name + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-4">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-1">Nominal Invoice</p>'
-        html += '<p class="m-0 fw-bolder super-small-text">Rp. ' + number_format(invoiceFiltered.grand_total) + ' ' + redSmallText('( +PPn )') + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-4">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-1">Total Bayar</p>'
-        if (!invoiceFiltered.payment_total) {
-            invoiceFiltered.payment_total = 0
-        }
-        html += '<p class="m-0 fw-bolder super-small-text">Rp. ' + number_format(invoiceFiltered.payment_total) + '</p>'
-        html += '</div>'
-
-        html += '<div class="col-4 mb-4">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-1">Sisa Invoice</p>'
-        var selisih = roundToTwo(invoiceFiltered.grand_total - invoiceFiltered.payment_total)
-        html += '<div class="d-flex justify-content-start">'
-        html += '<p class="m-0 fw-bolder super-small-text">Rp. ' + number_format(selisih) + '</p>'
-        html += '<i class="fa fa-copy super-small-text fw-bolder ms-2 pointer text-grey" onclick="copySisaInvoice(' + selisih + ')"></i>'
-        html += '</div>'
-        html += '</div>'
-
-
-        html += '<div class="col-6 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-2">Tipe Pembayaran ' + redSmallText() + '</p>'
-        html += '<select class="form-control form-control-sm w-100 bg-light-grey formPaymentInput" id="selectTipePembayaran" title="PILIH TIPE PEMBAYARAN" onchange="inputNominalPayment()">'
-        html += '<option value="" selected disabled>PILIH TIPE PEMBAYARAN</option>'
-        data_master_payment.paymentMethod.forEach(e => {
-            html += '<option value="' + e.id + '">' + e.name + '</option>'
-        });
-        html += '</select>'
-        html += '</div>'
-
-        html += '<div class="col-6 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-2">Tgl. Bayar ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 bg-light-grey formPaymentInput datepicker" type="text" autocomplete="off" id="tanggal_bayar" value="" onchange="inputNominalPayment()">'
-        html += '</div>'
-
-        html += '<div class="col-6 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-2">Sumber Dana ' + redSmallText() + '</p>'
-        html += '<select class="form-control form-control-sm w-100 bg-light-grey formPaymentInput" id="selectSumberDana" title="PILIH SUMBER DANA" onchange="inputNominalPayment()">'
-        html += '<option value="" selected disabled>PILIH SUMBER DANA</option>'
-        data_master_payment.account.forEach(e => {
-            html += '<option value="' + e.id + '">' + e.code + ' - ' + e.name + '</option>'
-        });
-        html += '</select>'
-        html += '</div>'
-
-        html += '<div class="col-6 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-2">Nominal ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 bg-light-grey formPaymentInput nominal" type="text" autocomplete="off" id="nominal_payment" oninput="inputNominalPayment()" value="" data-selisih="' + selisih + '">'
-        html += '<div class="d-flex justify-content-between mt-1">'
-        html += '<p class="m-0 fw-bold text-dark-grey super-small-text mb-2">Sisa Bayar</p>'
-        var hide = ''
-        if (id) {
-            hide = 'hidden'
-        }
-        html += '<p class="m-0 fw-bolder super-small-text mb-2 text-danger" id="showSelisihPayment" ' + hide + '>Rp. ' + number_format(selisih) + '</p>'
-        html += '</div>'
-        html += '</div>'
-
-        html += '<div class="col-12 mb-2">'
-        html += '<p class="m-0 fw-bolder text-dark-grey small-text mb-2">Notes</p>'
-        html += '<textarea class="form-control form-control-sm bg-light-grey" rows="4" id="note_payment"></textarea>'
-        html += '</div>'
-
-        html += '</div>'
-        $('#formPayment').html(html)
-        $('.nominal').number(true);
-        $('.datepicker').datepicker({
-            format: "yyyy-mm-dd",
-            orientation: "auto",
-            autoclose: true
-        });
-        if (id) {
-            filledEditValuePayment(invoice_id, id)
-        }
-        inputNominalPayment()
-    }
-
-    function filledEditValuePayment(invoice_id, id) {
-        var invoiceFiltered = data_gl.find((value, key) => {
-            if (value.id == invoice_id) return true
-        });
-        var paymentFiltered = invoiceFiltered.payments.find((value, key) => {
-            if (value.id == id) return true
-        })
-        $('#tanggal_bayar').val(formatDate(paymentFiltered.datetime))
-        $('#selectTipePembayaran').val(paymentFiltered.is_dp)
-        $('#selectSumberDana').val(paymentFiltered.account.id)
-        $('#nominal_payment').val(paymentFiltered.nominal)
-        $('#note_payment').val(paymentFiltered.note)
-    }
-
-    function inputNominalPayment() {
-        var nominal = $('#nominal_payment').val()
-        if (!nominal) {
-            nominal = 0
-        }
-        var selisih = $('#nominal_payment').attr('data-selisih')
-        var value = selisih - nominal
-        $('#showSelisihPayment').html('Rp. ' + number_format(roundToTwo(value)))
-        if (value <= 0) {
-            $('#alertLunas').prop("hidden", false)
-            $('#showSelisihPayment').addClass('text-success')
-            $('#showSelisihPayment').removeClass('text-danger')
-        } else {
-            $('#alertLunas').prop("hidden", true)
-            $('#showSelisihPayment').addClass('text-danger')
-            $('#showSelisihPayment').removeClass('text-success')
-        }
-        formPaymentInput()
-    }
-
-    function copySisaInvoice(value) {
-        $('#nominal_payment').val(value)
-        inputNominalPayment()
-    }
-
-    function formPaymentInput() {
-        var value = $('.formPaymentInput').map(function() {
-            return $(this).val();
-        }).get();
-        const hasEmptyElement = $.inArray('', value) !== -1;
-        if (hasEmptyElement) {
-            // jika ada yg kosong
-            btnSimpanPaymentRemoveDisabled(false)
-        } else {
-            // jika tidak ada yg kosong
-            btnSimpanPaymentRemoveDisabled(true)
-        }
-    }
-
-    function btnSimpanPaymentRemoveDisabled(status) {
-        if (status) {
-            $('#btnSimpanPayment').prop('disabled', false)
-        } else {
-            $('#btnSimpanPayment').prop('disabled', true)
-        }
-    }
-
-    function simpanDataPayment(invoice_id, payment_id = null) {
-        var type = 'POST'
-        var button = '#btnSimpanPayment'
-        var url = '<?php echo api_produksi('setPayment'); ?>'
-        var datetime = $('#tanggal_bayar').val()
-        var tipePembayaran = $('#selectTipePembayaran').val()
-        var account_id = $('#selectSumberDana').val()
-        var nominal = $('#nominal_payment').val()
-        var note = $('#note_payment').val()
-        if (payment_id) {
-            var id = payment_id
-        } else {
-            var id = createCodeId()
-        }
-        var data = {
-            payment: [{
-                id: id,
-                doc_number: code_payment,
-                invoice_id: invoice_id,
-                employee_id: user_id,
-                account_id: account_id,
-                datetime: datetime,
-                nominal: nominal,
-                is_dp: tipePembayaran,
-                note: note,
-                created_at: currentDateTime(),
-                updated_at: currentDateTime()
-            }],
-        }
-        kelolaData(data, type, url, button)
     }
 
     function deleteInvoice(id) {
@@ -2345,56 +1033,6 @@
                 simpanDataHapusInvoice(id)
             }
         })
-    }
-
-    function simpanDataHapusInvoice(invoice_id) {
-        var type = 'POST'
-        var button = '#btnSimpan'
-        var url = '<?php echo api_produksi('setInvoice'); ?>'
-        openKerangkaAfterLoad = 'delete'
-        var invoiceDetailId = []
-        var invoiceFiltered = data_gl.find((value, key) => {
-            if (value.id == invoice_id) return true
-        });
-        invoiceFiltered.invoice_details.forEach(e => {
-            invoiceDetailId.push(e.id)
-        });
-        var data = {
-            deletedId: {
-                invoice: [invoice_id],
-                invoice_detail: invoiceDetailId
-            }
-        }
-        kelolaData(data, type, url, button)
-    }
-
-    function deletePayment(id) {
-        Swal.fire({
-            text: 'Apakah Anda yakin ingin menghapus Payment ini ?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya',
-            cancelButtonText: 'Tidak',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                simpanDataHapusPayment(id)
-            }
-        })
-    }
-
-    function simpanDataHapusPayment(payment_id) {
-        var type = 'POST'
-        var button = '#btnSimpan'
-        var url = '<?php echo api_produksi('setPayment'); ?>'
-        openKerangkaAfterLoad = 'view'
-        var data = {
-            deletedId: {
-                payment: [payment_id]
-            }
-        }
-        kelolaData(data, type, url, button)
     }
     // search multi
     $(document).on('keyup', '#search_id_po', function(e) {
@@ -2427,127 +1065,5 @@
         for (let i = 0; i < array_arranged.length; i++) {
             $('#cardListPO' + array_arranged[i]).removeClass('d-none')
         }
-    }
-
-    function getDataWithoutInvoice() {
-        supplier_selected = null
-        invoice_po_id_clicked = []
-        $.ajax({
-            url: "<?= api_url('getPOInvoice'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            error: function(xhr) {
-                showOverlay('hide')
-            },
-            beforeSend: function() {
-                showOverlay('show')
-            },
-            success: function(response) {
-                showOverlay('hide')
-                data_po_all = response.data.POInvoice
-                listDataWithoutInvoice()
-            }
-        })
-    }
-
-    function listDataWithoutInvoice() {
-        var html = ''
-        data_po_all.forEach(e => {
-            if (e.is_receive) {
-                // jika diterima
-                if (e.is_receive_all) {
-                    // jika diterima utuh
-                    var badgeInvoice = '<span class="text-success">Telah Diterima</span>'
-                } else {
-                    // jika diterima sebagian
-                    var badgeInvoice = '<span class="text-orange">Diterima Partial</span>'
-                }
-            } else {
-                // jika belum diterima
-                var badgeInvoice = '<span class="text-grey">On Going</span>'
-            }
-            html += '<div class="card shadow-none mb-2 pointer" onclick="choosePOWithoutInvoice(' + e.id + ')" id="cardListPO' + e.id + '">'
-            html += '<div class="card-body py-3">'
-            html += '<div class="row">'
-            html += '<div class="col-10">'
-            html += '<p class="m-0 small text-grey-dark fw-bolder">#<span class="text_search" data-id="' + e.id + '">' + e.no_po + '</span></p>'
-            html += '<p class="m-0 small-text text-dark">Rp. ' + number_format(e.grand_total) + ',-</p>'
-            html += '<p class="m-0 small-text text-grey-dark mt-1 fw-bold text_search" data-id="' + e.id + '">' + e.supplier.name + ' - ' + badgeInvoice + '</p>'
-            html += '</div>'
-            html += '<div class="col-2 align-self-center text-end ps-0 pe-1">'
-            html += '<span class="fa fa-check fa-2x text-grey" id="checkIcon' + e.id + '"></span>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        });
-        $('#listDataWithoutInvoice').html(html)
-        $('#search_id_po').focus();
-        searching()
-    }
-
-    function choosePOWithoutInvoice(po_id) {
-        var check = $('#cardListPO' + po_id).hasClass('checked')
-        var supplier_id_selected = data_po_all.find((value, key) => {
-            if (value.id == po_id) return true
-        }).supplier.id
-        var array_invoice_po = deepCopy(invoice_po_id_clicked)
-        if (!array_invoice_po.length) {
-            // jika baru pertama klik, arraynya kosong sebelumnya
-            setCardColor(check, po_id)
-            supplier_selected = supplier_id_selected
-        } else {
-            if (supplier_selected == supplier_id_selected) {
-                setCardColor(check, po_id)
-            }
-        }
-    }
-
-    function setCardColor(check, po_id) {
-        if (check) {
-            // remove
-            $('#cardListPO' + po_id).removeClass('checked')
-            $('#cardListPO' + po_id).removeClass('bg-light-primary-payment border-light-primary-payment')
-            $('#checkIcon' + po_id).removeClass('text-success')
-            $('#checkIcon' + po_id).addClass('text-grey')
-            invoice_po_id_clicked.splice(invoice_po_id_clicked.indexOf(po_id), 1)
-        } else {
-            // add
-            $('#cardListPO' + po_id).addClass('checked')
-            $('#cardListPO' + po_id).addClass('bg-light-primary-payment border-light-primary-payment')
-            $('#checkIcon' + po_id).removeClass('text-grey')
-            $('#checkIcon' + po_id).addClass('text-success')
-            invoice_po_id_clicked.push(po_id)
-            invoice_po_id_clicked = [...new Set(invoice_po_id_clicked)]
-        }
-        if (invoice_po_id_clicked.length) {
-            showPOFilteredName(po_id)
-            $('#fieldListPOManage').prop('hidden', false)
-            $('#alertListPOManage').prop('hidden', true)
-        } else {
-            $('#search_id_po').val('')
-            $('#fieldListPOManage').prop('hidden', true)
-            $('#alertListPOManage').prop('hidden', false)
-            searching()
-        }
-    }
-
-    function showPOFilteredName(po_id) {
-        var supplier_name = data_po_all.find((value, key) => {
-            if (value.id == po_id) return true
-        }).supplier.name
-        $('#search_id_po').val(supplier_name)
-        searching()
-    }
-
-    function addNewInvoiceFromSide() {
-        supplier_id_clicked = supplier_selected
-        $('#search_id_po').val('')
-        $('#fieldListPOManage').prop('hidden', true)
-        $('#alertListPOManage').prop('hidden', false)
-        var offcanvasElement = document.getElementById('offcanvasRight');
-        var bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        bsOffcanvas.hide();
-        addNewData()
     }
 </script>
