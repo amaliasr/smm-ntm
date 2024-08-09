@@ -182,7 +182,7 @@
                     <div class="col-12">
                         <div class="form-group has-search">
                             <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari No. PO" id="search_id_po" autocomplete="off">
+                            <input type="text" class="form-control-sm form-control small-text" style="border-radius: 10px !important;" placeholder="Cari No. PO" id="search_id_po" autocomplete="off">
                         </div>
                     </div>
                     <div class="col-2 ps-1" hidden>

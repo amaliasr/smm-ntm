@@ -1,73 +1,5 @@
 <link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
-<style>
-    .text-primary-payment {
-        color: #1D91C3 !important;
-    }
-
-    .bg-primary-payment {
-        background-color: #1D91C3 !important;
-        color: white !important;
-    }
-
-    .bg-light-primary-payment {
-        background-color: #ecf5f9 !important;
-    }
-
-    .border-primary-payment {
-        border-color: #1D91C3 !important;
-    }
-
-    .border-light-primary-payment {
-        border-color: #a4d3e7 !important;
-    }
-
-    .text-orange-payment {
-        color: #D68231 !important;
-    }
-
-    .bg-orange-payment {
-        background-color: #D68231 !important;
-        color: white !important;
-    }
-
-    .bg-light-orange-payment {
-        background-color: #FDF8F4 !important;
-    }
-
-    .border-orange-payment {
-        border-color: #D68231 !important;
-    }
-
-    .border-light-orange-payment {
-        border-color: #F1D3B7 !important;
-    }
-
-    .select2-selection {
-        border: 1px solid #b6b7b7 !important;
-    }
-
-    .select2-container .select2-selection--single .select2-selection__rendered {
-        padding-left: 10px;
-        padding-right: 10px;
-        padding-top: 7px;
-        padding-bottom: 7px;
-        color: #a4a5a6 !important;
-    }
-
-    .select2-container .select2-selection--single {
-        height: auto !important;
-    }
-
-    .form-check-input {
-        width: 15px;
-        height: 15px;
-        margin: 0px;
-    }
-
-    .select2-container--default .select2-results>.select2-results__options {
-        max-height: 500px !important;
-    })
-</style>
+<link href="<?= base_url(); ?>assets/smm/finance.css" rel="stylesheet" type="text/css">
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
@@ -109,23 +41,61 @@
                 </div>
             </div>
         </div>
-        <div class="col-12" id="alertPOWithoutInvoice">
-        </div>
-        <div class="col-12">
-            <div class="card shadow-none">
-                <div class="card-header">
-                    <p class="m-0 super-small-text fw-bolder text-dark">List Invoices</p>
-                    <p class="m-0 super-small-text fw-bolder text-dark-grey" id="dateRangeString"></p>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 px-4" id="statusLine">
-
+        <div class="row">
+            <div class="col-12" id="alertPOWithoutInvoice">
+            </div>
+            <div class="col-3">
+                <div class="card shadow-none">
+                    <div class="card-header">
+                        <p class="m-0 super-small-text fw-bolder text-grey-99">Undefined Item (7)</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 mb-2">
+                                <div class="form-group has-search">
+                                    <span class="fa fa-search form-control-feedback"></span>
+                                    <input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari Item" id="search_id_po" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-12" style="max-height: 400px;overflow-x: hidden;overflow-y: auto;">
+                                <?php for ($i = 0; $i < 12; $i++) { ?>
+                                    <div class="card shadow-none pointer card-hoper mb-2">
+                                        <div class="card-body p-3">
+                                            <div class="row">
+                                                <div class="col-3 align-self-end text-center">
+                                                    <input class="form-check-input" type="checkbox" value="" id="checkListPO">
+                                                </div>
+                                                <div class="col-9">
+                                                    <p class="m-0 small-text">RM.04-609</p>
+                                                    <p class="m-0 small-text fw-bolder">Box REUSE 20 SKM RED</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                            <div class="col-12 pt-2">
+                                <button class="btn btn-sm shadow-none bg-primary-payment w-100 py-3" onclick="addNewData()">Convert to General Ledger (<span>3</span>)</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="row me-0">
-                        <div class="col-12 pe-0">
-                            <div class="table-responsible" id="dataTable">
+                </div>
+            </div>
+            <div class="col-9 ps-0">
+                <div class="card shadow-none h-100">
+                    <div class="card-header">
+                        <p class="m-0 super-small-text fw-bolder text-grey-99">List Cost Center</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 px-4" id="statusLine">
+
+                            </div>
+                        </div>
+                        <div class="row me-0">
+                            <div class="col-12 pe-0">
+                                <div class="table-responsible" id="dataTable">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -374,7 +344,9 @@
     var job_level_id = '<?= $this->session->userdata('job_level_id') ?>'
     var initialDivision = "<?= $this->session->userdata('alias') ?>"
     var data_master = {}
-    var data_invoice = {}
+    var data_department = null
+    var data_cost_center = []
+    var data_gl_showed = []
     var data_master_payment = null
     var data_po = {}
     var data_po_all = null
@@ -383,50 +355,38 @@
     var costCenterNTMId = 23
     var date_start = getFirstDate()
     var date_end = currentDate()
-    // var date_end = '2024-07-31'
     var account = []
     var po_id_clicked
-    var statusLineVariable = [{
-            id: 0,
-            name: 'All Data',
-            selected: true,
-            functions: 'countAllData()',
-            getData: 'chooseDataAllData()'
-        },
-        {
-            id: 1,
-            name: 'Unfinished Paid',
-            selected: false,
-            functions: 'countUnfinishedPaid()',
-            getData: 'chooseDataUnfinishedPaid()'
-        }
-    ]
+    var statusLineVariableTemplate = {
+        id: 0,
+        name: 'Semua Data',
+        selected: true,
+        functions: 'countAllData()',
+        getData: 'chooseDataAllData()'
+    }
+    var statusLineVariable = []
     var currentIndexStep = 0
-    var stepCreateInvoice = [{
+    var stepCreateNew = [{
         index: 0,
+        name: 'Pilih Departemen',
         function: 'firstStepInvoice(id)',
-        text: 'Pilih Supplier',
+        text: 'Pilih Departemen',
         button: ['btnCancel()', 'btnNext()'],
     }, {
         index: 1,
+        name: 'Buat Cost Center',
         function: 'secondStepInvoice(id)',
-        text: 'Mengisi Data Invoice',
+        text: 'Buat Cost Center',
+        button: ['btnBack()', 'btnCancel()', 'btnNext()'],
+    }, {
+        index: 2,
+        name: 'Buat Pilih Item',
+        function: 'secondStepInvoice(id)',
+        text: 'Buat Pilih Item',
         button: ['btnBack()', 'btnCancel()', 'btnSave()'],
     }]
-    var code_invoice = ''
-    var code_payment = ''
-    var invoice_id_clicked = null
-    var payment_id_clicked = null
-    var supplier_id_clicked = null
-    var invoice_po_id_clicked = []
-    var data_invoice_showed = []
-    var data_invoice_payment = []
-    var newNumberInvoice = ''
-    var openKerangkaAfterLoad = ''
-    var supplier_selected = null
     $(document).ready(function() {
-        dateRangeString()
-        // loadData()
+        loadData()
     })
 
     function alertPOWithoutInvoice(number) {
@@ -445,7 +405,7 @@
 
     function loadData() {
         $.ajax({
-            url: "<?= api_url('loadPageInvoiceCreate'); ?>",
+            url: "<?= api_url('getDepartmentAccount'); ?>",
             method: "GET",
             dataType: 'JSON',
             error: function(xhr) {
@@ -460,47 +420,41 @@
                 showOverlay('show')
             },
             success: function(response) {
-                data_master = response.data
-                if (data_master.poInvoiceCount) {
-                    alertPOWithoutInvoice(data_master.poInvoiceCount)
-                }
-                getInvoice()
+                showOverlay('hide')
+                data_department = response.data.departmentAccount
+                arrangeVariable()
             }
         })
     }
 
-    function getInvoice() {
-        $.ajax({
-            url: "<?= api_url('getInvoice'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                dateStart: date_start,
-                dateEnd: date_end
-            },
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                })
-            },
-            beforeSend: function() {},
-            success: function(response) {
-                data_invoice = response.data.invoicePayment
-                data_invoice_payment = []
-                data_invoice.forEach(e => {
-                    if (e.payments) {
-                        e.payments.forEach(el => {
-                            data_invoice_payment.push(el)
-                        })
-                    }
+    function arrangeVariable() {
+        data_cost_center = []
+        statusLineVariable = []
+        statusLineVariable.push(statusLineVariableTemplate)
+        var a = 1
+        data_department.forEach(e => {
+            if (e.cost_centers) {
+                e.cost_centers.forEach(el => {
+                    data_cost_center.push({
+                        department: e.department,
+                        cost_center: el.cost_center,
+                        general_ledger_total: el.general_ledger_total,
+                        general_ledgers: el.general_ledgers,
+                        item_total: el.item_total,
+                        items: el.items,
+                    })
                 });
-                data_invoice_showed = data_invoice
-                loadPaymentInvoice()
+                statusLineVariable.push({
+                    id: a++,
+                    name: shortenText(e.department.name, 15),
+                    selected: false,
+                    functions: 'countDataFiltered(' + e.department.id + ')',
+                    getData: 'chooseDataFiltered(' + e.department.id + ')'
+                })
             }
-        })
+        });
+        data_gl_showed = data_cost_center
+        statusLine()
     }
 
     function currentTimeNew() {
@@ -517,28 +471,6 @@
         return time;
     }
 
-    function loadPaymentInvoice() {
-        $.ajax({
-            url: "<?= api_url('loadPagePaymentInvoice'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                })
-            },
-            beforeSend: function() {},
-            success: function(response) {
-                $('#timeRefresh').html(currentTimeNew())
-                showOverlay('hide')
-                data_master_payment = response.data
-                statusLine()
-            }
-        })
-    }
 
     function setDaterange() {
         new Litepicker({
@@ -565,7 +497,7 @@
     }
 
     function chooseDataAllData() {
-        var data = data_invoice
+        var data = data_cost_center
         return data
     }
 
@@ -574,27 +506,17 @@
     }
 
 
-    function chooseDataUnfinishedPaid() {
-        var data = data_invoice.filter((v, k) => {
-            if (!v.is_paid_off) return true
+    function chooseDataFiltered(id_department) {
+        var data = data_cost_center.filter((v, k) => {
+            if (v.department.id == id_department) return true
         })
         return data
     }
 
-    function countUnfinishedPaid() {
-        return chooseDataUnfinishedPaid().length
+    function countDataFiltered(id_department) {
+        return chooseDataFiltered(id_department).length
     }
 
-    function chooseDataAllDone() {
-        var data = data_invoice.filter((v, k) => {
-            if (v.is_paid_off == 1) return true
-        })
-        return data
-    }
-
-    function countAllDone() {
-        return chooseDataAllDone().length
-    }
 
 
     function statusLineSwitch(id, getData) {
@@ -614,7 +536,7 @@
             return item;
         });
         statusLineVariable = updatedData2
-        data_invoice_showed = eval(getData)
+        data_gl_showed = eval(getData)
         statusLine()
     }
 
@@ -622,65 +544,38 @@
         var html = ''
         html += '<div class="row justify-content-between">'
         html += '<div class="col h-100">'
-        html += '<div class="row" style="height:30px">'
+        html += '<div class="row justify-content-center">'
         statusLineVariable.forEach(e => {
-            var text = 'text-grey'
+            var text = 'text-grey border-bottom'
             var icon = 'text-grey bg-light'
             if (e.selected) {
                 text = 'fw-bold filter-border'
                 icon = 'bg-light-blue text-white'
             }
             var num = eval(e.functions)
-            html += '<div class="col-auto h-100 statusLine text-small pb-2 align-self-center ' + text + '" style="cursor:pointer" onclick="statusLineSwitch(' + e.id + ',' + "'" + e.getData + "'" + ')" id="colStatusLine' + e.id + '">'
+            html += '<div class="col-auto h-100 statusLine text-small pb-2 align-self-center mb-2 ' + text + '" style="cursor:pointer" onclick="statusLineSwitch(' + e.id + ',' + "'" + e.getData + "'" + ')" id="colStatusLine' + e.id + '">'
             html += e.name + '<span class="statusLineIcon ms-1 p-1 rounded ' + icon + '" id="statusLineIcon' + e.id + '">' + num + '</span>'
             html += ' </div>'
 
         });
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-auto">'
-        html += '<div class="row h-100">'
-
-        html += '<div class="col-auto ps-0">'
-        html += '<input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal" autocomplete="off">'
-        html += '</div>'
-
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="col-12 border-top pt-2">'
-
-        html += '<div class="row justify-content-end">'
-        html += '<div class="col-auto">'
-        // html += '<p class="m-0 small-text">Filter :</p>'
-        html += '</div>'
-        html += '<div class="col-auto">'
-        html += '</div>'
-        html += '</div>'
-
-        html += '</div>'
         html += '</div>'
         $('#statusLine').html(html)
-        setDaterange()
         kerangkaHistory()
     }
 
     function kerangkaHistory() {
         var html = ''
-        html += '<table class="table table-hover table-sm small w-100" style="overflow-x: hidden;" id="tableDetail">'
+        html += '<table class="table table-hover table-sm small w-100 mt-3" style="overflow-x: hidden;" id="tableDetail">'
         html += '<thead id="headTable">'
         html += '<tr class="py-2">'
         html += '<th class="align-middle small-text bg-white">#</th>'
-        html += '<th class="align-middle small-text bg-white">No. Invoice</th>'
-        html += '<th class="align-middle small-text bg-white">Sup. Invoice</th>'
-        html += '<th class="align-middle small-text bg-white">Entry Date</th>'
-        html += '<th class="align-middle small-text bg-white">Due Date</th>'
-        html += '<th class="align-middle small-text bg-white">No. PO</th>'
-        html += '<th class="align-middle small-text bg-white">User</th>'
-        html += '<th class="align-middle small-text bg-white">Total Invoice</th>'
-        html += '<th class="align-middle small-text bg-white">Total Payment</th>'
-        html += '<th class="align-middle small-text bg-white">Invoice Balance</th>'
-        html += '<th class="align-middle small-text bg-white">Payment Freq</th>'
-        html += '<th class="align-middle small-text bg-white">Status</th>'
+        html += '<th class="align-middle small-text bg-white">Department</th>'
+        html += '<th class="align-middle small-text bg-white">Code</th>'
+        html += '<th class="align-middle small-text bg-white">Name</th>'
+        html += '<th class="align-middle small-text bg-white">Total GL</th>'
+        html += '<th class="align-middle small-text bg-white">Total Item</th>'
         html += '<th class="align-middle small-text bg-white"></th>'
         html += '</tr>'
         html += '</thead>'
@@ -698,70 +593,19 @@
     function bodyHistory() {
         var html = ''
         var a = 1
-        var dataFind = deepCopy(data_invoice_showed)
+        var dataFind = deepCopy(data_gl_showed)
         dataFind.forEach(e => {
-            var total_payment = parseFloat(e.total_payment) + parseFloat(e.total_dp)
-            if (!e.payment_freq) {
-                e.payment_freq = '-'
-            }
-            if (!e.total_dp) {
-                e.total_dp = '-'
-            } else {
-                e.total_dp = number_format(e.total_dp)
-            }
-            var iconLunas = '<i class="fa fa-check-circle text-grey"></i>'
-            var bgLunas = ''
-            if (e.is_paid_off) {
-                iconLunas = '<i class="fa fa-check-circle text-success" title="Pembayaran Lunas"></i>'
-                bgLunas = 'bg-success-light'
-            } else {
-                if (total_payment > 0) {
-                    iconLunas = '<i class="fa fa-clock-o text-warning" title="Proses Pembayaran"></i>'
-                }
-            }
             html += '<tr>'
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + a++ + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text under-hover fw-bolder pointer" onclick="showViewInvoice(' + "'" + e.id + "'" + ')">' + e.doc_number + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + e.doc_number_manual + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + formatDate(e.datetime) + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + formatDate(e.date_overdue) + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle small-text text-center">'
-            e.invoice_details.forEach(el => {
-                html += '<p class="m-0">' + el.doc_number_po + '</p>'
-            });
-            html += '</td>'
-            if (!e.employee.name) {
-                e.employee.name = '-'
-            }
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + shortenName(e.employee.name, 2) + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle text-end small-text">' + number_format(roundToTwo(e.grand_total)) + '</td>'
-            if (!e.payment_total) {
-                e.payment_total = 0
-            }
-            html += '<td class="' + bgLunas + ' align-middle text-end small-text">' + number_format(roundToTwo(e.payment_total)) + '</td>'
-            var selisih = roundToTwo(e.grand_total - e.payment_total)
-            html += '<td class="' + bgLunas + ' align-middle text-end small-text">' + number_format(selisih) + '</td>'
-            var jumlahPay = 0
-            if (e.payments) {
-                jumlahPay = e.payments.length
-            }
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + jumlahPay + '</td>'
-            var badge = '<span class="badge rounded-pill bg-grey super-small-text p-2 w-100">PROSES</span>'
-            if (e.is_paid_off) {
-                badge = '<span class="badge rounded-pill bg-success super-small-text p-2 w-100">PAID</span>'
-            }
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + badge + '</td>'
-            html += '<td class="' + bgLunas + ' align-middle text-center small-text">'
+            html += '<td class="align-middle text-center small-text">' + a++ + '</td>'
+            html += '<td class="align-middle text-center small-text">' + e.department.name + '</td>'
+            html += '<td class="align-middle text-center small-text">' + e.cost_center.code + '</td>'
+            html += '<td class="align-middle small-text">' + e.cost_center.name + '</td>'
+            html += '<td class="align-middle text-center small-text">' + e.general_ledger_total + '</td>'
+            html += '<td class="align-middle text-center small-text">' + e.item_total + '</td>'
+            html += '<td class="align-middle small-text text-center">'
             html += '<button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item" onclick="showViewInvoice(' + "'" + e.id + "'" + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
-            html += '<a class="dropdown-item" onclick="addNewData(' + "'" + e.id + "'" + ')"><i class="fa fa-pencil me-2"></i> Edit Invoice</a>'
-            if (!e.paid_off_at) {
-                html += '<hr class="m-2">'
-                html += '<div class="text-center pe-2 ps-2 mt-2">'
-                html += '<button class="btn btn-sm btn-danger w-100" onclick="deleteInvoice(' + "'" + e.id + "'" + ')">Hapus Invoice</button>'
-                html += '</div>'
-            }
+            html += '<a class="dropdown-item" onclick="showViewInvoice(' + "'" + e.department.id + "'" + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
             html += '</div>'
             html += '</td>'
             html += '</tr>'
@@ -778,15 +622,9 @@
             "initComplete": function(settings, json) {
                 $('div.dataTables_filter input').attr('placeholder', 'Search...');
             },
-            searching: false,
+            searching: true,
         })
-        if (openKerangkaAfterLoad == 'add') {
-            kerangkaNewInvoice(invoice_id_clicked)
-        } else if (openKerangkaAfterLoad == 'view') {
-            kerangkaViewInvoice(invoice_id_clicked)
-        } else if (openKerangkaAfterLoad == 'delete') {
-            $('#modal').modal('hide')
-        }
+        addNewData()
     }
 
     function createCodeId() {
@@ -830,29 +668,31 @@
     function addNewData(id = null) {
         invoice_id_clicked = id
         $('#modal').modal('show')
-        kerangkaNewInvoice(id)
+        kerangkaNewData(id)
     }
 
-    function kerangkaNewInvoice(id = null) {
+    function kerangkaNewData(id = null) {
         openKerangkaAfterLoad = 'view'
         invoice_id_clicked = id
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
         var html_header = '';
-        html_header += '<p class="m-0 fw-bold">Create New Invoice</p>';
+        html_header += '<p class="m-0 fw-bold">Create New</p>';
         html_header += '<button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
-        html_body += '<div class="col-12 border-bottom" id="headerInvoice">'
+        html_body += '<div class="col-12" id="headerData">'
         html_body += '</div>'
-        html_body += '<div class="col-12 py-3 pb-0" id="contentStepInvoice">'
+        html_body += '<div class="col-12" id="tabData">'
+        html_body += '</div>'
+        html_body += '<div class="col-12 py-3 pb-0" id="contentData">'
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
         var html_footer = '';
         html_footer += btnCancel()
         $('#modalFooter').html(html_footer);
-        headerInvoice(id)
+        headerData(id)
     }
 
     function btnCancel() {
@@ -944,10 +784,10 @@
                 bulan = "XII";
                 break;
         }
-        var jumlah = countCurrentMonthData(data_invoice, date);
+        var jumlah = countCurrentMonthData(data_gl, date);
         var code = 'INV/SMM/' + tahun + '/' + bulan + '/' + padNumber(jumlah + 1)
         // check available code
-        var checkInvoice = data_invoice.filter((record) => record.doc_number == code);
+        var checkInvoice = data_gl.filter((record) => record.doc_number == code);
         if (checkInvoice) {
             code
         }
@@ -961,7 +801,7 @@
     }
 
     function checkAvailableCodeInvoice(code, tahun, bulan, jumlah) {
-        var checkInvoice = data_invoice.filter((record) => record.doc_number == code);
+        var checkInvoice = data_gl.filter((record) => record.doc_number == code);
         if (checkInvoice) {
             jumlah++
             checkAvailableCode(code)
@@ -1011,44 +851,24 @@
                 break;
         }
         var paymentsFiltered = []
-        data_invoice.forEach(e => {
+        data_gl.forEach(e => {
 
         });
-        var data_payment = deepCopy(data_invoice_payment)
+        var data_payment = deepCopy(data_gl_payment)
         var jumlah = countCurrentMonthData(data_payment, date);
         var code = 'PAY/SMM/' + tahun + '/' + bulan + '/' + padNumber(jumlah + 1)
         code_payment = code
         return code
     }
 
-    function headerInvoice(id) {
+    function headerData(id) {
         var html = ''
-        var badge = ''
-        var btnRefresh = ''
-        var invoiceNumber = ''
-        var invoiceDate = ''
-        if (id) {
-            var invoiceFiltered = data_invoice.find((value, key) => {
-                if (value.id == id) return true
-            });
-            invoiceNumber = invoiceFiltered.doc_number
-            invoiceDate = formatDateIndonesia(invoiceFiltered.created_at)
-        } else {
-            invoiceNumber = generateAutoInvoiceNumber()
-            invoiceDate = formatDateIndonesia(currentDate())
-            badge = '<span class="badge bg-orange-payment small-text">NEW</span>'
-            btnRefresh = '<span class="fa fa-pencil ms-2 text-grey pointer" id="btnEditInvoiceNumber" onclick="editNumberInvoice(' + "'" + invoiceNumber + "'" + ')"></span>'
-        }
-        if (newNumberInvoice) {
-            invoiceNumber = newNumberInvoice
-        }
-        html += returnHeaderInvoice('Invoice', badge, btnRefresh, invoiceDate)
-        $('#headerInvoice').html(html)
-        disabledEditNumberInvoice(invoiceNumber)
-        contentStepInvoice(id)
+        html += '<p class="m-0 fw-bolder h5">General Ledger Item</p>'
+        $('#headerData').html(html)
+        // contentData(id)
     }
 
-    function returnHeaderInvoice(text, badge, btnRefresh, invoiceDate) {
+    function returnHeaderData(text, badge, btnRefresh, invoiceDate) {
         var html = ''
         html += '<div class="p-2 pb-3">'
         html += '<div class="d-flex align-items-center">'
@@ -1079,30 +899,20 @@
         $('#btnEditInvoiceNumber').addClass('d-none');
     }
 
-    function disabledEditNumberInvoice(invoiceNumber) {
-        var html = ''
-        if (newNumberInvoice) {
-            invoiceNumber = newNumberInvoice
-        }
-        html += '<span class="text-primary-payment h3 fw-bold" id="invoiceAutoNumber">#<span id="textNumberInvoice">' + invoiceNumber + '</span></span>'
-        $('#fieldEditInvoiceNumber').html(html)
-        $('#btnEditInvoiceNumber').removeClass('d-none');
-    }
-
     function inputNewInvoiceNumber() {
         var invoiceNumber = $('#nomorInvoiceManual').val()
         newNumberInvoice = invoiceNumber
     }
 
-    function contentStepInvoice(id) {
+    function contentData(id) {
         // if (id) {
         //     currentIndexStep = 1
-        //     var invoiceFiltered = data_invoice.find((value, key) => {
+        //     var invoiceFiltered = data_gl.find((value, key) => {
         //         if (value.id == id) return true
         //     });
         //     supplier_id_clicked = invoiceFiltered.supplier.id
         // }
-        var data = stepCreateInvoice[currentIndexStep]
+        var data = stepCreateNew[currentIndexStep]
         eval(data.function)
         var html = ''
         for (let i = 0; i < data.button.length; i++) {
@@ -1116,7 +926,7 @@
 
     function firstStepInvoice(id) {
         if (id) {
-            var invoiceFiltered = data_invoice.find((value, key) => {
+            var invoiceFiltered = data_gl.find((value, key) => {
                 if (value.id == id) return true
             });
             supplier_id_clicked = invoiceFiltered.supplier.id
@@ -1139,7 +949,7 @@
         html += '<div class="col-12 pt-2" id="showPurchaseOrder">'
         html += '</div>'
         html += '</div>'
-        $('#contentStepInvoice').html(html)
+        $('#contentData').html(html)
         $('#selectSupplier').select2({
             closeOnSelect: true,
             dropdownParent: $('#modal'),
@@ -1283,7 +1093,7 @@
         // list PO
         $('#fieldListPO').html(html)
         if (id) {
-            var invoiceFiltered = data_invoice.find((value, key) => {
+            var invoiceFiltered = data_gl.find((value, key) => {
                 if (value.id == id) return true
             });
             invoiceFiltered.invoice_details.forEach(e => {
@@ -1392,7 +1202,7 @@
 
     function secondStepInvoice(id) {
         if (id) {
-            var invoiceFiltered = data_invoice.find((value, key) => {
+            var invoiceFiltered = data_gl.find((value, key) => {
                 if (value.id == id) return true
             });
         }
@@ -1505,7 +1315,7 @@
         // taxes
         html += '</div>'
         html += '</div>'
-        $('#contentStepInvoice').html(html)
+        $('#contentData').html(html)
         $('.nominal').number(true);
         generalFormFill(id)
     }
@@ -1678,7 +1488,7 @@
     }
 
     function filledEditValue(id) {
-        var invoiceFiltered = data_invoice.find((value, key) => {
+        var invoiceFiltered = data_gl.find((value, key) => {
             if (value.id == id) return true
         });
         $('#no_supplier_invoice').val(invoiceFiltered.doc_number_manual)
@@ -1813,7 +1623,7 @@
     }
 
     function changePositionPageModal() {
-        contentStepInvoice(invoice_id_clicked)
+        contentData(invoice_id_clicked)
     }
 
     function copyNominal(id_po, nominal) {
@@ -1840,7 +1650,7 @@
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setInvoice'); ?>'
         if (invoice_id) {
-            var invoiceFiltered = data_invoice.find((value, key) => {
+            var invoiceFiltered = data_gl.find((value, key) => {
                 if (value.id == invoice_id) return true
             });
             code_invoice = invoiceFiltered.doc_number
@@ -1999,10 +1809,10 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
-        html_body += '<div class="col-10" id="viewHeaderInvoice">'
+        html_body += '<div class="col-10" id="viewHeaderData">'
         html_body += '</div>'
         html_body += '<div class="col-2 text-center align-self-center">'
-        html_body += '<button class="btn btn-sm shadow-none" style="border-color: #69707a;" onclick="kerangkaNewInvoice(' + id + ')">' + iconEdit() + '</button>'
+        html_body += '<button class="btn btn-sm shadow-none" style="border-color: #69707a;" onclick="kerangkaNewData(' + id + ')">' + iconEdit() + '</button>'
         html_body += '</div>'
         html_body += '<div class="col-12 border-bottom">'
         html_body += '</div>'
@@ -2021,16 +1831,16 @@
         var html_footer = '';
         html_footer += btnCancel()
         $('#modalFooter').html(html_footer);
-        viewHeaderInvoice(id)
+        viewHeaderData(id)
     }
 
-    function viewHeaderInvoice(id) {
+    function viewHeaderData(id) {
         var html = ''
-        var invoiceFiltered = data_invoice.find((value, key) => {
+        var invoiceFiltered = data_gl.find((value, key) => {
             if (value.id == id) return true
         });
-        html += returnHeaderInvoice('Invoice', '', '', formatDateIndonesia(invoiceFiltered.created_at))
-        $('#viewHeaderInvoice').html(html)
+        html += returnHeaderData('Invoice', '', '', formatDateIndonesia(invoiceFiltered.created_at))
+        $('#viewHeaderData').html(html)
         disabledEditNumberInvoice(invoiceFiltered.doc_number)
         supplierInformationInvoice(invoiceFiltered)
     }
@@ -2279,7 +2089,7 @@
         var html = ''
         var paymentNumber = ''
         var badge = ''
-        var invoiceFiltered = data_invoice.find((value, key) => {
+        var invoiceFiltered = data_gl.find((value, key) => {
             if (value.id == invoice_id) return true
         });
         if (id) {
@@ -2292,7 +2102,7 @@
             paymentNumber = generateAutoPaymentNumber(invoice_id)
         }
         code_payment = paymentNumber
-        html += returnHeaderInvoice('Payment', badge, '', formatDateIndonesia(invoiceFiltered.created_at))
+        html += returnHeaderData('Payment', badge, '', formatDateIndonesia(invoiceFiltered.created_at))
         $('#headerPayment').html(html)
         disabledEditNumberInvoice(paymentNumber)
         bodyPayment(invoice_id, id)
@@ -2328,7 +2138,7 @@
 
     function formPayment(invoice_id, id) {
         var html = ''
-        var invoiceFiltered = data_invoice.find((value, key) => {
+        var invoiceFiltered = data_gl.find((value, key) => {
             if (value.id == invoice_id) return true
         });
         html += '<div class="row justify-content-end">'
@@ -2429,7 +2239,7 @@
     }
 
     function filledEditValuePayment(invoice_id, id) {
-        var invoiceFiltered = data_invoice.find((value, key) => {
+        var invoiceFiltered = data_gl.find((value, key) => {
             if (value.id == invoice_id) return true
         });
         var paymentFiltered = invoiceFiltered.payments.find((value, key) => {
@@ -2543,7 +2353,7 @@
         var url = '<?php echo api_produksi('setInvoice'); ?>'
         openKerangkaAfterLoad = 'delete'
         var invoiceDetailId = []
-        var invoiceFiltered = data_invoice.find((value, key) => {
+        var invoiceFiltered = data_gl.find((value, key) => {
             if (value.id == invoice_id) return true
         });
         invoiceFiltered.invoice_details.forEach(e => {

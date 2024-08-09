@@ -1,0 +1,72 @@
+.text-primary-payment {
+    color: #1D91C3 !important;
+}
+
+.bg-primary-payment {
+    background-color: #1D91C3 !important;
+    color: white !important;
+}
+
+.bg-light-primary-payment {
+    background-color: #ecf5f9 !important;
+}
+
+.border-primary-payment {
+    border-color: #1D91C3 !important;
+}
+
+.border-light-primary-payment {
+    border-color: #a4d3e7 !important;
+}
+
+.text-orange-payment {
+    color: #D68231 !important;
+}
+
+.bg-orange-payment {
+    background-color: #D68231 !important;
+    color: white !important;
+}
+
+.bg-light-orange-payment {
+    background-color: #FDF8F4 !important;
+}
+
+.border-orange-payment {
+    border-color: #D68231 !important;
+}
+
+.border-light-orange-payment {
+    border-color: #F1D3B7 !important;
+}
+
+.select2-selection {
+    border: 1px solid #b6b7b7 !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    color: #a4a5a6 !important;
+}
+
+.select2-container .select2-selection--single {
+    height: auto !important;
+}
+
+.form-check-input {
+    width: 15px;
+    height: 15px;
+    margin: 0px;
+}
+
+.select2-container--default .select2-results>.select2-results__options {
+    max-height: 500px !important;
+
+}
+
+.text-grey-99 {
+    color: #999999 !important;
+}
