@@ -1,5 +1,11 @@
 <link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
 <link href="<?= base_url(); ?>assets/smm/finance.css" rel="stylesheet" type="text/css">
+<style>
+    .bg-primary-gl {
+        background-color: #96BBC3 !important;
+        color: white !important;
+    }
+</style>
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
@@ -266,6 +272,7 @@
         newNumberInvoice = ''
         openKerangkaAfterLoad = ''
         supplier_selected = null
+        indexAdd = 0
         clearModal();
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -295,7 +302,7 @@
         getData: 'chooseDataAllData()'
     }
     var statusLineVariable = []
-    var currentIndexStep = 1
+    var currentIndexStep = 2
     var stepCreateNew = [{
         index: 0,
         selected: true,
@@ -321,6 +328,20 @@
         text: 'Buat Pilih Item',
         button: ['btnBack()', 'btnCancel()', 'btnSave()'],
     }]
+    var tabChooseItem = [{
+        index: 0,
+        selected: false,
+        functions: 'showItemGeneralLedger()',
+        getData: 'chooseShowItemGeneralLedger()',
+        text: 'Semua Item',
+    }, {
+        index: 1,
+        selected: true,
+        functions: 'showItemGeneralLedger(general_ledger_id)',
+        getData: 'chooseShowItemGeneralLedger(general_ledger_id)',
+        text: 'Semua Item',
+    }]
+    var indexAdd = 0
     $(document).ready(function() {
         loadData()
     })
@@ -560,7 +581,7 @@
             },
             searching: true,
         })
-        addNewData()
+        addNewData(7, 12)
     }
 
     function createCodeId() {
@@ -819,6 +840,142 @@
         html += '</div>'
         html += '</div>'
         $('#contentData').html(html)
+        dataCostCenter(department_id, cost_center_id)
+    }
+
+    function dataCostCenter(department_id, cost_center_id) {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-6 align-self-center">'
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text">Cost Center (6)</p>'
+        html += '</div>'
+        html += '<div class="col-6">'
+        html += '<div class="form-group has-search">'
+        html += '<span class="fa fa-search form-control-feedback"></span>'
+        html += '<input type="text" class="form-control-sm form-control rounded-pill" placeholder="Cari Cost Center" id="search_id_po" autocomplete="off">'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 pt-2" id="newCostCenter">'
+        html += '</div>'
+        html += '<div class="col-12 pt-2" id="listCostCenter">'
+        html += '</div>'
+        html += '</div>'
+        $('#dataCostCenter').html(html)
+        newCostCenter(department_id)
+        listCostCenter(department_id, cost_center_id)
+    }
+
+    function newCostCenter(department_id) {
+        var html = ''
+        html += btnAddNew('Cost Center', 'addNewFieldCostCenter(' + department_id + ')')
+        $('#newCostCenter').html(html)
+    }
+
+    function btnAddNew(name, functions) {
+        var html = ''
+        html += '<div class="card shadow-none pointer" onclick="' + functions + '" style="border: 1px dashed #cfcfcf;">'
+        html += '<div class="card-body text-center">'
+        html += '<i class="m-0 small-text">Tambah ' + name + ' Baru</i>'
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+
+    function addNewFieldCostCenter(department_id) {
+        var html = ''
+        html += '<div class="row mb-2">'
+        html += '<div class="col-12">'
+        html += '<p class="m-0 small-text fw-bolder">New Data</p>'
+        html += '</div>'
+        html += '</div>'
+        // list
+        html += '<div class="row mb-2">'
+        html += '<div class="col-12" id="listNewCostCenter">'
+        html += '</div>'
+        html += '<div class="col-12">'
+        html += '<button class="btn btn-primary p-2 text-center small-text me-2" onclick="simpanCostCenter(' + department_id + ')"><i class="fa fa-check me-2"></i>Simpan</button>'
+        html += '<button class="btn btn-outline-primary p-2 text-center small-text" onclick="listNewCostCenter(' + department_id + ')"><i class="fa fa-plus me-2"></i>Tambah Row</button>'
+        // html += '<button class="btn btn-success h-100 w-100 p-1 text-center" onclick="listNewCostCenter(' + department_id + ')"><i class="fa fa-plus"></i></button>'
+        html += '</div>'
+        html += '</div>'
+        // list
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        html += '<p class="m-0 small-text fw-bolder">Current Cost Center</p>'
+        html += '</div>'
+        html += '</div>'
+        $('#newCostCenter').html(html)
+        $('#selectCostCenterNew').select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        listNewCostCenter(department_id)
+    }
+
+    function listNewCostCenter(department_id) {
+        var html = ''
+        html += kerangkaAddCostCenter(department_id, null, indexAdd)
+        $('#listNewCostCenter').append(html)
+        $('#selectCostCenterNew' + indexAdd).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: '100%',
+        })
+        indexAdd++
+    }
+
+    function listCostCenter(department_id, cost_center_id) {
+        var html = ''
+        var dataCost = data_cost_center.filter(item => item.department.id == department_id)
+        dataCost.forEach(e => {
+            html += kerangkaAddCostCenter(department_id, e)
+        });
+
+        $('#listCostCenter').html(html)
+    }
+
+    function kerangkaAddCostCenter(department_id, value = null, index_add = null) {
+        var html = ''
+        if (value != null) {
+            // edit
+            html += '<div class="row mb-2">'
+            html += '<div class="col-12">'
+            html += '<div class="card shadow-none pointer card-hoper bg-light" onclick="chooseGeneralLedger(' + value.cost_center.id + ')">'
+            html += '<div class="card-body py-1">'
+
+            html += '<div class="row">'
+            html += '<div class="col-11 pe-0 align-self-center">'
+            html += '<p class="m-0 small-text fw-bolder">' + value.cost_center.code + ' - ' + value.cost_center.name + '</p>'
+            html += '</div>'
+            html += '<div class="col-1 ps-1 text-end">'
+            html += '<button class="btn h-100 shadow-none px-1"><i class="fa fa-ellipsis-v"></i></button>'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+        } else {
+            // tambah baru
+            html += '<div class="row mb-2" id="fieldCostCenterNew' + index_add + '">'
+            html += '<div class="col-11 pe-0">'
+            html += '<select class="form-control w-100 selectpicker" id="selectCostCenterNew' + index_add + '" title="PILIH COST CENTER">'
+            html += '<option value="" selected>Pilih Cost Center</option>'
+            html += '</select>'
+            html += '</div>'
+            html += '<div class="col-1 ps-0 text-end">'
+            html += '<button class="btn h-100 w-100 p-1 text-center" onclick="deleteListNewCostCenter(' + index_add + ')">X</button>'
+            // html += '<button class="btn btn-danger h-100 w-100 p-1 text-center" onclick="deleteListNewCostCenter(' + index_add + ')"><i class="fa fa-trash"></i></button>'
+            html += '</div>'
+            html += '</div>'
+        }
+        return html
+    }
+
+    function deleteListNewCostCenter(index) {
+        $('#fieldCostCenterNew' + index).remove()
     }
 
     function badgeTabInfo(department_id, cost_center_id) {
@@ -873,6 +1030,188 @@
 
     function changePositionPageModal() {
         tabData(department_id_clicked, cost_center_id_clicked)
+    }
+
+    function chooseGeneralLedger(cost_center_id) {
+        cost_center_id_clicked = cost_center_id
+        changeStatusFinished(currentIndexStep, 'true')
+        currentIndexStep++
+        tabData(department_id_clicked, cost_center_id_clicked)
+    }
+
+    function thirdStepInvoice(department_id, cost_center_id) {
+        var html = ''
+        html += '<div class="row p-2 pt-0">'
+        html += '<div class="col-12" id="badgeTabInfo">'
+        html += badgeTabInfo(department_id, cost_center_id)
+        html += '</div>'
+        html += '<div class="col-12" id="dataGeneralLedger">'
+        html += loadingReturn('Sedang Mencari Data General Ledger')
+        html += '</div>'
+        html += '</div>'
+        $('#contentData').html(html)
+        getDataGeneralLedger(department_id, cost_center_id)
+    }
+    var data_general_ledger = null
+    var data_general_ledger_showed = []
+
+    function getDataGeneralLedger(department_id, cost_center_id) {
+        data_general_ledger = null
+        $.ajax({
+            url: "<?= api_url('loadPageCostCenterAccountManage'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                costCenterId: cost_center_id,
+                departmentId: department_id
+            },
+            error: function(xhr) {
+                empty('#dataGeneralLedger', 'Data Error')
+            },
+            beforeSend: function() {},
+            success: function(response) {
+                data_general_ledger = response.data.costCenterAccount
+                dataGeneralLedger(department_id, cost_center_id)
+            }
+        })
+    }
+
+    function dataGeneralLedger(department_id, cost_center_id) {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-6 align-self-center">'
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text">General Ledger (6)</p>'
+        html += '</div>'
+        html += '<div class="col-6">'
+        html += '<div class="form-group has-search">'
+        html += '<span class="fa fa-search form-control-feedback"></span>'
+        html += '<input type="text" class="form-control-sm form-control rounded-pill" placeholder="Cari General Ledger" id="search_id_po" autocomplete="off">'
+        html += '</div>'
+        html += '</div>'
+        html += '<div class="col-12 pt-2" id="newGeneralLedger">'
+        html += '</div>'
+        html += '<div class="col-12 pt-2" id="listGeneraLedger">'
+        html += '</div>'
+        html += '</div>'
+        $('#dataGeneralLedger').html(html)
+        newGeneralLedger(department_id, cost_center_id)
+        listGeneraLedger(department_id, cost_center_id)
+    }
+
+    function newGeneralLedger(department_id, cost_center_id) {
+        var html = ''
+        html += btnAddNew('General Ledger', 'addNewFieldGeneralLedger(' + department_id + ',' + cost_center_id + ')')
+        $('#newGeneralLedger').html(html)
+    }
+
+    function addNewFieldGeneralLedger(department_id, cost_center_id) {
+        // tambah baru GL
+    }
+
+    function listGeneraLedger(department_id, cost_center_id) {
+        var html = ''
+        data_general_ledger.general_ledger.forEach(e => {
+            html += kerangkaGeneralLedgerList(department_id, cost_center_id, e)
+        });
+        $('#listGeneraLedger').html(html)
+    }
+
+    function kerangkaGeneralLedgerList(department_id, cost_center_id, value) {
+        var html = ''
+        html += '<div class="row">'
+        html += '<div class="col-12">'
+        // card
+        html += '<div class="card shadow-none mb-2 card-hoper pointer bg-light" id="cardGL' + value.id + '" onclick="toggleGeneralLedger(' + value.id + ')">'
+        html += '<div class="card-body py-1">'
+
+        html += '<div class="row">'
+        html += '<div class="col-11 pe-0 align-self-center">'
+        html += '<p class="m-0 small-text fw-bolder">' + value.code + ' - ' + value.name + '</p>'
+        html += '</div>'
+        html += '<div class="col-1 ps-1 text-end">'
+        html += '<button class="btn h-100 shadow-none px-1"><i class="fa fa-ellipsis-v"></i></button>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        // card
+        // card view
+        html += '<div class="card shadow-none d-none mb-2" id="viewGL' + value.id + '">'
+        html += '<div class="card-body">'
+
+        html += '<div class="row">'
+        // tab
+        html += '<div class="col-12">'
+        html += '<div class="row justify-content-center">'
+        tabChooseItem.forEach(e => {
+            var text = 'text-grey border-bottom'
+            var icon = 'text-grey bg-light'
+            if (e.selected) {
+                text = 'fw-bold filter-border'
+                icon = 'bg-light-blue text-white'
+            }
+            var num = eval(e.functions)
+            html += '<div class="col-auto h-100 statusLineItem text-small pb-2 align-self-center mb-2 ' + text + '" style="cursor:pointer" onclick="tabItemSwitch(' + e.id + ',' + "'" + e.getData + "'" + ')" id="colStatusLineItem' + e.id + '">'
+            html += e.name + '<span class="statusLineIconItem ms-1 p-1 rounded ' + icon + '" id="statusLineIconItem' + e.id + '">' + num + '</span>'
+            html += ' </div>'
+
+        });
+        html += '</div>'
+        html += '</div>'
+        // tab
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        // card view
+        html += '</div>'
+        html += '</div>'
+        return html
+    }
+
+    function tabItemSwitch(id, getData) {
+        let updatedData = tabChooseItem.map(item => {
+            return {
+                ...item,
+                selected: false
+            };
+        });
+        let updatedData2 = updatedData.map(item => {
+            if (item.id == id) {
+                return {
+                    ...item,
+                    selected: true
+                };
+            }
+            return item;
+        });
+        tabChooseItem = updatedData2
+        data_general_ledger_showed = eval(getData)
+    }
+
+    function showItemGeneralLedger(general_ledger_id = null) {
+        var data = data_general_ledger.items
+        if (general_ledger_id) {
+
+        }
+        return data
+    }
+
+    function chooseShowItemGeneralLedger(general_ledger_id = null) {
+        return showItemGeneralLedger(general_ledger_id).length
+    }
+
+    function toggleGeneralLedger(id) {
+        if (!$('#viewGL' + id).hasClass('d-none')) {
+            // hide
+            $('#cardGL' + id).removeClass('bg-primary-gl')
+            $('#viewGL' + id).addClass('d-none')
+        } else {
+            // show
+            $('#cardGL' + id).addClass('bg-primary-gl')
+            $('#viewGL' + id).removeClass('d-none')
+        }
     }
 
     function simpanData(invoice_id) {

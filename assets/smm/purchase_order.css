@@ -51,6 +51,7 @@
 
     .card-hoper:hover {
         background-color: #EDEDED !important;
+        color: #666666 !important;
     }
 
     .card-PO:hover {
