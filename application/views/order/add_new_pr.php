@@ -191,6 +191,49 @@
             success: function(response) {
                 showOverlay('hide')
                 data_item = response['data']['item'];
+                numberinPR(idCostCenter, nameCostCenter)
+            }
+        })
+    }
+
+    function numberinPR(idCostCenter, nameCostCenter) {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getCountDocPR'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                })
+            },
+            beforeSend: function() {},
+            success: function(response) {
+                showOverlay('hide')
+                const d = new Date();
+                var month = d.getMonth() + 1;
+                var thisMonth = (month < 10 ? '0' : '') + month
+                let thisYear = d.getFullYear();
+                if (response.message != 'Data data not found') {
+                    let obj = response['data'].filter((value, key) => {
+                        if (value.tahun === thisYear.toString() && value.cost_center_id == idCostCenter) return true
+                    });
+                    let count = 1
+                    if (obj != undefined || obj.length == 0) {
+                        var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
+                        if (data_hasil.length) {
+                            count = parseInt(data_hasil[0]['count']) + 1;
+                        } else {
+                            count = 1
+                        }
+                    }
+                    no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
+                } else {
+                    no_pr = '001' + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
+
+                }
                 formPR(idCostCenter, nameCostCenter)
             }
         })
@@ -220,8 +263,10 @@
             },
             beforeSend: function() {},
             success: function(response) {
+                showOverlay('hide')
                 data_cost_center = response['data']
-                numberinPR()
+                // numberinPR()
+                costCenterList()
             }
         })
     }
@@ -246,49 +291,12 @@
             success: function(response) {
                 data_pr = response['data']
                 data_pr_approval = response['data_approval']
-                numberinPR()
-            }
-        })
-    }
-
-    function numberinPR() {
-        $.ajax({
-            url: "<?= api_url('Api_Warehouse/getCountDocPR'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                })
-            },
-            beforeSend: function() {},
-            success: function(response) {
-                showOverlay('hide')
-                const d = new Date();
-                var month = d.getMonth() + 1;
-                var thisMonth = (month < 10 ? '0' : '') + month
-                let thisYear = d.getFullYear();
-                if (response.message != 'Data data not found') {
-                    let obj = response['data'].filter((value, key) => {
-                        if (value.tahun === thisYear.toString() && value.cost_center_id === '23') return true
-                    });
-                    let count = 1
-                    if (obj != undefined || obj.length == 0) {
-                        var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
-                        count = parseInt(data_hasil[0]['count']) + 1;
-                    }
-                    no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
-                } else {
-                    no_pr = '001' + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
-
-                }
                 costCenterList()
             }
         })
     }
+
+
 
     function costCenterList() {
         var html = ''

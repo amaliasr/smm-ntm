@@ -273,6 +273,11 @@
         openKerangkaAfterLoad = ''
         supplier_selected = null
         indexAdd = 0
+        data_general_ledger = null
+        data_general_ledger_item_showed = {}
+        variableNewItem = []
+        variableDeleteItem = []
+        variableCheckedItem = []
         clearModal();
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -283,17 +288,14 @@
     var data_department = null
     var data_cost_center = []
     var data_gl_showed = []
-    var data_master_payment = null
-    var data_po = {}
-    var data_po_all = null
-    var clicked_po = []
-    var costCenterStatus = false
-    var costCenterNTMId = 23
     var date_start = getFirstDate()
     var date_end = currentDate()
     var account = []
     var department_id_clicked = null
     var cost_center_id_clicked = null
+    var data_general_ledger = null
+    var data_general_ledger_item = null
+    var data_general_ledger_item_showed = {}
     var statusLineVariableTemplate = {
         id: 0,
         name: 'Semua Data',
@@ -331,17 +333,21 @@
     var tabChooseItem = [{
         index: 0,
         selected: false,
-        functions: 'showItemGeneralLedger()',
-        getData: 'chooseShowItemGeneralLedger()',
+        getData: 'showItemGeneralLedger()',
+        functions: 'chooseShowItemGeneralLedger()',
         text: 'Semua Item',
     }, {
         index: 1,
         selected: true,
-        functions: 'showItemGeneralLedger(general_ledger_id)',
-        getData: 'chooseShowItemGeneralLedger(general_ledger_id)',
-        text: 'Semua Item',
+        getData: 'showItemGeneralLedger(account_id)',
+        functions: 'chooseShowItemGeneralLedger(account_id)',
+        text: 'Selected Item',
     }]
+    var formatedTabChooseItem = {}
     var indexAdd = 0
+    var variableNewItem = []
+    var variableDeleteItem = []
+    var variableCheckedItem = []
     $(document).ready(function() {
         loadData()
     })
@@ -670,14 +676,10 @@
     }
 
     function btnSave() {
-        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanData(department_id_clicked)" disabled>Simpan</button>'
+        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanData()" disabled>Simpan</button>'
         return html
     }
 
-    function btnSavePayment() {
-        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpanPayment" onclick="simpanDataPayment(department_id_clicked,cost_center_id_clicked)" disabled>Simpan</button>'
-        return html
-    }
 
     function headerData(department_id, cost_center_id) {
         var html = ''
@@ -758,7 +760,7 @@
             btnNextRemoveDisabled(true)
             if (cost_center_id) {
                 btnNextRemoveDisabled(true)
-                btnSimpanRemoveDisabled(true)
+                // btnSimpanRemoveDisabled(true)
             }
         }
     }
@@ -861,7 +863,7 @@
         html += '</div>'
         html += '</div>'
         $('#dataCostCenter').html(html)
-        newCostCenter(department_id)
+        // newCostCenter(department_id)
         listCostCenter(department_id, cost_center_id)
     }
 
@@ -1052,11 +1054,12 @@
         $('#contentData').html(html)
         getDataGeneralLedger(department_id, cost_center_id)
     }
-    var data_general_ledger = null
-    var data_general_ledger_showed = []
+
 
     function getDataGeneralLedger(department_id, cost_center_id) {
         data_general_ledger = null
+        data_general_ledger_item = null
+        data_general_ledger_item_showed = {}
         $.ajax({
             url: "<?= api_url('loadPageCostCenterAccountManage'); ?>",
             method: "GET",
@@ -1071,6 +1074,34 @@
             beforeSend: function() {},
             success: function(response) {
                 data_general_ledger = response.data.costCenterAccount
+                getDataItemGL(department_id, cost_center_id)
+            }
+        })
+    }
+
+    function getDataItemGL(department_id, cost_center_id) {
+        $.ajax({
+            url: "<?= api_url('getItemAccount'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                costCenterId: cost_center_id,
+                departmentId: department_id
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                })
+            },
+            beforeSend: function() {},
+            success: function(response) {
+                data_general_ledger_item = response.data.item
+                data_general_ledger.general_ledger.forEach(e => {
+                    formatedTabChooseItem[e.account_id] = deepCopy(tabChooseItem)
+                    data_general_ledger_item_showed[e.account_id] = showItemGeneralLedger(e.account_id)
+                });
                 dataGeneralLedger(department_id, cost_center_id)
             }
         })
@@ -1080,7 +1111,7 @@
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-6 align-self-center">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text">General Ledger (6)</p>'
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text">General Ledger ( ' + data_general_ledger.general_ledger.length + ' )</p>'
         html += '</div>'
         html += '<div class="col-6">'
         html += '<div class="form-group has-search">'
@@ -1094,7 +1125,7 @@
         html += '</div>'
         html += '</div>'
         $('#dataGeneralLedger').html(html)
-        newGeneralLedger(department_id, cost_center_id)
+        // newGeneralLedger(department_id, cost_center_id)
         listGeneraLedger(department_id, cost_center_id)
     }
 
@@ -1111,22 +1142,25 @@
     function listGeneraLedger(department_id, cost_center_id) {
         var html = ''
         data_general_ledger.general_ledger.forEach(e => {
-            html += kerangkaGeneralLedgerList(department_id, cost_center_id, e)
+            html += kerangkaGeneralLedgerList(department_id, cost_center_id, e, e.gl_item_id, e.account_id)
         });
         $('#listGeneraLedger').html(html)
+        data_general_ledger.general_ledger.forEach(e => {
+            statusLineItemField(department_id, cost_center_id, e.gl_item_id, e.account_id)
+        })
     }
 
-    function kerangkaGeneralLedgerList(department_id, cost_center_id, value) {
+    function kerangkaGeneralLedgerList(department_id, cost_center_id, value, general_ledger_id, account_id) {
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-12">'
         // card
-        html += '<div class="card shadow-none mb-2 card-hoper pointer bg-light" id="cardGL' + value.id + '" onclick="toggleGeneralLedger(' + value.id + ')">'
+        html += '<div class="card shadow-none mb-2 card-hoper pointer bg-light" id="cardGL' + value.account_id + '" onclick="toggleGeneralLedger(' + value.account_id + ')">'
         html += '<div class="card-body py-1">'
 
         html += '<div class="row">'
         html += '<div class="col-11 pe-0 align-self-center">'
-        html += '<p class="m-0 small-text fw-bolder">' + value.code + ' - ' + value.name + '</p>'
+        html += '<p class="m-0 small-text fw-bolder d-flex align-items-center">' + value.code + ' - ' + value.name + ' <span class="badge bg-primary-payment d-flex align-items-center py-1 px-2 ms-2">' + chooseShowItemGeneralLedger(account_id) + '</span></p>'
         html += '</div>'
         html += '<div class="col-1 ps-1 text-end">'
         html += '<button class="btn h-100 shadow-none px-1"><i class="fa fa-ellipsis-v"></i></button>'
@@ -1137,29 +1171,45 @@
         html += '</div>'
         // card
         // card view
-        html += '<div class="card shadow-none d-none mb-2" id="viewGL' + value.id + '">'
+        html += '<div class="card shadow-none d-none mb-2" id="viewGL' + value.account_id + '">'
         html += '<div class="card-body">'
 
         html += '<div class="row">'
         // tab
-        html += '<div class="col-12">'
-        html += '<div class="row justify-content-center">'
-        tabChooseItem.forEach(e => {
-            var text = 'text-grey border-bottom'
-            var icon = 'text-grey bg-light'
-            if (e.selected) {
-                text = 'fw-bold filter-border'
-                icon = 'bg-light-blue text-white'
-            }
-            var num = eval(e.functions)
-            html += '<div class="col-auto h-100 statusLineItem text-small pb-2 align-self-center mb-2 ' + text + '" style="cursor:pointer" onclick="tabItemSwitch(' + e.id + ',' + "'" + e.getData + "'" + ')" id="colStatusLineItem' + e.id + '">'
-            html += e.name + '<span class="statusLineIconItem ms-1 p-1 rounded ' + icon + '" id="statusLineIconItem' + e.id + '">' + num + '</span>'
-            html += ' </div>'
+        html += '<div class="col-12 mx-2">'
+        html += '<div class="row" id="statusLineItemField' + general_ledger_id + '">'
 
-        });
         html += '</div>'
         html += '</div>'
         // tab
+        // isi
+        html += '<div class="col-12">'
+        // table
+        html += '<div class="row px-2">'
+        html += '<div class="col-12 px-0 py-2">'
+        // cari
+        html += '<div class="form-group has-search">'
+        html += '<span class="fa fa-search form-control-feedback"></span>'
+        html += '<input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari Item" id="search_id_po" autocomplete="off">'
+        html += '</div>'
+        // cari
+        html += '</div>'
+        html += '<div class="col-1 small-text align-middle fw-bolder text-center py-2 border-bottom">'
+        html += '<input class="form-check-input checkAllItemGL" type="checkbox" value="' + value.id + '" data-department_id="' + department_id + '" data-cost_center_id="' + cost_center_id + '" data-account_id="' + account_id + '" id="checkAllItemGL' + general_ledger_id + '" onclick="checkAllItemGL(' + general_ledger_id + ',' + account_id + ' )">'
+        html += '</div>'
+        html += '<div class="col-2 small-text align-middle fw-bolder text-center py-2 border-bottom">Kode</div>'
+        html += '<div class="col-3 small-text align-middle fw-bolder text-center py-2 border-bottom">Nama</div>'
+        html += '<div class="col-2 small-text align-middle fw-bolder text-center py-2 border-bottom">Alias</div>'
+        html += '<div class="col-1 small-text align-middle fw-bolder text-center py-2 border-bottom">Satuan</div>'
+        html += '<div class="col-1 small-text align-middle fw-bolder text-center py-2 border-bottom">Tipe</div>'
+        html += '<div class="col-1 small-text align-middle fw-bolder text-center py-2 border-bottom">Categ</div>'
+        html += '<div class="col-1 small-text align-middle fw-bolder text-center py-2 border-bottom">GL</div>'
+        html += '</div>'
+        html += '<div class="" style="max-height: 300px;overflow-x: hidden;overflow-y: auto;" id="bodyTableItem' + general_ledger_id + '">'
+        html += '</div>'
+        // table
+        html += '</div>'
+        // isi
         html += '</div>'
 
         html += '</div>'
@@ -1170,15 +1220,157 @@
         return html
     }
 
-    function tabItemSwitch(id, getData) {
-        let updatedData = tabChooseItem.map(item => {
+    function checkAllItemGL(general_ledger_id, account_id) {
+        if ($('#checkAllItemGL' + general_ledger_id).is(':checked')) {
+            // jika semua nya di checklist
+            $('#bodyTableItem' + general_ledger_id).find('.checkItemGL').prop('checked', true)
+        } else {
+            // jika uncheck semua
+            $('#bodyTableItem' + general_ledger_id).find('.checkItemGL').prop('checked', false)
+        }
+        checkAll(general_ledger_id)
+    }
+
+    function checkIfAllChecked(department_id, cost_center_id, general_ledger_id, account_id, dataList) {
+        if (dataList.length) {
+            var data = dataList.filter((v, k) => {
+                if (v.department_id == department_id && v.cost_center_id == cost_center_id && v.account_id == account_id && v.id_gl == general_ledger_id) return true
+            })
+            // console.log(data)
+            if (data.length) {
+                data.forEach(e => {
+                    $('#checkItemGL' + general_ledger_id + '' + e.id).prop('checked', true)
+                });
+            }
+        }
+        checkAll(general_ledger_id)
+    }
+
+    function checkAll(general_ledger_id) {
+        if ($('#bodyTableItem' + general_ledger_id).find('.checkItemGL').length == $('#bodyTableItem' + general_ledger_id).find('.checkItemGL:checked').length) {
+            // jika semua nya di checklist
+            $('#checkAllItemGL' + general_ledger_id).prop('checked', true)
+        } else {
+            // jika ada yang belum di check
+            $('#checkAllItemGL' + general_ledger_id).prop('checked', false)
+        }
+        saveVariableCheckingIdItem()
+    }
+
+    function statusLineItemField(department_id, cost_center_id, general_ledger_id, account_id) {
+        var html = ''
+        formatedTabChooseItem[account_id].forEach(e => {
+            html += statusLineItemFieldFormat(department_id, cost_center_id, e, general_ledger_id, account_id)
+        });
+        $('#statusLineItemField' + general_ledger_id).html(html)
+        bodyTableItem(department_id, cost_center_id, general_ledger_id, account_id)
+    }
+
+    function bodyTableItem(department_id, cost_center_id, general_ledger_id, account_id) {
+        var html = ''
+        var no = 1
+        data_general_ledger_item_showed[account_id].forEach(e => {
+            html += bodyTableItemFormat(department_id, cost_center_id, no++, e, general_ledger_id, account_id)
+        });
+        $('#bodyTableItem' + general_ledger_id).html(html)
+        arrangeVariableAllChecked(department_id, cost_center_id, general_ledger_id, account_id)
+    }
+
+    function arrangeVariableAllChecked(department_id, cost_center_id, general_ledger_id, account_id) {
+        variableCheckedItem = []
+        showItemGeneralLedger(account_id).forEach(e => {
+            variableCheckedItem.push({
+                id: e.id,
+                department_id: department_id,
+                cost_center_id: cost_center_id,
+                id_gl: general_ledger_id,
+                account_id: account_id,
+            })
+        })
+        checkIfAllChecked(department_id, cost_center_id, general_ledger_id, account_id, variableCheckedItem)
+    }
+
+    function bodyTableItemFormat(department_id, cost_center_id, no, e, general_ledger_id, account_id) {
+        // console.log(general_ledger_id)
+        var fungsi = 'chooseItemGeneralLedger(' + department_id + ',' + cost_center_id + ',' + general_ledger_id + ',' + account_id + ',' + e.id + ')'
+        var html = ''
+        html += '<div class="row px-2 card-hoper" id="rowItemGL' + general_ledger_id + '' + e.id + '" onclick="' + fungsi + '" >'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">'
+        html += '<input class="form-check-input checkItemGL" type="checkbox" value="' + e.id + '" data-department_id="' + department_id + '" data-cost_center_id="' + cost_center_id + '" data-id_gl="' + general_ledger_id + '" data-account_id="' + account_id + '" id="checkItemGL' + general_ledger_id + '' + e.id + '" onchange="' + fungsi + '">'
+        html += '</div>'
+        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100">' + e.code + '</div>'
+        html += '<div class="col-3 small-text align-self-start py-1 h-100">' + e.name + '</div>'
+        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100">' + e.alias + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">' + e.unit.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">' + e.type.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">' + e.category.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100"></div>'
+        html += '<div class="col-12 border-bottom"></div>'
+        html += '</div>'
+        return html
+    }
+
+    function chooseItemGeneralLedger(department_id, cost_center_id, general_ledger_id, account_id, id) {
+        if ($('#checkItemGL' + general_ledger_id + '' + id).is(':checked')) {
+            // jika uncheck
+            $('#checkItemGL' + general_ledger_id + '' + id).prop('checked', false)
+            $('#rowItemGL' + general_ledger_id + '' + id).removeClass('bg-light')
+        } else {
+            // jika check
+            $('#checkItemGL' + general_ledger_id + '' + id).prop('checked', true)
+            $('#rowItemGL' + general_ledger_id + '' + id).addClass('bg-light')
+        }
+        checkAll(general_ledger_id)
+    }
+
+    function saveVariableCheckingIdItem() {
+        variableNewItem = []
+        $('.checkItemGL').each(function() {
+            if ($(this).is(':checked')) {
+                variableNewItem.push({
+                    id: $(this).val(),
+                    department_id: $(this).data('department_id'),
+                    cost_center_id: $(this).data('cost_center_id'),
+                    id_gl: $(this).data('id_gl'),
+                    account_id: $(this).data('account_id'),
+                })
+            }
+        })
+        checkBtnSimpan()
+    }
+
+    function checkBtnSimpan() {
+        if (variableNewItem.length > 0) {
+            btnSimpanRemoveDisabled(true)
+        } else {
+            btnSimpanRemoveDisabled(false)
+        }
+    }
+
+    function statusLineItemFieldFormat(department_id, cost_center_id, e, general_ledger_id, account_id) {
+        var html = ''
+        var text = 'text-grey border-bottom'
+        var icon = 'text-grey bg-light'
+        if (e.selected) {
+            text = 'fw-bold filter-border'
+            icon = 'bg-light-blue text-white'
+        }
+        var num = eval(e.functions)
+        html += '<div class="col-auto h-100 statusLineItem text-small pb-2 align-self-center mb-2 ' + text + '" style="cursor:pointer" onclick="tabItemSwitch(' + e.index + ',' + "'" + e.getData + "'" + ',' + "'" + general_ledger_id + "'" + ',' + "'" + account_id + "'" + ',' + "'" + department_id + "'" + ',' + "'" + cost_center_id + "'" + ')" id="colStatusLineItem' + e.index + '">'
+        html += e.text + '<span class="statusLineIconItem ms-1 p-1 rounded ' + icon + '" id="statusLineIconItem' + e.index + '">' + num + '</span>'
+        html += ' </div>'
+        return html
+    }
+
+    function tabItemSwitch(id, getData, general_ledger_id, account_id, department_id, cost_center_id) {
+        let updatedData = formatedTabChooseItem[account_id].map(item => {
             return {
                 ...item,
                 selected: false
             };
         });
         let updatedData2 = updatedData.map(item => {
-            if (item.id == id) {
+            if (item.index == id) {
                 return {
                     ...item,
                     selected: true
@@ -1186,20 +1378,25 @@
             }
             return item;
         });
-        tabChooseItem = updatedData2
-        data_general_ledger_showed = eval(getData)
+        formatedTabChooseItem[account_id] = deepCopy(updatedData2)
+        data_general_ledger_item_showed[account_id] = eval(getData)
+        statusLineItemField(department_id, cost_center_id, general_ledger_id, account_id)
     }
 
-    function showItemGeneralLedger(general_ledger_id = null) {
-        var data = data_general_ledger.items
-        if (general_ledger_id) {
-
+    function showItemGeneralLedger(account_id = null) {
+        var data = deepCopy(data_general_ledger_item)
+        if (account_id) {
+            data = data.filter((value, key) => {
+                if (value.account_ids_gl) {
+                    if (value.account_ids_gl.includes(parseInt(account_id))) return true
+                }
+            });
         }
         return data
     }
 
-    function chooseShowItemGeneralLedger(general_ledger_id = null) {
-        return showItemGeneralLedger(general_ledger_id).length
+    function chooseShowItemGeneralLedger(account_id = null) {
+        return showItemGeneralLedger(account_id).length
     }
 
     function toggleGeneralLedger(id) {
@@ -1214,107 +1411,34 @@
         }
     }
 
-    function simpanData(invoice_id) {
+    function transformDataGL(data) {
+        const transformed = {};
+
+        data.forEach(item => {
+            const key = `${item.id_gl}_${item.cost_center_id}_${item.account_id}`;
+            if (!transformed[key]) {
+                transformed[key] = {
+                    id: item.id_gl,
+                    cost_center_id: item.cost_center_id,
+                    account_id: item.account_id,
+                    item_ids: []
+                };
+            }
+            transformed[key].item_ids.push(parseInt(item.id));
+        });
+
+        return Object.values(transformed);
+    }
+
+    function simpanData() {
         var type = 'POST'
         var button = '#btnSimpan'
-        var url = '<?php echo api_produksi('setInvoice'); ?>'
-        if (invoice_id) {
-            var invoiceFiltered = data_gl.find((value, key) => {
-                if (value.id == invoice_id) return true
-            });
-            code_invoice = invoiceFiltered.doc_number
-            var id = invoice_id
-        } else {
-            var id = createCodeId()
-        }
-        if (newNumberInvoice) {
-            code_invoice = newNumberInvoice
-        }
-        var doc_number_manual = $('#no_supplier_invoice').val()
-        var datetime = $('#date_supplier_invoice').val() + ' ' + currentTimeNew()
-        var date_overdue = $('#date_jatuh_tempo').val()
-        var sub_total = $('#nominal_invoice').val()
-        var tax_id = $('#selectJenisPph').val()
-        var tax_ppn_id = $('#selectJenisPpn').val()
-        var tax_nominal_pph = $('#nominal_pph_invoice').val()
-        var tax_nominal_ppn = $('#nominal_ppn_invoice').val()
-        if (!tax_nominal_pph) {
-            tax_nominal_pph = 0
-        }
-        if (!tax_nominal_ppn) {
-            tax_nominal_ppn = 0
-        }
-        if (tax_nominal_pph || tax_nominal_ppn) {
-            var operatorpph = $('#selectJenisPph option:selected').attr('data-operator');
-            var operatorppn = $('#selectJenisPpn option:selected').attr('data-operator');
-            if (!operatorpph) {
-                operatorpph = '+'
-            }
-            if (!operatorppn) {
-                operatorppn = '+'
-            }
-            eval('var jumlah_tax = parseFloat(sub_total) ' + operatorpph + ' parseFloat(tax_nominal_pph)' + operatorppn + ' parseFloat(tax_nominal_ppn)');
-            var grand_total = jumlah_tax
-        } else {
-            var grand_total = parseFloat(sub_total)
-        }
-        var note = $('#notes').val()
-        var invoice_detail = []
-        var a = 0
-        for (let i = 0; i < invoice_po_id_clicked.length; i++) {
-            var dataPO = data_po.find((value, key) => {
-                if (value.id == invoice_po_id_clicked[i]) return true
-            });
-            if (invoice_id) {
-                var findPOEdit = invoiceFiltered.invoice_details.find((value, key) => {
-                    if (value.po_id == invoice_po_id_clicked[i]) return true
-                });
-                if (findPOEdit) {
-                    var idDetail = findPOEdit.id
-                } else {
-                    var idDetail = createCodeId() + '' + a
-                    a++
-                }
-            } else {
-                var idDetail = createCodeId() + '' + a
-                a++
-            }
-            invoice_detail.push({
-                "id": idDetail,
-                "invoice_id": id,
-                "po_id": invoice_po_id_clicked[i],
-                "nominal": $('#nominalPerPO' + invoice_po_id_clicked[i]).val(),
-                "created_at": currentDateTime(),
-                "updated_at": currentDateTime()
-            })
-        }
+        var url = '<?php echo api_produksi('setGLItem'); ?>'
         var data = {
-            invoice: [{
-                id: id,
-                doc_number: code_invoice,
-                doc_number_manual: doc_number_manual,
-                employee_id: user_id,
-                supplier_id: supplier_id_clicked,
-                datetime: datetime,
-                date_overdue: date_overdue,
-                sub_total: sub_total,
-                grand_total: grand_total,
-                created_at: currentDateTime(),
-                updated_at: currentDateTime(),
-                note: note,
-            }],
-            invoice_detail: invoice_detail
+            gl_item: deepCopy(transformDataGL(variableNewItem)),
         }
-        if (tax_nominal_pph) {
-            data.invoice[0].tax_id = tax_id
-            data.invoice[0].tax_nominal = tax_nominal_pph
-        }
-        if (tax_nominal_ppn) {
-            data.invoice[0].tax_ppn_id = tax_ppn_id
-            data.invoice[0].tax_ppn_nominal = tax_nominal_ppn
-        }
-        // console.log(data)
-        kelolaData(data, type, url, button)
+        console.log(data)
+        // kelolaData(data, type, url, button)
 
     }
 
@@ -1342,15 +1466,9 @@
                         icon: 'success',
                     }).then((responses) => {
                         $(button).prop("disabled", false);
-                        if (data.invoice) {
-                            department_id_clicked = data.invoice[0].id
-                        }
-                        currentIndexStep = 0
-                        code_invoice = ''
-                        code_payment = ''
-                        supplier_id_clicked = null
-                        invoice_po_id_clicked = []
-                        newNumberInvoice = ''
+                        variableNewItem = []
+                        variableDeleteItem = []
+                        variableCheckedItem = []
                         loadData()
                     })
                 }
