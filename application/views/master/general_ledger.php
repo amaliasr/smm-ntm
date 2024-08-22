@@ -37,8 +37,8 @@
             <div class="col-4 text-end">
                 <div class="row justify-content-end">
                     <div class="col-auto pe-0">
-                        <p class="m-0 small-text"><i>Last Updated</i></p>
-                        <p class="m-0 small-text"><i>Today at <b id="timeRefresh">-</b></i></p>
+                        <!-- <p class="m-0 small-text"><i>Last Updated</i></p>
+                        <p class="m-0 small-text"><i>Today at <b id="timeRefresh">-</b></i></p> -->
                     </div>
                     <div class="col-auto">
                         <button type="button" class="btn btn-sm shadow-none btn-outline-primary" onclick="loadData()"><i class="fa fa-refresh"></i></button>
@@ -50,7 +50,7 @@
         <div class="row">
             <div class="col-12" id="alertPOWithoutInvoice">
             </div>
-            <div class="col-3">
+            <div class="col-3" hidden>
                 <div class="card shadow-none">
                     <div class="card-header">
                         <p class="m-0 super-small-text fw-bolder text-grey-99">Undefined Item (7)</p>
@@ -87,17 +87,18 @@
                     </div>
                 </div>
             </div>
-            <div class="col-9 ps-0">
+            <div class="col-12">
                 <div class="card shadow-none h-100">
                     <div class="card-header">
-                        <p class="m-0 super-small-text fw-bolder text-grey-99">List Cost Center</p>
-                    </div>
-                    <div class="card-body">
+                        <!-- <p class="m-0 super-small-text fw-bolder text-grey-99">List Cost Center</p> -->
                         <div class="row">
                             <div class="col-12 px-4" id="statusLine">
 
                             </div>
                         </div>
+                    </div>
+                    <div class="card-body">
+
                         <div class="row me-0">
                             <div class="col-12 pe-0">
                                 <div class="table-responsible" id="dataTable">
@@ -276,7 +277,8 @@
         data_general_ledger = null
         data_general_ledger_item_showed = {}
         variableNewItem = []
-        variableDeleteItem = []
+        variableNewItemChoosed = []
+        variableDeleteItemFromGL = []
         variableCheckedItem = []
         clearModal();
     })
@@ -304,7 +306,7 @@
         getData: 'chooseDataAllData()'
     }
     var statusLineVariable = []
-    var currentIndexStep = 2
+    var currentIndexStep = 0
     var stepCreateNew = [{
         index: 0,
         selected: true,
@@ -346,8 +348,9 @@
     var formatedTabChooseItem = {}
     var indexAdd = 0
     var variableNewItem = []
-    var variableDeleteItem = []
+    var variableDeleteItemFromGL = []
     var variableCheckedItem = []
+    var variableNewItemChoosed = []
     $(document).ready(function() {
         loadData()
     })
@@ -509,14 +512,14 @@
         html += '<div class="col h-100">'
         html += '<div class="row justify-content-center">'
         statusLineVariable.forEach(e => {
-            var text = 'text-grey border-bottom'
+            var text = 'text-dark-grey'
             var icon = 'text-grey bg-light'
             if (e.selected) {
-                text = 'fw-bold filter-border'
+                text = 'fw-bold text-dark filter-border'
                 icon = 'bg-light-blue text-white'
             }
             var num = eval(e.functions)
-            html += '<div class="col-auto h-100 statusLine text-small pb-2 align-self-center mb-2 ' + text + '" style="cursor:pointer" onclick="statusLineSwitch(' + e.id + ',' + "'" + e.getData + "'" + ')" id="colStatusLine' + e.id + '">'
+            html += '<div class="col-auto h-100 statusLine text-small pb-2 align-self-center ' + text + '" style="cursor:pointer" onclick="statusLineSwitch(' + e.id + ',' + "'" + e.getData + "'" + ')" id="colStatusLine' + e.id + '">'
             html += e.name + '<span class="statusLineIcon ms-1 p-1 rounded ' + icon + '" id="statusLineIcon' + e.id + '">' + num + '</span>'
             html += ' </div>'
 
@@ -535,9 +538,9 @@
         html += '<tr class="py-2">'
         html += '<th class="align-middle small-text bg-white">#</th>'
         html += '<th class="align-middle small-text bg-white">Department</th>'
-        html += '<th class="align-middle small-text bg-white">Code</th>'
-        html += '<th class="align-middle small-text bg-white">Name</th>'
-        html += '<th class="align-middle small-text bg-white">Total GL</th>'
+        html += '<th class="align-middle small-text bg-white">Cost Center Code</th>'
+        html += '<th class="align-middle small-text bg-white">Cost Center Name</th>'
+        html += '<th class="align-middle small-text bg-white">Total<br>General Ledger</th>'
         html += '<th class="align-middle small-text bg-white">Total Item</th>'
         html += '<th class="align-middle small-text bg-white"></th>'
         html += '</tr>'
@@ -568,7 +571,7 @@
             html += '<td class="align-middle small-text text-center">'
             html += '<button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item" onclick="showViewInvoice(' + "'" + e.department.id + "'" + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
+            html += '<a class="dropdown-item" onclick="addNewData(' + "'" + e.department.id + "'" + ',' + "'" + e.cost_center.id + "'" + ')"><i class="fa fa-eye me-2"></i> Lihat Detail</a>'
             html += '</div>'
             html += '</td>'
             html += '</tr>'
@@ -587,7 +590,10 @@
             },
             searching: true,
         })
-        addNewData(7, 12)
+        // jika modalnya terbuka
+        if ($('#modal').hasClass('show')) {
+            kerangkaNewData(department_id_clicked, cost_center_id_clicked)
+        }
     }
 
     function createCodeId() {
@@ -639,6 +645,9 @@
         openKerangkaAfterLoad = 'view'
         department_id_clicked = department_id
         cost_center_id_clicked = cost_center_id
+        if (department_id && cost_center_id) {
+            currentIndexStep = 2
+        }
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
         var html_header = '';
         html_header += '<p class="m-0 fw-bold">Create New</p>';
@@ -685,7 +694,7 @@
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-12 px-3">'
-        html += '<p class="m-0 fw-bolder h5 d-flex align-self-center">General Ledger Item <span class="badge bg-info text-white ms-2 small-text p-1 px-2">Draft</span></p>'
+        html += '<p class="m-0 fw-bolder h5 d-flex align-self-center">General Ledger Item <span class="badge bg-info text-white ms-2 small-text p-1 px-2" hidden id="tagDraft">Draft</span></p>'
         html += '</div>'
         html += '</div>'
         $('#headerData').html(html)
@@ -849,12 +858,13 @@
         var html = ''
         html += '<div class="row">'
         html += '<div class="col-6 align-self-center">'
-        html += '<p class="m-0 fw-bolder text-grey-dark small-text">Cost Center (6)</p>'
+        var dataCost = data_cost_center.filter(item => item.department.id == department_id)
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text">Cost Center ( ' + dataCost.length + ' )</p>'
         html += '</div>'
         html += '<div class="col-6">'
         html += '<div class="form-group has-search">'
         html += '<span class="fa fa-search form-control-feedback"></span>'
-        html += '<input type="text" class="form-control-sm form-control rounded-pill" placeholder="Cari Cost Center" id="search_id_po" autocomplete="off">'
+        html += '<input type="text" class="form-control-sm form-control rounded-pill" placeholder="Cari Cost Center" id="search_cost_center" autocomplete="off" onkeyup="searching(' + "'#search_cost_center'" + ',' + "'.text_cost_center'" + ',' + "'#card_cost_center'" + ')">'
         html += '</div>'
         html += '</div>'
         html += '<div class="col-12 pt-2" id="newCostCenter">'
@@ -941,14 +951,14 @@
         var html = ''
         if (value != null) {
             // edit
-            html += '<div class="row mb-2">'
+            html += '<div class="row mb-2" id="card_cost_center' + value.cost_center.id + '">'
             html += '<div class="col-12">'
             html += '<div class="card shadow-none pointer card-hoper bg-light" onclick="chooseGeneralLedger(' + value.cost_center.id + ')">'
             html += '<div class="card-body py-1">'
 
             html += '<div class="row">'
             html += '<div class="col-11 pe-0 align-self-center">'
-            html += '<p class="m-0 small-text fw-bolder">' + value.cost_center.code + ' - ' + value.cost_center.name + '</p>'
+            html += '<p class="m-0 small-text fw-bolder text_cost_center" data-id="' + value.cost_center.id + '">' + value.cost_center.code + ' - ' + value.cost_center.name + '</p>'
             html += '</div>'
             html += '<div class="col-1 ps-1 text-end">'
             html += '<button class="btn h-100 shadow-none px-1"><i class="fa fa-ellipsis-v"></i></button>'
@@ -1116,7 +1126,7 @@
         html += '<div class="col-6">'
         html += '<div class="form-group has-search">'
         html += '<span class="fa fa-search form-control-feedback"></span>'
-        html += '<input type="text" class="form-control-sm form-control rounded-pill" placeholder="Cari General Ledger" id="search_id_po" autocomplete="off">'
+        html += '<input type="text" class="form-control-sm form-control rounded-pill" placeholder="Cari General Ledger" id="search_general_ledger" autocomplete="off" onkeyup="searching(' + "'#search_general_ledger'" + ',' + "'.text_general_ledger'" + ',' + "'#card_general_ledger'" + ')">'
         html += '</div>'
         html += '</div>'
         html += '<div class="col-12 pt-2" id="newGeneralLedger">'
@@ -1152,7 +1162,7 @@
 
     function kerangkaGeneralLedgerList(department_id, cost_center_id, value, general_ledger_id, account_id) {
         var html = ''
-        html += '<div class="row">'
+        html += '<div class="row" id="card_general_ledger' + value.account_id + '">'
         html += '<div class="col-12">'
         // card
         html += '<div class="card shadow-none mb-2 card-hoper pointer bg-light" id="cardGL' + value.account_id + '" onclick="toggleGeneralLedger(' + value.account_id + ')">'
@@ -1160,7 +1170,7 @@
 
         html += '<div class="row">'
         html += '<div class="col-11 pe-0 align-self-center">'
-        html += '<p class="m-0 small-text fw-bolder d-flex align-items-center">' + value.code + ' - ' + value.name + ' <span class="badge bg-primary-payment d-flex align-items-center py-1 px-2 ms-2">' + chooseShowItemGeneralLedger(account_id) + '</span></p>'
+        html += '<p class="m-0 small-text fw-bolder d-flex align-items-center text_general_ledger" data-id="' + value.account_id + '">' + value.code + ' - ' + value.name + ' <span class="badge bg-primary-payment d-flex align-items-center py-1 px-2 ms-2">' + chooseShowItemGeneralLedger(account_id) + '</span></p>'
         html += '</div>'
         html += '<div class="col-1 ps-1 text-end">'
         html += '<button class="btn h-100 shadow-none px-1"><i class="fa fa-ellipsis-v"></i></button>'
@@ -1190,7 +1200,7 @@
         // cari
         html += '<div class="form-group has-search">'
         html += '<span class="fa fa-search form-control-feedback"></span>'
-        html += '<input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari Item" id="search_id_po" autocomplete="off">'
+        html += '<input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari Item" id="search_item" autocomplete="off" onkeyup="searching(' + "'#search_item'" + ',' + "'.text_item'" + ',' + "'#rowItemGL'" + ')">'
         html += '</div>'
         // cari
         html += '</div>'
@@ -1247,6 +1257,7 @@
     }
 
     function checkAll(general_ledger_id) {
+
         if ($('#bodyTableItem' + general_ledger_id).find('.checkItemGL').length == $('#bodyTableItem' + general_ledger_id).find('.checkItemGL:checked').length) {
             // jika semua nya di checklist
             $('#checkAllItemGL' + general_ledger_id).prop('checked', true)
@@ -1254,7 +1265,7 @@
             // jika ada yang belum di check
             $('#checkAllItemGL' + general_ledger_id).prop('checked', false)
         }
-        saveVariableCheckingIdItem()
+        checkIfAllUnChecked(general_ledger_id)
     }
 
     function statusLineItemField(department_id, cost_center_id, general_ledger_id, account_id) {
@@ -1291,20 +1302,19 @@
     }
 
     function bodyTableItemFormat(department_id, cost_center_id, no, e, general_ledger_id, account_id) {
-        // console.log(general_ledger_id)
         var fungsi = 'chooseItemGeneralLedger(' + department_id + ',' + cost_center_id + ',' + general_ledger_id + ',' + account_id + ',' + e.id + ')'
         var html = ''
         html += '<div class="row px-2 card-hoper" id="rowItemGL' + general_ledger_id + '' + e.id + '" onclick="' + fungsi + '" >'
         html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">'
         html += '<input class="form-check-input checkItemGL" type="checkbox" value="' + e.id + '" data-department_id="' + department_id + '" data-cost_center_id="' + cost_center_id + '" data-id_gl="' + general_ledger_id + '" data-account_id="' + account_id + '" id="checkItemGL' + general_ledger_id + '' + e.id + '" onchange="' + fungsi + '">'
         html += '</div>'
-        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100">' + e.code + '</div>'
-        html += '<div class="col-3 small-text align-self-start py-1 h-100">' + e.name + '</div>'
-        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100">' + e.alias + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">' + e.unit.name + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">' + e.type.name + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">' + e.category.name + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100"></div>'
+        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.code + '</div>'
+        html += '<div class="col-3 small-text align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.name + '</div>'
+        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.alias + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.unit.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.type.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.category.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '"></div>'
         html += '<div class="col-12 border-bottom"></div>'
         html += '</div>'
         return html
@@ -1323,6 +1333,25 @@
         checkAll(general_ledger_id)
     }
 
+    function checkIfAllUnChecked(general_ledger_id) {
+        // jika semua data teruncheck
+        var dataCheck = $('#bodyTableItem' + general_ledger_id).find('.checkItemGL:checked')
+        if (!dataCheck.length) {
+            hapusCheclist(general_ledger_id)
+        } else {
+            batalHapusChecklist(general_ledger_id)
+        }
+        saveVariableCheckingIdItem()
+    }
+
+    function hapusCheclist(general_ledger_id) {
+        variableDeleteItemFromGL.push(general_ledger_id)
+    }
+
+    function batalHapusChecklist(general_ledger_id) {
+        variableDeleteItemFromGL.splice(variableDeleteItemFromGL.indexOf(general_ledger_id), 1)
+    }
+
     function saveVariableCheckingIdItem() {
         variableNewItem = []
         $('.checkItemGL').each(function() {
@@ -1334,6 +1363,16 @@
                     id_gl: $(this).data('id_gl'),
                     account_id: $(this).data('account_id'),
                 })
+            } else {
+                if (variableDeleteItemFromGL.includes($(this).data('id_gl'))) {
+                    variableNewItem.push({
+                        id: '',
+                        department_id: $(this).data('department_id'),
+                        cost_center_id: $(this).data('cost_center_id'),
+                        id_gl: $(this).data('id_gl'),
+                        account_id: $(this).data('account_id'),
+                    })
+                }
             }
         })
         checkBtnSimpan()
@@ -1421,10 +1460,16 @@
                     id: item.id_gl,
                     cost_center_id: item.cost_center_id,
                     account_id: item.account_id,
-                    item_ids: []
+                    item_ids: [null]
                 };
             }
-            transformed[key].item_ids.push(parseInt(item.id));
+            if (parseInt(item.id)) {
+                if (transformed[key].item_ids[0] == null) {
+                    transformed[key].item_ids[0] = parseInt(item.id);
+                } else {
+                    transformed[key].item_ids.push(parseInt(item.id));
+                }
+            }
         });
 
         return Object.values(transformed);
@@ -1437,8 +1482,7 @@
         var data = {
             gl_item: deepCopy(transformDataGL(variableNewItem)),
         }
-        console.log(data)
-        // kelolaData(data, type, url, button)
+        kelolaData(data, type, url, button)
 
     }
 
@@ -1467,8 +1511,9 @@
                     }).then((responses) => {
                         $(button).prop("disabled", false);
                         variableNewItem = []
-                        variableDeleteItem = []
+                        variableDeleteItemFromGL = []
                         variableCheckedItem = []
+                        variableNewItemChoosed = []
                         loadData()
                     })
                 }
@@ -1491,10 +1536,6 @@
             }
         })
     }
-    // search multi
-    $(document).on('keyup', '#search_id_po', function(e) {
-        searching()
-    })
 
     function unique(array) {
         return array.filter(function(el, index, arr) {
@@ -1502,25 +1543,25 @@
         });
     }
 
-    function searching() {
-        var value = $('#search_id_po').val().toLowerCase();
-        var cards = $('.text_search').map(function() {
+    function searching(idFormSearch, classTextCard, idCard) {
+        var value = $(idFormSearch).val().toLowerCase();
+        var cards = $(classTextCard).map(function() {
             return $(this).text();
         }).get();
-        var id_cards = $('.text_search').map(function() {
+        var id_cards = $(classTextCard).map(function() {
             return $(this).data('id');
         }).get();
         var array = []
         for (let i = 0; i < cards.length; i++) {
             var element = cards[i].toLowerCase().indexOf(value);
-            $('#cardListPO' + id_cards[i]).addClass('d-none')
+            $(idCard + id_cards[i]).addClass('d-none')
             if (element > -1) {
                 array.push(id_cards[i])
             }
         }
         var array_arranged = unique(array)
         for (let i = 0; i < array_arranged.length; i++) {
-            $('#cardListPO' + array_arranged[i]).removeClass('d-none')
+            $(idCard + array_arranged[i]).removeClass('d-none')
         }
     }
 </script>

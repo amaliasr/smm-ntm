@@ -749,7 +749,7 @@
                 jumlahPay = e.payments.length
             }
             html += '<td class="' + bgLunas + ' align-middle text-center small-text">' + jumlahPay + '</td>'
-            var badge = '<span class="badge rounded-pill bg-grey super-small-text p-2 w-100">PROSES</span>'
+            var badge = '<span class="badge rounded-pill bg-danger-light super-small-text p-2 w-100 text-danger">PROSES</span>'
             if (e.is_paid_off) {
                 badge = '<span class="badge rounded-pill bg-success super-small-text p-2 w-100">PAID</span>'
             }

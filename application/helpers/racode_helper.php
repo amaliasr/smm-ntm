@@ -383,7 +383,7 @@ function if_master()
 }
 function if_master_purchasing()
 {
-    if (is_purchasing() || is_direktur() || job_spv_audit_internal()) {
+    if (is_purchasing() || is_direktur() || job_spv_audit_internal() || job_accounting_and_tax()) {
         return true;
     } else {
         return false;
