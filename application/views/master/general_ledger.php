@@ -30,6 +30,14 @@
                 <div class="row">
                     <div class="col-10 align-self-center">
                         <h1 class="text-dark fw-bolder m-0" style="font-weight: 700 !important">General Ledger</h1>
+                        <select class="form-control" id="example-getting-started" multiple="multiple">
+                            <option value="cheese">Cheese</option>
+                            <option value="tomatoes">Tomatoes</option>
+                            <option value="mozarella">Mozzarella</option>
+                            <option value="mushrooms">Mushrooms</option>
+                            <option value="pepperoni">Pepperoni</option>
+                            <option value="onions">Onions</option>
+                        </select>
                         <p class="m-0 super-small-text">Panel Kegiatan Entri untuk Manajemen General Ledger</p>
                     </div>
                 </div>
@@ -43,6 +51,7 @@
                     <div class="col-auto">
                         <button type="button" class="btn btn-sm shadow-none btn-outline-primary" onclick="loadData()"><i class="fa fa-refresh"></i></button>
                         <button type="button" class="btn btn-sm shadow-none btn-primary" onclick="addNewData()"><i class="fa fa-plus me-2"></i>Create New</button>
+                        <button type="button" class="btn btn-sm shadow-none btn-outline-primary" onclick="addNewDataItem()"><i class="fa fa-plus me-2"></i>New Item GL</button>
                     </div>
                 </div>
             </div>
@@ -352,6 +361,7 @@
     var variableCheckedItem = []
     var variableNewItemChoosed = []
     $(document).ready(function() {
+        $('#example-getting-started').multiselect();
         loadData()
     })
 
@@ -594,6 +604,7 @@
         if ($('#modal').hasClass('show')) {
             kerangkaNewData(department_id_clicked, cost_center_id_clicked)
         }
+        addNewDataItem()
     }
 
     function createCodeId() {
@@ -1563,5 +1574,110 @@
         for (let i = 0; i < array_arranged.length; i++) {
             $(idCard + array_arranged[i]).removeClass('d-none')
         }
+    }
+
+    function addNewDataItem() {
+        $('#modal').modal('show')
+        kerangkaNewDataItem()
+    }
+
+    function kerangkaNewDataItem() {
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<p class="m-0 fw-bold">Create Item General Ledger</p>';
+        html_header += '<button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 mb-2" id="findItemData">'
+        html_body += '</div>'
+        html_body += '<div class="col-12" id="formFillItemData">'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        var html_footer = '';
+        html_footer += btnCancel()
+        html_footer += btnSave()
+        $('#modalFooter').html(html_footer);
+        findItemData()
+    }
+
+    function findItemData() {
+        var html = ''
+        html += '<div class="card shadow-none">'
+        html += '<div class="card-body">'
+
+        html += '<div class="row">'
+        html += '<div class="col pe-0">'
+        //tipe
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-1">Tipe</p>'
+        // html += '<select class="form-control form-control-sm w-100 small-text" id="selectTipe" title="PILIH TIPE" multiple="multiple" >'
+        // html += '<option value="" disabled>PILIH TIPE</option>'
+        // html += '<option value="1">1</option>'
+        // html += '<option value="2">2</option>'
+        // html += '<option value="3">3</option>'
+        // html += '</select>'
+        html += '<select class="form-control form-control-sm w-100 small-text" id="multiple-checkboxes" multiple="multiple">'
+        html += '<option value="php">PHP</option>'
+        html += '<option value="javascript">JavaScript</option>'
+        html += '<option value="java">Java</option>'
+        html += '<option value="sql">SQL</option>'
+        html += '<option value="jquery">Jquery</option>'
+        html += '<option value=".net">.Net</option>'
+        html += '</select>'
+        //tipe
+        html += '</div>'
+        html += '<div class="col pe-0">'
+        //group code
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-1">Group Code</p>'
+        html += '<select class="form-control form-control-sm w-100 small-text" id="selectGroupCode" title="PILIH TIPE" multiple="multiple" >'
+        html += '<option value="" disabled>PILIH TIPE</option>'
+        html += '<option value="1">1</option>'
+        html += '<option value="2">2</option>'
+        html += '<option value="3">3</option>'
+        html += '</select>'
+        //group code
+        html += '</div>'
+        html += '<div class="col pe-0">'
+        //Unit Mesin
+        html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-1">Unit Mesin</p>'
+        html += '<select class="form-control form-control-sm w-100 small-text" id="selectUnitMesin" title="PILIH UNIT MESIN" multiple="multiple" >'
+        html += '<option value="" disabled>PILIH UNIT MESIN</option>'
+        html += '<option value="1">1</option>'
+        html += '<option value="2">2</option>'
+        html += '<option value="3">3</option>'
+        html += '</select>'
+        //Unit Mesin
+        html += '</div>'
+        html += '<div class="col-2 text-end align-self-end">'
+        html += '<button class="btn btn-sm btn-primary" onclick="addNewDataItem()">Cari Item</button>'
+        html += '</div>'
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        $('#findItemData').html(html)
+        $('#multiple-checkboxes').multiselect({
+            includeSelectAllOption: true,
+        });
+        $('#selectTipe').select2({
+            closeOnSelect: false,
+            dropdownParent: $('#modal'),
+            width: '100%',
+            placeholder: "Select Tipe",
+            allowClear: true
+        })
+        $('#selectGroupCode').select2({
+            closeOnSelect: false,
+            dropdownParent: $('#modal'),
+            width: '100%',
+            placeholder: "Select Group Code",
+        })
+        $('#selectUnitMesin').select2({
+            closeOnSelect: false,
+            dropdownParent: $('#modal'),
+            width: '100%',
+            placeholder: "Select Unit Mesin",
+        })
     }
 </script>
