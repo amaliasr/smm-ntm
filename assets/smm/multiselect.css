@@ -1,0 +1,104 @@
+/* multiselect */
+[type=button]:not(:disabled),
+[type=reset]:not(:disabled),
+[type=submit]:not(:disabled),
+button:not(:disabled) {
+    cursor: pointer;
+}
+
+.custom-control-label::before,
+.custom-file-label,
+.custom-select {
+    transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.custom-select {
+    display: inline-block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    /* padding: .375rem 1.75rem .375rem .75rem; */
+    padding: 2px;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    vertical-align: middle;
+    background: #fff no-repeat right .75rem center / 8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.multiselect {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.multiselect-selected-text{
+    font-size: 12px;
+}
+.btn-group, .btn-group-vertical {
+    position: relative;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    vertical-align: middle;
+    width: 100%;
+}
+.multiselect-container .dropdown-menu .show{
+    position: absolute;
+    will-change: transform;
+    top: 0px;
+    left: 0px;
+    transform: translate3d(0px, 38px, 0px);
+}
+.dropdown-menu.show {
+    display: block;
+}
+.dropdown-menu[x-placement^=bottom], .dropdown-menu[x-placement^=left], .dropdown-menu[x-placement^=right], .dropdown-menu[x-placement^=top] {
+    right: auto;
+    bottom: auto;
+}
+.multiselect-container {
+    position: absolute;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: .125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: .25rem;
+}
+.multiselect-container .multiselect-filter > input.multiselect-search {
+    border: none;
+    border-bottom: 1px solid lightgrey;
+    padding-left: 2rem;
+    margin-left: -1.625rem;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-radius: 0px;
+    box-shadow: none;
+}
+[type=button]:not(:disabled), [type=reset]:not(:disabled), [type=submit]:not(:disabled), button:not(:disabled) {
+    text-align: left;
+}
+button.multiselect.dropdown-toggle.custom-select.text-left{
+    padding-left: 10px;
+}
+
+/* multiselect */
