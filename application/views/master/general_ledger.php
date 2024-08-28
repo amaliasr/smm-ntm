@@ -1627,6 +1627,22 @@
         })
     }
 
+    function extractPrefixes(data) {
+        // Buat set untuk menghindari duplikasi
+        const prefixes = new Set();
+
+        // Iterasi melalui setiap item dalam array data
+        data.forEach(item => {
+            // Pisahkan 'code' berdasarkan '.' dan ambil bagian pertama
+            const prefix = item.code.split('.')[0];
+            // Tambahkan prefix ke set
+            prefixes.add(prefix);
+        });
+
+        // Ubah set menjadi array
+        return Array.from(prefixes);
+    }
+
     function findItemData() {
         var html = ''
         html += '<div class="card shadow-none">'
@@ -1647,8 +1663,9 @@
         //group code
         html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-1">Group Code</p>'
         html += '<select class="form-control form-control-sm w-100 small-text text-start" id="selectGroupCode" multiple="multiple">'
-        data_item.itemType.forEach(e => {
-            html += '<option value="' + e.id + '" selected>' + e.name + '</option>'
+        var item = extractPrefixes(data_item.item)
+        item.forEach(e => {
+            html += '<option value="' + e + '" selected>' + e + '</option>'
         });
         html += '</select>'
         //group code
