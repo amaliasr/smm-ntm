@@ -17,6 +17,10 @@
         background-color: #96BBC3 !important;
         color: white !important;
     }
+
+    .bg-grey {
+        background-color: #f4f4f4 !important;
+    }
 </style>
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -1586,7 +1590,7 @@
     }
 
     function kerangkaNewDataItem() {
-        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
+        $('#modalDialog').addClass('modal-dialog modal-xl modal-dialog-scrollable');
         var html_header = '';
         html_header += '<p class="m-0 fw-bold">Create Item General Ledger</p>';
         html_header += '<button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>';
@@ -1645,10 +1649,10 @@
 
     function findItemData() {
         var html = ''
-        html += '<div class="card shadow-none">'
-        html += '<div class="card-body">'
+        // html += '<div class="card shadow-none">'
+        // html += '<div class="card-body">'
 
-        html += '<div class="row">'
+        html += '<div class="row p-3">'
         html += '<div class="col pe-0">'
         //tipe
         html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-1">Tipe</p>'
@@ -1680,13 +1684,13 @@
         html += '</select>'
         //Unit Mesin
         html += '</div>'
-        html += '<div class="col-2 text-end align-self-end">'
-        html += '<button class="btn btn-sm btn-primary" onclick="addNewDataItem()">Cari Item</button>'
+        html += '<div class="col-1 text-end align-self-end">'
+        html += '<button class="btn btn-sm btn-primary w-100" onclick="getItemData()" style="height: 38px">Cari</button>'
         html += '</div>'
         html += '</div>'
 
-        html += '</div>'
-        html += '</div>'
+        // html += '</div>'
+        // html += '</div>'
         $('#findItemData').html(html)
         $('#selectTipe').multiselect({
             maxHeight: 200,
@@ -1712,9 +1716,130 @@
             buttonTextAlignment: 'left',
             enableCaseInsensitiveFiltering: true,
         });
+        $('#formFillItemData').html(emptyReturn('Lakukan Pencarian Terlebih Dahulu'))
+        getItemData()
     }
 
-    function getDataValue() {
-        console.log($('#selectTipe').val())
+    function filterDataItem(data, tipe, groupData, unitMesin) {
+        return data.filter(item => {
+            // Filter by type_id
+            if (item.type_id) {
+                var isTypeMatch = tipe.includes(item.type_id.toString());
+            } else {
+                var isTypeMatch = true
+            }
+
+            // Filter by group code (code before '.')
+            const groupCode = item.code.split('.')[0];
+            const isGroupMatch = groupData.includes(groupCode);
+
+            // Filter by item_unit_id (unit mesin)
+            if (item.item_unit_id) {
+                var isUnitMesinMatch = unitMesin.includes(item.item_unit_id.toString());
+            } else {
+                var isUnitMesinMatch = true
+            }
+            return isTypeMatch && isGroupMatch && isUnitMesinMatch;
+        });
+    }
+
+    function getItemData() {
+        var tipe = $('#selectTipe').val()
+        var groupCode = $('#selectGroupCode').val()
+        var unitMesin = $('#selectUnitMesin').val()
+        var data_item_filtered = data_item.item
+        var data = filterDataItem(data_item_filtered, tipe, groupCode, unitMesin)
+        formFillItemData(data)
+    }
+
+    function formFillItemData(data) {
+        var html = ''
+        html += '<div class="row px-3">'
+        html += '<div class="col-12">'
+
+        html += '<div class="card shadow-none">'
+        // header
+        html += '<div class="card-header bg-white text-grey">'
+        html += '<p class="m-0 fw-bolder small-text text-dark">Form Fill General Ledger</p>'
+        html += '</div>'
+        // header
+        // body
+        html += '<div class="card-body p-0">'
+        html += '<table class="table table-hover table-sm small w-100" style="overflow-x: hidden;" id="tableDetailItem">'
+        html += '<thead>'
+        html += '<tr>'
+        html += '<th class="align-middle small-text ">#</th>'
+        html += '<th class="align-middle small-text ">Kode</th>'
+        html += '<th class="align-middle small-text ">Nama</th>'
+        html += '<th class="align-middle small-text ">Alias</th>'
+        html += '<th class="align-middle small-text ">Co Center</th>'
+        html += '<th class="align-middle small-text ">General Ledger</th>'
+        html += '<th class="align-middle small-text "></th>'
+        html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+        data.forEach((value, key) => {
+            html += formBodyItem(value, key)
+        })
+        html += '</tbody>'
+        html += '</table>'
+        html += '</div>'
+        // body
+        html += '</div>'
+
+        html += '</div>'
+        html += '</div>'
+        $('#formFillItemData').html(html)
+        $('#tableDetailItem').DataTable({
+            ordering: false, // Menonaktifkan pengurutan
+            pageLength: 200,
+            scrollY: "400px",
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            fixedHeader: true,
+            searching: false,
+            info: false,
+        })
+    }
+    var indexRowItem = 0
+
+    function formBodyItem(value, key) {
+        var html = '';
+        html += '<tr id="itemRow' + value.id + '">';
+        html += '<td class="align-middle super-small-text py-2 text-center">' + (key + 1) + '</td>';
+        html += '<td class="align-middle super-small-text py-2 text-center">' + value.code + '</td>';
+        html += '<td class="align-middle super-small-text py-2">' + value.item_name + '</td>';
+        if (!value.item_alias) {
+            value.item_alias = '';
+        }
+        html += '<td class="align-middle super-small-text py-2 text-center">' + value.item_alias + '</td>';
+        html += '<td class="align-middle super-small-text py-2"></td>';
+        html += '<td class="align-middle super-small-text py-2"></td>';
+        html += '<td class="align-middle super-small-text py-2"><button class="btn btn-sm shadow-none" onclick="addCoCenterGL(' + value.id + ')"><i class="fa fa-plus text-grey"></i></button></td>';
+        html += '</tr>';
+        return html;
+    }
+
+
+    function addCoCenterGL(id) {
+        var html = '';
+        html += '<tr id="itemRowChild' + indexRowItem + '">';
+        html += '<td class="align-middle super-small-text py-2"></td>';
+        html += '<td class="align-middle super-small-text py-2"></td>';
+        html += '<td class="align-middle super-small-text py-2"></td>';
+        html += '<td class="align-middle super-small-text py-2"></td>';
+        html += '<td class="align-middle super-small-text py-2">test</td>';
+        html += '<td class="align-middle super-small-text py-2">test</td>';
+        html += '<td class="align-middle super-small-text py-2"><button class="btn btn-danger btn-sm shadow-none" onclick="deleteCoCenterGL(' + indexRowItem + ')"><i class="fa fa-trash"></i></button></td>';
+        html += '</tr>';
+
+        // Append the new row after the clicked row
+        $('#itemRow' + id).after(html);
+        indexRowItem++;
+    }
+
+    function deleteCoCenterGL(id) {
+        $('#itemRowChild' + id).remove();
     }
 </script>
