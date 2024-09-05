@@ -21,6 +21,16 @@
     .bg-grey {
         background-color: #f4f4f4 !important;
     }
+
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        padding: 0px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    ul.select2-results__options li {
+        font-size: 8px;
+    }
 </style>
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -297,6 +307,7 @@
         variableNewItemChoosed = []
         variableDeleteItemFromGL = []
         variableCheckedItem = []
+        isGLItem = false
         clearModal();
     })
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -369,6 +380,7 @@
     var variableCheckedItem = []
     var variableNewItemChoosed = []
     var data_item
+    var isGLItem = false
     $(document).ready(function() {
         loadData()
     })
@@ -610,9 +622,12 @@
         })
         // jika modalnya terbuka
         if ($('#modal').hasClass('show')) {
-            kerangkaNewData(department_id_clicked, cost_center_id_clicked)
+            if (isGLItem) {
+                kerangkaNewDataItem()
+            } else {
+                kerangkaNewData(department_id_clicked, cost_center_id_clicked)
+            }
         }
-        addNewDataItem()
     }
 
     function createCodeId() {
@@ -705,6 +720,11 @@
 
     function btnSave() {
         var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanData()" disabled>Simpan</button>'
+        return html
+    }
+
+    function btnSaveItem() {
+        var html = '<button type="button" class="btn btn-primary btn-sm" id="btnSimpan" onclick="simpanDataItem()" disabled>Simpan</button>'
         return html
     }
 
@@ -1502,7 +1522,6 @@
             gl_item: deepCopy(transformDataGL(variableNewItem)),
         }
         kelolaData(data, type, url, button)
-
     }
 
     function kelolaData(data, type, url, button) {
@@ -1606,14 +1625,14 @@
         $('#modalBody').html(html_body);
         var html_footer = '';
         html_footer += btnCancel()
-        html_footer += btnSave()
+        html_footer += btnSaveItem()
         $('#modalFooter').html(html_footer);
         loadDataItem()
     }
 
     function loadDataItem() {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            url: "<?= api_url('loadPageItemGL'); ?>",
             method: "GET",
             dataType: 'JSON',
             error: function(xhr) {
@@ -1768,13 +1787,13 @@
         html += '<table class="table table-hover table-sm small w-100" style="overflow-x: hidden;" id="tableDetailItem">'
         html += '<thead>'
         html += '<tr>'
-        html += '<th class="align-middle small-text ">#</th>'
-        html += '<th class="align-middle small-text ">Kode</th>'
-        html += '<th class="align-middle small-text ">Nama</th>'
-        html += '<th class="align-middle small-text ">Alias</th>'
-        html += '<th class="align-middle small-text ">Co Center</th>'
-        html += '<th class="align-middle small-text ">General Ledger</th>'
-        html += '<th class="align-middle small-text "></th>'
+        html += '<th class="align-middle small-text">#</th>'
+        html += '<th class="align-middle small-text">Kode</th>'
+        html += '<th class="align-middle small-text">Nama</th>'
+        html += '<th class="align-middle small-text">Alias</th>'
+        html += '<th class="align-middle small-text">Co Center</th>'
+        html += '<th class="align-middle small-text">General Ledger</th>'
+        html += '<th class="align-middle small-text"></th>'
         html += '</tr>'
         html += '</thead>'
         html += '<tbody>'
@@ -1790,6 +1809,29 @@
         html += '</div>'
         html += '</div>'
         $('#formFillItemData').html(html)
+        data.forEach((value, key) => {
+            $('#selectCoCenter' + key).select2({
+                closeOnSelect: true,
+                dropdownParent: $('#modal'),
+
+                width: 'resolve',
+            })
+            $('#selectGeneralLedger' + key).select2({
+                closeOnSelect: true,
+                dropdownParent: $('#modal'),
+
+                width: 'resolve',
+            })
+            if (value.gl_items) {
+                value.gl_items.forEach((v, k) => {
+                    if (k == 0) {
+                        changeCoCenter(key, v.account_id)
+                    } else {
+                        addCoCenterGL(key, value.id, v.cost_center_id, v.account_id, v.id)
+                    }
+                })
+            }
+        })
         $('#tableDetailItem').DataTable({
             ordering: false, // Menonaktifkan pengurutan
             pageLength: 200,
@@ -1801,8 +1843,10 @@
             searching: false,
             info: false,
         })
+        changeGeneralLedger()
     }
     var indexRowItem = 0
+    var indexCoCenterGL = 0
 
     function formBodyItem(value, key) {
         var html = '';
@@ -1813,33 +1857,176 @@
         if (!value.item_alias) {
             value.item_alias = '';
         }
+        var co_center_id = ''
+        var gl_id = ''
+        if (value.gl_items) {
+            co_center_id = value.gl_items[0].cost_center_id
+            account_id = value.gl_items[0].account_id
+        }
         html += '<td class="align-middle super-small-text py-2 text-center">' + value.item_alias + '</td>';
-        html += '<td class="align-middle super-small-text py-2"></td>';
-        html += '<td class="align-middle super-small-text py-2"></td>';
-        html += '<td class="align-middle super-small-text py-2"><button class="btn btn-sm shadow-none" onclick="addCoCenterGL(' + value.id + ')"><i class="fa fa-plus text-grey"></i></button></td>';
+        html += '<td class="align-middle super-small-text py-2">' + formCoCenter(key, value.id, co_center_id, account_id) + '</td>';
+        html += '<td class="align-middle super-small-text py-2">' + formGeneralLedger(key, value.id) + '</td>';
+        html += '<td class="align-middle super-small-text py-2"><button class="btn p-0 btn-sm shadow-none" onclick="addCoCenterGL(' + key + ',' + value.id + ')"><i class="fa fa-plus text-grey"></i></button></td>';
         html += '</tr>';
         return html;
     }
 
+    var deletedItem = []
 
-    function addCoCenterGL(id) {
+    function addCoCenterGL(key, id, co_center_id = null, account_id = null, gl_id = null) {
         var html = '';
         html += '<tr id="itemRowChild' + indexRowItem + '">';
         html += '<td class="align-middle super-small-text py-2"></td>';
         html += '<td class="align-middle super-small-text py-2"></td>';
         html += '<td class="align-middle super-small-text py-2"></td>';
         html += '<td class="align-middle super-small-text py-2"></td>';
-        html += '<td class="align-middle super-small-text py-2">test</td>';
-        html += '<td class="align-middle super-small-text py-2">test</td>';
-        html += '<td class="align-middle super-small-text py-2"><button class="btn btn-danger btn-sm shadow-none" onclick="deleteCoCenterGL(' + indexRowItem + ')"><i class="fa fa-trash"></i></button></td>';
+        html += '<td class="align-middle super-small-text py-2">' + formCoCenter(key + '' + indexCoCenterGL, id, co_center_id, account_id) + '</td>';
+        html += '<td class="align-middle super-small-text py-2">' + formGeneralLedger(key + '' + indexCoCenterGL, id) + '</td>';
+        html += '<td class="align-middle super-small-text py-2"><button class="btn p-0 text-danger btn-sm shadow-none" onclick="deleteCoCenterGL(' + indexRowItem + ',' + id + ',' + co_center_id + ',' + account_id + ',' + gl_id + ')"><i class="fa fa-trash"></i></button></td>';
         html += '</tr>';
-
         // Append the new row after the clicked row
         $('#itemRow' + id).after(html);
+        $('#selectCoCenter' + key + '' + indexCoCenterGL).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: 'resolve',
+        })
+        $('#selectGeneralLedger' + key + '' + indexCoCenterGL).select2({
+            closeOnSelect: true,
+            dropdownParent: $('#modal'),
+            width: 'resolve',
+        })
+        if (co_center_id && account_id) {
+            changeCoCenter(key + '' + indexCoCenterGL, account_id)
+        }
         indexRowItem++;
+        indexCoCenterGL++;
     }
 
-    function deleteCoCenterGL(id) {
+    function formCoCenter(index, item_id, co_center_id = null, account_id = null) {
+        var html = ''
+        html += '<select class="form-control form-control-sm w-100 small-text selectCoCenter" id="selectCoCenter' + index + '" title="Pilih Co Center" style="width: 150px" data-item_id="' + item_id + '" onchange="changeCoCenter(' + "'" + index + "'" + ',' + account_id + ')">'
+        html += '<option value="" selected disabled>Pilih Co Center</option>'
+        data_item.costCenter.forEach(e => {
+            var select = ''
+            if (co_center_id == e.cost_center.id) {
+                select = 'selected'
+            }
+            html += '<option value="' + e.cost_center.id + '" ' + select + '>' + e.cost_center.code + ' -  ' + e.cost_center.name + '</option>'
+        });
+        html += '</select>'
+        return html
+    }
+
+    function formGeneralLedger(index, item_id, account_id = null) {
+        var html = ''
+        html += '<select class="form-control form-control-sm w-100 small-text selectGeneralLedger" id="selectGeneralLedger' + index + '" title="Pilih General Ledger" style="width: 150px" data-item_id="' + item_id + '" onchange="changeGeneralLedger(' + "'" + index + "'" + ')"> '
+        html += '<option value="" selected disabled>Pilih Co Center Terlebih Dahulu</option>'
+        html += '</select>'
+        return html
+    }
+
+    function deleteCoCenterGL(id, item_id, co_center_id, account_id, gl_id) {
         $('#itemRowChild' + id).remove();
+        if (co_center_id && account_id && gl_id) {
+            deletedItem.push({
+                item_id: item_id,
+                co_center_id: co_center_id,
+                account_id: account_id,
+                gl_id: gl_id,
+            })
+        }
+    }
+
+    function changeCoCenter(index, account_id) {
+        var value = $('#selectCoCenter' + index).val()
+        var dataGeneralLedger = data_item.costCenter.find(item => item.cost_center.id == value).general_ledger
+        var html = ''
+        html += '<option value="" selected disabled>Pilih General Ledger</option>'
+        dataGeneralLedger.forEach(e => {
+            var select = ''
+            if (account_id == e.account_id) {
+                select = 'selected'
+            }
+            html += '<option value="' + e.account_id + '" data-gl_id="' + e.gl_item_id + '" ' + select + '>' + e.code + ' -  ' + e.name + '</option>'
+        });
+        $('#selectGeneralLedger' + index).html(html)
+    }
+
+    function changeGeneralLedger(index) {
+        var valueGL = $('.selectGeneralLedger').map(function() {
+            return $(this).val();
+        }).get();
+        if (valueGL.length) {
+            var valueCO = $('.selectCoCenter').map(function() {
+                return $(this).val();
+            }).get();
+            if (valueCO.length == valueGL.length) {
+                $('#btnSimpan').prop('disabled', false)
+            } else {
+                $('#btnSimpan').prop('disabled', true)
+            }
+        } else {
+            $('#btnSimpan').prop('disabled', true)
+        }
+        // filter if account_id, co_center_id, item_id are same
+        var item_id = $('#selectCoCenter' + index).data('item_id')
+        var co_center_id = $('#selectCoCenter' + index).find(':selected').val()
+        var account_id = $('#selectGeneralLedger' + index).find(':selected').val()
+        var gl_id = $('#selectGeneralLedger' + index).find(':selected').data('gl_id')
+        deletedItem = deepCopy(deletedItem).filter((v, k) => {
+            return !(v.item_id == item_id && v.co_center_id == co_center_id && v.account_id == account_id && v.gl_id == gl_id)
+        })
+        // console.log(deletedItem)
+    }
+
+    function simpanDataItem() {
+        var valueAccountId = $('.selectGeneralLedger').map(function() {
+            return $(this).val();
+        }).get();
+        var valueGlId = $('.selectGeneralLedger').map(function() {
+            return $(this).find(':selected').data('gl_id');
+        }).get();
+        var valueCostCenterId = $('.selectCoCenter').map(function() {
+            return $(this).val();
+        }).get();
+        var valueItemId = $('.selectGeneralLedger').map(function() {
+            return $(this).data('item_id');
+        }).get();
+        var data = []
+        for (let i = 0; i < valueAccountId.length; i++) {
+            data.push({
+                account_id: valueAccountId[i],
+                id_gl: valueGlId[i],
+                cost_center_id: valueCostCenterId[i],
+                id: valueItemId[i],
+            })
+        }
+        // cek apakah ada account_id, co_center_id yang tidak ada di dalam deletedItem yang ada pada list valueAccountId dan valueCostCenterId, dan valueGlId jika tidak ada makan masuk push data. jadi patokannya di deletedItem
+        deletedItem.forEach(e => {
+            if (!valueAccountId.includes(e.account_id) && !valueCostCenterId.includes(e.co_center_id) && !valueGlId.includes(e.gl_id)) {
+                data.push({
+                    account_id: e.account_id,
+                    id_gl: e.gl_id,
+                    cost_center_id: e.co_center_id,
+                    id: [],
+                })
+            }
+        })
+
+        var dataJadi = deepCopy(transformDataGL(data))
+        // console.log(dataJadi)
+        doSimpanDataItem(dataJadi)
+    }
+
+    function doSimpanDataItem(data) {
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setGLItem'); ?>'
+        var data = {
+            gl_item: data,
+        }
+        isGLItem = true
+        kelolaData(data, type, url, button)
     }
 </script>
