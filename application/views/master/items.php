@@ -250,7 +250,7 @@
     function getData() {
         var isActive = [1, 0]
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            url: "<?= api_url('Api_Warehouse/loadMaster2'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
