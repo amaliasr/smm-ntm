@@ -4485,27 +4485,36 @@
         // console.log(groupAndSum(generateItemProduct(), ['id', 'alias', 'code', 'name'], []))
         // console.log(dataProduct)
         $('#modal2').modal('show')
-        $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable modal-dialog-centered');
+        $('#modalDialog2').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Choose Brand</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader2').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
+        // search
+        html_body += '<div class="col-12">'
+        html_body += '<div class="form-group has-search">'
+        html_body += '<span class="fa fa-search form-control-feedback"></span>'
+        html_body += '<input type="text" class="form-control border-0 rounded-0 border-bottom" placeholder="Cari Nama Brand / Kode Brand" id="search_brand" autocomplete="off">'
+        html_body += '</div>'
+        html_body += '</div>'
+        // search
         var a = 1
         dataProduct.forEach(e => {
-            html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-production pointer" onclick="addProduction(' + "'" + date + "'" + ',' + machine_id + ',' + shift_id + ',' + group_shift_id + ',' + e.id + ')">'
-            html_body += '<p class="m-0 small-text">' + e.alias + '</p>'
-            html_body += '<p class="m-0"><b>' + e.name + '</b></p>'
+            html_body += '<div class="col-12 pt-3 pb-3 ps-5 pe-5 btn-addnew-production pointer border-bottom" onclick="addProduction(' + "'" + date + "'" + ',' + machine_id + ',' + shift_id + ',' + group_shift_id + ',' + e.id + ')" id="card_search_brand' + a + '">'
+            html_body += '<p class="m-0 small-text text_search_brand" data-id="' + a + '">' + e.alias + '</p>'
+            html_body += '<p class="m-0"><b class="text_search_brand" data-id="' + a + '">' + e.name + '</b></p>'
             html_body += '</div>'
-            if (a < dataProduct.length) {
-                html_body += '<div class="col-12"><hr class="m-0"></div>'
-            }
+            // if (a < dataProduct.length) {
+            //     html_body += '<div class="col-12"><hr class="m-0"></div>'
+            // }
             a++
         });
         html_body += '</div>'
         $('#modalBody2').html(html_body).addClass('p-0');
         $('#modalFooter2').addClass('d-none');
+        $('#search_brand').focus()
     }
 
     function addProduction(date, machine_id, shift_id, group_shift_id, product_id) {
@@ -4706,8 +4715,8 @@
         const inputValue = event.target.value;
         var data = searchDataAll(date, machine_id, null, shift_id, group_shift_id).products
         var index = findIndexByWorkPlanProductId(data, work_plan_product_id)
-        // console.log(inputValue.replace(',', ''))
-        data[index].qty = inputValue.replace(',', '')
+        // console.log(inputValue.replace(/,/g, ''))
+        data[index].qty = inputValue.replace(/,/g, '')
         insertDataAll(date, machine_id, shift_id, group_shift_id, data, 'edit_product')
     }
 
@@ -5365,5 +5374,31 @@
                 });
             }
         })
+    }
+    // search multi
+    $(document).on('keyup', '#search_brand', function(e) {
+        searching_brand()
+    })
+
+    function searching_brand() {
+        var value = $('#search_brand').val().toLowerCase();
+        var cards = $('.text_search_brand').map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.text_search_brand').map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#card_search_brand' + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#card_search_brand' + array_arranged[i]).removeClass('d-none')
+        }
     }
 </script>

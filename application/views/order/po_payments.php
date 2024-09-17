@@ -66,7 +66,7 @@
 
     .select2-container--default .select2-results>.select2-results__options {
         max-height: 500px !important;
-    })
+    }
 </style>
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">

@@ -196,7 +196,7 @@
                 </a>
                 <div class="collapse show" id="collapseDashboards2" data-bs-parent="#accordionSidenav2">
                     <nav class="sidenav-menu-nested nav accordion" id="accordionSidenav2Pages">
-                        <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a>
+                        <!-- <a class="nav-link" href="<?= base_url(); ?>order/purchaseOrder">Request & Order</a> -->
                         <a class="nav-link" href="<?= base_url(); ?>order/managePR">Purchase Requisition (PR) <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
                         <?php if (if_po()) { ?>
                             <a class="nav-link" href="<?= base_url(); ?>order/managePO">Purchase Order (PO) <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
@@ -210,7 +210,7 @@
                             <a class="nav-link" href="<?= base_url(); ?>order/transaction">Transaction</a>
                         <?php } ?>
                         <?php if (if_logistik()) { ?>
-                            <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a>
+                            <!-- <a class="nav-link" href="<?= base_url(); ?>order/logistic">Logistic</a> -->
                             <a class="nav-link" href="<?= base_url(); ?>order/logisticNew">Logistic <span class="badge bg-danger ms-2 p-1 pb-0" style="font-size: 7px !important;">NEW</span></a>
                         <?php } ?>
                     </nav>

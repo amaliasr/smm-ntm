@@ -1,10 +1,56 @@
 <link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
 <link href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
 <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<style>
+    .dropzone.dz-clickable {
+        cursor: pointer;
+    }
 
+    .dropzone {
+        min-height: 0px !important;
+        border: 1px dashed rgba(0, 0, 0, .3);
+        background: #fff;
+        padding: 5px;
+        border-radius: 2px;
+    }
+
+    .dropzone,
+    .dropzone * {
+        box-sizing: border-box;
+    }
+
+    .dropzone .dz-preview {
+        margin: 3px;
+    }
+
+    .dropzone .dz-preview .dz-remove {
+        font-size: 10px;
+        text-decoration: none;
+        color: grey;
+    }
+
+    /* CSS untuk mengatur thumbnail lebih lanjut */
+    .dropzone .dz-preview .dz-image {
+        width: 100px;
+        /* Lebar thumbnail */
+        height: 100px;
+        /* Tinggi thumbnail */
+    }
+
+    .dropzone .dz-preview .dz-image img {
+        width: 100%;
+        /* Memastikan gambar memenuhi kontainer */
+        height: 100%;
+        /* Menjaga rasio gambar sesuai kontainer */
+        object-fit: cover;
+        /* Menjaga proporsi gambar agar tetap pas */
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
@@ -319,6 +365,7 @@
         );
     }
     var last_number = 1
+    Dropzone.autoDiscover = false;
 
     function formPR(idCostCenter, nameCostCenter) {
         $('#modal').modal('show')
@@ -365,6 +412,7 @@
         html_body += '<th class="align-middle" style="width:10%" rowspan="2">Unit</th>'
         html_body += '<th class="align-middle" colspan="2">Estimated</th>'
         html_body += '<th class="align-middle" rowspan="2">Notes</th>'
+        html_body += '<th class="align-middle" rowspan="2"></th>'
         html_body += '</tr>'
         html_body += '<tr>'
         html_body += '<th class="align-middle" style="width:15%">Unit Price</th>'
@@ -376,9 +424,21 @@
         html_body += '<button class="btn btn-sm btn-outline-primary float-end" style="font-size:11px" id="btnNewRowPR"><i class="fa fa-plus me-2"></i> New Row</button>'
         html_body += '</div>'
 
-        html_body += '<div class="col-12 col-md-8 mt-1">'
-        html_body += '<small>Justification :</small>'
-        html_body += '<textarea class="form-control form-control-sm w-100" rows="5" id="justification"></textarea>'
+        html_body += '<div class="col-12 col-md-6 mt-1">'
+        html_body += '<small class="fw-bolder">Justification</small>'
+        html_body += '<textarea class="form-control form-control-sm w-100" rows="5" id="justification" placeholder="Tuliskan Justification bila perlu"></textarea>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-6 mt-1">'
+        html_body += '<small class="fw-bolder">Upload Lampiran</small>'
+
+        // upload image
+        html_body += '<div id="my-dropzone" class="dropzone text-center">'
+        html_body += '<div class="dz-message">'
+        html_body += '<p class="m-0 small-text"><i class="fa fa-file-text-o me-2"></i>Geser Dokumen atau Klik untuk Mengunggah</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // upload image
+
         html_body += '</div>'
         html_body += '<div class="col-12 col-md-4 mt-1">'
         html_body += '</div>'
@@ -386,7 +446,24 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
-
+        var myDropzone = new Dropzone("#my-dropzone", {
+            url: "<?= base_url() . "upload" ?>", // Endpoint untuk menerima file
+            paramName: "file", // Nama parameter untuk file yang diunggah (default: "file")
+            maxFilesize: 2, // Batas ukuran file dalam MB
+            acceptedFiles: "image/*,.pdf", // Jenis file yang diterima
+            clickable: "#my-dropzone", // Membuat area div menjadi clickable
+            addRemoveLinks: true, // Menambahkan tombol hapus pada file yang diunggah
+            dictDefaultMessage: "Geser Dokumen atau Klik untuk Mengunggah", // Pesan default
+            thumbnailWidth: 100, // Lebar thumbnail
+            thumbnailHeight: 100, // Tinggi thumbnail
+            success: function(file, response) {
+                console.log(file)
+                console.log("File uploaded successfully!");
+            },
+            error: function(file, response) {
+                console.log("File upload failed!");
+            }
+        });
         var html_footer = '';
         var total = 0
         html_footer += '<div class="me-auto fw-bold">Total : Rp. <span id="totalPR">' + number_format(total) + '</span></div>'
@@ -402,7 +479,7 @@
 
     function formRowPR(i) {
         var html_body = ""
-        html_body += '<tr>'
+        html_body += '<tr id="fieldPRRow' + i + '">'
         // no
         html_body += '<td class="text-center align-middle">' + i + '</td>'
 
@@ -443,6 +520,11 @@
         html_body += '<input autocomplete="off" style="border:none" type="text" name="" id="notes_pr' + i + '" data-id="' + i + '" class="form-control form-control-sm shadow-none p-1 notes_pr" value="">'
         html_body += '</td>'
 
+        // ACTION DELETE
+        html_body += '<td class="text-center">'
+        html_body += '<button type="button" class="btn text-danger btn-sm p-0 small-text shadow-none" onclick="deleteRowPR(' + i + ')"><i class="fa fa-trash"></i></button>'
+        html_body += '</td>'
+
         html_body += '</tr>'
         $('#bodyPR').append(html_body)
         $('#item_pr' + i).select2({
@@ -458,6 +540,10 @@
         $('#unit_price_pr' + i).number(true, 2);
         $('#extended_price_pr' + i).number(true, 2);
         return true;
+    }
+
+    function deleteRowPR(i) {
+        $('#fieldPRRow' + i).remove()
     }
 
     function addUnitField(key) {

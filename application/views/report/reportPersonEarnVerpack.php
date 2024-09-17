@@ -618,16 +618,24 @@
 
     function simpanData() {
         // ----------------------------------------- //
-        var type = 'GET'
-        var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('getReportResultPersonEarnStep'); ?>'
-        var data = {
-            dateStart: date_start,
-            dateEnd: date_end,
-            machineId: machineId,
-            dataProfile: dataProfile,
+        if (dataProfile) {
+            var type = 'GET'
+            var button = '.btnSimpan'
+            var url = '<?php echo api_produksi('getReportResultPersonEarnStep'); ?>'
+            var data = {
+                dateStart: date_start,
+                dateEnd: date_end,
+                machineId: machineId,
+                dataProfile: dataProfile,
+            }
+            kelolaData(data, type, url, button)
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Pencarian belum terisi lengkap',
+                text: 'Cek Pengisian Data Pencarian Terlebih Dahulu',
+            });
         }
-        kelolaData(data, type, url, button)
     }
 
     function kelolaData(data, type, url, button) {
