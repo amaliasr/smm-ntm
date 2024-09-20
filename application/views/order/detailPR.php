@@ -1,4 +1,9 @@
 <link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
+<style>
+    .border-grey {
+        border: 1px solid #c1c1c1;
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark">
@@ -72,6 +77,29 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
+    function detectFileType(files) {
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+        const pdfExtension = ['pdf'];
+
+        let result = {
+            images: [],
+            pdfs: []
+        };
+
+        files.forEach(file => {
+            // Ambil ekstensi file setelah titik terakhir
+            let extension = file.split('.').pop().toLowerCase();
+
+            if (imageExtensions.includes(extension)) {
+                result.images.push(file);
+            } else if (pdfExtension.includes(extension)) {
+                result.pdfs.push(file);
+            }
+        });
+
+        return result;
+    }
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -98,6 +126,7 @@
     var data_item = ""
     var no_pr = ""
     var last_number = 1
+    var linkImage = ''
     $(document).ready(function() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getUser'); ?>",
@@ -143,7 +172,7 @@
         phone_next = []
         name_next = []
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getDataPR'); ?>",
+            url: "<?= api_url('Api_Warehouse/getDataPR2'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
@@ -158,6 +187,7 @@
                 if (response['data']) {
                     data_pr = response['data'][0]
                     data_pr_approval = response['data_approval']
+                    linkImage = response.folder.attachments
                     // if (data_pr['state'] != 'APPROVED') {
                     // approval
                     var ttd_pending = ""
@@ -166,12 +196,12 @@
                     for (let k = 0; k < data_pr_approval.length; k++) {
                         for (let i = 0; i < data_pr_approval[k].length; i++) {
                             for (let j = 0; j < data_pr_approval[k][i].length; j++) {
-                                ttd_all.push(JSON.parse(data_pr_approval[k][i][j]['data_approval'])[0])
+                                ttd_all.push((data_pr_approval[k][i][j]['data_approval'])[0])
                                 if (data_pr['state'] == 'APPROVED') {
-                                    ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval'])
+                                    ttd_pending = (data_pr_approval[k][i][j]['data_approval'])
                                 } else {
-                                    ttd_pending = JSON.parse(data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
-                                        if (value.is_accept === 'Pending') return true
+                                    ttd_pending = (data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
+                                        if (value.is_accept == 'Pending') return true
                                     })
                                 }
                                 if (ttd_pending.length > 0) {
@@ -292,7 +322,7 @@
         html += '<th class="text-center align-middle small-text">Price<br>(Rp)</th>'
         html += '<th class="text-center align-middle small-text">Ext. Price<br>(Rp)</th>'
         html += '</tr>'
-        $.each(JSON.parse(data_pr['data_detail']), function(keys, values) {
+        $.each((data_pr['data_detail']), function(keys, values) {
             html += '<tr>'
             html += '<td class="text-center align-middle small-text">' + last_number + '</td>'
             html += '<td class="small-text align-middle">' + values['item_name'] + '</td>'
@@ -317,6 +347,35 @@
         html += '</div>'
         // item list
         html += '</div>'
+        // attachment
+        html += '<div class="mt-3">'
+        html += '<b class="m-0 small-text"><i class="fa fa-paperclip me-2"></i>Attachment</b>'
+        html += '<div class="row">'
+        // badge rounded
+        if (data_pr.attachments) {
+            var file = detectFileType(data_pr.attachments)
+        } else {
+            var file = {
+                images: [],
+                pdfs: []
+            }
+        }
+        html += '<div class="col-auto">'
+        if (file.images) {
+            $.each(file.images, function(key, value) {
+                html += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1"><i class="fa fa-image me-2"></i>Image ' + (key + 1) + '</span>'
+            })
+        }
+        if (file.pdfs) {
+            $.each(file.pdfs, function(key, value) {
+                html += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1"><i class="fa fa-file-pdf-o me-2"></i>File PDF ' + (key + 1) + '</span>'
+            })
+        }
+        html += '</div>'
+        // badge rounded
+        html += '</div>'
+        html += '</div>'
+        // attachment
         html += '<div class="mt-3">'
         if (isCanApprove) {
             html += '<button class="btn btn-primary w-100 p-3 rounded-pill small-text" onclick="approvalForm(' + "'" + data_pr['no_pr'] + "'" + ',' + data_pr['id'] + ')">Approval</button>'

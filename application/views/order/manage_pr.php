@@ -186,6 +186,7 @@
     // var date_start = '2022-01-01'
     var date_start = getFirstDate()
     var date_end = currentDate()
+    var linkImage = ''
     var statusLineVariable = [{
             id: 0,
             name: 'All Data',
@@ -298,6 +299,7 @@
                 //     if (v.date <= date_end && v.date >= date_start) return true
                 // })
                 data_pr_approval = response['data_approval']
+                linkImage = response.folder.attachments
                 statusLine()
             }
         })
@@ -479,6 +481,7 @@
         html += '<th class="align-middle small" style="background-color: white;">PO</th>'
         html += '<th class="align-middle small" style="background-color: white;">Price (Rp)</th>'
         html += '<th class="align-middle small" style="background-color: white;">Notes</th>'
+        html += '<th class="align-middle small" style="background-color: white;">Extras</th>'
         html += '<th class="align-middle small" style="background-color: white;"></th>'
         html += '</tr>'
         $('#headTable').html(html)
@@ -603,6 +606,13 @@
             if (values['justification'] != "" && values['justification'] != null) {
                 html += values['justification']
             }
+            html += '</td>'
+            html += '<td class="' + bgRow + ' text-center small-text align-middle py-2" style="background-color: white;">'
+            // attachment
+            if (values['attachments']) {
+                html += '<i class="fa fa-paperclip pointer text-grey fa-2x"></i>'
+            }
+            // attachment
             html += '</td>'
             html += '<td class="' + bgRow + ' text-center small-text align-middle py-2" style="background-color: white;">'
             if (divisi_id != 10) {
@@ -1649,5 +1659,21 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+
+    function seeAttachment() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-md modal-dialog-centered');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Attachment</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+
+        var html_body = '';
+        $('#modalBody').html(html_body);
+
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer);
     }
 </script>

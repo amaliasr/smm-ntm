@@ -197,6 +197,7 @@
         clearModal();
         clicked_cost_center = ''
         item_id_choosen = []
+        attachments = []
     })
     var pr_id = '<?= $id ?>'
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -211,6 +212,7 @@
     var date_end = currentDate()
     var clicked_cost_center = ''
     var item_id_choosen = []
+    var attachments = []
     $(document).ready(function() {
         loadUser()
     })
@@ -500,10 +502,10 @@
             dictDefaultMessage: "Geser Dokumen atau Klik untuk Mengunggah", // Pesan default
             thumbnailWidth: 100, // Lebar thumbnail
             thumbnailHeight: 100, // Tinggi thumbnail
-            autoProcessQueue: false,
+            autoProcessQueue: true,
             success: function(file, response) {
-                console.log(file, response)
-                console.log("File uploaded successfully!");
+                // console.log(file, response)
+                // console.log("File uploaded successfully!");
             },
             error: function(file, response) {
                 console.log("File upload failed!");
@@ -520,24 +522,32 @@
                             success: (compressedFile) => {
                                 compressedFile.processed = true;
                                 compressedFile.name = getNewFileName(compressedFile.name);
+                                attachments.push(compressedFile.name);
                                 this.removeFile(file);
                                 this.addFile(compressedFile);
-                                this.processQueue();
+                                // this.processQueue();
                             },
                             error(err) {
                                 console.error("Image compression error:", err.message);
                             }
                         });
-                    } else if (file.type === "application/pdf") {
-                        const compressedFile = await compressPDF(file);
-                        compressedFile.processed = true;
-                        compressedFile.name = getNewFileName(compressedFile.name);
-                        this.removeFile(file);
-                        this.addFile(compressedFile);
-                        this.processQueue();
+                    } else if (file.type == "application/pdf") {
+                        // var compressedFile = await compressPDF(file);
+                        // compressedFile.processed = true;
+                        // compressedFile.name = getNewFileName(compressedFile.name);
+                        // this.removeFile(file);
+                        // this.addFile(compressedFile);
+                        // this.processQueue();
+                        // attachments.push(compressedFile.name);
+                        // Tidak perlu kompres PDF, langsung diproses
+                        file.processed = true;
+                        // this.addFile(file);
+                        // this.processQueue();
+                        attachments.push(file.name);
+                        console.log(attachments)
                     } else {
                         file.processed = true;
-                        this.processQueue();
+                        // this.processQueue();
                     }
                 });
                 // On sending the file, append additional parameters
@@ -550,7 +560,6 @@
                     formData.append("fileName", newFileName); // New file name
                 });
                 this.on("removedfile", function(file) {
-                    console.log(file)
                     // Send delete request to the server
                     var fileName = file.name; // Assuming file.dataURL holds the file path or identifier
 
@@ -565,25 +574,25 @@
                         success: function(response) {
                             var jsonResponse = response
                             if (jsonResponse.success) {
-                                console.log("File deleted from server");
+                                // remove name from attachments array
+                                attachments = attachments.filter(function(name) {
+                                    return name != fileName;
+                                })
+                                console.log(attachments)
+                                // console.log("File deleted from server");
                             } else {
                                 console.log("File deletion failed:", jsonResponse.message);
+                                // myDropzone.emit("addedfile", file); // Menambahkan file kembali ke Dropzone
+                                // myDropzone.emit("complete", file);
                             }
                         },
                         error: function(xhr, status, error) {
                             console.error("Error deleting file:", error);
+                            // myDropzone.emit("addedfile", file); // Menambahkan file kembali ke Dropzone
+                            // myDropzone.emit("complete", file);
                         }
                     });
                 });
-                // // On success, log the response or handle it accordingly
-                // this.on("success", function(file, response) {
-                //     console.log("File uploaded successfully:", response);
-                // });
-
-                // // On error, log the error response
-                // this.on("error", function(file, errorMessage) {
-                //     console.error("File upload failed:", errorMessage);
-                // });
             }
         });
     }
@@ -830,9 +839,11 @@
             // category: $('#category').val(),
             job_level_id: job_level_id,
             cost_center_id: idCostCenter,
+            attachments: attachments,
         }
         var button = '#btnSimpanPR'
         var url = '<?php echo api_url('Api_Warehouse/insertPR'); ?>'
+        // console.log(data)
         kelolaData(data, type, url, button)
     }
 
@@ -968,7 +979,13 @@
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader3').html(html_header);
         var html_body = '';
+        html_body += '<div class="row">'
+        //filter
+        html_body += '<div class="col-12 mb-2" id="filterItem">'
+        html_body += '</div>'
+        //filter
         // tabel
+        html_body += '<div class="col-12">'
         html_body += '<div class="table-responsive">'
         html_body += '<table class="table table-sm table-bordered table-hover" id="tableData2" width="100%">'
         html_body += '<thead>'
@@ -984,7 +1001,9 @@
         html_body += '</tbody>'
         html_body += '</table>'
         html_body += '</div>'
+        html_body += '</div>'
         // tabel
+        html_body += '</div>'
         $('#modalBody3').html(html_body);
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
@@ -993,13 +1012,72 @@
     }
 
     function filterLihatSemuaData() {
-        bodyLihatSemuaData()
+        var html = ''
+        html += '<div class="row">'
+        // select
+        html += '<div class="col-4">'
+        html += '<select id="selectTipeDataItem" class="form-select form-select-sm" onchange="doFilterLihatSemuaData()">'
+        html += '<option value="0" selected>Semua Data</option>'
+        html += '<option value="1">Sesuai Dengan Cost Center</option>'
+        html += '<option value="2">Tidak Sesuai Dengan Cost Center</option>'
+        html += '</select>'
+        html += '</div>'
+        // select
+        // pencarian
+        html += '<div class="col-8 ps-0">'
+        html += '<input type="text" class="form-control form-control-sm" id="searchItem" placeholder="Cari Item" onkeyup="doFilterLihatSemuaData()">'
+        html += '</div>'
+        // pencarian
+        html += '</div>'
+        $('#filterItem').html(html)
+        doFilterLihatSemuaData()
     }
 
-    function bodyLihatSemuaData() {
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function doFilterLihatSemuaData() {
+        var filter = $('#selectTipeDataItem').val()
+        var data = []
+        if (filter == 0) {
+            data = deepCopy(data_item)
+        } else if (filter == 1) {
+            data = deepCopy(data_item)
+            data = data.filter((value, key) => {
+                if (value.cost_center_ids) {
+                    if (value.cost_center_ids.includes(clicked_cost_center)) {
+                        return true
+                    }
+                }
+            })
+        } else if (filter == 2) {
+            data = deepCopy(data_item)
+            data = data.filter((value, key) => {
+                if (value.cost_center_ids) {
+                    if (!value.cost_center_ids.includes(clicked_cost_center)) {
+                        return true
+                    }
+                } else {
+                    return true
+                }
+            })
+        }
+        var dataCari = $('#searchItem').val()
+        if (dataCari) {
+            data = data.filter((value, key) => {
+                if (value.name.toLowerCase().includes(dataCari.toLowerCase())) {
+                    return true
+                }
+            })
+        }
+        bodyLihatSemuaData(data)
+    }
+
+    function bodyLihatSemuaData(data) {
         var html = ''
         var a = 1
-        data_item.forEach(e => {
+        data.forEach(e => {
             var check = ''
             if (e.cost_center_ids) {
                 e.cost_center_ids.forEach(key => {
