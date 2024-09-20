@@ -13,10 +13,10 @@
 
     .dropzone {
         min-height: 0px !important;
-        border: 1px dashed rgba(0, 0, 0, .3);
+        border: 3px dashed #e5e5e5;
         background: #fff;
         padding: 5px;
-        border-radius: 2px;
+        border-radius: 5px;
     }
 
     .dropzone,
@@ -49,6 +49,10 @@
         /* Menjaga rasio gambar sesuai kontainer */
         object-fit: cover;
         /* Menjaga proporsi gambar agar tetap pas */
+    }
+
+    .dropzone:hover {
+        background-color: #f4f4f4;
     }
 </style>
 <main>
@@ -111,6 +115,22 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="modal3" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document" id="modalDialog3">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader3">
+
+            </div>
+            <div class="modal-body" id="modalBody3">
+
+            </div>
+            <div class="modal-footer" id="modalFooter3">
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
@@ -123,6 +143,8 @@
 <script type="text/javascript" src="<?= base_url() ?>assets/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/compressorjs@1.1.1/dist/compressor.min.js"></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
@@ -173,6 +195,8 @@
         data_checked = ""
         id_po_detail = []
         clearModal();
+        clicked_cost_center = ''
+        item_id_choosen = []
     })
     var pr_id = '<?= $id ?>'
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -185,6 +209,8 @@
     var no_pr = ""
     var date_start = currentDate()
     var date_end = currentDate()
+    var clicked_cost_center = ''
+    var item_id_choosen = []
     $(document).ready(function() {
         loadUser()
     })
@@ -237,6 +263,7 @@
             success: function(response) {
                 showOverlay('hide')
                 data_item = response['data']['item'];
+                clicked_cost_center = idCostCenter
                 numberinPR(idCostCenter, nameCostCenter)
             }
         })
@@ -342,8 +369,6 @@
         })
     }
 
-
-
     function costCenterList() {
         var html = ''
         data_cost_center.costCenter.forEach(e => {
@@ -425,16 +450,17 @@
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-6 mt-1">'
-        html_body += '<small class="fw-bolder">Justification</small>'
-        html_body += '<textarea class="form-control form-control-sm w-100" rows="5" id="justification" placeholder="Tuliskan Justification bila perlu"></textarea>'
+        html_body += '<small class="fw-bolder mb-2">Justification</small>'
+        html_body += '<textarea class="form-control form-control-sm w-100 p-3" rows="5" id="justification" placeholder="Tuliskan Justification bila perlu"></textarea>'
         html_body += '</div>'
         html_body += '<div class="col-12 col-md-6 mt-1">'
-        html_body += '<small class="fw-bolder">Upload Lampiran</small>'
+        html_body += '<small class="fw-bolder mb-2">Upload Lampiran</small>'
 
         // upload image
         html_body += '<div id="my-dropzone" class="dropzone text-center">'
         html_body += '<div class="dz-message">'
-        html_body += '<p class="m-0 small-text"><i class="fa fa-file-text-o me-2"></i>Geser Dokumen atau Klik untuk Mengunggah</p>'
+        html_body += '<img class="mb-2" style="width: 40px;" src="<?= base_url() ?>assets/image/svg/upload.svg" alt="Icon" />'
+        html_body += '<p class="m-0 small-text"><i>Geser Dokumen atau Klik untuk Mengunggah</i></p>'
         html_body += '</div>'
         html_body += '</div>'
         // upload image
@@ -446,24 +472,9 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
-        var myDropzone = new Dropzone("#my-dropzone", {
-            url: "<?= base_url() . "upload" ?>", // Endpoint untuk menerima file
-            paramName: "file", // Nama parameter untuk file yang diunggah (default: "file")
-            maxFilesize: 2, // Batas ukuran file dalam MB
-            acceptedFiles: "image/*,.pdf", // Jenis file yang diterima
-            clickable: "#my-dropzone", // Membuat area div menjadi clickable
-            addRemoveLinks: true, // Menambahkan tombol hapus pada file yang diunggah
-            dictDefaultMessage: "Geser Dokumen atau Klik untuk Mengunggah", // Pesan default
-            thumbnailWidth: 100, // Lebar thumbnail
-            thumbnailHeight: 100, // Tinggi thumbnail
-            success: function(file, response) {
-                console.log(file)
-                console.log("File uploaded successfully!");
-            },
-            error: function(file, response) {
-                console.log("File upload failed!");
-            }
-        });
+        // Initialize Dropzone for file upload
+        initDropzone();
+
         var html_footer = '';
         var total = 0
         html_footer += '<div class="me-auto fw-bold">Total : Rp. <span id="totalPR">' + number_format(total) + '</span></div>'
@@ -477,7 +488,149 @@
         }
     }
 
-    function formRowPR(i) {
+    function initDropzone() {
+        var myDropzone = new Dropzone("#my-dropzone", {
+            url: "<?= api_url('doUpload'); ?>", // Endpoint untuk menerima file
+            paramName: "image", // Nama parameter untuk file yang diunggah (default: "file")
+            maxFilesize: 10, // Maximum file size in MB
+            acceptedFiles: "image/*,.pdf", // Jenis file yang diterima
+            method: "post", // HTTP method
+            clickable: "#my-dropzone", // Membuat area div menjadi clickable
+            addRemoveLinks: true, // Menambahkan tombol hapus pada file yang diunggah
+            dictDefaultMessage: "Geser Dokumen atau Klik untuk Mengunggah", // Pesan default
+            thumbnailWidth: 100, // Lebar thumbnail
+            thumbnailHeight: 100, // Tinggi thumbnail
+            autoProcessQueue: false,
+            success: function(file, response) {
+                console.log(file, response)
+                console.log("File uploaded successfully!");
+            },
+            error: function(file, response) {
+                console.log("File upload failed!");
+            },
+            init: function() {
+                this.on("addedfile", async function(file) {
+                    if (file.processed) return;
+
+                    if (file.type.startsWith("image/")) {
+                        new Compressor(file, {
+                            quality: 0.8, // Adjust the quality as needed
+                            maxWidth: 1200, // Maximum width in pixels
+                            maxHeight: 1200, // Maximum height in pixels
+                            success: (compressedFile) => {
+                                compressedFile.processed = true;
+                                compressedFile.name = getNewFileName(compressedFile.name);
+                                this.removeFile(file);
+                                this.addFile(compressedFile);
+                                this.processQueue();
+                            },
+                            error(err) {
+                                console.error("Image compression error:", err.message);
+                            }
+                        });
+                    } else if (file.type === "application/pdf") {
+                        const compressedFile = await compressPDF(file);
+                        compressedFile.processed = true;
+                        compressedFile.name = getNewFileName(compressedFile.name);
+                        this.removeFile(file);
+                        this.addFile(compressedFile);
+                        this.processQueue();
+                    } else {
+                        file.processed = true;
+                        this.processQueue();
+                    }
+                });
+                // On sending the file, append additional parameters
+                this.on("sending", function(file, xhr, formData) {
+                    /// Rename the file before sending it
+                    var datetime = getFormattedDateTime();
+                    var fileExtension = file.name.split('.').pop(); // Get file extension
+                    var newFileName = "file_" + datetime + "." + fileExtension;
+                    formData.append("folder", "pr"); // Custom folder parameter
+                    formData.append("fileName", newFileName); // New file name
+                });
+                this.on("removedfile", function(file) {
+                    console.log(file)
+                    // Send delete request to the server
+                    var fileName = file.name; // Assuming file.dataURL holds the file path or identifier
+
+                    // Example for sending the delete request
+                    $.ajax({
+                        url: "<?= api_url('doDelete'); ?>", // Endpoint for file deletion
+                        type: "POST",
+                        data: {
+                            fileName: fileName,
+                            folder: "pr"
+                        },
+                        success: function(response) {
+                            var jsonResponse = response
+                            if (jsonResponse.success) {
+                                console.log("File deleted from server");
+                            } else {
+                                console.log("File deletion failed:", jsonResponse.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error deleting file:", error);
+                        }
+                    });
+                });
+                // // On success, log the response or handle it accordingly
+                // this.on("success", function(file, response) {
+                //     console.log("File uploaded successfully:", response);
+                // });
+
+                // // On error, log the error response
+                // this.on("error", function(file, errorMessage) {
+                //     console.error("File upload failed:", errorMessage);
+                // });
+            }
+        });
+    }
+    async function compressPDF(file) {
+        try {
+            // Read the file as an ArrayBuffer
+            const pdfBytes = await file.arrayBuffer();
+
+            // Load the PDF
+            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+
+            // Optimize by saving the PDF with minimal features
+            const compressedPdfBytes = await pdfDoc.save({
+                useObjectStreams: false, // Disables object streams to reduce file size
+                // You can also explore other options like `usePDFx` for specific needs
+            });
+
+            // Create a new File object with compressed content
+            return new File([compressedPdfBytes], file.name, {
+                type: 'application/pdf'
+            });
+        } catch (error) {
+            console.error("PDF compression error:", error.message);
+            return file; // Return the original file if compression fails
+        }
+    }
+
+    function getNewFileName(originalName) {
+        var datetime = getFormattedDateTime();
+        var fileExtension = originalName.split('.').pop(); // Get file extension
+        return "file_" + datetime + "." + fileExtension;
+    }
+    // Function to get the current date and time in a specific format
+    function getFormattedDateTime() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = (now.getMonth() + 1).toString().padStart(2, '0');
+        var day = now.getDate().toString().padStart(2, '0');
+        var hours = now.getHours().toString().padStart(2, '0');
+        var minutes = now.getMinutes().toString().padStart(2, '0');
+        var seconds = now.getSeconds().toString().padStart(2, '0');
+        var milliseconds = now.getMilliseconds().toString().padStart(3, '0');
+
+        return year + month + day + "_" + hours + minutes + seconds + "_" + milliseconds;
+    }
+
+    function formRowPR(i, item_id = '') {
         var html_body = ""
         html_body += '<tr id="fieldPRRow' + i + '">'
         // no
@@ -488,7 +641,11 @@
         html_body += '<select style="border:none" name="" id="item_pr' + i + '" class="form-control form-control-sm selectpicker item_pr" data-id="' + i + '">'
         html_body += '<option value="" selected disabled> </option>'
         $.each(data_item, function(keys, values) {
-            html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+            if (values.cost_center_ids) {
+                if (values.cost_center_ids.includes(clicked_cost_center)) {
+                    html_body += '<option value="' + values['id'] + '">' + values['name'] + '</option>'
+                }
+            }
         })
         html_body += '</select>'
         html_body += '</td>'
@@ -531,6 +688,7 @@
             closeOnSelect: true,
             dropdownParent: $('#modal'),
             width: '100%',
+            dropdownCssClass: 'custom-dropdown border-top'
         })
         $('#unit_pr' + i).select2({
             closeOnSelect: true,
@@ -539,10 +697,28 @@
         })
         $('#unit_price_pr' + i).number(true, 2);
         $('#extended_price_pr' + i).number(true, 2);
+        $('#item_pr' + i).on('select2:open', function() {
+            if (!$('.add-button').length) {
+                $('.select2-dropdown').append('<button class="btn btn-sm small-text shadow-none rounded-0 border-top add-button py-2" style="width: 100%;" onclick="lihatSemuaData()">Lihat Semua Data</button>');
+            }
+        });
+        // var select = ''
+        // if (item_id) {
+        //     if (item_id == values.id) {
+        //         select = 'selected'
+        //     } else {
+        //         select = ''
+        //     }
+        // }
+        if (item_id) {
+            $('#item_pr' + i).val(item_id).trigger('change')
+        }
         return true;
     }
 
     function deleteRowPR(i) {
+        var item_id = $('#item_pr' + i).val()
+        doRemoveData(item_id)
         $('#fieldPRRow' + i).remove()
     }
 
@@ -577,6 +753,7 @@
         if (satuan_tetap.price) {
             $('#unit_price_pr' + key).val(satuan_tetap.price)
         }
+        insertAllItemId()
         typingNominalPR($(this).data('id'))
     })
     $(document).on('click', '#btnNewRowPR', function(e) {
@@ -776,5 +953,129 @@
         $('#modalBody2').html(html_body);
         // var html_footer = '';
         $('#modalFooter2').addClass('d-none');
+    }
+    $(document).on('show.bs.modal', '.modal', function() {
+        const zIndex = 1040 + 10 * $('.modal:visible').length;
+        $(this).css('z-index', zIndex);
+        setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
+    });
+
+    function lihatSemuaData() {
+        $('#modal3').modal('show')
+        $('#modalDialog3').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Item List</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader3').html(html_header);
+        var html_body = '';
+        // tabel
+        html_body += '<div class="table-responsive">'
+        html_body += '<table class="table table-sm table-bordered table-hover" id="tableData2" width="100%">'
+        html_body += '<thead>'
+        html_body += '<tr>'
+        html_body += '<th class="small-text align-middle">No</th>'
+        html_body += '<th class="small-text align-middle">Name</th>'
+        html_body += '<th class="small-text align-middle">Alias</th>'
+        html_body += '<th class="small-text align-middle">Type</th>'
+        html_body += '<th class="small-text align-middle">Is Match?</th>'
+        html_body += '</tr>'
+        html_body += '</thead>'
+        html_body += '<tbody id="bodyItem">'
+        html_body += '</tbody>'
+        html_body += '</table>'
+        html_body += '</div>'
+        // tabel
+        $('#modalBody3').html(html_body);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter3').html(html_footer)
+        filterLihatSemuaData()
+    }
+
+    function filterLihatSemuaData() {
+        bodyLihatSemuaData()
+    }
+
+    function bodyLihatSemuaData() {
+        var html = ''
+        var a = 1
+        data_item.forEach(e => {
+            var check = ''
+            if (e.cost_center_ids) {
+                e.cost_center_ids.forEach(key => {
+                    if (key == clicked_cost_center) {
+                        check = '<i class="fa fa-check-circle text-success"></i>'
+                    }
+                });
+            }
+            if (check) {
+                var color = ''
+                html += '<tr class="pointer" onclick="chooseItemMultiple(' + e.id + ')" id="itemMultiple' + e.id + '">'
+            } else {
+                var color = 'bg-light text-grey'
+                html += '<tr>'
+            }
+            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center">' + a++ + '</td>'
+            if (!e.item_alias) {
+                e.item_alias = ''
+            }
+            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.name + '</td>'
+            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.item_alias + '</td>'
+            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.type_name + '</td>'
+            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center">'
+            html += check
+            html += '</td>'
+            html += '</tr>'
+        });
+        $('#bodyItem').html(html)
+        item_id_choosen.forEach(e => {
+            coloringItemList(e)
+        });
+    }
+
+    function insertAllItemId() {
+        // insert item_id from .item_pr into item_id_choosen
+        item_id_choosen = []
+        $('.item_pr').each(function() {
+            var item_id = $(this).val()
+            item_id_choosen.push(parseInt(item_id))
+        });
+    }
+
+    function chooseItemMultiple(item_id) {
+        var check = item_id_choosen.includes(item_id)
+        if (check) {
+            doRemoveData(item_id)
+        } else {
+            item_id_choosen.push(item_id)
+        }
+        coloringItemList(item_id)
+    }
+
+    function coloringItemList(item_id) {
+        if (item_id_choosen.includes(item_id)) {
+            // coloring all class rowItem at id itemMultiple
+            $('.rowItem' + item_id).addClass('bg-success-light fw-bolder')
+        } else {
+            // coloring all class rowItem at id itemMultiple
+            $('.rowItem' + item_id).removeClass('bg-success-light fw-bolder')
+        }
+        addToFormItem()
+    }
+
+    function doRemoveData(item_id) {
+        item_id_choosen = removeData(item_id_choosen, item_id)
+    }
+
+    function removeData(data, value) {
+        return data.filter((val) => val != value);
+    }
+
+    function addToFormItem() {
+        last_number = 1
+        $('#bodyPR').html('')
+        item_id_choosen.forEach(e => {
+            formRowPR(last_number++, e)
+        });
     }
 </script>

@@ -4,8 +4,15 @@
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
+<style>
+    .dropdown-menu .show {
+        width: 700px;
+    }
 
-
+    .dropdown-menu .inner .show {
+        min-width: 700px !important;
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
@@ -31,7 +38,7 @@
                             </div>
                             <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Item</p>
-                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItem" title="Pilih Mesin" onchange="arrangeVariable()">
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItem" title="Pilih Item" onchange="arrangeVariable()">
                                 </select>
                             </div>
                             <div class="col-auto d-flex align-items-end">
@@ -367,7 +374,7 @@
         data_item.forEach(e => {
             var select = ''
             select = 'selected'
-            html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
+            html += '<option value="' + e.id + '" ' + select + '>' + shortenText(e.name, 80) + '</option>'
         });
         $('#selectItem').html(html)
         $('#selectItem').selectpicker('refresh');

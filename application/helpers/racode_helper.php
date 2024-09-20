@@ -220,7 +220,7 @@ function job_kepala_operator()
     // MEGA
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 147 || $job_title_id == 186) {
+    if ($job_title_id == 147 || $job_title_id == 186 || $job_title_id == 226) {
         return true;
     } else {
         return false;
