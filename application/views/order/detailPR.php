@@ -1,4 +1,5 @@
 <link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
 <style>
     .border-grey {
         border: 1px solid #c1c1c1;
@@ -75,6 +76,7 @@
 <!-- Chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 <script src="<?= base_url(); ?>assets/smm/format.js"></script>
 <script>
     function detectFileType(files) {
@@ -120,7 +122,8 @@
     });
     // var user_id = 143
     // var user_id = 118
-    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var user_id = '<?= $this->session->userdata('id') ?>'
+    var employee_id = '<?= $this->session->userdata('employee_id') ?>'
     var id_pr = '<?= $id ?>'
     var data_user = ""
     var data_item = ""
@@ -193,70 +196,95 @@
                     var ttd_pending = ""
                     var pending = []
                     var ttd_all = []
-                    for (let k = 0; k < data_pr_approval.length; k++) {
-                        for (let i = 0; i < data_pr_approval[k].length; i++) {
-                            for (let j = 0; j < data_pr_approval[k][i].length; j++) {
-                                ttd_all.push((data_pr_approval[k][i][j]['data_approval'])[0])
-                                if (data_pr['state'] == 'APPROVED') {
-                                    ttd_pending = (data_pr_approval[k][i][j]['data_approval'])
-                                } else {
-                                    ttd_pending = (data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
-                                        if (value.is_accept == 'Pending') return true
-                                    })
-                                }
-                                if (ttd_pending.length > 0) {
-                                    pending.push({
-                                        'approval': ttd_pending[0],
-                                        'keys': i,
-                                    })
-                                }
+                    // code baru
+                    $.each(data_pr.data_approval2, function(k, v) {
+                        v.forEach(e => {
+                            ttd_all.push(e)
+                        });
+                        if (data_pr['state'] == 'APPROVED') {
+                            ttd_pending = v
+                        } else {
+                            ttd_pending = v.filter((value, key) => {
+                                if (value.is_accept == 'Pending') return true
+                            })
+                        }
+                        if (ttd_pending.length) {
+                            for (let i = 0; i < ttd_pending.length; i++) {
+                                pending.push({
+                                    'approval': ttd_pending[i],
+                                    'keys': k,
+                                })
                             }
                         }
-                    }
-                    // console.log(ttd_all)
-                    var key = pending[0]['keys']
-                    var loop = []
-                    $.each(pending, function(keys, values) {
-                        if (values['keys'] == key) {
-                            loop.push(values['approval'])
-                        }
-                    })
-                    // BUAT NEXT WHATSAPP
-                    key_next = parseInt(key) + 1
-                    loop_next = []
-                    phone_next = []
-                    name_next = []
-                    $.each(pending, function(keys, values) {
-                        if (values['keys'] == key_next) {
-                            loop_next.push(values['approval'])
-                        }
-                    })
-                    $.each(loop_next, function(keys, values) {
-                        phone_next.push(values['phone'])
-                        name_next.push(values['user_name'])
-                    })
-                    // console.log(loop_next)
-                    // BUAT NEXT WHATSAPP
+                    });
+                    // code baru
+                    // for (let k = 0; k < data_pr_approval.length; k++) {
+                    //     for (let i = 0; i < data_pr_approval[k].length; i++) {
+                    //         for (let j = 0; j < data_pr_approval[k][i].length; j++) {
+                    //             ttd_all.push((data_pr_approval[k][i][j]['data_approval'])[0])
+                    //             if (data_pr['state'] == 'APPROVED') {
+                    //                 ttd_pending = (data_pr_approval[k][i][j]['data_approval'])
+                    //             } else {
+                    //                 ttd_pending = (data_pr_approval[k][i][j]['data_approval']).filter((value, key) => {
+                    //                     if (value.is_accept == 'Pending') return true
+                    //                 })
+                    //             }
+                    //             if (ttd_pending.length > 0) {
+                    //                 pending.push({
+                    //                     'approval': ttd_pending[0],
+                    //                     'keys': i,
+                    //                 })
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                    if (pending.length) {
+                        var key = pending[0]['keys']
+                        var loop = []
+                        $.each(pending, function(keys, values) {
+                            if (values['keys'] == key) {
+                                loop.push(values['approval'])
+                            }
+                        })
+                        // BUAT NEXT WHATSAPP
+                        key_next = parseInt(key) + 1
+                        loop_next = []
+                        phone_next = []
+                        name_next = []
+                        $.each(pending, function(keys, values) {
+                            if (values['keys'] == key_next) {
+                                loop_next.push(values['approval'])
+                            }
+                        })
+                        $.each(loop_next, function(keys, values) {
+                            phone_next.push(values['phone'])
+                            name_next.push(values['user_name'])
+                        })
+                        // console.log(loop_next)
+                        // BUAT NEXT WHATSAPP
 
-                    var data_approval = loop
-                    var ada = "tidak"
-                    $.each(data_approval, function(keys, values) {
-                        if (user_id == values['user_id']) {
-                            // console.log()
-                            if (values['is_accept'] == 'Pending') {
-                                ada = "ya"
-                                level = values['id_approval']
+                        var data_approval = loop
+                        var ada = "tidak"
+                        $.each(data_approval, function(keys, values) {
+                            if (user_id == values['user_id']) {
+                                // console.log()
+                                if (values['is_accept'] == 'Pending') {
+                                    ada = "ya"
+                                    level = values['index']
+                                }
                             }
+                        })
+                        if (data_pr['state'] == 'APPROVED') {
+                            ada = 'tidak'
                         }
-                    })
-                    if (data_pr['state'] == 'APPROVED') {
-                        ada = 'tidak'
-                    }
-                    if (ada == "tidak") {
-                        // tidak ada akses
-                        isCanApprove = false
-                    }
-                    if (data_pr['state'] == 'APPROVED') {
+                        if (ada == "tidak") {
+                            // tidak ada akses
+                            isCanApprove = false
+                        }
+                        if (data_pr['state'] == 'APPROVED') {
+                            isCanApprove = false
+                        }
+                    } else {
                         isCanApprove = false
                     }
                     // } else {
@@ -348,55 +376,63 @@
         // item list
         html += '</div>'
         // attachment
-        html += '<div class="mt-3">'
-        html += '<b class="m-0 small-text"><i class="fa fa-paperclip me-2"></i>Attachment</b>'
-        html += '<div class="row">'
-        // badge rounded
         if (data_pr.attachments) {
-            var file = detectFileType(data_pr.attachments)
-        } else {
-            var file = {
-                images: [],
-                pdfs: []
+            html += '<div class="mt-3">'
+            html += '<div class="card shadow-none">'
+            html += '<div class="card-body py-3 pt-2">'
+            html += '<b class="m-0 small-text"><i class="fa fa-paperclip me-2"></i>Attachment</b>'
+            html += '<div class="row">'
+            // badge rounded
+            if (data_pr.attachments) {
+                var file = detectFileType(data_pr.attachments)
+            } else {
+                var file = {
+                    images: [],
+                    pdfs: []
+                }
             }
+            html += '<div class="col-auto">'
+            if (file.images) {
+                $.each(file.images, function(key, value) {
+                    html += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1" href="' + linkImage + '/' + value + '" data-fancybox="images" data-caption="Image ' + key + '"><i class="fa fa-image me-2"></i>Image ' + (key + 1) + '</span>'
+                })
+            }
+            if (file.pdfs) {
+                $.each(file.pdfs, function(key, value) {
+                    html += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1" href="' + linkImage + '/' + value + '" data-fancybox="pdfs" data-caption="File PDF ' + key + '"><i class="fa fa-file-pdf-o me-2"></i>File PDF ' + (key + 1) + '</span>'
+                })
+            }
+            html += '</div>'
+            // badge rounded
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
+            html += '</div>'
         }
-        html += '<div class="col-auto">'
-        if (file.images) {
-            $.each(file.images, function(key, value) {
-                html += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1"><i class="fa fa-image me-2"></i>Image ' + (key + 1) + '</span>'
-            })
-        }
-        if (file.pdfs) {
-            $.each(file.pdfs, function(key, value) {
-                html += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1"><i class="fa fa-file-pdf-o me-2"></i>File PDF ' + (key + 1) + '</span>'
-            })
-        }
-        html += '</div>'
-        // badge rounded
-        html += '</div>'
-        html += '</div>'
         // attachment
         html += '<div class="mt-3">'
+
         if (isCanApprove) {
             html += '<button class="btn btn-primary w-100 p-3 rounded-pill small-text" onclick="approvalForm(' + "'" + data_pr['no_pr'] + "'" + ',' + data_pr['id'] + ')">Approval</button>'
         } else {
             html += '<button class="btn btn-dark-light w-100 p-3 rounded-pill small-text" disabled><i>Cant Do Approval</i></button>'
         }
+
         html += '</div>'
 
         html += '<div class="col-12 mt-3 mb-2">'
         html += '<b>Approval</b>'
         html += '<div class="row mt-2">'
-        $.each(data_approval, function(keys, values) {
+        $.each(data_pr.data_approval2, function(k, v) {
             // console.log(values)
             var success = "fa-check text-light"
             var border = ''
             var bgApproval = ''
-            if (values['is_accept'] == 'Accepted') {
+            if (v[0]['is_accept'] == 'Accepted') {
                 success = 'fa-check text-success'
                 border = 'border border-success'
                 bgApproval = 'bg-success-light'
-            } else if (values['is_accept'] == 'Rejected') {
+            } else if (v[0]['is_accept'] == 'Rejected') {
                 success = 'fa-times text-danger'
                 border = 'border border-danger'
                 bgApproval = 'bg-danger-light'
@@ -416,14 +452,14 @@
             html += '<i class="fa ' + success + ' fa-2x me-2"></i>'
             html += '</div>'
             html += '<div class="col-9 align-self-center">'
-            if (keys == 0) {
+            if (k == 0) {
                 var name = 'Checked'
             } else {
                 var name = 'Approved'
             }
             var at = ''
-            if (values['date_approval']) {
-                at = '<p class="m-0 lh-2 super-duper-small-text fw-bold">' + name + ' <span class="text-success">at ' + values['date_approval'] + '</span></p>'
+            if (v[0]['date_approval']) {
+                at = '<p class="m-0 lh-2 super-duper-small-text fw-bold">' + name + ' <span class="text-success">at ' + v[0]['date_approval'] + '</span></p>'
             } else {
                 if (data_pr['state'] == 'REJECTED' || data_pr['state'] == 'CANCEL') {
                     at = '<p class="m-0 lh-2 super-duper-small-text text-danger"><i>Cancelled</i></p>'
@@ -431,8 +467,8 @@
                     at = '<p class="m-0 lh-2 super-duper-small-text text-grey"><i>Still Waiting</i></p>'
                 }
             }
-            html += '<p class="m-0 lh-1 fw-bolder small">' + values['user_name'] + '</p>'
-            html += '<p class="m-0 lh-1 fw-bold"><span class="small-text">' + values['job_title'] + '</span></p>'
+            html += '<p class="m-0 lh-1 fw-bolder small">' + v[0]['user_name'] + '</p>'
+            html += '<p class="m-0 lh-1 fw-bold"><span class="small-text">' + v[0]['job_title'] + '</span></p>'
             html += at
             html += '</div>'
             html += '</div>'
@@ -449,6 +485,12 @@
         html += '</div>'
         html += '</div>'
         $('#tampilData').html(html);
+        Fancybox.bind('[data-fancybox="images"]', {
+            // Custom options for the first gallery
+        });
+        Fancybox.bind('[data-fancybox="pdfs"]', {
+            // Custom options for the first gallery
+        });
         tampilHeader()
     }
 
@@ -513,14 +555,14 @@
     function formAccReject() {
         var html_body = ""
         html_body += '<div class="col-12 col-md-6 mb-2">'
-        html_body += '<div class="card shadow-none btn-approval" id="btn_reject" data-status="reject">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_reject" data-status="0">'
         html_body += '<div class="card-body text-center">'
         html_body += '<span><i class="fa fa-times text-danger" id="icon_reject"></i> Reject</span>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '</div>'
         html_body += '<div class="col-12 col-md-6">'
-        html_body += '<div class="card shadow-none btn-approval" id="btn_accept" data-status="accept">'
+        html_body += '<div class="card shadow-none btn-approval" id="btn_accept" data-status="1">'
         html_body += '<div class="card-body text-center">'
         html_body += '<span><i class="fa fa-check text-success" id="icon_accept"></i> Accept</span>'
         html_body += '</div>'
@@ -547,7 +589,7 @@
         $('#btnApprove').removeAttr('disabled', true)
         var status = $(this).data('status')
         approval_status = status
-        if (status == 'accept') {
+        if (status == '1') {
             $('#btn_accept').addClass('text-white bg-success')
             $('#btn_reject').removeClass('text-white bg-danger')
             $('#icon_accept').addClass('text-white').removeClass('text-success')
@@ -565,14 +607,16 @@
     function kirimApproval(id) {
         var type = 'POST'
         var data = {
-            id_users: user_id,
-            id_pr: id,
-            status: approval_status,
-            id_approval: level,
+            employee_id: employee_id,
+            reference_name: 'public.purchase_requisition',
+            reference_id: id,
+            is_approve: approval_status,
+            index: level,
             note: $('#textReject').val()
         }
         var button = '#btnApprove'
-        var url = '<?php echo api_url('Api_Warehouse/approvePr'); ?>'
+        var url = '<?php echo api_hr('approve-request'); ?>'
+        // var url = '<?php echo api_url('Api_Warehouse/approvePr'); ?>'
         kelolaData(data, type, url, button)
     }
 

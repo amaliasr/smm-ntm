@@ -1,4 +1,5 @@
 <link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
@@ -86,7 +87,31 @@
 
 <!-- QR CODE -->
 <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 <script>
+    function detectFileType(files) {
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+        const pdfExtension = ['pdf'];
+
+        let result = {
+            images: [],
+            pdfs: []
+        };
+
+        files.forEach(file => {
+            // Ambil ekstensi file setelah titik terakhir
+            let extension = file.split('.').pop().toLowerCase();
+
+            if (imageExtensions.includes(extension)) {
+                result.images.push(file);
+            } else if (pdfExtension.includes(extension)) {
+                result.pdfs.push(file);
+            }
+        });
+
+        return result;
+    }
+
     function notFoundReturn(text, height = null) {
         if (!height) {
             height = '100%'
@@ -175,7 +200,8 @@
         last_number = 1
         clearModal();
     })
-    var user_id = '<?= $this->session->userdata('employee_id') ?>'
+    var employee_id = '<?= $this->session->userdata('employee_id') ?>'
+    var user_id = '<?= $this->session->userdata('id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var job_level_id = '<?= $this->session->userdata('job_level_id') ?>'
     var initialDivision = "<?= $this->session->userdata('alias') ?>"
@@ -275,7 +301,7 @@
             method: "GET",
             dataType: 'JSON',
             data: {
-                user_id: user_id,
+                user_id: employee_id,
                 dateStart: date_start,
                 dateEnd: date_end
             },
@@ -610,7 +636,7 @@
             html += '<td class="' + bgRow + ' text-center small-text align-middle py-2" style="background-color: white;">'
             // attachment
             if (values['attachments']) {
-                html += '<i class="fa fa-paperclip pointer text-grey fa-2x"></i>'
+                html += '<i class="fa fa-paperclip pointer text-grey"></i>'
             }
             // attachment
             html += '</td>'
@@ -634,27 +660,25 @@
                 // approval
                 var ttd_pending = ""
                 var pending = []
-                for (let k = 0; k < data_pr_approval.length; k++) {
-                    for (let i = 0; i < data_pr_approval[k].length; i++) {
-                        for (let j = 0; j < data_pr_approval[k][i].length; j++) {
-                            if (data_pr_approval[k][i][j]['reference_id'] == values['id']) {
-                                ttd_pending = data_pr_approval[k][i][j]['data_approval'].find((value, key) => {
-                                    if (value.is_accept === 'Pending') return true
-                                })
-                                if (ttd_pending != undefined) {
-                                    pending.push({
-                                        'approval': ttd_pending,
-                                        'keys': i,
-                                    })
-                                }
-                            }
+                $.each(values.data_approval2, function(k, v) {
+                    ttd_pending = v.filter((value, key) => {
+                        if (value.is_accept == 'Pending') return true
+                    })
+                    if (ttd_pending.length) {
+                        for (let i = 0; i < ttd_pending.length; i++) {
+                            pending.push({
+                                'approval': ttd_pending[i],
+                                'keys': k,
+                            })
                         }
                     }
-                }
+                });
                 // console.log(pending)
                 var link = '<?= base_url() ?>order/detailPR/' + values['id'] + ''
                 if (values['state'] != 'APPROVED' && values['state'] != 'REJECTED' && pending.length != 0 && values['state'] != 'CANCEL') {
-                    html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + '081944946015' + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
+                    // var noTelpPending = '081944946015'
+                    var noTelpPending = pending[0]['approval']['phone']
+                    html += '<a class="dropdown-item" onclick="beforeShareWhatsapp(' + values['id'] + ',' + "'" + noTelpPending + "'" + ',' + "'" + link + "'" + ',' + "'" + 'PR' + "'" + ',' + "'" + values['no_pr'] + "'" + ',' + "'" + pending[0]['approval']['user_name'] + "'" + ')"><i class="fa fa-share-alt me-2"></i> Bagikan Pengajuan</a>'
                 }
                 html += '<a class="dropdown-item" onclick="shareLink(' + "'" + link + "'" + ',0)"><i class="fa fa-link me-2"></i> Copy Link Pengajuan</a>'
                 if ((values['state_order'] == null && values['state'] != 'CANCEL' || values['is_complete'] == null || values['is_complete'] == 0)) {
@@ -992,71 +1016,86 @@
         html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-8 mt-1">'
-        html_body += '<small>Justification :</small>'
-
+        html_body += '<div class="row">'
+        // justification
+        html_body += '<div class="col-12 mb-3">'
+        html_body += '<small class="fw-bolder mb-3">Justification</small>'
         html_body += '<div class="w-100 text-wrap small fw-bold">'
         html_body += data['justification']
         html_body += '</div>'
-
         html_body += '</div>'
-        html_body += '<div class="col-12 col-md-4    mt-1">'
+        // justification
+        // attachment
+        html_body += '<div class="col-12 mb-3">'
+        html_body += '<small class="fw-bolder mb-2">Attachment </small>'
+        if (data.attachments) {
+            html_body += '<div class="mt-2">'
+            html_body += '<div class="row">'
+            // badge rounded
+            if (data.attachments) {
+                var file = detectFileType(data.attachments)
+            } else {
+                var file = {
+                    images: [],
+                    pdfs: []
+                }
+            }
+            html_body += '<div class="col-auto">'
+            if (file.images) {
+                $.each(file.images, function(key, value) {
+                    html_body += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1" href="' + linkImage + '/' + value + '" data-fancybox="images" data-caption="Image ' + key + '"><i class="fa fa-image me-2"></i>Image ' + (key + 1) + '</span>'
+                })
+            }
+            if (file.pdfs) {
+                $.each(file.pdfs, function(key, value) {
+                    html_body += '<span class="badge rounded-pill bg-light border-grey small-text px-2 py-1 text-dark-grey pointer card-hoper me-1" href="' + linkImage + '/' + value + '" data-fancybox="pdfs" data-caption="File PDF ' + key + '"><i class="fa fa-file-pdf-o me-2"></i>File PDF ' + (key + 1) + '</span>'
+                })
+            }
+            // badge rounded
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        } else {
+            html_body += '<i>Tidak Ada Lampiran</i>'
+        }
+        html_body += '</div>'
+        // attachment
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 col-md-4  mt-1">'
 
         // approval
-        var ttd_pending = ""
-        var pending = []
-        for (let k = 0; k < data_pr_approval.length; k++) {
-            for (let i = 0; i < data_pr_approval[k].length; i++) {
-                pending.push(data_pr_approval[k][i])
+        $.each(data.data_approval2, function(k, v) {
+            var success = "fa-check text-light"
+            if (v[0].is_accept == 'Accepted') {
+                success = 'fa-check text-success'
+            } else if (v[0].is_accept == 'Rejected') {
+                success = 'fa-times text-danger'
             }
-        }
-        html_body += '<small class="mb-2"><b>Approval</b></small>'
-        html_body += '<div class="row">'
-        var e = []
-        var acc_check = ""
-        for (let i = 0; i < pending.length; i++) {
-            for (let j = 0; j < pending[i].length; j++) {
-                if (data['id'] == pending[i][j]['reference_id']) {
-                    $.each(pending[i][j]['data_approval'], function(key, value) {
-                        acc_check = value['is_accept']
-                    })
-                }
-            }
-            if (pending[i][0]['reference_id'] == data['id']) {
-                var success = "fa-check text-light"
-                if (acc_check == 'Accepted') {
-                    success = 'fa-check text-success'
-                } else if (acc_check == 'Rejected') {
-                    success = 'fa-times text-danger'
-                }
 
-                html_body += '<div class="col-12 col-sm-12 m-0 p-1">'
-                html_body += '<div class="card shadow-sm m-0 w-100">'
-                html_body += '<div class="card-body p-2">'
-                html_body += '<div class="row align-self-center">'
-                html_body += '<div class="col-3">'
-                html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
-                html_body += '</div>'
-                html_body += '<div class="col-9">'
-                if (i == 0) {
-                    var name = 'Checked'
-                } else {
-                    var name = 'Approved'
-                }
-                html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
-                for (let j = 0; j < pending[i].length; j++) {
-                    if (data['id'] == pending[i][j]['reference_id']) {
-                        $.each(pending[i][j]['data_approval'], function(key, value) {
-                            html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
-                        })
-                    }
-                }
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
-                html_body += '</div>'
+            html_body += '<div class="col-12 col-sm-12 m-0 p-1">'
+            html_body += '<div class="card shadow-sm m-0 w-100">'
+            html_body += '<div class="card-body p-2">'
+            html_body += '<div class="row align-self-center">'
+            html_body += '<div class="col-3">'
+            html_body += '<i class="fa ' + success + ' fa-3x me-2"></i>'
+            html_body += '</div>'
+            html_body += '<div class="col-9">'
+            if (k == 0) {
+                var name = 'Checked'
+            } else {
+                var name = 'Approved'
             }
-        }
+            html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
+            $.each(v, function(key, value) {
+                html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
+            })
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+        })
 
 
         html_body += '</div>'
@@ -1064,7 +1103,12 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
-
+        Fancybox.bind('[data-fancybox="images"]', {
+            // Custom options for the first gallery
+        });
+        Fancybox.bind('[data-fancybox="pdfs"]', {
+            // Custom options for the first gallery
+        });
         var html_footer = '';
         var total = (data != undefined) ? data['grand_total'] : 0
 
@@ -1578,33 +1622,32 @@
             if (result.isConfirmed) {
                 var ttd_pending = ""
                 var pending = []
-                for (let k = 0; k < data_pr_approval.length; k++) {
-                    for (let i = 0; i < data_pr_approval[k].length; i++) {
-                        for (let j = 0; j < data_pr_approval[k][i].length; j++) {
-                            if (data_pr_approval[k][i][j]['reference_id'] == id) {
-                                ttd_pending = data_pr_approval[k][i][j]['data_approval'].filter((value, key) => {
-                                    if (value.is_accept === 'Pending') return true
-                                })
-                                if (ttd_pending.length > 0) {
-                                    pending.push({
-                                        'approval': ttd_pending[0],
-                                        'keys': i,
-                                    })
-                                }
-                            }
-                        }
-                    }
-                }
-                var key = pending[0]['keys']
+                var dataPR = data_pr_showed.find((values, keys) => {
+                    if (values.id == id) return true
+                })
                 var phone = []
                 var name = []
+                $.each(dataPR.data_approval2, function(k, v) {
+                    ttd_pending = v.filter((value, key) => {
+                        if (value.is_accept == 'Pending') return true
+                    })
+                    if (ttd_pending.length) {
+                        for (let i = 0; i < ttd_pending.length; i++) {
+                            pending.push({
+                                'approval': ttd_pending[i],
+                                'keys': k,
+                            })
+                        }
+                    }
+                });
+                var key = pending[0]['keys']
                 $.each(pending, function(keys, values) {
                     if (values['keys'] == key) {
                         phone.push(values['approval']['phone'])
-                        // phone.push('081944946015')
                         name.push(values['approval']['user_name'])
                     }
                 })
+                // console.log(phone)
                 shareWhatsapp(id, phone, link, status, no_doc, name)
             }
         })

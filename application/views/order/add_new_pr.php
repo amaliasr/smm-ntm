@@ -803,6 +803,9 @@
     }
 
     function simpan(idCostCenter) {
+        var dataCostCenter = data_cost_center.costCenter.find((value, key) => {
+            if (value.id == idCostCenter) return true
+        })
         var type = 'POST'
         var id_item = $('.item_pr').map(function() {
             return $(this).val();
@@ -840,9 +843,12 @@
             job_level_id: job_level_id,
             cost_center_id: idCostCenter,
             attachments: attachments,
+            department_id: dataCostCenter.department_id,
+            employee_id: user_id,
         }
         var button = '#btnSimpanPR'
-        var url = '<?php echo api_url('Api_Warehouse/insertPR'); ?>'
+        var url = '<?php echo api_url('Api_Warehouse/insertPR2'); ?>'
+        // var url = '<?php echo api_url('Api_Warehouse/insertPR'); ?>'
         // console.log(data)
         kelolaData(data, type, url, button)
     }
@@ -870,38 +876,25 @@
                         text: 'Data Berhasil Tersimpan',
                         icon: 'success',
                     }).then((responses) => {
-                        var ttd_pending = ""
+                        $(button).prop("disabled", false);
                         var pending = []
-                        var data_app = response.data_approval
-                        $.each(data_app, function(keys, values) {
-                            $.each(data_app[keys], function(keys2, values2) {
-                                ttd_pending = JSON.parse(values2['data_approval']).filter((value, key) => {
-                                    if (value.is_accept === 'Pending') return true
-                                })
-                                if (ttd_pending.length > 0) {
-                                    pending.push({
-                                        'approval': ttd_pending[0],
-                                        'keys': keys,
-                                    })
-                                }
-                            })
+                        var findApproval = response.data_approval.find((value, key) => {
+                            if (value.is_current == 1) return true
                         })
-                        // console.log(pending)
-                        var key = pending[0]['keys']
+                        if (findApproval) {
+                            pending = findApproval.data_approval
+                        }
                         var phone = []
                         var name = []
                         $.each(pending, function(keys, values) {
-                            if (values['keys'] == key) {
-                                phone.push(values['approval']['phone'])
-                                name.push(values['approval']['user_name'])
-                            }
+                            phone.push(values.phone)
+                            name.push(values.full_name)
                         })
-                        button_prpo = 'PO'
                         var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
                         $('#modal').modal('hide')
                         shareWhatsapp(response.id_pr, phone, link, 'PR', response.no_pr, name)
                         refresh()
-                        $(button).prop("disabled", false);
+
                     });
                 } else {
                     Swal.fire({

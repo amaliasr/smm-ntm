@@ -1304,6 +1304,7 @@
     }
 
     function cardListPO(id, data) {
+        // console.log(data)
         var html = ''
         if (data.invoice_doc_numbers[0] == null) {
             // jika tidak ada invoice
@@ -1330,6 +1331,12 @@
             var badgeInvoice = '<span class="badge rounded-pill bg-light-grey border border-dark-grey py-2 px-2 super-small-text text-dark-grey w-100">Barang On Going</span>'
         }
         // penerimaan barang
+        // ppn
+        var iconPPn = ''
+        if (data.ppn) {
+            iconPPn = '<span class="badge rounded-pill bg-warning text-dark super-small-text me-2 px-2 p-1 pb-0" style="padding-bottom: 1px !important;">+ PPN</span>'
+        }
+        // ppn
         html += '<div class="card shadow-none pointer card-hoper mb-2" id="cardListPO' + data.id + '" onclick="clickListPO(' + "'" + id + "'" + ',' + data.id + ')">'
         html += '<div class="card-body p-3">'
         html += '<div class="row">'
@@ -1339,7 +1346,7 @@
         html += '</div>'
 
         html += '<div class="col-5 align-self-center">'
-        html += '<p class="m-0 small fw-bolder">#<span class="text_search" data-id="' + data.id + '">' + data.no_po + '</span></p>'
+        html += '<p class="m-0 small fw-bolder">' + iconPPn + '#<span class="text_search" data-id="' + data.id + '">' + data.no_po + '</span></p>'
         html += '<p class="m-0 super-small-text text-grey-dark">' + data.supplier.name + ' ' + textNumberInvoice + '</p>'
         html += '</div>'
 
@@ -1449,14 +1456,24 @@
                     var textNumberInvoice = '<span class="fw-bold text-primary-payment ms-2"><i class="fa fa-file-text-o me-1"></i> ' + e.invoice_doc_numbers.length + ' Invoice telah dibuat</span>'
                 }
                 var nominalValue = ''
+                var nominalPpn = ''
+                var taxNominal = ''
                 if (id) {
                     var dataEdit = invoiceFiltered.invoice_details.find((value, key) => {
                         if (value.po_id == e.id) return true
                     });
+                    // console.log(invoiceFiltered)
                     if (dataEdit) {
                         nominalValue = dataEdit.nominal
+                        nominalPpn = dataEdit.nominal_ppn
+                        if (!nominalPpn) {
+                            nominalPpn = 0
+                        }
+                        taxNominal = invoiceFiltered.tax_nominal
                     } else {
                         nominalValue = ''
+                        nominalPpn = ''
+                        taxNominal = ''
                     }
                 }
                 html += '<div class="card shadow-none mb-1">'
@@ -1471,18 +1488,57 @@
                 html += '<div class="col-3 align-self-center">'
                 html += '<p class="m-0 small-text text-grey">' + textNumberInvoice + '</p>'
                 html += '</div>'
-                html += '<div class="col-2 align-self-center p-0">'
-                html += '<p class="m-0 small-text text-orange">Sisa Rp. ' + number_format(e.nominal_left) + '</p>'
+                // fill input
+                html += '<div class="col-5 p-0">'
+                // input nominal
+                html += '<div class="row mb-1">'
+                // sisa nominal
+                html += '<div class="col-5 align-self-end p-0">'
+                if (!e.nominal_left) {
+                    e.nominal_left = 0
+                }
+                html += '<p class="m-0 small-text">Nominal <span class="text-orange">Rp. ' + number_format(e.nominal_left) + '</span></p>'
                 html += '</div>'
-                html += '<div class="col-2 align-self-center p-0">'
+                // sisa nominal
                 // input
-                html += '<input class="form-control form-control-sm p-0 border-0 shadow-none formInvoice nominal nominalPerPO" type="text" name="" placeholder="Isi Nominal (Rp)" autocomplete="off" id="nominalPerPO' + e.id + '" oninput="totalNominalPOtoNominalInvoice()" value="' + nominalValue + '">'
+                html += '<div class="col-5 align-self-center p-0">'
+                html += '<input class="form-control form-control-sm p-0 border-0 shadow-none formInvoice nominal mb-1 nominalPerPO" type="text" name="" placeholder="Isi Nominal (Rp)" autocomplete="off" id="nominalPerPO' + e.id + '" oninput="totalNominalPOtoNominalInvoice()" onkeyup="totalNominalPOtoNominalInvoice()" value="' + nominalValue + '" style="font-size: 10px;min-height:0px;mb-0">'
                 html += '<hr class="m-0">'
+                html += '</div>'
                 // input
+                // button copy
+                html += '<div class="col-2 align-self-center text-center">'
+                html += '<button class="btn btn-sm border-primary-payment text-primary-payment shadow-none p-1" onclick="copyNominal(' + e.id + ',' + e.nominal_left + ',0)"><span class="fa fa-copy small-text"></span></button>'
                 html += '</div>'
-                html += '<div class="col-1 align-self-center text-center">'
-                html += '<button class="btn btn-sm border-primary-payment text-primary-payment shadow-none p-1" onclick="copyNominal(' + e.id + ',' + e.nominal_left + ')"><span class="fa fa-copy small-text"></span></button>'
+                // button copy
+                // input nominal
                 html += '</div>'
+                html += '<div class="row">'
+                // input ppn
+                // sisa nominal
+                html += '<div class="col-5 align-self-end p-0">'
+                if (!e.ppn_left) {
+                    e.ppn_left = 0
+                }
+                html += '<p class="m-0 small-text">PPN <span class="text-orange">Rp. ' + number_format(e.ppn_left) + '</span></p>'
+                html += '</div>'
+                // sisa nominal
+                // input
+                html += '<div class="col-5 align-self-center p-0">'
+                html += '<input class="form-control form-control-sm p-0 border-0 shadow-none formInvoice nominal mb-1 ppnPerPO" type="text" name="" placeholder="Isi PPN (Rp)" autocomplete="off" id="ppnPerPO' + e.id + '" oninput="changePPnNominal()" onkeyup="changePPnNominal()" value="' + nominalPpn + '" style="font-size: 10px;min-height:0px;mb-0">'
+                html += '<hr class="m-0">'
+                html += '</div>'
+                // input
+                // button copy
+                html += '<div class="col-2 align-self-center text-center">'
+                html += '<button class="btn btn-sm border-primary-payment text-primary-payment shadow-none p-1" onclick="copyNominal(' + e.id + ',' + e.ppn_left + ',1)"><span class="fa fa-copy small-text"></span></button>'
+                html += '</div>'
+                // button copy
+                html += '</div>'
+                // input ppn
+
+                html += '</div>'
+                // fill input
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
@@ -1538,7 +1594,7 @@
 
         html += '<div class="col-4 mb-2">'
         html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Nominal Invoices (Rp) ' + redSmallText() + '</p>'
-        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none formInvoice nominal" type="text" name="" placeholder="" autocomplete="off" id="nominal_invoice" onchange="formInvoice()">'
+        html += '<input class="form-control form-control-sm p-1 border-0 shadow-none formInvoice nominal" type="text" name="" placeholder="" autocomplete="off" id="nominal_invoice" onchange="formInvoice()" onkeyup="formInvoice()">'
         html += '<hr class="m-0">'
         html += '</div>'
 
@@ -1554,7 +1610,7 @@
         html += '</select>'
         html += '</div>'
 
-        html += '<div class="col-4 mb-2">'
+        html += '<div class="col-4 mb-2" hidden>'
         html += '<p class="m-0 fw-bolder text-grey-dark small-text mb-2">Jenis PPN</p>'
         html += '<select class="form-select form-select-sm w-100" id="selectJenisPpn" title="PILIH PPN" onchange="changePPnNominal()">'
         html += '<option value="" data-hitung="" selected>Tanpa PPN</option>'
@@ -1622,10 +1678,10 @@
         // ppn
         html += '<div class="row" id="fieldNominalPpn" hidden>'
         html += '<div class="col-9 text-end align-self-center">'
-        html += '<p class="m-0 fw-bold text-dark-grey">PPN ( <span id="inputoperatorPPN"></span> )</p>'
+        html += '<p class="m-0 fw-bold text-dark-grey">PPN ( <span id="inputoperatorPPN">+</span> )</p>'
         html += '</div>'
         html += '<div class="col-3 align-self-center text-end">'
-        html += '<input class="form-control form-control-sm p-0 border-0 shadow-none nominal text-orange" type="text" name="" placeholder="isi PPN" autocomplete="off" id="nominal_ppn_invoice" oninput="totalAmount()">'
+        html += '<input class="form-control form-control-sm p-0 border-0 shadow-none nominal text-orange" type="text" name="" placeholder="isi PPN" autocomplete="off" id="nominal_ppn_invoice" oninput="totalAmount()" disabled style="background-color:transparent !important">'
         html += '</div>'
         html += '</div>'
         // ppn
@@ -1689,6 +1745,7 @@
         $('#date_jatuh_tempo').val(formatDate(invoiceFiltered.date_overdue))
         $('#nominal_invoice').val(invoiceFiltered.sub_total)
         if (invoiceFiltered.tax_nominal) {
+            console.log(invoiceFiltered.tax_nominal)
             $('#nominal_pph_invoice').val(invoiceFiltered.tax_nominal)
             $('#selectJenisPph').val(invoiceFiltered.tax.id)
         }
@@ -1733,6 +1790,11 @@
     }
 
     function changePPnNominal() {
+        getJenisPPn()
+    }
+
+    function ppnBefore() {
+        // ini code ppn yang lama
         var value = $('#selectJenisPpn').val();
         if (value) {
             $('#fieldNominalPpn').prop("hidden", false)
@@ -1744,17 +1806,35 @@
         }
     }
 
+    function getJenisPPn() {
+        // ini code ppn yang baru
+        var value = $('.ppnPerPO').map(function() {
+            return $(this).val();
+        }).get();
+        // cek ada jika ada salah satu isi nya ada data nya maka true, jika kosong semua maka false
+        const hasDataElement = value.some(item => item !== '') ? true : false;
+        if (hasDataElement) {
+            $('#fieldNominalPpn').prop("hidden", false)
+            $('#nominal_ppn_invoice').val(sumArray(value))
+        } else {
+            $('#nominal_ppn_invoice').val(0)
+            $('#fieldNominalPpn').prop("hidden", true)
+        }
+        totalAmount()
+    }
+
     function fillPPh() {
         var value = $('#selectJenisPph').val();
         var nominal = $('#nominal_invoice').val();
         var hitung = $('#selectJenisPph option:selected').attr('data-hitung');
         var operator = $('#selectJenisPph option:selected').attr('data-operator');
         var autofill = $('#selectJenisPph option:selected').attr('data-autofill');
-        if (autofill == 1) {
-            $('#nominal_pph_invoice').val(roundToTwo(parseFloat(nominal) * parseFloat(hitung) / 100))
-        } else {
-            $('#nominal_pph_invoice').val(0)
-        }
+        // console.log(autofill)
+        // if (autofill == 1) {
+        //     $('#nominal_pph_invoice').val(roundToTwo(parseFloat(nominal) * parseFloat(hitung) / 100))
+        // } else {
+        //     $('#nominal_pph_invoice').val(0)
+        // }
         totalAmount()
     }
 
@@ -1774,6 +1854,9 @@
 
     function totalAmount() {
         var nominal = $('#nominal_invoice').val();
+        if (!nominal)(
+            nominal = 0
+        )
         $('#subtotal').html(number_format(roundToTwo(nominal)))
         if (nominal) {
             var pph = parseFloat($('#nominal_pph_invoice').val())
@@ -1793,7 +1876,7 @@
                 operatorppn = '+'
             }
             $('#inputoperatorPPH').html(operatorpph)
-            $('#inputoperatorPPN').html(operatorppn)
+            // $('#inputoperatorPPN').html(operatorppn)
             if (pph || ppn) {
                 eval('var jumlah_tax = parseFloat(nominal) ' + operatorpph + ' parseFloat(pph)' + operatorppn + ' parseFloat(ppn)');
                 $('#total_amount').html(number_format(roundToTwo(jumlah_tax)))
@@ -1819,8 +1902,12 @@
         contentStepInvoice(invoice_id_clicked)
     }
 
-    function copyNominal(id_po, nominal) {
-        $('#nominalPerPO' + id_po).val(nominal)
+    function copyNominal(id_po, nominal, index) {
+        if (index == 0) {
+            $('#nominalPerPO' + id_po).val(nominal)
+        } else {
+            $('#ppnPerPO' + id_po).val(nominal)
+        }
         totalNominalPOtoNominalInvoice()
     }
 
@@ -1909,8 +1996,13 @@
                 "po_id": invoice_po_id_clicked[i],
                 "nominal": $('#nominalPerPO' + invoice_po_id_clicked[i]).val(),
                 "created_at": currentDateTime(),
-                "updated_at": currentDateTime()
+                "updated_at": currentDateTime(),
+                // 'nominal_ppn': '',
             })
+            var nominal_ppn = $('#ppnPerPO' + invoice_po_id_clicked[i]).val()
+            if (nominal_ppn) {
+                invoice_detail[i].nominal_ppn = nominal_ppn
+            }
         }
         var data = {
             invoice: [{
@@ -1934,7 +2026,7 @@
             data.invoice[0].tax_nominal = tax_nominal_pph
         }
         if (tax_nominal_ppn) {
-            data.invoice[0].tax_ppn_id = tax_ppn_id
+            // data.invoice[0].tax_ppn_id = tax_ppn_id
             data.invoice[0].tax_ppn_nominal = tax_nominal_ppn
         }
         // console.log(data)

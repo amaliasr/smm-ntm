@@ -37,8 +37,13 @@
                                 <input class="form-select form-select-sm datepicker formFilter" type="text" id="dateRange" placeholder="Tanggal Mulai" autocomplete="off">
                             </div>
                             <div class="col-auto ps-0">
+                                <p class="fw-bolder small-text m-0">Item Category</p>
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItemCategory" title="Pilih Item Category" onchange="arrangeVariable()">
+                                </select>
+                            </div>
+                            <div class="col-auto ps-0">
                                 <p class="fw-bolder small-text m-0">Item</p>
-                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItem" title="Pilih Item" onchange="arrangeVariable()">
+                                <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItem" title="Pilih Item">
                                 </select>
                             </div>
                             <div class="col-auto d-flex align-items-end">
@@ -306,7 +311,7 @@
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
-        loadData()
+        loadPage()
     })
 
     function getFirstDate() {
@@ -321,11 +326,14 @@
         return formattedDate;
     }
 
-    function loadData() {
+    function loadPage() {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            url: "<?= api_url('loadPageReportWarehouseMutation'); ?>",
             method: "GET",
             dataType: 'JSON',
+            data: {
+                employeeId: user_id
+            },
             error: function(xhr) {
                 showOverlay('hide')
                 Swal.fire({
@@ -339,10 +347,37 @@
             },
             success: function(response) {
                 showOverlay('hide')
-                data_item = response['data']['item'];
+                var data = response.data.itemCategory
+                formItemCategory(data)
                 setDaterange()
-                formItem()
                 dateRangeString()
+            }
+        })
+    }
+
+    function loadData(categoryId) {
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/loadMaster'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                itemCategoryId: categoryId
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                var data = response['data']['item'];
+                formItem(data)
             }
         })
     }
@@ -369,24 +404,36 @@
         })
     }
 
-    function formItem() {
+    function formItemCategory(data) {
         var html = ''
-        data_item.forEach(e => {
-            var select = ''
-            select = 'selected'
-            html += '<option value="' + e.id + '" ' + select + '>' + shortenText(e.name, 80) + '</option>'
+        data.forEach(e => {
+            html += '<option value="' + e.id + '">' + e.name + '</option>'
+        });
+        $('#selectItemCategory').html(html)
+        $('#selectItemCategory').selectpicker('refresh');
+        $('#selectItemCategory').selectpicker({
+
+        });
+    }
+
+    function formItem(data) {
+        $('#selectItem').selectpicker('render');
+        var html = ''
+        data.forEach(e => {
+            var isSelected = 'selected' // Check if option should be selected
+            html += '<option value="' + e.id + '" ' + isSelected + '>' + shortenText(e.name, 80) + '</option>'
         });
         $('#selectItem').html(html)
         $('#selectItem').selectpicker('refresh');
-        $('#selectItem').selectpicker({
+        $('#selectItemCategory').selectpicker({
 
         });
-        // autoSave()
-        // simpanData()
-        arrangeVariable()
     }
 
-    function arrangeVariable() {}
+    function arrangeVariable() {
+        var categoryId = $('#selectItemCategory').val()
+        loadData(categoryId)
+    }
 
     function simpanData() {
         itemId = $('#selectItem').map(function() {

@@ -1717,6 +1717,167 @@ class Report extends CI_Controller
 
         $writer->save('php://output');
     }
+    public function excelPersonEarnVerpackDetail()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $date_start = date('Y-m-d', strtotime($explodedParams[1]));
+        $date_end = date('Y-m-d', strtotime($explodedParams[2]));
+        $machineId = $explodedParams[3];
+        $dataProfile = $explodedParams[4];
+        $body = json_decode($this->curl->simple_get(api_produksi('getReportResultPersonEarnStep?dateStart=' . $date_start . '&dateEnd=' . $date_end . '&machineId=' . $machineId . '&dataProfile=' . $dataProfile)))->data;
+        $spreadsheet = new Spreadsheet();
+        $tipe = ['qty_rpp', 'earn'];
+        $tipeName = ['Jumlah Setoran', 'Gaji Borongan'];
+        $sheet = $spreadsheet->getActiveSheet();
+        $dates = $body->reportResultPersonEarn->headerDate;
+        foreach ($dates as $key => $value) {
+            $datesArray[] = $value->date;
+        }
+        $jumlahColumnStart = 1;
+        $jumlahColumn = $jumlahColumnStart;
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No');
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Tanggal');
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'EID');
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'Nama');
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . '1', 'No. Meja');
+        $jumlahRow = 2;
+        $no = 1;
+        for ($j = 0; $j < count($tipe); $j++) {
+            $jumlahStartHeader = $jumlahColumn;
+            $jumlahTotal = 0;
+            foreach ($body->reportResultPersonEarn->headerStepProduct as $key => $value) {
+                foreach ($value->products as $keys => $values) {
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . '1', $tipeName[$j]);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . '2', $value->name);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . '3', $values->name);
+                    $jumlahColumn++;
+                    $jumlahTotal++;
+                }
+            }
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn) . '1', 'Total');
+            $jumlahColumn += 1;
+        }
+        // body
+        $jumlahRow = 4;
+        for ($i = 0; $i < count($datesArray); $i++) {
+            foreach ($body->reportResultPersonEarn->result as $key => $value) {
+                $jumlahColumn = 1;
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $key + 1);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $datesArray[$i]);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->eid);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->employee->name);
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $value->row_code);
+                for ($j = 0; $j < count($tipe); $j++) {
+                    $totalEarn = 0;
+                    if ($value->dates) {
+                        $dataDate = null;
+                        $checkDate = 0;
+                        foreach ($value->dates as $v) {
+                            if (isset($v->{$datesArray[$i]}) && $checkDate == 0) {
+                                $dataDate = $v->{$datesArray[$i]};
+                                $checkDate = 1;
+                            }
+                        }
+                        if ($dataDate == null) {
+                            $dataDate = null;
+                        }
+                    } else {
+                        $dataDate = null;
+                    }
+
+
+                    foreach ($body->reportResultPersonEarn->headerStepProduct as $ek) {
+                        $dataStepProfile = null;
+                        if ($dataDate != null) {
+                            $checkStepProfile = 0;
+                            foreach ($dataDate->result_earn_step_profiles as $v) {
+                                if (isset($v->{$ek->id}) && $checkStepProfile == 0) {
+                                    $dataStepProfile = $v->{$ek->id};
+                                    $checkStepProfile = 1;
+                                }
+                            }
+                            if ($dataStepProfile == null) {
+                                $dataStepProfile = null;
+                            }
+                        } else {
+                            $dataStepProfile = null;
+                        }
+
+                        foreach ($ek->products as $el) {
+                            $dataProducts = null;
+                            if ($dataStepProfile != null) {
+                                $checkProducts = 0;
+                                foreach ($dataStepProfile->products as $v) {
+                                    if (isset($v->{$el->id}) && $checkProducts == 0) {
+                                        $dataProducts = $v->{$el->id};
+                                        $checkProducts = 1;
+                                    }
+                                }
+                                if ($dataProducts == null) {
+                                    $dataProducts = null;
+                                }
+                            } else {
+                                $dataProducts = null;
+                            }
+                            if ($dataProducts != null) {
+                                $totalEarn += $dataProducts->{$tipe[$j]};
+                                $qtyName = $dataProducts->{$tipe[$j]};
+                            } else {
+                                $qtyName = '-';
+                            }
+                            $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $qtyName);
+                        }
+                    }
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($jumlahColumn++) . $jumlahRow, $totalEarn);
+                    $jumlahColumnAkhir = $jumlahColumn - 1;
+                    // $jumlahColumn++;
+                }
+                $jumlahRow++;
+            }
+        }
+        // body
+        $jumlahColumnAkhir = $jumlahColumn - 1;
+        $styleArrayHeader = [
+            'font' => [
+                'bold' => true,
+            ],
+            'alignment' => [
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'wrapText' => true,
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FFB100',
+                ],
+                'endColor' => [
+                    'argb' => 'FFB100',
+                ],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '383838'],
+                ],
+            ],
+        ];
+        $sheet->getStyle('A1:E3')->applyFromArray($styleArrayHeader);
+        $sheet->getStyle(Coordinate::stringFromColumnIndex($jumlahColumnStart) . '1:' . Coordinate::stringFromColumnIndex($jumlahColumnAkhir) . '3')->applyFromArray($styleArrayHeader);
+        $date_time = date('Y-m-d H:i:s');
+        $epoch = strtotime($date_time);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'REPORT PERSON SALARY VERPACK DETAIL' . $epoch;
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+    }
     public function historyPayment()
     {
         $data['title'] = 'History Payment';

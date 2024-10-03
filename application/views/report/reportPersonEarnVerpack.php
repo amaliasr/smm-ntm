@@ -285,8 +285,8 @@
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',1)">Excel Extra<span class="badge bg-orange ms-2 p-1" style="font-size: 6px;">1 Sheet</span></a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',0)">Excel Formatted</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);" onclick="cetakReport('excel',1)">Excel Detail<span class="badge bg-orange ms-2 p-1" style="font-size: 6px;">1 Sheet</span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -950,7 +950,7 @@
             html += '<td class="text-end small-text bg-body-total">' + number_format(roundToTwo(e.totalEarn)) + '</td>'
             html += '</tr>'
         });
-        console.log(footData)
+        // console.log(footData)
         let values = Object.values(footData);
         const desiredLength = Object.keys(footData).length;
         const resultArray = values.concat(Array(desiredLength).fill(0)).slice(0, desiredLength);
@@ -975,7 +975,7 @@
                     var findAvailableBrands = true
                 }
                 if (findAvailableBrands) {
-                    console.log(e.id + '' + el.id)
+                    // console.log(e.id + '' + el.id)
                     if (footData[e.id + '' + el.id]) {
                         // html += '<th class="align-middle px-2 bg-head-' + a + '">' + e.name + '</th>'
                         html += '<th class="align-middle small-text text-end" style="background-color: white;">' + number_format(footData[e.id + '' + el.id]) + '</th>'
@@ -1023,8 +1023,12 @@
     }
 
     function cetakReport(x, y) {
-        eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarnVerpack"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + dataProfile + "*$" + y;
+        if (y == 0) {
+            eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarnVerpack"')
+        } else {
+            eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarnVerpackDetail"')
+        }
+        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + dataProfile
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

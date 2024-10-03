@@ -37,7 +37,7 @@ class Auth extends CI_Controller
 				$this->session->set_userdata('gender', $dataUser->data->person->gender);
 			}
 		}
-
+		// print_r($this->session->userdata());
 		$response['success'] = true;
 		echo json_encode($response);
 	}

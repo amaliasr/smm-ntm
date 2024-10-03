@@ -2893,7 +2893,7 @@
         html += '<button class="btn btn-outline-primary btn-sm" id="btnKembali" onclick="actionFormNewDeliver(' + "'" + id + "'" + ',' + edit + ')" tabindex="3"><i class="fa fa-chevron-left me-2"></i>Kembali</button>'
         html += '</div>'
         html += '<div class="col-auto">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="insertNewDeliver(' + edit + ')" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="doInsertNewDeliver(' + edit + ')" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -2922,9 +2922,18 @@
         $('.form-newdeliver').on('keypress', function(event) {
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
-                insertNewDeliver(edit)
+                doInsertNewDeliver(edit)
             }
         });
+    }
+
+    function doInsertNewDeliver(edit) {
+        // newcode
+        if ($('#btnSimpan').prop('disabled') == false) {
+            $('#btnSimpan').prop('disabled', true)
+            // console.log('test')
+            insertNewDeliver(edit)
+        }
     }
 
     function actionFormNewDeliver(id, edit) {
@@ -3223,7 +3232,7 @@
         // custom steps
 
         html += '<div class="col-12 text-end pt-4">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir(' + edit + ')" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="doFilteredSortir(' + edit + ')" tabindex="3">Simpan dan Lanjutkan<i class="fa fa-chevron-right ms-2"></i></button>'
         html += '</div>'
         // sesi input
         html += '</div>'
@@ -3242,10 +3251,18 @@
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
                 // AddedResultProductPersonId()
-                filteredSortir(edit)
+                doFilteredSortir(edit)
             }
         });
         goodSortingFill()
+    }
+
+    function doFilteredSortir(edit) {
+        // newcode
+        if ($('#btnSimpan').prop('disabled') == false) {
+            $('#btnSimpan').prop('disabled', true)
+            filteredSortir(edit)
+        }
     }
 
     function checkSteps(idStep, index, idProduct, idMachineStepProfile) {
@@ -3431,7 +3448,7 @@
         // jam setoran
 
         html += '<div class="col-12 text-end pt-3">'
-        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="filteredSortir()" tabindex="2">Simpan dan Selesaikan</button>'
+        html += '<button class="btn btn-primary btn-sm" id="btnSimpan" onclick="doFilteredSortirKosong()" tabindex="2">Simpan dan Selesaikan</button>'
         html += '</div>'
         // sesi input
         html += '</div>'
@@ -3446,9 +3463,17 @@
         $('.form-fillup').on('keypress', function(event) {
             if (event.which === 13) { // Tombol Enter ditekan
                 event.preventDefault();
-                filteredSortir()
+                doFilteredSortirKosong()
             }
         });
+    }
+
+    function doFilteredSortirKosong() {
+        // newcode
+        if ($('#btnSimpan').prop('disabled') == false) {
+            $('#btnSimpan').prop('disabled', true)
+            filteredSortir()
+        }
     }
 
     function formDONE(id = null, edit = false, step_profile_id = null) {

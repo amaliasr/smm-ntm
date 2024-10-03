@@ -16,6 +16,11 @@ function api_produksi($param)
     $url = 'https://rest.pt-smm.com/api.ntm/' . $param;
     return $url;
 }
+function api_hr($param)
+{
+    $url = 'https://rest.pt-bks.com/hr_lr/smm/' . $param;
+    return $url;
+}
 
 function is_login()
 {
