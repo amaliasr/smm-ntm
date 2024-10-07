@@ -456,7 +456,7 @@
         html_body += '<textarea class="form-control form-control-sm w-100 p-3" rows="5" id="justification" placeholder="Tuliskan Justification bila perlu"></textarea>'
         html_body += '</div>'
         html_body += '<div class="col-12 col-md-6 mt-1">'
-        html_body += '<small class="fw-bolder mb-2">Upload Lampiran</small>'
+        html_body += '<small class="fw-bolder mb-2">Upload Lampiran <i class="text-grey">(Optional)</i></small>'
 
         // upload image
         html_body += '<div id="my-dropzone" class="dropzone text-center">'
@@ -741,7 +741,7 @@
         var key = $(this).data('id')
         $('#unit_pr' + key).empty()
         var id = $(this).val()
-        let obj = JSON.parse(data_item.find((value, key) => {
+        let obj = (data_item.find((value, key) => {
             if (value.id == id) return true
         })['data_konversi'])
         var satuan_tetap = data_item.find((value, key) => {

@@ -297,7 +297,7 @@
 
     function ajaxPR() {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getDataPR2'); ?>",
+            url: "<?= api_url('Api_Warehouse/getDataPR3'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {

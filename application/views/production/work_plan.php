@@ -2063,6 +2063,7 @@
                                 d.product.forEach(e => {
                                     // console.log(e)
                                     var productConvert = convertUnit(e, d.id)
+                                    // console.log(productConvert)
                                     // product
                                     var dataProduct = deepCopy(template.products)[0]
                                     dataProduct.product.id = productConvert.item_id
@@ -2127,7 +2128,11 @@
         }).unit_option.find((v, k) => {
             if (v.id == findUnit) return true
         })
+        // console.log(findUnitMachine)
         if (findUnitMachine) {
+            if (!findUnitMachine.multiplier) {
+                findUnitMachine.multiplier = 1
+            }
             eval(`conversion = parseFloat(conversion) ${findUnitMachine.operator} findUnitMachine.multiplier`)
         }
         return {

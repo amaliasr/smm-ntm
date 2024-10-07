@@ -1,4 +1,4 @@
-<link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css">
+<link href="<?= base_url(); ?>assets/smm/purchase_order.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
 <style>
     .border-grey {
@@ -175,12 +175,12 @@
         phone_next = []
         name_next = []
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getDataPR2'); ?>",
+            url: "<?= api_url('Api_Warehouse/getDataPR3'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
                 id: id_pr,
-                user_id: user_id,
+                user_id: employee_id,
             },
             error: function(xhr) {},
             beforeSend: function() {
