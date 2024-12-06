@@ -4,8 +4,11 @@
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
-
-
+<style>
+    .bg-light-success {
+        background-color: #e3efe3 !important;
+    }
+</style>
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
@@ -412,6 +415,8 @@
         html += '<th class="align-middle text-center small-text" style="background-color: white;">QTY<br>PO</th>'
         html += '<th class="align-middle text-center small-text" style="background-color: white;">QTY<br>Shipment</th>'
         html += '<th class="align-middle text-center small-text" style="background-color: white;">QTY<br>Receive</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">User</th>'
+        html += '<th class="align-middle text-center small-text" style="background-color: white;">Department</th>'
         html += '<th class="align-middle text-center small-text" style="background-color: white;">Status<br>PR</th>'
         html += '<th class="align-middle text-center small-text" style="background-color: white;">Status<br>PO</th>'
         html += '<th class="align-middle text-center small-text" style="background-color: white;">Status<br>Shipment</th>'
@@ -451,6 +456,24 @@
             if (!value.cost_center.name) {
                 value.cost_center.name = '-'
             }
+            var color_status_pr = ''
+            var color_status_po = ''
+            var color_status_shipment = ''
+            var color_status_receive = ''
+            if (value.status_pr == 'APPROVED') {
+                color_status_pr = 'bg-light-success text-success'
+            } else if (value.status_pr == 'REJECTED' || value.status_pr == 'CANCEL') {
+                color_status_pr = 'bg-light-danger text-danger'
+            }
+            if (value.status_po == 'APPROVED') {
+                color_status_po = 'bg-light-success text-success'
+            }
+            if (value.status_shipment == 'DONE') {
+                color_status_shipment = 'bg-light-success text-success'
+            }
+            if (value.status_receive == 'RECEIVED') {
+                color_status_receive = 'bg-light-success text-success'
+            }
             html += '<tr>'
             html += '<td style="background-color: white;" class="align-middle small-text">' + (parseInt(key) + 1) + '</td>'
             html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.no_pr + '</td>'
@@ -463,10 +486,12 @@
             html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value.qty_po) + '</td>'
             html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value.qty_shipment) + '</td>'
             html += '<td style="background-color: white;" class="align-middle small-text text-end">' + number_format(value.qty_receive) + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.status_pr + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.status_po + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.status_shipment + '</td>'
-            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.status_receive + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + shortenName(value.employee.name, 2) + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center">' + value.department.name + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center ' + color_status_pr + '">' + value.status_pr + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center ' + color_status_po + '">' + value.status_po + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center ' + color_status_shipment + '">' + value.status_shipment + '</td>'
+            html += '<td style="background-color: white;" class="align-middle small-text text-center ' + color_status_receive + '">' + value.status_receive + '</td>'
             html += '</tr>'
         })
         $('#bodyTable').html(html)

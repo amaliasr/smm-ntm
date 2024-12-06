@@ -307,4 +307,58 @@ Link Kerja : " . $value['link'] . "";
             setcookie('page_visit', $jsonData, time() + 3600 * 24 * 365); // Buat cookie baru
         }
     }
+    public function itemTidakTertaut()
+    {
+        $item = $this->input->get('item');
+        $cost_center = $this->input->get('cost_center');
+        $phone = $this->input->get('phone');
+        $name = $this->input->get('name');
+        // print_r($data);
+        $message = "*Permintaan Item Tidak Tertaut*\n\n";
+
+        $message .= "Teruntuk *" . $name . "*, saya lampirkan item dibawah ini yang tidak tertaut pada Cost Center *" . $cost_center . "*, mohon untuk ditambahkan ke Cost Center terkait. Terima kasih.\n\n";
+        foreach ($item as $key => $value) {
+            $message .= "\n" . $value;
+        }
+        $url = 'https://app.whacenter.com/api/send';
+        $ch = curl_init($url);
+        $data = array(
+            'device_id' => '24dcb02247b3e46597329e21a48e13ee',
+            'number' => '081944946015',
+            // 'number' => $phone,
+            'message' => $message,
+        );
+        $payload = $data;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        echo $result;
+    }
+    public function itemTidakAda()
+    {
+        $note = $this->input->get('note');
+        $cost_center = $this->input->get('cost_center');
+        $phone = $this->input->get('phone');
+        $name = $this->input->get('name');
+        // print_r($data);
+        $message = "*Permintaan Item yang Tidak Ada*\n\n";
+
+        $message .= "Teruntuk *" . $name . "*, saya lampirkan item dibawah ini yang tidak ada pada Sistem dan Cost Center *" . $cost_center . "*, mohon untuk ditambahkan item tersebut ke Sistem. Terima kasih.\n\n";
+        $message .= "Catatan : " . $note;
+        $url = 'https://app.whacenter.com/api/send';
+        $ch = curl_init($url);
+        $data = array(
+            'device_id' => '24dcb02247b3e46597329e21a48e13ee',
+            'number' => '081944946015',
+            // 'number' => $phone,
+            'message' => $message,
+        );
+        $payload = $data;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        echo $result;
+    }
 }

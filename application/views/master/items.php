@@ -101,6 +101,7 @@
                                                 <th>Satuan</th>
                                                 <th>Konversi</th>
                                                 <th>Tipe</th>
+                                                <th>Category</th>
                                                 <th>Unit</th>
                                                 <th>Price</th>
                                                 <th><i class="fa fa-gear"></i></th>
@@ -275,6 +276,58 @@
             }
         });
     }
+    var generateCodeId = ''
+
+    function getNumberLevel() {
+        generateCodeId = ''
+        var id_level = $('#level_item').val()
+        $.ajax({
+            url: "<?= api_url('getLastItemLevelCode'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                itemLevelId: id_level
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                var data = response.data.itemLevelCode
+                showOverlay('hide')
+                $('#fieldFillItem').prop('hidden', false)
+                if (data) {
+                    generateCodeId = incrementCode(data.code)
+                } else {
+                    generateCodeId = '001'
+                }
+                $('#code').val(generateCodeId)
+            }
+        });
+    }
+
+    function incrementCode(code) {
+        // Pisahkan kode menjadi dua bagian: sebelum dan setelah tanda "-"
+        let parts = code.split('-');
+
+        // Ambil bagian angka dari kode dan tambahkan 1
+        let numberPart = parseInt(parts[1], 10) + 1;
+
+        // Pastikan angka baru tetap 3 digit dengan metode padStart
+        let newNumberPart = numberPart.toString().padStart(3, '0');
+
+        // Gabungkan kembali dengan bagian awal kode
+        let newCode = parts[0] + '-' + newNumberPart;
+
+        return newCode;
+    }
 
     function groupingDataMaterial(dataArray) {
         const data = dataArray
@@ -377,6 +430,9 @@
                     'data': 'tipe'
                 },
                 {
+                    'data': 'category'
+                },
+                {
                     'data': 'unit'
                 },
                 {
@@ -416,10 +472,11 @@
                     'satuan': values['satuan_name'],
                     'konversi': satuan,
                     'tipe': values['type_name'],
+                    'category': values['category_name'],
                     'unit': values['unit_name'],
                     'price': price,
                     'is_active': values.is_active,
-                    'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['item_name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ')" style="cursor:pointer;"></i>'
+                    'action': '<i class="fa fa-pencil" onclick="formItemBaru(' + values['id'] + ',' + "'" + values['code'] + "'" + ',' + "'" + values['item_name'] + "'" + ',' + values['satuan_id'] + ',' + values['type_id'] + ',' + values['item_unit_id'] + ',' + values['category_id'] + ')" style="cursor:pointer;"></i>'
                 }
                 body.push(array)
             })
@@ -449,7 +506,7 @@
     var getId = ''
     var numCostCenter = 0
 
-    function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null) {
+    function formItemBaru(id = null, code = "", name = "", satuan = null, type = null, unit = null, category_id = null) {
         getId = id
         var dataFilter = data_global.item.find((v, k) => {
             if (v.id == id) return true
@@ -467,8 +524,73 @@
 
         var html_body = '';
         html_body += '<div class="container small">'
-        html_body += '<div class="row">'
 
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 mb-2">'
+        // pilih level
+        html_body += '<div class="card shadow-none">'
+        html_body += '<div class="card-body">'
+        html_body += '<div class="row">'
+        // tipe
+        html_body += '<div class="col-12 col-md-4 text-end mb-2">Jenis Item</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
+        html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required" onchange="changeName()">'
+        if (type == null) {
+            html_body += '<option value="" selected>Tanpa Tipe</option>'
+        }
+        $.each(data_global['itemType'], function(keys, values) {
+            var select = ""
+            if (type == values['id']) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        // tipe
+        // kategori
+        html_body += '<div class="col-12 col-md-4 text-end mb-2">Category</div>'
+        html_body += '<div class="col-12 col-md-8 mb-2">'
+        html_body += '<select name="" id="itemCategory" class="form-select form-select-sm" required="required" onchange="changeName()">'
+        if (type == null) {
+            html_body += '<option value="" selected>Tanpa Catgeory</option>'
+        }
+        $.each(data_global['itemCategory'], function(keys, values) {
+            var select = ""
+            if (category_id == values['id']) {
+                select = 'selected'
+            }
+            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+        })
+        html_body += '</select>'
+        html_body += '</div>'
+        // kategori
+        // level 1
+        if (!id) {
+            html_body += '<div class="col-12 col-md-4 text-end align-self-center">Pilih Item Level</div>'
+            html_body += '<div class="col-12 col-md-8">'
+            // level
+            html_body += '<select name="" id="level_item" class="form-select form-select-sm level_item" required="required" onchange="getNumberLevel()">'
+            html_body += '<option value="" selected disabled data-name=" ">Pilih Level</option>'
+            $.each(data_global['itemLevel'], function(keys, values) {
+                html_body += '<option value="' + values['id'] + '" data-name="' + values['name'] + '">' + values['code'] + ' - ' + values['name'] + '</option>'
+            })
+            html_body += '</select>'
+            // level
+            html_body += '</div>'
+        }
+        // level 1
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // pilih level
+        html_body += '</div>'
+        html_body += '</div>'
+        if (!id) {
+            html_body += '<div class="row" id="fieldFillItem" hidden>'
+        } else {
+            html_body += '<div class="row">'
+        }
         // BASIC
         html_body += '<div class="col-12 mb-2 p-3">'
         html_body += '<b class="mb-2">Informasi Dasar</b>'
@@ -543,21 +665,21 @@
         html_body += '<div class="col-12 mt-2 mb-2 p-3">'
         html_body += '<b class="mb-2">Informasi Mesin</b>'
         html_body += '<div class="row">'
-        html_body += '<div class="col-12 col-md-4 text-end">Tipe</div>'
-        html_body += '<div class="col-12 col-md-8 mb-2">'
-        html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required" onchange="changeName()">'
-        if (type == null) {
-            html_body += '<option value="" selected>Tanpa Tipe</option>'
-        }
-        $.each(data_global['itemType'], function(keys, values) {
-            var select = ""
-            if (type == values['id']) {
-                select = 'selected'
-            }
-            html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
-        })
-        html_body += '</select>'
-        html_body += '</div>'
+        // html_body += '<div class="col-12 col-md-4 text-end">Tipe</div>'
+        // html_body += '<div class="col-12 col-md-8 mb-2">'
+        // html_body += '<select name="" id="tipe" class="form-select form-select-sm" required="required" onchange="changeName()">'
+        // if (type == null) {
+        //     html_body += '<option value="" selected>Tanpa Tipe</option>'
+        // }
+        // $.each(data_global['itemType'], function(keys, values) {
+        //     var select = ""
+        //     if (type == values['id']) {
+        //         select = 'selected'
+        //     }
+        //     html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['name'] + '</option>'
+        // })
+        // html_body += '</select>'
+        // html_body += '</div>'
 
         html_body += '<div class="col-12 col-md-4 text-end">Unit Mesin</div>'
         html_body += '<div class="col-12 col-md-8 mb-2">'
@@ -893,7 +1015,8 @@
             code: $('#code').val(),
             name: $('#nama').val(),
             satuan: satuan,
-            type: $('#tipe').val(),
+            itemType: $('#tipe').val(),
+            itemCategory: $('#itemCategory').val(),
             unit: $('#unit_mesin').val(),
             active: 1,
             user: user_id,

@@ -2004,6 +2004,8 @@
             html += '</div>'
         }
         $('#detailTargetPane').html(html)
+        // console.log(tombolOtomatis, jenis_produksi, arranged)
+        totalMesinAll(data)
         if (tombolOtomatis == 1) {
             if (jenis_produksi == 'skm') {
                 if (arranged == 'true') {
@@ -2492,6 +2494,12 @@
 
     function pembagianPerMesin(data) {
         // console.log(data)
+        totalMesinAll(data)
+        correctionAll(data)
+    }
+
+    function totalMesinAll(data) {
+        // console.log(data)
         var date = getDateFromRange(new Date(dateStart), new Date(dateEnd))
         date.forEach(function(dates) {
             $.each(data_master[jenis_produksi]['machine'], function(key, value) {
@@ -2506,12 +2514,12 @@
                                 qty
                             }) => parseInt(n) + parseInt(qty), 0)
                         }
+                        // console.log(jumlah_isi)
                         $('#totalMesin' + values['id'] + formatDate(dates)).html(jumlah_isi)
                     }
                 })
             })
         })
-        correctionAll(data)
     }
     var lanjutSave = "ya"
 

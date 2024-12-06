@@ -1490,6 +1490,7 @@
         const sortedData = [...deepCopy(dataDetailDelivery)].sort(sortByDateTimeDesc);
         sortedData.forEach(e => {
             if (e.item) {
+                // console.log(e)
                 var dataDelivery = findStatus(e.result_product_person_id)
                 // console.log(dataDelivery)
                 html += '<tr class="">'
@@ -1517,12 +1518,19 @@
                 html += '</td>'
                 html += '<td class="small-text align-middle text-center"><span class="badge rounded-pill bg-success">' + toTitleCase(dataDelivery.status) + '</span></td>'
                 html += '<td class="small-text align-middle">'
-                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting()"><i class="fa fa-eye"></i></button>'
+                html += '<button type="button" class="btn btn-outline-dark shadow-none btn-sm" onclick="detailWaiting(' + e.worker_id + ',' + "'" + e.result_product_person_id + "'" + ')"><i class="fa fa-eye"></i></button>'
                 html += '</td>'
                 html += '</tr>'
             }
         });
         return html
+    }
+
+    function detailWaiting(id_worker, result_product_person_id) {
+        workerIdClicked = id_worker
+        setoranIdClicked = result_product_person_id
+        $('#modal').modal('show')
+        modalWorkProgress()
     }
 
     function formWorkerProgress() {
@@ -2344,7 +2352,7 @@
                 // console.log(data)
                 // console.log(dataSetoranBaru)
                 status = 'bg-success text-white'
-                text = '<p>Pukul ' + formatJamMenit(data.datetime) + ' membuat Setoran Baru Produk ' + dataSetoranBaru.name + ' sejumlah ' + dataSetoranBaru.qty + '</p>'
+                text = '<p>Pukul ' + formatJamMenit(dataSetoranBaru.pickup_at) + ' membuat Setoran Baru Produk ' + dataSetoranBaru.name + ' sejumlah ' + dataSetoranBaru.qty + '</p>'
                 if (checkLabelEdit('NEWDELIVER')) {
                     btnEdit = '<span class="fa fa-pencil pointer text-success ms-2" onclick="editSortir(' + "'" + result_product_person_id + "'" + ',' + "'" + 'NEWDELIVER' + "'" + ')"></span>'
                 }
@@ -3035,6 +3043,7 @@
                     title: 'Terlalu Panjang',
                     text: 'Data yang dimasukkan Terlalu Panjang'
                 });
+                $('#btnSimpan').prop('disabled', false)
             }
         } else {
             Swal.fire({
@@ -3042,6 +3051,7 @@
                 title: 'Data Belum Lengkap',
                 text: 'Data yang dimasukkan Tidak Lengkap'
             });
+            $('#btnSimpan').prop('disabled', false)
         }
     }
 
@@ -3325,6 +3335,7 @@
                     title: 'Tidak Lengkap',
                     text: 'Data yang dimasukkan Tidak Lengkap'
                 });
+                $('#btnSimpan').prop('disabled', false)
             }
         } else {
             Swal.fire({
@@ -3332,6 +3343,7 @@
                 title: 'Terlalu Panjang',
                 text: 'Data yang dimasukkan Terlalu Panjang'
             });
+            $('#btnSimpan').prop('disabled', false)
         }
     }
 
@@ -3563,7 +3575,7 @@
                 }
                 html += '<option value="' + e.product.id + '" data-unit="' + e.unit_input.id + '" data-work_plan_product_id="' + e.work_plan_product_id + '" ' + select + '>' + e.product.name + '</option>'
             });
-            html += '<select>'
+            html += '</select>'
         }
         // select
         html += '</div>'
@@ -3730,6 +3742,7 @@
                     title: 'Terlalu Panjang',
                     text: 'Data yang dimasukkan Terlalu Panjang'
                 });
+                $('#btnSimpan').prop('disabled', false)
             }
         } else {
             Swal.fire({
@@ -3737,6 +3750,7 @@
                 title: 'Tidak Lengkap',
                 text: 'Data yang dimasukkan Tidak Lengkap'
             });
+            $('#btnSimpan').prop('disabled', false)
         }
     }
 
@@ -3934,6 +3948,10 @@
             work_plan_product_id: work_plan_product_id,
             // is_product_final_other: is_product_final_other,
         }
+        if (valuePersonStep.length) {
+            dataMentah.machine_step_id = valuePersonStep[valuePersonStep.length - 1]
+        }
+        // console.log(dataMentah)
         var data = {
             resultProductPerson: {
                 ...dataMentah,
@@ -4198,7 +4216,7 @@
                                         is_complete: 1,
                                         complete_at: currentDateTime(),
                                         employee_id_complete: user_id,
-                                        qty_complete: dataDelivery.qty.good
+                                        qty_complete: dataDelivery.qty.good,
                                     })
                                     a++
                                 }
@@ -4320,11 +4338,21 @@
         })
         variableSaveOffline.resultProductPerson.push(data.resultProductPerson)
 
+
+        // for (let r = 0; r < 3; r++) {
+        // const element = array[r];
         if (data.resultProductPersonStep) {
             deepCopy(data.resultProductPersonStep).forEach(e => {
-                variableSaveOffline.resultProductPersonStep.push(e)
+                var dataCheckingStep = deepCopy(variableSaveOffline.resultProductPersonStep).find((v, k) => {
+                    if (v.result_product_person_id == e.result_product_person_id && v.machine_step_id == e.machine_step_id) return true
+                })
+                if (!dataCheckingStep) {
+                    variableSaveOffline.resultProductPersonStep.push(e)
+                }
             });
         }
+        // }
+
         if (data.materialPickup) {
             data.materialPickup.forEach(e => {
                 variableSaveMaterialOffline.materialPickup.push(e)
@@ -4343,6 +4371,7 @@
                 variableSaveOffline.deletedId.resultProductPersonStep.push(e)
             });
         }
+        // console.log(variableSaveOffline)
         var material_pickup = []
         var result_product_person_step = []
         if (dataSaved) {
@@ -4612,6 +4641,7 @@
                     //     }
                     // })
                 } else {
+                    // console.log(data)
                     scannerQR()
                 }
             } else {
@@ -4626,6 +4656,7 @@
                     }
                     checkWorkerId(dataEmployee.eid)
                 } else [
+                    // console.log(data)
                     scannerQR()
                 ]
             }
@@ -4708,6 +4739,9 @@
     }
 
     function saveOneByOneOffline(id) {
+        if (deepCopy(variableSaveOffline.resultProductPersonStep).length) {
+            variableSaveOffline.resultProductPersonStep = removeDuplicatesSteps(deepCopy(variableSaveOffline.resultProductPersonStep))
+        }
         var data = deepCopy(variableSaveOffline.resultProductPerson)
         var dataFilter = data.filter((v, k) => {
             if (v.id == id) return true
@@ -4725,6 +4759,9 @@
         var type = 'POST'
         var button = '#btnSimpanOffline'
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
+        if (deepCopy(variableSaveOffline.resultProductPersonStep).length) {
+            variableSaveOffline.resultProductPersonStep = removeDuplicatesSteps(deepCopy(variableSaveOffline.resultProductPersonStep))
+        }
         var data = deepCopy(variableSaveOffline)
         if (data.resultProductPerson.length) {
             kelolaDataSaveAuto(data, type, url, button)
@@ -4734,7 +4771,6 @@
     function simpanData(data) {
         var type = 'POST'
         var button = '#btnSimpan'
-
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
         kelolaData(data, type, url, button)
     }
@@ -5128,7 +5164,7 @@
             clearInterval(intervalId);
         } else {
             // tiap satu menit
-            intervalId = setInterval(autoSaveAtOfflineModeResult, 30 * 1000);
+            // intervalId = setInterval(autoSaveAtOfflineModeResult, 30 * 1000);
         }
     }
 
@@ -5136,11 +5172,30 @@
         return JSON.parse(JSON.stringify(obj));
     }
 
+    function removeDuplicatesSteps(data) {
+        const uniqueData = [];
+        const seenKeys = new Set();
+
+        data.forEach(item => {
+            const key = `${item.result_product_person_id}-${item.machine_step_id}`;
+
+            if (!seenKeys.has(key)) {
+                seenKeys.add(key);
+                uniqueData.push(item);
+            }
+        });
+
+        return uniqueData;
+    }
+
     function autoSaveAtOfflineModeResult() {
         // holdRefreshData = true
         var type = 'POST'
         var button = '#btnSimpanOffline'
         var url = '<?php echo api_produksi('setResultProductPerson'); ?>'
+        if (deepCopy(variableSaveOffline.resultProductPersonStep).length) {
+            variableSaveOffline.resultProductPersonStep = removeDuplicatesSteps(deepCopy(variableSaveOffline.resultProductPersonStep))
+        }
         var data = deepCopy(variableSaveOffline)
         var dataMaterial = deepCopy(variableSaveMaterialOffline)
         if (data.resultProductPerson.length || data.deletedId.resultProductPersonStep.length || data.deletedId.resultProductPerson.length) {
@@ -5587,5 +5642,9 @@
                 loadData()
             }
         });
+    }
+
+    function name(params) {
+
     }
 </script>

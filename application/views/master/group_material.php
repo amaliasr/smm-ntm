@@ -607,7 +607,7 @@
                 dataListMaterialGroup = response.data
                 $('#listMaterialGroup').html(templateTable())
                 $('#tableDetail').DataTable({
-                    ordering: false, // Menonaktifkan pengurutan
+                    ordering: true, // Menonaktifkan pengurutan
                     pageLength: 200,
                     scrollY: "400px",
                     scrollX: true,

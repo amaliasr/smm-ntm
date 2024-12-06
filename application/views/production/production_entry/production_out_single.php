@@ -733,8 +733,10 @@
             table()
         }
     }
+    var idProductionOut = ''
 
     function formProductionOut(work_plan_product_id = null) {
+        idProductionOut = createCodeId()
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
@@ -855,7 +857,13 @@
         html += '<p class="m-0 small-text text-dark-grey"><b>Machine Steps</b></p>'
         html += '</div>'
         html += '<div class="col-auto align-self-center">'
-        html += '<i class="fa fa-lock pointer text-dark-grey" id="lockMachineStepIcon" onclick="lockMachineStep()"></i>'
+        // get session
+        if (sessionStorage.getItem('lock_status') == 'lock') {
+            var iconLock = 'fa-lock text-success'
+        } else {
+            var iconLock = 'fa-unlock text-dark-grey'
+        }
+        html += '<i class="fa ' + iconLock + ' pointer" id="lockMachineStepIcon" onclick="lockMachineStep()"></i>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -891,9 +899,15 @@
             }
         }
         $.each(dataMachineStepIds, function(key, value) {
+            var selected_key = ''
+            if (sessionStorage.getItem('lock_status') == 'lock') {
+                if (key <= sessionStorage.getItem('keyMachineSteps')) {
+                    selected_key = 'selected'
+                }
+            }
             html += '<div class="col">'
             // selected
-            html += '<div class="card shadow-none pointer machine-steps" id="cardMachineStep' + value.id + '" onclick="chooseMachineStep(' + value.id + ')" data-id="' + value.id + '" data-machine_step_profile_detail_id="' + machine_step_profile_detail_id + '" data-machine_step_profile_index="' + value.index + '">'
+            html += '<div class="card shadow-none pointer machine-steps ' + selected_key + '" id="cardMachineStep' + key + '" onclick="chooseMachineStep(' + key + ')" data-id="' + value.id + '" data-key="' + key + '" data-machine_step_profile_detail_id="' + machine_step_profile_detail_id + '" data-machine_step_profile_index="' + value.index + '">'
             html += '<div class="card-body p-2">'
             // template
             html += '<div class="row">'
@@ -924,22 +938,37 @@
         autoNextHour()
         checkAvailableHours()
     }
+    var keyMachineSteps = 0
+    var lock_status = ''
 
     function lockMachineStep() {
-        if ($('#lockMachineStepIcon').hasClass('fa-lock')) {
-            $('#lockMachineStepIcon').removeClass('fa-lock')
-            $('#lockMachineStepIcon').addClass('fa-unlock')
+        if ($('#lockMachineStepIcon').hasClass('fa-lock text-success')) {
+            $('#lockMachineStepIcon').removeClass('fa-lock text-success')
+            $('#lockMachineStepIcon').addClass('fa-unlock text-dark-grey')
+            lock_status = 'unlock'
         } else {
-            $('#lockMachineStepIcon').removeClass('fa-unlock')
-            $('#lockMachineStepIcon').addClass('fa-lock')
+            $('#lockMachineStepIcon').removeClass('fa-unlock text-dark-grey')
+            $('#lockMachineStepIcon').addClass('fa-lock text-success')
+            lock_status = 'lock'
+        }
+        ifLockedMachineStep(lock_status)
+    }
+
+    function ifLockedMachineStep(lock_status) {
+        // jika lock, maka akan masuk ke session javascript
+        sessionStorage.setItem('lock_status', lock_status)
+        if (lock_status == 'lock') {
+            // set session
+            sessionStorage.setItem('keyMachineSteps', keyMachineSteps)
         }
     }
 
-    function chooseMachineStep(id) {
-        if ($('#cardMachineStep' + id).hasClass('selected')) {
-            $('#cardMachineStep' + id).removeClass('selected')
-        } else {
-            $('#cardMachineStep' + id).addClass('selected')
+    function chooseMachineStep(key) {
+        keyMachineSteps = key
+        // jika di klik, maka sebelah kiri sederetnya ikut berubah warna semua, kecuali yang kanan, semisal yang di klik key 3, maka 1 2 3 selected, jika key 2, 1 2 selected
+        $('.machine-steps').removeClass('selected')
+        for (let i = 0; i <= key; i++) {
+            $('#cardMachineStep' + i).addClass('selected')
         }
     }
 
@@ -1128,7 +1157,7 @@
     }
 
     function simpanData() {
-        var id = createCodeId()
+        var id = idProductionOut
         var type = 'POST'
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setResultProduct'); ?>'
@@ -1162,8 +1191,8 @@
         // var machine_step_profile_index = $('.machine-steps.selected').data('machine_step_profile_index')
         for (let i = 0; i < dataMachineStep.length; i++) {
             var resultProductMachineStep = {
-                id: createCodeId() + '' + i,
-                result_product_machine_id: id,
+                id: id + '' + i,
+                result_product_id: id,
                 datetime: getDateTime(currentDate()),
                 machine_step_id: dataMachineStep[i],
                 item_id_product: $('#selectItem').val(),

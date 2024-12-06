@@ -49,16 +49,6 @@
         border: none;
         border-top: 1px solid black;
     }
-
-    .machine-steps:hover {
-        background-color: #0dc681 !important;
-        color: white !important;
-    }
-
-    .machine-steps.selected {
-        background-color: #0dc681 !important;
-        color: white !important;
-    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="row">
@@ -458,24 +448,6 @@
         }
         return date
     }
-
-    function iconStamper(height, width) {
-        var html = ''
-        html += '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" fill="currentColor" class="bi bi-postage" viewBox="0 0 16 16"><path d="M4.75 3a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75v-8.5a.75.75 0 0 0-.75-.75zM11 12H5V4h6z"/><path d="M3.5 1a1 1 0 0 0 1-1h1a1 1 0 0 0 2 0h1a1 1 0 0 0 2 0h1a1 1 0 1 0 2 0H15v1a1 1 0 1 0 0 2v1a1 1 0 1 0 0 2v1a1 1 0 1 0 0 2v1a1 1 0 1 0 0 2v1a1 1 0 1 0 0 2v1h-1.5a1 1 0 1 0-2 0h-1a1 1 0 1 0-2 0h-1a1 1 0 1 0-2 0h-1a1 1 0 1 0-2 0H1v-1a1 1 0 1 0 0-2v-1a1 1 0 1 0 0-2V9a1 1 0 1 0 0-2V6a1 1 0 0 0 0-2V3a1 1 0 0 0 0-2V0h1.5a1 1 0 0 0 1 1M3 3v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1"/></svg>'
-        return html
-    }
-
-    function iconWrapper(height, width) {
-        var html = ''
-        html += '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16"><path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/></svg>'
-        return html
-    }
-
-    function iconOverwrapper(height, width) {
-        var html = ''
-        html += '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16"><path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/></svg>'
-        return html
-    }
 </script>
 <script>
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -499,7 +471,7 @@
             workPlanMachineId: workPlanMachineId,
             workPlanProductId: isRunningID
         }
-        var url = "<?= api_produksi('loadPageProductionOutEntrySingleNew'); ?>"
+        var url = "<?= api_produksi('loadPageProductionOutEntrySingle'); ?>"
         getData(data, url)
     }
 
@@ -598,9 +570,7 @@
             html += '</div>'
             html += '<div class="col-2 align-self-center">'
             html += '<h5 class="text-dark-grey m-0"><b>' + e.product.alias + ' - #' + e.priority + '</b></h5>'
-            // var target = convertToTargetProduct(e)
-            // console.log(target)
-            html += '<p class="m-0 small-text">' + nilaiConversi + ' / ' + e.qty + ' ' + e.unit_input.name + '</p>'
+            html += '<p class="m-0 small-text">' + nilaiConversi + ' / ' + e.qty + ' ' + e.unit_target.name + '</p>'
             html += '</div>'
             html += '<div class="col-1 ps-0 align-self-center">'
             html += '<button class="btn btn-outline-primary"  onclick="formProductionOut(' + "'" + e.work_plan_product_id + "'" + ')"><i class="fa fa-plus me-2"></i>Add</button>'
@@ -610,7 +580,6 @@
         $('#listProgressHasil').html(html)
         viewModeChart()
     }
-
 
     function table() {
         var html = ''
@@ -746,7 +715,7 @@
         html_body += '<div class="col-12 mb-2">'
         html_body += '<p class="m-0 small-text"><b>Item</b></p>'
         html_body += '<select id="selectItem" class="form-select" onchange="formFill(),fillForm()">'
-        html_body += '<option value="" selected disabled>Pilih Item</option>'
+        html_body += '<option value="" selected disabled><i>Pilih Item</i></option>'
         dataEntry.workPlanMachine.products.forEach(e => {
             var select = ''
             if (work_plan_product_id) {
@@ -781,16 +750,15 @@
         var data = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.work_plan_product_id == id) return true
         })
-        // console.log(data)
         html += '<div class="col-12">'
         html += '<div class="line-with-text"><hr><span class="super-small-text ms-2 me-2">Fill the Form</span><hr></div>'
         html += '</div>'
-        html += '<div class="col-12" id="alertTanggal">'
+        html += '<div class="col-12 mt-2" id="alertTanggal">'
         // alert
 
         // alert
         html += '</div>'
-        html += '<div class="col-6">'
+        html += '<div class="col-6 mt-2">'
         html += '<p class="m-0 small-text"><b>Start Time</b></p>'
 
         html += '<input type="time" id="startTime" class="form-control" value="" required="required" oninput="fillForm(),addToEndTime(event),checkAvailableHours()" min="19:00" max="03:00">'
@@ -799,7 +767,7 @@
         html += '<label class="form-check-label" for="checkAutoNextHour">Auto Next Hour</label>'
         html += '</div>'
         html += '</div>'
-        html += '<div class="col-6">'
+        html += '<div class="col-6 mt-2">'
         html += '<p class="m-0 small-text"><b>End Time</b></p>'
         html += '<input type="time" id="endTime" class="form-control" value="" required="required" oninput="fillForm(),checkAvailableHours()">'
         html += '</div>'
@@ -807,18 +775,17 @@
         html += '</div>'
         html += '<div class="col-12 mt-2">'
         // QTY
-        html += '<div class="card shadow-sm mb-2">'
-        html += '<div class="card-header py-1">'
-        html += '<p class="m-0 small-text text-dark-grey"><b>QTY</b></p>'
-        html += '</div>'
+        html += '<div class="card shadow-sm">'
         html += '<div class="card-body p-3">'
         html += '<div class="row">'
-        // html += '<div class="col-12">'
-        // html += '</div>'
+        html += '<div class="col-12">'
+        html += '<p class="m-0 small-text mb-3"><b>QTY</b></p>'
+        html += '</div>'
+
         html += '<div class="col-6 align-self-center">'
         // text
         html += '<p class="m-0 small-text">TOTAL</p>'
-        html += '<p class="m-0 h1"><b id="totalQTY">0</b><span class="ms-1" id="nameUnit">-</span></p>'
+        html += '<p class="m-0 h1"><b id="totalQTY">0</b> ' + dataEntry.productionOutUnit.name + '</p>'
         // text
         html += '</div>'
         html += '<div class="col-6">'
@@ -826,14 +793,14 @@
         html += '<div class="row">'
 
         html += '<div class="col-8 pb-2">'
-        html += '<input type="text" id="qty_target" class="form-control nominal qtyInput" value="" required="required" onkeyup="fillForm()" autocomplete="off" data-multiplier="' + data.unit_target.multiplier + '" data-id="' + data.unit_target.id + '">'
+        html += '<input type="text" id="qty_target" class="form-control nominal" value="" required="required" onkeyup="fillForm()" autocomplete="off" data-multiplier="' + data.unit_target.multiplier + '">'
         html += '</div>'
         html += '<div class="col-4 pb-2 align-self-center">'
         html += '<b>' + data.unit_target.name + '</b>'
         html += '</div>'
 
         html += '<div class="col-8">'
-        html += '<input type="text" id="qty_input" class="form-control nominal qtyInput" value="" required="required" onkeyup="fillForm()" autocomplete="off" data-multiplier="' + data.unit_input.multiplier + '" data-id="' + data.unit_input.id + '">'
+        html += '<input type="text" id="qty_input" class="form-control nominal" value="" required="required" onkeyup="fillForm()" autocomplete="off" data-multiplier="' + data.unit_input.multiplier + '">'
         html += '</div>'
         html += '<div class="col-4 align-self-center">'
         html += '<b>' + data.unit_input.name + '</b>'
@@ -847,100 +814,15 @@
         html += '</div>'
         html += '</div>'
         // QTY
-        // step machine
-        html += '<div class="card shadow-sm mb-2">'
-        html += '<div class="card-header py-1">'
-        html += '<div class="row justify-content-between">'
-        html += '<div class="col-auto align-self-center">'
-        html += '<p class="m-0 small-text text-dark-grey"><b>Machine Steps</b></p>'
-        html += '</div>'
-        html += '<div class="col-auto align-self-center">'
-        html += '<i class="fa fa-lock pointer text-dark-grey" id="lockMachineStepIcon" onclick="lockMachineStep()"></i>'
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        html += '<div class="card-body p-3">'
-        html += '<div class="row">'
-        // isi step
-        var dataStepProfile = dataEntry.machineStepProfile.find((v, k) => {
-            if (v.item_id_product == data.product.id) return true
-        })
-        var dataMachineStepProfile = []
-        var dataMachineStepIds = []
-        var machine_step_profile_detail_id = ''
-        var machine_step_profile_index = ''
-        if (dataStepProfile) {
-            dataMachineStepProfile = dataStepProfile.machine_step_profiles
-            if (dataMachineStepProfile) {
-                dataMachineStepProfile.forEach(e => {
-                    if (e.machine_step_profile_details) {
-                        e.machine_step_profile_details.forEach(el => {
-                            machine_step_profile_detail_id = el.id
-                            machine_step_profile_index = el.index
-                            for (let i = 0; i < el.machine_step_ids.length; i++) {
-                                var checkDataMachineStep = dataEntry.machineStep.find((v, k) => {
-                                    if (v.id == el.machine_step_ids[i]) return true
-                                })
-                                if (checkDataMachineStep) {
-                                    dataMachineStepIds.push(checkDataMachineStep)
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        }
-        $.each(dataMachineStepIds, function(key, value) {
-            html += '<div class="col">'
-            // selected
-            html += '<div class="card shadow-none pointer machine-steps" id="cardMachineStep' + value.id + '" onclick="chooseMachineStep(' + value.id + ')" data-id="' + value.id + '" data-machine_step_profile_detail_id="' + machine_step_profile_detail_id + '" data-machine_step_profile_index="' + value.index + '">'
-            html += '<div class="card-body p-2">'
-            // template
-            html += '<div class="row">'
-            html += '<div class="col-auto text-center align-self-center">'
-            html += '<p class="m-0 small-text">' + (key + 1) + '</p>'
-            html += '</div>'
-            html += '<div class="col ps-0 text-center align-self-center">'
-            html += '<p class="m-0 super-small-text fw-bolder">' + value.name + '</p>'
-            html += '</div>'
-            html += '</div>'
-            // template
-            html += '</div>'
-            html += '</div>'
-            html += '</div>'
-        })
-        // isi step
-        html += '</div>'
-        html += '</div>'
-        html += '</div>'
-        // step machine
         html += '</div>'
         html += '<div class="col-12 mt-2">'
         html += '<p class="m-0 small-text"><b>Note</b></p>'
-        html += '<textarea id="note" class="form-control" rows="3" placeholder="Tuliskan notes disini" onkeyup="fillForm()"></textarea>'
+        html += '<textarea id="note" class="form-control" rows="5" placeholder="Tuliskan notes disini" onkeyup="fillForm()"></textarea>'
         html += '</div>'
         $('#formFill').html(html)
         $('.nominal').number(true);
         autoNextHour()
         checkAvailableHours()
-    }
-
-    function lockMachineStep() {
-        if ($('#lockMachineStepIcon').hasClass('fa-lock')) {
-            $('#lockMachineStepIcon').removeClass('fa-lock')
-            $('#lockMachineStepIcon').addClass('fa-unlock')
-        } else {
-            $('#lockMachineStepIcon').removeClass('fa-unlock')
-            $('#lockMachineStepIcon').addClass('fa-lock')
-        }
-    }
-
-    function chooseMachineStep(id) {
-        if ($('#cardMachineStep' + id).hasClass('selected')) {
-            $('#cardMachineStep' + id).removeClass('selected')
-        } else {
-            $('#cardMachineStep' + id).addClass('selected')
-        }
     }
 
     function detailProductionOut(id) {
@@ -1015,13 +897,10 @@
         } else {
             $('#btnSimpan').attr('disabled', true)
         }
-        // conversi()
-        conversi2()
+        conversi()
     }
 
     var totalQTY = 0
-    var totalQTYDetail = 0
-    var unit_id_default = null
 
     function conversi() {
         totalQTY = 0
@@ -1035,43 +914,6 @@
         var multiplier_target = $('#qty_target').data('multiplier')
         totalQTY = (qty_input * multiplier_input) + (qty_target * multiplier_target)
         $('#totalQTY').html(number_format(totalQTY))
-    }
-
-    function conversi2() {
-        totalQTY = 0
-        totalQTYDetail = 0
-        var id = $('#selectItem').find(':selected').data('work_plan_product_id')
-        var unit_input = $('.qtyInput').map(function() {
-            return $(this).val()
-        }).get()
-        var unit_id = $('.qtyInput').map(function() {
-            return $(this).data('id')
-        }).get()
-        var data = dataEntry.workPlanMachine.products.find((v, k) => {
-            if (v.work_plan_product_id == id) return true
-        })
-        var unit_target_id = $('#qty_target').data('id')
-        unit_id_default = null
-        if (data) {
-            unit_id_default = data.unit_id_default
-            for (let i = 0; i < unit_id.length; i++) {
-                var dataUnit = data.unit_option.find((v, k) => {
-                    if (v.id == unit_id[i]) return true
-                })
-                if (!unit_input[i]) {
-                    unit_input[i] = 0
-                }
-                eval('var qty = unit_input[i] ' + dataUnit.operator_reverse + ' ' + dataUnit.multiplier)
-                totalQTY += qty
-            }
-            totalQTYDetail = totalQTY
-            var dataUnitTarget = data.unit_option.find((v, k) => {
-                if (v.id == unit_target_id) return true
-            })
-            eval('totalQTY = totalQTY ' + dataUnitTarget.operator + ' ' + dataUnitTarget.multiplier)
-            $('#nameUnit').html(dataUnitTarget.name)
-        }
-        $('#totalQTY').html(number_format(roundToTwo(totalQTY)))
     }
 
     function addToEndTime(event) {
@@ -1122,19 +964,12 @@
         $('#alertTanggal').html(html)
     }
 
-    function createCodeId() {
-        var date = (new Date).getTime()
-        return date;
-    }
-
     function simpanData() {
-        var id = createCodeId()
         var type = 'POST'
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setResultProduct'); ?>'
         var data = {
             'resultProduct': {
-                id: id,
                 work_plan_id: dataEntry.workPlanMachine.work_plan_id,
                 shift_id: dataEntry.workPlanMachine.shift.id,
                 machine_id: dataEntry.workPlanMachine.machine.id,
@@ -1144,36 +979,11 @@
                 datetime_end: findDateFromTime($('#endTime').val(), dataEntry.workPlanMachine.shift.datetime_start, dataEntry.workPlanMachine.shift.datetime_end) + ' ' + $('#endTime').val() + ':00',
                 item_id: $('#selectItem').val(),
                 work_plan_product_id: $('#selectItem').find(':selected').data('work_plan_product_id'),
-                qty: totalQTYDetail,
-                unit_id: unit_id_default,
+                qty: totalQTY,
+                unit_id: dataEntry.productionOutUnit.id,
                 employee_id: user_id,
                 note: $('#note').val(),
-            },
-            'resultProductMachineStep': []
-        }
-        // jika machine steps nya punya class selected
-        var dataMachineStep = $('.machine-steps.selected').map(function() {
-            return $(this).data('id');
-        }).get();
-        var machine_step_profile_index = $('.machine-steps.selected').map(function() {
-            return $(this).data('machine_step_profile_index');
-        }).get();
-        var machine_step_profile_detail_id = $('.machine-steps.selected').data('machine_step_profile_detail_id')
-        // var machine_step_profile_index = $('.machine-steps.selected').data('machine_step_profile_index')
-        for (let i = 0; i < dataMachineStep.length; i++) {
-            var resultProductMachineStep = {
-                id: createCodeId() + '' + i,
-                result_product_machine_id: id,
-                datetime: getDateTime(currentDate()),
-                machine_step_id: dataMachineStep[i],
-                item_id_product: $('#selectItem').val(),
-                qty: totalQTYDetail,
-                unit_id: unit_id_default,
-                note: '',
-                index: machine_step_profile_index[i],
-                machine_step_profile_detail_id: machine_step_profile_detail_id,
             }
-            data.resultProductMachineStep.push(resultProductMachineStep)
         }
         // console.log(data)
         kelolaData(data, type, url, button)

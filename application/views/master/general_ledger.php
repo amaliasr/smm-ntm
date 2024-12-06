@@ -1200,6 +1200,7 @@
     }
 
     function kerangkaGeneralLedgerList(department_id, cost_center_id, value, general_ledger_id, account_id) {
+        // console.log(value)
         var html = ''
         html += '<div class="row" id="card_general_ledger' + value.account_id + '">'
         html += '<div class="col-12">'
@@ -1239,7 +1240,7 @@
         // cari
         html += '<div class="form-group has-search">'
         html += '<span class="fa fa-search form-control-feedback"></span>'
-        html += '<input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari Item" id="search_item" autocomplete="off" onkeyup="searching(' + "'#search_item'" + ',' + "'.text_item'" + ',' + "'#rowItemGL'" + ')">'
+        html += '<input type="text" class="form-control-sm form-control" style="border-radius: 10px !important;" placeholder="Cari Item" id="search_item' + general_ledger_id + '" autocomplete="off" onkeyup="searching(' + "'#search_item" + general_ledger_id + "'" + ',' + "'.text_item" + general_ledger_id + "'" + ',' + "'#rowItemGL'" + ')">'
         html += '</div>'
         // cari
         html += '</div>'
@@ -1347,13 +1348,13 @@
         html += '<div class="col-1 small-text text-center align-self-start py-1 h-100">'
         html += '<input class="form-check-input checkItemGL" type="checkbox" value="' + e.id + '" data-department_id="' + department_id + '" data-cost_center_id="' + cost_center_id + '" data-id_gl="' + general_ledger_id + '" data-account_id="' + account_id + '" id="checkItemGL' + general_ledger_id + '' + e.id + '" onchange="' + fungsi + '">'
         html += '</div>'
-        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.code + '</div>'
-        html += '<div class="col-3 small-text align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.name + '</div>'
-        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.alias + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.unit.name + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.type.name + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '">' + e.category.name + '</div>'
-        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item" data-id="' + general_ledger_id + '' + e.id + '"></div>'
+        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '">' + e.code + '</div>'
+        html += '<div class="col-3 small-text align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '">' + e.name + '</div>'
+        html += '<div class="col-2 small-text text-center align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '">' + e.alias + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '">' + e.unit.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '">' + e.type.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '">' + e.category.name + '</div>'
+        html += '<div class="col-1 small-text text-center align-self-start py-1 h-100 text_item' + general_ledger_id + '" data-id="' + general_ledger_id + '' + e.id + '"></div>'
         html += '<div class="col-12 border-bottom"></div>'
         html += '</div>'
         return html

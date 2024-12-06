@@ -958,6 +958,9 @@
                     <?php if ($link == 'deliver_goods' || $link == 'sorting_goods') { ?>
                         <!-- SKT -->
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none me-1" onclick="loadData()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+                        <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="configurationPrinters()"><i class="fa fa-print me-2"></i>Config Printer</button> -->
+                        <!-- <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none small me-1" onclick="loadIncomplete('DATA')"><span class="badge rounded-pill bg-danger me-2" style="padding-top:1px;padding-bottom:1px;padding-left:5px;padding-right:5px;font-size:10px;" id="jumlahIncomplete">0</span>Incomplete Data
+                    </button> -->
                         <div class="btn-group float-end">
                             <button class="btn btn-outline-dark btn-sm dropdown-toggle shadow-none" id="dropdownMenuButton2" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                 More
@@ -967,7 +970,6 @@
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="offlineModeLog()"><i class="fa fa-cog me-2"></i>Offline Mode Log</a></li>
                             </ul>
                         </div>
-                    <?php } else if ($link == 'ball_packer' || $link == 'box_packer') { ?>
                     <?php } else { ?>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" id="btnChooseBrand" onclick="chooseBrandTemplate()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
@@ -976,8 +978,8 @@
                     <?php if ($link == 'qc_packer') { ?>
                         <button type="button" class="btn btn-outline-danger shadow-none btn-sm shadow-none me-1" id="btnBrokenData" onclick="modalBrokenData()" hidden>Broken Data ( <span id="textBrokenData"></span> )</button>
                     <?php } ?>
-                    <span id="fieldButtonTemplates">
-                    </span>
+                    <div id="fieldButtonTemplates">
+                    </div>
                     <!-- <button type="button" class="btn btn-danger shadow-none btn-sm shadow-none"><i class=" fa fa-cloud-upload me-2"></i>Closing</button> -->
                 </div>
                 <div class="col-12 pt-3">
@@ -1119,9 +1121,6 @@
     var link = '<?= $link ?>'
     var workPlanId = '<?= $workPlanId ?>'
     var isRunningID = ''
-    var dateMachine = ''
-    var dataTemplate
-    var hurufRowCode
 
     $(document).ready(function() {
         loadDataTemplate()
@@ -1210,7 +1209,9 @@
         var url = "<?= api_produksi('loadPageProductionEntry'); ?>"
         getDataTemplate(data, url)
     }
-
+    var dateMachine = ''
+    var dataTemplate
+    var hurufRowCode
 
     function arrayToString(arr) {
         var resultString = arr.join(',');
@@ -1607,6 +1608,7 @@
         var data = dataWorkPlanProducts.workPlanProduct.find((v, k) => {
             if (v.id == isRunningID) return true
         })
+        // console.log(isRunningID)
         Swal.fire({
             text: 'Apakah Anda Yakin ingin Closing Brand ' + data.product.alias + ' ?',
             icon: 'warning',
@@ -1620,7 +1622,7 @@
                 var dataInsert = {
                     workPlanProductClosing: [{
                         id: generateCode(),
-                        work_plan_product_id: id,
+                        work_plan_product_id: isRunningID,
                         datetime: currentDateTime(),
                         employee_id: user_id,
                         person_label: '<?= $label ?>',

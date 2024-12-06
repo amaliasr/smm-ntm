@@ -196,16 +196,34 @@ class Production extends CI_Controller
         $dataAPI = json_decode($this->curl->simple_get(api_produksi('loadPageProductionEntry?personLabel=' . base64_decode($label) . '&workPlanMachineId=' . base64_decode($workPlanMachineId) . '&workPlanId=' . base64_decode($workPlanId))))->data;
         $data['linkBefore'] = $linkBefore;
         if ($linkBefore) {
-            $data['link'] = $linkBefore;
+            if (($data['workPlanMachineId'] == '172956424965700000' || $data['workPlanMachineId'] == '1730432201771')) {
+                // jika yang percobaan SWO 12 dan 20
+                if ($linkBefore != 'default') {
+                    $data['link'] = $linkBefore . '_single';
+                } else {
+                    $data['link'] = $linkBefore;
+                }
+            } else {
+                $data['link'] = $linkBefore;
+            }
         } else {
             $data['link'] = 'default';
         }
         $menu = $dataAPI->ProductionEntryAccess;
+        foreach ($menu as $key => $value) {
+            if ($value->name == $linkBefore) {
+                $data['id_menu'] = $value->id;
+            }
+        }
         $data['menu'] = $menu;
         $data['datas'] = $dataAPI;
         $data['dataAPI'] = json_encode($dataAPI);
         // $this->template->views('errors/notfound', $data);
-        $this->template->views('production/template_production_entry', $data);
+        if ($data['workPlanMachineId'] == '172956424965700000' || $data['workPlanMachineId'] == '1730432201771') {
+            $this->template->views('production/template_production_entry_single', $data);
+        } else {
+            $this->template->views('production/template_production_entry', $data);
+        }
     }
     public function machineShelters()
     {

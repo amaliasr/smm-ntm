@@ -105,8 +105,8 @@ class Order extends CI_Controller
         $data['qrcode'] = $explodedParams[1];
         $data['id'] = $explodedParams[2];
         $data['user_id'] = $explodedParams[3];
-        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPR?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
-        $data['detail'] = json_decode($data['datas']->data_detail);
+        $data['datas'] = json_decode($this->curl->simple_get(api_url('Api_Warehouse/getDataPR3?id=' . $data['id'] . '&user_id=' . $data['user_id'])))->data[0];
+        $data['detail'] = ($data['datas']->data_detail);
         $html = $this->load->view('order/cetakPR', $data, true);
         $this->pdf->setPaper('A4', 'potrait');
         $this->pdf->filename = $data['datas']->no_pr . ".pdf";

@@ -196,6 +196,7 @@
         id_po_detail = []
         clearModal();
         clicked_cost_center = ''
+        clicked_cost_center_name = ''
         item_id_choosen = []
         attachments = []
     })
@@ -211,6 +212,7 @@
     var date_start = currentDate()
     var date_end = currentDate()
     var clicked_cost_center = ''
+    var clicked_cost_center_name = ''
     var item_id_choosen = []
     var attachments = []
     $(document).ready(function() {
@@ -242,6 +244,7 @@
             }
         })
     }
+    var contactReport = null
 
     function getData(idCostCenter, nameCostCenter) {
         $.ajax({
@@ -265,7 +268,9 @@
             success: function(response) {
                 showOverlay('hide')
                 data_item = response['data']['item'];
+                contactReport = response.data.employee
                 clicked_cost_center = idCostCenter
+                clicked_cost_center_name = nameCostCenter
                 numberinPR(idCostCenter, nameCostCenter)
             }
         })
@@ -273,8 +278,12 @@
 
     function numberinPR(idCostCenter, nameCostCenter) {
         $.ajax({
-            url: "<?= api_url('Api_Warehouse/getCountDocPR'); ?>",
+            url: "<?= api_url('getPurchaseLatestCode'); ?>",
             method: "GET",
+            data: {
+                costCenterId: idCostCenter,
+                departmentId: '<?= $this->session->userdata('department_id') ?>',
+            },
             dataType: 'JSON',
             error: function(xhr) {
                 showOverlay('hide')
@@ -287,28 +296,33 @@
             beforeSend: function() {},
             success: function(response) {
                 showOverlay('hide')
-                const d = new Date();
-                var month = d.getMonth() + 1;
-                var thisMonth = (month < 10 ? '0' : '') + month
-                let thisYear = d.getFullYear();
-                if (response.message != 'Data data not found') {
-                    let obj = response['data'].filter((value, key) => {
-                        if (value.tahun === thisYear.toString() && value.cost_center_id == idCostCenter) return true
-                    });
-                    let count = 1
-                    if (obj != undefined || obj.length == 0) {
-                        var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
-                        if (data_hasil.length) {
-                            count = parseInt(data_hasil[0]['count']) + 1;
-                        } else {
-                            count = 1
-                        }
-                    }
-                    no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
-                } else {
-                    no_pr = '001' + '/SMM-' + initialDivision + '/PR/' + romanize(thisMonth) + '/' + thisYear
+                // var initialCostCenter = data_cost_center.costCenter.find((value, key) => {
+                //     if (value.id == idCostCenter) return true
+                // })
+                // const d = new Date();
+                // var month = d.getMonth() + 1;
+                // var thisMonth = (month < 10 ? '0' : '') + month
+                // var thisYear = d.getFullYear();
+                // if (response.message != 'Data data not found') {
+                //     var obj = response['data'].filter((value, key) => {
+                //         if (value.tahun == thisYear.toString() && value.cost_center_id == idCostCenter) return true
+                //         // if (value.tahun == thisYear.toString() && thisMonth == value.no_bulan && value.cost_center_id == idCostCenter) return true
+                //     });
+                //     var count = 1
+                //     if (obj) {
+                //         var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
+                //         if (data_hasil.length) {
+                //             count = parseInt(data_hasil[0]['count']) + 1;
+                //         } else {
+                //             count = 1
+                //         }
+                //     }
+                //     no_pr = count.toString().padStart(3, "0") + '/SMM-' + initialCostCenter.department_alias + '/PR/' + romanize(thisMonth) + '/' + thisYear
+                // } else {
+                //     no_pr = '001' + '/SMM-' + initialCostCenter.department_alias + '/PR/' + romanize(thisMonth) + '/' + thisYear
 
-                }
+                // }
+                no_pr = response['data'].latestCode
                 formPR(idCostCenter, nameCostCenter)
             }
         })
@@ -966,6 +980,10 @@
 
     function lihatSemuaData() {
         $('#modal3').modal('show')
+        formLihatSemua()
+    }
+
+    function formLihatSemua() {
         $('#modalDialog3').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
         html_header += '<h5 class="modal-title">Item List</h5>';
@@ -988,6 +1006,13 @@
         html_body += '<th class="small-text align-middle">Alias</th>'
         html_body += '<th class="small-text align-middle">Type</th>'
         html_body += '<th class="small-text align-middle">Is Match?</th>'
+        html_body += '<th class="small-text align-middle text-center checkingItemField" hidden>'
+        // checkbox
+        html_body += '<div class="form-check">'
+        html_body += '<input class="form-check-input checkItem" type="checkbox" id="selectAllItem" onclick="chooseItemForWhatsapp()" style="width: 1.5em;height: 1.5em;">'
+        html_body += '</div>'
+        // checkbox
+        html_body += '</th>'
         html_body += '</tr>'
         html_body += '</thead>'
         html_body += '<tbody id="bodyItem">'
@@ -999,9 +1024,35 @@
         html_body += '</div>'
         $('#modalBody3').html(html_body);
         var html_footer = '';
+        html_footer += '<div class="row w-100 justify-content-between">'
+        html_footer += '<div class="col-auto align-self-center">'
+        html_footer += '<p class="text-danger m-0 small-text pointer" id="btnLaporkanDataTidakTertaut" onclick="laporanDataTidakTertaut(1)">Laporkan Data Tidak Tertaut</p>'
+        html_footer += '<p class="text-danger m-0 small-text pointer" id="btnBatalLaporkanDataTidakTertaut" onclick="laporanDataTidakTertaut(0)" hidden>Batalkan Laporan Tidak Tertaut <i class="fa fa-times text-danger ms-2"></i></p>'
+        html_footer += '</div>'
+        html_footer += '<div class="col-auto">'
+        html_footer += '<button type="button" class="btn btn-success btn-sm me-1" id="btnBagikanKeWA" onclick="bagikanKeWA()" hidden><i class="fa fa-whatsapp me-2"></i>Laporkan ke FATE</button>'
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '</div>'
+        html_footer += '</div>'
         $('#modalFooter3').html(html_footer)
         filterLihatSemuaData()
+    }
+
+    function laporanDataTidakTertaut(status) {
+        if (status == 1) {
+            // laporkan
+            $('.checkingItemField').prop('hidden', false)
+            $('#btnLaporkanDataTidakTertaut').prop('hidden', true)
+            $('#btnBatalLaporkanDataTidakTertaut').prop('hidden', false)
+        } else {
+            // batal laporkan
+            $('#selectAllItem').prop('checked', false)
+            $('.checkItemId').prop('checked', false)
+            $('.checkingItemField').prop('hidden', true)
+            $('#btnLaporkanDataTidakTertaut').prop('hidden', false)
+            $('#btnBatalLaporkanDataTidakTertaut').prop('hidden', true)
+            $('#btnBagikanKeWA').prop('hidden', true)
+        }
     }
 
     function filterLihatSemuaData() {
@@ -1068,40 +1119,123 @@
     }
 
     function bodyLihatSemuaData(data) {
+        // console.log(data)
         var html = ''
         var a = 1
-        data.forEach(e => {
-            var check = ''
-            if (e.cost_center_ids) {
-                e.cost_center_ids.forEach(key => {
-                    if (key == clicked_cost_center) {
-                        check = '<i class="fa fa-check-circle text-success"></i>'
-                    }
-                });
-            }
-            if (check) {
-                var color = ''
-                html += '<tr class="pointer" onclick="chooseItemMultiple(' + e.id + ')" id="itemMultiple' + e.id + '">'
-            } else {
-                var color = 'bg-light text-grey'
-                html += '<tr>'
-            }
-            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center">' + a++ + '</td>'
-            if (!e.item_alias) {
-                e.item_alias = ''
-            }
-            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.name + '</td>'
-            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.item_alias + '</td>'
-            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.type_name + '</td>'
-            html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center">'
-            html += check
-            html += '</td>'
+        if (data.length) {
+            data.forEach(e => {
+                var check = ''
+                if (e.cost_center_ids) {
+                    e.cost_center_ids.forEach(key => {
+                        if (key == clicked_cost_center) {
+                            check = '<i class="fa fa-check-circle text-success"></i>'
+                        }
+                    });
+                }
+                if (check) {
+                    var color = ''
+                    html += '<tr class="pointer" onclick="chooseItemMultiple(' + e.id + ')" id="itemMultiple' + e.id + '">'
+                } else {
+                    var color = 'bg-light text-grey'
+                    html += '<tr>'
+                }
+                html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center">' + a++ + '</td>'
+                if (!e.item_alias) {
+                    e.item_alias = ''
+                }
+                html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.name + '</td>'
+                html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.item_alias + '</td>'
+                html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle">' + e.type_name + '</td>'
+                html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center">'
+                html += check
+                html += '</td>'
+                html += '<td class="' + color + ' rowItem' + e.id + ' small-text align-middle text-center checkingItemField" hidden>'
+                if (color) {
+                    html += '<input type="checkbox" class="form-check-input checkItemId" value="' + e.id + '" data-name="' + e.name + '" onclick="chooseItemForWhatsapp(' + e.id + ')" id="checkItem' + e.id + '" style="width: 1.5em;height: 1.5em;">'
+                }
+                html += '</td>'
+                html += '</tr>'
+            });
+        } else {
+            // item tidak ditemukan
+            html += '<tr>'
+            html += '<td class="text-center small-text align-middle p-5" colspan="5" onclick="hubungiPurchasing()">Tidak Ditemukan Item yang dicari ? <b class="text-danger pointer">Hubungi Purchasing</b></td>'
             html += '</tr>'
-        });
+        }
         $('#bodyItem').html(html)
         item_id_choosen.forEach(e => {
             coloringItemList(e)
         });
+    }
+
+    function chooseItemForWhatsapp(item_id = null) {
+        if (!item_id) {
+            // check semua
+            if ($('#selectAllItem').is(':checked')) {
+                $('.checkItemId').prop('checked', true)
+            } else {
+                $('.checkItemId').prop('checked', false)
+            }
+        }
+        // cek jika class checkItemId ada isi nya, maka..
+        if ($('.checkItemId:checked').length > 0) {
+            // console.log('ada isinya')
+            $('#btnBagikanKeWA').removeAttr('hidden')
+        } else {
+            // console.log('ga ada isinya')
+            $('#btnBagikanKeWA').attr('hidden', true)
+        }
+    }
+
+    function bagikanKeWA() {
+        var item_name = $('.checkItemId:checked').map(function() {
+            return $(this).data('name');
+        }).get();
+        Swal.fire({
+            text: 'Apakah anda yakin ingin membagikan ' + item_name.length + ' item yang tidak tertaut kepada FATE ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsappItem(item_name)
+            }
+        })
+    }
+
+    function shareWhatsappItem(item) {
+        $.ajax({
+            url: "<?= base_url('api/itemTidakTertaut') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                item: item,
+                cost_center: clicked_cost_center_name,
+                phone: contactReport.fat.phone,
+                name: contactReport.fat.full_name,
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                })
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Terkirim',
+                    icon: 'success',
+                }).then((responses) => {});
+            }
+        })
     }
 
     function insertAllItemId() {
@@ -1148,5 +1282,82 @@
         item_id_choosen.forEach(e => {
             formRowPR(last_number++, e)
         });
+    }
+
+    function hubungiPurchasing() {
+        $('#modalDialog3').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Hubungi Purchasing</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader3').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        //filter
+        html_body += '<div class="col-12">'
+        html_body += '<p class="small-text fw-bolder">Tuliskan Item yang Tidak Ada pada sistem</p>'
+        html_body += '<textarea class="form-control form-control-sm w-100 p-3" rows="5" placeholder="Tuliskan Note disini" id="notesPurchasing"></textarea>'
+        html_body += '</div>'
+        // tabel
+        html_body += '</div>'
+        $('#modalBody3').html(html_body);
+        var html_footer = '';
+        html_footer += '<div class="row w-100 justify-content-end">'
+        html_footer += '<div class="col-auto">'
+        html_footer += '<button type="button" class="btn btn-success btn-sm me-1" onclick="bagikanKeWAPurchasing()"><i class="fa fa-whatsapp me-2"></i>Laporkan ke Purchasing</button>'
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" onclick="formLihatSemua()">Batal</button>'
+        html_footer += '</div>'
+        html_footer += '</div>'
+        $('#modalFooter3').html(html_footer)
+    }
+
+    function bagikanKeWAPurchasing() {
+        var note = $('#notesPurchasing').val()
+        Swal.fire({
+            text: 'Apakah anda yakin ingin membagikan Notes ke Purchasing ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                shareWhatsappNotes(note)
+            }
+        })
+    }
+
+    function shareWhatsappNotes(note) {
+        $.ajax({
+            url: "<?= base_url('api/itemTidakAda') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                note: note,
+                cost_center: clicked_cost_center_name,
+                phone: contactReport.purchasing.phone,
+                name: contactReport.purchasing.full_name,
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                })
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Terkirim',
+                    icon: 'success',
+                }).then((responses) => {
+                    formLihatSemua()
+                });
+            }
+        })
     }
 </script>

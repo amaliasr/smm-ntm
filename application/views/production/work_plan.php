@@ -1605,10 +1605,12 @@
                     })
                 }
             } else {
+                // SKT
                 // console.log(k)
                 // if (k != 'qc_verpack') {
                 eval(`var em${k} = []`)
                 eval(`var dataEmployee =  d.employee_${k}`)
+                // console.log(k)
                 if (dataEmployee.length > 0) {
                     eval(`em${k} = dataEmployee.map(employee => employee.id)`)
                 }
@@ -2064,36 +2066,38 @@
                                     // console.log(e)
                                     var productConvert = convertUnit(e, d.id)
                                     // console.log(productConvert)
-                                    // product
-                                    var dataProduct = deepCopy(template.products)[0]
-                                    dataProduct.product.id = productConvert.item_id
-                                    dataProduct.product.code = productConvert.item_code
-                                    dataProduct.product.name = productConvert.item_name
-                                    dataProduct.product.alias = productConvert.item_alias
-                                    dataProduct.qty = productConvert.qty
-                                    dataProduct.unit.id = productConvert.unit_id
-                                    dataProduct.unit.name = productConvert.unit_name
-                                    dataProduct.unit.multiplier = productConvert.unit_multiplier
-                                    // dataProduct.product.id = e.id
-                                    // dataProduct.product.code = e.code
-                                    // dataProduct.product.name = e.name
-                                    // dataProduct.product.alias = e.alias
-                                    // dataProduct.qty = e.qty
-                                    // dataProduct.unit.id = e.unit.id
-                                    // dataProduct.unit.name = e.unit.name
-                                    // dataProduct.unit.multiplier = e.unit.multiplier
-                                    dataProduct.work_plan_product_id = new Date().getTime() + '' + +'' + indexShift + '' + indexDate + '' + indexMachineType + '' + indexMachine + '' + indexProduct
-                                    var checkProduct
-                                    if (indexProduct) {
-                                        checkProduct = data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.find((v, k) => {
-                                            if (v.product.id == productConvert.item_id) return true
-                                        })
-                                    }
-                                    if (!checkProduct) {
-                                        data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.push(dataProduct)
-                                        indexProduct++
-                                    } else {
-                                        checkProduct.qty = parseFloat(checkProduct.qty) + parseFloat(productConvert.qty)
+                                    if (productConvert) {
+                                        // product
+                                        var dataProduct = deepCopy(template.products)[0]
+                                        dataProduct.product.id = productConvert.item_id
+                                        dataProduct.product.code = productConvert.item_code
+                                        dataProduct.product.name = productConvert.item_name
+                                        dataProduct.product.alias = productConvert.item_alias
+                                        dataProduct.qty = productConvert.qty
+                                        dataProduct.unit.id = productConvert.unit_id
+                                        dataProduct.unit.name = productConvert.unit_name
+                                        dataProduct.unit.multiplier = productConvert.unit_multiplier
+                                        // dataProduct.product.id = e.id
+                                        // dataProduct.product.code = e.code
+                                        // dataProduct.product.name = e.name
+                                        // dataProduct.product.alias = e.alias
+                                        // dataProduct.qty = e.qty
+                                        // dataProduct.unit.id = e.unit.id
+                                        // dataProduct.unit.name = e.unit.name
+                                        // dataProduct.unit.multiplier = e.unit.multiplier
+                                        dataProduct.work_plan_product_id = new Date().getTime() + '' + +'' + indexShift + '' + indexDate + '' + indexMachineType + '' + indexMachine + '' + indexProduct
+                                        var checkProduct
+                                        if (indexProduct) {
+                                            checkProduct = data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.find((v, k) => {
+                                                if (v.product.id == productConvert.item_id) return true
+                                            })
+                                        }
+                                        if (!checkProduct) {
+                                            data_work_converted[indexDate].work_plan[type_name_production].shift_qc[indexShift].shift_mechanic[indexMachineType].shift_machine[indexMachine].products.push(dataProduct)
+                                            indexProduct++
+                                        } else {
+                                            checkProduct.qty = parseFloat(checkProduct.qty) + parseFloat(productConvert.qty)
+                                        }
                                     }
                                 });
                                 indexMachine++
@@ -2117,33 +2121,39 @@
         var conversion = 0
         eval(`conversion = parseFloat(data.qty) ${data.unit_work_plan_conversion.operator} data.unit_work_plan_conversion.multiplier`)
         var dataProduct = findProductItem(data.id, machine_id)
-        var findUnit = data_work.item.find((v, k) => {
-            if (v.id == dataProduct.id) return true
-        }).unit_default.find((v, k) => {
-            if (v.machine_id == machine_id) return true
-        }).unit_id
+        // console.log(dataProduct)
+        if (dataProduct) {
+            var findUnit = data_work.item.find((v, k) => {
+                if (v.id == dataProduct.id) return true
+            }).unit_default.find((v, k) => {
+                if (v.machine_id == machine_id) return true
+            }).unit_id
 
-        var findUnitMachine = data_work.item.find((v, k) => {
-            if (v.id == dataProduct.id) return true
-        }).unit_option.find((v, k) => {
-            if (v.id == findUnit) return true
-        })
-        // console.log(findUnitMachine)
-        if (findUnitMachine) {
-            if (!findUnitMachine.multiplier) {
-                findUnitMachine.multiplier = 1
+            var findUnitMachine = data_work.item.find((v, k) => {
+                if (v.id == dataProduct.id) return true
+            }).unit_option.find((v, k) => {
+                if (v.id == findUnit) return true
+            })
+            console.log(dataProduct.id)
+            console.log(findUnit)
+            if (findUnitMachine) {
+                if (!findUnitMachine.multiplier) {
+                    findUnitMachine.multiplier = 1
+                }
+                eval(`conversion = parseFloat(conversion) ${findUnitMachine.operator} findUnitMachine.multiplier`)
             }
-            eval(`conversion = parseFloat(conversion) ${findUnitMachine.operator} findUnitMachine.multiplier`)
-        }
-        return {
-            qty: Math.ceil(conversion),
-            unit_id: findUnitMachine.id,
-            unit_name: findUnitMachine.name,
-            unit_multiplier: findUnitMachine.multiplier,
-            item_id: dataProduct.id,
-            item_alias: dataProduct.alias,
-            item_code: dataProduct.code,
-            item_name: dataProduct.name,
+            return {
+                qty: Math.ceil(conversion),
+                unit_id: findUnitMachine.id,
+                unit_name: findUnitMachine.name,
+                unit_multiplier: findUnitMachine.multiplier,
+                item_id: dataProduct.id,
+                item_alias: dataProduct.alias,
+                item_code: dataProduct.code,
+                item_name: dataProduct.name,
+            }
+        } else {
+            return null
         }
     }
 
@@ -2152,12 +2162,16 @@
             if (v.id == product_id) return true
         })
         if (dataProduct) {
-            // console.log(dataProduct.machine)
-            // console.log(dataProduct)
-            // console.log(machine_id)
-            dataProduct = dataProduct.machine.find((v, k) => {
+            var checkData = dataProduct.machine.find((v, k) => {
                 if (v.id == machine_id) return true
-            }).item_id
+            })
+            // console.log(checkData)
+            if (checkData) {
+                // console.log(dataProduct.machine)
+                // console.log(dataProduct)
+                // console.log(machine_id)
+                dataProduct = checkData.item_id
+            }
         } else {
             dataProduct = product_id
         }
@@ -2343,6 +2357,7 @@
                     // buat bar work plan
                     c.shift_machine.forEach(d => {
                         // machine
+                        // console.log(d)
                         var dataEmployee = showVariableForEmployee(d)
                         // console.log(dataEmployee)
                         if (d.work_plan_machine_id != null) {

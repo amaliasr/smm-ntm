@@ -826,6 +826,7 @@
         html += '<thead>'
         html += '<tr>'
         html += '<th class="align-middle" rowspan="2">Produk</th>'
+        html += '<th class="align-middle" rowspan="2">Step</th>'
         html += '<th class="align-middle" rowspan="2">Unit</th>'
         heading.forEach(e => {
             var textDate = ''
@@ -847,13 +848,17 @@
         data_pencapaian.forEach(d => {
             html += '<tr>'
             html += '<td class="fw-bolder bg-light" style="border-right:0px;">' + d.machineTypeName + '</td>'
-            for (let i = 0; i < ((parseInt(data_pencapaian[0].data[0].data.length) * 3) + 1); i++) {
+            for (let i = 0; i < ((parseInt(data_pencapaian[0].data[0].data.length) * 3) + 2); i++) {
                 html += '<td class="bg-light" style="border-left:0px;border-right:0px;"></td>'
             }
             html += '</tr>'
             d.data.forEach(e => {
                 html += '<tr>'
                 html += '<td class="text-nowrap">' + e.item.name + '</td>'
+                if (!e.step.alias) {
+                    e.step.alias = '-'
+                }
+                html += '<td class="text-center text-nowrap">' + e.step.alias + '</td>'
                 html += '<td class="text-center text-nowrap">' + e.unit.name + '</td>'
                 e.data.forEach(el => {
                     html += '<td class="text-center">' + number_format(roundToTwo(el.data.qty_plan)) + '</td>'

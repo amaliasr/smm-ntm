@@ -174,18 +174,18 @@
                     <table style="width: 100%;margin-top:10px;">
                         <tr style="vertical-align: top;">
                             <?php $a = 0;
-                            foreach (json_decode($datas->data_approval) as $key => $value) {
+                            foreach (($datas->data_approval2) as $key => $value) {
                             ?>
                                 <td>
                                     <table style="width: 100%;">
                                         <tr style="vertical-align: middle;">
                                             <td rowspan="2" style="width:40px;text-align:left;padding:0px;margin:0px;">
-                                                <?php if ($value->is_accept == 'Accepted') {
+                                                <?php if ($value[0]->is_accept == 'Accepted') {
                                                     $images = base_url() . 'assets/image/logo/check.png';
                                                 ?>
                                                     <!-- <span class="check-icon">&#xf00c;</span> -->
 
-                                                <?php } else if ($value->is_accept == 'Rejected') {
+                                                <?php } else if ($value[0]->is_accept == 'Rejected') {
                                                     $images = base_url() . 'assets/image/logo/times.png';
                                                 ?>
                                                     <!-- <span class="times-icon">&#xf00d;</span> -->
@@ -216,19 +216,19 @@
                                         </tr>
                                         <tr style="vertical-align: middle;">
                                             <td style="padding:0px;margin:0px;font-size:8px;">
-                                                <?php if ($value->is_accept == 'Accepted' || $value->is_accept == 'Rejected') { ?>
+                                                <?php if ($value[0]->is_accept == 'Accepted' || $value[0]->is_accept == 'Rejected') { ?>
                                                     <?php
-                                                    $namaArr = explode(' ', $value->user_name);
+                                                    $namaArr = explode(' ', $value[0]->user_name);
 
                                                     if (count($namaArr) >= 2) {
                                                         $duaKataDepan = $namaArr[0] . ' ' . $namaArr[1];
                                                         echo $duaKataDepan;
                                                     } else {
-                                                        echo $value->user_name;
+                                                        echo $value[0]->user_name;
                                                     }
                                                     ?>
                                                     <br>
-                                                    <p style="margin: 0px;padding:0px;font-size:6px;"><?= date('d-m-Y H:i', strtotime($value->date_approval)) ?></p>
+                                                    <p style="margin: 0px;padding:0px;font-size:6px;"><?= date('d-m-Y H:i', strtotime($value[0]->date_approval)) ?></p>
                                                 <?php } else { ?>
                                                     <i style="font-size:10px;color:grey;">Belum Ada</i>
                                                 <?php } ?>

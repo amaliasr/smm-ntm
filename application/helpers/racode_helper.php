@@ -98,7 +98,7 @@ function job_foreman()
 {
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 84 || $job_title_id == 87 || $job_title_id == 135 || $job_title_id == 129 || $job_title_id == 167) {
+    if ($job_title_id == 84 || $job_title_id == 87 || $job_title_id == 135 || $job_title_id == 129 || $job_title_id == 167 || $job_title_id == 226 || $job_title_id == 7 || $job_title_id == 130) {
         return true;
     } else {
         return false;
@@ -211,10 +211,10 @@ function job_spv_tax()
 }
 function job_admin_pga()
 {
-    // SINDI
+    // SINDI & LENA
     $ci = get_instance();
     $job_title_id = $ci->session->userdata('job_title_id');
-    if ($job_title_id == 140) {
+    if ($job_title_id == 140 || $job_title_id == 188 || $job_title_id == 89) {
         return true;
     } else {
         return false;
@@ -372,11 +372,12 @@ function if_po()
 }
 function if_logistik()
 {
-    if (is_logistik() || job_spv_audit_internal()) {
-        return true;
-    } else {
-        return false;
-    }
+    // if (is_logistik() || job_spv_audit_internal()) {
+    //     return true;
+    // } else {
+    //     return false;
+    // }
+    return true;
 }
 function if_master()
 {
@@ -428,7 +429,7 @@ function if_report_po()
 }
 function if_report_pr()
 {
-    if (is_accounting() || is_direktur() || is_purchasing() || job_spv_audit_internal() || job_atasan()) {
+    if (is_login()) {
         return true;
     } else {
         return false;

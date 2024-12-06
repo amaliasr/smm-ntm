@@ -257,7 +257,15 @@
             <div class="col-12 mb-2">
                 <div class="card shadow-none border-radius-20">
                     <div class="card-body">
-                        <p class="fw-bolder m-0">Detail</p>
+                        <div class="row justify-content-between">
+                            <div class="col-auto" hidden id="formMode">
+                                <button class="btn btn-sm btn-outline-primary active shadow-none btnMode" id="btnModenormal" onclick="changeMode('normal')">Normal Mode</button>
+                                <button class="btn btn-sm btn-outline-primary shadow-none btnMode" id="btnModeseparate" onclick="changeMode('separate')">Separate Overtime</button>
+                            </div>
+                            <div class="col-auto">
+                                <div id="custom-search-container"></div>
+                            </div>
+                        </div>
                         <div class="table-responsible" id="dataTable">
 
                         </div>
@@ -509,6 +517,7 @@
     var date_start = getPreviousFriday()
     var date_end = currentDate()
     var detailMode = false
+    var mode = 'normal'
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian atau Bisa Langsung Download File'))
         $('select').selectpicker();
@@ -626,6 +635,7 @@
             },
             success: function(response) {
                 showOverlay('hide')
+                $('#formMode').prop('hidden', false)
                 dateRangeString()
                 $(button).prop("disabled", false);
                 data_report = response.data
@@ -641,6 +651,54 @@
 
     function updatedStructure() {
         dataTable()
+    }
+    var variableMode = {
+        'normal': {
+            0: [
+                'qty_pokok',
+                'earn_pokok',
+            ],
+            1: [
+                'qty_inc',
+                'earn_inc',
+            ]
+        },
+        'separate': {
+            0: [
+                'qty_pokok',
+                'earn_pokok_overtime',
+                'earn_pokok_raw',
+            ],
+            1: [
+                'qty_inc',
+                'earn_inc_overtime',
+                'earn_inc_raw',
+            ]
+        }
+    }
+    var nameMode = {
+        'normal': {
+            0: [
+                'QTY<br>Pokok',
+                'Earn<br>Pokok',
+            ],
+            1: [
+                'QTY<br>Incentive',
+                'Earn<br>Incentive',
+            ]
+        },
+        'separate': {
+            0: [
+                'QTY<br>Pokok',
+                'Earn<br>Pokok Raw',
+                'Earn<br>Pokok Overtime',
+            ],
+            1: [
+                'QTY<br>Incentive',
+                'Earn<br>Incentive Raw',
+                'Earn<br>Incentive Overtime',
+            ]
+        }
     }
 
     function dataTable() {
@@ -673,19 +731,18 @@
                 }
             });
         });
-        // data_report.reportResultPersonEarn[0].data.forEach(b => {
-        //     if (detailMode) {
-        //         var num = b[Object.keys(b)[0]].detail_total.length
-        //     } else {
-        //         var num = 0
-        //     }
-        //     numberDetail[Object.keys(b)[0]] = num
-        // });
-        // console.log(numberDetail)
         headTable(numberDetail)
     }
 
+    function changeMode(x) {
+        mode = x
+        $('.btnMode').removeClass('active')
+        $('#btnMode' + x).addClass('active')
+        dataTable()
+    }
+
     function headTable(numberDetail) {
+        // console.log(numberDetail)
         var html = ''
         html += '<tr>'
         html += '<th class="align-middle" rowspan="2" style="background-color: white;">#</th>'
@@ -703,7 +760,13 @@
                 bgOver = 'bg-orange-light'
                 badgeOver = '<span class="badge bg-orange ms-2" style="font-size:5px;vertical-align: middle;padding-top:3px;">OVERTIME</span>'
             }
-            html += '<th class="align-middle ' + bgOver + '" colspan="' + (3 + (parseInt(numberDetail[dates[i]]) * 2)) + '">'
+            var add_num = 0
+            if (detailMode) {
+                if (mode == 'separate') {
+                    add_num = 1
+                }
+            }
+            html += '<th class="align-middle ' + bgOver + '" colspan="' + (3 + (parseInt(numberDetail[dates[i]] + add_num) * 2)) + '">'
             html += '<p class="m-0 fw-bolder">' + formatJustDay(dates[i]) + '</p>'
             html += '<p class="m-0 super-small-text fw-normal">' + dates[i] + '' + badgeOver + '</p>'
             html += '</th>'
@@ -721,15 +784,14 @@
                 bgOver = 'bg-orange-light'
             }
             if (detailMode) {
-                if (numberDetail[dates[i]]) {
-                    html += '<th class="align-middle ' + bgOver + '">QTY<br>Pokok</th>'
-                    html += '<th class="align-middle ' + bgOver + '">Earn<br>Pokok</th>'
-                    if (numberDetail[dates[i]] > 1) {
-                        html += '<th class="align-middle ' + bgOver + '">QTY<br>Incentive</th>'
-                        html += '<th class="align-middle ' + bgOver + '">Earn<br>Incentive</th>'
+                var data2 = nameMode[mode]
+                var key2 = Object.keys(data2)
+                for (let index = 0; index < key2.length; index++) {
+                    for (let i = 0; i < data2[key2[index]].length; i++) {
+                        var text = data2[key2[index]][i]
+                        html += '<th class="align-middle ' + bgOver + '">' + text + '</th>'
                     }
                 }
-
             }
             html += '<th class="align-middle ' + bgOver + '">Total<br>QTY</th>'
             html += '<th class="align-middle ' + bgOver + '">Total<br>Earn</th>'
@@ -741,10 +803,10 @@
     }
 
     function bodyTable(numberDetail) {
+        $('#custom-search-container').html('');
         var html = ''
         var a = 1
         data_report.reportResultPersonEarn.forEach(e => {
-
             html += '<tr>'
             html += '<td class="text-center small-text" style="background-color: white;">' + a++ + '</td>'
             html += '<td class="text-center small-text" style="background-color: white;">' + e.employee.eid + '</td>'
@@ -763,19 +825,16 @@
                     bgDanger = 'bg-light-danger'
                 }
                 if (detailMode) {
-                    for (let i = 0; i < numberDetail[Object.keys(el)[0]]; i++) {
-                        var dataDetail = el[Object.keys(el)[0]].detail_total[i]
-                        if (dataDetail) {
-                            var valuesDataDetail = Object.values(dataDetail);
-                            for (let j = 0; j < valuesDataDetail.length; j++) {
-                                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(valuesDataDetail[j]) + '</td>'
-                            }
-                        } else {
-                            for (let j = 0; j < 2; j++) {
-                                html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">-</td>'
-                            }
+                    var dataDetail = el[Object.keys(el)[0]]
+                    var a = 0
+                    dataDetail.detail_total.forEach(ele => {
+                        var data2 = variableMode[mode][a]
+                        for (let i = 0; i < data2.length; i++) {
+                            var text = ele[data2[i]]
+                            html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(text) + '</td>'
                         }
-                    }
+                        a++
+                    });
                 }
                 html += '<td class="text-center small-text ' + bgOver + ' ' + bgDanger + '">' + number_format(el[Object.keys(el)[0]].total_qty) + '</td>'
                 html += '<td class="text-center small-text ' + bgOver + '">' + number_format(roundToTwo(el[Object.keys(el)[0]].total_earn)) + '</td>'
@@ -797,7 +856,11 @@
                 left: 4
             },
             paging: false,
+            "initComplete": function(settings, json) {
+                $('div.dataTables_filter input').attr('placeholder', 'Search...');
+            },
         })
+        $('#custom-search-container').html($('.dataTables_filter'));
     }
 
     function cetakReport(x, y, merge) {
@@ -806,7 +869,7 @@
             viewBy = 'Detail'
         }
         eval('var url = "<?= base_url() ?>report/' + x + 'PersonEarn' + viewBy + '"')
-        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + viewBy + "*$" + merge;
+        var params = "*$" + date_start + "*$" + date_end + "*$" + machineId + "*$" + viewBy + "*$" + merge + "*$" + mode
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

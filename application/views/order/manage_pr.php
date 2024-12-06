@@ -160,10 +160,11 @@
             var image = btoa(imgBase64Data)
             if (status == 0) {
                 var url = '<?= base_url('order/cetakPR') ?>'
+                var params = "*$" + image + "*$" + id + "*$" + employee_id
             } else {
                 var url = '<?= base_url('order/cetakPO') ?>'
+                var params = "*$" + image + "*$" + id + "*$" + user_id
             }
-            var params = "*$" + image + "*$" + id + "*$" + user_id
             window.open(url + '?params=' + (params), '_blank')
         } else {
             // buat supplier
@@ -204,6 +205,7 @@
     var user_id = '<?= $this->session->userdata('id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var job_level_id = '<?= $this->session->userdata('job_level_id') ?>'
+    var department_id = '<?= $this->session->userdata('department_id') ?>'
     var initialDivision = "<?= $this->session->userdata('alias') ?>"
     var data_user = ""
     var data_item = ""
@@ -303,7 +305,8 @@
             data: {
                 user_id: employee_id,
                 dateStart: date_start,
-                dateEnd: date_end
+                dateEnd: date_end,
+                department_id: department_id,
             },
             error: function(xhr) {
                 showOverlay('hide')
@@ -520,6 +523,7 @@
         res = {}
         itemYangSisa = []
         $.each(data_pr_showed, function(keys, values) {
+            // console.log(values)
             var acc_check
             var badge = ""
             var bg = ""
@@ -688,9 +692,11 @@
                         html += '<button class="btn btn-sm btn-danger w-100" onclick="formCancelPR(' + values['id'] + ')">Pembatalan PR</button>'
                         html += '</div>'
                     }
-                    html += '<div class="text-center pe-2 ps-2">'
-                    html += '<button class="btn btn-sm btn-success w-100 mt-2" onclick="formClosingPR(' + values['id'] + ')"><i class="fa fa-check text-white me-2"></i>CLOSING PR</button>'
-                    html += '</div>'
+                    if (values.created_by == employee_id) {
+                        html += '<div class="text-center pe-2 ps-2">'
+                        html += '<button class="btn btn-sm btn-success w-100 mt-2" onclick="formClosingPR(' + values['id'] + ')"><i class="fa fa-check text-white me-2"></i>CLOSING PR</button>'
+                        html += '</div>'
+                    }
                 }
                 html += '</div>'
             }
@@ -982,12 +988,13 @@
         html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['date'] + '</span></div>'
 
         html_body += '<div class="col-4 col-md-3">Cost Centre</div>'
+        // console.log(data)
         // if (data == undefined) {
         //     html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data_user[0]['division_name'] + '</span></div>'
         // } else {
         //     html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['cost_center'] + '</span></div>'
         // }
-        html_body += '<div class="col-8 col-md-9"><span class="fw-bold">NTM WAREHOUSE</span></div>'
+        html_body += '<div class="col-8 col-md-9"><span class="fw-bold">' + data['cost_center_code'] + ' - ' + data['cost_center'] + '</span></div>'
 
 
         html_body += '</div>'

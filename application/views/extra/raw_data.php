@@ -1,3 +1,4 @@
+<link href="<?= base_url(); ?>assets/smm/report.css" rel="stylesheet" type="text/css">
 <style>
     html {
         scroll-behavior: smooth;
@@ -201,7 +202,7 @@
                                 <div class="row justify-content-center">
                                     <div class="col-auto pe-0">
                                         <p class="fw-bolder small-text m-0">Items</p>
-                                        <select class="selectpicker w-100" multiple data-selected-text-format="count > 1" id="selectItems" title="Pilih Items" onchange="arrangeVariable()">
+                                        <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItems" title="Pilih Items" onchange="arrangeVariable()" data-width="fit" data-dropup-auto="false">
                                         </select>
                                     </div>
                                     <div class="col-auto pe-0">
@@ -453,7 +454,7 @@
     function formItems() {
         var html = ''
         data_item.forEach(e => {
-            html += '<option value="' + e.id + '" selected>' + e.item_name + '</option>'
+            html += '<option value="' + e.id + '">' + e.item_name + '</option>'
         });
         $('#selectItems').html(html)
         $('#selectItems').selectpicker('refresh');

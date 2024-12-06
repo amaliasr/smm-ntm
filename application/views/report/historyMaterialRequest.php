@@ -4,8 +4,6 @@
 <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
-
-
 <main>
     <!-- Main page content-->
     <header class="page-header page-header-dark pb-10">
@@ -50,14 +48,14 @@
                         </div>
                     </div>
                     <div class="col-auto d-flex align-items-end">
-                        <!-- <div class="dropdown">
+                        <div class="dropdown">
                             <button class="btn btn-outline-primary btn-sm dropdown-toggle border-radius-20 shadow-none small-text btnSimpan" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-download me-2"></span>Downloads
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="exportExcel()">Excel</a></li>
                             </ul>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -680,9 +678,8 @@
     }
 
     function exportExcel() {
-        supplier_id = $('#selectMachine').val()
-        var url = '<?= base_url('report/exportReportPO') ?>';
-        var params = "*$" + supplier_id + "*$" + date_start + "*$" + date_end;
+        var url = '<?= base_url('report/excelHistoryMaterialRequest') ?>';
+        var params = "*$" + user_id + "*$" + date_start + "*$" + date_end + "*$" + shipmentStatus.toString() + "*$" + approvalStatus.toString() + "*$" + machineId.toString();
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 

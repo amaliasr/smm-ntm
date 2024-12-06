@@ -341,6 +341,7 @@
         html += '</div>'
         html += '<div class="card-body p-0">'
         // body
+        html += '<div class="table-responsive">'
         html += '<table class="table table-hover m-0">'
         html += '<tr>'
         html += '<th class="text-center align-middle small-text" style="width:5%">No</th>'
@@ -362,6 +363,7 @@
             last_number++
         })
         html += '</table>'
+        html += '</div>'
         // body
         html += '</div>'
         html += '<div class="card-footer py-2">'

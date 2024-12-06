@@ -1131,54 +1131,57 @@
             html += '</thead>'
             html += '<tbody>'
             $.each(data_plan['materialItem'], function(keya, valuea) {
-                if (value['detail']['machine_type']['id'] == valuea['machine_type'][0]['machine_type']['id']) {
-                    html += '<tr>'
-                    var name = valuea.material_alias
-                    if (name == null) {
-                        name = valuea.material_name
-                    }
-                    html += '<td class="p-2 font-small text-nowrap">' + valuea['material_code'] + '</td>'
-                    html += '<td class="p-2 font-small">' + name + '</td>'
-                    // html += '<td class="p-2 font-small">' + valuea['unit']['name'] + '</td>'
-                    html += '<td class="p-2 font-small text-nowrap">'
-                    html += '<select class="form-select trans-select font-small shadow-none" id="unitSelect' + valuea.material_id + '" style="cursor:pointer;padding:5px !important" data-item_id="' + valuea.material_id + '">'
-                    valuea.unit_option.forEach(e => {
-                        var select = ''
-                        if (e.id == valuea.unit.id) {
-                            select = 'selected'
+                var data_machine_detail = valuea['machine_type']
+                data_machine_detail.forEach(ele => {
+                    if (value['detail']['machine_type']['id'] == ele['machine_type']['id']) {
+                        html += '<tr>'
+                        var name = valuea.material_alias
+                        if (name == null) {
+                            name = valuea.material_name
                         }
-                        html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
-                    });
-                    html += '<select>'
-                    html += '</td>'
-                    $.each(value['detail']['machine'], function(keys, values) {
-                        // console.log(values['id'], valuea['material_id'])
-                        var hasil = data_draft.find((values2, keys2) => {
-                            if (values2.machine_id === values['id'] && values2.material_id === valuea['material_id']) return true
-                        })
-                        if (hasil == undefined) {
-                            hasil = ''
-                        } else {
-                            hasil = hasil['qty']
-                            filled_cell.push({
-                                'machine_id': values['id'],
-                                'material_id': valuea['material_id'],
-                                'machine_type': value['detail']['machine_type']['id'],
-                                'unit_id': valuea['unit']['id'],
-                                'qty': hasil,
+                        html += '<td class="p-2 font-small text-nowrap">' + valuea['material_code'] + '</td>'
+                        html += '<td class="p-2 font-small">' + name + '</td>'
+                        // html += '<td class="p-2 font-small">' + valuea['unit']['name'] + '</td>'
+                        html += '<td class="p-2 font-small text-nowrap">'
+                        html += '<select class="form-select trans-select font-small shadow-none" id="unitSelect' + valuea.material_id + '" style="cursor:pointer;padding:5px !important" data-item_id="' + valuea.material_id + '">'
+                        valuea.unit_option.forEach(e => {
+                            var select = ''
+                            if (e.id == valuea.unit.id) {
+                                select = 'selected'
+                            }
+                            html += '<option value="' + e.id + '" ' + select + '>' + e.name + '</option>'
+                        });
+                        html += '<select>'
+                        html += '</td>'
+                        $.each(value['detail']['machine'], function(keys, values) {
+                            // console.log(values['id'], valuea['material_id'])
+                            var hasil = data_draft.find((values2, keys2) => {
+                                if (values2.machine_id === values['id'] && values2.material_id === valuea['material_id']) return true
                             })
-                        }
-                        var checkMachinePlan = activedMachine.find((v, k) => {
-                            if (v == values.id) return true
+                            if (hasil == undefined) {
+                                hasil = ''
+                            } else {
+                                hasil = hasil['qty']
+                                filled_cell.push({
+                                    'machine_id': values['id'],
+                                    'material_id': valuea['material_id'],
+                                    'machine_type': value['detail']['machine_type']['id'],
+                                    'unit_id': valuea['unit']['id'],
+                                    'qty': hasil,
+                                })
+                            }
+                            var checkMachinePlan = activedMachine.find((v, k) => {
+                                if (v == values.id) return true
+                            })
+                            var bgActive = ''
+                            if (checkMachinePlan) {
+                                bgActive = 'bg-light-success'
+                            }
+                            html += '<td class="p-0 font-small cellMaterial ' + bgActive + '" id="cellMaterial' + values['id'] + valuea['material_id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..." value="' + hasil + '" id="inputMaterial' + values['id'] + valuea['material_id'] + '" data-machine="' + values['id'] + '" data-material="' + valuea['material_id'] + '" data-machine_type="' + value['detail']['machine_type']['id'] + '" data-unit="' + valuea['unit']['id'] + '"></td>'
                         })
-                        var bgActive = ''
-                        if (checkMachinePlan) {
-                            bgActive = 'bg-light-success'
-                        }
-                        html += '<td class="p-0 font-small cellMaterial ' + bgActive + '" id="cellMaterial' + values['id'] + valuea['material_id'] + '"><input class="form-control form-control-sm nominal jumlahPlanning" style="border-radius: 0px;border:none;box-shadow: none;font-size:11px;font-weight:bold;text-align:right;background-color:transparent" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="..." value="' + hasil + '" id="inputMaterial' + values['id'] + valuea['material_id'] + '" data-machine="' + values['id'] + '" data-material="' + valuea['material_id'] + '" data-machine_type="' + value['detail']['machine_type']['id'] + '" data-unit="' + valuea['unit']['id'] + '"></td>'
-                    })
-                    html += '</tr>'
-                }
+                        html += '</tr>'
+                    }
+                });
             })
             html += '</tbody>'
             html += '</table>'
