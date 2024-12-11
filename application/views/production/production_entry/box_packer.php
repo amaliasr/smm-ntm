@@ -388,7 +388,7 @@
                 <div class="row justify-content-between p-3 pb-0">
                     <div class="col-auto">
                         <p class="m-0 small-text"><b>List Box</b></p>
-                        <p class="m-0 super-small-text text-grey-small"><b><span id="totalDataBall">160 Data</span></b> ( 12 Data still Offline )</p>
+                        <p class="m-0 super-small-text text-grey-small"><b><span id="totalDataBox">0</span> Data</b><span class="ms-1" id="totalDataOfflineBox"></span></p>
                     </div>
                     <div class="col-auto text-end">
                         <div class="row">
@@ -400,18 +400,18 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <input type="text" class="form-control mt-3 small-text" placeholder="Cari Kode atau Brand" id="search_nama" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">
+                        <input type="text" class="form-control mt-3 small-text" placeholder="Cari Kode atau Brand" id="search_kode_brand" onclick="offBlurOff(),this.focus()" onkeyup="searching('search_kode_brand','textListBox','listDetailBox')" onblur="onBlurOn()" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">
                     </div>
                 </div>
                 <!-- <div> -->
-                <div class="border-bottom" style="max-height: 560px;overflow-x: hidden;overflow-y: auto;" id="listBalls">
+                <div class="border-bottom" style="max-height: 560px;overflow-x: hidden;overflow-y: auto;" id="listBoxes">
                 </div>
                 <!-- </div> -->
             </div>
         </div>
     </div>
     <div class="col-6 pt-2">
-        <div class="card shadow-sm" style="height: 700px">
+        <div class="card shadow-sm h-100" style="min-height: 700px !important">
             <div class="card-body" id="fieldProcessAddNewBox">
             </div>
         </div>
@@ -436,6 +436,7 @@
 <div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
 <script src="<?= base_url(); ?>assets/html5-qrcode.min.js"></script>
 <script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
 <script>
@@ -502,9 +503,11 @@
         var data = {
             result_product: [],
             result_product_machine: [],
+            result_product_material: [],
             deletedId: {
                 result_product: [],
                 result_product_machine: [],
+                result_product_material: []
             }
         }
         return data
@@ -514,6 +517,12 @@
         // Filter data berdasarkan id yang tidak termasuk dalam dataUntukDihapus
         return inputData.filter(item => !dataUntukDihapus.includes(item.id.toString()));
     }
+    $('#modal').on('hidden.bs.modal', function(e) {
+        onBlurOn()
+    })
+    $('#modal').on('shown.bs.modal', function() {
+        offBlurOff()
+    });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var linkBefore = '<?= $linkBefore ?>';
@@ -552,6 +561,7 @@
     var variableInsert = deepCopy(resetVariableInsert())
     var variableDelete = deepCopy(resetVariableInsert())
     var variableInsertSendOffline = deepCopy(resetVariableInsert())
+    var checkDatabase = false
     $(document).ready(function() {
         jspManager()
         fieldButtonTemplate()
@@ -774,12 +784,12 @@
                 });
             },
             beforeSend: function() {
-                $('#listBalls').html(LoadingReturn('Loading...'))
+                $('#listBoxes').html(LoadingReturn('Loading...'))
             },
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
-                listBalls()
+                listBoxes()
                 if (!work_plan_product_id_clicked) {
                     // fieldProcessAddNewBox()
                     addNewBox()
@@ -788,27 +798,56 @@
         })
     }
 
-    function listBalls() {
+    function listBoxes() {
         var html = ''
+        var total_all = 0
+        var total_offline = 0
         var data = deepCopy(dataEntry.productionOutItem)
         if (data.length) {
             data.forEach((v, i) => {
                 // card created
-                html += '<div class="card shadow-none border-end-0 border-start-0 border-top-0 pointer card-hoper bg-super-light-orange listDetailBall" style="border-radius:0px;" id="listDetailBall' + v.id + '" onclick="detailBall(' + "'" + v.id + "'" + ')">'
+                var bg = ''
+                if (!v.is_offline) {
+                    if (!v.is_material_used) {
+                        bg = 'bg-super-light-orange'
+                    } else {
+                        bg = 'bg-super-light-success'
+                    }
+                } else {
+                    total_offline++
+                }
+                html += '<div class="card shadow-none border-end-0 border-start-0 border-top-0 pointer card-hoper ' + bg + ' listDetailBox" style="border-radius:0px;" id="listDetailBox' + v.id + '" onclick="detailBox(' + "'" + v.id + "'" + ')">'
                 html += '<div class="card-body py-3">'
                 html += '<div class="row">'
                 // column
-                html += ballCreated(v, i)
+                if (!v.is_offline) {
+                    if (!v.is_material_used) {
+                        html += ballCreated(v, i)
+                    } else {
+                        html += ballInTheBox(v, i)
+                    }
+                } else {
+                    html += ballOffline(v, i)
+                }
                 // column
                 html += '</div>'
                 html += '</div>'
                 html += '</div>'
                 // card created
+                total_all++
             });
         } else {
             html += emptyReturnTextOnly('Tidak Ada Data yang Tersedia')
         }
-        $('#listBalls').html(html)
+        $('#listBoxes').html(html)
+        totalDataBox(total_all, total_offline)
+    }
+
+    function totalDataBox(total_all, total_offline) {
+        $('#totalDataBox').html(total_all)
+        if (total_offline) {
+            $('#totalDataOfflineBox').html('( ' + total_offline + ' Data still Offline )')
+        }
     }
 
     function fieldProcessAddNewBox() {
@@ -831,8 +870,8 @@
         // icon
         // side name
         html += '<div class="col-8 align-self-center text-start">'
-        html += '<p class="m-0 small-text text-grey-small fw-bolder">BALL-ABLF20DF1120240001</p>'
-        html += '<p class="m-0 super-small-text text-grey"><b>09:30</b> - Armour Black 20 Double Filter</p>'
+        html += '<p class="m-0 small-text text-grey-small fw-bolder textListBox" data-id="' + v.id + '">' + v.inventory_code + '</p>'
+        html += '<p class="m-0 super-small-text text-grey"><b class="textListBox" data-id="' + v.id + '">' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBox" data-id="' + v.id + '">' + v.item.name + '</span></p>'
         html += '</div>'
         // side name
         // status
@@ -844,6 +883,13 @@
     }
 
     function ballCreated(v, i) {
+        var namaPita = ''
+        if (v.stok_year_id) {
+            var nameStokYear = dataEntry.stokYear.find((value, key) => {
+                if (value.id == v.stok_year_id) return true
+            })
+            namaPita = '<span class="ms-1 text-danger">Pita ' + nameStokYear.name + '</span>'
+        }
         var html = ''
         // icon
         html += '<div class="col-1 d-flex align-self-center text-center">'
@@ -852,8 +898,8 @@
         // icon
         // side name
         html += '<div class="col-8 align-self-center text-start">'
-        html += '<p class="m-0 small-text text-dark-grey fw-bolder">' + v.inventory_code + '</p>'
-        html += '<p class="m-0 super-small-text text-dark-grey"><b>' + convertTimeFormat2(v.time.start) + '</b> - ' + v.item.name + '</p>'
+        html += '<p class="m-0 small-text text-dark-grey fw-bolder textListBox" data-id="' + v.id + '">' + v.inventory_code + '</p>'
+        html += '<p class="m-0 super-small-text text-dark-grey"><b class="textListBox" data-id="' + v.id + '">' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBox" data-id="' + v.id + '">' + v.item.name + '' + namaPita + '</span></p>'
         html += '</div>'
         // side name
         // status
@@ -865,6 +911,13 @@
     }
 
     function ballInTheBox(v, i) {
+        var namaPita = ''
+        if (v.stok_year_id) {
+            var nameStokYear = dataEntry.stokYear.find((value, key) => {
+                if (value.id == v.stok_year_id) return true
+            })
+            namaPita = '<span class="ms-1 text-danger">Pita ' + nameStokYear.name + '</span>'
+        }
         var html = ''
         // icon
         html += '<div class="col-1 d-flex align-self-center text-center">'
@@ -872,8 +925,8 @@
         // icon
         // side name
         html += '<div class="col-8 align-self-center text-start">'
-        html += '<p class="m-0 small-text text-dark-grey fw-bolder">BALL-ABLF20DF1120240001</p>'
-        html += '<p class="m-0 super-small-text text-dark-grey"><b>09:30</b> - Armour Black 20 Double Filter</p>'
+        html += '<p class="m-0 small-text text-dark-grey fw-bolder textListBox" data-id="' + v.id + '">' + v.inventory_code + '</p>'
+        html += '<p class="m-0 super-small-text text-dark-grey"><b>' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBox" data-id="' + v.id + '">' + v.item.name + '' + namaPita + '</span></p>'
         html += '</div>'
         // side name
         // status
@@ -904,11 +957,14 @@
                         <p class="m-0 mb-3 small-text">Scan QRCode Ball pertama terlebih dahulu untuk
     mendeteksi brand pada Box yang akan dibuat</p>
                         <input class="form-control form-leave" style="text-align: center;" tabindex="1" role="dialog" placeholder="Masukkan Kode Ball" id="codeBallInput" autocomplete="off" onblur="this.focus()" autofocus>
-                        <button class="mt-2 w-100 btn btn-brown" onclick="firstScanner()"><i class="fa fa-search me-2"></i>Cari</button>
+                        <button class="mt-2 w-100 btn btn-brown mb-2" onclick="firstScanner()"><i class="fa fa-search me-2"></i>Cari</button>
+                        <div id="alertIfListBoxes">
+                        </div>
                     </div>
                 </div>`
         $('#fieldProcessAddNewBox').html(html)
         $('#codeBallInput').focus();
+        buttonSaveOfflineMode()
     }
     $(document).on('keypress', '#codeBallInput', function(e) {
         if (event.keyCode === 13) {
@@ -917,31 +973,70 @@
     })
 
     function firstScanner() {
-        $('#alertIfListBalls').html('')
+        $('#alertIfListBoxes').html('')
         var code = $('#codeBallInput').val()
         var data = dataEntry.machineStock.find((value, key) => {
             if (value.inventory_code == code) return true
         })
         if (data) {
-            if (!inventory_scanner.length) {
-                // belum pernah scanner atau scanner nya kosong (scan pertama kali)
-                setFirstScanner(data)
-            } else {
-                // scan ke 2 kalinya atau lebih
-                if (data.item_id == item_id_scanner) {
-                    // scanner sama
-                    secondScanner(data)
+            // ada code nya
+            checkDatabase = false
+            if (data.stok_akhir) {
+                if (!inventory_scanner.length) {
+                    // belum pernah scanner atau scanner nya kosong (scan pertama kali)
+                    setFirstScanner(data)
                 } else {
-                    // scanner beda
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Brand Tidak Cocok',
-                        text: 'Brand yang dimasukkan berbeda dengan yang sebelumnya'
-                    });
+                    // scan ke 2 kalinya atau lebih
+                    if (data.item_id == item_id_scanner) {
+                        // scanner sama
+                        secondScanner(data)
+                    } else {
+                        // scanner beda
+                        alertIfListBoxes('Brand Tidak Cocok')
+                    }
                 }
+            } else {
+                alertIfListBoxes('Stok Telah Habis')
             }
-
+        } else {
+            if (checkDatabase) {
+                // jika sudah pernah di cek ternyata tidak ada
+                alertIfListBoxes('Kode Ball Tidak Ada')
+                checkDatabase = false
+            } else {
+                // pencarian jika belum ada tapi belum dicek di database
+                findDataBall()
+            }
         }
+    }
+
+    function findDataBall() {
+        checkDatabase = true
+        $.ajax({
+            url: "<?= api_produksi('getMachineStockMachineStep'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                workPlanMachineId: workPlanMachineId,
+                productionEntryAccessId: id_menu
+            },
+            error: function(xhr) {
+                alertIfListBoxes('Error Data, Not Found!')
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                dataEntry.machineStock = deepCopy(response.data.machineStock)
+                firstScanner()
+            }
+        })
+    }
+
+    function alertIfListBoxes(text) {
+        $('#alertIfListBoxes').html(`<div class="alert alert-danger py-2 alert-dismissible fade show d-flex align-self-center" role="alert"><p class="m-0 small-text fw-bold">${text}</p><button type="button" class="small-text btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button></div>`)
+        $('#codeBallInput').val('')
     }
 
     function createBrandCode(x = 1) {
@@ -956,7 +1051,8 @@
         const xFormatted = String(x).padStart(5, '0');
 
         // Membuat kode final
-        const code = `${variableGantung.item_alias}BX${defaultMachineLineBox.machine_line_label}${year}${month}${date}${xFormatted}`;
+        const code = `BX${defaultMachineLineBox.machine_line_label}${year}${month}${date}${xFormatted}`;
+        // const code = `${variableGantung.item_alias}BX${defaultMachineLineBox.machine_line_label}${year}${month}${date}${xFormatted}`;
 
         return code;
     }
@@ -975,7 +1071,7 @@
             if (brand) {
                 variableGantung.item_alias = brand.product.alias
                 variableGantung.work_plan_product_id = brand.work_plan_product_id
-                variableGantung.is_product_final_other = brand.is_product_final_other
+                variableGantung.is_product_final_other = brand.product.is_product_final_other
                 var unitOption = brand.unit_option.find((v, k) => {
                     if (v.id == id_pack) return true
                 })
@@ -1021,8 +1117,7 @@
                 if (text) text += ' dan '
                 text += 'Item tidak cocok'
             }
-            $('#alertIfListBalls').html(`<div class="alert alert-danger py-2 alert-dismissible fade show d-flex align-self-center" role="alert"><p class="m-0 small-text fw-bold">${text}</p><button type="button" class="small-text btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button></div>`)
-            $('#codeBallInput').val('')
+            alertIfListBoxes(text)
         }
     }
 
@@ -1057,7 +1152,7 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-4 text-center align-self-center pe-0">
-                        <img src="<?= base_url('assets/image/svg/box-open.svg'); ?>" style="width:70%">
+                        <img src="<?= base_url('assets/image/svg/box-open.svg'); ?>" style="width:70%" id="imageBox">
                     </div>
                     <div class="col-8 align-self-center">
                         <p class="m-0 fw-bolder h1">${initial_product_scanned.name}</p>
@@ -1094,26 +1189,30 @@
                     <div class="col-12 mb-2">
                         <p class="m-0 small-text fw-bold text-grey-small">Balls List</p>
                     </div>
-                    <div class="col-12" id="alertIfListBalls">
+                    <div class="col-12" id="alertIfListBoxes">
                     </div>
-                    <div class="col-12 mb-2" id="fieldIfListBalls">
+                    <div class="col-12 mb-2" id="fieldIfListBoxes" style="max-height: 200px; overflow-x: hidden;overflow-y: auto;">
+                    </div>
+                    <div class="col-12 mt-3 text-center">
+                        <button class="btn btn-lg btn-brown shadow-none w-100 small-text" id="btnPrintSave" type="button" disabled onclick="saveAndPrint()">Simpan & Cetak</button>
+                        <button class="btn shadow-none w-100 text-danger small-text" onclick="addNewBox()">Batalkan</button>
                     </div>
                 </div>
                 `
         $('#fieldProcessAddNewBox').html(html)
         $('#codeBallInput').focus();
-        fieldIfListBalls()
+        fieldIfListBoxes()
     }
 
-    function fieldIfListBalls() {
+    function fieldIfListBoxes() {
         var html = ''
-        if (!inventory_scanner.length) {
+        if (inventory_scanner.length) {
             inventory_scanner.forEach(e => {
                 var data = dataEntry.machineStock.find((v, k) => {
                     if (v.inventory_id == e) return true
                 })
                 html += `
-                <div class="card shadow-none mb-2 card-hoper bg-super-light-orange">
+                <div class="card shadow-none mb-2 card-hoper bg-super-light-orange cardBallList">
                     <div class="card-body py-2">
                         <div class="row">
                             <div class="col-10 align-self-center">
@@ -1130,13 +1229,631 @@
         } else {
             html += emptyReturnTextOnly('Tidak Ada Data yang Tersedia')
         }
-        $('#fieldIfListBalls').html(html)
+        $('#fieldIfListBoxes').html(html)
         $('#totalBallFilled').html(inventory_scanner.length)
+        fieldDimension()
+    }
+
+    function fieldDimension() {
+        var multiplier = initial_product_scanned.material_group[0].items[0].unit_option.find((v, k) => {
+            if (v.id == id_pack) return true
+        })
+        if (multiplier) {
+            multiplier = multiplier.multiplier
+        } else [
+            multiplier = 1
+        ]
+        var total = inventory_scanner.length * multiplier
+        $('#fieldDimension').html(total)
+        showButtonSave()
+    }
+
+    function showButtonSave() {
+        var batas = variableGantung.unit_ball.multiplier
+        var base_url = '<?= base_url(); ?>'
+        if (inventory_scanner.length == batas) {
+            // sudah mencapai batas
+            $('#btnPrintSave').attr('disabled', false)
+            $('#codeBallInput').attr('disabled', true)
+            $('.cardBallList').removeClass('bg-super-light-orange')
+            $('.cardBallList').addClass('bg-super-light-success border-success')
+            $('#alertIfListBoxes').html(`<div class="alert alert-success super-small-text py-2" role="alert">
+                Ball telah memenuhi Box
+                </div>`)
+            $('#imageBox').attr('src', base_url + 'assets/image/svg/box-close.svg')
+        } else {
+            $('#btnPrintSave').attr('disabled', true)
+            $('#codeBallInput').attr('disabled', false)
+            $('.cardBallList').removeClass('bg-super-light-success border-success')
+            $('.cardBallList').addClass('bg-super-light-orange')
+            $('#alertIfListBoxes').html('')
+            $('#imageBox').attr('src', base_url + 'assets/image/svg/box-open.svg')
+        }
     }
 
     function hapusBall(inventory_id) {
         // tanpa index, langsung pakai splice
         inventory_scanner.splice(inventory_scanner.indexOf(inventory_id), 1)
         fieldInputBox()
+    }
+
+    function saveAndPrint() {
+        variableInsert = deepCopy(resetVariableInsert())
+        var time = currentDateTime()
+        var id = createCodeId(0)
+        variableInsert.result_product.push({
+            id: id,
+            work_plan_id: dataEntry.workPlanMachine.work_plan_id,
+            shift_id: dataEntry.workPlanMachine.shift_id,
+            machine_id: dataEntry.workPlanMachine.machine.id,
+            time_start: variableGantung.dateCreated,
+            time_end: variableGantung.dateCreated,
+            item_id: initial_product_scanned.item_id,
+            qty: 1,
+            unit_id: initial_product_scanned.unit.id,
+            employee_id: user_id,
+            note: variableGantung.notes,
+            created_at: time,
+            updated_at: time,
+            work_plan_product_id: variableGantung.work_plan_product_id,
+            datetime_start: dataEntry.workPlanMachine.date + ' ' + formatTime(variableGantung.dateCreated),
+            datetime_end: dataEntry.workPlanMachine.date + ' ' + formatTime(variableGantung.dateCreated),
+            stok_year_id: variableGantung.stok_year_id,
+            machine_step_id: dataEntry.machineStepid,
+            inventory_code: variableGantung.box_code,
+            machine_line_id: defaultMachineLineBox.machine_line_id
+        })
+        variableInsert.result_product_machine.push({
+            id: createCodeId(0),
+            result_product_id: id,
+            datetime: variableGantung.dateCreated,
+            machine_step_id: dataEntry.machineStepid,
+            item_id_product: initial_product_scanned.item_id,
+            qty: 1,
+            unit_id: initial_product_scanned.unit.id,
+            employee_id_complete: user_id,
+            note: variableGantung.notes,
+            created_at: time,
+            updated_at: time,
+            index: 1,
+            stok_year_id: variableGantung.stok_year_id,
+            is_product_final_other: variableGantung.is_product_final_other,
+            employee_id_admin: user_id,
+            is_complete: 1,
+        })
+        if (inventory_scanner.length) {
+            inventory_scanner.forEach((v, k) => {
+                variableInsert.result_product_material.push({
+                    id: createCodeId(k),
+                    result_product_id: id,
+                    datetime: variableGantung.dateCreated,
+                    machine_id: dataEntry.workPlanMachine.machine.id,
+                    item_id: variableGantung.item_id,
+                    inventory_id: v,
+                    unit_id: variableGantung.unit_ball.unit_id,
+                    qty: 1,
+                    created_at: time,
+                    updated_at: time,
+                })
+            })
+        }
+        addToVariableOffline('add')
+    }
+
+    function addToVariableOffline(status) {
+        // masukkan ke variableInsertSendOffline disimpan saja
+        var dataMasuk = []
+        if (status == 'add') {
+            variableInsert.result_product.forEach(e => {
+                var dataItemProduction = dataEntry.itemProduction.find((value, key) => {
+                    if (value.id == e.item_id) return true
+                })
+                dataMasuk.push({
+                    "id": e.id,
+                    "item": {
+                        "id": dataItemProduction.id,
+                        "code": dataItemProduction.code,
+                        "name": dataItemProduction.name,
+                        "alias": dataItemProduction.alias
+                    },
+                    "time": {
+                        "end": e.time_end,
+                        "start": e.time_start,
+                        "datetime_end": e.datetime_end,
+                        "datetime_start": e.datetime_start
+                    },
+                    'is_offline': 1,
+                    "qty": 1,
+                    "note": e.note,
+                    "inventory_code": e.inventory_code,
+                    "result_product_machines": [],
+                    "result_product_materials": [],
+                })
+                variableInsertSendOffline.result_product.push(e)
+            });
+            variableInsert.result_product_machine.forEach(e => {
+                //filter datamasuk
+                var filterDataMasuk = dataMasuk.find((value, key) => {
+                    if (value.id == e.result_product_id) return true
+                })
+                filterDataMasuk.result_product_machines.push(e)
+                variableInsertSendOffline.result_product_machine.push(e)
+            });
+            variableInsert.result_product_material.forEach(e => {
+                //filter datamasuk
+                var filterDataMasuk = dataMasuk.find((value, key) => {
+                    if (value.id == e.result_product_id) return true
+                })
+                filterDataMasuk.result_product_materials.push(e)
+                variableInsertSendOffline.result_product_material.push(e)
+            });
+        } else if (status == 'delete') {
+            variableDelete.deletedId.result_product.forEach(e => {
+                dataMasuk.push(e)
+                variableInsertSendOffline.deletedId.result_product.push(e)
+            });
+            variableDelete.deletedId.result_product_machine.forEach(e => {
+                variableInsertSendOffline.deletedId.result_product_machine.push(e)
+            });
+            variableDelete.deletedId.result_product_material.forEach(e => {
+                variableInsertSendOffline.deletedId.result_product_material.push(e)
+            });
+        }
+        reconstructionData(status, dataMasuk)
+    }
+
+    function reconstructionData(status, dataMasuk) {
+        var data = []
+        if (status == 'add') {
+            dataMasuk.forEach(e => {
+                data.push(e)
+            });
+            var dataOutItem = deepCopy(dataEntry.productionOutItem)
+            dataOutItem.forEach(e => {
+                data.push(e)
+            });
+            dataEntry.productionOutItem = data
+            addNewBox()
+            printQrCode(dataMasuk)
+        } else if (status == 'delete') {
+            $('#modal').modal('hide')
+            var dataOutItem = deepCopy(dataEntry.productionOutItem)
+            var hasil = hapusDatadanReplaceData(dataOutItem, dataMasuk);
+            dataEntry.productionOutItem = hasil
+        }
+        buttonSaveOfflineMode()
+        listBoxes()
+    }
+
+    function buttonSaveOfflineMode() {
+        var data = deepCopy(variableInsertSendOffline.result_product)
+        var data2 = deepCopy(variableInsertSendOffline.result_product_machine)
+        var data3 = deepCopy(variableInsertSendOffline.result_product_material)
+        var data4 = deepCopy(variableInsertSendOffline.deletedId.result_product)
+        var data5 = deepCopy(variableInsertSendOffline.deletedId.result_product_machine)
+        var data6 = deepCopy(variableInsertSendOffline.deletedId.result_product_material)
+        if (data.length || data2.length || data3.length || data4.length || data5.length || data6.length) {
+            // jika masih ada data nya
+            $('#btnSendAll').prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+        } else {
+            // jika sudah tidak ada data
+            $('#btnSendAll').prop("disabled", true).html('<i class="fa fa-save me-1"></i>Send All')
+        }
+        totalOpenDraft(data, data2, data3, data4)
+    }
+
+    function totalOpenDraft(data, data2, data3, data4) {
+        var totalData = 0
+        totalData += data.length
+        totalData += data4.length
+        if (totalData == 0) {
+            $('#btnOpenDraft').prop("disabled", true)
+            $('#totalOpenDraft').html('')
+            $('#totalOpenDraft').removeClass('ms-1')
+        } else {
+            $('#btnOpenDraft').prop("disabled", false)
+            $('#totalOpenDraft').html("( " + totalData + " )")
+            $('#totalOpenDraft').addClass('ms-1')
+        }
+    }
+
+    function sendAllVariableInsert() {
+        var data = deepCopy(variableInsertSendOffline)
+        var type = 'POST'
+        var button = '#btnSendAll'
+        var url = '<?php echo api_produksi('setResultProductMachine'); ?>'
+        if (data.result_product.length || data.result_product_machine.length || data.result_product_material.length || data.deletedId.result_product.length || data.deletedId.result_product_machine.length || data.deletedId.result_product_material.length) {
+            kelolaDataSaveAuto(data, type, url, button)
+        }
+    }
+
+    function kelolaDataSaveAuto(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
+            },
+            success: function(response) {
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Send All')
+                doAfterInsert(data)
+            }
+        });
+    }
+
+    function doAfterInsert(data) {
+        if (data.result_product) {
+            var dataToDelete = deepCopy(data.result_product)
+            var newData = deepCopy(variableInsertSendOffline.result_product).slice();
+            dataToDelete.forEach(itemToDelete => {
+                newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+            });
+            variableInsertSendOffline.result_product = newData
+        }
+        if (data.result_product_machine) {
+            var dataToDelete = deepCopy(data.result_product_machine)
+            var newData = deepCopy(variableInsertSendOffline.result_product_machine).slice();
+            dataToDelete.forEach(itemToDelete => {
+                newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+            });
+            variableInsertSendOffline.result_product_machine = newData
+        }
+        if (data.result_product_material) {
+            var dataToDelete = deepCopy(data.result_product_material)
+            var newData = deepCopy(variableInsertSendOffline.result_product_material).slice();
+            dataToDelete.forEach(itemToDelete => {
+                newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+            });
+            variableInsertSendOffline.result_product_material = newData
+        }
+
+        if (data.deletedId.result_product) {
+            var dataToDelete = deepCopy(data.deletedId.result_product)
+            var newData = deepCopy(variableInsertSendOffline.deletedId.result_product).slice();
+            dataToDelete.forEach(itemToDelete => {
+                newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+            });
+            variableInsertSendOffline.deletedId.result_product = newData
+        }
+        if (data.deletedId.result_product_machine) {
+            var dataToDelete = deepCopy(data.deletedId.result_product_machine)
+            var newData = deepCopy(variableInsertSendOffline.deletedId.result_product_machine).slice();
+            dataToDelete.forEach(itemToDelete => {
+                newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+            });
+            variableInsertSendOffline.deletedId.result_product_machine = newData
+        }
+        if (data.deletedId.result_product_material) {
+            var dataToDelete = deepCopy(data.deletedId.result_product_material)
+            var newData = deepCopy(variableInsertSendOffline.deletedId.result_product_material).slice();
+            dataToDelete.forEach(itemToDelete => {
+                newData = newData.filter(item => JSON.stringify(item) !== JSON.stringify(itemToDelete));
+            });
+            variableInsertSendOffline.deletedId.result_product_material = newData
+        }
+        buttonSaveOfflineMode()
+        loadData()
+    }
+
+    function detailBox(id) {
+        var data = dataEntry.productionOutItem.find((value, key) => {
+            if (value.id == id) return true
+        })
+        var brand = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == data.item.id) return true
+        })
+        var pack = brand.unit_option.find((v, k) => {
+            if (v.id == id_pack) return true
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Detail Box</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 border-bottom p-4 pt-0">'
+        // content
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 pe-0">'
+        html_body += '<div id="qrcodePacking" style="margin-top:15px;margin:auto;"></div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center">'
+        html_body += '<p class="m-0 small">ID Inventory</p>'
+        html_body += '<p class="m-0 h3 fw-bolder">' + data.inventory_code + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // content
+        html_body += '</div>'
+        html_body += '<div class="col-12 p-0">'
+        html_body += '<div class="row w-100">'
+        // column
+        html_body += '<div class="col-7 p-3 ps-5 border-end">'
+        // Detail Information
+        html_body += '<div class="row justify-content-between">'
+        html_body += '<div class="col-auto mb-2">'
+        html_body += '<p class="m-0 small-text">Detail Information</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-auto text-end mb-2">'
+        html_body += '<button class="btn btn-sm btn-brown shadow-none super-small-text p-1" onclick="cetakUlangQRCode(' + "'" + id + "'" + ')"><i class="fa fa-print"></i></button>'
+        html_body += '</div>'
+        // html_body += '<div class="col-6 pe-0 mb-2">'
+        // html_body += '<p class="m-0 super-small-text text-grey-small">Transaction Code</p>'
+        // html_body += '<p class="m-0 super-small-text fw-bolder">' + data.inventory_code + '</p>'
+        // html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">SKU</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.item.name + 'r</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Type</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + brand.item_type.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Dimension</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + pack.multiplier + ' ' + pack.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Time Created</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + formatTanggal(data.time.datetime_start) + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Notes</p>'
+        if (!data.note) {
+            data.note = '-'
+        }
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.note + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mb-2 mt-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Whats inside the box ?</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mb-2" id="fieldIfListBoxesReview">'
+        html_body += '</div>'
+        html_body += '</div>'
+        // Detail Information
+        html_body += '</div>'
+        html_body += '<div class="col-5 p-3">'
+        // Timeline
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 mb-4">'
+        html_body += '<p class="m-0 small-text">Timeline</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += timelineBox()
+        html_body += '</div>'
+        html_body += '</div>'
+        // Timeline
+        html_body += '</div>'
+        // column
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('pb-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<div class="row w-100 justify-content-between">'
+        html_footer += '<div class="col-auto">'
+        html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBox(' + "'" + id + "'" + ')">Hapus Box</button>'
+        html_footer += '</div>'
+        html_footer += '<div class="col-auto">'
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '</div>'
+        html_footer += '</div>'
+        $('#modalFooter').html(html_footer)
+        fieldIfListBoxesReview(data)
+    }
+
+    function fieldIfListBoxesReview(data) {
+        var html = ''
+        data.result_product_materials.forEach(e => {
+            html += `
+            <div class="card shadow-none mb-2">
+                <div class="card-body py-2">
+                    <div class="row">
+                        <div class="col-12 align-self-center">
+                            <p class="m-0 super-small-text fw-bold text-dark-grey">${e.inventory_code}</p>
+                        </div>   
+                    </div>
+                </div>
+            </div>
+            `
+        });
+        $('#fieldIfListBoxesReview').html(html)
+        var qrcode = new QRCode("qrcodePacking", {
+            text: data.inventory_code,
+            width: 60,
+            height: 60,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+
+    function hapusBox(id) {
+        var data = deepCopy(dataEntry.productionOutItem).find((value, key) => {
+            if (value.id == id) return true
+        })
+        // console.log(data)
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus data Ball ' + data.inventory_code + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                variableDelete = deepCopy(resetVariableInsert())
+                variableDelete.deletedId.result_product.push(id)
+                data.result_product_machines.forEach(e => {
+                    variableDelete.deletedId.result_product_machine.push(e.id)
+                });
+                addToVariableOffline('delete')
+            }
+        })
+
+    }
+
+    function timelineBox() {
+        var html = ''
+        var status = ''
+        var text = ''
+        var btnEdit = ''
+        html += '<div class="timeline timeline-sm">'
+        // Setoran Baru
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Buat Setoran Baru</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // Setoran Baru
+        // Ambil Material
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Ambil Material</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // Ambil Material
+        // Complete
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Complete</b>'
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // Complete
+        return html
+    }
+
+    function formatPrintedAt(date = new Date()) {
+        // Array bulan dalam bahasa Indonesia
+        const bulan = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+
+        // Ekstrak bagian tanggal, bulan, dan tahun
+        const tanggal = date.getDate();
+        const namaBulan = bulan[date.getMonth()];
+        const tahun = date.getFullYear();
+
+        // Format jam dan menit
+        const jam = date.getHours().toString().padStart(2, '0');
+        const menit = date.getMinutes().toString().padStart(2, '0');
+
+        // Gabungkan ke dalam format yang diinginkan
+        return `${tanggal} ${namaBulan} ${tahun} ${jam}:${menit}`;
+    }
+
+    function cetakUlangQRCode(id) {
+        var data = dataEntry.productionOutItem.filter((value, key) => {
+            if (value.id == id) return true
+        })
+        printQrCode(data)
+    }
+
+    function printQrCode(data) {
+        let cmds = '';
+        var brand = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == data[0].item.id) return true
+        })
+        var pack = brand.unit_option.find((v, k) => {
+            if (v.id == id_pack) return true
+        })
+        data.forEach(e => {
+            cmds += '^XA\n';
+            cmds += '^PW1100\n';
+            cmds += '^LL500\n';
+
+            cmds += '^FO0,60^A0N,28,28^FD ' + e.inventory_code + '^FS\n'; // Teks di bawah QR Code, ukuran lebih besar
+            cmds += '^FO10,130^BQN,2,10^FDQA,' + e.inventory_code + '^FS\n'; // QR Code lebih besar
+
+            cmds += '^FO330,140^A0N,28,28^FD SKU:^FS\n'; // Label SKU lebih besar
+            cmds += '^FO340,180^A0N,40,40^FB390,2,2,L^FD ' + e.item.name + '^FS\n'; // Nama SKU lebih besar
+
+            cmds += '^FO330,310^A0N,28,28^FD Type:^FS\n'; // Label Type lebih besar
+            cmds += '^FO330,350^A0N,40,40^FD ' + brand.item_type.name + '^FS\n'; // Isi Type lebih besar
+
+            cmds += '^FO700,140^A0N,28,28^FD Dimension:^FS\n'; // Label Dimension lebih besar
+            cmds += '^FO700,180^A0N,40,40^FD ' + pack.multiplier + ' ' + pack.name + '^FS\n'; // Isi Dimension lebih besar
+
+            cmds += '^FO700,310^A0N,28,28^FD Printed At:^FS\n'; // Label Printed At lebih besar
+            cmds += '^FO700,350^A0N,40,40^FD ' + formatPrintedAt() + '^FS\n'; // Isi Printed At lebih besar
+
+            cmds += '^XZ\n';
+        });
+        defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
+            var cpj = new JSPM.ClientPrintJob();
+            cpj.clientPrinter = new JSPM.InstalledPrinter(defaultLabelPrinterBall);
+            // cpj.clientPrinter = new JSPM.BluetoothPrinter("60:95:32:23:E4:45", 1);
+            cpj.printerCommands = cmds;
+            cpj.sendToClient();
+
+        }
+    }
+
+    function onBlurOn() {
+        $('#codeBallInput').attr('onblur', 'this.focus()').focus();
+    }
+
+    function offBlurOff() {
+        $('#codeBallInput').removeAttr('onblur', 'this.focus()')
+    }
+
+    function searching(id_search_form, class_text_search, id_card_search) {
+        var value = $('#' + id_search_form).val().toLowerCase();
+        var cards = $('.' + class_text_search).map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.' + class_text_search).map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#' + id_card_search + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#' + id_card_search + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
+        });
     }
 </script>

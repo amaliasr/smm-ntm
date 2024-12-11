@@ -325,7 +325,7 @@ function getDateTime(orginaldate) {
 function getDateStringWithTime(orginaldate) {
     var date = new Date(orginaldate);
     var day = date.getDate();
-    var month = date.getMonth() + 1;
+    var month = date.getMonth();
     var year = date.getFullYear();
     var jam = date.getHours();
     var menit = date.getMinutes();
@@ -342,6 +342,7 @@ function getDateStringWithTime(orginaldate) {
     if (day < 10) {
         day = "0" + day;
     }
+    console.log(month)
     switch(month) {
         case 0: month = "Januari"; break;
         case 1: month = "Februari"; break;

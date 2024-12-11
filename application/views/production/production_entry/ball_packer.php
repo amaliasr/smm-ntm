@@ -393,7 +393,7 @@
                     <div class="col-auto text-end">
                         <div class="row">
                             <div class="col-auto ps-0">
-                                <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="btnOpenDraft" disabled onclick="openDraft()">Open Draft <span id="totalOpenDraft"></span></button>
+                                <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="btnOpenDraft" disabled onclick="openDraft()">Pending <span id="totalOpenDraft"></span></button>
                             </div>
                         </div>
                     </div>
@@ -411,7 +411,7 @@
         </div>
     </div>
     <div class="col-6 pt-2">
-        <div class="card shadow-sm" style="height: 700px">
+        <div class="card shadow-sm h-100" style="min-height: 700px !important">
             <div class="card-body" id="fieldProcessProductWorkPlan">
             </div>
         </div>
@@ -518,6 +518,7 @@
         machine_line_label: '',
         work_plan_machine_id: ''
     }
+    var id_pack = 9
     var defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
     var variableGantung = {
         dateCreated: '',
@@ -775,7 +776,7 @@
                 // card created
                 var bg = ''
                 if (!v.is_offline) {
-                    if (v.is_material_used == null) {
+                    if (!v.is_material_used) {
                         bg = 'bg-super-light-orange'
                     } else {
                         bg = 'bg-super-light-success'
@@ -788,7 +789,7 @@
                 html += '<div class="row">'
                 // column
                 if (!v.is_offline) {
-                    if (v.is_material_used == null) {
+                    if (!v.is_material_used) {
                         html += ballCreated(v, i)
                     } else {
                         html += ballInTheBox(v, i)
@@ -865,7 +866,13 @@
     }
 
     function ballCreated(v, i) {
-        console.log(v)
+        var namaPita = ''
+        if (v.stok_year_id) {
+            var nameStokYear = dataEntry.stokYear.find((value, key) => {
+                if (value.id == v.stok_year_id) return true
+            })
+            namaPita = '<span class="ms-1 text-danger">Pita ' + nameStokYear.name + '</span>'
+        }
         var html = ''
         // icon
         html += '<div class="col-1 d-flex align-self-center text-center">'
@@ -875,7 +882,7 @@
         // side name
         html += '<div class="col-8 align-self-center text-start">'
         html += '<p class="m-0 small-text text-dark-grey fw-bolder textListBall" data-id="' + v.id + '">' + v.inventory_code + '</p>'
-        html += '<p class="m-0 super-small-text text-dark-grey"><b class="textListBall" data-id="' + v.id + '">' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBall" data-id="' + v.id + '">' + v.item.name + '</span></p>'
+        html += '<p class="m-0 super-small-text text-dark-grey"><b class="textListBall" data-id="' + v.id + '">' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBall" data-id="' + v.id + '">' + v.item.name + '' + namaPita + '</span></p>'
         html += '</div>'
         // side name
         // status
@@ -887,6 +894,13 @@
     }
 
     function ballInTheBox(v, i) {
+        var namaPita = ''
+        if (v.stok_year_id) {
+            var nameStokYear = dataEntry.stokYear.find((value, key) => {
+                if (value.id == v.stok_year_id) return true
+            })
+            namaPita = '<span class="ms-1 text-danger">Pita ' + nameStokYear.name + '</span>'
+        }
         var html = ''
         // icon
         html += '<div class="col-1 d-flex align-self-center text-center">'
@@ -895,7 +909,7 @@
         // side name
         html += '<div class="col-8 align-self-center text-start">'
         html += '<p class="m-0 small-text text-dark-grey fw-bolder textListBall" data-id="' + v.id + '">' + v.inventory_code + '</p>'
-        html += '<p class="m-0 super-small-text text-dark-grey"><b class="textListBall" data-id="' + v.id + '">' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBall" data-id="' + v.id + '">' + v.item.name + '</span></p>'
+        html += '<p class="m-0 super-small-text text-dark-grey"><b class="textListBall" data-id="' + v.id + '">' + convertTimeFormat2(v.time.start) + '</b> - <span class="textListBall" data-id="' + v.id + '">' + v.item.name + '' + namaPita + '</span></p>'
         html += '</div>'
         // side name
         // status
@@ -995,6 +1009,68 @@
         return stock_akhir
     }
 
+    function getDateStringWithTime(orginaldate) {
+        var date = new Date(orginaldate);
+        var day = date.getDate();
+        var month = date.getMonth();
+        var year = date.getFullYear();
+        var jam = date.getHours();
+        var menit = date.getMinutes();
+        var detik = date.getSeconds();
+        if (detik < 10) {
+            detik = "0" + detik;
+        }
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        if (day < 10) {
+            day = "0" + day;
+        }
+        console.log(month)
+        switch (month) {
+            case 0:
+                month = "Januari";
+                break;
+            case 1:
+                month = "Februari";
+                break;
+            case 2:
+                month = "Maret";
+                break;
+            case 3:
+                month = "April";
+                break;
+            case 4:
+                month = "Mei";
+                break;
+            case 5:
+                month = "Juni";
+                break;
+            case 6:
+                month = "Juli";
+                break;
+            case 7:
+                month = "Agustus";
+                break;
+            case 8:
+                month = "September";
+                break;
+            case 9:
+                month = "Oktober";
+                break;
+            case 10:
+                month = "November";
+                break;
+            case 11:
+                month = "Desember";
+                break;
+        }
+        var date = day + " " + month + " " + year + ' ' + jam + ":" + menit + ":" + detik;
+        return date;
+    }
 
     function formAddBrand(data) {
         var dateTime = currentDateTime()
@@ -1180,18 +1256,38 @@
         const xFormatted = String(x).padStart(5, '0');
 
         // Membuat kode final
-        const code = `${alias_clicked}BL${defaultMachineLine.machine_line_label}${year}${month}${date}${xFormatted}`;
+        const code = `BL${defaultMachineLine.machine_line_label}${year}${month}${date}${xFormatted}`;
+        // const code = `${alias_clicked}BL${defaultMachineLine.machine_line_label}${year}${month}${date}${xFormatted}`;
 
         return code;
     }
 
-
+    function checkSourceItem(item_id) {
+        var data = undefined
+        dataEntry.productMaterial.forEach(e => {
+            e.material_group.forEach(el => {
+                var itemDefault = el.items.find((v, k) => {
+                    if (v.item.id == item_id) return true
+                })
+                if (itemDefault) {
+                    data = e
+                }
+            });
+        });
+        return data
+    }
 
     function detailBall(id) {
         var data = dataEntry.productionOutItem.find((value, key) => {
             if (value.id == id) return true
         })
-        // console.log(data)
+        var dataProduct = checkSourceItem(data.item.id)
+        var brand = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == dataProduct.item_id) return true
+        })
+        var dataBall = dataProduct.material_group[0].items[0].unit_option.find((v, k) => {
+            if (v.id == id_pack) return true
+        })
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
@@ -1200,34 +1296,42 @@
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
-        html_body += '<div class="col-12 text-center border-bottom p-4 pt-0">'
-        html_body += '<p class="m-0 small">Detail Ball</p>'
-        html_body += '<p class="m-0 h1 fw-bolder">' + data.inventory_code + '</p>'
+        html_body += '<div class="col-12 border-bottom p-4 pt-0">'
+        // content
+        html_body += '<div class="row">'
+        html_body += '<div class="col-2 pe-0">'
+        html_body += '<div id="qrcodePacking" style="margin-top:15px;margin:auto;"></div>'
+        html_body += '</div>'
+        html_body += '<div class="col-10 align-self-center">'
+        html_body += '<p class="m-0 small">ID Inventory</p>'
+        html_body += '<p class="m-0 h3 fw-bolder">' + data.inventory_code + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // content
         html_body += '</div>'
         html_body += '<div class="col-12 p-0">'
         html_body += '<div class="row w-100">'
         // column
         html_body += '<div class="col-7 p-3 ps-5 border-end">'
         // Detail Information
-        html_body += '<div class="row">'
-        html_body += '<div class="col-12 mb-4">'
+        html_body += '<div class="row justify-content-between">'
+        html_body += '<div class="col-auto mb-2">'
         html_body += '<p class="m-0 small-text">Detail Information</p>'
         html_body += '</div>'
-        html_body += '<div class="col-6 pe-0 mb-2">'
-        html_body += '<p class="m-0 super-small-text text-grey-small">Transaction Code</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.inventory_code + '</p>'
-        html_body += '</div>'
-        html_body += '<div class="col-6 pe-0 mb-2">'
-        html_body += '<p class="m-0 super-small-text text-grey-small">Type</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">SKM</p>'
+        html_body += '<div class="col-auto text-end mb-2">'
+        html_body += '<button class="btn btn-sm btn-brown shadow-none super-small-text p-1" onclick="cetakUlangQRCode(' + "'" + id + "'" + ')"><i class="fa fa-print"></i></button>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">SKU</p>'
         html_body += '<p class="m-0 super-small-text fw-bolder">' + data.item.name + 'r</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Type</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + brand.item_type.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Dimension</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">10 Pack</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + dataBall.multiplier + ' ' + dataBall.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Time Created</p>'
@@ -1268,6 +1372,14 @@
         html_footer += '</div>'
         html_footer += '</div>'
         $('#modalFooter').html(html_footer)
+        var qrcode = new QRCode("qrcodePacking", {
+            text: data.inventory_code,
+            width: 60,
+            height: 60,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
     }
 
     function hapusBall(id) {
@@ -1361,18 +1473,18 @@
                 work_plan_id: dataEntry.workPlanMachine.work_plan_id,
                 shift_id: dataEntry.workPlanMachine.shift_id,
                 machine_id: dataEntry.workPlanMachine.machine.id,
-                time_start: variableGantung.dateCreated,
-                time_end: variableGantung.dateCreated,
+                time_start: currentDateTime(),
+                time_end: currentDateTime(),
                 item_id: variableGantung.item_id,
                 qty: 1,
                 unit_id: variableGantung.unit_id,
                 employee_id: user_id,
                 note: variableGantung.notes,
-                created_at: time,
-                updated_at: time,
+                created_at: currentDateTime(),
+                updated_at: currentDateTime(),
                 work_plan_product_id: variableGantung.work_plan_product_id,
-                datetime_start: dataEntry.workPlanMachine.date + ' ' + formatTime(variableGantung.dateCreated),
-                datetime_end: dataEntry.workPlanMachine.date + ' ' + formatTime(variableGantung.dateCreated),
+                datetime_start: dataEntry.workPlanMachine.date + ' ' + formatTime(currentDateTime()),
+                datetime_end: dataEntry.workPlanMachine.date + ' ' + formatTime(currentDateTime()),
                 stok_year_id: stok_year_id,
                 machine_step_id: dataEntry.machineStepid,
                 inventory_code: code_ball_created[i],
@@ -1381,15 +1493,15 @@
             variableInsert.result_product_machine.push({
                 id: createCodeId(i),
                 result_product_id: id,
-                datetime: variableGantung.dateCreated,
+                datetime: currentDateTime(),
                 machine_step_id: dataEntry.machineStepid,
                 item_id_product: variableGantung.item_id,
                 qty: 1,
                 unit_id: variableGantung.unit_id,
                 employee_id_complete: user_id,
                 note: variableGantung.notes,
-                created_at: time,
-                updated_at: time,
+                created_at: currentDateTime(),
+                updated_at: currentDateTime(),
                 index: 1,
                 stok_year_id: stok_year_id,
                 is_product_final_other: variableGantung.is_product_final_other,
@@ -1447,6 +1559,7 @@
                 variableInsertSendOffline.deletedId.result_product_machine.push(e)
             });
         }
+        console.log(variableInsertSendOffline)
         reconstructionData(status, dataMasuk)
     }
 
@@ -1518,7 +1631,7 @@
         <img src="<?= base_url('assets/image/svg/barcode.svg') ?>" alt="" width="70px">
         </div>
         <div class="col-12 mt-4 text-center">
-        <button class="btn btn-sm btn-outline-brown shadow-none small-text" type="button" onclick="resetFormInsert()">Reset</button>
+        <button class="btn btn-sm btn-outline-brown shadow-none small-text" type="button" onclick="resetFormInsert()"><i class="fa fa-home me-1"></i>Reset</button>
         <button class="btn btn-sm btn-brown shadow-none small-text" type="button" onclick="cetakUlangInsert()">Cetak Ulang</button>
         </div>
         </div>
@@ -1601,13 +1714,106 @@
             });
             variableInsertSendOffline.deletedId.result_product_machine = newData
         }
+        contentOpenDraft()
         buttonSaveOfflineMode()
         loadData()
     }
 
 
     function openDraft() {
-        console.log('test')
+
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pending Draft</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">';
+        html_body += '<div class="col-12">';
+        html_body += '<table class="table table-sm table-bordered" id="tableDraft">';
+        html_body += '<thead>';
+        html_body += '<tr>';
+        html_body += '<th class="text-center align-middle">No</th>';
+        html_body += '<th class="text-center align-middle">Time</th>';
+        html_body += '<th class="text-center align-middle">Inventory Code</th>';
+        html_body += '<th class="text-center align-middle">Item</th>';
+        html_body += '<th class="text-center align-middle">Stock Year</th>';
+        html_body += '<th class="text-center align-middle">Action</th>';
+        html_body += '</tr>';
+        html_body += '</thead>';
+        html_body += '<tbody id="contentOpenDraft">';
+        html_body += '</tbody>';
+        html_body += '</div>';
+        html_body += '</div>';
+        $('#modalBody').html(html_body);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>';
+        $('#modalFooter').html(html_footer);
+        contentOpenDraft()
+    }
+
+    function contentOpenDraft() {
+        var html = ''
+        var data = deepCopy(variableInsertSendOffline.result_product)
+        data.forEach((value, key) => {
+            var dataItemProduction = dataEntry.itemProduction.find((v, key) => {
+                if (v.id == value.item_id) return true
+            })
+            var nameStokYear = dataEntry.stokYear.find((v, key) => {
+                if (v.id == value.stok_year_id) return true
+            })
+            html += '<tr>';
+            html += '<td class="text-center align-middle small-text">' + (key + 1) + '</td>';
+            html += '<td class="text-center align-middle small-text">' + formatTime(value.time_start) + '</td>';
+            html += '<td class="text-center align-middle small-text">' + value.inventory_code + '</td>';
+            html += '<td class="text-center align-middle small-text">' + dataItemProduction.name + '</td>';
+            html += '<td class="text-center align-middle small-text">' + nameStokYear.name + '</td>';
+            html += '<td class="text-center align-middle small-text">'
+            html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 small-text me-1" onclick="HapusDataSatuan(' + value.id + ')">Hapus</button>';
+            html += '<button type="button" class="btn btn-primary btn-sm p-2 small-text" onclick="kirimUlangDataSatuan(' + value.id + ')">Kirim Ulang</button>';
+            html += '</td>';
+            html += '</tr>';
+        })
+        $('#contentOpenDraft').html(html)
+    }
+
+    function HapusDataSatuan(id) {
+        // result_product
+        var dataProduct = deepCopy(variableInsertSendOffline.result_product)
+        dataProduct = dataProduct.filter(item => item.id != id)
+        variableInsertSendOffline.result_product = dataProduct
+        // result_product_machine
+        var dataProductMachine = deepCopy(variableInsertSendOffline.result_product_machine)
+        dataProductMachine = dataProductMachine.filter(item => item.result_product_id != id)
+        variableInsertSendOffline.result_product_machine = dataProductMachine
+        // data all
+        var dataAll = deepCopy(dataEntry.productionOutItem)
+        dataAll = dataAll.filter(item => item.id != id)
+        dataEntry.productionOutItem = dataAll
+        contentOpenDraft()
+        listBalls()
+    }
+
+    function kirimUlangDataSatuan(id) {
+        var data = deepCopy(resetVariableInsert())
+        // result_product
+        var dataProduct = deepCopy(variableInsertSendOffline.result_product)
+        var dataChoosen = dataProduct.filter(item => item.id == id)
+        data.result_product.push(dataChoosen[0])
+        // result_product_machine
+        var dataProductMachine = deepCopy(variableInsertSendOffline.result_product_machine)
+        var dataChoosen = dataProductMachine.filter(item => item.result_product_id == id)
+        data.result_product_machine.push(dataChoosen[0])
+        sendSingleVariableInsert(data)
+    }
+
+    function sendSingleVariableInsert(dataSend) {
+        var data = deepCopy(dataSend)
+        var type = 'POST'
+        var button = '#btnSendAll'
+        var url = '<?php echo api_produksi('setResultProductMachine'); ?>'
+        kelolaDataSaveAuto(data, type, url, button)
     }
 
     function formatDateBarcode(dateString) {
@@ -1630,31 +1836,67 @@
         return `${day} ${month} ${year}, ${hours}:${minutes}`;
     }
 
+    function cetakUlangQRCode(id) {
+        var data = dataEntry.productionOutItem.filter((value, key) => {
+            if (value.id == id) return true
+        })
+        printQrCode(data)
+    }
+
+    function formatPrintedAt(date = new Date()) {
+        // Array bulan dalam bahasa Indonesia
+        const bulan = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+
+        // Ekstrak bagian tanggal, bulan, dan tahun
+        const tanggal = date.getDate();
+        const namaBulan = bulan[date.getMonth()];
+        const tahun = date.getFullYear();
+
+        // Format jam dan menit
+        const jam = date.getHours().toString().padStart(2, '0');
+        const menit = date.getMinutes().toString().padStart(2, '0');
+
+        // Gabungkan ke dalam format yang diinginkan
+        return `${tanggal} ${namaBulan} ${tahun} ${jam}:${menit}`;
+    }
+
     function printQrCode(data) {
         let cmds = '';
-        cmds += '^XA\n';
-        cmds += '^PW600\n';
-        cmds += '^LL600\n';
+        var dataProduct = checkSourceItem(data[0].item.id)
+        var brand = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == dataProduct.item_id) return true
+        })
+        var dataBall = dataProduct.material_group[0].items[0].unit_option.find((v, k) => {
+            if (v.id == id_pack) return true
+        })
+        data.forEach(e => {
+            cmds += '^XA\n';
+            cmds += '^PW600\n';
+            cmds += '^LL600\n';
 
-        cmds += '^FO0,50^A0N,30,30^FB600,1,0,C^FD BALL-ABLF12240527001^FS\n'; // Header teks di tengah
+            cmds += '^FO0,50^A0N,30,30^FB600,1,0,C^FD ' + e.inventory_code + '^FS\n'; // Header teks di tengah
 
-        cmds += '^FO30,150^BQN,2,8^FDQA,BALL-ABLF12240527001^FS\n'; // QR Code diposisikan lebih jauh ke bawah
+            cmds += '^FO30,150^BQN,2,8^FDQA,' + e.inventory_code + '^FS\n'; // QR Code diposisikan lebih jauh ke bawah
 
-        cmds += '^FO0,120^GB610,1,1^FS\n'; // Garis horizontal setelah QR Code, lebih rendah dari QR Code
+            cmds += '^FO0,120^GB610,1,1^FS\n'; // Garis horizontal setelah QR Code, lebih rendah dari QR Code
 
-        cmds += '^FO250,160^A0N,25,25^FD SKU:^FS\n'; // Posisi SKU sejajar dengan QR Code
-        cmds += '^FO255,190^A0N,30,30^FB300,2,2,L^FD Armour Kretek 16 Extra Long Text Here^FS\n'; // Teks SKU otomatis wrap jika panjang
+            cmds += '^FO250,160^A0N,25,25^FD SKU:^FS\n'; // Posisi SKU sejajar dengan QR Code
+            cmds += '^FO255,190^A0N,30,30^FB300,2,2,L^FD ' + e.item.name + '^FS\n'; // Teks SKU otomatis wrap jika panjang
 
-        cmds += '^FO250,270^A0N,25,25^FD Dimension:^FS\n'; // Posisi Dimension diturunkan
-        cmds += '^FO250,300^A0N,30,30^FD 10 Pack^FS\n';
+            cmds += '^FO250,270^A0N,25,25^FD Dimension:^FS\n'; // Posisi Dimension diturunkan
+            cmds += '^FO250,300^A0N,30,30^FD ' + dataBall.multiplier + ' ' + dataBall.name + '^FS\n';
 
-        cmds += '^FO250,350^A0N,25,25^FD Type:^FS\n';
-        cmds += '^FO250,380^A0N,30,30^FD SKM^FS\n';
+            cmds += '^FO250,350^A0N,25,25^FD Type:^FS\n';
+            cmds += '^FO250,380^A0N,30,30^FD ' + brand.item_type.name + '^FS\n';
 
-        cmds += '^FO30,500^A0N,20,20^FD Printed At:^FS\n'; // Baris pertama teks
-        cmds += '^FO30,530^A0N,20,20^FD 27 Mei 2024 09:50^FS\n'; // Baris kedua tanggal dan waktu
+            cmds += '^FO30,500^A0N,20,20^FD Printed At:^FS\n'; // Baris pertama teks
+            cmds += '^FO30,530^A0N,20,20^FD ' + formatPrintedAt() + '^FS\n'; // Baris kedua tanggal dan waktu
 
-        cmds += '^XZ\n';
+            cmds += '^XZ\n';
+        });
         defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
         if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
             var cpj = new JSPM.ClientPrintJob();
