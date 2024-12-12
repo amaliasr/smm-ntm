@@ -1288,6 +1288,14 @@
         var dataBall = dataProduct.material_group[0].items[0].unit_option.find((v, k) => {
             if (v.id == id_pack) return true
         })
+        var status = '<span class="badge align-self-center small-text p-1 bg-light text-grey">Sending</span>'
+        if (!data.is_offline) {
+            if (data.is_material_used) {
+                status = '<span class="badge align-self-center small-text p-1 bg-success">In The Box</span>'
+            } else {
+                status = '<span class="badge align-self-center small-text p-1 bg-warning">Created</span>'
+            }
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
@@ -1338,8 +1346,12 @@
         html_body += '<p class="m-0 super-small-text fw-bolder">' + formatTanggal(data.time.datetime_start) + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Status</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + status + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Notes</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.note + '</p>'
+        html_body += '<p class="m-0 small-text fw-bolder">' + data.note + '</p>'
         html_body += '</div>'
         html_body += '</div>'
         // Detail Information
@@ -1365,7 +1377,9 @@
         var html_footer = '';
         html_footer += '<div class="row w-100 justify-content-between">'
         html_footer += '<div class="col-auto">'
-        html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBall(' + "'" + id + "'" + ')">Hapus Ball</button>'
+        if (!data.is_material_used) {
+            html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBall(' + "'" + id + "'" + ')">Hapus Ball</button>'
+        }
         html_footer += '</div>'
         html_footer += '<div class="col-auto">'
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
@@ -1721,7 +1735,6 @@
 
 
     function openDraft() {
-
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
         var html_header = '';
@@ -1770,8 +1783,8 @@
             html += '<td class="text-center align-middle small-text">' + dataItemProduction.name + '</td>';
             html += '<td class="text-center align-middle small-text">' + nameStokYear.name + '</td>';
             html += '<td class="text-center align-middle small-text">'
-            html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 small-text me-1" onclick="HapusDataSatuan(' + value.id + ')">Hapus</button>';
-            html += '<button type="button" class="btn btn-primary btn-sm p-2 small-text" onclick="kirimUlangDataSatuan(' + value.id + ')">Kirim Ulang</button>';
+            html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 small-text me-1" onclick="HapusDataSatuan(' + "'" + value.id + "'" + ')">Hapus</button>';
+            html += '<button type="button" class="btn btn-primary btn-sm p-2 small-text" onclick="kirimUlangDataSatuan(' + "'" + value.id + "'" + ')">Kirim Ulang</button>';
             html += '</td>';
             html += '</tr>';
         })

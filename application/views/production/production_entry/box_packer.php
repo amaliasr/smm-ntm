@@ -393,7 +393,7 @@
                     <div class="col-auto text-end">
                         <div class="row">
                             <div class="col-auto ps-0">
-                                <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="btnOpenDraft" disabled>Open Draft <span id="totalOpenDraft"></span></button>
+                                <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="btnOpenDraft" disabled onclick="openDraft()">Pending <span id="totalOpenDraft"></span></button>
                             </div>
                         </div>
                     </div>
@@ -518,6 +518,8 @@
         return inputData.filter(item => !dataUntukDihapus.includes(item.id.toString()));
     }
     $('#modal').on('hidden.bs.modal', function(e) {
+        variableEdit = ''
+        doEdit = false
         onBlurOn()
     })
     $('#modal').on('shown.bs.modal', function() {
@@ -562,6 +564,7 @@
     var variableDelete = deepCopy(resetVariableInsert())
     var variableInsertSendOffline = deepCopy(resetVariableInsert())
     var checkDatabase = false
+    var doEdit = false
     $(document).ready(function() {
         jspManager()
         fieldButtonTemplate()
@@ -963,7 +966,9 @@
                     </div>
                 </div>`
         $('#fieldProcessAddNewBox').html(html)
-        $('#codeBallInput').focus();
+        if (doEdit) {
+            $('#codeBallInput').focus();
+        }
         buttonSaveOfflineMode()
     }
     $(document).on('keypress', '#codeBallInput', function(e) {
@@ -971,10 +976,19 @@
             firstScanner()
         }
     })
+    $(document).on('keypress', '#codeBallInputEdit', function(e) {
+        if (event.keyCode === 13) {
+            firstScanner()
+        }
+    })
 
     function firstScanner() {
-        $('#alertIfListBoxes').html('')
-        var code = $('#codeBallInput').val()
+        var variableEdit = ''
+        if (doEdit) {
+            variableEdit = 'Edit'
+        }
+        $('#alertIfListBoxes' + variableEdit).html('')
+        var code = $('#codeBallInput' + variableEdit).val()
         var data = dataEntry.machineStock.find((value, key) => {
             if (value.inventory_code == code) return true
         })
@@ -982,18 +996,25 @@
             // ada code nya
             checkDatabase = false
             if (data.stok_akhir) {
-                if (!inventory_scanner.length) {
-                    // belum pernah scanner atau scanner nya kosong (scan pertama kali)
-                    setFirstScanner(data)
-                } else {
-                    // scan ke 2 kalinya atau lebih
-                    if (data.item_id == item_id_scanner) {
-                        // scanner sama
-                        secondScanner(data)
+                if (!doEdit) {
+                    // untuk add
+                    if (!inventory_scanner.length) {
+                        // belum pernah scanner atau scanner nya kosong (scan pertama kali)
+                        setFirstScanner(data)
                     } else {
-                        // scanner beda
-                        alertIfListBoxes('Brand Tidak Cocok')
+                        // scan ke 2 kalinya atau lebih
+                        if (data.item_id == item_id_scanner) {
+                            // scanner sama
+                            secondScanner(data)
+                        } else {
+                            // scanner beda
+                            alertIfListBoxes('Brand Tidak Cocok')
+                        }
                     }
+                } else {
+                    // untuk edit
+                    var id_box = $('#codeBallInput' + variableEdit).data('id_box')
+                    secondScannerEdit(id_box, data)
                 }
             } else {
                 alertIfListBoxes('Stok Telah Habis')
@@ -1035,7 +1056,11 @@
     }
 
     function alertIfListBoxes(text) {
-        $('#alertIfListBoxes').html(`<div class="alert alert-danger py-2 alert-dismissible fade show d-flex align-self-center" role="alert"><p class="m-0 small-text fw-bold">${text}</p><button type="button" class="small-text btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button></div>`)
+        var variableEdit = ''
+        if (doEdit) {
+            variableEdit = 'Edit'
+        }
+        $('#alertIfListBoxes' + variableEdit).html(`<div class="alert alert-danger py-2 alert-dismissible fade show d-flex align-self-center" role="alert"><p class="m-0 small-text fw-bold">${text}</p><button type="button" class="small-text btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button></div>`)
         $('#codeBallInput').val('')
     }
 
@@ -1058,6 +1083,10 @@
     }
 
     function setFirstScanner(data) {
+        var variableEdit = ''
+        if (doEdit) {
+            variableEdit = 'Edit'
+        }
         item_id_scanner = data.item_id
         var dataProduct = checkSourceItem(data.item_id)
         if (dataProduct) {
@@ -1094,7 +1123,7 @@
                 title: 'Tidak Ada Brand',
                 text: 'Tidak Ada brand yang tersedia untuk item ini'
             });
-            $('#codeBallInput').val('')
+            $('#codeBallInput' + variableEdit).val('')
         }
     }
 
@@ -1114,6 +1143,57 @@
                 text += 'Tahun tidak cocok'
             }
             if (data.item_id != variableGantung.item_id) {
+                if (text) text += ' dan '
+                text += 'Item tidak cocok'
+            }
+            alertIfListBoxes(text)
+        }
+    }
+
+    function secondScannerEdit(id_box, data) {
+        // console.log(data)
+        variableInsert = deepCopy(resetVariableInsert())
+        var findData = dataEntry.productionOutItem.find((value, key) => {
+            if (value.id == id_box) return true
+        })
+        var checkAvailable = findData.result_product_materials.find((value, key) => {
+            if (value.inventory_id == data.inventory_id) return true
+        })
+        var checkDataBall = dataEntry.productMaterial.find((v, k) => {
+            if (v.item_id == findData.item.id) return true
+        })
+        if (!checkAvailable && data.stok_year_id == findData.stok_year_id && data.item_id == checkDataBall.material_group[0].item_id_default) {
+            // jika data sebelumnya belum ada, tahun nya sama stok nya, dan item nya sama
+            // tambahkan ke result_product_materials
+            var dataInsert = {
+                "id": createCodeId(0),
+                "qty": 1,
+                "item_id": data.item_id,
+                "unit_id": checkDataBall.material_group[0].requirement.unit_id,
+                "datetime": currentDateTime(),
+                "created_at": currentDateTime(),
+                "machine_id": data.machine_id,
+                "updated_at": currentDateTime(),
+                "inventory_id": data.inventory_id,
+                "inventory_code": data.inventory_code,
+                "result_product_id": id_box
+            }
+            // findData.result_product_materials.push(dataInsert)
+            variableInsert.result_product_material.push(dataInsert)
+            $('#codeBallInputEdit').val('')
+            $('#btnSaveMaterial').prop('disabled', false)
+            addToVariableOffline('add_ball')
+            fieldIfListBoxesReview(findData)
+        } else {
+            var text = ''
+            if (checkAvailable) {
+                text += 'Ball sudah ada di list'
+            }
+            if (data.stok_year_id != findData.stok_year_id) {
+                if (text) text += ' dan '
+                text += 'Tahun tidak cocok'
+            }
+            if (data.item_id != checkDataBall.material_group[0].item_id_default) {
                 if (text) text += ' dan '
                 text += 'Item tidak cocok'
             }
@@ -1182,7 +1262,7 @@
                         <input class="form-control form-leave" tabindex="1" role="dialog" placeholder="Masukkan Kode Ball" id="codeBallInput" autocomplete="off" onblur="this.focus()" autofocus>
                     </div>
                     <div class="col-2">
-                        <button class="btn btn-brown" onclick="firstScanner()">${iconQRCode(10,10)}</button>
+                        <button class="btn btn-brown h-100" onclick="firstScanner()">${iconQRCode(10,10)}</button>
                     </div>
                 </div>
                 <div class="row mx-2 mb-2">
@@ -1218,7 +1298,7 @@
                             <div class="col-10 align-self-center">
                                 <p class="m-0 small-text fw-bold text-dark-grey">${data.inventory_code}</p>
                             </div>
-                            <div class="col-2 text-end" onclick="hapusBall(${e})">
+                            <div class="col-2 text-end" onclick="Edit(${e})">
                             <i class="fa fa-times text-grey"></i>
                             </div>    
                         </div>
@@ -1271,7 +1351,7 @@
         }
     }
 
-    function hapusBall(inventory_id) {
+    function Edit(inventory_id) {
         // tanpa index, langsung pakai splice
         inventory_scanner.splice(inventory_scanner.indexOf(inventory_id), 1)
         fieldInputBox()
@@ -1343,51 +1423,75 @@
     function addToVariableOffline(status) {
         // masukkan ke variableInsertSendOffline disimpan saja
         var dataMasuk = []
-        if (status == 'add') {
-            variableInsert.result_product.forEach(e => {
-                var dataItemProduction = dataEntry.itemProduction.find((value, key) => {
-                    if (value.id == e.item_id) return true
+        if (status == 'add' || status == 'add_ball') {
+            if (variableInsert.result_product.length) {
+                variableInsert.result_product.forEach(e => {
+                    var dataItemProduction = dataEntry.itemProduction.find((value, key) => {
+                        if (value.id == e.item_id) return true
+                    })
+                    dataMasuk.push({
+                        "id": e.id,
+                        "item": {
+                            "id": dataItemProduction.id,
+                            "code": dataItemProduction.code,
+                            "name": dataItemProduction.name,
+                            "alias": dataItemProduction.alias
+                        },
+                        "time": {
+                            "end": e.time_end,
+                            "start": e.time_start,
+                            "datetime_end": e.datetime_end,
+                            "datetime_start": e.datetime_start
+                        },
+                        'is_offline': 1,
+                        "qty": 1,
+                        "note": e.note,
+                        "inventory_code": e.inventory_code,
+                        "result_product_machines": [],
+                        "result_product_materials": [],
+                    })
+                    variableInsertSendOffline.result_product.push(e)
+                });
+            }
+            if (status == 'add_ball') {
+                var findData = dataEntry.productionOutItem.find((value, key) => {
+                    if (value.id == variableInsert.result_product_material[0].result_product_id) return true
                 })
-                dataMasuk.push({
-                    "id": e.id,
-                    "item": {
-                        "id": dataItemProduction.id,
-                        "code": dataItemProduction.code,
-                        "name": dataItemProduction.name,
-                        "alias": dataItemProduction.alias
-                    },
-                    "time": {
-                        "end": e.time_end,
-                        "start": e.time_start,
-                        "datetime_end": e.datetime_end,
-                        "datetime_start": e.datetime_start
-                    },
-                    'is_offline': 1,
-                    "qty": 1,
-                    "note": e.note,
-                    "inventory_code": e.inventory_code,
-                    "result_product_machines": [],
-                    "result_product_materials": [],
-                })
-                variableInsertSendOffline.result_product.push(e)
-            });
-            variableInsert.result_product_machine.forEach(e => {
-                //filter datamasuk
-                var filterDataMasuk = dataMasuk.find((value, key) => {
-                    if (value.id == e.result_product_id) return true
-                })
-                filterDataMasuk.result_product_machines.push(e)
-                variableInsertSendOffline.result_product_machine.push(e)
-            });
-            variableInsert.result_product_material.forEach(e => {
-                //filter datamasuk
-                var filterDataMasuk = dataMasuk.find((value, key) => {
-                    if (value.id == e.result_product_id) return true
-                })
-                filterDataMasuk.result_product_materials.push(e)
-                variableInsertSendOffline.result_product_material.push(e)
-            });
-        } else if (status == 'delete') {
+                dataMasuk.push(findData)
+            }
+            if (variableInsert.result_product_machine) {
+                variableInsert.result_product_machine.forEach(e => {
+                    //filter datamasuk
+                    var filterDataMasuk = dataMasuk.find((value, key) => {
+                        if (value.id == e.result_product_id) return true
+                    })
+                    filterDataMasuk.result_product_machines.push(e)
+                    variableInsertSendOffline.result_product_machine.push(e)
+                });
+            }
+            if (variableInsert.result_product_material) {
+                variableInsert.result_product_material.forEach(e => {
+                    //filter datamasuk
+                    var filterDataMasuk = dataMasuk.find((value, key) => {
+                        if (value.id == e.result_product_id) return true
+                    })
+                    // e.inventory_code tidak perlu masuk di filterDataMasuk.result_product_materials
+                    filterDataMasuk.result_product_materials.push(e)
+                    variableInsertSendOffline.result_product_material.push({
+                        "id": e.id,
+                        "result_product_id": e.result_product_id,
+                        "datetime": e.datetime,
+                        "machine_id": e.machine_id,
+                        "item_id": e.item_id,
+                        "inventory_id": e.inventory_id,
+                        "unit_id": e.unit_id,
+                        "qty": e.qty,
+                        "created_at": e.created_at,
+                        "updated_at": e.updated_at
+                    })
+                });
+            }
+        } else if (status == 'delete' || status == 'delete_ball') {
             variableDelete.deletedId.result_product.forEach(e => {
                 dataMasuk.push(e)
                 variableInsertSendOffline.deletedId.result_product.push(e)
@@ -1416,7 +1520,9 @@
             addNewBox()
             printQrCode(dataMasuk)
         } else if (status == 'delete') {
-            $('#modal').modal('hide')
+            if (!status == 'delete_ball') {
+                $('#modal').modal('hide')
+            }
             var dataOutItem = deepCopy(dataEntry.productionOutItem)
             var hasil = hapusDatadanReplaceData(dataOutItem, dataMasuk);
             dataEntry.productionOutItem = hasil
@@ -1535,8 +1641,112 @@
             });
             variableInsertSendOffline.deletedId.result_product_material = newData
         }
+        contentOpenDraft()
         buttonSaveOfflineMode()
         loadData()
+    }
+
+    function openDraft() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pending Draft</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">';
+        html_body += '<div class="col-12">';
+        html_body += '<table class="table table-sm table-bordered" id="tableDraft">';
+        html_body += '<thead>';
+        html_body += '<tr>';
+        html_body += '<th class="text-center align-middle">No</th>';
+        html_body += '<th class="text-center align-middle">Time</th>';
+        html_body += '<th class="text-center align-middle">Inventory Code</th>';
+        html_body += '<th class="text-center align-middle">Item</th>';
+        html_body += '<th class="text-center align-middle">Stock Year</th>';
+        html_body += '<th class="text-center align-middle">Action</th>';
+        html_body += '</tr>';
+        html_body += '</thead>';
+        html_body += '<tbody id="contentOpenDraft">';
+        html_body += '</tbody>';
+        html_body += '</div>';
+        html_body += '</div>';
+        $('#modalBody').html(html_body);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>';
+        $('#modalFooter').html(html_footer);
+        contentOpenDraft()
+    }
+
+    function contentOpenDraft() {
+        var html = ''
+        var data = deepCopy(variableInsertSendOffline.result_product)
+        data.forEach((value, key) => {
+            var dataItemProduction = dataEntry.itemProduction.find((v, key) => {
+                if (v.id == value.item_id) return true
+            })
+            var nameStokYear = dataEntry.stokYear.find((v, key) => {
+                if (v.id == value.stok_year_id) return true
+            })
+            html += '<tr>';
+            html += '<td class="text-center align-middle small-text">' + (key + 1) + '</td>';
+            html += '<td class="text-center align-middle small-text">' + formatTime(value.time_start) + '</td>';
+            html += '<td class="text-center align-middle small-text">' + value.inventory_code + '</td>';
+            html += '<td class="text-center align-middle small-text">' + dataItemProduction.name + '</td>';
+            html += '<td class="text-center align-middle small-text">' + nameStokYear.name + '</td>';
+            html += '<td class="text-center align-middle small-text">'
+            html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 small-text me-1" onclick="HapusDataSatuan(' + "'" + value.id + "'" + ')">Hapus</button>';
+            html += '<button type="button" class="btn btn-primary btn-sm p-2 small-text" onclick="kirimUlangDataSatuan(' + "'" + value.id + "'" + ')">Kirim Ulang</button>';
+            html += '</td>';
+            html += '</tr>';
+        })
+        $('#contentOpenDraft').html(html)
+    }
+
+    function HapusDataSatuan(id) {
+        // result_product
+        var dataProduct = deepCopy(variableInsertSendOffline.result_product)
+        dataProduct = dataProduct.filter(item => item.id != id)
+        variableInsertSendOffline.result_product = dataProduct
+        // result_product_machine
+        var dataProductMachine = deepCopy(variableInsertSendOffline.result_product_machine)
+        dataProductMachine = dataProductMachine.filter(item => item.result_product_id != id)
+        variableInsertSendOffline.result_product_machine = dataProductMachine
+        // result_product_material
+        var dataProductMaterial = deepCopy(variableInsertSendOffline.result_product_material)
+        dataProductMaterial = dataProductMaterial.filter(item => item.result_product_id != id)
+        variableInsertSendOffline.result_product_material = dataProductMaterial
+        // data all
+        var dataAll = deepCopy(dataEntry.productionOutItem)
+        dataAll = dataAll.filter(item => item.id != id)
+        dataEntry.productionOutItem = dataAll
+        contentOpenDraft()
+        listBalls()
+    }
+
+    function kirimUlangDataSatuan(id) {
+        var data = deepCopy(resetVariableInsert())
+        // result_product
+        var dataProduct = deepCopy(variableInsertSendOffline.result_product)
+        var dataChoosen = dataProduct.filter(item => item.id == id)
+        data.result_product.push(dataChoosen[0])
+        // result_product_machine
+        var dataProductMachine = deepCopy(variableInsertSendOffline.result_product_machine)
+        var dataChoosen = dataProductMachine.filter(item => item.result_product_id == id)
+        data.result_product_machine.push(dataChoosen[0])
+        // result_product_material
+        var dataProductMaterial = deepCopy(variableInsertSendOffline.result_product_material)
+        var dataChoosen = dataProductMaterial.filter(item => item.result_product_id == id)
+        data.result_product_material.push(dataChoosen[0])
+        sendSingleVariableInsert(data)
+    }
+
+    function sendSingleVariableInsert(dataSend) {
+        var data = deepCopy(dataSend)
+        var type = 'POST'
+        var button = '#btnSendAll'
+        var url = '<?php echo api_produksi('setResultProductMachine'); ?>'
+        kelolaDataSaveAuto(data, type, url, button)
     }
 
     function detailBox(id) {
@@ -1549,6 +1759,14 @@
         var pack = brand.unit_option.find((v, k) => {
             if (v.id == id_pack) return true
         })
+        var status = '<span class="badge align-self-center small-text p-1 bg-light text-grey">Sending</span>'
+        if (!data.is_offline) {
+            if (data.is_material_used) {
+                status = '<span class="badge align-self-center small-text p-1 bg-success">In The Box</span>'
+            } else {
+                status = '<span class="badge align-self-center small-text p-1 bg-warning">Created</span>'
+            }
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
@@ -1603,6 +1821,10 @@
         html_body += '<p class="m-0 super-small-text fw-bolder">' + formatTanggal(data.time.datetime_start) + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Status</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + status + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Notes</p>'
         if (!data.note) {
             data.note = '-'
@@ -1610,7 +1832,37 @@
         html_body += '<p class="m-0 super-small-text fw-bolder">' + data.note + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-12 mb-2 mt-2">'
+        html_body += '<div class="row justify-content-between">'
+        html_body += '<div class="col-auto align-self-center">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Whats inside the box ?</p>'
+        html_body += '</div>'
+        if (!data.is_material_used) {
+            html_body += '<div class="col-auto align-self-center">'
+            html_body += '<i class="fa fa-pencil text-dark pointer small-text" id="editMaterial" onclick="editMaterial(' + "'" + data.id + "'" + ')"></i>'
+            html_body += '<button class="btn btn-sm super-small-text p-1 align-self-center btn-success" hidden id="btnSaveMaterial" onclick="sendAllVariableInsert()" disabled><i class="fa fa-save me-1"></i>Simpan</button>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mb-2" hidden id="fieldIfAddBallReview">'
+        html_body += `
+                <div class="row">
+                    <div class="col-9 pe-0">
+                        <input class="form-control form-control-sm form-leave" tabindex="1" role="dialog" placeholder="Masukkan Kode Ball" id="codeBallInputEdit" autocomplete="off" onblur="this.focus()" data-id_box="${data.id}" autofocus>
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-brown btn-sm h-100" onclick="firstScanner()">${iconQRCode(10,10)}</button>
+                    </div>
+                    <div class="col-12">
+                        <div id="alertIfListBoxesEdit">
+                        </div>
+                        <div class="card shadow-none mt-2">
+                            <div class="card-body p-2 text-center bg-light" id="textSisaBallReview">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        `
         html_body += '</div>'
         html_body += '<div class="col-12 mb-2" id="fieldIfListBoxesReview">'
         html_body += '</div>'
@@ -1638,32 +1890,15 @@
         var html_footer = '';
         html_footer += '<div class="row w-100 justify-content-between">'
         html_footer += '<div class="col-auto">'
-        html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBox(' + "'" + id + "'" + ')">Hapus Box</button>'
+        if (!data.is_material_used) {
+            html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBox(' + "'" + id + "'" + ')">Hapus Box</button>'
+        }
         html_footer += '</div>'
         html_footer += '<div class="col-auto">'
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         html_footer += '</div>'
         html_footer += '</div>'
         $('#modalFooter').html(html_footer)
-        fieldIfListBoxesReview(data)
-    }
-
-    function fieldIfListBoxesReview(data) {
-        var html = ''
-        data.result_product_materials.forEach(e => {
-            html += `
-            <div class="card shadow-none mb-2">
-                <div class="card-body py-2">
-                    <div class="row">
-                        <div class="col-12 align-self-center">
-                            <p class="m-0 super-small-text fw-bold text-dark-grey">${e.inventory_code}</p>
-                        </div>   
-                    </div>
-                </div>
-            </div>
-            `
-        });
-        $('#fieldIfListBoxesReview').html(html)
         var qrcode = new QRCode("qrcodePacking", {
             text: data.inventory_code,
             width: 60,
@@ -1672,6 +1907,59 @@
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
+        fieldIfListBoxesReview(data)
+    }
+
+    function fieldIfListBoxesReview(data) {
+        var html = ''
+        var editStatus = 'hidden'
+        if (doEdit) {
+            editStatus = ''
+        }
+        data.result_product_materials.forEach(e => {
+            html += `
+            <div class="card shadow-none mb-2 cardBallEdit">
+                <div class="card-body py-2">
+                    <div class="row">
+                        <div class="col-11 align-self-center">
+                            <p class="m-0 super-small-text fw-bold text-dark-grey">${e.inventory_code}</p>
+                        </div>   
+                        <div class="col-1 ps-0 align-self-center btnDeleteBall" ${editStatus}>
+                            <i class="fa fa-times text-grey-small small-text pointer d-flex" onclick="hapusBallEdit(${data.id},${e.id})"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `
+        });
+        $('#fieldIfListBoxesReview').html(html)
+        checkIfDataUnderMultiplier(data)
+    }
+
+    function checkIfDataUnderMultiplier(data) {
+        var checkUnit = dataEntry.productMaterial.find((v, k) => {
+            if (v.item_id == data.item.id) return true
+        })
+        if (data.result_product_materials.length < checkUnit.material_group[0].requirement.multiplier) {
+            $('#fieldIfAddBallReview').prop('hidden', false)
+            $('#codeBallInputEdit').focus()
+            $('#textSisaBallReview').html('<p class="m-0 super-small-text">Sisa <b>' + (parseInt(checkUnit.material_group[0].requirement.multiplier) - parseInt(data.result_product_materials.length)) + '</b> Ball</p>')
+        } else {
+            $('#fieldIfAddBallReview').prop('hidden', true)
+        }
+    }
+
+    function hapusBallEdit(id_box, id_ball) {
+        var data = dataEntry.productionOutItem.find((value, key) => {
+            if (value.id == id_box) return true
+        })
+        var dataBall = data.result_product_materials.filter((value, key) => {
+            if (value.id != id_ball) return true
+        })
+        data.result_product_materials = deepCopy(dataBall)
+        variableDelete.deletedId.result_product_material.push(id_ball)
+        fieldIfListBoxesReview(data)
+        addToVariableOffline('delete_ball')
     }
 
     function hapusBox(id) {
@@ -1692,6 +1980,9 @@
                 variableDelete.deletedId.result_product.push(id)
                 data.result_product_machines.forEach(e => {
                     variableDelete.deletedId.result_product_machine.push(e.id)
+                });
+                data.result_product_materials.forEach(e => {
+                    variableDelete.deletedId.result_product_material.push(e.id)
                 });
                 addToVariableOffline('delete')
             }
@@ -1855,5 +2146,15 @@
         return array.filter(function(el, index, arr) {
             return index == arr.indexOf(el);
         });
+    }
+
+    function editMaterial(id) {
+        doEdit = true
+        var data = dataEntry.productionOutItem.find((value, key) => {
+            if (value.id == id) return true
+        })
+        $('#editMaterial').prop('hidden', true)
+        $('#btnSaveMaterial').prop('hidden', false)
+        $('.btnDeleteBall').prop('hidden', false)
     }
 </script>
