@@ -383,7 +383,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"></script>
 <div class="row">
     <div class="col-4 pt-2">
-        <div class="card shadow-none" style="height: 700px">
+        <div class="card shadow-none" style="height: 600px">
             <div class="card-body p-0">
                 <div class="row justify-content-between p-3 pb-0">
                     <div class="col-auto">
@@ -397,7 +397,7 @@
                     </div>
                 </div>
                 <!-- <div> -->
-                <div class="border-bottom" style="max-height: 560px;overflow-x: hidden;overflow-y: auto;" id="listBallBoxes">
+                <div class="border-bottom" style="max-height: 480px;overflow-x: hidden;overflow-y: auto;" id="listBallBoxes">
                 </div>
                 <!-- </div> -->
             </div>
@@ -554,7 +554,8 @@
     var checkDatabase = false
     var doEdit = false
     $(document).ready(function() {
-        fieldProcessAddNewSuratJalan()
+        templateAddNewSuratJalan()
+        // fieldProcessAddNewSuratJalan()
         fieldButtonTemplate()
     })
 
@@ -568,12 +569,12 @@
 
     function fieldProcessAddNewSuratJalan() {
         var html = `
-                <div class="card shadow-sm h-100" style="min-height: 700px !important">
+                <div class="card shadow-sm h-100" style="min-height: 500px !important">
                     <div class="card-body">
                         <div class="row h-100 justify-content-center d-flex align-items-center">
                             <div class="col-12 align-self-center text-center">
                                 <img src="<?= base_url('assets/image/png/contract.png'); ?>" class="mb-3" style="width: 100px;"><br>
-                                <button type="button" class="btn btn-sm btn-outline-brown" id="btnAddNewSuratJalan" onclick="addNewSuratJalan()"><i class="fa fa-plus me-2"></i> Buat Surat Jalan</button>
+                                <button type="button" class="btn btn-sm btn-outline-brown" id="btnAddNewSuratJalan" onclick="templateAddNewSuratJalan()"><i class="fa fa-plus me-2"></i> Buat Surat Jalan</button>
                             </div>
                         </div>
                     </div>
@@ -582,8 +583,94 @@
         $('#fieldProcessAddNewSuratJalan').html(html)
     }
 
-    function addNewSuratJalan() {
-        var html = ''
+    function templateAddNewSuratJalan() {
+        var html = `
+                <div class="card shadow-sm h-100" style="min-height: 500px !important">
+                    <div class="card-header text-center">
+                        <p class="m-0 text-dark-grey fw-bold">Form Serah Terima FG Logistik</p>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-12 p-3 px-5">
+                                <div class="row justify-content-between">
+                                    <div class="col-auto">
+                                        <p class="m-0 small-text text-grey-small">Hari / Tanggal</p>
+                                        <p class="m-0 small fw-bolder">Rabu, 11 Desember 2024</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <p class="m-0 small-text text-grey-small">Surat Jalan</p>
+                                        <p class="m-0 small fw-bolder">SJ20240527001</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <p class="m-0 small-text text-grey-small">Tipe</p>
+                                        <p class="m-0 small fw-bolder">Default</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <hr class="m-0">
+                            </div>
+                            <div class="col-12">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="text-center bg-light p-2 small-text">Kode Item</th>
+                                            <th scope="col" class="text-center bg-light p-2 small-text">Brand</th>
+                                            <th scope="col" class="text-center bg-light p-2 small-text">Pita</th>
+                                            <th scope="col" class="text-center bg-light p-2 small-text">Box</th>
+                                            <th scope="col" class="text-center bg-light p-2 small-text">Bale</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center small-text p-2">ABLF20DF</td>
+                                            <td class="text-center small-text p-2">Armour Black 20 Double Filter</td>
+                                            <td class="text-center small-text p-2"></td>
+                                            <td class="text-center small-text p-2">100</td>
+                                            <td class="text-center small-text p-2">1000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center small-text p-2">ABLF20DF</td>
+                                            <td class="text-center small-text p-2">Armour Black 20 Double Filter</td>
+                                            <td class="text-center small-text p-2"></td>
+                                            <td class="text-center small-text p-2">100</td>
+                                            <td class="text-center small-text p-2">1000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center small-text p-2">ABLF20DF</td>
+                                            <td class="text-center small-text p-2">Armour Black 20 Double Filter</td>
+                                            <td class="text-center small-text p-2"></td>
+                                            <td class="text-center small-text p-2">100</td>
+                                            <td class="text-center small-text p-2">1000</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="text-end small-text bg-light p-2" colspan="3">Total</th>
+                                            <th class="text-center small-text bg-light p-2">100</th>
+                                            <th class="text-center small-text bg-light p-2">1000</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="col-12 p-3 px-5">
+                                <div class="row">
+                                    <div class="col-12 mb-2">
+                                        <p class="m-0 small-text fw-bolder">Notes</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <textarea class="form-control form-control-sm" rows="5" placeholder="Tuliskan Notes Disini"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none" id="btnSendAll" onclick="sendAllVariableInsert()">Batal</button>
+                        <button type="button" class="btn btn-brown shadow-none btn-sm shadow-none" id="btnSendAll" onclick="sendAllVariableInsert()"><i class="fa fa-save me-2"></i>Simpan</button>
+                    </div>
+                </div>
+                `
         $('#fieldProcessAddNewSuratJalan').html(html)
     }
 
@@ -594,10 +681,7 @@
                         <p class="m-0 super-small-text"><i>Last Updated</i></p>
                         <p class="m-0 super-small-text"><i>At <b id="timeRefresh">-</b></i></p>
                     </div>
-                    <div class="col-auto pe-0" id="contentButtonTemplates">
-                    </div>
-                    <div class="col-auto ps-1">
-                        <button type="button" class="btn btn-brown shadow-none btn-sm shadow-none" id="btnSendAll" onclick="sendAllVariableInsert()"><i class="fa fa-save me-2"></i>Send All</button>
+                    <div class="col-auto" id="contentButtonTemplates">
                     </div>
                 </div>`
         $('#fieldButtonTemplates').html(html)
@@ -605,27 +689,10 @@
     }
 
     function contentButtonTemplates() {
-        var textButtonPrinter = '<i class="fa fa-exclamation-triangle text-danger me-2"></i>Printer'
-        var textMachineLine = '<i class="fa fa-exclamation-triangle text-danger me-2"></i>Machine Line'
-        var shakeButtonPrinter = ''
-        var shakeButtonMachineLine = ''
-        if (defaultLabelPrinterBox) {
-            textButtonPrinter = '<i class="fa fa-print text-success me-2"></i>' + defaultLabelPrinterBox
-        } else {
-            shakeButtonPrinter = 'shake-bottom'
-        }
-        if (defaultMachineLineBox.machine_line_id && defaultMachineLineBox.work_plan_machine_id == workPlanMachineId) {
-            textMachineLine = '<i class="fa fa-gear text-success me-2"></i>' + defaultMachineLineBox.machine_line_name
-        } else {
-            shakeButtonMachineLine = 'shake-bottom'
-        }
         var html = ''
         html += `
                         <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
 
-                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none ${shakeButtonMachineLine}" onclick="settingMachineLine()" id="btnSettingMachineLine">${textMachineLine}</button>
-
-                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none ${shakeButtonPrinter}" onclick="settingPrinter()" id="btnSettingPrinter">${textButtonPrinter}</button>
                     `
         $('#contentButtonTemplates').html(html)
     }
