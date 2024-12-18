@@ -856,9 +856,9 @@
     function fieldProcessAddNewBox() {
         var html = `
                 <div class="row h-100 justify-content-center d-flex align-items-center">
-                <div class="col-12 align-self-center text-center">
-                <img src="<?= base_url('assets/image/png/box.png'); ?>" class="w-50"><br>
-                    <button type="button" class="btn btn-sm btn-outline-brown" id="btnAddNewBox" onclick="addNewBox()"><i class="fa fa-plus me-2"></i> Add New Box</button>
+                    <div class="col-12 align-self-center text-center">
+                        <img src="<?= base_url('assets/image/png/box.png'); ?>" class="w-50"><br>
+                        <button type="button" class="btn btn-sm btn-outline-brown" id="btnAddNewBox" onclick="addNewBox()"><i class="fa fa-plus me-2"></i> Add New Box</button>
                     </div>
                 </div>`
         $('#fieldProcessAddNewBox').html(html)
@@ -966,7 +966,7 @@
                     </div>
                 </div>`
         $('#fieldProcessAddNewBox').html(html)
-        if (doEdit) {
+        if (!doEdit) {
             $('#codeBallInput').focus();
         }
         buttonSaveOfflineMode()

@@ -375,8 +375,34 @@
         border-color: #A67E4F;
     }
 
+    .btn-brown:disabled {
+        background-color: lightgrey !important;
+        color: white !important;
+        border-color: lightgrey;
+    }
+
     .border-brown {
         border-color: #A67E4F;
+    }
+
+    .text-brown {
+        color: #A67E4F !important;
+    }
+
+    .input-edit-ball {
+        font-size: 9px;
+        display: block;
+        border: none;
+        border-bottom: solid 0.5px lightgrey;
+        color: grey;
+        text-align: end;
+        width: 50px;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .input-edit-ball:focus {
+        outline: none;
     }
 </style>
 <script src="<?= base_url(); ?>assets/JSPrintManager.js"></script>
@@ -455,6 +481,18 @@
         return html
     }
 
+    function iconBoxFill(height, width) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" fill="currentColor" class="bi bi-box-seam-fill" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.01-.003.268-.108a.75.75 0 0 1 .558 0l.269.108.01.003zM10.404 2 4.25 4.461 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339L8 5.961 5.596 5l6.154-2.461z"/>
+        </svg>`
+    }
+
+    function iconBoxEmpty(height, width) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
+        <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+        </svg>`
+    }
+
     function deepCopy(obj) {
         return JSON.parse(JSON.stringify(obj));
     }
@@ -527,10 +565,15 @@
         notes: '',
         work_plan_product_id: '',
         is_product_final_other: '',
+        multiplier: '',
+        unit_detail: '',
+        is_qty_detail_allowed: '',
     }
     var variableInsert = deepCopy(resetVariableInsert())
     var variableDelete = deepCopy(resetVariableInsert())
     var variableInsertSendOffline = deepCopy(resetVariableInsert())
+    var code_ball_created_detail = []
+    var brand_multiplier_pack = {}
     $(document).ready(function() {
         jspManager()
         fieldButtonTemplate()
@@ -567,7 +610,7 @@
                     <div class="col-auto pe-0" id="contentButtonTemplates">
                     </div>
                     <div class="col-auto ps-1">
-                        <button type="button" class="btn btn-brown shadow-none btn-sm shadow-none" id="btnSendAll" onclick="sendAllVariableInsert()"><i class="fa fa-save me-2"></i>Send All</button>
+                        <button type="button" class="btn btn-brown shadow-none btn-sm shadow-none" id="btnSendAll" disabled onclick="sendAllVariableInsert()"><i class="fa fa-save me-2"></i>Send All</button>
                     </div>
                 </div>`
         $('#fieldButtonTemplates').html(html)
@@ -758,6 +801,15 @@
             success: function(response) {
                 showOverlay('hide')
                 dataEntry = response.data
+                brand_multiplier_pack = {}
+                dataEntry.productMaterial.forEach(e => {
+                    var multiplier = e.unit_option.find((value, key) => {
+                        if (value.id == id_pack) return true
+                    })
+                    if (multiplier) {
+                        brand_multiplier_pack[e.item_id] = multiplier.multiplier
+                    }
+                })
                 listBalls()
                 if (!work_plan_product_id_clicked) {
                     fieldProcessProductWorkPlan()
@@ -815,10 +867,13 @@
         $('#totalDataBall').html(total_all)
         if (total_offline) {
             $('#totalDataOfflineBall').html('( ' + total_offline + ' Data still Offline )')
+        } else {
+            $('#totalDataOfflineBall').html('')
         }
     }
 
     function fieldProcessProductWorkPlan() {
+        code_ball_created_detail = []
         var html = `
         <div class="row justify-content-between">
                     <div class="col-auto">
@@ -831,7 +886,7 @@
                 <div class="col-12">
                         <div class="form-group has-search">
                             <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control small-text" placeholder="Cari Brand" id="search_brand" autocomplete="off" onkeyup="searching('search_brand','textListBall','listDetailBall')">
+                            <input type="text" class="form-control small-text" placeholder="Cari Brand" id="search_brand" autocomplete="off" onkeyup="searching('search_brand','textBrand','listBrand')">
                         </div>
                     </div>
                     <div class="col-12 mt-3">
@@ -866,6 +921,7 @@
     }
 
     function ballCreated(v, i) {
+        // console.log(v)
         var namaPita = ''
         if (v.stok_year_id) {
             var nameStokYear = dataEntry.stokYear.find((value, key) => {
@@ -873,10 +929,22 @@
             })
             namaPita = '<span class="ms-1 text-danger">Pita ' + nameStokYear.name + '</span>'
         }
+        if (v.qty_detail) {
+            var qty = v.qty_detail
+        } else {
+            var qty = brand_multiplier_pack[v.item.id]
+        }
         var html = ''
         // icon
-        html += '<div class="col-1 d-flex align-self-center text-center">'
-        html += '<span class="fa fa-box text-grey"></span>'
+        html += '<div class="col-1 d-flex align-self-center text-center text-brown pe-0">'
+        html += '<div class="row">'
+        html += '<div class="col-12 p-0">'
+        html += '<span>' + iconBoxEmpty(16, 16) + '</span>'
+        html += '</div>'
+        html += '<div class="col-12 p-0">'
+        html += '<p class="m-0 super-small-text">' + qty + '</p>'
+        html += '</div>'
+        html += '</div>'
         html += '</div>'
         // icon
         // side name
@@ -901,9 +969,22 @@
             })
             namaPita = '<span class="ms-1 text-danger">Pita ' + nameStokYear.name + '</span>'
         }
+        if (v.qty_detail) {
+            var qty = v.qty_detail
+        } else {
+            var qty = brand_multiplier_pack[v.item.id]
+        }
         var html = ''
         // icon
-        html += '<div class="col-1 d-flex align-self-center text-center">'
+        html += '<div class="col-1 d-flex align-self-center text-center text-success pe-0">'
+        html += '<div class="row">'
+        html += '<div class="col-12 p-0">'
+        html += '<span>' + iconBoxFill(16, 16) + '</span>'
+        html += '</div>'
+        html += '<div class="col-12 p-0">'
+        html += '<p class="m-0 super-small-text">' + qty + '</p>'
+        html += '</div>'
+        html += '</div>'
         html += '</div>'
         // icon
         // side name
@@ -925,14 +1006,14 @@
         var html = ''
         if (dataEntry.workPlanMachine.products.length) {
             dataEntry.workPlanMachine.products.forEach(e => {
-                html += `<div class="col-12">
+                html += `<div class="col-12" id="listBrand${e.work_plan_product_id}">
             <div class="card shadow-none mb-2 pointer card-hoper" onclick="addABrand(${e.work_plan_product_id})">
             <div class="card-body py-2 px-3">
             <div class="row">
             <div class="col-12">
-            <p class="m-0 super-small-text text-grey-small fw-bold d-flex align-items-center">${e.product.alias}</p>
-            <p class="m-0 small-text text-dark-grey fw-bolder">${e.product.name}</p>
-            <p class="m-0 super-small-text fw-bold">Sisa : <span class="text-orange fw-bolder">${totalStockBahan(number_format(e.product.id))} Press</span></p>
+            <p class="m-0 super-small-text text-grey-small fw-bold d-flex align-items-center textBrand" data-id="${e.work_plan_product_id}">${e.product.alias}</p>
+            <p class="m-0 small-text text-dark-grey fw-bolder textBrand" data-id="${e.work_plan_product_id}">${e.product.name}</p>
+            <p class="m-0 super-small-text fw-bold">Sisa : <span class="text-orange fw-bolder">${number_format(totalStockBahan(e.product.id))} Press</span></p>
             </div>
             </div>
             </div>
@@ -967,7 +1048,10 @@
             notes: '',
             work_plan_product_id: '',
             is_product_final_other: '',
+            multiplier: '',
+            is_qty_detail_allowed: '',
         }
+        code_ball_created_detail = []
         work_plan_product_id_clicked = work_plan_product_id
         var data = dataEntry.workPlanMachine.products.find((value, key) => {
             if (value.work_plan_product_id == work_plan_product_id) return true
@@ -997,6 +1081,12 @@
             if (value.item_id == id_ball) return true
         })
         if (checkProductMaterial) {
+            var unit = checkProductMaterial.unit_option.find((value, key) => {
+                if (value.id == id_pack) return true
+            })
+            variableGantung.multiplier = unit.multiplier
+            variableGantung.unit_detail = id_pack
+            variableGantung.is_qty_detail_allowed = checkProductMaterial.is_qty_detail_allowed
             id_press = checkProductMaterial.material_group[0].item_id_default
         }
         // cari machine stock dari press
@@ -1006,6 +1096,7 @@
         if (dataMachineStock) {
             stock_akhir = dataMachineStock.stok_akhir
         }
+        var dataProduct = checkSourceItem(id_product)
         return stock_akhir
     }
 
@@ -1029,7 +1120,6 @@
         if (day < 10) {
             day = "0" + day;
         }
-        console.log(month)
         switch (month) {
             case 0:
                 month = "Januari";
@@ -1088,13 +1178,13 @@
         <div class="col-12 mt-4">
             <p class="m-0 text-grey-small small fw-bolder">${data.product.alias}</p>
             <p class="m-0 text-dark-grey h1 fw-bolder">${data.product.name}</p>
-            <p class="m-0 text-grey-small super-small-text">Total Stok Bahan : <span class="text-orange fw-bolder">${totalStockBahan(number_format(data.product.id))} Press</span></p>
+            <p class="m-0 text-grey-small super-small-text">Total Stok Bahan : <span class="text-orange fw-bolder">${number_format(totalStockBahan(data.product.id))} Press</span></p>
         </div>
-        <div class="col-12 mt-4">
+        <div class="col-12 mt-3">
             <p class="m-0 text-grey-small small-text">Date Created</p>
             <p class="m-0 text-dark-grey small fw-bold">${getDateStringWithTime(dateTime)}</p>
         </div>
-        <div class="col-12 mt-4">
+        <div class="col-12 mt-3">
             <p class="m-0 text-grey-small small-text">Tahun Pita</p>
             <div class="row mt-2">
                 ${
@@ -1109,7 +1199,7 @@
                 }
             </div>
         </div>
-        <div class="col-12 mt-4">
+        <div class="col-12 mt-3">
             <p class="m-0 text-grey-small small-text">Jumlah Ball</p>
             <div class="row mt-2 align-self-center">
                 <div class="col-auto pe-0 align-self-center">
@@ -1123,12 +1213,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 mt-4">
+        <div class="col-12 mt-3">
             <p class="m-0 text-grey-small small-text">Code Created</p>
             <div class="row mt-2" id="codeBallCreated">
             </div>
         </div>
-        <div class="col-12 mt-4">
+        <div class="col-12 mt-3">
             <p class="m-0 text-grey-small small-text pointer" id="btnAddNotes" onclick="showNotes()"><span id="textAddNotes">Add Notes <i>(optional)</i></span><span class="fa fa-pencil ms-2"></span></p>
             <div id="fieldAddNotes" hidden>
                 <div class="row mt-2">
@@ -1221,9 +1311,74 @@
         for (let i = 1; i <= ballQuantity; i++) {
             var code = createBrandCode(i)
             code_ball_created.push(code)
-            html += '<div class="col-6 pe-0"><p class="m-0 super-small-text fw-bold"><i>' + code + '</i></p></div>'
+            var ballDetail = createBallDetail(code)
+            var color = ''
+            var colorDetail = 'text-grey'
+            var onclickDetail = ''
+            if (ballDetail.edited) {
+                color = 'text-orange'
+                colorDetail = 'text-orange'
+            }
+            if (variableGantung.is_qty_detail_allowed) {
+                onclickDetail = 'onclick="showQTYDetail(' + "'" + code + "'" + ',true)"'
+            }
+            html += '<div class="col-6 pe-0">'
+
+            html += '<div class="row">'
+            html += '<div class="col align-self-center">'
+            html += '<p class="m-0 small-text fw-bolder ' + color + '"><i>' + code + '</i></p>'
+            html += '</div>'
+            html += '<div class="col ps-0 align-self-center">'
+            html += '<p class="' + colorDetail + ' fw-bolder m-0 small-text pointer" ' + onclickDetail + ' id="textQTYDetail' + code + '"><i>' + ballDetail.qty + '</i></p>'
+            html += '<input class="input-edit-ball" type="number" value="' + ballDetail.qty + '" data-multiplier="' + ballDetail.qty + '" id="inputQTYDetail' + code + '" oninput="changeQTYDetail(' + "'" + code + "'" + ')" onkeyup="changeQTYDetail(' + "'" + code + "'" + ')" onblur="showQTYDetail(' + "'" + code + "'" + ',false)" hidden>'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
         }
         $('#codeBallCreated').html(html)
+    }
+
+    function createBallDetail(code) {
+        var check = code_ball_created_detail.find(x => x.code == code)
+        if (check) {
+            //jika ada
+            var data = {
+                code: code,
+                qty: check.qty,
+                edited: check.edited,
+            }
+        } else {
+            // jika tidak ada
+            var data = {
+                code: code,
+                qty: variableGantung.multiplier,
+                edited: false,
+            }
+            qty = variableGantung.multiplier
+            code_ball_created_detail.push(data)
+        }
+        return data
+    }
+
+    function changeQTYDetail(code) {
+        var qty = $('#inputQTYDetail' + code).val()
+        var data = code_ball_created_detail.find(x => x.code == code)
+        if (data) {
+            data.qty = qty
+            data.edited = true
+        }
+    }
+
+    function showQTYDetail(code, boolean) {
+        if (boolean) {
+            $('#inputQTYDetail' + code).attr('hidden', false).focus()
+            $('#textQTYDetail' + code).attr('hidden', true)
+        } else {
+            $('#inputQTYDetail' + code).attr('hidden', true)
+            $('#textQTYDetail' + code).attr('hidden', false)
+            addBrandCodeCreated()
+        }
     }
 
     function findLargestInventoryCode(data) {
@@ -1296,6 +1451,11 @@
                 status = '<span class="badge align-self-center small-text p-1 bg-warning">Created</span>'
             }
         }
+        if (!data.qty_detail) {
+            var qtyDetail = dataBall.multiplier
+        } else {
+            var qtyDetail = data.qty_detail
+        }
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
         var html_header = '';
@@ -1339,7 +1499,7 @@
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Dimension</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">' + dataBall.multiplier + ' ' + dataBall.name + '</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + qtyDetail + ' ' + dataBall.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Time Created</p>'
@@ -1480,7 +1640,7 @@
         var time = currentDateTime()
         // yang punya btn brown, diambil id nya
         var stok_year_id = $('.btnYear').filter('.btn-brown').attr('data-id')
-        for (let i = 0; i < code_ball_created.length; i++) {
+        code_ball_created_detail.forEach((e, i) => {
             var id = createCodeId(i)
             variableInsert.result_product.push({
                 id: id,
@@ -1501,8 +1661,10 @@
                 datetime_end: dataEntry.workPlanMachine.date + ' ' + formatTime(currentDateTime()),
                 stok_year_id: stok_year_id,
                 machine_step_id: dataEntry.machineStepid,
-                inventory_code: code_ball_created[i],
-                machine_line_id: defaultMachineLine.machine_line_id
+                inventory_code: e.code,
+                machine_line_id: defaultMachineLine.machine_line_id,
+                qty_detail: e.qty,
+                unit_id_detail: variableGantung.unit_detail,
             })
             variableInsert.result_product_machine.push({
                 id: createCodeId(i),
@@ -1521,8 +1683,10 @@
                 is_product_final_other: variableGantung.is_product_final_other,
                 employee_id_admin: user_id,
                 is_complete: 1,
+                qty_detail: e.qty,
+                unit_id_detail: variableGantung.unit_detail,
             })
-        }
+        })
         addToVariableOffline('add')
     }
 
@@ -1573,7 +1737,7 @@
                 variableInsertSendOffline.deletedId.result_product_machine.push(e)
             });
         }
-        console.log(variableInsertSendOffline)
+        // console.log(variableInsertSendOffline)
         reconstructionData(status, dataMasuk)
     }
 
@@ -1805,6 +1969,7 @@
         dataAll = dataAll.filter(item => item.id != id)
         dataEntry.productionOutItem = dataAll
         contentOpenDraft()
+        buttonSaveOfflineMode()
         listBalls()
     }
 

@@ -967,7 +967,7 @@
                                 <li><a class="dropdown-item" href="javascript:void(0);" onclick="offlineModeLog()"><i class="fa fa-cog me-2"></i>Offline Mode Log</a></li>
                             </ul>
                         </div>
-                    <?php } else if ($link == 'ball_packer' || $link == 'box_packer') { ?>
+                    <?php } else if ($link == 'ball_packer' || $link == 'box_packer' || $link == 'finish_good_transfer') { ?>
                     <?php } else { ?>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
                         <button type="button" class="btn btn-outline-dark shadow-none btn-sm shadow-none" id="btnChooseBrand" onclick="chooseBrandTemplate()"><i class="fa fa-hand-o-up me-2"></i>Choose Brand</button>
