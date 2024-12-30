@@ -894,38 +894,42 @@
 
     function listDetailSuratJalan() {
         var html = '';
-        dataEntry.machineTransferList.forEach((value, key) => {
-            html += `
-            <tr>
-                <td class="text-center small-text p-2 fw-bolder pointer" onclick="getDetailSuratJalan('${value.id}')">${value.document_number}</td>
-                <td class="text-center small-text p-2">${getDateStringWithTime(value.send_at)}</td>
-                <td class="text-center small-text p-2">${shortenName(value.employee_sender.name,1)}</td>
-                <td class="text-center small-text p-2">${value.warehouse.name}</td>
-                `
-            dataEntry.resultStockTemplate.forEach(ele => {
-                var dataDetail = value.summaries.find((v, k) => {
-                    return v.unit.id == ele.id
+        if (dataEntry.machineTransferList.length == 0) {
+            html += '<tr><td colspan="8" class="text-center small-text p-2">Tidak Ada Data Tersedia</td></tr>'
+        } else {
+            dataEntry.machineTransferList.forEach((value, key) => {
+                html += `
+                <tr>
+                    <td class="text-center small-text p-2 fw-bolder pointer" onclick="getDetailSuratJalan('${value.id}')">${value.document_number}</td>
+                    <td class="text-center small-text p-2">${getDateStringWithTime(value.send_at)}</td>
+                    <td class="text-center small-text p-2">${shortenName(value.employee_sender.name,1)}</td>
+                    <td class="text-center small-text p-2">${value.warehouse.name}</td>
+                    `
+                dataEntry.resultStockTemplate.forEach(ele => {
+                    var dataDetail = value.summaries.find((v, k) => {
+                        return v.unit.id == ele.id
+                    })
+                    html += `<td class="text-center small-text p-2">${dataDetail ? dataDetail.qty_request : ''}</td>`
                 })
-                html += `<td class="text-center small-text p-2">${dataDetail ? dataDetail.qty_request : ''}</td>`
-            })
-            html += `
-                <td class="text-center small-text p-2">${value.note}</td>
-                <td class="text-center small-text p-2">
-                    <div class="dropdown">
-                        <button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton${value.id}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton${value.id}">
-                           <a class="dropdown-item" onclick="getDetailSuratJalan('${value.id}')">
-                            <i class="fa fa-th-list me-2"></i> Lihat Detail
-                            </a>
+                html += `
+                    <td class="text-center small-text p-2">${value.note}</td>
+                    <td class="text-center small-text p-2">
+                        <div class="dropdown">
+                            <button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton${value.id}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton${value.id}">
+                               <a class="dropdown-item" onclick="getDetailSuratJalan('${value.id}')">
+                                <i class="fa fa-th-list me-2"></i> Lihat Detail
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                </td>
-
-            </tr>
-            `
-        });
+                    </td>
+    
+                </tr>
+                `
+            });
+        }
         $('#tableDetailSuratJalan').html(html)
     }
 
@@ -962,7 +966,7 @@
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Destination</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.warehouse.name + 'r</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.warehouse.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Created At</p>'
@@ -1009,7 +1013,7 @@
         html_body += '<p class="m-0 small-text">Timeline</p>'
         html_body += '</div>'
         html_body += '<div class="col-12">'
-        html_body += timelineSuratJalan()
+        html_body += timelineSuratJalan(data)
         html_body += '</div>'
         html_body += '</div>'
         // Timeline
@@ -1067,12 +1071,12 @@
     }
 
     function hapusSuratJalan(id) {
-        var data = deepCopy(dataEntry.productionOutItem).find((value, key) => {
+        var data = deepCopy(dataEntry.machineTransferList).find((value, key) => {
             if (value.id == id) return true
         })
         // console.log(data)
         Swal.fire({
-            text: 'Apakah anda yakin ingin menghapus data Ball ' + data.inventory_code + ' ?',
+            text: 'Apakah anda yakin ingin menghapus data Surat Jalan ' + data.document_number + ' ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -1080,25 +1084,28 @@
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.isConfirmed) {
-                variableDelete = deepCopy(resetVariableInsert())
-                variableDelete.deletedId.result_product.push(id)
-                data.result_product_machines.forEach(e => {
-                    variableDelete.deletedId.result_product_machine.push(e.id)
+                $('#modal').modal('hide')
+                variableInsert = deepCopy(resetVariableInsert())
+                variableInsert.deletedId.machine_transfer.push(id)
+                data.products.forEach(a => {
+                    a.details.forEach(b => {
+                        b.machine_transfer_detail_requests.forEach(c => {
+                            variableInsert.deletedId.machine_transfer_detail_request.push(c.id)
+                        });
+                    });
                 });
-                data.result_product_materials.forEach(e => {
-                    variableDelete.deletedId.result_product_material.push(e.id)
-                });
-                addToVariableOffline('delete')
+                sendAllVariableInsert('delete')
             }
         })
 
     }
 
-    function timelineSuratJalan() {
+    function timelineSuratJalan(data) {
         var html = ''
         var status = ''
         var text = ''
-        var btnEdit = ''
+        var icon = '<i class="fa fa-check"></i>'
+        var textStatus = ''
         html += '<div class="timeline timeline-sm">'
         // Setoran Baru
         html += '<div class="timeline-item">'
@@ -1106,11 +1113,16 @@
 
         status = 'text-grey'
         text = '<p>Belum Ada Proses</p>'
-        btnEdit = ''
-        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        if (data.send_at) {
+            status = 'bg-success text-white'
+            text = ''
+            text += '<p class="m-0 super-small-text text-grey-small">' + getDateStringWithTime(data.send_at) + '</p>'
+            text += '<p class="m-0 fw-bold">Paper was submitted by ' + data.employee_sender.name + '</p>'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '">' + icon + '</div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>Buat Setoran Baru</b>' + btnEdit
+        html += '<b>Submitted</b>'
         html += text
         html += '</div>'
         html += '</div>'
@@ -1121,11 +1133,24 @@
 
         status = 'text-grey'
         text = '<p>Belum Ada Proses</p>'
-        btnEdit = ''
-        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        textStatus = 'Received'
+        if (data.receive_at) {
+            if (data.is_receive) {
+                status = 'bg-success text-white'
+                icon = '<i class="fa fa-check"></i>'
+            } else {
+                status = 'bg-danger text-white'
+                icon = '<i class="fa fa-times"></i>'
+                textStatus = 'Rejected'
+            }
+            text = ''
+            text += '<p class="m-0 super-small-text text-grey-small">' + getDateStringWithTime(data.receive_at) + '</p>'
+            text += '<p class="m-0 fw-bold">Paper was received by ' + data.employee_receiver.name + '</p>'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '">' + icon + '</div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>Ambil Material</b>' + btnEdit
+        html += '<b>' + textStatus + '</b>'
         html += text
         html += '</div>'
         html += '</div>'
@@ -1137,10 +1162,10 @@
         status = 'text-grey'
         text = '<p>Belum Ada Proses</p>'
 
-        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '<div class="timeline-item-marker-indicator ' + status + '">' + icon + '</div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>Complete</b>'
+        html += '<b>Approved</b>'
         html += text
         html += '</div>'
         html += '</div>'
@@ -1294,6 +1319,7 @@
                 name: brandStock[id_brand + '' + id_year].name,
                 stok_year: brandStock[id_brand + '' + id_year].stok_year.name,
                 stok_year_id: brandStock[id_brand + '' + id_year].stok_year.id,
+                machine_stok_details: brandStock[id_brand + '' + id_year].machine_stok_details,
                 data: [templateDetail]
             })
         }
@@ -1333,10 +1359,11 @@
             document_number: variableGantung.document_number,
             work_plan_machine_id: dataTemplate.workPlanMachineId
         })
+        var a = 0
         variableAdd.forEach(e => {
             e.data.forEach((value, key) => {
                 variableInsert.machine_transfer_detail_request.push({
-                    id: createCodeId(key),
+                    id: createCodeId(a),
                     machine_transfer_id: id,
                     item_id: value.item_id,
                     stok_year_id: e.stok_year_id,
@@ -1346,11 +1373,23 @@
                     qty_detail: value.qty_detail,
                     created_at: time,
                     updated_at: time,
+                    inventory_ids: convertToInventoryIds(e.machine_stok_details, value.unit_id),
                 })
+                a++
             });
         });
         // console.log(variableInsert)
         sendAllVariableInsert('add')
+    }
+
+    function convertToInventoryIds(data, unit_id) {
+        var array = []
+        data.forEach(e => {
+            if (e.unit_id == unit_id) {
+                array.push(e.inventory_id)
+            }
+        });
+        return array
     }
 
     function sendAllVariableInsert(status) {
@@ -1358,7 +1397,7 @@
         var type = 'POST'
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
-        if (data.machine_transfer.length || data.machine_transfer_detail_request.length) {
+        if (data.machine_transfer.length || data.machine_transfer_detail_request.length || data.deletedId.machine_transfer.length || data.deletedId.machine_transfer_detail_request.length) {
             kelolaDataSaveAuto(data, type, url, button)
         }
     }

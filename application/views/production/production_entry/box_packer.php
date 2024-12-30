@@ -1852,7 +1852,7 @@
         // html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">SKU</p>'
-        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.item.name + 'r</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.item.name + '</p>'
         html_body += '</div>'
         html_body += '<div class="col-6 pe-0 mb-2">'
         html_body += '<p class="m-0 super-small-text text-grey-small">Type</p>'
