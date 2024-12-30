@@ -850,9 +850,13 @@
                     variableGantung.destination_name = dataEntry.machineTransferDestination[0].data[0].name
                 }
                 setUnitBrandOption()
-                fieldProcessAddNewSuratJalan()
                 tableSuratJalan()
                 listBallBoxes()
+                if (addSuratJalanState) {
+                    templateAddNewSuratJalan()
+                } else {
+                    fieldProcessAddNewSuratJalan()
+                }
             }
         })
     }
@@ -1172,15 +1176,15 @@
                     pita = 'Pita ' + e.stok_year.name
                 }
                 html += `
-            <div class="card shadow-none border-end-0 border-start-0 border-top-0 card-hoper" 
-                style="border-radius: 0px; cursor: context-menu !important;" id="listDetailBox">
+            <div class="card shadow-none border-end-0 border-start-0 border-top-0 card-hoper listDetailBox" 
+                style="border-radius: 0px; cursor: context-menu !important;" id="listDetailBox${e.id}${e.stok_year.id}">
                 <div class="card-body py-3">
                     <div class="row">
                         <!-- Main Column -->
                         <div class="col-6 pe-0">
-                            <p class="m-0 super-small-text text-grey">${e.code}</p>
-                            <p class="m-0 small fw-bolder lh-1">${e.name}</p>
-                            <p class="m-0 super-small-text text-danger">${pita}</p>
+                            <p class="m-0 super-small-text text-grey textListBox" data-id="${e.id}${e.stok_year.id}">${e.code}</p>
+                            <p class="m-0 small fw-bolder lh-1 textListBox" data-id="${e.id}${e.stok_year.id}">${e.name}</p>
+                            <p class="m-0 super-small-text text-danger textListBox" data-id="${e.id}${e.stok_year.id}">${pita}</p>
                         </div>
             `;
 
@@ -1379,6 +1383,34 @@
                 fieldProcessAddNewSuratJalan()
                 loadData()
             }
+        });
+    }
+
+    function searching(id_search_form, class_text_search, id_card_search) {
+        var value = $('#' + id_search_form).val().toLowerCase();
+        var cards = $('.' + class_text_search).map(function() {
+            return $(this).text();
+        }).get();
+        var id_cards = $('.' + class_text_search).map(function() {
+            return $(this).data('id');
+        }).get();
+        var array = []
+        for (let i = 0; i < cards.length; i++) {
+            var element = cards[i].toLowerCase().indexOf(value);
+            $('#' + id_card_search + id_cards[i]).addClass('d-none')
+            if (element > -1) {
+                array.push(id_cards[i])
+            }
+        }
+        var array_arranged = unique(array)
+        for (let i = 0; i < array_arranged.length; i++) {
+            $('#' + id_card_search + array_arranged[i]).removeClass('d-none')
+        }
+    }
+
+    function unique(array) {
+        return array.filter(function(el, index, arr) {
+            return index == arr.indexOf(el);
         });
     }
 </script>
