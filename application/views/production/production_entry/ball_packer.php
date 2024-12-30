@@ -1402,7 +1402,7 @@
     function createBrandCode(x) {
         x = (extractTrailingNumber(findLargestInventoryCode(deepCopy(dataEntry.productionOutItem)))) + x
         // Mendapatkan tanggal saat ini
-        const today = new Date();
+        const today = new Date(dataEntry.workPlanMachine.date);
         const year = today.getFullYear(); // Tahun (4 digit)
         const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan (2 digit)
         const date = String(today.getDate()).padStart(2, '0'); // Tanggal (2 digit)
@@ -2113,4 +2113,5 @@
             return index == arr.indexOf(el);
         });
     }
+    setInterval(sendAllVariableInsert, 60000); // 1 menit
 </script>

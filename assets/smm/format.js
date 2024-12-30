@@ -342,7 +342,7 @@ function getDateStringWithTime(orginaldate) {
     if (day < 10) {
         day = "0" + day;
     }
-    console.log(month)
+    // console.log(month)
     switch(month) {
         case 0: month = "Januari"; break;
         case 1: month = "Februari"; break;

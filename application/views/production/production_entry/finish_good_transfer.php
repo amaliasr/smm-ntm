@@ -393,7 +393,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <input type="text" class="form-control mt-3 small-text" placeholder="Cari Kode atau Brand" id="search_kode_brand" onclick="offBlurOff(),this.focus()" onkeyup="searching('search_kode_brand','textListBox','listDetailBox')" onblur="onBlurOn()" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">
+                        <input type="text" class="form-control mt-3 small-text" placeholder="Cari Kode atau Brand" id="search_kode_brand" onkeyup="searching('search_kode_brand','textListBox','listDetailBox')" autocomplete="off" style="border-radius:0px;border-left:0px;border-right:0px;">
                     </div>
                 </div>
                 <!-- <div> -->
@@ -404,6 +404,22 @@
         </div>
     </div>
     <div class="col-8 pt-2" id="fieldProcessAddNewSuratJalan">
+    </div>
+    <div class="col-12 pt-3">
+        <div class="card shadow-none" style="height: 600px">
+            <div class="card-body">
+                <div class="row justify-content-between">
+                    <div class="col-auto">
+                        <p class="m-0 small-text fw-bolder">Detail</p>
+                    </div>
+                    <div class="col-auto" id="searchSuratJalan">
+                    </div>
+                    <div class="col-12" id="tableSuratJalan">
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="modal" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -489,13 +505,11 @@
 
     function resetVariableInsert() {
         var data = {
-            result_product: [],
-            result_product_machine: [],
-            result_product_material: [],
+            machine_transfer: [],
+            machine_transfer_detail_request: [],
             deletedId: {
-                result_product: [],
-                result_product_machine: [],
-                result_product_material: []
+                machine_transfer: [],
+                machine_transfer_detail_request: [],
             }
         }
         return data
@@ -508,11 +522,8 @@
     $('#modal').on('hidden.bs.modal', function(e) {
         variableEdit = ''
         doEdit = false
-        onBlurOn()
     })
-    $('#modal').on('shown.bs.modal', function() {
-        offBlurOff()
-    });
+    $('#modal').on('shown.bs.modal', function() {});
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('division_id') ?>'
     var linkBefore = '<?= $linkBefore ?>';
@@ -521,41 +532,19 @@
     var work_plan_product_id_clicked
     var alias_clicked
     var year_clicked
-    var code_ball_created = []
-    var printers = []
-    var printerKey = ''
-    var machineLineId = ''
-    var defaultMachineLineBox = JSON.parse(localStorage.getItem('idMachineLineBox')) || {
-        machine_line_id: '',
-        machine_line_name: '',
-        machine_line_label: '',
-        work_plan_machine_id: ''
-    }
-    var inventory_scanner = []
-    var item_id_scanner = ''
-    var initial_product_scanned = {}
-    var defaultLabelPrinterBox = localStorage.getItem("defaultLabelPrinterBox") || '';
     var variableGantung = {
-        dateCreated: '',
-        item_id: '',
-        item_alias: '',
-        notes: '',
-        work_plan_product_id: '',
-        is_product_final_other: '',
-        stok_year_id: '',
-        stok_year_name: '',
-        box_code: '',
-        unit_pack: '',
-        unit_ball: '',
+        document_number: '',
+        destination: null,
+        destination_name: '',
     }
+    var addSuratJalanState = false
+    var brandStock = {}
+    var variableAdd = []
     var variableInsert = deepCopy(resetVariableInsert())
     var variableDelete = deepCopy(resetVariableInsert())
     var variableInsertSendOffline = deepCopy(resetVariableInsert())
-    var checkDatabase = false
-    var doEdit = false
+    var unitBrandOption = {}
     $(document).ready(function() {
-        templateAddNewSuratJalan()
-        // fieldProcessAddNewSuratJalan()
         fieldButtonTemplate()
     })
 
@@ -568,6 +557,7 @@
     }
 
     function fieldProcessAddNewSuratJalan() {
+        addSuratJalanState = false
         var html = `
                 <div class="card shadow-sm h-100" style="min-height: 500px !important">
                     <div class="card-body">
@@ -581,97 +571,224 @@
                 </div>
                 `
         $('#fieldProcessAddNewSuratJalan').html(html)
+        listBallBoxes()
     }
 
     function templateAddNewSuratJalan() {
+        addSuratJalanState = true
         var html = `
                 <div class="card shadow-sm h-100" style="min-height: 500px !important">
                     <div class="card-header text-center">
                         <p class="m-0 text-dark-grey fw-bold">Form Serah Terima FG Logistik</p>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-0" id="bodySuratJalan">
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none" id="btnBatal" onclick="batalInsert()">Batal</button>
+                        <button type="button" class="btn btn-brown shadow-none btn-sm shadow-none" id="btnSimpan" onclick="saveInsert()"><i class="fa fa-save me-2"></i>Simpan</button>
+                    </div>
+                </div>
+                `
+        $('#fieldProcessAddNewSuratJalan').html(html)
+        bodySuratJalan()
+        listBallBoxes()
+    }
+
+    function batalInsert() {
+        addSuratJalanState = false
+        variableAdd = []
+        fieldProcessAddNewSuratJalan()
+    }
+
+    function createSJCode() {
+        x = (deepCopy(dataEntry.machineTransferList).length) + 1
+        // Mendapatkan tanggal saat ini
+        const today = new Date(dataTemplate.workPlanMachine.date);
+        const year = today.getFullYear(); // Tahun (4 digit)
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan (2 digit)
+        const date = String(today.getDate()).padStart(2, '0'); // Tanggal (2 digit)
+
+        // Membuat format angka 5 digit untuk x
+        const xFormatted = String(x).padStart(3, '0');
+
+        // Membuat kode final
+        const code = `SJLOG${year}${month}${date}${xFormatted}`;
+        // const code = `${variableGantung.item_alias}BX${defaultMachineLineBox.machine_line_label}${year}${month}${date}${xFormatted}`;
+
+        return code;
+    }
+
+    function bodySuratJalan() {
+        variableGantung.document_number = createSJCode()
+        var html = `
                         <div class="row">
                             <div class="col-12 p-3 px-5">
                                 <div class="row justify-content-between">
                                     <div class="col-auto">
                                         <p class="m-0 small-text text-grey-small">Hari / Tanggal</p>
-                                        <p class="m-0 small fw-bolder">Rabu, 11 Desember 2024</p>
+                                        <p class="m-0 small fw-bolder">${formatDateIndonesia(currentDate())}</p>
                                     </div>
                                     <div class="col-auto">
                                         <p class="m-0 small-text text-grey-small">Surat Jalan</p>
-                                        <p class="m-0 small fw-bolder">SJ20240527001</p>
+                                        <p class="m-0 small fw-bolder">${variableGantung.document_number}</p>
                                     </div>
                                     <div class="col-auto">
-                                        <p class="m-0 small-text text-grey-small">Tipe</p>
-                                        <p class="m-0 small fw-bolder">Default</p>
+                                        <p class="m-0 small-text text-grey-small">Destination</p>
+                                        <p class="m-0 small fw-bolder">${variableGantung.destination_name}</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <hr class="m-0">
                             </div>
-                            <div class="col-12">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" class="text-center bg-light p-2 small-text">Kode Item</th>
-                                            <th scope="col" class="text-center bg-light p-2 small-text">Brand</th>
-                                            <th scope="col" class="text-center bg-light p-2 small-text">Pita</th>
-                                            <th scope="col" class="text-center bg-light p-2 small-text">Box</th>
-                                            <th scope="col" class="text-center bg-light p-2 small-text">Bale</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-center small-text p-2">ABLF20DF</td>
-                                            <td class="text-center small-text p-2">Armour Black 20 Double Filter</td>
-                                            <td class="text-center small-text p-2"></td>
-                                            <td class="text-center small-text p-2">100</td>
-                                            <td class="text-center small-text p-2">1000</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center small-text p-2">ABLF20DF</td>
-                                            <td class="text-center small-text p-2">Armour Black 20 Double Filter</td>
-                                            <td class="text-center small-text p-2"></td>
-                                            <td class="text-center small-text p-2">100</td>
-                                            <td class="text-center small-text p-2">1000</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center small-text p-2">ABLF20DF</td>
-                                            <td class="text-center small-text p-2">Armour Black 20 Double Filter</td>
-                                            <td class="text-center small-text p-2"></td>
-                                            <td class="text-center small-text p-2">100</td>
-                                            <td class="text-center small-text p-2">1000</td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th class="text-end small-text bg-light p-2" colspan="3">Total</th>
-                                            <th class="text-center small-text bg-light p-2">100</th>
-                                            <th class="text-center small-text bg-light p-2">1000</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="col-12 p-3 px-5">
-                                <div class="row">
-                                    <div class="col-12 mb-2">
-                                        <p class="m-0 small-text fw-bolder">Notes</p>
-                                    </div>
-                                    <div class="col-12">
-                                        <textarea class="form-control form-control-sm" rows="5" placeholder="Tuliskan Notes Disini"></textarea>
-                                    </div>
-                                </div>
+                            <div class="col-12" id="bodySuratJalanTableKerangka">
                             </div>
                         </div>
-                    </div>
-                    <div class="card-footer text-end">
-                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none" id="btnSendAll" onclick="sendAllVariableInsert()">Batal</button>
-                        <button type="button" class="btn btn-brown shadow-none btn-sm shadow-none" id="btnSendAll" onclick="sendAllVariableInsert()"><i class="fa fa-save me-2"></i>Simpan</button>
+                        `
+        $('#bodySuratJalan').html(html)
+        bodySuratJalanTableKerangka()
+    }
+
+    function bodySuratJalanTableKerangka() {
+        if (variableAdd.length) {
+            var html = `
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center bg-light p-2 small-text">Kode Item</th>
+                                <th scope="col" class="text-center bg-light p-2 small-text">Brand</th>
+                                <th scope="col" class="text-center bg-light p-2 small-text">Pita</th>`
+            dataEntry.resultStockTemplate.forEach(ele => {
+                html += `<th scope="col" class="text-center bg-light p-2 small-text" style="width: 50px">${ele.name}</th>`
+            })
+            html += `<th scope="col" class="text-center bg-light p-2 small-text"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodySuratJalanTableKerangkaBody">
+                        </tbody>
+                        <tfoot id="footerSuratJalanTableKerangka">
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="col-12 p-3 px-5">
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <p class="m-0 small-text fw-bolder">Notes</p>
+                        </div>
+                        <div class="col-12">
+                            <textarea class="form-control form-control-sm" rows="5" placeholder="Tuliskan Notes Disini" id="notes"></textarea>
+                        </div>
                     </div>
                 </div>
-                `
-        $('#fieldProcessAddNewSuratJalan').html(html)
+            </div>
+                                    `
+        } else {
+            var html = emptyReturnTextOnly('Tidak ada data, Pilih Brand disebelah kanan untuk menambahkan')
+        }
+        $('#bodySuratJalanTableKerangka').html(html)
+        bodySuratJalanTableKerangkaBody()
+    }
+
+    function bodySuratJalanTableKerangkaBody() {
+        var html = ''
+        var total = {}
+        variableAdd.forEach(e => {
+            if (e.stok_year == 'NO YEAR') {
+                e.stok_year = ''
+            }
+            html += '<tr id="rowSuratJalan' + e.id + '' + e.stok_year + '">'
+            html += '<td class="text-center small-text p-2 fw-bolder">' + e.code + '</td>'
+            html += '<td class="small-text p-2">' + e.name + '</td>'
+            html += '<td class="text-center small-text p-2">' + e.stok_year + '</td>'
+            dataEntry.resultStockTemplate.forEach(ele => {
+                var dataDetail = e.data.find((v, k) => {
+                    return v.id_template == ele.id
+                })
+                var qty = (dataDetail ? dataDetail.qty : 0)
+                if (total[ele.id] == undefined) {
+                    total[ele.id] = qty
+                } else {
+                    total[ele.id] = (qty + total[ele.id])
+                }
+                var qtyShow = (dataDetail ? dataDetail.qty : '')
+                html += '<td class="text-center small-text p-2">'
+                if (dataDetail) {
+                    html += '<input type="text" class="form-control form-control-sm text-center border-0 nominal small-text p-0 w-100" id="qtySuratJalan' + e.id + '' + e.stok_year_id + '' + ele.id + '" value="' + qtyShow + '" style="min-height:0px;background-color:transparent;" onkeyup="inputQTYSuratJalan(' + e.id + ',' + e.stok_year_id + ',' + ele.id + ',' + dataDetail.item_id + ',' + dataDetail.unit_id + ',' + dataDetail.unit_detail_id + ')" >'
+                }
+                html += '</td>'
+            })
+            html += '<td class="text-center small-text p-2 align-middle pointer" onclick="deleteRow(' + e.id + ',' + e.stok_year_id + ')"><i class="fa fa-times text-danger"></i></td>'
+            html += '</tr>'
+        });
+        $('#bodySuratJalanTableKerangkaBody').html(html)
+        footerSuratJalanTableKerangka(total)
+    }
+
+    function deleteRow(id, stok_year_id) {
+        variableAdd = variableAdd.filter((v, k) => {
+            if (v.id == id && v.stok_year_id == stok_year_id) {
+                return false
+            } else {
+                return true
+            }
+        })
+        refreshDataForm()
+    }
+
+    function inputQTYSuratJalan(id, stok_year_id, id_template, item_id, unit_id, unit_detail_id) {
+        var unit_option = convertUnitOption(item_id, unit_detail_id)
+        var qty = $('#qtySuratJalan' + id + '' + stok_year_id + '' + id_template).val()
+        if (!qty) {
+            qty = 0
+        }
+        variableAdd = variableAdd.map((v, k) => {
+            if (v.id == id && v.stok_year_id == stok_year_id) {
+                v.data = v.data.map((vv, kk) => {
+                    if (vv.id_template == id_template) {
+                        vv.qty = qty
+                        vv.qty_detail = parseInt(qty) * parseInt(unit_option.multiplier)
+                    }
+                    return vv
+                })
+            }
+            return v
+        })
+        // console.log(variableAdd)
+        listBallBoxes()
+        footerSuratJalanTableKerangka()
+    }
+
+    function footerSuratJalanTableKerangka(total) {
+        if (!total) {
+            total = {}
+            dataEntry.resultStockTemplate.forEach(ele => {
+                variableAdd.forEach(e => {
+                    var dataDetail = e.data.find((v, k) => {
+                        return v.id_template == ele.id
+                    })
+                    var qty = (dataDetail ? dataDetail.qty : 0)
+                    if (total[ele.id] == undefined) {
+                        total[ele.id] = parseInt(qty)
+                    } else {
+                        total[ele.id] = (parseInt(qty) + parseInt(total[ele.id]))
+                    }
+                })
+            })
+        }
+        var html = ''
+        html += '<tr>'
+        html += '<th class="text-end small-text bg-light p-2" colspan="3">Total</th>'
+        dataEntry.resultStockTemplate.forEach(ele => {
+            if (!total[ele.id]) {
+                total[ele.id] = 0
+            }
+            html += '<th class="text-center small-text bg-light p-2">' + total[ele.id] + '</th>'
+        })
+        html += '<th class="text-end small-text bg-light p-2"></th>'
+        html += '</tr>'
+        $('#footerSuratJalanTableKerangka').html(html)
     }
 
     function fieldButtonTemplate() {
@@ -722,11 +839,323 @@
                 $('#listBallBoxes').html(LoadingReturn('Loading...'))
             },
             success: function(response) {
+                brandStock = {}
                 showOverlay('hide')
                 dataEntry = response.data
+                dataEntry.resultStock.forEach(e => {
+                    brandStock[e.id + '' + e.stok_year.id] = e
+                });
+                if (!variableGantung.destination) {
+                    variableGantung.destination = dataEntry.machineTransferDestination[0].data[0].id
+                    variableGantung.destination_name = dataEntry.machineTransferDestination[0].data[0].name
+                }
+                setUnitBrandOption()
+                fieldProcessAddNewSuratJalan()
+                tableSuratJalan()
                 listBallBoxes()
             }
         })
+    }
+
+    function tableSuratJalan() {
+        var html = ''
+        html += `
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-hover table-sm mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center p-2 small-text">Surat Jalan</th>
+                                <th scope="col" class="text-center p-2 small-text">Created At</th>
+                                <th scope="col" class="text-center p-2 small-text">Created By</th>
+                                <th scope="col" class="text-center p-2 small-text">Destination</th>
+                                `
+        dataEntry.resultStockTemplate.forEach(e => {
+            html += `<th scope="col" class="text-center p-2 small-text" style="width: 50px">${e.name}</th>`
+        })
+        html += `
+                                <th scope="col" class="text-center p-2 small-text">Note</th>
+                                <th scope="col" class="text-center p-2 small-text"></th>
+                            </tr>
+                        </thead>    
+                        <tbody id="tableDetailSuratJalan">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `
+        $('#tableSuratJalan').html(html)
+        listDetailSuratJalan()
+    }
+
+    function listDetailSuratJalan() {
+        var html = '';
+        dataEntry.machineTransferList.forEach((value, key) => {
+            html += `
+            <tr>
+                <td class="text-center small-text p-2 fw-bolder pointer" onclick="getDetailSuratJalan('${value.id}')">${value.document_number}</td>
+                <td class="text-center small-text p-2">${getDateStringWithTime(value.send_at)}</td>
+                <td class="text-center small-text p-2">${shortenName(value.employee_sender.name,1)}</td>
+                <td class="text-center small-text p-2">${value.warehouse.name}</td>
+                `
+            dataEntry.resultStockTemplate.forEach(ele => {
+                var dataDetail = value.summaries.find((v, k) => {
+                    return v.unit.id == ele.id
+                })
+                html += `<td class="text-center small-text p-2">${dataDetail ? dataDetail.qty_request : ''}</td>`
+            })
+            html += `
+                <td class="text-center small-text p-2">${value.note}</td>
+                <td class="text-center small-text p-2">
+                    <div class="dropdown">
+                        <button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton${value.id}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton${value.id}">
+                           <a class="dropdown-item" onclick="getDetailSuratJalan('${value.id}')">
+                            <i class="fa fa-th-list me-2"></i> Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </td>
+
+            </tr>
+            `
+        });
+        $('#tableDetailSuratJalan').html(html)
+    }
+
+    function getDetailSuratJalan(id) {
+        var data = dataEntry.machineTransferList.find((value, key) => {
+            return value.id == id
+        })
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Detail Surat Jalan</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 border-bottom p-4 pt-0">'
+        // content
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 align-self-center text-center">'
+        html_body += '<p class="m-0 small">Surat Jalan</p>'
+        html_body += '<p class="m-0 h3 fw-bolder">' + data.document_number + '</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        // content
+        html_body += '</div>'
+        html_body += '<div class="col-12 p-0">'
+        html_body += '<div class="row w-100">'
+        // column
+        html_body += '<div class="col-7 p-3 ps-5 border-end">'
+        // Detail Information
+        html_body += '<div class="row justify-content-between">'
+        html_body += '<div class="col-12 mb-2">'
+        html_body += '<p class="m-0 small-text">Detail Information</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Destination</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.warehouse.name + 'r</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Created At</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + getDateStringWithTime(data.send_at) + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Created By</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.employee_sender.name + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Total Product</p>'
+        html_body += '<p class="m-0 super-small-text fw-bolder">'
+        data.summaries.forEach((value, key) => {
+            html_body += '<span class="">' + value.qty_request + ' ' + value.unit.name + '</span>'
+            if (key != data.summaries.length - 1) {
+                html_body += '<span class="">, </span>'
+            }
+        });
+        html_body += '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-6 pe-0 mb-2">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Notes</p>'
+        if (!data.note) {
+            data.note = '-'
+        }
+        html_body += '<p class="m-0 super-small-text fw-bolder">' + data.note + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mb-2 mt-2">'
+        html_body += '<div class="row justify-content-between">'
+        html_body += '<div class="col-auto align-self-center">'
+        html_body += '<p class="m-0 super-small-text text-grey-small">Detail Product <span>(' + data.products.length + ')</span></p>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '<div class="col-12 mb-2" id="fieldIfListBoxesReview">'
+        html_body += '</div>'
+        html_body += '</div>'
+        // Detail Information
+        html_body += '</div>'
+        html_body += '<div class="col-5 p-3">'
+        // Timeline
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12 mb-4">'
+        html_body += '<p class="m-0 small-text">Timeline</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-12">'
+        html_body += timelineSuratJalan()
+        html_body += '</div>'
+        html_body += '</div>'
+        // Timeline
+        html_body += '</div>'
+        // column
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body).addClass('pb-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<div class="row w-100 justify-content-between">'
+        html_footer += '<div class="col-auto">'
+        if (data.receive_at == null) {
+            html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusSuratJalan(' + "'" + id + "'" + ')">Hapus Surat Jalan</button>'
+        }
+        html_footer += '</div>'
+        html_footer += '<div class="col-auto">'
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        html_footer += '</div>'
+        html_footer += '</div>'
+        $('#modalFooter').html(html_footer)
+        fieldIfListBoxesReview(data)
+    }
+
+    function fieldIfListBoxesReview(data) {
+        var html = ''
+        data.products.forEach(e => {
+            html += `
+            <div class="card shadow-none mb-2 cardBallEdit">
+                <div class="card-body py-3">
+                    <div class="row">
+                        <div class="col-6 align-self-center">
+                            <p class="m-0 super-small-text fw-bold text-grey lh-1">${e.product.code}</p>
+                            <p class="m-0 small-text fw-bolder text-dark-grey lh-1">${e.product.name}</p>
+                        </div>`
+            dataEntry.resultStockTemplate.forEach(ele => {
+                var dataDetail = e.details.find((v, k) => {
+                    return v.unit_id == ele.id
+                })
+                html += '<div class="col-3 align-self-end text-end">'
+                if (dataDetail) {
+                    dataDetail.machine_transfer_detail_requests.forEach(element => {
+                        html += '<p class="m-0 small-text"><b>' + element.qty + '</b> ' + ele.name + '</p>'
+                    });
+                }
+                html += '</div>'
+            })
+            html += `</div>
+                </div>
+            </div>
+            `
+        });
+        $('#fieldIfListBoxesReview').html(html)
+    }
+
+    function hapusSuratJalan(id) {
+        var data = deepCopy(dataEntry.productionOutItem).find((value, key) => {
+            if (value.id == id) return true
+        })
+        // console.log(data)
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus data Ball ' + data.inventory_code + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                variableDelete = deepCopy(resetVariableInsert())
+                variableDelete.deletedId.result_product.push(id)
+                data.result_product_machines.forEach(e => {
+                    variableDelete.deletedId.result_product_machine.push(e.id)
+                });
+                data.result_product_materials.forEach(e => {
+                    variableDelete.deletedId.result_product_material.push(e.id)
+                });
+                addToVariableOffline('delete')
+            }
+        })
+
+    }
+
+    function timelineSuratJalan() {
+        var html = ''
+        var status = ''
+        var text = ''
+        var btnEdit = ''
+        html += '<div class="timeline timeline-sm">'
+        // Setoran Baru
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Buat Setoran Baru</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // Setoran Baru
+        // Ambil Material
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        btnEdit = ''
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Ambil Material</b>' + btnEdit
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // Ambil Material
+        // Complete
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+
+        html += '<div class="timeline-item-marker-indicator ' + status + '"><i class="fa fa-check"></i></div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Complete</b>'
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // Complete
+        return html
+    }
+
+    function setUnitBrandOption() {
+        unitBrandOption = {}
+        dataEntry.productMaterial.forEach(e => {
+            unitBrandOption[e.item_id] = e.unit_option
+        });
+    }
+
+    function convertUnitOption(item_id, unit_id) {
+        var data = unitBrandOption[item_id].find((v, k) => {
+            return v.id == unit_id
+        })
+        return data
     }
 
     function listBallBoxes() {
@@ -737,6 +1166,7 @@
 
         if (data.length) {
             data.forEach(e => {
+                var checkVariableAdd = variableAdd.find(item => item.id == e.id && item.stok_year_id == e.stok_year.id)
                 var pita = ''
                 if (e.stok_year.id) {
                     pita = 'Pita ' + e.stok_year.name
@@ -756,16 +1186,52 @@
 
                 // Sub Columns
                 dataEntry.resultStockTemplate.forEach(ele => {
+                    var checkDetailVariableAdd = (checkVariableAdd ? checkVariableAdd.data.find(item => item.id_template == ele.id) : '')
+                    var qty = e.data.find(e => e.unit.id == ele.id)
+                    var itemDetail = qty ? qty : ''
+                    var qtyFinal = 0
+                    var qtyDetail = 0
+                    var iconTemplates = ''
+                    var qtyDetailSelisih = undefined
+                    if (qty) {
+                        qtyFinal = qty.qty
+                        qtyDetail = qty.qty_detail
+                        // qtyDetailSelisih = qtyFinal * convertUnitOption(qty.item_id, qty.unit_detail.id).multiplier
+                        qtyDetailSelisih = 0
+                    } else {
+                        iconTemplates = 'text-grey'
+                        qtyFinal = 0
+                    }
+                    var textVariation = ''
+                    var qtySisa = qtyFinal
+                    if (checkDetailVariableAdd) {
+                        textVariation = 'text-decoration-line-through text-danger opacity-50'
+                        qtySisa = (qtyFinal - checkDetailVariableAdd.qty)
+                        if (qtyDetail != checkDetailVariableAdd.qty_detail) {
+                            qtyDetailSelisih = (qtyDetail - checkDetailVariableAdd.qty_detail)
+                        }
+                    }
                     html += `
                         <div class="col pe-0">
-                            <p class="m-0 super-small-text text-grey">${ele.name}</p>
+                            <p class="m-0 super-small-text text-grey lh-1">${ele.name}</p>
                             <div class="row">
-                                <div class="col-4 align-self-center">
+                                <div class="col-4 align-self-center ${iconTemplates}">
                                     ${iconTemplate(ele.name, 10, 10)}
                                 </div>
-                                <div class="col-8 ps-0 align-self-center">
-                                    <p class="m-0 small fw-bolder">100</p>
-                                </div>
+                                <div class="col-8 ps-0 align-self-center ${iconTemplates}">
+                                    <span class="m-0 small fw-bolder ${textVariation}">${qtyFinal}</span>`
+                    if (checkDetailVariableAdd) {
+                        html += `<span class="m-0 small fw-bolder ms-1">${qtySisa}</span>`
+                    }
+                    html += `</div>`
+                    if (addSuratJalanState && qtyFinal && qtySisa) {
+                        html += buttonDropAll(e, ele, qtyFinal, itemDetail)
+                    } else {
+                        if (qtyDetailSelisih) {
+                            html += buttonDropAll(e, ele, qtyFinal, itemDetail)
+                        }
+                    }
+                    html += `
                             </div>
                         </div>
                 `;
@@ -787,11 +1253,132 @@
         totalData(total_all, total_offline);
     }
 
+    function buttonDropAll(e, ele, qtyFinal, itemDetail) {
+        var html = ''
+        html += `
+                <div class="col-12 align-self-start d-flex align-items-baseline">
+                    <span class="badge bg-success shadow-none text-white pointer" style="font-size: 6px" onclick="addToSuratJalan(${e.id},${ele.id},${e.stok_year.id},${qtyFinal},'${itemDetail.item_id}','${itemDetail.unit.id}','${itemDetail.unit_detail.id}','${itemDetail.qty_detail}')">Drop All <i class="fa fa-chevron-right ms-1"></i></span>
+                </div>
+                `
+        return html
+    }
+
+    function addToSuratJalan(id_brand, id_template, id_year, qty, item_id, unit_id, unit_detail_id, qty_detail) {
+        // cek apakah di variableAdd ada brandnya
+        var check = variableAdd.find(e => e.id == id_brand && e.stok_year_id == id_year)
+        var templateDetail = {
+            id: id_brand,
+            id_template: id_template,
+            qty: qty,
+            qty_detail: qty_detail,
+            item_id: item_id,
+            unit_id: unit_id,
+            unit_detail_id: unit_detail_id
+        }
+        if (check) {
+            var checkTemplate = check.data.find(e => e.id_template == id_template)
+            if (checkTemplate) {
+                checkTemplate.qty = qty
+                checkTemplate.qty_detail = qty_detail
+            } else {
+                check.data.push(templateDetail)
+            }
+        } else {
+            variableAdd.push({
+                id: id_brand,
+                code: brandStock[id_brand + '' + id_year].code,
+                name: brandStock[id_brand + '' + id_year].name,
+                stok_year: brandStock[id_brand + '' + id_year].stok_year.name,
+                stok_year_id: brandStock[id_brand + '' + id_year].stok_year.id,
+                data: [templateDetail]
+            })
+        }
+        refreshDataForm()
+    }
+
+    function refreshDataForm() {
+        listBallBoxes()
+        bodySuratJalanTableKerangka()
+    }
+
 
     function totalData(total_all, total_offline) {
         $('#totalData').html(total_all)
         if (total_offline) {
             $('#totalDataOfflineBox').html('( ' + total_offline + ' Data still Offline )')
         }
+    }
+
+    function saveInsert() {
+        variableInsert = deepCopy(resetVariableInsert())
+        var time = currentDateTime()
+        var id = createCodeId(0)
+        variableInsert.machine_transfer.push({
+            id: id,
+            machine_id: dataTemplate.workPlanMachine.machine.id,
+            gudang_id: dataEntry.machineTransferDestination[0].data[0].id,
+            send_at: time,
+            employee_id_sender: user_id,
+            action: 'OUT',
+            tag: 'TRANSFER FINISH GOOD',
+            note: $('#notes').val(),
+            created_at: time,
+            updated_at: time,
+            work_plan_id: dataTemplate.workPlanMachine.work_plan_id,
+            shift_id: dataTemplate.workPlanMachine.shift_id,
+            document_number: variableGantung.document_number,
+            work_plan_machine_id: dataTemplate.workPlanMachineId
+        })
+        variableAdd.forEach(e => {
+            e.data.forEach((value, key) => {
+                variableInsert.machine_transfer_detail_request.push({
+                    id: createCodeId(key),
+                    machine_transfer_id: id,
+                    item_id: value.item_id,
+                    stok_year_id: e.stok_year_id,
+                    unit_id: value.unit_id,
+                    qty: value.qty,
+                    unit_id_detail: value.unit_detail_id,
+                    qty_detail: value.qty_detail,
+                    created_at: time,
+                    updated_at: time,
+                })
+            });
+        });
+        // console.log(variableInsert)
+        sendAllVariableInsert('add')
+    }
+
+    function sendAllVariableInsert(status) {
+        var data = deepCopy(variableInsert)
+        var type = 'POST'
+        var button = '#btnSimpan'
+        var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
+        if (data.machine_transfer.length || data.machine_transfer_detail_request.length) {
+            kelolaDataSaveAuto(data, type, url, button)
+        }
+    }
+
+    function kelolaDataSaveAuto(data, type, url, button) {
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                });
+            },
+            beforeSend: function() {
+                $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
+            },
+            success: function(response) {
+                variableAdd = []
+                fieldProcessAddNewSuratJalan()
+                loadData()
+            }
+        });
     }
 </script>

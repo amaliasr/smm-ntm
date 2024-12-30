@@ -576,9 +576,10 @@
         JSPM.JSPrintManager.start();
         JSPM.JSPrintManager.WS.onStatusChanged = function() {
             if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
-                // alert(JSPM.JSPrintManager.getBluetoothDevices())
+                console.log(JSPM.JSPrintManager.getPrinters())
                 JSPM.JSPrintManager.getPrinters().then(function(e) {
                     printers = e
+                    // console.log(printers)
                     if (printers.length > 0) {
                         $('#btnSettingPrinter').prop('disabled', false)
                     } else {
@@ -995,30 +996,8 @@
         if (data) {
             // ada code nya
             checkDatabase = false
-            if (data.stok_akhir) {
-                if (!doEdit) {
-                    // untuk add
-                    if (!inventory_scanner.length) {
-                        // belum pernah scanner atau scanner nya kosong (scan pertama kali)
-                        setFirstScanner(data)
-                    } else {
-                        // scan ke 2 kalinya atau lebih
-                        if (data.item_id == item_id_scanner) {
-                            // scanner sama
-                            secondScanner(data)
-                        } else {
-                            // scanner beda
-                            alertIfListBoxes('Brand Tidak Cocok')
-                        }
-                    }
-                } else {
-                    // untuk edit
-                    var id_box = $('#codeBallInput' + variableEdit).data('id_box')
-                    secondScannerEdit(id_box, data)
-                }
-            } else {
-                alertIfListBoxes('Stok Telah Habis')
-            }
+            var checkInBox = checkBallIsInBox(data.inventory_id)
+            nextStepOfScanner(data, checkInBox)
         } else {
             if (checkDatabase) {
                 // jika sudah pernah di cek ternyata tidak ada
@@ -1029,6 +1008,73 @@
                 findDataBall()
             }
         }
+    }
+
+    function nextStepOfScanner(data, checkInBox) {
+        if (!doEdit) {
+            // untuk add
+            if (checkInBox) {
+                // ada di dalam box
+                if (data.stok_akhir) {
+                    Swal.fire({
+                        text: 'Ball ' + data.inventory_code + ' sudah ada di list, apakah ingin digunakan lagi?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yakin',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            nextStepOfScanner2(data)
+                        } else {
+                            $('#codeBallInput').val('')
+                        }
+                    })
+                } else {
+                    alertIfListBoxes('Stok Telah Habis')
+                }
+            } else {
+                // tidak ada di dalam box
+                if (data.stok_akhir) {
+                    nextStepOfScanner2(data)
+                } else {
+                    alertIfListBoxes('Stok Telah Habis')
+                }
+            }
+        } else {
+            // untuk edit
+            var id_box = $('#codeBallInput' + variableEdit).data('id_box')
+            secondScannerEdit(id_box, data)
+        }
+    }
+
+    function nextStepOfScanner2(data) {
+        if (!inventory_scanner.length) {
+            // belum pernah scanner atau scanner nya kosong (scan pertama kali)
+            setFirstScanner(data)
+        } else {
+            // scan ke 2 kalinya atau lebih
+            if (data.item_id == item_id_scanner) {
+                // scanner sama
+                secondScanner(data)
+            } else {
+                // scanner beda
+                alertIfListBoxes('Brand Tidak Cocok')
+            }
+        }
+    }
+
+    function checkBallIsInBox(inventory_id) {
+        var status = false
+        dataEntry.productionOutItem.forEach(e => {
+            e.result_product_materials.find((value, key) => {
+                if (value.inventory_id == inventory_id) {
+                    status = true
+                }
+            })
+        })
+        return status
     }
 
     function findDataBall() {
@@ -1067,7 +1113,7 @@
     function createBrandCode(x = 1) {
         x = (deepCopy(dataEntry.productionOutItem).length) + x
         // Mendapatkan tanggal saat ini
-        const today = new Date();
+        const today = new Date(dataEntry.workPlanMachine.date);
         const year = today.getFullYear(); // Tahun (4 digit)
         const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan (2 digit)
         const date = String(today.getDate()).padStart(2, '0'); // Tanggal (2 digit)
@@ -1406,7 +1452,7 @@
                 variableInsert.result_product_material.push({
                     id: createCodeId(k),
                     result_product_id: id,
-                    datetime: variableGantung.dateCreated,
+                    datetime: dataEntry.workPlanMachine.date + ' ' + formatTime(variableGantung.dateCreated),
                     machine_id: dataEntry.workPlanMachine.machine.id,
                     item_id: variableGantung.item_id,
                     inventory_id: v,
@@ -2157,4 +2203,5 @@
         $('#btnSaveMaterial').prop('hidden', false)
         $('.btnDeleteBall').prop('hidden', false)
     }
+    setInterval(sendAllVariableInsert, 60000); // 1 menit
 </script>

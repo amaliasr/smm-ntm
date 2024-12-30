@@ -416,4 +416,9 @@ class Production extends CI_Controller
         $data['title'] = 'Production Out Terminal';
         $this->template->views('production/production_out_terminal', $data);
     }
+    public function finishGood()
+    {
+        $data['title'] = 'Finish Good';
+        $this->template->views('production/finish_good', $data);
+    }
 }

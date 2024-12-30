@@ -167,6 +167,7 @@
                         </a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
+                        <a class="nav-link" href="<?= base_url(); ?>production/finishGood">Finish Good</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->
