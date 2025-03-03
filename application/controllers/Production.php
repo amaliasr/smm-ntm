@@ -421,4 +421,59 @@ class Production extends CI_Controller
         $data['title'] = 'Finish Good';
         $this->template->views('production/finish_good', $data);
     }
+    public function ShipmentOrder()
+    {
+        $data['title'] = 'Shipment Order';
+        $this->template->views('production/shipment_order', $data);
+    }
+    public function outgoingShipment()
+    {
+        $data['title'] = 'Outgoing Shipment';
+        $this->template->views('production/outgoing_shipment', $data);
+    }
+    public function incomingShipment()
+    {
+        $data['title'] = 'Incoming Shipment';
+        $this->template->views('production/incoming_shipment', $data);
+    }
+    public function cetakSuratJalanFinishGood()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['qrcode'] = $explodedParams[1];
+        $data['id'] = $explodedParams[2];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('getMachineTransferList?machineTransferId=' . $data['id'])))->data;
+        $html = $this->load->view('production/cetak_surat_jalan_finish_good', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = 'FORM SERAH TERIMA FG LOGISTIK ' . $data['datas']->machineTransfer->document_number . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream($data['datas']->machineTransfer->document_number, array("Attachment" => 0));
+    }
+    public function cetakSuratJalanTransferGudang()
+    {
+        $params = $this->input->get('params');
+        $decodedParams = urldecode($params);
+        $explodedParams = explode("*$", $decodedParams);
+        $data['qrcode'] = $explodedParams[1];
+        $data['id'] = $explodedParams[2];
+        $data['datas'] = json_decode($this->curl->simple_get(api_produksi('loadPageFinishGoodShipment?id=' . $data['id'])))->data;
+        $html = $this->load->view('production/cetak_surat_jalan_machine_transfer', $data, true);
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = 'SURAT JALAN ' . $data['datas']->shipment[0]->doc_number . ".pdf";
+        $this->pdf->loadHtml($html);
+        $this->pdf->render();
+        $this->pdf->stream($data['datas']->shipment[0]->doc_number, array("Attachment" => 0));
+    }
+    public function approvalFinishGood($id = "")
+    {
+        $data['title'] = 'Approval Finish Good';
+        $data['id'] = $id;
+        if ($id) {
+            $this->template->views('production/approval_finish_good', $data);
+        } else {
+            $this->template->views('errors/notfound', $data);
+        }
+    }
 }

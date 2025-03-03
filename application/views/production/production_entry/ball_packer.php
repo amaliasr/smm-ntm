@@ -556,7 +556,8 @@
         machine_line_label: '',
         work_plan_machine_id: ''
     }
-    var id_pack = 9
+    var id_pack = ''
+    // var id_pack = 9
     var defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
     var variableGantung = {
         dateCreated: '',
@@ -804,7 +805,7 @@
                 brand_multiplier_pack = {}
                 dataEntry.productMaterial.forEach(e => {
                     var multiplier = e.unit_option.find((value, key) => {
-                        if (value.id == id_pack) return true
+                        if (value.id == e.unit_detail.id) return true
                     })
                     if (multiplier) {
                         brand_multiplier_pack[e.item_id] = multiplier.multiplier
@@ -1001,7 +1002,6 @@
         return html
     }
 
-
     function productWorkPlan() {
         var html = ''
         if (dataEntry.workPlanMachine.products.length) {
@@ -1082,10 +1082,10 @@
         })
         if (checkProductMaterial) {
             var unit = checkProductMaterial.unit_option.find((value, key) => {
-                if (value.id == id_pack) return true
+                if (value.id == checkProductMaterial.unit_detail.id) return true
             })
             variableGantung.multiplier = unit.multiplier
-            variableGantung.unit_detail = id_pack
+            variableGantung.unit_detail = checkProductMaterial.unit_detail.id
             variableGantung.is_qty_detail_allowed = checkProductMaterial.is_qty_detail_allowed
             id_press = checkProductMaterial.material_group[0].item_id_default
         }
@@ -1306,6 +1306,7 @@
 
     function addBrandCodeCreated() {
         code_ball_created = []
+        code_ball_created_detail = []
         var ballQuantity = $('#ballQuantity').val()
         var html = ''
         for (let i = 1; i <= ballQuantity; i++) {
@@ -1381,22 +1382,48 @@
         }
     }
 
+    // function findLargestInventoryCode(data) {
+    //     // Mengurutkan data berdasarkan inventory_code (bagian numerik di akhir)
+    //     const sortedData = data.sort((a, b) => {
+    //         const numA = parseInt(a.inventory_code.match(/\d+$/)[0], 10);
+    //         const numB = parseInt(b.inventory_code.match(/\d+$/)[0], 10);
+    //         return numB - numA;
+    //     });
+
+    //     // Mengembalikan inventory_code terbesar
+    //     // console.log(sortedData[0]?.inventory_code)
+    //     return sortedData[0]?.inventory_code || null;
+    // }
     function findLargestInventoryCode(data) {
-        // Mengurutkan data berdasarkan inventory_code (bagian numerik di akhir)
-        const sortedData = data.sort((a, b) => {
-            const numA = parseInt(a.inventory_code.match(/\d+$/)[0], 10);
-            const numB = parseInt(b.inventory_code.match(/\d+$/)[0], 10);
+        // Filter data berdasarkan prefix yang sesuai dengan machine_line_label
+        const filteredData = data.filter(item =>
+            item.inventory_code.startsWith(`BL${defaultMachineLine.machine_line_label}`)
+        );
+
+        if (filteredData.length === 0) {
+            return null; // Tidak ada data yang sesuai
+        }
+
+        // Mengurutkan data berdasarkan 5 digit terakhir
+        const sortedData = filteredData.sort((a, b) => {
+            const numA = parseInt(a.inventory_code.slice(-5), 10); // Ambil 5 digit terakhir
+            const numB = parseInt(b.inventory_code.slice(-5), 10); // Ambil 5 digit terakhir
             return numB - numA;
         });
 
-        // Mengembalikan inventory_code terbesar
+        // Mengembalikan inventory_code terbesar berdasarkan 5 digit terakhir
         return sortedData[0]?.inventory_code || null;
     }
 
+
     function extractTrailingNumber(code) {
         // Menggunakan regex untuk mengambil angka di akhir string
-        const match = code.match(/.*?(\d{2,})$/);
-        return match ? parseInt(match[1].slice(-2), 10) : null;
+        if (code) {
+            const match = code.match(/.*?(\d{2,})$/);
+            return match ? parseInt(match[1].slice(-5), 10) : 0;
+        } else {
+            return 0
+        }
     }
 
     function createBrandCode(x) {
@@ -1440,8 +1467,11 @@
         var brand = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.product.id == dataProduct.item_id) return true
         })
+        var dataUnit = dataEntry.productMaterial.find((value, key) => {
+            if (value.item_id == data.item.id) return true
+        })
         var dataBall = dataProduct.material_group[0].items[0].unit_option.find((v, k) => {
-            if (v.id == id_pack) return true
+            if (v.id == dataUnit.unit_detail.id) return true
         })
         var status = '<span class="badge align-self-center small-text p-1 bg-light text-grey">Sending</span>'
         if (!data.is_offline) {
@@ -1636,6 +1666,7 @@
     }
 
     function saveAndPrint() {
+        // console.log(variableGantung.item_id)
         variableInsert = deepCopy(resetVariableInsert())
         var time = currentDateTime()
         // yang punya btn brown, diambil id nya
@@ -1647,8 +1678,8 @@
                 work_plan_id: dataEntry.workPlanMachine.work_plan_id,
                 shift_id: dataEntry.workPlanMachine.shift_id,
                 machine_id: dataEntry.workPlanMachine.machine.id,
-                time_start: currentDateTime(),
-                time_end: currentDateTime(),
+                time_start: formatTime(currentDateTime()),
+                time_end: formatTime(currentDateTime()),
                 item_id: variableGantung.item_id,
                 qty: 1,
                 unit_id: variableGantung.unit_id,
@@ -1662,6 +1693,7 @@
                 stok_year_id: stok_year_id,
                 machine_step_id: dataEntry.machineStepid,
                 inventory_code: e.code,
+                inventory_id: id,
                 machine_line_id: defaultMachineLine.machine_line_id,
                 qty_detail: e.qty,
                 unit_id_detail: variableGantung.unit_detail,
@@ -1716,6 +1748,7 @@
                     "qty": 1,
                     "note": e.note,
                     "inventory_code": e.inventory_code,
+                    "inventory_id": e.inventory_id,
                     "result_product_machines": [],
                 })
                 variableInsertSendOffline.result_product.push(e)
@@ -2042,39 +2075,44 @@
     }
 
     function printQrCode(data) {
+        // console.log(data)
         let cmds = '';
         var dataProduct = checkSourceItem(data[0].item.id)
         var brand = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.product.id == dataProduct.item_id) return true
         })
+        var dataUnit = dataEntry.productMaterial.find((value, key) => {
+            if (value.item_id == data[0].item.id) return true
+        })
         var dataBall = dataProduct.material_group[0].items[0].unit_option.find((v, k) => {
-            if (v.id == id_pack) return true
+            if (v.id == dataUnit.unit_detail.id) return true
         })
         data.forEach(e => {
             cmds += '^XA\n';
-            cmds += '^PW600\n';
-            cmds += '^LL600\n';
+            cmds += '^PW460\n'; // Lebar label disesuaikan untuk 230 dpi
+            cmds += '^LL460\n'; // Tinggi label juga disesuaikan
 
-            cmds += '^FO0,50^A0N,30,30^FB600,1,0,C^FD ' + e.inventory_code + '^FS\n'; // Header teks di tengah
+            cmds += '^FO0,40^A0N,24,24^FB420,1,0,C^FD' + e.inventory_code + '^FS\n'; // Header teks di tengah
 
-            cmds += '^FO30,150^BQN,2,8^FDQA,' + e.inventory_code + '^FS\n'; // QR Code diposisikan lebih jauh ke bawah
+            cmds += '^FO20,120^BQN,2,6^FDQA,' + e.inventory_code + '^FS\n'; // QR Code lebih kecil agar sesuai
 
-            cmds += '^FO0,120^GB610,1,1^FS\n'; // Garis horizontal setelah QR Code, lebih rendah dari QR Code
+            cmds += '^FO0,100^GB470,1,1^FS\n'; // Garis horizontal disesuaikan agar tetap sejajar
 
-            cmds += '^FO250,160^A0N,25,25^FD SKU:^FS\n'; // Posisi SKU sejajar dengan QR Code
-            cmds += '^FO255,190^A0N,30,30^FB300,2,2,L^FD ' + e.item.name + '^FS\n'; // Teks SKU otomatis wrap jika panjang
+            cmds += '^FO190,130^A0N,20,20^FD SKU:^FS\n';
+            cmds += '^FO195,155^A0N,21,21^FB200,2,2,L^FD' + e.item.name + '^FS\n'; // Teks SKU disesuaikan
 
-            cmds += '^FO250,270^A0N,25,25^FD Dimension:^FS\n'; // Posisi Dimension diturunkan
-            cmds += '^FO250,300^A0N,30,30^FD ' + dataBall.multiplier + ' ' + dataBall.name + '^FS\n';
+            cmds += '^FO190,210^A0N,20,20^FD Dimension:^FS\n';
+            cmds += '^FO195,235^A0N,24,24^FD' + dataBall.multiplier + ' ' + dataBall.name + '^FS\n';
 
-            cmds += '^FO250,350^A0N,25,25^FD Type:^FS\n';
-            cmds += '^FO250,380^A0N,30,30^FD ' + brand.item_type.name + '^FS\n';
+            cmds += '^FO190,280^A0N,20,20^FD Type:^FS\n';
+            cmds += '^FO195,305^A0N,24,24^FD' + brand.item_type.name + '^FS\n';
 
-            cmds += '^FO30,500^A0N,20,20^FD Printed At:^FS\n'; // Baris pertama teks
-            cmds += '^FO30,530^A0N,20,20^FD ' + formatPrintedAt() + '^FS\n'; // Baris kedua tanggal dan waktu
+            cmds += '^FO20,355^A0N,16,16^FD Printed At:^FS\n';
+            cmds += '^FO25,375^A0N,16,16^FD' + formatPrintedAt() + '^FS\n';
 
             cmds += '^XZ\n';
         });
+        console.log(cmds)
         defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
         if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
             var cpj = new JSPM.ClientPrintJob();
@@ -2088,6 +2126,7 @@
 
     function searching(id_search_form, class_text_search, id_card_search) {
         var value = $('#' + id_search_form).val().toLowerCase();
+        // console.log(value)
         var cards = $('.' + class_text_search).map(function() {
             return $(this).text();
         }).get();

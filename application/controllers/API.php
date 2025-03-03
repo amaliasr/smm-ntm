@@ -15,6 +15,7 @@ class Api extends CI_Controller
         $this->department_name = $this->session->userdata('department_name');
         $this->full_name = $this->session->userdata('full_name');
     }
+
     public function index()
     {
         $no_telp = $this->input->get('no_telp');
@@ -359,6 +360,36 @@ Link Kerja : " . $value['link'] . "";
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         curl_close($ch);
+        echo $result;
+    }
+    public function sendLogisticToFG()
+    {
+        // $no_telp = ['081944946015'];
+        $no_telp = $this->input->get('no_telp');
+        $link = $this->input->get('link');
+        $nama = $this->input->get('nama');
+        $kode = $this->input->get('kode');
+        for ($i = 0; $i < count($no_telp); $i++) {
+            $message = "*🚚 Serah Terima Logistik 🚚*
+
+Teruntuk Bpk/Ibu *" . $nama[$i] . "* , anda mendapatkan pesan untuk proses Serah Terima Logistik *" . $kode[$i] . "*
+Silahkan klik link dibawah ini untuk melakukan proses Serah Terima Logistik
+
+
+" . $link[$i] . "";
+            $url = 'https://app.whacenter.com/api/send';
+            $ch = curl_init($url);
+            $data = array(
+                'device_id' => '24dcb02247b3e46597329e21a48e13ee',
+                'number' => $no_telp[$i],
+                'message' => $message,
+            );
+            $payload = $data;
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($ch);
+            curl_close($ch);
+        }
         echo $result;
     }
 }

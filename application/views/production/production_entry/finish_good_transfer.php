@@ -879,6 +879,7 @@
         })
         html += `
                                 <th scope="col" class="text-center p-2 small-text">Note</th>
+                                <th scope="col" class="text-center p-2 small-text">Status</th>
                                 <th scope="col" class="text-center p-2 small-text"></th>
                             </tr>
                         </thead>    
@@ -898,6 +899,9 @@
             html += '<tr><td colspan="8" class="text-center small-text p-2">Tidak Ada Data Tersedia</td></tr>'
         } else {
             dataEntry.machineTransferList.forEach((value, key) => {
+                if (!value.employee_sender.name) {
+                    value.employee_sender.name = ''
+                }
                 html += `
                 <tr>
                     <td class="text-center small-text p-2 fw-bolder pointer" onclick="getDetailSuratJalan('${value.id}')">${value.document_number}</td>
@@ -906,11 +910,20 @@
                     <td class="text-center small-text p-2">${value.warehouse.name}</td>
                     `
                 dataEntry.resultStockTemplate.forEach(ele => {
-                    var dataDetail = value.summaries.find((v, k) => {
-                        return v.unit.id == ele.id
-                    })
-                    html += `<td class="text-center small-text p-2">${dataDetail ? dataDetail.qty_request : ''}</td>`
+                    if (value.summaries) {
+                        var dataDetail = value.summaries.find((v, k) => {
+                            return v.unit.id == ele.id
+                        })
+                        html += `<td class="text-center small-text p-2">${dataDetail ? dataDetail.qty_request : ''}</td>`
+                    } else {
+                        html += `<td class="text-center small-text p-2"></td>`
+                    }
                 })
+                html += `<td class="text-center small-text p-2">${value.note}</td>`
+                var badge = '<span class="badge rounded-pill bg-grey super-small-text p-2 w-100">Waiting</span>'
+                if (value.is_receive) {
+                    badge = '<span class="badge rounded-pill bg-success super-small-text p-2 w-100">Received</span>'
+                }
                 html += `
                     <td class="text-center small-text p-2">${value.note}</td>
                     <td class="text-center small-text p-2">
@@ -921,6 +934,9 @@
                             <div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton${value.id}">
                                <a class="dropdown-item" onclick="getDetailSuratJalan('${value.id}')">
                                 <i class="fa fa-th-list me-2"></i> Lihat Detail
+                                </a>
+                               <a class="dropdown-item" onclick="cetakSuratJalan('${value.id}','${value.document_number}')">
+                                <i class="fa fa-print me-2"></i> Cetak Surat Jalan
                                 </a>
                             </div>
                         </div>
@@ -1357,7 +1373,8 @@
             work_plan_id: dataTemplate.workPlanMachine.work_plan_id,
             shift_id: dataTemplate.workPlanMachine.shift_id,
             document_number: variableGantung.document_number,
-            work_plan_machine_id: dataTemplate.workPlanMachineId
+            work_plan_machine_id: dataTemplate.workPlanMachineId,
+            employee_id: user_id,
         })
         var a = 0
         variableAdd.forEach(e => {
@@ -1398,6 +1415,8 @@
         var button = '#btnSimpan'
         var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
         if (data.machine_transfer.length || data.machine_transfer_detail_request.length || data.deletedId.machine_transfer.length || data.deletedId.machine_transfer_detail_request.length) {
+            // console.log(data)
+            // convertToWhatsapp(data)
             kelolaDataSaveAuto(data, type, url, button)
         }
     }
@@ -1418,11 +1437,35 @@
                 $(button).prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...')
             },
             success: function(response) {
+                $(button).prop("disabled", false).html('<i class="fa fa-save me-1"></i>Simpan')
+                convertToWhatsapp(data)
                 variableAdd = []
                 fieldProcessAddNewSuratJalan()
                 loadData()
             }
         });
+    }
+
+    function convertToWhatsapp(variable) {
+        // console.log(variable)
+        var data = {
+            no_telp: [],
+            link: [],
+            nama: [],
+            kode: [],
+        }
+        var dataApproval = dataEntry.approvalLine.filter(e => e.is_current == 1)
+        if (dataApproval) {
+            dataApproval.forEach(e => {
+                data.no_telp.push('081944946015')
+                // data.no_telp.push(e.phone)
+                data.link.push('<?php echo base_url() ?>production/approvalFinishGood/' + variable.machine_transfer[0].id)
+                data.nama.push(e.full_name)
+                data.kode.push('#' + variable.machine_transfer[0].document_number)
+            });
+        }
+        shareWhatsappItem(data)
+
     }
 
     function searching(id_search_form, class_text_search, id_card_search) {
@@ -1451,5 +1494,54 @@
         return array.filter(function(el, index, arr) {
             return index == arr.indexOf(el);
         });
+    }
+
+    function cetakSuratJalan(id, doc_num) {
+        var qrcode = new QRCode("qrcode", {
+            text: doc_num,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        var image = btoa(imgBase64Data)
+        var url = '<?= base_url('production/cetakSuratJalanFinishGood') ?>'
+        var params = "*$" + image + "*$" + id
+        window.open(url + '?params=' + (params), '_blank')
+    }
+
+    function shareWhatsappItem(data) {
+        $.ajax({
+            url: "<?= base_url('api/sendLogisticToFG') ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                no_telp: data.no_telp,
+                link: data.link,
+                nama: data.nama,
+                kode: data.kode
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                })
+            },
+            beforeSend: function() {
+                showOverlay('show')
+            },
+            success: function(response) {
+                showOverlay('hide')
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Berhasil Terkirim',
+                    icon: 'success',
+                }).then((responses) => {});
+            }
+        })
     }
 </script>

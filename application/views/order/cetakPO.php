@@ -64,7 +64,7 @@
             page-break-before: always;
         }
 
-        footer {
+        /* footer {
             position: fixed;
             bottom: -60px;
             height: 70px;
@@ -85,42 +85,51 @@
         body {
             margin-top: 70px;
             margin-bottom: 20px;
+        } */
+        @page {
+            margin: 0px;
+            /* margin-top: 250px; */
+            margin-bottom: 85px;
+        }
+
+        .body {
+            margin-top: 200px;
+            /*margin-bottom: 20px; */
+            margin-left: 40px;
+            margin-right: 40px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
         }
     </style>
 </head>
 
-<body style="padding:10px;text-align: center;">
-    <header>
-        <table style="width: 100%;margin-bottom:5px;">
-            <tr style="border-bottom: 1px black;">
-                <td style="width: 10%;">
-                    <?php
-                    $image = base_url() . 'assets/image/logo/SMM.png';
-                    // Read image path, convert to base64 encoding
-                    $imageData = base64_encode(file_get_contents($image));
-
-                    // Format the image SRC:  data:{mime};base64,{data};
-                    $src = 'data:image/png;base64,' . $imageData;
-                    ?>
-                    <img src="<?= $src ?>" style="height:70px;">
-                </td>
-                <td style="width: 80%;text-align: center;">
-                    <p style="text-align: center;">
-                        <b><span style="font-size:20px;">PT. SINAR MAHKOTA MAS</span></b>
-                        <br>
-                        <span style="font-size:12px;">Jalan Bandulan Barat No. 37 RT.008 RW.001</span>
-                        <br>
-                        <span style="font-size:12px;">Bandulan - Sukun - Malang</span>
-                        <br>
-                        <span style="font-size:12px;">Email : purchasing@pt-smm.com ; purcsmm@gmail.com</span>
-                    </p>
-                </td>
-                <td style="width: 10%;"></td>
-            </tr>
-        </table>
-        <hr style="height:2px;border:none;color:#333;background-color:#333;margin-bottom:20px;" />
-    </header>
-    <main>
+<body>
+    <?php
+    $imagePathHeader = base_url() . 'assets/image/logo/kop.jpg';
+    $imageDataHeader = base64_encode(file_get_contents($imagePathHeader));
+    $imageSrcHeader = 'data:image/jpeg;base64,' . $imageDataHeader;
+    $imagePathFooter = base_url() . 'assets/image/logo/footer.jpg';
+    $imageDataFooter = base64_encode(file_get_contents($imagePathFooter));
+    $imageSrcFooter = 'data:image/jpeg;base64,' . $imageDataFooter;
+    ?>
+    <!-- HEADER -->
+    <div class="header">
+        <img src="<?= $imageSrcHeader ?>" style="width: 100%;">
+    </div>
+    <!-- HEADER -->
+    <main class="page body" style="padding:10px;text-align: center;">
         <table style="width: 100%;padding:0px;margin-bottom:30px;">
             <tr>
                 <td style="width: auto;text-align:left;padding:0px;">No</td>
@@ -176,7 +185,7 @@
                 <td class="td_main"></td>
             </tr>
             <tr>
-                <td class="td_main" colspan="4" style="text-align: right;font-size:12px;padding-right:10px;"><b>PPN 11%</b></td>
+                <td class="td_main" colspan="4" style="text-align: right;font-size:12px;padding-right:10px;"><b>PPN 12%</b></td>
                 <td class="td_main" style="text-align:right;font-size:12px;"><b><?= number_format($datas->ppn, 2, ',', '.') ?></b></td>
                 <td class="td_main"></td>
             </tr>
@@ -350,9 +359,11 @@
         <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
         <script type="text/javascript" src="<?= base_url() ?>assets/js/vendor/qrcode.js"></script>
     </main>
-    <footer>
-        Purchase Order diatas menggunakan Sistem Resmi PT Sinar Mahkota Mas
-    </footer>
+    <!-- FOOTER -->
+    <div class="footer" style="text-align: center;">
+        <!-- Purchase Order diatas menggunakan Sistem Resmi PT Sinar Mahkota Mas -->
+        <img src="<?= $imageSrcFooter ?>" style="width: 100%;">
+    </div>
 </body>
 
 </html>

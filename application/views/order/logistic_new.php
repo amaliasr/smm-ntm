@@ -336,7 +336,7 @@
         var html = ''
         var a = 0
         data_pending.forEach(e => {
-            html += '<div class="card shadow-none pointer card-hoper mb-1 btn-card" id="btn-card' + a + '" onclick="clickedCardDetail(' + "'" + e.no_sj + "'" + ',' + a + ')">'
+            html += '<div class="card shadow-none pointer card-hoper mb-1 btn-card" id="btn-card' + a + '" onclick="clickedCardDetail(' + "'" + e.no_sj + "'" + ',' + a + ',' + "'" + e.id + "'" + ')">'
             html += '<div class="card-body py-3">'
             html += '<div class="row">'
             html += '<div class="col-10 align-self-center">'
@@ -360,10 +360,10 @@
         ajaxPO()
     }
 
-    function clickedCardDetail(surat_jalan, key) {
+    function clickedCardDetail(surat_jalan, key, id) {
         $('.btn-card').removeClass('bg-light')
         $('#btn-card' + key).addClass('bg-light')
-        cardDetail(surat_jalan)
+        cardDetail(surat_jalan, id)
     }
 
     function getDateStringWithTime2(orginaldate) {
@@ -428,8 +428,8 @@
         return date;
     }
 
-    function cardDetail(surat_jalan) {
-        var data = data_pending.find(x => x.no_sj == surat_jalan)
+    function cardDetail(surat_jalan, id) {
+        var data = data_pending.find(x => x.no_sj == surat_jalan && x.id == id)
         var html = ''
         html += '<div class="card shadow-none w-100 mb-2">'
         html += '<div class="card-header bg-white">'
@@ -439,7 +439,7 @@
         html += '</div>'
         html += '<div class="col-auto align-self-center">'
         html += '<span class="badge bg-outline-grey p-2 px-3 small rounded-pill me-2">Pending</span>'
-        html += '<button class="btn btn-sm btn-success rounded-pill small shadow-none p-2 px-3" id="btnCheckIn" onclick="cariSuratJalan(' + "'" + data.no_sj + "'" + ')">Check In</button>'
+        html += '<button class="btn btn-sm btn-success rounded-pill small shadow-none p-2 px-3" id="btnCheckIn" onclick="cariSuratJalan(' + "'" + data.no_sj + "'" + ',' + "'" + data.id + "'" + ')">Check In</button>'
         html += '</div>'
         html += '</div>'
         html += '</div>'
@@ -699,8 +699,8 @@
     //     })
     // }
 
-    function cariSuratJalan(surat_jalan) {
-        data_sj = data_pending.find(x => x.no_sj == surat_jalan)
+    function cariSuratJalan(surat_jalan, id) {
+        data_sj = data_pending.find(x => x.no_sj == surat_jalan && x.id == id)
         $('#modal').modal('show')
         modalPencarianSJ(data_sj)
     }

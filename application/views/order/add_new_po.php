@@ -367,11 +367,11 @@
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
                 if (response.message != 'Data data not found') {
-                    let obj = response['data'].filter((value, key) => {
-                        if (value.tahun === thisYear.toString()) return true
+                    var obj = response['data'].filter((value, key) => {
+                        if (value.tahun == thisYear.toString()) return true
                     });
                     let count = 1
-                    if (obj != undefined || obj.length == 0) {
+                    if (obj != undefined && obj.length != 0) {
                         var data_hasil = groupAndSum(obj, ['tahun'], ['count'])
                         count = parseInt(data_hasil[0]['count']) + 1;
                         // count = parseInt(obj['count']) + 1;
@@ -673,6 +673,7 @@
 
 
         html_body += '<div class="col-12 col-md-6 mt-5">'
+        // sub total
         html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 align-self-center text-end">Sub Total</div>'
         html_body += '<div class="col-8 align-self-center text-end">'
@@ -684,7 +685,7 @@
         }
         html_body += '</div>'
         html_body += '</div>'
-
+        // sub totalss
         html_body += '<div class="row mb-2">'
         html_body += '<div class="col-4 text-end">PPN</div>'
         html_body += '<div class="col-8 text-end">'
@@ -1108,7 +1109,8 @@
         $('#subtotalPO').val(total_all)
         var persen = 0
         if ($('#checkPPN:checked').val() != 'on') {
-            persen = (parseFloat(total_all) / 100 * 11)
+            persen = Math.round((parseFloat(total_all)) * 0.11)
+            // persen = Math.round((parseFloat(total_all) * 11 / 12) * 0.12)
         }
         $('#ppnPO').val(persen)
         total_all = parseFloat(total_all) + parseFloat(persen)
@@ -1212,7 +1214,7 @@
             po_id: po_id,
             id_po_detail: id_po_detail,
             job_level_id: job_level_id,
-            ppn_percent: 11,
+            ppn_percent: 12,
         }
         var button = '#btnSimpanPO'
         var url = '<?php echo api_url('Api_Warehouse/insertPO'); ?>'

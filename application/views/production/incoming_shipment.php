@@ -169,8 +169,8 @@
             <div class="col-8">
                 <div class="row">
                     <div class="col-10 align-self-center">
-                        <h1 class="text-dark fw-bolder m-0" style="font-weight: 700 !important">Finish Good</h1>
-                        <p class="m-0 super-small-text">Panel Kegiatan Entri untuk Management Finish Good</p>
+                        <h1 class="text-dark fw-bolder m-0" style="font-weight: 700 !important">Outgoing Shipment</h1>
+                        <p class="m-0 super-small-text">Panel Kegiatan Entri untuk Management Pengiriman Shipment</p>
                     </div>
                 </div>
             </div>
@@ -386,7 +386,7 @@
         },
         {
             id: 1,
-            name: 'Data Pending',
+            name: 'Data Incomplete',
             selected: false,
             functions: 'countPending()',
             getData: 'chooseDataPending()'
@@ -606,12 +606,10 @@
         html += '<th class="align-middle text-center small-text bg-white">Doc Number</th>'
         html += '<th class="align-middle text-center small-text bg-white">Send At</th>'
         html += '<th class="align-middle text-center small-text bg-white">Sender</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Machine</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Warehouse</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Receive At</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Receiver</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Action</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Tag</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Origin</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Destination</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Approve<br>At</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Approve<br>By</th>'
         html += '<th class="align-middle text-center small-text bg-white">Note</th>'
         html += '<th class="align-middle text-center small-text bg-white">Total Request<br>Ball</th>'
         html += '<th class="align-middle text-center small-text bg-white">Total Receive<br>Ball</th>'
@@ -692,7 +690,7 @@
             }
             html += '<tr>'
             html += '<td class="bg-white align-middle small-text text-center">' + (parseInt(key) + 1) + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.document_number + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center fw-bolder">' + value.document_number + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">' + formatDate(value.send_at) + ' ' + formatTime(value.send_at) + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">' + value.employee_sender.name + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">' + value.machine.name + '</td>'
@@ -704,8 +702,6 @@
                 html += '<td class="bg-white align-middle small-text text-center">-</td>'
                 html += '<td class="bg-white align-middle small-text text-center">-</td>'
             }
-            html += '<td class="bg-white align-middle small-text text-center">' + value.action + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.tag + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">' + value.note + '</td>'
             if (value.details) {
                 data_load.resultStockTemplate.forEach(e => {
@@ -735,8 +731,6 @@
     function footTable() {
         var html = ''
         html += '<tr>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
         html += '<th class="px-2 align-middle small text-center"></th>'
         html += '<th class="px-2 align-middle small text-center"></th>'
         html += '<th class="px-2 align-middle small text-center"></th>'

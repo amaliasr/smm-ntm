@@ -167,7 +167,10 @@
                         </a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/microWarehouse"><i class="fa fa-database me-1"></i>Micro Warehouse</a> -->
                         <!-- <a class="nav-link" href="<?= base_url(); ?>production/sktPortal"><i class="fa fa-leaf me-1"></i>SKT Portal</a> -->
-                        <a class="nav-link" href="<?= base_url(); ?>production/finishGood">Finish Good</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/finishGood">Finish Good Handover</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/ShipmentOrder"><i class="fa fa-truck me-1"></i>Shipment Order</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/outgoingShipment"><i class="fa fa-arrow-up me-1"></i>Outgoing Shipment</a>
+                        <a class="nav-link" href="<?= base_url(); ?>production/incomingShipment"><i class="fa fa-arrow-down me-1"></i>Incoming Shipment</a>
                     </nav>
                 </div>
                 <!-- Sidenav Accordion Warehouse-->

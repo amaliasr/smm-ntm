@@ -146,16 +146,6 @@
         white-space: nowrap;
         /* Mencegah teks wrap */
     }
-
-    .table-sticky-last th:last-child,
-    .table-sticky-last td:last-child {
-        position: sticky;
-        right: 0;
-        background-color: #fff;
-        /* Sesuaikan dengan background tabel Anda */
-        z-index: 2;
-        /* Agar tetap di atas elemen lainnya */
-    }
 </style>
 <main>
     <!-- Main page content-->
@@ -169,8 +159,8 @@
             <div class="col-8">
                 <div class="row">
                     <div class="col-10 align-self-center">
-                        <h1 class="text-dark fw-bolder m-0" style="font-weight: 700 !important">Finish Good</h1>
-                        <p class="m-0 super-small-text">Panel Kegiatan Entri untuk Management Finish Good</p>
+                        <h1 class="text-dark fw-bolder m-0" style="font-weight: 700 !important">Outgoing Shipment</h1>
+                        <p class="m-0 super-small-text">Panel Kegiatan Entri untuk Management Pengiriman Shipment</p>
                     </div>
                 </div>
             </div>
@@ -218,7 +208,7 @@
             <div class="modal-header small" id="modalHeader">
 
             </div>
-            <div class="modal-body small" style="min-height: 300px;" id="modalBody">
+            <div class="modal-body small" id="modalBody">
 
             </div>
             <div class="modal-footer small" id="modalFooter">
@@ -243,6 +233,7 @@
         </div>
     </div>
 </div>
+<div class="qrcode" id="qrcode" style="text-align:center;display:none;" class="mt-3 mx-auto d-block w-100"></div>
 <?php $this->load->view('components/modal_static') ?>
 <!-- Chart js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -373,6 +364,7 @@
         $(this).css('z-index', zIndex);
         setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
     });
+    var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var data_load = {}
     var data_load_showed = []
     var date_start = getFirstDate()
@@ -386,7 +378,7 @@
         },
         {
             id: 1,
-            name: 'Data Pending',
+            name: 'Data Incomplete',
             selected: false,
             functions: 'countPending()',
             getData: 'chooseDataPending()'
@@ -419,11 +411,11 @@
 
     function loadData() {
         $.ajax({
-            url: "<?= api_url('loadPageWarehouseFinishGoodMutation'); ?>",
+            url: "<?= api_url('loadPageFinishGoodShipment'); ?>",
             method: "GET",
             dataType: 'JSON',
             data: {
-                gudangId: 13,
+                gudangId: 1,
                 dataStart: date_start,
                 dataEnd: date_end
             },
@@ -488,7 +480,7 @@
     }
 
     function chooseDataAllData() {
-        var data = data_load.finishGoodMutation
+        var data = data_load.shipment
         return data
     }
 
@@ -498,7 +490,7 @@
 
 
     function chooseDataPending() {
-        var data = data_load.finishGoodMutationInComplete
+        var data = data_load.shipmentActive
         return data
     }
 
@@ -606,25 +598,20 @@
         html += '<th class="align-middle text-center small-text bg-white">Doc Number</th>'
         html += '<th class="align-middle text-center small-text bg-white">Send At</th>'
         html += '<th class="align-middle text-center small-text bg-white">Sender</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Machine</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Warehouse</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Receive At</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Receiver</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Action</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Tag</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Note</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Total Request<br>Ball</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Total Receive<br>Ball</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Total Request<br>Box</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Total Receive<br>Box</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Status</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Origin</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Destination</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Receive<br>At</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Receive<br>By</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Note<br>Sender</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Note<br>Receive</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Driver</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Status<br>Pengiriman</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Status<br>Kelengkapan</th>'
         html += '<th class="align-middle text-center small-text bg-white"></th>'
         html += '</tr>'
         html += '</thead>'
         html += '<tbody id="bodyTable">'
         html += '</tbody>'
-        html += '<tfoot id="footTable">'
-        html += '</tfoot>'
         html += '</table>'
         $('#dataTable').html(html)
         bodyHistory()
@@ -642,61 +629,63 @@
         });
         return total;
     }
-    var all_request = {}
-    var all_receive = {}
-    var each_request = {}
-    var each_receive = {}
 
     function bodyHistory() {
         var html = ''
         var a = 1
-        all_request = {}
-        all_receive = {}
+
         var dataFind = deepCopy(data_load_showed)
         var b = 0
         $.each(dataFind, function(key, value) {
-            if (!value.document_number) {
-                value.document_number = '-'
+            if (!value.doc_number) {
+                value.doc_number = '-'
             }
-            each_request = {}
-            each_receive = {}
-            if (value.details) {
-                data_load.resultStockTemplate.forEach(e => {
-                    if (!all_request[e.id]) {
-                        all_request[e.id] = 0
-                    }
-                    if (!each_request[e.id]) {
-                        each_request[e.id] = 0
-                    }
-                    if (!all_receive[e.id]) {
-                        all_receive[e.id] = 0
-                    }
-                    if (!each_receive[e.id]) {
-                        each_receive[e.id] = 0
-                    }
-                    each_request[e.id] = calculateTotals(value.details, "qty_request", e.id)
-                    each_receive[e.id] = calculateTotals(value.details, "qty_receive", e.id)
-                    all_request[e.id] += each_request[e.id]
-                    all_receive[e.id] += each_receive[e.id]
-                });
+            if (!value.note_sender) {
+                value.note_sender = '-'
             }
-            var status = ''
-            if (value.receive_at) {
-                if (value.is_receive == 1) {
-                    status = '<span class="badge bg-success">Received</span>'
+            if (!value.note_receiver) {
+                value.note_receiver = '-'
+            }
+            if (!value.driver.name) {
+                value.driver.name = '-'
+            }
+            var badgePengiriman = ''
+            var badgeKelengkapan = ''
+            if (value.stok_gudang_riwayats.length > 0) {
+                if (value.is_load_all) {
+                    if (value.is_approve) {
+                        if (value.is_receive_close) {
+                            badgePengiriman = '<span class="badge rounded-pill bg-success super-small-text p-2 w-100">PENERIMAAN SELESAI</span>'
+                        } else {
+                            badgePengiriman = '<span class="badge rounded-pill bg-orange super-small-text p-2 w-100">PERJALANAN KIRIM</span>'
+                        }
+                    } else {
+                        badgePengiriman = '<span class="badge rounded-pill bg-primary super-small-text p-2 w-100">MENUNGGU PERSEJUTUAN</span>'
+                    }
                 } else {
-                    status = '<span class="badge bg-danger">Rejected</span>'
+                    badgePengiriman = '<span class="badge rounded-pill bg-warning super-small-text p-2 w-100">PROSES MUAT</span>'
                 }
             } else {
-                status = '<span class="badge bg-warning">Pending</span>'
+                badgePengiriman = '<span class="badge rounded-pill bg-grey super-small-text p-2 w-100">MENUNGGU MUAT</span>'
+            }
+            if (value.is_receive_close) {
+                if (value.stok_gudang_riwayats.length > 0) {
+                    if (checkDataStokGudangRiwayat(value.stok_gudang_riwayats, null)) {
+                        badgeKelengkapan = '<span class="badge rounded-pill bg-warning super-small-text p-2 w-100">KURANG</span>'
+                    } else {
+                        badgeKelengkapan = '<span class="badge rounded-pill bg-success super-small-text p-2 w-100">LENGKAP</span>'
+                    }
+                }
+            } else {
+                badgeKelengkapan = '<span class="badge rounded-pill bg-grey super-small-text p-2 w-100">MENUNGGU</span>'
             }
             html += '<tr>'
             html += '<td class="bg-white align-middle small-text text-center">' + (parseInt(key) + 1) + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.document_number + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center fw-bolder">' + value.doc_number + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">' + formatDate(value.send_at) + ' ' + formatTime(value.send_at) + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">' + value.employee_sender.name + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.machine.name + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.warehouse.name + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + value.subject_origin.name + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + value.subject_dest.name + '</td>'
             if (value.receive_at) {
                 html += '<td class="bg-white align-middle small-text text-center">' + formatDate(value.receive_at) + ' ' + formatTime(value.receive_at) + '</td>'
                 html += '<td class="bg-white align-middle small-text text-center">' + value.employee_receiver.name + '</td>'
@@ -704,25 +693,31 @@
                 html += '<td class="bg-white align-middle small-text text-center">-</td>'
                 html += '<td class="bg-white align-middle small-text text-center">-</td>'
             }
-            html += '<td class="bg-white align-middle small-text text-center">' + value.action + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.tag + '</td>'
-            html += '<td class="bg-white align-middle small-text text-center">' + value.note + '</td>'
-            if (value.details) {
-                data_load.resultStockTemplate.forEach(e => {
-                    html += '<td class="bg-white align-middle small-text text-center">' + number_format(each_request[e.id]) + '</td>'
-                    html += '<td class="bg-white align-middle small-text text-center">' + number_format(each_receive[e.id]) + '</td>'
-                })
-            } else {
-                data_load.resultStockTemplate.forEach(e => {
-                    html += '<td class="bg-white align-middle small-text text-center">-</td>'
-                    html += '<td class="bg-white align-middle small-text text-center">-</td>'
-                })
-            }
-            html += '<td class="bg-white align-middle small-text text-center">' + status + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + value.note_sender + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + value.note_receiver + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + value.driver.name + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + badgePengiriman + '</td>'
+            html += '<td class="bg-white align-middle small-text text-center">' + badgeKelengkapan + '</td>'
             html += '<td class="bg-white align-middle small-text text-center">'
             html += '<button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item" onclick="receiveData(' + "'" + value.id + "'" + ',' + "'" + value.document_number + "'" + ')"><i class="fa fa-arrow-down me-2"></i> Penerimaan</a>'
+            var anyButton = 0
+            html += '<a class="dropdown-item mb-2" onclick="cetakSuratJalan(' + "'" + value.id + "'" + ',' + "'" + value.doc_number + "'" + ')"><i class="fa fa-print me-2"></i> Cetak Surat Jalan</a>'
+            if (value.is_load_all == 1 && value.is_approve == null) {
+                html += '<a class="dropdown-item mb-2" onclick="approveDataPengiriman(' + "'" + value.id + "'" + ',' + "'" + value.doc_number + "'" + ')"><i class="fa fa-check text-success me-2"></i> Approve Pengiriman</a>'
+                anyButton++
+            }
+            if (value.is_approve == null && value.is_load_all == 1) {
+                html += '<div class="text-center pe-2 ps-2">'
+                html += '<button class="btn btn-sm btn-danger w-100" onclick="batalMuat(' + "'" + value.id + "'" + ',' + "'" + value.doc_number + "'" + ')">Batal Muat</button>'
+                html += '</div>'
+                anyButton++
+            }
+            if (!anyButton) {
+                html += '<div class="text-center pe-2 ps-2">'
+                html += '<i class="small-text">Tidak ada aksi</i>'
+                html += '</div>'
+            }
             html += '</div>'
             html += '</td>'
             html += '</tr>'
@@ -732,28 +727,34 @@
         footTable()
     }
 
+    function cetakSuratJalan(id, doc_num) {
+        var qrcode = new QRCode("qrcode", {
+            text: doc_num,
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
+        var image = btoa(imgBase64Data)
+        var url = '<?= base_url('production/cetakSuratJalanTransferGudang') ?>'
+        var params = "*$" + image + "*$" + id
+        window.open(url + '?params=' + (params), '_blank')
+    }
+
+    function checkDataStokGudangRiwayat(data, status) {
+        var dataFind = deepCopy(data)
+        var data = dataFind.find(e => e.qty_receive == status)
+        if (data) {
+            return true
+        } else {
+            return false
+        }
+
+    }
+
     function footTable() {
-        var html = ''
-        html += '<tr>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-end">Total</th>'
-        data_load.resultStockTemplate.forEach(e => {
-            html += '<th class="px-2 align-middle small text-center">' + number_format(all_request[e.id]) + '</th>'
-            html += '<th class="px-2 align-middle small text-center">' + number_format(all_receive[e.id]) + '</th>'
-        })
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '<th class="px-2 align-middle small text-center"></th>'
-        html += '</tr>'
-        $('#footTable').html(html)
         $('#tableDetail').DataTable({
             ordering: true, // Menonaktifkan pengurutan
             pageLength: 200,
@@ -775,26 +776,43 @@
 
     }
 
-    function cetakSuratJalan(id, document_number) {
-        var text = '#SJ-' + id
-        var qrcode = new QRCode("qrcode", {
-            text: text,
-            width: 100,
-            height: 100,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        imgBase64Data = qrcode._oDrawing._elCanvas.toDataURL("image/png")
-        var image = btoa(imgBase64Data)
-        eval('var url = "<?= base_url() ?>page/cetakSuratJalan"')
-        var params = "*$" + id + "*$" + document_number + "*$" + image
-        window.open(url + '?params=' + encodeURIComponent(params), '_blank');
+
+    function formRejectApproval(id, doc_num) {
+        clearModal()
+        $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title small">Reject Pengiriman ' + doc_num + '</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<p class="m-0 small-text fw-bolder">Alasan Reject</p>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<div class="input-group mb-3">'
+        html_body += '<textarea class="form-control" placeholder="Alasan Reject" id="alasanReject"></textarea>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<button type="button" class="btn btn-danger btn-sm w-100 p-3" onclick="rejectPengiriman(' + "'" + id + "'" + ',' + "'" + doc_num + "'" + ')">Reject</button>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody').html(html_body);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>'
+        $('#modalFooter').html(html_footer);
     }
 
-    function selesaiTerima(id) {
+    function approvePengiriman(id, doc_num) {
         Swal.fire({
-            text: 'Apakah Anda yakin ingin menyelesaikan penerimaan Surat Jalan ini ?',
+            text: 'Apakah Anda yakin ingin menyetujui Surat Jalan ini ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -803,48 +821,50 @@
             cancelButtonText: 'Tidak',
         }).then((result) => {
             if (result.isConfirmed) {
-                simpanDataTerimaSJ(id)
+                simpanDataApproval(id)
             }
         })
     }
 
-    function batalTerima(id) {
-        Swal.fire({
-            text: 'Apakah Anda yakin ingin membatalkan penerimaan Surat Jalan ini ?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya',
-            cancelButtonText: 'Tidak',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                simpanDataBatalSJ(id)
-            }
-        })
-    }
-
-    function simpanDataTerimaSJ(id) {
+    function simpanDataApproval(id) {
         var type = 'POST'
         var button = '.btnSimpan'
         var url = '<?php echo api_produksi('setShipment'); ?>'
         var data = {
-            shipment: [{
-                "id": id,
-                "is_receive_close": 1
+            stok_gudang_pengiriman: [{
+                id: id,
+                is_approve: 1,
+                approve_at: currentDateTime(),
+                approve_id: user_id
             }]
         }
         kelolaData(data, type, url, button)
     }
 
-    function simpanDataBatalSJ(id) {
+    function batalMuat(id, doc_num) {
+        Swal.fire({
+            text: 'Apakah Anda yakin ingin batal muat Surat Jalan ini ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                simpanDataBatalMuat(id)
+            }
+        })
+    }
+
+    function simpanDataBatalMuat(id) {
         var type = 'POST'
         var button = '.btnSimpan'
         var url = '<?php echo api_produksi('setShipment'); ?>'
         var data = {
-            shipment: [{
-                "id": id,
-                "is_receive_all": null
+            stok_gudang_pengiriman: [{
+                id: id,
+                is_load_all: 'null',
             }]
         }
         kelolaData(data, type, url, button)
@@ -882,128 +902,87 @@
         });
     }
 
-    function getPackingList(id, doc_num) {
-        data_packing_list = []
-        $.ajax({
-            url: "<?= api_url('getHistoryShipmentItem'); ?>",
-            method: "GET",
-            dataType: 'JSON',
-            data: {
-                shipmentId: id,
-                dataProfile: 'DETAIL',
-            },
-            error: function(xhr) {
-                showOverlay('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error Data'
-                })
-            },
-            beforeSend: function() {
-                showOverlay('show')
-            },
-            success: function(response) {
-                showOverlay('hide')
-                data_packing_list = response.data.history_shipment_item.data
-                data_packing_list_showed = eval(statusLineVariablePacking[indexVariablePacking].getData)
-                // statusLinePacking(id, doc_num)
-                detailPackingList(id, doc_num)
-            }
-        })
-    }
-
-    function statusLineSwitchPacking(id, getData, id_shipment, doc_num) {
-        indexVariablePacking = id
-        let updatedData = statusLineVariablePacking.map(item => {
-            return {
-                ...item,
-                selected: false
-            };
-        });
-        let updatedData2 = updatedData.map(item => {
-            if (item.id == id) {
-                return {
-                    ...item,
-                    selected: true
-                };
-            }
-            return item;
-        });
-        statusLineVariablePacking = updatedData2
-        data_packing_list_showed = eval(getData)
-        statusLinePacking(id_shipment, doc_num)
-    }
-
-    function statusLinePacking(id, doc_num) {
-        var html = ''
-        html += '<div class="row ps-3" style="height:30px">'
-        statusLineVariablePacking.forEach(e => {
-            var text = 'text-grey'
-            var icon = 'text-grey bg-light'
-            if (e.selected) {
-                text = 'fw-bold filter-border'
-                icon = 'bg-light-blue text-white'
-            }
-            var num = eval(e.functions)
-            html += '<div class="col-auto h-100 statusLine text-small pb-2 align-self-center ' + text + '" style="cursor:pointer" onclick="statusLineSwitchPacking(' + e.id + ',' + "'" + e.getData + "'" + ',' + "'" + id + "'" + ',' + "'" + doc_num + "'" + ')" id="colStatusLine' + e.id + '">'
-            html += e.name + '<span class="statusLineIcon ms-1 p-1 rounded ' + icon + '" id="statusLineIcon' + e.id + '">' + num + '</span>'
-            html += ' </div>'
-
-        });
-        html += '</div>'
-        $('#statusLinePacking').html(html)
-        // console.log('test')
-        dataPackingList(id)
-    }
-
-
-    function detailPackingList(id, doc_num) {
+    function approveDataPengiriman(id, doc_num) {
+        var dataFind = deepCopy(data_load_showed)
+        var data = dataFind.find(e => e.id == id)
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-dialog-scrollable modal-lg');
         var html_header = '';
-        html_header += '<h5 class="modal-title small">Packing List ' + doc_num + '</h5>';
+        html_header += '<h5 class="modal-title small">Surat Jalan ' + doc_num + '</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
         html_body += '<div class="row">'
-        html_body += '<div class="col mb-2 text-end" id="statusLinePacking">'
+        html_body += '<div class="col-12 mb-4" id="tampilSuratJalan">'
         html_body += '</div>'
-        html_body += '<div class="col mb-2 text-end">'
-        // tombol cetak packing list
-        html_body += '<button type="button" class="btn btn-outline-primary btn-sm small-text p-2 me-2" onclick="cetakPackingList( \'' + id + '\', \'' + doc_num + '\')"><i class="fa fa-print me-2"></i>Cetak Packing List</button>'
-        html_body += '<button type="button" class="btn btn-outline-success btn-sm small-text p-2" onclick="excelPackingList( \'' + id + '\', \'' + doc_num + '\')"><i class="fa fa-file-excel-o me-2"></i>Excel Packing List</button>'
+        html_body += '<div class="col-12">'
+        html_body += '<p class="m-0 small-text fw-bolder">Stok List</p>'
         html_body += '</div>'
         html_body += '<div class="col-12 table-responsive" id="dataPackingList">'
         html_body += '</div>'
         html_body += '</div>'
         $('#modalBody').html(html_body);
         var html_footer = '';
-        html_footer += '<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>'
+        html_footer += '<div class="row w-100 justify-content-center">'
+        html_footer += '<div class="col-auto">'
+        html_footer += '<button type="button" class="btn btn-danger btn-sm me-2" onclick="formRejectApproval(' + id + ', ' + "'" + doc_num + "'" + ')">Reject <i class="fa fa-times ms-2"></i></button>'
+        html_footer += '<button type="button" class="btn btn-success btn-sm" id="btnSimpan" onclick="approvePengiriman(' + id + ', ' + "'" + doc_num + "'" + ')">Accept <i class="fa fa-check ms-2"></i></button>'
+        html_footer += '</div>'
+        html_footer += '</div>'
         $('#modalFooter').html(html_footer);
-        statusLinePacking(id, doc_num)
+        tampilSuratJalan(id, data)
+        dataPackingList(id, data)
     }
 
-    function dataPackingList(id) {
+    function tampilSuratJalan(id, data) {
+        var html = ''
+        html += '<div class="row">'
+        // col
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Send At</p>'
+        html += '<p class="m-0 small-text fw-bolder text-dark-grey">' + formatDate(data.send_at) + '</p>'
+        html += '</div>'
+        // col
+        // col
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Sender</p>'
+        html += '<p class="m-0 small-text fw-bolder text-dark-grey">' + data.employee_sender.name + '</p>'
+        html += '</div>'
+        // col
+        // col
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Receiver</p>'
+        html += '<p class="m-0 small-text fw-bolder text-dark-grey">' + data.employee_receiver.name + '</p>'
+        html += '</div>'
+        // col
+        // col
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Origin</p>'
+        html += '<p class="m-0 small-text fw-bolder text-dark-grey">' + data.subject_origin.name + '</p>'
+        html += '</div>'
+        // col
+        // col
+        html += '<div class="col">'
+        html += '<p class="m-0 super-small-text fw-bolder">Destination</p>'
+        html += '<p class="m-0 small-text fw-bolder text-dark-grey">' + data.subject_dest.name + '</p>'
+        html += '</div>'
+        // col
+        html += '</div>'
+        $('#tampilSuratJalan').html(html)
+    }
+
+    function dataPackingList(id, data) {
         var html = '';
         html += '<table class="table table-bordered table-hover table-sm small w-100 tablePackingList" id="tablePackingList">'
         html += '<thead>'
         html += '<tr>'
         html += '<th class="align-middle small-text" style="width:5%">No</th>'
         // html += '<th class="align-middle small-text">Tgl</th>'
-        html += '<th class="align-middle small-text" style="width:10%">Global Code</th>'
-        html += '<th class="align-middle small-text" style="width:10%">Inv Code</th>'
-        html += '<th class="align-middle small-text" style="width:20%">No. Bale</th>'
-        html += '<th class="align-middle small-text" style="width:5%">QTY</th>'
-        html += '<th class="align-middle small-text" style="width:5%">QTY Terima</th>'
-        html += '<th class="align-middle small-text" style="width:5%">Berat</th>'
-        html += '<th class="align-middle small-text" style="width:5%">Berat Terima</th>'
-        html += '<th class="align-middle small-text" style="width:10%">Item</th>'
-        html += '<th class="align-middle small-text" style="width:10%">Grade</th>'
-        if (indexVariablePacking == 1) {
-            html += '<th class="align-middle small-text" style="width:15%">Receive At</th>'
-            html += '<th class="align-middle small-text" style="width:10%">Barcode</th>'
-        }
+        html += '<th class="align-middle small-text" style="width:10%">Item Code</th>'
+        html += '<th class="align-middle small-text" style="width:10%">Item Name</th>'
+        html += '<th class="align-middle small-text" style="width:20%">Unit</th>'
+        html += '<th class="align-middle small-text" style="width:20%">QTY<br>In</th>'
+        html += '<th class="align-middle small-text" style="width:20%">QTY<br>Out</th>'
         html += '</tr>'
         html += '</thead>'
         html += '<tbody>'
@@ -1012,7 +991,11 @@
         html += '</tfoot>'
         html += '</table>'
         $('#dataPackingList').html(html)
-        dataTablePackingList(id)
+        if (data.stok_gudang_riwayats.length) {
+            dataTablePackingList(id, data)
+        } else {
+            $('#tablePackingList tbody').html('<tr><td colspan="6" class="text-center">Data tidak ditemukan</td></tr>')
+        }
     }
 
     function formatDate2(inputDate) {
@@ -1048,89 +1031,24 @@
         });
     }
 
-    function dataTablePackingList(id) {
+    function dataTablePackingList(id, data) {
         var html = '';
         var a = 1
-        var total = {
-            qty: 0,
-            qty_receive: 0,
-            weight: 0,
-            weight_receive: 0
-        }
-        var dataFind = sortShipmentData(deepCopy(data_packing_list_showed))
-        // console.log(dataFind)
-        dataFind.forEach(e => {
-            if (!e.inventory.global_code) {
-                e.inventory.global_code = ''
-            }
-            if (!e.qty) {
-                e.qty = 0
-            }
-            var qty_receive = ''
-            if (e.qty_receive == null) {
-                e.qty_receive = 0
-            } else {
-                qty_receive = number_format(roundToTwo(e.qty_receive))
-            }
-            if (!e.weight) {
-                e.weight = 0
-            }
-            var weight_receive = ''
-            if (e.weight_receive == null) {
-                e.weight_receive = 0
-            } else {
-                weight_receive = number_format(roundToTwo(e.weight_receive))
-            }
+        data.stok_gudang_riwayats.forEach(e => {
             html += '<tr>'
             html += '<td class="align-middle small-text text-center">' + a++ + '</td>'
-            html += '<td class="align-middle small-text text-center">' + e.inventory.global_code + '</td>'
-            html += '<td class="align-middle small-text text-center">' + e.inventory.code + '</td>'
-            html += '<td class="align-middle small-text text-center">' + formatDate2(e.inventory.date) + '-' + e.inventory.bale_number + '</td>'
-            html += '<td class="align-middle small-text text-end">' + number_format(roundToTwo(e.qty)) + '</td>'
-            html += '<td class="align-middle small-text text-end">' + qty_receive + '</td>'
-            html += '<td class="align-middle small-text text-end">' + number_format(roundToTwo(e.weight)) + '</td>'
-            html += '<td class="align-middle small-text text-end">' + weight_receive + '</td>'
-            html += '<td class="align-middle small-text text-center">' + e.item.name + '</td>'
-            html += '<td class="align-middle small-text text-center">' + e.item_grade.name + '</td>'
-            if (indexVariablePacking == 1) {
-                if (e.receive_at) {
-                    e.receive_at = formatDate(e.receive_at) + ' ' + formatTime(e.receive_at)
-                } else {
-                    e.receive_at = '-'
-                }
-                html += '<td class="align-middle small-text text-center">' + e.receive_at + '</td>'
-                html += '<td class="align-middle small-text text-center"><button class="btn btn-sm btn-outline-dark small-text p-1" onclick="showBarcode(\'' + e.shipment_detail_id + '\', \'' + e.inventory.code + '\')">Lihat</button></td>'
-            }
+            html += '<td class="align-middle small-text text-center">' + e.item.code + '</td>'
+            html += '<td class="align-middle small-text">' + e.item.name + '</td>'
+            html += '<td class="align-middle small-text text-center">' + e.unit.name + '</td>'
+            html += '<td class="align-middle small-text text-end">' + number_format(roundToTwo(e.qty_in)) + '</td>'
+            html += '<td class="align-middle small-text text-end">' + number_format(roundToTwo(e.qty_out)) + '</td>'
             html += '</tr>'
-
-            total.qty += e.qty
-            total.qty_receive += e.qty_receive
-            total.weight += e.weight
-            total.weight_receive += e.weight_receive
         });
         $('#tablePackingList tbody').html(html)
-        dataTablePackingListFooter(id, total)
+        dataTablePackingListFooter(id)
     }
 
-    function dataTablePackingListFooter(id, total) {
-        var html = '';
-        html += '<tr>'
-        html += '<th class="align-middle small-text text-center"></th>'
-        html += '<th class="align-middle small-text text-center"></th>'
-        html += '<th class="align-middle small-text text-center"></th>'
-        html += '<th class="align-middle small-text text-end">Total</th>'
-        html += '<th class="align-middle small-text text-end">' + number_format(roundToTwo(total.qty)) + '</th>'
-        html += '<th class="align-middle small-text text-end">' + number_format(roundToTwo(total.qty_receive)) + '</th>'
-        html += '<th class="align-middle small-text text-end">' + number_format(roundToTwo(total.weight)) + '</th>'
-        html += '<th class="align-middle small-text text-end">' + number_format(roundToTwo(total.weight_receive)) + '</th>'
-        html += '<th class="align-middle small-text"></th>'
-        html += '<th class="align-middle small-text text-center"></th>'
-        if (indexVariablePacking == 1) {
-            html += '<th class="align-middle small-text text-center"></th>'
-            html += '<th class="align-middle small-text text-center"></th>'
-        }
-        html += '</tr>'
-        $('#tablePackingList tfoot').html(html)
+    function dataTablePackingListFooter(id) {
         $('#tablePackingList').DataTable({
             ordering: true, // Menonaktifkan pengurutan
             // pageLength: 200,

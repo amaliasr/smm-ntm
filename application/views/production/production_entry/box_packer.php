@@ -392,8 +392,16 @@
                     </div>
                     <div class="col-auto text-end">
                         <div class="row">
-                            <div class="col-auto ps-0">
+                            <div class="col-auto ps-0 pe-1">
                                 <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="btnOpenDraft" disabled onclick="openDraft()">Pending <span id="totalOpenDraft"></span></button>
+                            </div>
+                            <div class="col-auto ps-0">
+                                <div class="dropdown">
+                                    <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
+                                    <ul class="dropdown-menu custom-popover" aria-labelledby="dropdownMenuButton1">
+                                        <li class="align-self-center"><a class="dropdown-item text-danger align-self-center" href="javascript:void(0)" onclick="hapusBallBox()"><i class="fa fa-trash me-2"></i>Pilihan Hapus</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -499,6 +507,48 @@
         return `${tanggal} ${bulan} ${tahun} ${jam}:${menit}`;
     }
 
+    function totalStockBahan(id_product) {
+        var id_ball = ''
+        var id_press = ''
+        var stock_akhir = 0
+        // dicari dulu id ball nya apa
+        var dataItemProduction = dataEntry.itemProductionBall.find((value, key) => {
+            if (value.item_id_product_final == id_product) return true
+        })
+        if (dataItemProduction) {
+            // console.log(dataItemProduction.id)
+            id_ball = dataItemProduction.id
+            variableGantungBall.unit_id = dataItemProduction.unit.id
+            variableGantungBall.item_id = dataItemProduction.id
+            variableGantungBall.is_product_final_other = dataItemProduction.is_product_final_other
+        }
+        // dicari dulu id press nya berapa
+        var checkProductMaterial = dataEntry.productMaterial.find((value, key) => {
+            if (value.item_id == id_ball) return true
+        })
+        if (checkProductMaterial) {
+            var unit = checkProductMaterial.unit_option.find((value, key) => {
+                if (value.id == checkProductMaterial.unit_detail.id) return true
+            })
+            if (unit) {
+                variableGantungBall.multiplier = unit.multiplier
+                variableGantungBall.qty_detail = unit.multiplier
+                variableGantungBall.unit_detail = checkProductMaterial.unit_detail.id
+                variableGantungBall.is_qty_detail_allowed = checkProductMaterial.is_qty_detail_allowed
+                id_press = checkProductMaterial.material_group[0].item_id_default
+            }
+        }
+        // cari machine stock dari press
+        var dataMachineStock = dataEntry.machineStock.find((value, key) => {
+            if (value.item_id == id_press) return true
+        })
+        if (dataMachineStock) {
+            stock_akhir = dataMachineStock.stok_akhir
+        }
+        var dataProduct = checkSourceItem(id_product)
+        return stock_akhir
+    }
+
     function resetVariableInsert() {
         var data = {
             result_product: [],
@@ -513,6 +563,80 @@
         return data
     }
 
+    function resetVariableInsertBall() {
+        var data = {
+            result_product: [],
+            result_product_machine: [],
+            deletedId: {
+                result_product: [],
+                result_product_machine: [],
+            }
+        }
+        return data
+    }
+
+    function getDateStringWithTime(orginaldate) {
+        var date = new Date(orginaldate);
+        var day = date.getDate();
+        var month = date.getMonth();
+        var year = date.getFullYear();
+        var jam = date.getHours();
+        var menit = date.getMinutes();
+        var detik = date.getSeconds();
+        if (detik < 10) {
+            detik = "0" + detik;
+        }
+        if (menit < 10) {
+            menit = "0" + menit;
+        }
+        if (jam < 10) {
+            jam = "0" + jam;
+        }
+        if (day < 10) {
+            day = "0" + day;
+        }
+        switch (month) {
+            case 0:
+                month = "Januari";
+                break;
+            case 1:
+                month = "Februari";
+                break;
+            case 2:
+                month = "Maret";
+                break;
+            case 3:
+                month = "April";
+                break;
+            case 4:
+                month = "Mei";
+                break;
+            case 5:
+                month = "Juni";
+                break;
+            case 6:
+                month = "Juli";
+                break;
+            case 7:
+                month = "Agustus";
+                break;
+            case 8:
+                month = "September";
+                break;
+            case 9:
+                month = "Oktober";
+                break;
+            case 10:
+                month = "November";
+                break;
+            case 11:
+                month = "Desember";
+                break;
+        }
+        var date = day + " " + month + " " + year + ' ' + jam + ":" + menit + ":" + detik;
+        return date;
+    }
+
     function hapusDatadanReplaceData(inputData, dataUntukDihapus) {
         // Filter data berdasarkan id yang tidak termasuk dalam dataUntukDihapus
         return inputData.filter(item => !dataUntukDihapus.includes(item.id.toString()));
@@ -523,6 +647,7 @@
         onBlurOn()
     })
     $('#modal').on('shown.bs.modal', function() {
+        console.log('test')
         offBlurOff()
     });
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
@@ -547,6 +672,7 @@
     var item_id_scanner = ''
     var initial_product_scanned = {}
     var defaultLabelPrinterBox = localStorage.getItem("defaultLabelPrinterBox") || '';
+    var defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
     var variableGantung = {
         dateCreated: '',
         item_id: '',
@@ -559,10 +685,28 @@
         box_code: '',
         unit_pack: '',
         unit_ball: '',
+        qty_detail: '',
+        unit_detail: '',
+    }
+    var variableGantungBall = {
+        dateCreated: '',
+        item_id: '',
+        unit_id: '',
+        notes: '',
+        work_plan_product_id: '',
+        is_product_final_other: '',
+        multiplier: '',
+        unit_detail: '',
+        qty_detail: '',
+        is_qty_detail_allowed: '',
     }
     var variableInsert = deepCopy(resetVariableInsert())
     var variableDelete = deepCopy(resetVariableInsert())
     var variableInsertSendOffline = deepCopy(resetVariableInsert())
+    var variableInsertBall = deepCopy(resetVariableInsertBall())
+    var variableDeleteBall = deepCopy(resetVariableInsertBall())
+    // var variableInsertSendOffline = deepCopy(resetVariableInsertBall())
+    var code_ball_created_detail = []
     var checkDatabase = false
     var doEdit = false
     $(document).ready(function() {
@@ -610,14 +754,21 @@
     }
 
     function contentButtonTemplates() {
-        var textButtonPrinter = '<i class="fa fa-exclamation-triangle text-danger me-2"></i>Printer'
+        var textButtonPrinter = '<i class="fa fa-exclamation-triangle text-danger me-2"></i>Box Printer'
+        var textButtonPrinterBall = '<i class="fa fa-exclamation-triangle text-danger me-2"></i>Ball Printer'
         var textMachineLine = '<i class="fa fa-exclamation-triangle text-danger me-2"></i>Machine Line'
         var shakeButtonPrinter = ''
+        var shakeButtonPrinterBall = ''
         var shakeButtonMachineLine = ''
         if (defaultLabelPrinterBox) {
             textButtonPrinter = '<i class="fa fa-print text-success me-2"></i>' + defaultLabelPrinterBox
         } else {
             shakeButtonPrinter = 'shake-bottom'
+        }
+        if (defaultLabelPrinterBall) {
+            textButtonPrinterBall = '<i class="fa fa-print text-success me-2"></i>' + defaultLabelPrinterBall
+        } else {
+            shakeButtonPrinterBall = 'shake-bottom'
         }
         if (defaultMachineLineBox.machine_line_id && defaultMachineLineBox.work_plan_machine_id == workPlanMachineId) {
             textMachineLine = '<i class="fa fa-gear text-success me-2"></i>' + defaultMachineLineBox.machine_line_name
@@ -626,11 +777,24 @@
         }
         var html = ''
         html += `
-                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
-
-                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none ${shakeButtonMachineLine}" onclick="settingMachineLine()" id="btnSettingMachineLine">${textMachineLine}</button>
-
-                        <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none ${shakeButtonPrinter}" onclick="settingPrinter()" id="btnSettingPrinter">${textButtonPrinter}</button>
+        <div class="row">
+            <div class="col-auto ps-1 pe-0">
+                <button type="button" class="btn btn-outline-brown shadow-none btn-sm shadow-none" onclick="loadDataTemplate()"><i class="fa fa-refresh me-2"></i>Refresh</button>
+            </div>
+            <div class="col-auto ps-1">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="dropdownMenuButtonNavbar" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonNavbar">
+                        <p class="dropdown-header">Box</p>
+                        <li class="align-self-center"><a class="dropdown-item align-self-center" href="javascript:void(0)" onclick="settingMachineLine()" id="btnSettingMachineLine">${textMachineLine}</a></li>
+                        <li class="align-self-center"><a class="dropdown-item align-self-center" href="javascript:void(0)" onclick="settingPrinter()" id="btnSettingPrinter">${textButtonPrinter}</a></li>
+                        <p class="dropdown-divider"></p>
+                        <p class="dropdown-header">Ball</p>
+                        <li class="align-self-center"><a class="dropdown-item align-self-center" href="javascript:void(0)" onclick="settingPrinterBall()" id="btnSettingPrinterBall">${textButtonPrinterBall}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
                     `
         $('#contentButtonTemplates').html(html)
     }
@@ -639,7 +803,7 @@
         $('#modal').modal('show')
         $('#modalDialog').addClass('modal-dialog modal-sm modal-dialog-scrollable');
         var html_header = '';
-        html_header += '<h5 class="modal-title">Setting Printer</h5>';
+        html_header += '<h5 class="modal-title">Setting Printer Box</h5>';
         html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
         $('#modalHeader').html(html_header);
         var html_body = '';
@@ -651,7 +815,7 @@
                 if (defaultLabelPrinterBox == value) {
                     printerKey = key
                 }
-                html_body += '<div class="card shadow-none pointer card-hoper mb-2 cardChoosePrinter" onclick="choosePrinter(' + key + ',' + "'" + value + "'" + ')" id="cardChoosePrinter' + key + '">'
+                html_body += '<div class="card shadow-none pointer card-hoper mb-2 cardChoosePrinter0" onclick="choosePrinter(' + key + ',' + "'" + value + "'" + ',0)" id="cardChoosePrinter0' + key + '">'
                 html_body += '<div class="card-body p-1 px-2">'
                 // text
                 html_body += '<div class="row">'
@@ -659,7 +823,7 @@
                 html_body += '<p class="m-0 super-small-text fw-bolder">' + value + '</p>'
                 html_body += '</div>'
                 html_body += '<div class="col-2 text-end">'
-                html_body += '<i class="fa fa-check-circle text-grey iconChoosePrinter" id="iconChoosePrinter' + key + '"></i>'
+                html_body += '<i class="fa fa-check-circle text-grey iconChoosePrinter0" id="iconChoosePrinter0' + key + '"></i>'
                 html_body += '</div>'
                 html_body += '</div>'
                 // text
@@ -684,7 +848,60 @@
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
         $('#modalFooter').html(html_footer)
         if (defaultLabelPrinterBox) {
-            choosePrinter(printerKey, defaultLabelPrinterBox)
+            choosePrinter(printerKey, defaultLabelPrinterBox, 0)
+        }
+    }
+
+    function settingPrinterBall() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-sm modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Setting Printer Ball</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">'
+
+        html_body += '<div class="col-12">'
+        if (printers.length) {
+            $.each(printers, (key, value) => {
+                if (defaultLabelPrinterBall == value) {
+                    printerKey = key
+                }
+                html_body += '<div class="card shadow-none pointer card-hoper mb-2 cardChoosePrinter1" onclick="choosePrinter(' + key + ',' + "'" + value + "'" + ',1)" id="cardChoosePrinter1' + key + '">'
+                html_body += '<div class="card-body p-1 px-2">'
+                // text
+                html_body += '<div class="row">'
+                html_body += '<div class="col-10 align-self-center">'
+                html_body += '<p class="m-0 super-small-text fw-bolder">' + value + '</p>'
+                html_body += '</div>'
+                html_body += '<div class="col-2 text-end">'
+                html_body += '<i class="fa fa-check-circle text-grey iconChoosePrinter1" id="iconChoosePrinter1' + key + '"></i>'
+                html_body += '</div>'
+                html_body += '</div>'
+                // text
+                html_body += '</div>'
+                html_body += '</div>'
+            })
+        } else {
+            html_body += '<div class="card shadow-none border-0">'
+            html_body += '<div class="card-body p-5">'
+            html_body += '<p class="text-center small-text fw-bolder"><i>Printer Tidak Ditemukan</i></p>'
+            html_body += '<p class="m-0 text-center small-text">Silahkan untuk instalasi JSPM Terlebih Dahulu</p>'
+            html_body += '<p class="m-0 text-center small-text">Jika printer sudah terinstall, silahkan refresh halaman ini</p>'
+            html_body += '</div>'
+            html_body += '</div>'
+        }
+        html_body += '</div>'
+
+        html_body += '</div>'
+        $('#modalBody').html(html_body).removeClass('pb-0')
+        $('.nominal').number(true);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
+        $('#modalFooter').html(html_footer)
+        if (defaultLabelPrinterBall) {
+            choosePrinter(printerKey, defaultLabelPrinterBall, 1)
         }
     }
 
@@ -755,13 +972,18 @@
         contentButtonTemplates()
     }
 
-    function choosePrinter(key, value) {
-        defaultLabelPrinterBox = value
-        localStorage.setItem('defaultLabelPrinterBox', value)
-        $('.cardChoosePrinter').removeClass('border-success bg-light')
-        $('.iconChoosePrinter').removeClass('text-success')
-        $('#cardChoosePrinter' + key).addClass('border-success bg-light')
-        $('#iconChoosePrinter' + key).addClass('text-success')
+    function choosePrinter(key, value, code) {
+        if (code == 0) {
+            defaultLabelPrinterBox = value
+            localStorage.setItem('defaultLabelPrinterBox', value)
+        } else {
+            defaultLabelPrinterBall = value
+            localStorage.setItem('defaultLabelPrinterBall', value)
+        }
+        $('.cardChoosePrinter' + code).removeClass('border-success bg-light')
+        $('.iconChoosePrinter' + code).removeClass('text-success')
+        $('#cardChoosePrinter' + code + key).addClass('border-success bg-light')
+        $('#iconChoosePrinter' + code + key).addClass('text-success')
         contentButtonTemplates()
     }
 
@@ -794,10 +1016,7 @@
                 showOverlay('hide')
                 dataEntry = response.data
                 listBoxes()
-                if (!work_plan_product_id_clicked) {
-                    // fieldProcessAddNewBox()
-                    addNewBox()
-                }
+                fieldProcessAddNewBox()
             }
         })
     }
@@ -857,9 +1076,10 @@
     function fieldProcessAddNewBox() {
         var html = `
                 <div class="row h-100 justify-content-center d-flex align-items-center">
-                    <div class="col-12 align-self-center text-center">
+                    <div class="col-12 align-self-center text-center p-5">
                         <img src="<?= base_url('assets/image/png/box.png'); ?>" class="w-50"><br>
-                        <button type="button" class="btn btn-sm btn-outline-brown" id="btnAddNewBox" onclick="addNewBox()"><i class="fa fa-plus me-2"></i> Add New Box</button>
+                        <button type="button" class="mt-1 btn btn-outline-brown w-100 mb-2" id="btnAddNewBox" onclick="addNewBox()"><i class="fa fa-qrcode me-2"></i> Tambah Box dengan Scan Ball</button>
+                        <button class="mt-1 w-100 btn btn-outline-brown mb-2" onclick="fieldProcessProductWorkPlan()"><i class="fa fa-plus me-2"></i>Tambah Ball & Box Manual</button>
                     </div>
                 </div>`
         $('#fieldProcessAddNewBox').html(html)
@@ -971,6 +1191,359 @@
             $('#codeBallInput').focus();
         }
         buttonSaveOfflineMode()
+    }
+
+    function fieldProcessProductWorkPlan() {
+        code_ball_created_detail = []
+        var html = `
+        <div class="row justify-content-between">
+                    <div class="col-12">
+            <div class="pointer d-flex align-self-center" onclick="fieldProcessAddNewBox()">
+                <span class="fa fa-angle-left me-3"></span>
+                <p class="m-0 small-text fw-bold">Find a Brand</p>
+            </div>
+        </div>
+                </div>
+                <div class="row pt-4">
+                <div class="col-12">
+                        <div class="form-group has-search">
+                            <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" class="form-control small-text" placeholder="Cari Brand" id="search_brand" autocomplete="off" onkeyup="searching('search_brand','textBrand','listBrand')">
+                        </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <p class="m-0 super-small-text text-dark-grey">Product Workplan</p>
+                        <div class="row mt-2" id="fieldProductWorkplan">
+                        </div>
+                    </div>
+                </div>`
+        $('#fieldProcessAddNewBox').html(html)
+        productWorkPlan()
+    }
+
+    function productWorkPlan() {
+        var html = ''
+        if (dataEntry.workPlanMachine.products.length) {
+            dataEntry.workPlanMachine.products.forEach(e => {
+                html += `<div class="col-12" id="listBrand${e.work_plan_product_id}">
+            <div class="card shadow-none mb-2 pointer card-hoper" onclick="addABrand(${e.work_plan_product_id})">
+            <div class="card-body py-2 px-3">
+            <div class="row">
+            <div class="col-12">
+            <p class="m-0 super-small-text text-grey-small fw-bold d-flex align-items-center textBrand" data-id="${e.work_plan_product_id}">${e.product.alias}</p>
+            <p class="m-0 small-text text-dark-grey fw-bolder textBrand" data-id="${e.work_plan_product_id}">${e.product.name}</p>
+            <p class="m-0 super-small-text fw-bold">Sisa : <span class="text-orange fw-bolder">${number_format(totalStockBahan(e.product.id))} Press</span></p>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>`
+            })
+        } else {
+            html = emptyProductWorkPlan()
+        }
+        $('#fieldProductWorkplan').html(html)
+        buttonSaveOfflineMode()
+    }
+
+    function emptyProductWorkPlan() {
+        var html = `<div class="col-12 text-center align-self-center">
+                                <div class="card shadow-none" style="border:0px;height:100%;">
+                                    <div class="card-body h-100 p-5 m-5">
+                                        <img class="mb-3" style="width: 50px;" src="<?= base_url() ?>assets/image/logo/search_2.png" alt="Icon" />
+                                        <p class="m-0 small text-orange-payment fw-bolder">Produk Tidak Ditemukan</p>
+                                        <p class="m-0 super-small-text text-orange-payment fw-light">Silahkan hubungi foreman terkait untuk menambahkan produk</p>
+                                    </div>
+                                </div>
+                            </div>`
+        return html
+    }
+
+    function addABrand(work_plan_product_id) {
+        variableGantungBall = {
+            dateCreated: '',
+            item_id: '',
+            unit_id: '',
+            notes: '',
+            work_plan_product_id: '',
+            is_product_final_other: '',
+            multiplier: '',
+            is_qty_detail_allowed: '',
+        }
+        code_ball_created_detail = []
+        work_plan_product_id_clicked = work_plan_product_id
+        var data = dataEntry.workPlanMachine.products.find((value, key) => {
+            if (value.work_plan_product_id == work_plan_product_id) return true
+        });
+        if (data) {
+            alias_clicked = data.product.alias
+            formAddBrand(data)
+        }
+    }
+
+    function formAddBrand(data) {
+        // console.log(data)
+        inventory_scanner = []
+        item_id_scanner = data.product.id
+        initial_product_scanned = {}
+        var dateTime = currentDateTime()
+        variableGantungBall.dateCreated = dateTime
+        totalStockBahan(data.product.id)
+        // console.log(variableGantungBall.item_id)
+        // variableGantungBall.item_id = data.product.id
+        variableGantungBall.work_plan_product_id = data.work_plan_product_id
+        var html = `
+    <div class="row">
+        <div class="col-12">
+            <div class="pointer d-flex align-self-center" onclick="fieldProcessProductWorkPlan()">
+                <span class="fa fa-angle-left me-3"></span>
+                <p class="m-0 small-text fw-bold">Add a Brand</p>
+            </div>
+        </div>
+        <div class="col-12 mt-4">
+            <p class="m-0 text-grey-small small fw-bolder">${data.product.alias}</p>
+            <p class="m-0 text-dark-grey h1 fw-bolder">${data.product.name}</p>
+        </div>
+        <div class="col-12 mt-3">
+            <p class="m-0 text-grey-small small-text">Date Created</p>
+            <p class="m-0 text-dark-grey small fw-bold">${getDateStringWithTime(dateTime)}</p>
+        </div>
+        <div class="col-12 mt-3">
+            <p class="m-0 text-grey-small small-text">Tahun Pita</p>
+            <div class="row mt-2">
+                ${
+                    dataEntry.stokYear.map(year => {
+                        let yearSelect = year.id == year_clicked ? 'btn-brown' : 'btn-outline-brown';
+                        return `
+                            <div class="col-auto pe-0">
+                                <button type="button" class="btn ${yearSelect} shadow-none small-text btnYear" id="btnYear${year.id}" data-id="${year.id}" onclick="setYear(${year.id})">${year.name}</button>
+                            </div>
+                        `;
+                    }).join('')
+                }
+            </div>
+        </div>
+        <div class="col-12 mt-3" id="fieldAlerts">
+            <div class="alert alert-success" role="alert">
+            <p class="m-0 small fw-bolder">Tahun Pita masih kosong !</p>
+            <p class="m-0 small-text">Pilih tahun pita terlebih dahulu agar dapat kode ball sekaligus kode box</p>
+            </div>
+        </div>
+        <div class="col-12 mt-3" hidden id="fieldJumlahBall">
+            <p class="m-0 text-grey-small small-text">Jumlah Ball</p>
+            <div class="row mt-2 align-self-center">
+                <div class="col-auto pe-0 align-self-center">
+                    <button type="button" class="btn btn-outline-brown shadow-none" onclick="decreaseBallQuantity()">-</button>
+                </div>
+                <div class="col-2 pe-0">
+                    <input type="number" class="form-control text-center border-brown" placeholder="1" id="ballQuantity" value="1" min="1" oninput="changeAddBrand()" onkeyup="changeAddBrand()">
+                </div>
+                <div class="col-auto pe-0 align-self-center">
+                    <button type="button" class="btn btn-outline-brown shadow-none" onclick="increaseBallQuantity()" id="btnAddBall">+</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mt-3" hidden id="fieldBoxCodeCreated">
+            <p class="m-0 fw-bolder small-text">Box Code</p>
+            <div class="card shadow-none bg-super-light-orange mt-2">
+                <div class="card-body p-2">
+                    <div class="row" id="codeBoxCreated">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mt-3" hidden id="fieldBallCodeCreated">
+            <p class="m-0 fw-bolder small-text">Ball Code</p>
+            <div class="card shadow-none bg-super-light-orange mt-2">
+                <div class="card-body p-2">
+                    <div class="row" id="codeBallCreated">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mt-3" hidden id="fieldAddNotes">
+            <p class="m-0 text-grey-small small-text pointer" id="btnAddNotes" onclick="showNotes()"><span id="textAddNotes">Add Notes <i>(optional)</i></span><span class="fa fa-pencil ms-2"></span></p>
+            <div id="fieldAddNotes" hidden>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <textarea class="form-control border-brown small-text" placeholder="Notes" id="notes" oninput="addNotes()" onkeyup="addNotes()" onblur="showNotes()" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mt-3 text-center" hidden id="fieldPrintSave">
+            <button class="btn btn-lg btn-brown shadow-none w-100 small-text" id="btnPrintSave" type="button" disabled onclick="saveAndPrintBall()">Simpan & Cetak <span id="totalBall" class="ms-2">( 1 Ball )</span></button>
+            <button class="btn shadow-none w-100 text-danger small-text" onclick="fieldProcessProductWorkPlan()">Batalkan</button>
+        </div>
+    </div>
+    `;
+        $('#fieldProcessAddNewBox').html(html);
+        changeBoxCode()
+        changeAddBrand()
+    }
+
+    function showNotes() {
+        if ($('#fieldAddNotes').is(':hidden')) {
+            $('#fieldAddNotes').attr('hidden', false)
+            $('#btnAddNotes').attr('hidden', true)
+            $('#notes').focus()
+        } else {
+            $('#fieldAddNotes').attr('hidden', true)
+            $('#btnAddNotes').attr('hidden', false)
+            if (variableGantung.notes) {
+                $('#textAddNotes').html('<span class="text-orange fw-bolder">Notes : ' + variableGantung.notes + '</span>')
+            } else {
+                $('#textAddNotes').html('Add Notes <i>(optional)</i>')
+            }
+        }
+    }
+
+    function decreaseBallQuantity() {
+        var ballQuantity = $('#ballQuantity').val()
+        if (ballQuantity > 1) {
+            ballQuantity--
+        }
+        $('#ballQuantity').val(ballQuantity)
+        changeAddBrand()
+    }
+
+    function increaseBallQuantity() {
+        var ballQuantity = $('#ballQuantity').val()
+        ballQuantity++
+        $('#ballQuantity').val(ballQuantity)
+        changeAddBrand()
+    }
+
+    function setYear(year) {
+        year_clicked = year
+        $('.btnYear').addClass('btn-outline-brown').removeClass('btn-brown')
+        $('#btnYear' + year).addClass('btn-brown')
+        $('#btnYear' + year).removeClass('btn-outline-brown')
+        changeBoxCode()
+        changeAddBrand()
+    }
+
+    function changeBoxCode() {
+        var dataProduct = dataEntry.productMaterial.find((value, key) => {
+            if (value.item_id == item_id_scanner) return true
+        });
+        var qty = 0
+        if (dataProduct) {
+            var findQty = dataProduct.unit_option.find((value, key) => {
+                if (value.id == dataProduct.unit_detail.id) return true
+            })
+            if (findQty) {
+                qty = findQty.multiplier
+            }
+        }
+        var data = {
+            stok_year_id: year_clicked,
+            item_id: dataProduct.item_id,
+            unit_detail: dataProduct.unit_detail.id,
+            qty_detail: qty,
+        }
+        setToVariableGantung(data, dataProduct)
+        // console.log(variableGantung)
+        $('#codeBoxCreated').html('<p class="m-0 small-text fw-bolder"><i>' + variableGantung.box_code + '</i></p>')
+        if (variableGantung.unit_ball.multiplier > 1) {
+            $('#totalBall').html(`( ${ballQuantity * variableGantung.unit_ball.multiplier} Ball )`)
+            $('#ballQuantity').val(variableGantung.unit_ball.multiplier)
+        }
+    }
+
+    function changeAddBrand() {
+        enabledButton()
+        totalBall()
+    }
+
+    function enabledButton() {
+        var ballQuantity = $('#ballQuantity').val()
+        if (ballQuantity && year_clicked != undefined) {
+            $('#btnPrintSave').prop('disabled', false)
+        } else {
+            $('#btnPrintSave').prop('disabled', true)
+        }
+        showHiddenAllField()
+    }
+
+    function showHiddenAllField() {
+        if (year_clicked != undefined) {
+            $('#fieldJumlahBall').removeAttr('hidden')
+            $('#fieldBallCodeCreated').removeAttr('hidden')
+            $('#fieldBoxCodeCreated').removeAttr('hidden')
+            $('#fieldAddNotes').removeAttr('hidden')
+            $('#fieldPrintSave').removeAttr('hidden')
+            $('#fieldAlerts').attr('hidden', true)
+        }
+    }
+
+    function totalBall() {
+        var ballQuantity = $('#ballQuantity').val()
+        $('#totalBall').html(`( ${ballQuantity} Ball )`)
+        addBrandCodeCreated()
+    }
+
+    function addBrandCodeCreated() {
+        code_ball_created = []
+        code_ball_created_detail = []
+        var ballQuantity = $('#ballQuantity').val()
+        var html = ''
+        for (let i = 1; i <= parseInt(ballQuantity); i++) {
+            var code = createBrandBallCode(i)
+            code_ball_created.push(code)
+            var ballDetail = createBallDetail(code)
+            var color = ''
+            var colorDetail = 'text-grey'
+            var onclickDetail = ''
+            if (ballDetail.edited) {
+                color = 'text-orange'
+                colorDetail = 'text-orange'
+            }
+            if (variableGantungBall.is_qty_detail_allowed) {
+                onclickDetail = 'onclick="showQTYDetail(' + "'" + code + "'" + ',true)"'
+            }
+            html += '<div class="col-6 pe-0">'
+
+            html += '<div class="row">'
+            html += '<div class="col align-self-center">'
+            html += '<p class="m-0 small-text fw-bolder ' + color + '"><i>' + code + '</i></p>'
+            html += '</div>'
+            html += '<div class="col ps-0 align-self-center">'
+            html += '<p class="' + colorDetail + ' fw-bolder m-0 small-text pointer" ' + onclickDetail + ' id="textQTYDetail' + code + '"><i>' + ballDetail.qty + '</i></p>'
+            html += '<input class="input-edit-ball" type="number" value="' + ballDetail.qty + '" data-multiplier="' + ballDetail.qty + '" id="inputQTYDetail' + code + '" oninput="changeQTYDetail(' + "'" + code + "'" + ')" onkeyup="changeQTYDetail(' + "'" + code + "'" + ')" onblur="showQTYDetail(' + "'" + code + "'" + ',false)" hidden>'
+            html += '</div>'
+            html += '</div>'
+
+            html += '</div>'
+        }
+        $('#codeBallCreated').html(html)
+        if (ballQuantity == parseInt(variableGantung.unit_ball.multiplier)) {
+            $('#btnAddBall').prop('disabled', true)
+        } else {
+            $('#btnAddBall').prop('disabled', false)
+        }
+    }
+
+    function createBallDetail(code) {
+        var check = code_ball_created_detail.find(x => x.code == code)
+        if (check) {
+            //jika ada
+            var data = {
+                code: code,
+                qty: check.qty,
+                edited: check.edited,
+            }
+        } else {
+            // jika tidak ada
+            var data = {
+                code: code,
+                qty: variableGantungBall.multiplier,
+                edited: false,
+            }
+            qty = variableGantungBall.multiplier
+            code_ball_created_detail.push(data)
+        }
+        return data
     }
     $(document).on('keypress', '#codeBallInput', function(e) {
         if (event.keyCode === 13) {
@@ -1128,6 +1701,55 @@
         return code;
     }
 
+    function createBrandBallCode(x) {
+        x = (extractTrailingNumber(findLargestInventoryCode(deepCopy(dataEntry.productionOutItemBall)))) + x
+        // Mendapatkan tanggal saat ini
+        const today = new Date(dataEntry.workPlanMachine.date);
+        const year = today.getFullYear(); // Tahun (4 digit)
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan (2 digit)
+        const date = String(today.getDate()).padStart(2, '0'); // Tanggal (2 digit)
+
+        // Membuat format angka 5 digit untuk x
+        const xFormatted = String(x).padStart(5, '0');
+
+        // Membuat kode final
+        const code = `BL${defaultMachineLineBox.machine_line_label}${year}${month}${date}${xFormatted}`;
+        // const code = `${alias_clicked}BL${defaultMachineLine.machine_line_label}${year}${month}${date}${xFormatted}`;
+
+        return code;
+    }
+
+    function extractTrailingNumber(code) {
+        // Menggunakan regex untuk mengambil angka di akhir string
+        if (code) {
+            const match = code.match(/.*?(\d{2,})$/);
+            return match ? parseInt(match[1].slice(-5), 10) : 0;
+        } else {
+            return 0
+        }
+    }
+
+    function findLargestInventoryCode(data) {
+        // Filter data berdasarkan prefix yang sesuai dengan machine_line_label
+        const filteredData = data.filter(item =>
+            item.inventory_code.startsWith(`BL${defaultMachineLineBox.machine_line_label}`)
+        );
+
+        if (filteredData.length === 0) {
+            return null; // Tidak ada data yang sesuai
+        }
+
+        // Mengurutkan data berdasarkan 5 digit terakhir
+        const sortedData = filteredData.sort((a, b) => {
+            const numA = parseInt(a.inventory_code.slice(-5), 10); // Ambil 5 digit terakhir
+            const numB = parseInt(b.inventory_code.slice(-5), 10); // Ambil 5 digit terakhir
+            return numB - numA;
+        });
+
+        // Mengembalikan inventory_code terbesar berdasarkan 5 digit terakhir
+        return sortedData[0]?.inventory_code || null;
+    }
+
     function setFirstScanner(data) {
         var variableEdit = ''
         if (doEdit) {
@@ -1135,33 +1757,9 @@
         }
         item_id_scanner = data.item_id
         var dataProduct = checkSourceItem(data.item_id)
+        // console.log(dataProduct)
         if (dataProduct) {
-            initial_product_scanned = dataProduct
-            var brand = dataEntry.workPlanMachine.products.find((v, k) => {
-                if (v.product.id == dataProduct.item_id) return true
-            })
-            variableGantung.dateCreated = currentDateTime()
-            variableGantung.item_id = data.item_id
-            variableGantung.unit_ball = dataProduct.material_group[0].requirement
-            if (brand) {
-                variableGantung.item_alias = brand.product.alias
-                variableGantung.work_plan_product_id = brand.work_plan_product_id
-                variableGantung.is_product_final_other = brand.product.is_product_final_other
-                var unitOption = brand.unit_option.find((v, k) => {
-                    if (v.id == id_pack) return true
-                })
-                if (unitOption) {
-                    variableGantung.unit_pack = unitOption
-                }
-            }
-            variableGantung.stok_year_id = data.stok_year_id
-            if (data.stok_year_id) {
-                var nameStokYear = dataEntry.stokYear.find((v, k) => {
-                    if (v.id == data.stok_year_id) return true
-                })
-                variableGantung.stok_year_name = nameStokYear.name
-            }
-            variableGantung.box_code = createBrandCode()
+            setToVariableGantung(data, dataProduct)
             secondScanner(data)
         } else {
             Swal.fire({
@@ -1171,6 +1769,37 @@
             });
             $('#codeBallInput' + variableEdit).val('')
         }
+    }
+
+    function setToVariableGantung(data, dataProduct) {
+        initial_product_scanned = dataProduct
+        var brand = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == dataProduct.item_id) return true
+        })
+        variableGantung.dateCreated = currentDateTime()
+        variableGantung.item_id = data.item_id
+        variableGantung.unit_ball = dataProduct.material_group[0].requirement
+        variableGantung.unit_detail = data.unit_detail
+        variableGantung.qty_detail = data.qty_detail
+        if (brand) {
+            variableGantung.item_alias = brand.product.alias
+            variableGantung.work_plan_product_id = brand.work_plan_product_id
+            variableGantung.is_product_final_other = brand.product.is_product_final_other
+            var unitOption = brand.unit_option.find((v, k) => {
+                if (v.id == id_pack) return true
+            })
+            if (unitOption) {
+                variableGantung.unit_pack = unitOption
+            }
+        }
+        variableGantung.stok_year_id = data.stok_year_id
+        if (data.stok_year_id) {
+            var nameStokYear = dataEntry.stokYear.find((v, k) => {
+                if (v.id == data.stok_year_id) return true
+            })
+            variableGantung.stok_year_name = nameStokYear.name
+        }
+        variableGantung.box_code = createBrandCode()
     }
 
     function secondScanner(data) {
@@ -1320,7 +1949,7 @@
                     <div class="col-12 mb-2" id="fieldIfListBoxes" style="max-height: 200px; overflow-x: hidden;overflow-y: auto;">
                     </div>
                     <div class="col-12 mt-3 text-center">
-                        <button class="btn btn-lg btn-brown shadow-none w-100 small-text" id="btnPrintSave" type="button" disabled onclick="saveAndPrint()">Simpan & Cetak</button>
+                        <button class="btn btn-lg btn-brown shadow-none w-100 small-text" id="btnPrintSave" type="button" disabled onclick="saveAndPrint()">Simpan & Cetak Ball Box</button>
                         <button class="btn shadow-none w-100 text-danger small-text" onclick="addNewBox()">Batalkan</button>
                     </div>
                 </div>
@@ -1344,7 +1973,7 @@
                             <div class="col-10 align-self-center">
                                 <p class="m-0 small-text fw-bold text-dark-grey">${data.inventory_code}</p>
                             </div>
-                            <div class="col-2 text-end" onclick="Edit(${e})">
+                            <div class="col-2 text-end" onclick="ballboxEdit(${e})">
                             <i class="fa fa-times text-grey"></i>
                             </div>    
                         </div>
@@ -1397,13 +2026,19 @@
         }
     }
 
-    function Edit(inventory_id) {
+    function ballboxEdit(inventory_id) {
         // tanpa index, langsung pakai splice
         inventory_scanner.splice(inventory_scanner.indexOf(inventory_id), 1)
         fieldInputBox()
     }
 
     function saveAndPrint() {
+        formInsertBox()
+        addToVariableOffline('add')
+    }
+
+    function formInsertBox() {
+        // console.log(variableGantung)
         variableInsert = deepCopy(resetVariableInsert())
         var time = currentDateTime()
         var id = createCodeId(0)
@@ -1427,7 +2062,10 @@
             stok_year_id: variableGantung.stok_year_id,
             machine_step_id: dataEntry.machineStepid,
             inventory_code: variableGantung.box_code,
-            machine_line_id: defaultMachineLineBox.machine_line_id
+            inventory_id: id,
+            machine_line_id: defaultMachineLineBox.machine_line_id,
+            unit_id_detail: variableGantung.unit_detail,
+            qty_detail: variableGantung.qty_detail,
         })
         variableInsert.result_product_machine.push({
             id: createCodeId(0),
@@ -1446,6 +2084,8 @@
             is_product_final_other: variableGantung.is_product_final_other,
             employee_id_admin: user_id,
             is_complete: 1,
+            unit_id_detail: variableGantung.unit_detail,
+            qty_detail: variableGantung.qty_detail,
         })
         if (inventory_scanner.length) {
             inventory_scanner.forEach((v, k) => {
@@ -1454,19 +2094,21 @@
                     result_product_id: id,
                     datetime: dataEntry.workPlanMachine.date + ' ' + formatTime(variableGantung.dateCreated),
                     machine_id: dataEntry.workPlanMachine.machine.id,
-                    item_id: variableGantung.item_id,
+                    item_id: variableGantungBall.item_id,
                     inventory_id: v,
-                    unit_id: variableGantung.unit_ball.unit_id,
+                    unit_id: variableGantungBall.unit_id,
+                    stok_year_id: variableGantung.stok_year_id,
                     qty: 1,
                     created_at: time,
                     updated_at: time,
+                    unit_id_detail: variableGantungBall.unit_detail,
+                    qty_detail: variableGantungBall.qty_detail,
                 })
             })
         }
-        addToVariableOffline('add')
     }
 
-    function addToVariableOffline(status) {
+    function addToVariableOffline(status, dataMasukBall = null) {
         // masukkan ke variableInsertSendOffline disimpan saja
         var dataMasuk = []
         if (status == 'add' || status == 'add_ball') {
@@ -1475,6 +2117,7 @@
                     var dataItemProduction = dataEntry.itemProduction.find((value, key) => {
                         if (value.id == e.item_id) return true
                     })
+                    // console.log(e.item_id)
                     dataMasuk.push({
                         "id": e.id,
                         "item": {
@@ -1493,6 +2136,8 @@
                         "qty": 1,
                         "note": e.note,
                         "inventory_code": e.inventory_code,
+                        "unit_id_detail": e.unit_id_detail,
+                        "qty_detail": e.qty_detail,
                         "result_product_machines": [],
                         "result_product_materials": [],
                     })
@@ -1533,7 +2178,10 @@
                         "unit_id": e.unit_id,
                         "qty": e.qty,
                         "created_at": e.created_at,
-                        "updated_at": e.updated_at
+                        "updated_at": e.updated_at,
+                        "stok_year_id": e.stok_year_id,
+                        "unit_id_detail": e.unit_id_detail,
+                        "qty_detail": e.qty_detail,
                     })
                 });
             }
@@ -1549,22 +2197,41 @@
                 variableInsertSendOffline.deletedId.result_product_material.push(e)
             });
         }
-        reconstructionData(status, dataMasuk)
+        // console.log(dataMasuk)
+        // console.log(dataMasukBall)
+        reconstructionData(status, dataMasuk, dataMasukBall)
     }
 
-    function reconstructionData(status, dataMasuk) {
+    function reconstructionData(status, dataMasuk, dataMasukBall = null) {
         var data = []
+        var dataBall = []
         if (status == 'add') {
             dataMasuk.forEach(e => {
                 data.push(e)
             });
+            if (dataMasukBall) {
+                dataMasukBall.forEach(e => {
+                    dataBall.push(e)
+                });
+            }
             var dataOutItem = deepCopy(dataEntry.productionOutItem)
             dataOutItem.forEach(e => {
                 data.push(e)
             });
             dataEntry.productionOutItem = data
-            addNewBox()
-            printQrCode(dataMasuk)
+            if (dataMasukBall) {
+                // jika pakai menu ball box manual
+                var dataOutItemBall = deepCopy(dataEntry.productionOutItemBall)
+                dataOutItemBall.forEach(e => {
+                    dataBall.push(e)
+                });
+                dataEntry.productionOutItemBall = dataBall
+                fieldProcessProductWorkPlan()
+            } else {
+                // jika pakai menu box auto scan
+                addNewBox()
+            }
+            printQrCode(dataMasuk, dataMasukBall)
         } else if (status == 'delete') {
             if (!status == 'delete_ball') {
                 $('#modal').modal('hide')
@@ -1715,6 +2382,7 @@
         html_body += '</thead>';
         html_body += '<tbody id="contentOpenDraft">';
         html_body += '</tbody>';
+        html_body += '</table>';
         html_body += '</div>';
         html_body += '</div>';
         $('#modalBody').html(html_body);
@@ -1795,6 +2463,68 @@
         kelolaDataSaveAuto(data, type, url, button)
     }
 
+    function checkConsole(data, brand, pack) {
+        var nameStokYear = dataEntry.stokYear.find((value, key) => {
+            if (value.id == data.stok_year_id) return true
+        })
+        if (!data.stok_year_id) {
+            nameStokYear = {
+                name: ''
+            }
+        } else {
+            nameStokYear = {
+                name: ' ( ' + nameStokYear.name + ' ) '
+            }
+        }
+        var cmds = ''
+        cmds += '^XA\n';
+        cmds += '^PW850\n'; // Lebar label disesuaikan untuk 203 dpi
+        cmds += '^LL400\n'; // Tinggi label disesuaikan
+
+        cmds += '^FO40,50^BQN,2,8^FDQA,' + data.inventory_code + '^FS\n'; // QR Code
+
+        cmds += '^FO260,70^A0N,22,22^FD SKU' + nameStokYear.name + ':^FS\n';
+        cmds += '^FO265,100^A0N,25,25^FB210,3,2,L^FD' + data.item.name + '^FS\n'; // Teks SKU dengan auto wrap
+
+        cmds += '^FO260,160^A0N,22,22^FD Type:^FS\n';
+        cmds += '^FO265,190^A0N,25,25^FD' + brand.item_type.name + '^FS\n';
+
+        cmds += '^FO500,70^A0N,22,22^FD Dimension:^FS\n';
+        cmds += '^FO505,100^A0N,25,25^FD' + pack.multiplier + ' ' + pack.name + '^FS\n';
+
+        cmds += '^FO500,160^A0N,22,22^FD Created At:^FS\n';
+        cmds += '^FO505,190^A0N,25,25^FD' + getDateStringWithTime(data.datetime) + '^FS\n'; // Menggunakan fungsi formatCreatedAt() untuk waktu dinamis
+
+        cmds += '^FO40,290^A0N,25,25^FD' + data.inventory_code + '^FS\n';
+        cmds += '^FO35,340^A0N,19,19^FD Printed At:^FS\n';
+        cmds += '^FO40,365^A0N,19,19^FD' + formatPrintedAt() + '^FS\n'; // Menggunakan fungsi formatPrintedAt() untuk waktu cetak
+
+        cmds += '^XZ\n';
+
+        // cmds += '^XA\n';
+        // cmds += '^PW850\n'; // Lebar label disesuaikan untuk 203 dpi
+        // cmds += '^LL400\n'; // Tinggi label disesuaikan
+
+        // cmds += '^FO20,50^A0N,22,22^FD' + data.inventory_code + '^FS\n'; // Header teks
+
+        // cmds += '^FO20,110^BQN,2,8^FDQA,' + data.inventory_code + '^FS\n'; // QR Code
+
+        // cmds += '^FO260,130^A0N,22,22^FD SKU:^FS\n';
+        // cmds += '^FO265,160^A0N,25,25^FB210,3,2,L^FD' + data.item.name + '^FS\n'; // Teks SKU dengan auto wrap
+
+        // cmds += '^FO260,260^A0N,22,22^FD Type:^FS\n';
+        // cmds += '^FO265,290^A0N,25,25^FD' + brand.item_type.name + '^FS\n';
+
+        // cmds += '^FO500,130^A0N,22,22^FD Dimension:^FS\n';
+        // cmds += '^FO505,160^A0N,25,25^FD' + pack.multiplier + ' ' + pack.name + '^FS\n';
+
+        // cmds += '^FO500,260^A0N,22,22^FD Printed At:^FS\n';
+        // cmds += '^FO505,290^A0N,25,25^FD' + formatPrintedAt() + '^FS\n';
+
+        // cmds += '^XZ\n';
+        console.log(cmds)
+    }
+
     function detailBox(id) {
         var data = dataEntry.productionOutItem.find((value, key) => {
             if (value.id == id) return true
@@ -1802,9 +2532,13 @@
         var brand = dataEntry.workPlanMachine.products.find((v, k) => {
             if (v.product.id == data.item.id) return true
         })
-        var pack = brand.unit_option.find((v, k) => {
-            if (v.id == id_pack) return true
+        var dataUnit = dataEntry.productMaterial.find((value, key) => {
+            if (value.item_id == data.item.id) return true
         })
+        var pack = brand.unit_option.find((v, k) => {
+            if (v.id == dataUnit.unit_detail.id) return true
+        })
+        // checkConsole(data, brand, pack)
         var status = '<span class="badge align-self-center small-text p-1 bg-light text-grey">Sending</span>'
         if (!data.is_offline) {
             if (data.is_material_used) {
@@ -1827,9 +2561,25 @@
         html_body += '<div class="col-2 pe-0">'
         html_body += '<div id="qrcodePacking" style="margin-top:15px;margin:auto;"></div>'
         html_body += '</div>'
-        html_body += '<div class="col-10 align-self-center">'
+        html_body += '<div class="col-9 align-self-center">'
         html_body += '<p class="m-0 small">ID Inventory</p>'
         html_body += '<p class="m-0 h3 fw-bolder">' + data.inventory_code + '</p>'
+        html_body += '</div>'
+        html_body += '<div class="col-1 align-self-center">'
+        // button option ellipsis
+        html_body += '<div class="dropdown">'
+        html_body += '<button class="btn btn-sm shadow-none" type="button" id="dropdownMenuButtonDetail" data-bs-toggle="dropdown" aria-expanded="false">'
+        html_body += '<i class="fa fa-ellipsis-v"></i>'
+        html_body += '</button>'
+        html_body += '<ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonDetail">'
+        html_body += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="editMaterial(' + "'" + id + "'" + ')">Edit Material</a></li>'
+        html_body += '<li><a class="dropdown-item" href="javascript:void(0)" onclick="cetakUlangQRCode(' + "'" + id + "'" + ')">Cetak Ulang QR Code</a></li>'
+        if (!data.is_material_used) {
+            html_body += '<li><a class="dropdown-item text-danger fw-bolder" href="javascript:void(0)" onclick="hapusBox(' + "'" + id + "'" + ')"><i class="fa fa-trash me-2"></i>Hapus Box & Ball</a></li>'
+        }
+        html_body += '</ul>'
+        html_body += '</div>'
+        // button option
         html_body += '</div>'
         html_body += '</div>'
         // content
@@ -1844,7 +2594,7 @@
         html_body += '<p class="m-0 small-text">Detail Information</p>'
         html_body += '</div>'
         html_body += '<div class="col-auto text-end mb-2">'
-        html_body += '<button class="btn btn-sm btn-brown shadow-none super-small-text p-1" onclick="cetakUlangQRCode(' + "'" + id + "'" + ')"><i class="fa fa-print"></i></button>'
+        // html_body += '<button class="btn btn-sm btn-brown shadow-none super-small-text p-1" onclick="cetakUlangQRCode(' + "'" + id + "'" + ')"><i class="fa fa-print"></i></button>'
         html_body += '</div>'
         // html_body += '<div class="col-6 pe-0 mb-2">'
         // html_body += '<p class="m-0 super-small-text text-grey-small">Transaction Code</p>'
@@ -1936,9 +2686,9 @@
         var html_footer = '';
         html_footer += '<div class="row w-100 justify-content-between">'
         html_footer += '<div class="col-auto">'
-        if (!data.is_material_used) {
-            html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBox(' + "'" + id + "'" + ')">Hapus Box</button>'
-        }
+        // if (!data.is_material_used) {
+        //     html_footer += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="hapusBox(' + "'" + id + "'" + ')">Hapus Box</button>'
+        // }
         html_footer += '</div>'
         html_footer += '<div class="col-auto">'
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>'
@@ -2117,33 +2867,45 @@
         printQrCode(data)
     }
 
-    function printQrCode(data) {
+    function printQrCode(data, dataBall = null) {
+        if (dataBall) {
+            printQRCodeBall(dataBall)
+        }
+        printQRCodeBox(data)
+    }
+
+    function printQRCodeBall(data) {
+        // console.log(data)
         let cmds = '';
+        var dataProduct = checkSourceItem(data[0].item.id)
         var brand = dataEntry.workPlanMachine.products.find((v, k) => {
-            if (v.product.id == data[0].item.id) return true
+            if (v.product.id == dataProduct.item_id) return true
         })
-        var pack = brand.unit_option.find((v, k) => {
+        var dataBall = dataProduct.material_group[0].items[0].unit_option.find((v, k) => {
             if (v.id == id_pack) return true
         })
         data.forEach(e => {
             cmds += '^XA\n';
-            cmds += '^PW1100\n';
-            cmds += '^LL500\n';
+            cmds += '^PW460\n'; // Lebar label disesuaikan untuk 230 dpi
+            cmds += '^LL460\n'; // Tinggi label juga disesuaikan
 
-            cmds += '^FO0,60^A0N,28,28^FD ' + e.inventory_code + '^FS\n'; // Teks di bawah QR Code, ukuran lebih besar
-            cmds += '^FO10,130^BQN,2,10^FDQA,' + e.inventory_code + '^FS\n'; // QR Code lebih besar
+            cmds += '^FO0,40^A0N,24,24^FB420,1,0,C^FD' + e.inventory_code + '^FS\n'; // Header teks di tengah
 
-            cmds += '^FO330,140^A0N,28,28^FD SKU:^FS\n'; // Label SKU lebih besar
-            cmds += '^FO340,180^A0N,40,40^FB390,2,2,L^FD ' + e.item.name + '^FS\n'; // Nama SKU lebih besar
+            cmds += '^FO20,120^BQN,2,6^FDQA,' + e.inventory_code + '^FS\n'; // QR Code lebih kecil agar sesuai
 
-            cmds += '^FO330,310^A0N,28,28^FD Type:^FS\n'; // Label Type lebih besar
-            cmds += '^FO330,350^A0N,40,40^FD ' + brand.item_type.name + '^FS\n'; // Isi Type lebih besar
+            cmds += '^FO0,100^GB470,1,1^FS\n'; // Garis horizontal disesuaikan agar tetap sejajar
 
-            cmds += '^FO700,140^A0N,28,28^FD Dimension:^FS\n'; // Label Dimension lebih besar
-            cmds += '^FO700,180^A0N,40,40^FD ' + pack.multiplier + ' ' + pack.name + '^FS\n'; // Isi Dimension lebih besar
+            cmds += '^FO190,130^A0N,20,20^FD SKU:^FS\n';
+            cmds += '^FO195,155^A0N,21,21^FB200,2,2,L^FD' + e.item.name + '^FS\n'; // Teks SKU disesuaikan
 
-            cmds += '^FO700,310^A0N,28,28^FD Printed At:^FS\n'; // Label Printed At lebih besar
-            cmds += '^FO700,350^A0N,40,40^FD ' + formatPrintedAt() + '^FS\n'; // Isi Printed At lebih besar
+            cmds += '^FO190,210^A0N,20,20^FD Dimension:^FS\n';
+            cmds += '^FO195,235^A0N,24,24^FD' + dataBall.multiplier + ' ' + dataBall.name + '^FS\n';
+
+            cmds += '^FO190,280^A0N,20,20^FD Type:^FS\n';
+            cmds += '^FO195,305^A0N,24,24^FD' + brand.item_type.name + '^FS\n';
+
+            cmds += '^FO20,355^A0N,16,16^FD Printed At:^FS\n';
+            cmds += '^FO25,375^A0N,16,16^FD' + formatPrintedAt() + '^FS\n';
 
             cmds += '^XZ\n';
         });
@@ -2151,6 +2913,62 @@
         if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
             var cpj = new JSPM.ClientPrintJob();
             cpj.clientPrinter = new JSPM.InstalledPrinter(defaultLabelPrinterBall);
+            // cpj.clientPrinter = new JSPM.BluetoothPrinter("60:95:32:23:E4:45", 1);
+            cpj.printerCommands = cmds;
+            cpj.sendToClient();
+
+        }
+    }
+
+    function printQRCodeBox(data) {
+        let cmds = '';
+        var brand = dataEntry.workPlanMachine.products.find((v, k) => {
+            if (v.product.id == data[0].item.id) return true
+        })
+        var pack = brand.unit_option.find((v, k) => {
+            if (v.id == id_pack) return true
+        })
+        var nameStokYear = dataEntry.stokYear.find((value, key) => {
+            if (value.id == data.stok_year_id) return true
+        })
+        if (!data.stok_year_id) {
+            nameStokYear = {
+                name: ''
+            }
+        } else {
+            nameStokYear = {
+                name: ' ( ' + nameStokYear.name + ' ) '
+            }
+        }
+        data.forEach(e => {
+            cmds += '^XA\n';
+            cmds += '^PW850\n'; // Lebar label disesuaikan untuk 203 dpi
+            cmds += '^LL400\n'; // Tinggi label disesuaikan
+
+            cmds += '^FO40,50^BQN,2,8^FDQA,' + e.inventory_code + '^FS\n'; // QR Code
+
+            cmds += '^FO260,70^A0N,22,22^FD SKU' + nameStokYear.name + ':^FS\n';
+            cmds += '^FO265,100^A0N,25,25^FB210,3,2,L^FD' + e.item.name + '^FS\n'; // Teks SKU dengan auto wrap
+
+            cmds += '^FO260,160^A0N,22,22^FD Type:^FS\n';
+            cmds += '^FO265,190^A0N,25,25^FD' + brand.item_type.name + '^FS\n';
+
+            cmds += '^FO500,70^A0N,22,22^FD Dimension:^FS\n';
+            cmds += '^FO505,100^A0N,25,25^FD' + pack.multiplier + ' ' + pack.name + '^FS\n';
+
+            cmds += '^FO500,160^A0N,22,22^FD Created At:^FS\n';
+            cmds += '^FO505,190^A0N,25,25^FD' + getDateStringWithTime(e.datetime) + '^FS\n'; // Menggunakan fungsi formatCreatedAt() untuk waktu dinamis
+
+            cmds += '^FO40,290^A0N,25,25^FD' + e.inventory_code + '^FS\n';
+            cmds += '^FO35,340^A0N,19,19^FD Printed At:^FS\n';
+            cmds += '^FO40,365^A0N,19,19^FD' + formatPrintedAt() + '^FS\n'; // Menggunakan fungsi formatPrintedAt() untuk waktu cetak
+
+            cmds += '^XZ\n';
+        });
+        defaultLabelPrinterBox = localStorage.getItem("defaultLabelPrinterBox") || '';
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
+            var cpj = new JSPM.ClientPrintJob();
+            cpj.clientPrinter = new JSPM.InstalledPrinter(defaultLabelPrinterBox);
             // cpj.clientPrinter = new JSPM.BluetoothPrinter("60:95:32:23:E4:45", 1);
             cpj.printerCommands = cmds;
             cpj.sendToClient();
@@ -2203,5 +3021,173 @@
         $('#btnSaveMaterial').prop('hidden', false)
         $('.btnDeleteBall').prop('hidden', false)
     }
+
+    function saveAndPrintBall() {
+        variableInsertBall = deepCopy(resetVariableInsertBall())
+        var time = currentDateTime()
+        // yang punya btn brown, diambil id nya
+        var stok_year_id = $('.btnYear').filter('.btn-brown').attr('data-id')
+        code_ball_created_detail.forEach((e, i) => {
+            var id = createCodeId(parseInt(i) + 1)
+            inventory_scanner.push(id)
+            variableInsertBall.result_product.push({
+                id: id,
+                work_plan_id: dataEntry.workPlanMachine.work_plan_id,
+                shift_id: dataEntry.workPlanMachine.shift_id,
+                machine_id: dataEntry.workPlanMachine.machine.id,
+                time_start: formatTime(time),
+                time_end: formatTime(time),
+                item_id: variableGantungBall.item_id,
+                qty: 1,
+                unit_id: variableGantungBall.unit_id,
+                employee_id: user_id,
+                note: variableGantungBall.notes,
+                created_at: time,
+                updated_at: time,
+                work_plan_product_id: variableGantungBall.work_plan_product_id,
+                datetime_start: dataEntry.workPlanMachine.date + ' ' + formatTime(time),
+                datetime_end: dataEntry.workPlanMachine.date + ' ' + formatTime(time),
+                stok_year_id: stok_year_id,
+                machine_step_id: dataEntry.machineStepIdBall,
+                inventory_code: e.code,
+                inventory_id: id,
+                machine_line_id: defaultMachineLineBox.machine_line_id,
+                qty_detail: e.qty,
+                unit_id_detail: variableGantungBall.unit_detail,
+            })
+            variableInsertBall.result_product_machine.push({
+                id: createCodeId(parseInt(i) + 1),
+                result_product_id: id,
+                datetime: time,
+                machine_step_id: dataEntry.machineStepIdBall,
+                item_id_product: variableGantungBall.item_id,
+                qty: 1,
+                unit_id: variableGantungBall.unit_id,
+                employee_id_complete: user_id,
+                note: variableGantungBall.notes,
+                created_at: time,
+                updated_at: time,
+                index: 1,
+                stok_year_id: stok_year_id,
+                is_product_final_other: variableGantungBall.is_product_final_other,
+                employee_id_admin: user_id,
+                is_complete: 1,
+                qty_detail: e.qty,
+                unit_id_detail: variableGantungBall.unit_detail,
+            })
+        })
+        formInsertBox()
+        addToVariableOfflineBall('add')
+    }
+
+    function addToVariableOfflineBall(status) {
+        // masukkan ke variableInsertSendOffline disimpan saja
+        var dataMasuk = []
+        if (status == 'add') {
+            variableInsertBall.result_product.forEach(e => {
+                var dataItemProduction = dataEntry.itemProductionBall.find((value, key) => {
+                    if (value.id == e.item_id) return true
+                })
+                // console.log(e.item_id)
+                // console.log(dataItemProduction)
+                dataMasuk.push({
+                    "id": e.id,
+                    "item": {
+                        "id": dataItemProduction.id,
+                        "code": dataItemProduction.code,
+                        "name": dataItemProduction.name,
+                        "alias": dataItemProduction.alias
+                    },
+                    "time": {
+                        "end": e.time_end,
+                        "start": e.time_start,
+                        "datetime_end": e.datetime_end,
+                        "datetime_start": e.datetime_start
+                    },
+                    'is_offline': 1,
+                    "qty": 1,
+                    "note": e.note,
+                    "inventory_code": e.inventory_code,
+                    "result_product_machines": [],
+                })
+                variableInsertSendOffline.result_product.push(e)
+            });
+            variableInsertBall.result_product_machine.forEach(e => {
+                //filter datamasuk
+                var filterDataMasuk = dataMasuk.find((value, key) => {
+                    if (value.id == e.result_product_id) return true
+                })
+                filterDataMasuk.result_product_machines.push(e)
+                variableInsertSendOffline.result_product_machine.push(e)
+            });
+        } else if (status == 'delete') {
+            variableDelete.deletedId.result_product.forEach(e => {
+                dataMasuk.push(e)
+                variableInsertSendOffline.deletedId.result_product.push(e)
+            });
+            variableDelete.deletedId.result_product_machine.forEach(e => {
+                variableInsertSendOffline.deletedId.result_product_machine.push(e)
+            });
+        }
+        addToVariableOffline('add', dataMasuk)
+    }
+
+    function hapusBallBox() {
+        $('#modal').modal('show')
+        $('#modalDialog').addClass('modal-dialog modal-lg modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Hapus Ball & Box</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader').html(html_header);
+        var html_body = '';
+        html_body += '<div class="row">';
+        html_body += '<div class="col-12">';
+        html_body += '<table class="table table-sm table-bordered" id="tableDraft">';
+        html_body += '<thead>';
+        html_body += '<tr>';
+        html_body += '<th class="text-center align-middle">No</th>';
+        html_body += '<th class="text-center align-middle">Time</th>';
+        html_body += '<th class="text-center align-middle">Inventory Code</th>';
+        html_body += '<th class="text-center align-middle">Item</th>';
+        html_body += '<th class="text-center align-middle">Stock Year</th>';
+        html_body += '<th class="text-center align-middle">Action</th>';
+        html_body += '</tr>';
+        html_body += '</thead>';
+        html_body += '<tbody id="contentOpenDraft">';
+        html_body += '</tbody>';
+        html_body += '</div>';
+        html_body += '</div>';
+        $('#modalBody').html(html_body);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>';
+        $('#modalFooter').html(html_footer);
+        // contentOpenDraft()
+    }
+
+    function contentOpenDraft() {
+        var html = ''
+        var data = deepCopy(variableInsertSendOffline.result_product)
+        data.forEach((value, key) => {
+            var dataItemProduction = dataEntry.itemProduction.find((v, key) => {
+                if (v.id == value.item_id) return true
+            })
+            var nameStokYear = dataEntry.stokYear.find((v, key) => {
+                if (v.id == value.stok_year_id) return true
+            })
+            html += '<tr>';
+            html += '<td class="text-center align-middle small-text">' + (key + 1) + '</td>';
+            html += '<td class="text-center align-middle small-text">' + formatTime(value.time_start) + '</td>';
+            html += '<td class="text-center align-middle small-text">' + value.inventory_code + '</td>';
+            html += '<td class="text-center align-middle small-text">' + dataItemProduction.name + '</td>';
+            html += '<td class="text-center align-middle small-text">' + nameStokYear.name + '</td>';
+            html += '<td class="text-center align-middle small-text">'
+            html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 small-text me-1" onclick="HapusDataSatuan(' + "'" + value.id + "'" + ')">Hapus</button>';
+            html += '<button type="button" class="btn btn-primary btn-sm p-2 small-text" onclick="kirimUlangDataSatuan(' + "'" + value.id + "'" + ')">Kirim Ulang</button>';
+            html += '</td>';
+            html += '</tr>';
+        })
+        $('#contentOpenDraft').html(html)
+    }
+
     setInterval(sendAllVariableInsert, 60000); // 1 menit
 </script>

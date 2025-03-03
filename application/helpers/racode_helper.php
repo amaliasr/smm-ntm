@@ -187,6 +187,17 @@ function job_accounting_and_tax()
         return false;
     }
 }
+function job_tax_staff()
+{
+    // DINAR
+    $ci = get_instance();
+    $job_title_id = $ci->session->userdata('job_title_id');
+    if ($job_title_id == 107) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function job_administrasi_produksi()
 {
     // DELYA
@@ -485,7 +496,7 @@ function if_report_result_production()
 }
 function if_report_production_daily()
 {
-    if (job_spv_smd() || job_kepala_operator() || job_foreman_skt() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan() || job_mandor() || job_admin_pga()) {
+    if (job_spv_smd() || job_kepala_operator() || job_foreman_skt() ||  job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_atasan() || job_mandor() || job_admin_pga() || job_tax_staff()) {
         return true;
     } else {
         return false;
@@ -493,7 +504,7 @@ function if_report_production_daily()
 }
 function if_report_person_earn()
 {
-    if (job_spv_smd() || job_kepala_operator() || job_foreman_skt() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_admin_pga() || job_atasan()) {
+    if (job_spv_smd() || job_kepala_operator() || job_foreman_skt() || job_spv_audit_internal() || job_accounting_and_tax() || job_spv_tax() || job_admin_pga() || job_atasan() || job_tax_staff()) {
         return true;
     } else {
         return false;
