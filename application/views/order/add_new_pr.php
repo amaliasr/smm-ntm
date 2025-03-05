@@ -858,6 +858,7 @@
             cost_center_id: idCostCenter,
             attachments: attachments,
             department_id: dataCostCenter.department_id,
+            department_id_request: divisi_id,
             employee_id: user_id,
         }
         var button = '#btnSimpanPR'
@@ -906,7 +907,7 @@
                         })
                         var link = '<?= base_url() ?>order/detailPR/' + response.id_pr + ''
                         $('#modal').modal('hide')
-                        shareWhatsapp(response.id_pr, phone, link, 'PR', response.no_pr, name)
+                        // shareWhatsapp(response.id_pr, phone, link, 'PR', response.no_pr, name)
                         refresh()
 
                     });

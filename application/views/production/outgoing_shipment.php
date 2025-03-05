@@ -714,9 +714,9 @@
                 anyButton++
             }
             if (!anyButton) {
-                html += '<div class="text-center pe-2 ps-2">'
-                html += '<i class="small-text">Tidak ada aksi</i>'
-                html += '</div>'
+                // html += '<div class="text-center pe-2 ps-2">'
+                // html += '<i class="small-text">Tidak ada aksi</i>'
+                // html += '</div>'
             }
             html += '</div>'
             html += '</td>'

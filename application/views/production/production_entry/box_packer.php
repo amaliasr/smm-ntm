@@ -1777,6 +1777,7 @@
             if (v.product.id == dataProduct.item_id) return true
         })
         variableGantung.dateCreated = currentDateTime()
+        variableGantung.datetime = currentDateTime()
         variableGantung.item_id = data.item_id
         variableGantung.unit_ball = dataProduct.material_group[0].requirement
         variableGantung.unit_detail = data.unit_detail
@@ -2885,29 +2886,8 @@
             if (v.id == id_pack) return true
         })
         data.forEach(e => {
-            cmds += '^XA\n';
-            cmds += '^PW460\n'; // Lebar label disesuaikan untuk 230 dpi
-            cmds += '^LL460\n'; // Tinggi label juga disesuaikan
-
-            cmds += '^FO0,40^A0N,24,24^FB420,1,0,C^FD' + e.inventory_code + '^FS\n'; // Header teks di tengah
-
-            cmds += '^FO20,120^BQN,2,6^FDQA,' + e.inventory_code + '^FS\n'; // QR Code lebih kecil agar sesuai
-
-            cmds += '^FO0,100^GB470,1,1^FS\n'; // Garis horizontal disesuaikan agar tetap sejajar
-
-            cmds += '^FO190,130^A0N,20,20^FD SKU:^FS\n';
-            cmds += '^FO195,155^A0N,21,21^FB200,2,2,L^FD' + e.item.name + '^FS\n'; // Teks SKU disesuaikan
-
-            cmds += '^FO190,210^A0N,20,20^FD Dimension:^FS\n';
-            cmds += '^FO195,235^A0N,24,24^FD' + dataBall.multiplier + ' ' + dataBall.name + '^FS\n';
-
-            cmds += '^FO190,280^A0N,20,20^FD Type:^FS\n';
-            cmds += '^FO195,305^A0N,24,24^FD' + brand.item_type.name + '^FS\n';
-
-            cmds += '^FO20,355^A0N,16,16^FD Printed At:^FS\n';
-            cmds += '^FO25,375^A0N,16,16^FD' + formatPrintedAt() + '^FS\n';
-
-            cmds += '^XZ\n';
+            // cmds += codeForZebra(e, brand, dataBall)
+            cmds += codeForPOS58(e, brand, dataBall)
         });
         defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
         if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
@@ -2920,6 +2900,80 @@
         }
     }
 
+    function codeForZebra(e, brand, dataBall) {
+        let textCmds = ''
+        textCmds += '^XA\n';
+        textCmds += '^PW460\n'; // Lebar label disesuaikan untuk 230 dpi
+        textCmds += '^LL460\n'; // Tinggi label juga disesuaikan
+
+        textCmds += '^FO0,40^A0N,24,24^FB420,1,0,C^FD' + e.inventory_code + '^FS\n'; // Header teks di tengah
+
+        textCmds += '^FO20,120^BQN,2,6^FDQA,' + e.inventory_code + '^FS\n'; // QR Code lebih kecil agar sesuai
+
+        textCmds += '^FO0,100^GB470,1,1^FS\n'; // Garis horizontal disesuaikan agar tetap sejajar
+
+        textCmds += '^FO190,130^A0N,20,20^FD SKU:^FS\n';
+        textCmds += '^FO195,155^A0N,21,21^FB200,2,2,L^FD' + e.item.name + '^FS\n'; // Teks SKU disesuaikan
+
+        textCmds += '^FO190,210^A0N,20,20^FD Dimension:^FS\n';
+        textCmds += '^FO195,235^A0N,24,24^FD' + dataBall.multiplier + ' ' + dataBall.name + '^FS\n';
+
+        textCmds += '^FO190,280^A0N,20,20^FD Type:^FS\n';
+        textCmds += '^FO195,305^A0N,24,24^FD' + brand.item_type.name + '^FS\n';
+
+        textCmds += '^FO20,355^A0N,16,16^FD Printed At:^FS\n';
+        textCmds += '^FO25,375^A0N,16,16^FD' + formatPrintedAt() + '^FS\n';
+
+        textCmds += '^XZ\n';
+
+        return textCmds
+    }
+
+    function codeForPOS58(e, brand, dataBall) {
+        let textCmds = "";
+
+        // Reset printer dan set ukuran font
+        textCmds += "\x1B\x40"; // Reset printer
+        textCmds += "\x1B\x33\x10"; // Set line spacing
+
+        // Header (Inventory Code)
+        textCmds += "\x1B\x61\x01"; // Align Center
+        textCmds += "\x1D\x21\x00"; // Font size double (height x2, width x2)
+        textCmds += e.inventory_code + "\n\n";
+        textCmds += "\x1D\x21\x00"; // Kembali ke font normal
+
+        // QR Code
+        textCmds += "\x1B\x61\x01"; // Align Center
+        textCmds += "\x1D\x28\x6B\x03\x00\x31\x43\x06"; // Set QR Code size
+        textCmds += "\x1D\x28\x6B" + String.fromCharCode(e.inventory_code.length + 3, 0) + "\x31\x50\x30" + e.inventory_code; // Data QR Code
+        textCmds += "\x1D\x28\x6B\x03\x00\x31\x51\x30"; // Print QR Code
+        textCmds += "\n";
+
+        // Garis pemisah
+        textCmds += "\x1B\x61\x00"; // Align Left
+        textCmds += "--------------------------------\n";
+
+        // SKU
+        textCmds += "SKU:\n";
+        textCmds += e.item.name + "\n\n";
+
+        // Dimension
+        textCmds += "Dimension:\n";
+        textCmds += dataBall.multiplier + " " + dataBall.name + "\n\n";
+
+        // Type
+        textCmds += "Type:\n";
+        textCmds += brand.item_type.name + "\n\n";
+
+        // Printed At
+        textCmds += "Printed At:\n";
+        textCmds += formatPrintedAt() + "\n\n";
+
+        // Potong kertas (jika printer mendukung auto-cutter)
+        textCmds += "\x1D\x56\x41\x10"; // Partial Cut
+        return textCmds
+    }
+
     function printQRCodeBox(data) {
         let cmds = '';
         var brand = dataEntry.workPlanMachine.products.find((v, k) => {
@@ -2929,25 +2983,30 @@
             if (v.id == id_pack) return true
         })
         var nameStokYear = dataEntry.stokYear.find((value, key) => {
-            if (value.id == data.stok_year_id) return true
+            if (value.id == variableGantung.stok_year_id) return true
         })
-        if (!data.stok_year_id) {
-            nameStokYear = {
-                name: ''
-            }
+        var nameStok = ''
+        // console.log(data)
+        if (!variableGantung.stok_year_id) {
+            // nameStokYear = {
+            //     name: ''
+            // }
         } else {
-            nameStokYear = {
-                name: ' ( ' + nameStokYear.name + ' ) '
-            }
+            // nameStokYear = {
+            //     name: ' ( ' + nameStokYear.name + ' ) '
+            // }
+            nameStok = ' ( ' + nameStokYear.name + ' ) '
         }
+        // console.log(nameStokYear)
         data.forEach(e => {
+            console.log(e)
             cmds += '^XA\n';
             cmds += '^PW850\n'; // Lebar label disesuaikan untuk 203 dpi
             cmds += '^LL400\n'; // Tinggi label disesuaikan
 
             cmds += '^FO40,50^BQN,2,8^FDQA,' + e.inventory_code + '^FS\n'; // QR Code
 
-            cmds += '^FO260,70^A0N,22,22^FD SKU' + nameStokYear.name + ':^FS\n';
+            cmds += '^FO260,70^A0N,22,22^FD SKU ' + nameStok + ':^FS\n';
             cmds += '^FO265,100^A0N,25,25^FB210,3,2,L^FD' + e.item.name + '^FS\n'; // Teks SKU dengan auto wrap
 
             cmds += '^FO260,160^A0N,22,22^FD Type:^FS\n';
@@ -2957,7 +3016,7 @@
             cmds += '^FO505,100^A0N,25,25^FD' + pack.multiplier + ' ' + pack.name + '^FS\n';
 
             cmds += '^FO500,160^A0N,22,22^FD Created At:^FS\n';
-            cmds += '^FO505,190^A0N,25,25^FD' + getDateStringWithTime(e.datetime) + '^FS\n'; // Menggunakan fungsi formatCreatedAt() untuk waktu dinamis
+            cmds += '^FO505,190^A0N,25,25^FD' + getDateStringWithTime(variableGantung.dateCreated) + '^FS\n'; // Menggunakan fungsi formatCreatedAt() untuk waktu dinamis
 
             cmds += '^FO40,290^A0N,25,25^FD' + e.inventory_code + '^FS\n';
             cmds += '^FO35,340^A0N,19,19^FD Printed At:^FS\n';
@@ -3142,18 +3201,20 @@
         var html_body = '';
         html_body += '<div class="row">';
         html_body += '<div class="col-12">';
+        html_body += `<input type="text" class="form-control mt-2 small-text" placeholder="Cari Kode atau Brand" id="search_kode_brand_ball_box" onclick="offBlurOff(),this.focus()" onkeyup="searching('search_kode_brand_ball_box','textBrandBallBox','listBrandBallBox')" onblur="onBlurOn()" autocomplete="off">`
+        html_body += '</div>';
+        html_body += '<div class="col-12 mt-3">';
         html_body += '<table class="table table-sm table-bordered" id="tableDraft">';
         html_body += '<thead>';
         html_body += '<tr>';
-        html_body += '<th class="text-center align-middle">No</th>';
-        html_body += '<th class="text-center align-middle">Time</th>';
-        html_body += '<th class="text-center align-middle">Inventory Code</th>';
-        html_body += '<th class="text-center align-middle">Item</th>';
-        html_body += '<th class="text-center align-middle">Stock Year</th>';
-        html_body += '<th class="text-center align-middle">Action</th>';
+        html_body += '<th class="text-center align-middle small-text py-2">Time</th>';
+        html_body += '<th class="text-center align-middle small-text py-2">Inventory Code</th>';
+        html_body += '<th class="text-center align-middle small-text py-2">Item</th>';
+        html_body += '<th class="text-center align-middle small-text py-2">Stock Year</th>';
+        html_body += '<th class="text-center align-middle small-text py-2"></th>';
         html_body += '</tr>';
         html_body += '</thead>';
-        html_body += '<tbody id="contentOpenDraft">';
+        html_body += '<tbody id="contentHapusBallBox">';
         html_body += '</tbody>';
         html_body += '</div>';
         html_body += '</div>';
@@ -3161,32 +3222,39 @@
         var html_footer = '';
         html_footer += '<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>';
         $('#modalFooter').html(html_footer);
-        // contentOpenDraft()
+        offBlurOff()
+        $('#search_kode_brand_ball_box').focus()
+        contentHapusBallBox()
     }
 
-    function contentOpenDraft() {
+    function contentHapusBallBox() {
         var html = ''
-        var data = deepCopy(variableInsertSendOffline.result_product)
-        data.forEach((value, key) => {
-            var dataItemProduction = dataEntry.itemProduction.find((v, key) => {
-                if (v.id == value.item_id) return true
-            })
-            var nameStokYear = dataEntry.stokYear.find((v, key) => {
-                if (v.id == value.stok_year_id) return true
-            })
-            html += '<tr>';
-            html += '<td class="text-center align-middle small-text">' + (key + 1) + '</td>';
-            html += '<td class="text-center align-middle small-text">' + formatTime(value.time_start) + '</td>';
-            html += '<td class="text-center align-middle small-text">' + value.inventory_code + '</td>';
-            html += '<td class="text-center align-middle small-text">' + dataItemProduction.name + '</td>';
-            html += '<td class="text-center align-middle small-text">' + nameStokYear.name + '</td>';
-            html += '<td class="text-center align-middle small-text">'
-            html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 small-text me-1" onclick="HapusDataSatuan(' + "'" + value.id + "'" + ')">Hapus</button>';
-            html += '<button type="button" class="btn btn-primary btn-sm p-2 small-text" onclick="kirimUlangDataSatuan(' + "'" + value.id + "'" + ')">Kirim Ulang</button>';
-            html += '</td>';
-            html += '</tr>';
+        var dataBox = deepCopy(dataEntry.productionOutItem)
+        var dataBall = deepCopy(dataEntry.productionOutItemBall)
+        dataBox.forEach((value, key) => {
+            html += templateTableBallBox(key, value)
         })
-        $('#contentOpenDraft').html(html)
+        dataBall.forEach((value, key) => {
+            html += templateTableBallBox(key, value)
+        })
+        $('#contentHapusBallBox').html(html)
+    }
+
+    function templateTableBallBox(key, value) {
+        var nameStokYear = dataEntry.stokYear.find((v, key) => {
+            if (v.id == value.stok_year_id) return true
+        })
+        var html = ''
+        html += '<tr id="listBrandBallBox' + value.id + '">';
+        html += '<td class="text-center align-middle small-text textBrandBallBox" data-id="' + value.id + '">' + formatTime(value.datetime) + '</td>';
+        html += '<td class="text-center align-middle small-text textBrandBallBox" data-id="' + value.id + '">' + value.inventory_code + '</td>';
+        html += '<td class="text-center align-middle small-text textBrandBallBox" data-id="' + value.id + '">' + value.item.name + '</td>';
+        html += '<td class="text-center align-middle small-text textBrandBallBox" data-id="' + value.id + '">' + nameStokYear.name + '</td>';
+        html += '<td class="text-center align-middle small-text">'
+        html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 super-small-text me-1" onclick="HapusDataSatuan(' + "'" + value.id + "'" + ')">Hapus</button>';
+        html += '</td>';
+        html += '</tr>';
+        return html
     }
 
     setInterval(sendAllVariableInsert, 60000); // 1 menit

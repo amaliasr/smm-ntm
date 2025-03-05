@@ -896,7 +896,7 @@
     function listDetailSuratJalan() {
         var html = '';
         if (dataEntry.machineTransferList.length == 0) {
-            html += '<tr><td colspan="8" class="text-center small-text p-2">Tidak Ada Data Tersedia</td></tr>'
+            html += '<tr><td colspan="8" class="text-center small-text p-2 align-middle">Tidak Ada Data Tersedia</td></tr>'
         } else {
             dataEntry.machineTransferList.forEach((value, key) => {
                 if (!value.employee_sender.name) {
@@ -904,29 +904,29 @@
                 }
                 html += `
                 <tr>
-                    <td class="text-center small-text p-2 fw-bolder pointer" onclick="getDetailSuratJalan('${value.id}')">${value.document_number}</td>
-                    <td class="text-center small-text p-2">${getDateStringWithTime(value.send_at)}</td>
-                    <td class="text-center small-text p-2">${shortenName(value.employee_sender.name,1)}</td>
-                    <td class="text-center small-text p-2">${value.warehouse.name}</td>
+                    <td class="text-center small-text p-2 align-middle fw-bolder pointer" onclick="getDetailSuratJalan('${value.id}')">${value.document_number}</td>
+                    <td class="text-center small-text p-2 align-middle">${getDateStringWithTime(value.send_at)}</td>
+                    <td class="text-center small-text p-2 align-middle">${shortenName(value.employee_sender.name,1)}</td>
+                    <td class="text-center small-text p-2 align-middle">${value.warehouse.name}</td>
                     `
                 dataEntry.resultStockTemplate.forEach(ele => {
                     if (value.summaries) {
                         var dataDetail = value.summaries.find((v, k) => {
                             return v.unit.id == ele.id
                         })
-                        html += `<td class="text-center small-text p-2">${dataDetail ? dataDetail.qty_request : ''}</td>`
+                        html += `<td class="text-center small-text p-2 align-middle">${dataDetail ? dataDetail.qty_request : ''}</td>`
                     } else {
-                        html += `<td class="text-center small-text p-2"></td>`
+                        html += `<td class="text-center small-text p-2 align-middle"></td>`
                     }
                 })
-                html += `<td class="text-center small-text p-2">${value.note}</td>`
-                var badge = '<span class="badge rounded-pill bg-grey super-small-text p-2 w-100">Waiting</span>'
+                html += `<td class="text-center small-text p-2 align-middle">${value.note}</td>`
+                var badge = '<span class="badge rounded-pill bg-grey super-small-text p-2 align-middle w-100">Waiting</span>'
                 if (value.is_receive) {
-                    badge = '<span class="badge rounded-pill bg-success super-small-text p-2 w-100">Received</span>'
+                    badge = '<span class="badge rounded-pill bg-success super-small-text p-2 align-middle w-100">Received</span>'
                 }
                 html += `
-                    <td class="text-center small-text p-2">${value.note}</td>
-                    <td class="text-center small-text p-2">
+                    <td class="text-center small-text p-2 align-middle">${badge}</td>
+                    <td class="text-center small-text p-2 align-middle">
                         <div class="dropdown">
                             <button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton${value.id}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-ellipsis-v"></i>
@@ -1121,7 +1121,6 @@
         var status = ''
         var text = ''
         var icon = '<i class="fa fa-check"></i>'
-        var textStatus = ''
         html += '<div class="timeline timeline-sm">'
         // Setoran Baru
         html += '<div class="timeline-item">'
@@ -1143,13 +1142,38 @@
         html += '</div>'
         html += '</div>'
         // Setoran Baru
+        // approved
+        html += '<div class="timeline-item">'
+        html += '<div class="timeline-item-marker">'
+
+        status = 'text-grey'
+        text = '<p>Belum Ada Proses</p>'
+        if (data.approve_at) {
+            if (data.is_approve) {
+                status = 'bg-success text-white'
+                icon = '<i class="fa fa-check"></i>'
+            } else {
+                status = 'bg-danger text-white'
+                icon = '<i class="fa fa-times"></i>'
+            }
+            text = ''
+            text += '<p class="m-0 super-small-text text-grey-small">' + getDateStringWithTime(data.approve_at) + '</p>'
+            text += '<p class="m-0 fw-bold">Paper was approved by ' + data.employee_approve.name + '</p>'
+        }
+        html += '<div class="timeline-item-marker-indicator ' + status + '">' + icon + '</div>'
+        html += '</div>'
+        html += '<div class="timeline-item-content" style="font-size: 11px;">'
+        html += '<b>Approved</b>'
+        html += text
+        html += '</div>'
+        html += '</div>'
+        // approved
         // Ambil Material
         html += '<div class="timeline-item">'
         html += '<div class="timeline-item-marker">'
 
         status = 'text-grey'
         text = '<p>Belum Ada Proses</p>'
-        textStatus = 'Received'
         if (data.receive_at) {
             if (data.is_receive) {
                 status = 'bg-success text-white'
@@ -1157,7 +1181,6 @@
             } else {
                 status = 'bg-danger text-white'
                 icon = '<i class="fa fa-times"></i>'
-                textStatus = 'Rejected'
             }
             text = ''
             text += '<p class="m-0 super-small-text text-grey-small">' + getDateStringWithTime(data.receive_at) + '</p>'
@@ -1166,26 +1189,12 @@
         html += '<div class="timeline-item-marker-indicator ' + status + '">' + icon + '</div>'
         html += '</div>'
         html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>' + textStatus + '</b>'
+        html += '<b>Received</b>'
         html += text
         html += '</div>'
         html += '</div>'
         // Ambil Material
-        // Complete
-        html += '<div class="timeline-item">'
-        html += '<div class="timeline-item-marker">'
 
-        status = 'text-grey'
-        text = '<p>Belum Ada Proses</p>'
-
-        html += '<div class="timeline-item-marker-indicator ' + status + '">' + icon + '</div>'
-        html += '</div>'
-        html += '<div class="timeline-item-content" style="font-size: 11px;">'
-        html += '<b>Approved</b>'
-        html += text
-        html += '</div>'
-        html += '</div>'
-        // Complete
         return html
     }
 

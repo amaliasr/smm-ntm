@@ -688,7 +688,7 @@
                     status = '<span class="badge bg-danger">Rejected</span>'
                 }
             } else {
-                status = '<span class="badge bg-warning">Pending</span>'
+                status = '<span class="badge bg-grey">Pending</span>'
             }
             html += '<tr>'
             html += '<td class="bg-white align-middle small-text text-center">' + (parseInt(key) + 1) + '</td>'
@@ -722,7 +722,16 @@
             html += '<td class="bg-white align-middle small-text text-center">'
             html += '<button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
-            html += '<a class="dropdown-item" onclick="receiveData(' + "'" + value.id + "'" + ',' + "'" + value.document_number + "'" + ')"><i class="fa fa-arrow-down me-2"></i> Penerimaan</a>'
+            var anyButton = 0
+            if (value.is_load_all) {
+                html += '<a class="dropdown-item" onclick="receiveData(' + "'" + value.id + "'" + ',' + "'" + value.document_number + "'" + ')"><i class="fa fa-arrow-down me-2"></i> Penerimaan</a>'
+                anyButton++
+            }
+            if (!anyButton) {
+                html += '<div class="text-center pe-2 ps-2">'
+                html += '<i class="small-text">Tidak ada aksi</i>'
+                html += '</div>'
+            }
             html += '</div>'
             html += '</td>'
             html += '</tr>'
@@ -772,7 +781,8 @@
     }
 
     function receiveData(id, doc_name) {
-
+        var url = '<?= base_url() ?>production/approvalFinishGood/' + id
+        window.open(url, '_blank');
     }
 
     function cetakSuratJalan(id, document_number) {
