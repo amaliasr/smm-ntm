@@ -318,7 +318,7 @@
                     success = 'fa-check text-success'
                     border = 'border border-success'
                     bgApproval = 'bg-success-light'
-                } else {
+                } else if (v['is_approve'] == 0) {
                     success = 'fa-times text-danger'
                     border = 'border border-danger'
                     bgApproval = 'bg-danger-light'
@@ -374,19 +374,40 @@
         var html = ''
         var colorBadge = 'bg-grey-light'
         var state = 'Waiting'
-        if (data_fg['is_approve'] == 1) {
+        if (data_fg['is_load_all'] == 1) {
             colorBadge = 'bg-warning'
-            state = 'Approved'
-            if (data_fg['is_receive'] == 1) {
+            state = 'Selesai Muat'
+            if (data_fg['is_approve'] == 1) {
                 colorBadge = 'bg-success'
-                state = 'Received'
+                state = 'Transfer Disetujui'
+                if (data_fg['is_receive'] == 1) {
+                    colorBadge = 'bg-success'
+                    state = 'Proses Diterima'
+                    if (data_fg['is_receive_all'] == 1) {
+                        colorBadge = 'bg-success'
+                        state = 'Scan Terima Selesai'
+                        if (data_fg['is_complete'] == 1) {
+                            colorBadge = 'bg-success'
+                            state = 'Transfer Selesai'
+                        } else if (data_fg['is_receive'] == 0) {
+                            colorBadge = 'bg-danger'
+                            state = 'Transfer Dibatalkan'
+                        }
+                    } else if (data_fg['is_receive'] == 0) {
+                        colorBadge = 'bg-danger'
+                        state = 'Scan Dibatalkan'
+                    }
+                } else if (data_fg['is_receive'] == 0) {
+                    colorBadge = 'bg-danger'
+                    state = 'Proses Dibatalkan'
+                }
             } else if (data_fg['is_receive'] == 0) {
                 colorBadge = 'bg-danger'
-                state = 'Rejected'
+                state = 'Transfer Dibatalkan'
             }
-        } else if (data_fg['is_approve'] == 0) {
+        } else if (data_fg['is_load_all'] == 0) {
             colorBadge = 'bg-danger'
-            state = 'Rejected'
+            state = 'Canceled'
         }
         html += '<div class="row h-100">'
         html += '<div class="col-auto">'

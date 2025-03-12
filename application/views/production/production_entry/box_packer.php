@@ -760,20 +760,25 @@
         var shakeButtonPrinter = ''
         var shakeButtonPrinterBall = ''
         var shakeButtonMachineLine = ''
+        var alertBadge = ''
         if (defaultLabelPrinterBox) {
             textButtonPrinter = '<i class="fa fa-print text-success me-2"></i>' + defaultLabelPrinterBox
         } else {
-            shakeButtonPrinter = 'shake-bottom'
+            // shakeButtonPrinter = 'shake-bottom'
         }
         if (defaultLabelPrinterBall) {
             textButtonPrinterBall = '<i class="fa fa-print text-success me-2"></i>' + defaultLabelPrinterBall
         } else {
-            shakeButtonPrinterBall = 'shake-bottom'
+            // shakeButtonPrinterBall = 'shake-bottom'
         }
         if (defaultMachineLineBox.machine_line_id && defaultMachineLineBox.work_plan_machine_id == workPlanMachineId) {
             textMachineLine = '<i class="fa fa-gear text-success me-2"></i>' + defaultMachineLineBox.machine_line_name
         } else {
+            // shakeButtonMachineLine = 'shake-bottom'
+        }
+        if (!defaultLabelPrinterBox || !defaultLabelPrinterBall || !defaultMachineLineBox.machine_line_id) {
             shakeButtonMachineLine = 'shake-bottom'
+            alertBadge = '<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"></span>'
         }
         var html = ''
         html += `
@@ -783,7 +788,8 @@
             </div>
             <div class="col-auto ps-1">
                 <div class="dropdown">
-                    <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text" id="dropdownMenuButtonNavbar" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-brown shadow-none small-text ${shakeButtonMachineLine}" id="dropdownMenuButtonNavbar" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
+                    ${alertBadge}
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonNavbar">
                         <p class="dropdown-header">Box</p>
                         <li class="align-self-center"><a class="dropdown-item align-self-center" href="javascript:void(0)" onclick="settingMachineLine()" id="btnSettingMachineLine">${textMachineLine}</a></li>
@@ -1071,6 +1077,7 @@
         if (total_offline) {
             $('#totalDataOfflineBox').html('( ' + total_offline + ' Data still Offline )')
         }
+        buttonSaveOfflineMode()
     }
 
     function fieldProcessAddNewBox() {
@@ -2197,6 +2204,14 @@
             variableDelete.deletedId.result_product_material.forEach(e => {
                 variableInsertSendOffline.deletedId.result_product_material.push(e)
             });
+        } else if (status == 'delete_eachBox' || status == 'delete_eachBall') {
+            variableDelete.deletedId.result_product.forEach(e => {
+                dataMasuk.push(e)
+                variableInsertSendOffline.deletedId.result_product.push(e)
+            });
+            variableDelete.deletedId.result_product_machine.forEach(e => {
+                variableInsertSendOffline.deletedId.result_product_machine.push(e)
+            });
         }
         // console.log(dataMasuk)
         // console.log(dataMasukBall)
@@ -2240,6 +2255,16 @@
             var dataOutItem = deepCopy(dataEntry.productionOutItem)
             var hasil = hapusDatadanReplaceData(dataOutItem, dataMasuk);
             dataEntry.productionOutItem = hasil
+        } else if (status == 'delete_eachBox') {
+            $('#modal').modal('hide')
+            var dataOutItem = deepCopy(dataEntry.productionOutItem)
+            var hasil = hapusDatadanReplaceData(dataOutItem, dataMasuk);
+            dataEntry.productionOutItem = hasil
+        } else if (status == 'delete_eachBall') {
+            $('#modal').modal('hide')
+            var dataOutItem = deepCopy(dataEntry.productionOutItemBall)
+            var hasil = hapusDatadanReplaceData(dataOutItem, dataMasuk);
+            dataEntry.productionOutItemBall = hasil
         }
         buttonSaveOfflineMode()
         listBoxes()
@@ -2436,7 +2461,7 @@
         dataAll = dataAll.filter(item => item.id != id)
         dataEntry.productionOutItem = dataAll
         contentOpenDraft()
-        listBalls()
+        listBoxes()
     }
 
     function kirimUlangDataSatuan(id) {
@@ -3232,15 +3257,15 @@
         var dataBox = deepCopy(dataEntry.productionOutItem)
         var dataBall = deepCopy(dataEntry.productionOutItemBall)
         dataBox.forEach((value, key) => {
-            html += templateTableBallBox(key, value)
+            html += templateTableBallBox(key, value, 0)
         })
         dataBall.forEach((value, key) => {
-            html += templateTableBallBox(key, value)
+            html += templateTableBallBox(key, value, 1)
         })
         $('#contentHapusBallBox').html(html)
     }
 
-    function templateTableBallBox(key, value) {
+    function templateTableBallBox(key, value, index) {
         var nameStokYear = dataEntry.stokYear.find((v, key) => {
             if (v.id == value.stok_year_id) return true
         })
@@ -3251,11 +3276,89 @@
         html += '<td class="text-center align-middle small-text textBrandBallBox" data-id="' + value.id + '">' + value.item.name + '</td>';
         html += '<td class="text-center align-middle small-text textBrandBallBox" data-id="' + value.id + '">' + nameStokYear.name + '</td>';
         html += '<td class="text-center align-middle small-text">'
-        html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 super-small-text me-1" onclick="HapusDataSatuan(' + "'" + value.id + "'" + ')">Hapus</button>';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm p-2 super-small-text me-1" onclick="hapusBoxBall(' + "'" + value.id + "'" + ',' + index + ')">Hapus</button>';
         html += '</td>';
         html += '</tr>';
         return html
     }
 
+    function hapusBoxBall(id, index) {
+        if (index == 0) {
+            var text = 'Box'
+            var data = deepCopy(dataEntry.productionOutItem).find((value, key) => {
+                if (value.id == id) return true
+            })
+        } else {
+            var text = 'Ball'
+            var data = deepCopy(dataEntry.productionOutItemBall).find((value, key) => {
+                if (value.id == id) return true
+            })
+        }
+        // console.log(data)
+        Swal.fire({
+            text: 'Apakah anda yakin ingin menghapus hanya data ' + text + ' ' + data.inventory_code + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                variableDelete = deepCopy(resetVariableInsert())
+                variableDelete.deletedId.result_product.push(id)
+                data.result_product_machines.forEach(e => {
+                    variableDelete.deletedId.result_product_machine.push(e.id)
+                });
+                addToVariableOffline('delete_each' + text)
+            }
+        })
+
+    }
+
+    function doHapusDataBallBoxSatuan(id, index) {
+        // result_product
+        var dataProduct = deepCopy(variableInsertSendOffline.result_product)
+        dataProduct = dataProduct.filter(item => item.id != id)
+        variableInsertSendOffline.result_product = dataProduct
+        // result_product_machine
+        var dataProductMachine = deepCopy(variableInsertSendOffline.result_product_machine)
+        dataProductMachine = dataProductMachine.filter(item => item.result_product_id != id)
+        variableInsertSendOffline.result_product_machine = dataProductMachine
+        // data all
+        if (index == 0) {
+            var dataAll = deepCopy(dataEntry.productionOutItem)
+            dataAll = dataAll.filter(item => item.id != id)
+            dataEntry.productionOutItem = dataAll
+        } else {
+            var dataAll = deepCopy(dataEntry.productionOutItemBall)
+            dataAll = dataAll.filter(item => item.id != id)
+            dataEntry.productionOutItemBall = dataAll
+        }
+        buttonSaveOfflineMode()
+        contentHapusBallBox()
+        listBoxes()
+    }
+
     setInterval(sendAllVariableInsert, 60000); // 1 menit
+
+    window.addEventListener('beforeunload', function(event) {
+        // Function to check if any array in the object has values
+        function hasData(obj) {
+            for (const key in obj) {
+                if (Array.isArray(obj[key]) && obj[key].length > 0) {
+                    return true;
+                } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    if (hasData(obj[key])) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        if (hasData(variableInsertSendOffline)) {
+            event.preventDefault();
+            event.returnValue = 'Data masih tersimpan, apakah Anda yakin ingin meninggalkan halaman?';
+        }
+    });
 </script>

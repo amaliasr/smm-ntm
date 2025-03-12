@@ -2230,4 +2230,25 @@
         });
     }
     setInterval(sendAllVariableInsert, 60000); // 1 menit
+
+    window.addEventListener('beforeunload', function(event) {
+        // Function to check if any array in the object has values
+        function hasData(obj) {
+            for (const key in obj) {
+                if (Array.isArray(obj[key]) && obj[key].length > 0) {
+                    return true;
+                } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    if (hasData(obj[key])) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        if (hasData(variableInsertSendOffline)) {
+            event.preventDefault();
+            event.returnValue = 'Data masih tersimpan, apakah Anda yakin ingin meninggalkan halaman?';
+        }
+    });
 </script>

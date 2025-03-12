@@ -681,11 +681,13 @@
                 });
             }
             var status = ''
-            if (value.receive_at) {
-                if (value.is_receive == 1) {
+            if (value.is_receive_all) {
+                if (value.is_complete == 1) {
                     status = '<span class="badge bg-success">Received</span>'
-                } else {
+                } else if (value.is_complete == 0) {
                     status = '<span class="badge bg-danger">Rejected</span>'
+                } else {
+                    status = '<span class="badge bg-orange">Selesai Muat</span>'
                 }
             } else {
                 status = '<span class="badge bg-grey">Pending</span>'
@@ -723,7 +725,7 @@
             html += '<button class="super-small-text btn btn-sm btn-outline-dark py-1 px-2 shadow-none" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'
             html += '<div class="dropdown-menu shadow-sm" aria-labelledby="dropdownMenuButton">'
             var anyButton = 0
-            if (value.is_load_all) {
+            if (value.is_receive_all && !value.is_complete) {
                 html += '<a class="dropdown-item" onclick="receiveData(' + "'" + value.id + "'" + ',' + "'" + value.document_number + "'" + ')"><i class="fa fa-arrow-down me-2"></i> Penerimaan</a>'
                 anyButton++
             }
