@@ -201,6 +201,11 @@
                             <div class="col-9">
                                 <div class="row justify-content-center">
                                     <div class="col-auto pe-0">
+                                        <p class="fw-bolder small-text m-0">Items Category</p>
+                                        <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItemsCategory" title="Pilih Items Category" onchange="changeCategory()" data-width="fit" data-dropup-auto="false">
+                                        </select>
+                                    </div>
+                                    <div class="col-auto pe-0">
                                         <p class="fw-bolder small-text m-0">Items</p>
                                         <select class="selectpicker w-100" multiple data-live-search="true" data-actions-box="true" data-selected-text-format="count > 1" id="selectItems" title="Pilih Items" onchange="arrangeVariable()" data-width="fit" data-dropup-auto="false">
                                         </select>
@@ -386,10 +391,12 @@
     var user_id = '<?= $this->session->userdata('employee_id') ?>'
     var divisi_id = '<?= $this->session->userdata('department_id') ?>'
     var data_item
+    var data_itemCategory
     var data_report
     var date_start = currentDate()
     var date_end = currentDate()
     var itemId
+    var itemCategoryId
     var rowCode
     $(document).ready(function() {
         $('#dataTable').html(emptyReturn('Belum Melakukan Pencarian'))
@@ -418,8 +425,9 @@
             success: function(response) {
                 showOverlay('hide')
                 data_item = response['data']['item'];
+                data_itemCategory = response['data']['itemCategory'];
                 setDaterange()
-                formItems()
+                formItemsCategory()
             }
         })
     }
@@ -451,9 +459,21 @@
         })
     }
 
-    function formItems() {
+    function formItemsCategory() {
         var html = ''
-        data_item.forEach(e => {
+        data_itemCategory.forEach(e => {
+            html += '<option value="' + e.id + '">' + e.name + '</option>'
+        });
+        $('#selectItemsCategory').html(html)
+        $('#selectItemsCategory').selectpicker('refresh');
+        $('#selectItemsCategory').selectpicker({
+
+        });
+    }
+
+    function formItems(data) {
+        var html = ''
+        data.forEach(e => {
             html += '<option value="' + e.id + '">' + e.item_name + '</option>'
         });
         $('#selectItems').html(html)
@@ -462,6 +482,19 @@
 
         });
         arrangeVariable()
+    }
+
+    function changeCategory() {
+        var dataCategory = $('#selectItemsCategory').val()
+        // dataCategory bentuknya array ['12', '10', '13', '15', '17', '19']
+        var data = []
+        dataCategory.forEach(e => {
+            var daya = data_item.filter(x => x.category_id == e)
+            daya.forEach(element => {
+                data.push(element)
+            });
+        });
+        formItems(data)
     }
 
     function arrayToString(arr) {
@@ -473,11 +506,16 @@
         itemId = arrayToString($('#selectItems').map(function() {
             return $(this).val();
         }).get())
+        itemCategoryId = arrayToString($('#selectItemsCategory').map(function() {
+            return $(this).val();
+        }).get())
+        console.log(itemId)
+        console.log(itemCategoryId)
     }
 
     function cetakMutationStock() {
         var url = "<?= base_url() ?>extra/exportRawDataMutationStock"
-        var params = "*$" + itemId + "*$" + date_start + "*$" + date_end;
+        var params = "*$" + itemId + "*$" + date_start + "*$" + date_end + "*$" + itemCategoryId
         window.open(url + '?params=' + encodeURIComponent(params), '_blank');
     }
 </script>

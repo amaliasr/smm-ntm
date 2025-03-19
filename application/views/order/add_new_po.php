@@ -209,6 +209,24 @@
         return html
     }
 
+    function clearModal2() {
+        $('#modalDialog2').removeClass();
+        $('#modalDialog2').removeAttr('style');
+        $('#modalHeader2').html('');
+        $('#modalBody2').html('');
+        $('#modalFooter2').html('');
+    }
+
+    $('#modal2').on('hidden.bs.modal', function(e) {
+        clearModal2();
+    })
+
+    $(document).on('show.bs.modal', '.modal', function() {
+        const zIndex = 1040 + 10 * $('.modal:visible').length;
+        $(this).css('z-index', zIndex);
+        setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
+    });
+
     function clearModal() {
         $('#modalDialog').removeClass();
         $('#modalDialog').removeAttr('style');
@@ -294,6 +312,7 @@
             }
         })
     }
+    var no_pr_id = ''
 
     function ajaxPR() {
         $.ajax({
@@ -301,6 +320,7 @@
             method: "GET",
             dataType: 'JSON',
             data: {
+                id: pr_id,
                 user_id: user_id,
             },
             error: function(xhr) {
@@ -314,8 +334,10 @@
             beforeSend: function() {},
             success: function(response) {
                 data_pr = response['data']
+                no_pr_id = data_pr[0].no_pr
                 data_pr_approval = response['data_approval']
-                ajaxPO()
+                // ajaxPO()
+                numberinPO()
             }
         })
     }
@@ -346,6 +368,22 @@
         })
     }
 
+    function extractMiddleCode(data) {
+        // Memisahkan string berdasarkan "/"
+        let parts = data.split("/");
+
+        // Memeriksa apakah ada elemen kedua (format yang diharapkan)
+        if (parts.length > 1) {
+            // Memisahkan elemen kedua berdasarkan "-"
+            let middleParts = parts[1].split("-");
+
+            // Mengembalikan bagian terakhir dari elemen kedua
+            return middleParts.length > 1 ? middleParts[1] : parts[1];
+        }
+
+        return ""; // Jika format tidak sesuai
+    }
+
     function numberinPO() {
         $.ajax({
             url: "<?= api_url('Api_Warehouse/getCountDocPO'); ?>",
@@ -366,6 +404,7 @@
                 var month = d.getMonth() + 1;
                 var thisMonth = (month < 10 ? '0' : '') + month
                 let thisYear = d.getFullYear();
+                var codeName = extractMiddleCode(no_pr_id)
                 if (response.message != 'Data data not found') {
                     var obj = response['data'].filter((value, key) => {
                         if (value.tahun == thisYear.toString()) return true
@@ -376,18 +415,46 @@
                         count = parseInt(data_hasil[0]['count']) + 1;
                         // count = parseInt(obj['count']) + 1;
                     }
-                    no_po = count.toString().padStart(3, "0") + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
+                    no_po = count.toString().padStart(3, "0") + '/SMM-' + codeName + '/PO/' + romanize(thisMonth) + '/' + thisYear
                 } else {
-                    no_po = '001' + '/SMM-NTM/PO/' + romanize(thisMonth) + '/' + thisYear
+                    no_po = '001' + '/SMM-' + codeName + '/PO/' + romanize(thisMonth) + '/' + thisYear
                 }
                 if (po_id) {
                     var dataPOFilter = data_po.find((value, key) => {
                         if (value.po_id == po_id) return true
                     });
-                    formPO(po_id, dataPOFilter, 'yes')
+                    // formPO(po_id, dataPOFilter, 'yes')
+                    ajaxPOID(po_id, dataPOFilter)
                 } else {
                     formPO(pr_id)
                 }
+            }
+        })
+    }
+
+    function ajaxPOID(id, dataPOFilter) {
+        id_po_detail = []
+        $.ajax({
+            url: "<?= api_url('Api_Warehouse/getDataPo'); ?>",
+            method: "GET",
+            dataType: 'JSON',
+            data: {
+                user_id: user_id,
+                id: id,
+            },
+            error: function(xhr) {
+                showOverlay('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error Data'
+                })
+            },
+            beforeSend: function() {},
+            success: function(response) {
+                data_po = response['data']
+                data_po_approval = response['data_approval']
+                formPO(po_id, dataPOFilter, 'yes')
             }
         })
     }
@@ -479,7 +546,7 @@
             $.each(pr_filtered, function(keys, values) {
                 var select = ""
                 if (values['id'] == id_pr) {
-                    data_detail = JSON.parse(values['data_detail'])
+                    data_detail = (values['data_detail'])
                     select = 'selected'
                 }
                 html_body += '<option value="' + values['id'] + '" ' + select + '>' + values['no_pr'] + '</option>'
@@ -487,9 +554,9 @@
             html_body += '</select>'
 
             html_body += '<div id="select_many"></div>'
-            html_body += '<span class="text-primary small" style="cursor:pointer;" onclick="tambahSelectPR()"><span class="fa fa-plus"></span> Tambah PR lainnya..</span>'
+            html_body += '<span class="text-primary small" style="cursor:pointer;" onclick="getAllPR()"><span class="fa fa-plus"></span> Tambah PR lainnya..</span>'
         } else {
-            $.each(JSON.parse(data['data_pr']), function(keys, values) {
+            $.each((data['data_pr']), function(keys, values) {
                 html_body += values['no_pr'] + '<br>'
             })
         }
@@ -557,7 +624,7 @@
             for (let i = 0; i < pending.length; i++) {
                 for (let j = 0; j < pending[i].length; j++) {
                     if (data['po_id'] == pending[i][j]['reference_id']) {
-                        $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
+                        $.each((pending[i][j]['data_approval']), function(key, value) {
                             acc_check = value['is_accept']
                         })
                     }
@@ -587,7 +654,7 @@
                     html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
                     for (let j = 0; j < pending[i].length; j++) {
                         if (data['po_id'] == pending[i][j]['reference_id']) {
-                            $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
+                            $.each((pending[i][j]['data_approval']), function(key, value) {
                                 html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
                             })
                         }
@@ -607,7 +674,7 @@
                 // approval
                 html_body += '<div class="row mt-2">'
                 if (data['data_log'] != null) {
-                    if (JSON.parse(data['data_log'])[0]['old_date_po'] == null) {
+                    if ((data['data_log'])[0]['old_date_po'] == null) {
                         html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
                         html_body += '<div class="card shadow-none m-0 w-100">'
                         html_body += '<div class="card-body p-2 text-center">'
@@ -616,7 +683,7 @@
                         html_body += '</div>'
                         html_body += '</div>'
                     } else {
-                        $.each(JSON.parse(data['data_log']), function(key, value) {
+                        $.each((data['data_log']), function(key, value) {
                             html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
                             html_body += '<div class="card shadow-none m-0 w-100">'
                             html_body += '<div class="card-body p-2">'
@@ -741,21 +808,178 @@
             hiddenDetailPR(2)
         }
         if (data != "") {
-            $.each(JSON.parse(data['data_detail']), function(keys, values) {
+            $.each((data['data_detail']), function(keys, values) {
                 id_po_detail.push(values['id'])
-                formRowPO(last_number, JSON.parse(data['data_detail'])[keys])
+                formRowPO(last_number, (data['data_detail'])[keys])
                 last_number++
             })
         }
     }
+    var data_all_pr = []
+    var data_pr_choosen = []
 
-    function tambahSelectPR(num = keys_select) {
+    function getAllPR(num = keys_select) {
+        if (!data_all_pr.length) {
+            $.ajax({
+                url: "<?= api_url('Api_Warehouse/getDataPR'); ?>",
+                method: "GET",
+                dataType: 'JSON',
+                data: {
+                    state: 'APPROVED',
+                    is_complete: 'null',
+                },
+                error: function(xhr) {
+                    showOverlay('hide')
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error Data'
+                    })
+                },
+                beforeSend: function() {
+                    showOverlay('show')
+                },
+                success: function(response) {
+                    showOverlay('hide')
+                    data_all_pr = response['data']
+                    data_all_pr.forEach(e => {
+                        data_pr.push(e)
+                    });
+                    // tambahSelectPR(num)
+                    showModal2ChooseItem()
+                }
+            })
+        } else {
+            showModal2ChooseItem()
+        }
+    }
+
+    function showModal2ChooseItem() {
+        $('#modal2').modal('show')
+        $('#modalDialog2').addClass('modal-dialog modal-xl modal-dialog-scrollable');
+        var html_header = '';
+        html_header += '<h5 class="modal-title">Pilih Item</h5>';
+        html_header += '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+        $('#modalHeader2').html(html_header);
+        var html_body = '';
+        html_body += '<div class="container small">'
+        html_body += '<div class="row">'
+        html_body += '<div class="col-12">'
+        html_body += '<table class="table table-bordered table-sm" id="tableItem">'
+        html_body += '<thead>'
+        html_body += '<tr>'
+        html_body += '<th>No</th>'
+        html_body += '<th>PR ID</th>'
+        html_body += '<th>User</th>'
+        html_body += '<th>Created Date</th>'
+        html_body += '<th>Cost Center</th>'
+        html_body += '<th>Price</th>'
+        html_body += '<th>Note</th>'
+        html_body += '<th width="10px">Action</th>'
+        html_body += '</tr>'
+        html_body += '</thead>'
+        html_body += '<tbody id="bodyItem">'
+        html_body += '</tbody>'
+        html_body += '</table>'
+        html_body += '</div>'
+        html_body += '</div>'
+        html_body += '</div>'
+        $('#modalBody2').html(html_body);
+        var html_footer = '';
+        html_footer += '<button type="button" class="btn btn-primary btn-sm" disabled id="btnPilihPR" onclick="choosePR()">Pilih PR</button>'
+        $('#modalFooter2').html(html_footer);
+        bodyItem()
+    }
+
+    function formatDateNormal(orginaldate) {
+        var date = new Date(orginaldate);
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        if (day < 10) {
+            day = "0" + day;
+        }
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var date = day + "-" + month + "-" + year;
+        return date;
+    }
+
+    function bodyItem() {
+        var html = ''
+        var a = 1
+        data_all_pr.forEach(e => {
+            var check = ''
+            data_pr_choosen.forEach(element => {
+                if (element == e.id) {
+                    check = 'checked'
+                }
+            });
+            html += '<tr>'
+            html += '<td class="text-center super-small-text align-middle py-2" style="background-color: white;">' + a++ + '</td>'
+            html += '<td class="text-center super-small-text align-middle py-2 fw-bolder" style="background-color: white;">' + e['no_pr'] + '</td>'
+            html += '<td class="text-center super-small-text align-middle py-2" style="background-color: white;">' + shortenName(e['name'], 2) + '</td>'
+            html += '<td class="text-center super-small-text align-middle py-2" style="background-color: white;">' + formatDateNormal(e['date']) + '</td>'
+            html += '<td class="text-center super-small-text align-middle py-2" style="background-color: white;">' + e['cost_center'] + '</td>'
+            html += '<td class="text-end super-small-text align-middle py-2" style="background-color: white;">' + number_format(e['grand_total']) + '</td>'
+            html += '<td class="text-center super-small-text align-middle py-2" style="background-color: white;">'
+            if (e['justification'] != "" && e['justification'] != null) {
+                html += e['justification']
+            }
+            html += '</td>'
+            html += '<td class="text-center super-small-text align-middle py-2" style="background-color: white;">'
+            // checked
+            html += '<input class="form-check-input checkboxItemPR" type="checkbox" id="checkboxItemPR' + a + '" value="' + e.id + '" style="width: 2em;height: 2em;" onclick="changeCheckboxPR()" ' + check + '>'
+            html += '</td>'
+            html += '</tr>'
+        });
+        $('#bodyItem').html(html);
+        $('#tableItem').DataTable({
+            ordering: false, // Menonaktifkan pengurutan
+            // pageLength: 200,
+            // scrollY: "500px",
+            // scrollX: true,
+            // scrollCollapse: true,
+            paging: false,
+            fixedHeader: true,
+            "initComplete": function(settings, json) {
+                $('div.dataTables_filter input').attr('placeholder', 'Search...');
+            },
+            searching: true,
+        })
+    }
+
+    function changeCheckboxPR() {
+        var data = $('.checkboxItemPR:checked').map(function() {
+            return $(this).val();
+        }).get();
+        if (data.length > 0) {
+            $('#btnPilihPR').removeAttr('disabled')
+        } else {
+            $('#btnPilihPR').attr('disabled', 'disabled')
+        }
+    }
+
+    function choosePR() {
+        var data = $('.checkboxItemPR:checked').map(function() {
+            return $(this).val();
+        }).get();
+        data_pr_choosen = []
+        data_pr_choosen = data
+        for (let i = 0; i < data.length; i++) {
+            tambahSelectPR(data[i])
+        }
+        $('#modal2').modal('hide')
+    }
+
+    function tambahSelectPR(id, num = keys_select) {
         var html_body = ""
         html_body += '<div class="row align-items-center" id="selectForm' + num + '">'
         html_body += '<div class="col-7">'
-        html_body += '<select name="" class="form-control select2-single form-control-sm w-100 mb-2 no_pr" data-live-search="true" required="required">'
+        html_body += '<select name="" class="form-control select2-single form-control-sm w-100 mb-2 no_pr" data-live-search="true" required="required" id="no_pr' + id + '">'
         html_body += '<option value="" disabled selected>Pilih No. PR</option>'
-        var pr_filtered = data_pr.filter((value, key) => {
+        var pr_filtered = data_all_pr.filter((value, key) => {
             if (value.state === 'APPROVED') return true
         })
         $.each(pr_filtered, function(keys, values) {
@@ -768,6 +992,10 @@
         html_body += '</div>'
         html_body += '</div>'
         $('#select_many').append(html_body)
+        if (id != "") {
+            $('#no_pr' + id).val(id)
+            changeNoPR()
+        }
         keys_select++
     }
 
@@ -786,7 +1014,7 @@
             return $(this).val();
         }).get();
         for (let i = 0; i < pr_id.length; i++) {
-            var detail = JSON.parse(data_pr.filter(x => x.id === pr_id[i])[0]['data_detail'])
+            var detail = (data_pr.filter(x => x.id == pr_id[i])[0]['data_detail'])
             for (let j = 0; j < detail.length; j++) {
                 array.push(detail[j])
             }
@@ -1268,7 +1496,7 @@
                             // console.log(data_app)
                             $.each(data_app, function(keys, values) {
                                 $.each(data_app[keys], function(keys2, values2) {
-                                    ttd_pending = JSON.parse(values2['data_approval']).filter((value, key) => {
+                                    ttd_pending = (values2['data_approval']).filter((value, key) => {
                                         if (value.is_accept === 'Pending') return true
                                     })
                                     if (ttd_pending.length > 0) {

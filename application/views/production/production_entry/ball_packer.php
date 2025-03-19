@@ -2113,9 +2113,11 @@
             // cmds += '^XZ\n';
 
             // cmds += codeForZebra(e, brand, dataBall)
-            cmds += codeForPOS58(e, brand, dataBall)
+            for (let i = 0; i < 2; i++) {
+                cmds += codeForPOS582(e, brand, dataBall)
+            }
         });
-        console.log(cmds)
+        // console.log(cmds)
         defaultLabelPrinterBall = localStorage.getItem("defaultLabelPrinterBall") || '';
         if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
             var cpj = new JSPM.ClientPrintJob();
@@ -2161,44 +2163,101 @@
 
         // Reset printer dan set ukuran font
         textCmds += "\x1B\x40"; // Reset printer
-        textCmds += "\x1B\x33\x10"; // Set line spacing
 
         // Header (Inventory Code)
         textCmds += "\x1B\x61\x01"; // Align Center
-        textCmds += "\x1D\x21\x00"; // Font size double (height x2, width x2)
+        textCmds += "\x1D\x21\x00"; // Font size normal
+        textCmds += e.inventory_code + "\n";
+        textCmds += "\x1D\x21\x00"; // Kembali ke font normal
+
+        // QR Code
+        textCmds += "\x1B\x61\x01"; // Align Center
+        textCmds += "\x1D\x28\x6B\x03\x00\x31\x43\x03"; // Set QR Code size lebih kecil
+        textCmds += "\x1D\x28\x6B" + String.fromCharCode(e.inventory_code.length + 3, 0) + "\x31\x50\x30" + e.inventory_code; // Data QR Code
+        textCmds += "\x1D\x28\x6B\x03\x00\x31\x51\x30"; // Print QR Code
+
+        // Kembalikan ke Align Left
+        textCmds += "\x1B\x61\x00"; // Align Left
+
+        // SKU (Bold)
+        textCmds += "\x1B\x45\x01"; // Aktifkan bold
+        textCmds += "SKU:\n";
+        textCmds += "\x1B\x45\x00"; // Nonaktifkan bold
+        textCmds += e.item.name + "\n";
+
+        // Dimension (Bold)
+        textCmds += "\x1B\x45\x01"; // Aktifkan bold
+        textCmds += "Dimension:\n";
+        textCmds += "\x1B\x45\x00"; // Nonaktifkan bold
+        textCmds += dataBall.multiplier + " " + dataBall.name + "\n";
+
+        // Type (Bold)
+        textCmds += "\x1B\x45\x01"; // Aktifkan bold
+        textCmds += "Type:\n";
+        textCmds += "\x1B\x45\x00"; // Nonaktifkan bold
+        textCmds += brand.item_type.name + "\n";
+
+        // Printed At (Bold)
+        textCmds += "\x1B\x45\x01"; // Aktifkan bold
+        textCmds += "Printed At:\n";
+        textCmds += "\x1B\x45\x00"; // Nonaktifkan bold
+        textCmds += formatPrintedAt() + "\n";
+
+        // Garis pemisah & Potong kertas
+        textCmds += "--------------------------------\n";
+        textCmds += "\x1D\x56\x41\x10"; // Partial Cut
+
+        return textCmds;
+
+    }
+
+    function codeForPOS582(e, brand, dataBall) {
+        let textCmds = "";
+
+        // Reset printer dan set ukuran font
+        // textCmds += "\x1B\x40"; // Reset printer
+
+        // Header (Inventory Code)
+        textCmds += "\x1B\x61\x01"; // Align Center
+        textCmds += "\x1D\x21\x00"; // Font size normal
         textCmds += e.inventory_code + "\n\n";
         textCmds += "\x1D\x21\x00"; // Kembali ke font normal
 
         // QR Code
         textCmds += "\x1B\x61\x01"; // Align Center
-        textCmds += "\x1D\x28\x6B\x03\x00\x31\x43\x06"; // Set QR Code size
+        textCmds += "\x1D\x28\x6B\x03\x00\x31\x43\x02"; // Set QR Code lebih kecil (size 2)
         textCmds += "\x1D\x28\x6B" + String.fromCharCode(e.inventory_code.length + 3, 0) + "\x31\x50\x30" + e.inventory_code; // Data QR Code
         textCmds += "\x1D\x28\x6B\x03\x00\x31\x51\x30"; // Print QR Code
+
+        // Kembalikan ke Align Left
+        textCmds += "\x1B\x61\x00"; // Align Left
+
+        // **Perkecil ukuran teks tetapi tetap terbaca**
+        textCmds += "\x1B\x4D\x01"; // Gunakan Font B (lebih kecil)
+        textCmds += "\x1D\x21\x05"; // Sedikit lebih kecil dari normal
         textCmds += "\n";
 
+        // SKU + Printed At dalam satu format
+        let skuText = brand.item_type.name + '/' + e.item.alias + '/' + dataBall.multiplier + " " + dataBall.name; // Contoh: "SKT/AK16DF/100pack"
+        let printedAtText = "printed at : " + formatPrintedAt(); // Contoh: "printed at : 18 Maret 2024 10:30"
+
+        // Cetak SKU
+        textCmds += skuText + "\n";
+        // Cetak Printed At
+        textCmds += printedAtText + "\n";
+
+        // **Kembalikan ke ukuran font normal sebelum garis pemisah**
+        textCmds += "\x1D\x21\x00"; // Set kembali ke font normal
+        textCmds += "\x1B\x4D\x00"; // Kembali ke Font A (default)
+
         // Garis pemisah
-        textCmds += "\x1B\x61\x00"; // Align Left
-        textCmds += "--------------------------------\n";
+        textCmds += "--------------------------------";
 
-        // SKU
-        textCmds += "SKU:\n";
-        textCmds += e.item.name + "\n\n";
-
-        // Dimension
-        textCmds += "Dimension:\n";
-        textCmds += dataBall.multiplier + " " + dataBall.name + "\n\n";
-
-        // Type
-        textCmds += "Type:\n";
-        textCmds += brand.item_type.name + "\n\n";
-
-        // Printed At
-        textCmds += "Printed At:\n";
-        textCmds += formatPrintedAt() + "\n\n";
-
-        // Potong kertas (jika printer mendukung auto-cutter)
+        // Potong kertas
         textCmds += "\x1D\x56\x41\x10"; // Partial Cut
-        return textCmds
+
+        return textCmds;
+
     }
 
     function searching(id_search_form, class_text_search, id_card_search) {

@@ -613,10 +613,10 @@
         html += '<th class="align-middle text-center small-text bg-white">Action</th>'
         html += '<th class="align-middle text-center small-text bg-white">Tag</th>'
         html += '<th class="align-middle text-center small-text bg-white">Note</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Total Request<br>Ball</th>'
-        html += '<th class="align-middle text-center small-text bg-white">Total Receive<br>Ball</th>'
         html += '<th class="align-middle text-center small-text bg-white">Total Request<br>Box</th>'
         html += '<th class="align-middle text-center small-text bg-white">Total Receive<br>Box</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Total Request<br>Ball</th>'
+        html += '<th class="align-middle text-center small-text bg-white">Total Receive<br>Ball</th>'
         html += '<th class="align-middle text-center small-text bg-white">Status</th>'
         html += '<th class="align-middle text-center small-text bg-white"></th>'
         html += '</tr>'
@@ -727,6 +727,7 @@
             var anyButton = 0
             if (value.is_receive_all && !value.is_complete) {
                 html += '<a class="dropdown-item" onclick="receiveData(' + "'" + value.id + "'" + ',' + "'" + value.document_number + "'" + ')"><i class="fa fa-arrow-down me-2"></i> Penerimaan</a>'
+                html += '<a class="dropdown-item text-danger" onclick="batalMuat(' + "'" + value.id + "'" + ',' + "'" + value.document_number + "'" + ')"><i class="fa fa-times me-2"></i> Batal Muat</a>'
                 anyButton++
             }
             if (!anyButton) {
@@ -820,9 +821,9 @@
         })
     }
 
-    function batalTerima(id) {
+    function batalMuat(id) {
         Swal.fire({
-            text: 'Apakah Anda yakin ingin membatalkan penerimaan Surat Jalan ini ?',
+            text: 'Apakah Anda yakin ingin batal muat Surat Jalan ini ?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -852,12 +853,14 @@
     function simpanDataBatalSJ(id) {
         var type = 'POST'
         var button = '.btnSimpan'
-        var url = '<?php echo api_produksi('setShipment'); ?>'
+        var url = '<?php echo api_produksi('setMachineTransfer'); ?>'
         var data = {
-            shipment: [{
-                "id": id,
-                "is_receive_all": null
+            machine_transfer: [{
+                id: id,
+                is_receive_all: 'null',
+                receive_all_at: 'null',
             }]
+
         }
         kelolaData(data, type, url, button)
     }

@@ -257,6 +257,7 @@
         html += '<th class="text-center align-middle small-text" style="width:5%">No</th>'
         html += '<th class="text-center align-middle small-text">Code</th>'
         html += '<th class="text-center align-middle small-text">Item</th>'
+        html += '<th class="text-center align-middle small-text">Pita</th>'
         data_fg.resultStockTemplate.forEach(ele => {
             html += '<th class="text-center align-middle small-text">' + ele.name + '</th>'
         })
@@ -266,14 +267,25 @@
             html += '<td class="text-center align-middle small-text">' + last_number + '</td>'
             html += '<td class="small-text align-middle">' + values.product.code + '</td>'
             html += '<td class="small-text align-middle">' + values.product.name + '</td>'
+            html += '<td class="small-text align-middle">' + values.stok_year.name + '</td>'
             data_fg.resultStockTemplate.forEach(ele => {
                 var dataDetail = values.details.find((v, k) => {
                     return v.unit_id == ele.id
                 })
                 if (dataDetail) {
-                    dataDetail.machine_transfer_detail_requests.forEach(element => {
-                        html += '<td class="text-center align-middle small-text">' + element.qty + '</td>'
-                    })
+                    if (dataDetail.qty_receive == null) {
+                        dataDetail.qty_receive = 0
+                    }
+                    if (dataDetail.qty_request == null) {
+                        dataDetail.qty_request = 0
+                    }
+                    html += '<td class="text-center align-middle small-text">' + dataDetail.qty_receive + ' / <b>' + dataDetail.qty_request + '</b></td>'
+                    // if (dataDetail.machine_transfer_detail_requests) {
+                    //     dataDetail.machine_transfer_detail_requests.forEach(element => {
+                    //     })
+                    // } else {
+                    //     html += '<td class="text-center align-middle small-text"></td>'
+                    // }
                 } else {
                     html += '<td class="text-center align-middle small-text"></td>'
                 }
@@ -511,14 +523,17 @@
         var type = 'POST'
         var data = {
             employee_id: employee_id,
-            reference_name: 'public.machine_transfer',
             reference_id: id,
             is_approve: approval_status,
-            index: level,
+            employee_id: employee_id,
+            // reference_name: 'public.machine_transfer',
+            // reference_id: id,
+            // is_approve: approval_status,
+            // index: level,
             note: $('#textReject').val()
         }
         var button = '#btnApprove'
-        var url = '<?php echo api_hr('approve-request'); ?>'
+        var url = '<?php echo api_url('postApprovalMachineTransfer'); ?>'
         // console.log(data)
         kelolaData(data, type, url, button)
     }

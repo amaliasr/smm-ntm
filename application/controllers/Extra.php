@@ -30,7 +30,8 @@ class Extra extends CI_Controller
         $item_id = $explodedParams[1];
         $date_start = date('Y-m-d', strtotime($explodedParams[2]));
         $date_end = date('Y-m-d', strtotime($explodedParams[3]));
-        $url = "Api_Warehouse/mutasiStockRaw?itemId=" . $item_id . "&date_start=" . $date_start . "&date_end=" . $date_end . "&is_mutation_only=0";
+        $item_category_id = $explodedParams[4];
+        $url = "Api_Warehouse/mutasiStockRaw?itemId=" . $item_id . "&date_start=" . $date_start . "&date_end=" . $date_end . "&is_mutation_only=0&itemCategoryId=" . $item_category_id;
         $main = json_decode(file_get_contents(api_url($url)), true);
         $body = $main['data'];
         $huruf = range('A', 'Z');
