@@ -420,11 +420,9 @@
                     no_po = '001' + '/SMM-' + codeName + '/PO/' + romanize(thisMonth) + '/' + thisYear
                 }
                 if (po_id) {
-                    var dataPOFilter = data_po.find((value, key) => {
-                        if (value.po_id == po_id) return true
-                    });
+
                     // formPO(po_id, dataPOFilter, 'yes')
-                    ajaxPOID(po_id, dataPOFilter)
+                    ajaxPOID(po_id)
                 } else {
                     formPO(pr_id)
                 }
@@ -454,6 +452,7 @@
             success: function(response) {
                 data_po = response['data']
                 data_po_approval = response['data_approval']
+                var dataPOFilter = data_po[0]
                 formPO(po_id, dataPOFilter, 'yes')
             }
         })
@@ -556,7 +555,7 @@
             html_body += '<div id="select_many"></div>'
             html_body += '<span class="text-primary small" style="cursor:pointer;" onclick="getAllPR()"><span class="fa fa-plus"></span> Tambah PR lainnya..</span>'
         } else {
-            $.each((data['data_pr']), function(keys, values) {
+            $.each(JSON.parse(data['data_pr']), function(keys, values) {
                 html_body += values['no_pr'] + '<br>'
             })
         }
@@ -624,7 +623,7 @@
             for (let i = 0; i < pending.length; i++) {
                 for (let j = 0; j < pending[i].length; j++) {
                     if (data['po_id'] == pending[i][j]['reference_id']) {
-                        $.each((pending[i][j]['data_approval']), function(key, value) {
+                        $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
                             acc_check = value['is_accept']
                         })
                     }
@@ -654,7 +653,7 @@
                     html_body += '<p class="small d-inline m-0 fw-bold" style="font-size:12px;">' + name + '</p>'
                     for (let j = 0; j < pending[i].length; j++) {
                         if (data['po_id'] == pending[i][j]['reference_id']) {
-                            $.each((pending[i][j]['data_approval']), function(key, value) {
+                            $.each(JSON.parse(pending[i][j]['data_approval']), function(key, value) {
                                 html_body += '<p class="m-0"><span class="small" style="font-size:10px;">' + value['user_name'] + '</span></p>'
                             })
                         }
@@ -683,7 +682,7 @@
                         html_body += '</div>'
                         html_body += '</div>'
                     } else {
-                        $.each((data['data_log']), function(key, value) {
+                        $.each(JSON.parse(data['data_log']), function(key, value) {
                             html_body += '<div class="col-12 col-sm-12 m-0 p-1 align-self-center">'
                             html_body += '<div class="card shadow-none m-0 w-100">'
                             html_body += '<div class="card-body p-2">'
@@ -808,9 +807,9 @@
             hiddenDetailPR(2)
         }
         if (data != "") {
-            $.each((data['data_detail']), function(keys, values) {
+            $.each(JSON.parse(data['data_detail']), function(keys, values) {
                 id_po_detail.push(values['id'])
-                formRowPO(last_number, (data['data_detail'])[keys])
+                formRowPO(last_number, JSON.parse(data['data_detail'])[keys])
                 last_number++
             })
         }
