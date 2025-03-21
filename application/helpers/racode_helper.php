@@ -135,6 +135,7 @@ function job_logistik_warehouse()
         return false;
     }
 }
+
 function job_supply_sparepart()
 {
     $ci = get_instance();
@@ -593,6 +594,38 @@ function if_extras()
 function if_history_po_payment()
 {
     if (is_accounting() || is_fat() || job_spv_audit_internal()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_finish_good_handover()
+{
+    if (is_logistik()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_shipment_order()
+{
+    if (is_logistik()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_outgoing_shipment()
+{
+    if (is_logistik()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function if_incoming_shipment()
+{
+    if (is_logistik()) {
         return true;
     } else {
         return false;
